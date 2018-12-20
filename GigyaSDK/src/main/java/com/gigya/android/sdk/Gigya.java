@@ -330,6 +330,7 @@ public class Gigya<T> {
         send(new LoginApi<>(_configuration, _sessionManager, _accountClazz).getRequest(params, callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
+                // TODO: 20/12/2018 Interception here might be a problem.
                 _account = obj;
             }
         }));
@@ -363,7 +364,7 @@ public class Gigya<T> {
      * @param callback Response listener callback.
      */
     public void setAccount(T account, GigyaCallback callback) {
-        send(new SetAccountApi<>(_configuration, _sessionManager, account)
+        send(new SetAccountApi<>(_configuration, _sessionManager, account, _account)
                 .getRequest(null, callback, new GigyaInterceptionCallback() {
                     @Override
                     public void intercept(Object obj) {

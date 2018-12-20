@@ -128,7 +128,10 @@ public class SessionManager {
     }
 
     private boolean isLegacySession() {
-        return false;
+        if (_prefs == null) {
+            return false;
+        }
+        return (!TextUtils.isEmpty(_prefs.getString("session.Token", "")));
     }
 
     /*
@@ -167,9 +170,35 @@ public class SessionManager {
         }
     }
 
-    // TODO: 17/12/2018 Need to add support for legacy sessions.
+    /*
+    Load legacy session from prefs, clear it and save as new.
+     */
     private void loadLegacySession() {
+        if (_prefs == null) {
+            return;
+        }
+        final String token = _prefs.getString("session.Token", null);
+        final String secret = _prefs.getString("session.Secret", null);
+        final long expiration = _prefs.getLong("session.ExpirationTime", 0);
+        _session = new SessionInfo(secret, token, expiration);
 
+        final String ucid = _prefs.getString("ucid", null);
+        final String gmid = _prefs.getString("gmid", null);
+        _gigya.getConfiguration().updateIds(ucid, gmid);
+
+        // Clear the legacy session.
+        SharedPreferences.Editor editor = _prefs.edit();
+        editor.remove("ucid");
+        editor.remove("gmid");
+        editor.remove("lastLoginProvider");
+        editor.remove("session.Token");
+        editor.remove("session.Secret");
+        editor.remove("tsOffset");
+        editor.remove("session.ExpirationTime");
+        editor.apply();
+
+        // Save session in current construct.
+        save();
     }
 
     //endregion
@@ -184,9 +213,10 @@ public class SessionManager {
     private IEncryptor getEncryptor() {
         if (encryptor == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                return new KeyStoreEncryptor();
+                encryptor = new KeyStoreEncryptor();
+            } else {
+                encryptor = new LegacyEncryptor();
             }
-            return new LegacyEncryptor();
         }
         return encryptor;
     }

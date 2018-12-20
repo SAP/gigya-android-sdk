@@ -6,6 +6,7 @@ import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -161,12 +162,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun onSetAccount() {
-        if (viewModel?.okayToRequestSetAccount()!!) {
-            val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.SET_ACCOUNT_INFO, this)
-            sheet.show(supportFragmentManager, "sheet")
-        } else {
-            response_text_view.snackbar(getString(R.string.account_not_available))
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title).setTitle("Attention!").setMessage("Make sure all updated fields are marked as \"clientModify\"");
+        builder.setPositiveButton(getString(android.R.string.ok)) { dialog, _ ->
+            if (viewModel?.okayToRequestSetAccount()!!) {
+                val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.SET_ACCOUNT_INFO, this)
+                sheet.show(supportFragmentManager, "sheet")
+            } else {
+                response_text_view.snackbar(getString(R.string.account_not_available))
+            }
+            dialog.dismiss()
         }
+        builder.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+
+//        if (viewModel?.okayToRequestSetAccount()!!) {
+//            val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.SET_ACCOUNT_INFO, this)
+//            sheet.show(supportFragmentManager, "sheet")
+//        } else {
+//            response_text_view.snackbar(getString(R.string.account_not_available))
+//        }
     }
 
     //endregion

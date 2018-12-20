@@ -68,12 +68,12 @@ class GigyaResponseHandler<T> {
 
     @SuppressWarnings("unchecked")
     private void postSuccess(GigyaResponse gigyaResponse) {
-        final T response = clazz == null ? (T) gigyaResponse : gson.fromJson(gigyaResponse.asJson(), clazz);
-
         // Intercept response if needed.
         if (this.interceptor != null) {
-            this.interceptor.intercept(response);
+            this.interceptor.intercept(clazz == null ? (T) gigyaResponse : gson.fromJson(gigyaResponse.asJson(), clazz));
         }
+
+        final T response = clazz == null ? (T) gigyaResponse : gson.fromJson(gigyaResponse.asJson(), clazz);
 
         if (this.callback != null) {
             this.callback.onSuccess(response);

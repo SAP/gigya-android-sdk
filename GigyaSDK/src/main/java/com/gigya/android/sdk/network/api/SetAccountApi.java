@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SetAccountApi<T> extends BaseApi<T> implements IApi {
 
@@ -23,63 +24,81 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
     private Gson gson = new Gson();
 
     @NonNull
-    final private T account;
+    final private T account, privateAccount;
 
-    public SetAccountApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull T account) {
+    public SetAccountApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull T account, @NonNull T privateAccount) {
         super(configuration, sessionManager);
         this.account = account;
+        this.privateAccount = privateAccount;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public GigyaRequest getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor) {
-        // Map account object to JSON -> Map.
-        final String json = gson.toJson(account);
-        params = gson.fromJson(json, new TypeToken<HashMap<String, Object>>() {
+
+        // Map updated account object to JSON -> Map.
+        final String updatedJson = gson.toJson(account);
+        Map<String, Object> updatedMap = gson.fromJson(updatedJson, new TypeToken<HashMap<String, Object>>() {
         }.getType());
 
+        // Map original account object to JSON -> Map.
+        final String originalJson = gson.toJson(privateAccount);
+        Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<HashMap<String, Object>>() {
+        }.getType());
 
-        // Object represented field values must be set as JSON Objects. So we are reverting each one to
-        // its JSON String representation.
-        serializeObjectFields(params);
+        // Calculate difference.
+        Map<String, Object> diff = difference(updatedMap, originalMap);
+        // Must have UID or regToken.
+        if (updatedMap.containsKey("UID")) {
+            diff.put("UID", updatedMap.get("UID"));
+        }
+        else if (updatedMap.containsKey("regToken")) {
+            diff.put("regToken", updatedMap.get("regToken"));
+        }
+        serializeObjectFields(diff);
 
         return new GigyaRequestBuilder(configuration)
                 .sessionManager(sessionManager)
                 .api(API)
-                .params(params)
+                .params(diff)
                 .callback(callback)
                 .interceptor(interceptor)
                 .build();
     }
 
-    private Map<String, Object> calculateDeltas(Map<String, Object> params) {
-        Map<String, Object> toUpdateParams = new HashMap<>();
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> difference(Map<String, Object> updated, Map<String, Object> original) {
+        Map<String, Object> result = new HashMap<>();
+        Set<Map.Entry<String, Object>> filter = original.entrySet();
+        for (Map.Entry<String, Object> entry : updated.entrySet()) {
+            if (!filter.contains(entry)) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
 
+        for (Map.Entry<String, Object> item : result.entrySet()) {
+            final String key = item.getKey();
+            final Object value = item.getValue();
+            if (value instanceof Map) {
+                if (updated.get(key) != null && original.get(key) != null) {
+                    Map<String, Object> childResult = difference((Map<String, Object>) updated.get(key), (Map<String, Object>) original.get(key));
+                    result.put(key, childResult);
+                }
+            }
+        }
 
-
-        return toUpdateParams;
+        return result;
     }
 
-    private void serializeObjectFields(Map<String, Object> params) {
-        if (params.containsKey("profile")) {
-            final String profileJson = gson.toJson(params.get("profile"));
-            params.put("profile", profileJson);
-        }
-        if (params.containsKey("data")) {
-            final String dataJson = gson.toJson(params.get("data"));
-            params.put("data", dataJson);
-        }
-        if (params.containsKey("preferences")) {
-            final String preferencesJson = gson.toJson(params.get("preferences"));
-            params.put("preferences", preferencesJson);
-        }
-        if (params.containsKey("subscriptions")) {
-            final String subscriptionsJson = gson.toJson(params.get("subscriptions"));
-            params.put("subscriptions", subscriptionsJson);
-        }
-        if (params.containsKey("rba")) {
-            final String rbaJson = gson.toJson(params.get("rba"));
-            params.put("rba", rbaJson);
+    /*
+       Object represented field values must be set as JSON Objects. So we are reverting each one to
+        its JSON String representation.
+         */
+    private void serializeObjectFields(Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() instanceof Map) {
+                map.put(entry.getKey(), gson.toJson(entry.getValue()));
+            }
         }
     }
 }
