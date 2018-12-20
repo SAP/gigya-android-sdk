@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Gigya Sample</string>
+
+    <string name="api_kay">3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag</string>
+    <string name="api_domain">us1.gigya.com</string>
+
+    <!-- General -->
+    <string name="rest_error_title">Request error</string>
+    <string name="send_request">Send request</string>
+    <string name="response_json">Response JSON:</string>
+    <string name="response_text_placeholder">Nothing yet…</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="empty_input">Empty input. Check it out!</string>
+    <string name="logged_in">Logged in</string>
+    <string name="account">Account</string>
+    <string name="session">Session</string>
+    <string name="logout">Logout</string>
+    <string name="send_anonymous">Send an anonymous request</string>
+    <string name="anonymous_request_hint">Requested API</string>
+    <string name="anonymous_placeholder">socialize.getAvailableProviders</string>
+    <string name="login_with_user_pass">Login with username &amp; password</string>
+    <string name="register_with_user_pass">Register with username &amp; password</string>
+    <string name="check_available_id">Check available Id</string>
+    <string name="switch_to_generic">Switch to generic</string>
+    <string name="get_account_info">Get account info</string>
+    <string name="update_account_custom">Update account custom field</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">User name unavailable</string>
+    <string name="nav_header_subtitle">User email unavailable</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="not_logged_in">Not logged in.\nPlease log in or register a new account</string>
+    <string name="logged_out">Logged out of your account</string>
+    <string name="account_not_available">Account info not available.\nCall "getAccount" first</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_custom_scheme"
+        android:orderInCategory="100"
+        android:title="MyAccount scheme"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_gigya_scheme"
+        android:orderInCategory="100"
+        android:title="Basic scheme"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_clear"
+        android:orderInCategory="100"
+        android:title="Clear"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:orderInCategory="100"
+        android:title="Logout"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_account"
+        android:orderInCategory="100"
+        android:title="Logged in"
+        android:icon="@drawable/ic_person_24dp"
+        android:visible="false"
+        app:showAsAction="always"/>
+</menu>
