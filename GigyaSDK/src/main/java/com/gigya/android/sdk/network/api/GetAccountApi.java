@@ -17,7 +17,7 @@ public class GetAccountApi<T> extends BaseApi<T> implements IApi {
 
     private static final String API = "accounts.getAccountInfo";
 
-    public GetAccountApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<? extends BaseGigyaAccount> clazz) {
+    public GetAccountApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
         super(configuration, sessionManager, clazz);
     }
 

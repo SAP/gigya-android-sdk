@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.model.BaseGigyaAccount;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -76,7 +75,7 @@ public class Gigya<T> {
     /*
     Generic account type instance getter.
      */
-    public static synchronized Gigya getInstance(Context appContext, @NonNull Class<? extends BaseGigyaAccount> accountClazz) {
+    public static synchronized <T> Gigya getInstance(Context appContext, @NonNull Class<T> accountClazz) {
         if (_sharedInstance == null) {
             _sharedInstance = new Gigya(appContext);
         }
@@ -251,7 +250,7 @@ public class Gigya<T> {
     private SessionManager _sessionManager;
 
     @Nullable
-    private Class<? extends BaseGigyaAccount> _accountClazz = GigyaAccount.class;
+    private Class<T> _accountClazz = (Class<T>) GigyaAccount.class;
 
     /*
      * Account object reference (cached).
@@ -272,7 +271,7 @@ public class Gigya<T> {
      *
      * @param accountClazz Custom account reference.
      */
-    public void setAccountScheme(@NonNull Class<? extends BaseGigyaAccount> accountClazz) {
+    public void setAccountScheme(@NonNull Class<T> accountClazz) {
         invalidateAccount();
         _accountClazz = accountClazz;
     }
@@ -330,7 +329,7 @@ public class Gigya<T> {
         send(new LoginApi<>(_configuration, _sessionManager, _accountClazz).getRequest(params, callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
-                // TODO: 20/12/2018 Interception here might be a problem.
+                // TODO: 20/12/2018 Interception here might be a problem. Should we call getAccountInfo in login flow?
                 _account = obj;
             }
         }));

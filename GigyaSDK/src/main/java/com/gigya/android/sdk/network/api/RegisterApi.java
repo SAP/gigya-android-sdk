@@ -29,7 +29,7 @@ public class RegisterApi<T> extends BaseApi<T> implements IApi {
     private final boolean finalize;
     private final RegisterPolicy policy;
 
-    public RegisterApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable GigyaRequestQueue requestQueue, @Nullable Class<? extends BaseGigyaAccount> clazz,
+    public RegisterApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable GigyaRequestQueue requestQueue, @Nullable Class<T> clazz,
                        RegisterPolicy policy,
                        boolean finalize) {
         super(configuration, sessionManager, requestQueue, clazz);

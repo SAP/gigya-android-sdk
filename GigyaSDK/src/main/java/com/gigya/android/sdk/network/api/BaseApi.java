@@ -20,7 +20,7 @@ public abstract class BaseApi<T> {
     protected GigyaRequestQueue requestQueue;
 
     @Nullable
-    protected Class<? extends BaseGigyaAccount> clazz;
+    protected Class<T> clazz;
 
     //region Convenience constructors
 
@@ -28,7 +28,7 @@ public abstract class BaseApi<T> {
         this.configuration = configuration;
     }
 
-    public BaseApi(@NonNull Configuration configuration, @Nullable Class<? extends BaseGigyaAccount> clazz) {
+    public BaseApi(@NonNull Configuration configuration, @Nullable Class<T> clazz) {
         this.configuration = configuration;
         this.clazz = clazz;
     }
@@ -38,7 +38,7 @@ public abstract class BaseApi<T> {
         this.sessionManager = sessionManager;
     }
 
-    public BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<? extends BaseGigyaAccount> clazz) {
+    public BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
         this.configuration = configuration;
         this.sessionManager = sessionManager;
         this.clazz = clazz;
@@ -50,7 +50,7 @@ public abstract class BaseApi<T> {
         this.requestQueue = requestQueue;
     }
 
-    public BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable GigyaRequestQueue requestQueue, @Nullable Class<? extends BaseGigyaAccount> clazz) {
+    public BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable GigyaRequestQueue requestQueue, @Nullable Class<T> clazz) {
         this.configuration = configuration;
         this.sessionManager = sessionManager;
         this.requestQueue = requestQueue;

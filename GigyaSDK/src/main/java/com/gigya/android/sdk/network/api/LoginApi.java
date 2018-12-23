@@ -18,7 +18,7 @@ public class LoginApi<T> extends BaseApi<T> implements IApi {
 
     private static final String API = "accounts.login";
 
-    public LoginApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<? extends BaseGigyaAccount> clazz) {
+    public LoginApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
         super(configuration, sessionManager, clazz);
     }
 
