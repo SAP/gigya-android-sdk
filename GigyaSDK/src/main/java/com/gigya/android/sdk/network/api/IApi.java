@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface IApi {
 
-    GigyaRequest getRequest( Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor);
+    GigyaRequest getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor);
 }

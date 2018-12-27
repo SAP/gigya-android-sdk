@@ -1,12 +1,14 @@
 package com.gigya.android.sdk.utils;
 
+import android.support.annotation.NonNull;
+
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class UrlUtils {
 
-    public static String buildEncodedQuery(Map<String, Object> params) {
+    public static String buildEncodedQuery(@NonNull  Map<String, Object> params) {
         if (params.isEmpty()) {
             return "";
         }

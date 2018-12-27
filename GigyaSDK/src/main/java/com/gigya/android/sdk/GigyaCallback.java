@@ -9,3 +9,4 @@ public abstract class GigyaCallback<T> {
     public abstract void onError(GigyaError error);
 
 }
+

@@ -12,11 +12,11 @@ public class FileUtils {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static String loadConfigurationJSON(Context appContext) throws IOException {
-        return assetJsonFileToString(appContext, "gigya-sdk-configuration.json");
+        return assetJsonFileToString(appContext, "gigyaSdkConfiguration.json");
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static String assetJsonFileToString(Context appContext, String fileName) throws IOException {
+    public static String assetJsonFileToString(Context appContext, String fileName) throws IOException {
         InputStream is = appContext.getAssets().open(fileName);
         return streamToString(is);
     }

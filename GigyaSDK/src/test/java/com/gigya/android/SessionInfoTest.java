@@ -18,8 +18,8 @@ public class SessionInfoTest {
     }
 
     @Test
-    public void testLingConstructor() {
-        long expiration = (System.currentTimeMillis() / 1000) + 10;
+    public void testLongConstructor() {
+        long expiration = System.currentTimeMillis() + 100;
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET, expiration);
         Assert.assertTrue(session.isValid());
     }

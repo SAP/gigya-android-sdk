@@ -113,6 +113,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    //TODO: Policy.
+
     /**
      * Get account information.
      */

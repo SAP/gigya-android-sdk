@@ -276,7 +276,6 @@ public class Gigya<T> {
         _accountClazz = accountClazz;
     }
 
-
     /**
      * Get current session.
      *
