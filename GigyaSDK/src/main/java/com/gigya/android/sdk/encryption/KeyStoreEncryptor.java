@@ -149,7 +149,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 return null;
             }
         } catch (Exception ex) {
-            throw new EncryptionException("Session encryption exception", ex.getCause());
+            throw new EncryptionException("Session encryption exception\n" + ex.getLocalizedMessage(), ex.getCause());
         }
     }
 

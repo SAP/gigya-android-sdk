@@ -10,9 +10,6 @@ public class AuthUtils {
         // Add timestamp.
         params.put("timestamp", timestamp);
 
-        System.out.println(timestamp);
-
-
         // Add nonce.
         final Random random = new Random();
         String nonce = Long.toString(System.currentTimeMillis()) + "_" + random.nextInt();
