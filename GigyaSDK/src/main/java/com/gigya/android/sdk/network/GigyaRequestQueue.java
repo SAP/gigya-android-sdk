@@ -37,6 +37,9 @@ public class GigyaRequestQueue {
         GigyaLogger.debug(LOG_TAG, "release: blocking queue size = " + _blockingQueue.size());
         this.blocked = false;
         // Clear blocked queue.
+        if (_blockingQueue.isEmpty()) {
+            return;
+        }
         GigyaRequest queued = _blockingQueue.poll();
         while (queued != null) {
             _requestQueue.add(queued);

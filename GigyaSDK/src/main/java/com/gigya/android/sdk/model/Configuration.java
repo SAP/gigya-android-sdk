@@ -12,7 +12,6 @@ import android.text.TextUtils;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 public class Configuration {
 
@@ -24,7 +23,7 @@ public class Configuration {
 
     }
 
-    private Configuration(String apiKey, String domain) {
+    public Configuration(String apiKey, String domain) {
         this.apiKey = apiKey;
         this.apiDomain = domain;
     }

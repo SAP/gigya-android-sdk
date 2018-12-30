@@ -92,6 +92,4 @@ public class AuthUtilsTest {
         final String signature = (String) params.get("sig");
         assertEquals(signature, "nC69hzGbTdPW3WlUl6k0ZeCd0CY=");
     }
-
-    // {ApiKey=someApiKey, nonce=1545905337000_1, sig=nC69hzGbTdPW3WlUl6k0ZeCd0CY=, timestamp=1545905337}
 }
