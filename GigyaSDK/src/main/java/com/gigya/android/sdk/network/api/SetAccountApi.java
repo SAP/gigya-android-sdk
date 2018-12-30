@@ -5,17 +5,16 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.BaseGigyaAccount;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class SetAccountApi<T> extends BaseApi<T> implements IApi {
 
@@ -47,12 +46,11 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
         }.getType());
 
         // Calculate difference.
-        Map<String, Object> diff = difference(updatedMap, originalMap);
+        Map<String, Object> diff = ObjectUtils.difference(originalMap, updatedMap);
         // Must have UID or regToken.
         if (updatedMap.containsKey("UID")) {
             diff.put("UID", updatedMap.get("UID"));
-        }
-        else if (updatedMap.containsKey("regToken")) {
+        } else if (updatedMap.containsKey("regToken")) {
             diff.put("regToken", updatedMap.get("regToken"));
         }
         serializeObjectFields(diff);
@@ -66,29 +64,6 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
                 .build();
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> difference(Map<String, Object> updated, Map<String, Object> original) {
-        Map<String, Object> result = new HashMap<>();
-        Set<Map.Entry<String, Object>> filter = original.entrySet();
-        for (Map.Entry<String, Object> entry : updated.entrySet()) {
-            if (!filter.contains(entry)) {
-                result.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        for (Map.Entry<String, Object> item : result.entrySet()) {
-            final String key = item.getKey();
-            final Object value = item.getValue();
-            if (value instanceof Map) {
-                if (updated.get(key) != null && original.get(key) != null) {
-                    Map<String, Object> childResult = difference((Map<String, Object>) updated.get(key), (Map<String, Object>) original.get(key));
-                    result.put(key, childResult);
-                }
-            }
-        }
-
-        return result;
-    }
 
     /*
        Object represented field values must be set as JSON Objects. So we are reverting each one to
