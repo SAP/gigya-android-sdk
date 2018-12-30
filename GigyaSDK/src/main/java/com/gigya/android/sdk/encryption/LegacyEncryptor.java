@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.utils.CipherUtils;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;

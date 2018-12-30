@@ -10,6 +10,7 @@ import android.security.keystore.KeyProperties;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.utils.CipherUtils;
 
 import java.math.BigInteger;
 import java.security.KeyPairGenerator;

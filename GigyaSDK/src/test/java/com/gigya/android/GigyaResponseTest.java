@@ -2,30 +2,22 @@ package com.gigya.android;
 
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.utils.FileUtils;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-
 
 public class GigyaResponseTest {
 
     private JSONObject mockJson() throws IOException, JSONException {
-        InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("GigyaResponseMock.json");
+        InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaResponseMock.json");
         String json = FileUtils.streamToString(in);
         return new JSONObject(json);
     }

@@ -38,7 +38,7 @@ public class Gigya<T> {
     final private Context _appContext;
 
     @NonNull
-    Context getContext() {
+    public Context getContext() {
         return _appContext;
     }
 
@@ -96,7 +96,7 @@ public class Gigya<T> {
     private Configuration _configuration = new Configuration();
 
     @NonNull
-    Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return _configuration;
     }
 

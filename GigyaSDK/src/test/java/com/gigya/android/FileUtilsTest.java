@@ -62,4 +62,17 @@ public class FileUtilsTest {
         System.out.println(output);
     }
 
+    @Test
+    public void testLoadConfiguration() throws IOException {
+        PowerMockito.when(assetManager.open(anyString())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                return Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaSdkConfigurationMock.json");
+            }
+        });
+        final String output = FileUtils.loadConfigurationJSON(context);
+        assertNotNull(output);
+        System.out.println(output);
+    }
+
 }

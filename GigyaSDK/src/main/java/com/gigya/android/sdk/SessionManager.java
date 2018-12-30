@@ -1,6 +1,5 @@
 package com.gigya.android.sdk;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -8,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.encryption.CipherUtils;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
@@ -16,10 +14,10 @@ import com.gigya.android.sdk.encryption.LegacyEncryptor;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.utils.CipherUtils;
 
 import org.json.JSONObject;
 
-import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 public class SessionManager {
@@ -62,7 +60,7 @@ public class SessionManager {
         return isValid;
     }
 
-    SessionManager(@NonNull Gigya gigya) {
+    public SessionManager(@NonNull Gigya gigya) {
         this._gigya = gigya;
         // Get reference to SDK shared preference file.
         load();
@@ -97,8 +95,8 @@ public class SessionManager {
      */
     public void clear() {
         GigyaLogger.debug(LOG_TAG, "clear: ");
-        this._session = null;
         getPrefs().edit().remove(PREFS_KEY_SESSION).apply();
+        this._session = null;
     }
 
     /*
@@ -229,11 +227,8 @@ public class SessionManager {
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), _prefs);
-            @SuppressLint("GetInstance") final Cipher aesCipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-            aesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] byteCipherText = aesCipher.doFinal(plain.getBytes());
-            return CipherUtils.bytesToString(byteCipherText);
+            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), getPrefs());
+            return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new EncryptionException("Session encryption exception", ex.getCause());
@@ -246,12 +241,8 @@ public class SessionManager {
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), _prefs);
-            @SuppressLint("GetInstance") final Cipher aesCipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-            aesCipher.init(Cipher.DECRYPT_MODE, secretKey);
-            byte[] encPLBytes = CipherUtils.stringToBytes(encrypted);
-            byte[] bytePlainText = aesCipher.doFinal(encPLBytes);
-            return new String(bytePlainText);
+            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), getPrefs());
+            return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new EncryptionException("Session encryption exception", ex.getCause());
