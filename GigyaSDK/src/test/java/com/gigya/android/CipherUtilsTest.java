@@ -1,14 +1,10 @@
 package com.gigya.android;
 
 import com.gigya.android.sdk.utils.CipherUtils;
-import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Objects;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -49,14 +45,4 @@ public class CipherUtilsTest {
         System.out.println(decrypted);
         assertEquals(decrypted, "toEncrypt");
     }
-
-    @Test
-    public void helper() throws IOException {
-        final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaSessionMock.json");
-        String json = FileUtils.streamToString(in);
-        System.out.println(json);
-        final String toEncrypt = CipherUtils.encrypt(json, "AES", secretKey);
-        System.out.println(toEncrypt);
-    }
-
 }
