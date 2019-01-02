@@ -152,8 +152,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         when (exampleSetup) {
             SetupExample.BASIC -> {
                 account?.profile?.firstName = dummyData
-                gigya.setAccount(account, object : GigyaCallback<GigyaResponse>() {
-                    override fun onSuccess(obj: GigyaResponse?) {
+                gigya.setAccount(account, object : GigyaCallback<GigyaAccount>() {
+                    override fun onSuccess(obj: GigyaAccount?) {
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
 
