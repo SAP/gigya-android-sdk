@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +29,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.UiUtils;
@@ -40,17 +44,18 @@ import java.util.Map;
 public class WebViewFragment extends DialogFragment {
 
     public static final String TAG = "WebViewFragment";
-    // Arguments.
+
+    /* Arguments. */
     public static final String ARG_TITLE = "arg_title";
     public static final String ARG_URL = "arg_url";
     public static final String ARG_REDIRECT_PREFIX = "arg_redirect_prefix";
     public static int PROGRESS_COLOR = Color.BLUE;
-    @NonNull
+    /* Content views. */
     private WebView _webView;
-    @NonNull
-    private FrameLayout _contentView;
-    @NonNull
+    private LinearLayout _contentView;
+    private TextView _titleTextView;
     private ProgressBar _progressBar;
+
     @Nullable
     private String _url, _redirectPrefix, _title;
     @Nullable
@@ -116,9 +121,11 @@ public class WebViewFragment extends DialogFragment {
     private void setUpWebView() {
         _webView = new WebView(getActivity());
 
-        /* Content scrolling */
+        /* Content UI & scrolling */
         _webView.setVerticalScrollBarEnabled(true);
         _webView.setHorizontalScrollBarEnabled(true);
+        _webView.setInitialScale(1);
+        _webView.setFocusable(true);
 
         /* Web settings */
         final WebSettings webSettings = _webView.getSettings();
@@ -128,9 +135,6 @@ public class WebViewFragment extends DialogFragment {
         webSettings.setBuiltInZoomControls(true);
         webSettings.setUseWideViewPort(true);
 
-        _webView.setInitialScale(1);
-        _webView.setFocusable(true);
-
         _webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
@@ -138,7 +142,6 @@ public class WebViewFragment extends DialogFragment {
                 return true;
             }
         });
-
         _webView.setWebViewClient(new WebViewClient() {
 
             @Override
@@ -194,7 +197,6 @@ public class WebViewFragment extends DialogFragment {
                 return null;
             }
         });
-
         _webView.setWebChromeClient(new WebChromeClient() {
 
             @Override
@@ -214,23 +216,46 @@ public class WebViewFragment extends DialogFragment {
             return;
         }
 
-        // UI sizes.
+        /* UI sizes. */
         final int contentMargin = (int) UiUtils.dpToPixel(8, getActivity());
         final int contentPadding = (int) UiUtils.dpToPixel(16, getActivity());
         final Pair<Integer, Integer> screenSize = UiUtils.getScreenSize(getActivity());
 
-        _contentView = new FrameLayout(getActivity());
-        final FrameLayout.LayoutParams contentParams = new FrameLayout.LayoutParams(
+        /* Content view. */
+        _contentView = new LinearLayout(getActivity());
+        _contentView.setOrientation(LinearLayout.VERTICAL);
+        final ViewGroup.LayoutParams contentParams = new ViewGroup.LayoutParams(
                 Math.min(screenSize.first, screenSize.second) * 9 / 10,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         _contentView.setLayoutParams(contentParams);
 
-        /* Add WebView. */
-        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+        /* Title text view. */
+        _titleTextView = new TextView(getActivity());
+        _titleTextView.setTextColor(Color.BLACK);
+        _titleTextView.setTypeface(_titleTextView.getTypeface(), Typeface.BOLD);
+        _titleTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        if (_title != null) {
+            _titleTextView.setText(_title);
+        } else {
+            _titleTextView.setVisibility(View.GONE);
+        }
+        final LinearLayout.LayoutParams titleViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleViewParams.setMargins(contentMargin, contentMargin, contentMargin, 0);
+        _contentView.addView(_titleTextView, titleViewParams);
+
+        /* Web frame container */
+        FrameLayout webFrame = new FrameLayout(getActivity());
+        final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        _contentView.addView(webFrame, webFrameParams);
+
+        /* WebView. */
+        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         webViewParams.setMargins(contentMargin, contentMargin, contentMargin, contentMargin);
         webViewParams.gravity = Gravity.CENTER;
+        webFrame.addView(_webView, webViewParams);
 
+        /* Progress bar. */
         _progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyle);
         _progressBar.setIndeterminate(true);
         _progressBar.getIndeterminateDrawable().setColorFilter(PROGRESS_COLOR, android.graphics.PorterDuff.Mode.SRC_IN);
@@ -239,9 +264,7 @@ public class WebViewFragment extends DialogFragment {
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBarParams.gravity = Gravity.CENTER;
-
-        _contentView.addView(_webView, webViewParams);
-        _contentView.addView(_progressBar, progressBarParams);
+        webFrame.addView(_progressBar, progressBarParams);
     }
 
     //endregion
@@ -254,6 +277,10 @@ public class WebViewFragment extends DialogFragment {
         gradientDrawable.setCornerRadius(16f);
         return gradientDrawable;
     }
+
+    //endregion
+
+    //region Result handling
 
     private void handleResult(@NonNull Map<String, Object> resultObject) {
         GigyaLogger.debug(TAG, "handleResult: " + resultObject.toString());
@@ -270,10 +297,6 @@ public class WebViewFragment extends DialogFragment {
         // TODO: 31/12/2018 Investigate the need of "commitAllowingStateLoss"
         // TODO: 02/01/2019 Should we finish the activity also?
     }
-
-    //endregion
-
-    //region Result handling
 
     static abstract class WebViewFragmentResultCallback implements Serializable {
 
