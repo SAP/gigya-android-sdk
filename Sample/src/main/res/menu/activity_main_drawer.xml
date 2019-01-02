@@ -28,4 +28,12 @@
         </menu>
     </item>
 
+    <item android:title="User Interface">
+        <menu>
+            <item
+                android:id="@+id/action_native_login"
+                android:title="Native Login"/>
+        </menu>
+    </item>
+
 </menu>

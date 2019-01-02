@@ -11,21 +11,24 @@ import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaRequestQueue;
 import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.network.api.AnonymousApi;
 import com.gigya.android.sdk.network.api.GetAccountApi;
 import com.gigya.android.sdk.network.api.LoginApi;
+import com.gigya.android.sdk.network.api.LogoutApi;
 import com.gigya.android.sdk.network.api.RegisterApi;
 import com.gigya.android.sdk.network.api.SdkConfigApi;
 import com.gigya.android.sdk.network.api.SetAccountApi;
+import com.gigya.android.sdk.ui.GigyaPresenter;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Gigya<T> {
+public class Gigya<T extends GigyaAccount> {
 
     private static final String LOG_TAG = "Gigya";
 
@@ -48,13 +51,16 @@ public class Gigya<T> {
         this._sessionManager = new SessionManager(this);
     }
 
+    private NetworkAdapter _networkAdapter;
+
     /*
     Simplified instance getter for use only after calling getInstance(Context context) at least once.
      */
-    // TODO: 10/12/2018 Error logs will need pronunciation review from product
-    public static synchronized Gigya getInstance() {
+    @SuppressWarnings("unchecked")
+    public static synchronized Gigya<GigyaAccount> getInstance() {
         if (_sharedInstance == null) {
             // Log error.
+            // TODO: 10/12/2018 Error logs will need pronunciation review from product
             GigyaLogger.error(LOG_TAG, "Gigya instance not initialized properly!" +
                     " Make sure to call Gigya getInstance(Context appContext) at least once before trying to reference The Gigya instance");
             return null;
@@ -65,22 +71,8 @@ public class Gigya<T> {
     /*
     Simplified instance getter.
      */
-    public static synchronized Gigya getInstance(Context appContext) {
-        if (_sharedInstance == null) {
-            _sharedInstance = new Gigya(appContext);
-        }
-        return _sharedInstance;
-    }
-
-    /*
-    Generic account type instance getter.
-     */
-    public static synchronized <T> Gigya getInstance(Context appContext, @NonNull Class<T> accountClazz) {
-        if (_sharedInstance == null) {
-            _sharedInstance = new Gigya(appContext);
-        }
-        _sharedInstance._accountClazz = accountClazz;
-        return _sharedInstance;
+    public static synchronized Gigya<GigyaAccount> getInstance(Context appContext) {
+        return Gigya.getInstance(appContext, GigyaAccount.class);
     }
 
     //region Initialization
@@ -107,20 +99,16 @@ public class Gigya<T> {
         return _configuration.hasApiKey();
     }
 
-    /**
-     * Implicitly initialize the SDK.
-     * Available Options:
-     * - read JSON assets file.
-     * - parse application manifest meta data tags.
-     * For explicit setting see {@link #init(String, String)} method.
+    /*
+    Generic account type instance getter.
      */
-    private void init() {
-        // Try to from assets JSON file,
-        _configuration = Configuration.loadFromJson(_appContext);
-        if (_configuration == null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR1) {
-            // Try to load fom manifest meta data.
-            _configuration = Configuration.loadFromManifest(_appContext);
+    @SuppressWarnings("unchecked")
+    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context appContext, @NonNull Class<V> accountClazz) {
+        if (_sharedInstance == null) {
+            _sharedInstance = new Gigya(appContext);
         }
+        _sharedInstance._accountClazz = accountClazz;
+        return _sharedInstance;
     }
 
     /**
@@ -149,6 +137,29 @@ public class Gigya<T> {
 
     //region Networking
 
+    /**
+     * Implicitly initialize the SDK.
+     * Available Options:
+     * - read JSON assets file.
+     * - parse application manifest meta data tags.
+     * For explicit setting see {@link #init(String, String)} method.
+     */
+    private void init() {
+        /* Try to from assets JSON file, */
+        _configuration = Configuration.loadFromJson(_appContext);
+        if (_configuration == null) {
+            /* Try to load fom manifest meta data. */
+            _configuration = Configuration.loadFromManifest(_appContext);
+        }
+    }
+
+    private NetworkAdapter getNetworkAdapter() {
+        if (_networkAdapter == null) {
+            _networkAdapter = new NetworkAdapter(_appContext);
+        }
+        return _networkAdapter;
+    }
+
     /*
     Main network priority request queue.
      */
@@ -165,7 +176,8 @@ public class Gigya<T> {
     Actual SDK send request method.
      */
     @SuppressWarnings("unchecked")
-    private void send(GigyaRequest request) {
+    @Deprecated
+    private void send(GigyaRequestOld request) {
         if (!_configuration.hasGMID()) {
             getSdkConfig();
             _requestQueue.block();
@@ -178,7 +190,7 @@ public class Gigya<T> {
     */
     private void getSdkConfig() {
         GigyaLogger.debug(LOG_TAG, "api: socialize.getSDKConfig queued execute");
-        getRequestQueue().add(new SdkConfigApi(_configuration, _sessionManager).getRequest(null, new GigyaCallback<SdkConfigApi.SdkConfig>() {
+        new SdkConfigApi(_configuration, _networkAdapter, _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
             @Override
             public void onSuccess(SdkConfigApi.SdkConfig obj) {
                 if (isValidConfiguration()) {
@@ -187,7 +199,7 @@ public class Gigya<T> {
                         // Trigger session save in order to keep track of GMID, UCID.
                         _sessionManager.save();
                     }
-                    _requestQueue.release();
+                    _networkAdapter.release();
                 }
             }
 
@@ -195,7 +207,26 @@ public class Gigya<T> {
             public void onError(GigyaError error) {
                 GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
             }
-        }, null));
+        });
+
+//        getRequestQueue().add(new SdkConfigApi(_configuration, _sessionManager).getRequest(null, new GigyaCallback<SdkConfigApi.SdkConfig>() {
+//            @Override
+//            public void onSuccess(SdkConfigApi.SdkConfig obj) {
+//                if (isValidConfiguration()) {
+//                    _configuration.setIDs(obj.getIds());
+//                    if (_sessionManager != null) {
+//                        // Trigger session save in order to keep track of GMID, UCID.
+//                        _sessionManager.save();
+//                    }
+//                    _requestQueue.release();
+//                }
+//            }
+//
+//            @Override
+//            public void onError(GigyaError error) {
+//                GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
+//            }
+//        }, null));
     }
 
     /**
@@ -211,12 +242,14 @@ public class Gigya<T> {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        send(new GigyaRequestBuilder(_configuration)
-                .api(api)
-                .sessionManager(_sessionManager)
-                .params(params)
-                .callback(callback)
-                .build());
+        new AnonymousApi<GigyaResponse>(_configuration, getNetworkAdapter(), _sessionManager)
+                .call(api, params, callback);
+//        send(new GigyaRequestBuilderOld(_configuration)
+//                .api(api)
+//                .sessionManager(_sessionManager)
+//                .params(params)
+//                .callback(callback)
+//                .build());
     }
 
     /**
@@ -228,18 +261,20 @@ public class Gigya<T> {
      * @param callback Response listener callback.
      */
     @SuppressWarnings("unchecked")
-    public <V> void send(String api, Map<String, Object> params, Class<V> clazz, GigyaCallback<V> callback) {
+    public <H> void send(String api, Map<String, Object> params, Class<H> clazz, GigyaCallback<H> callback) {
         if (!isValidConfiguration()) {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        send(new GigyaRequestBuilder(_configuration)
-                .api(api)
-                .sessionManager(_sessionManager)
-                .params(params)
-                .output(clazz)
-                .callback(callback)
-                .build());
+        new AnonymousApi<>(_configuration, getNetworkAdapter(), _sessionManager,  clazz)
+                .call(api, params, callback);
+//        send(new GigyaRequestBuilderOld(_configuration)
+//                .api(api)
+//                .sessionManager(_sessionManager)
+//                .params(params)
+//                .output(clazz)
+//                .callback(callback)
+//                .build());
     }
 
     //endregion
@@ -264,6 +299,7 @@ public class Gigya<T> {
         _account = null;
     }
 
+    // TODO: 01/01/2019 This is a testing only method.
     /**
      * Manually set the current Account scheme.
      * Use this option if applying a custom account scheme and did not initialized the SDK using a
@@ -301,11 +337,12 @@ public class Gigya<T> {
      * This will clean all session related data persistence.
      */
     public void logout() {
-        send("socialize.logout", null, null);
+//        send("socialize.logout", null, null);
+        new LogoutApi(_configuration, getNetworkAdapter(), _sessionManager).call();
         if (_sessionManager != null) {
             _sessionManager.clear();
         }
-        _requestQueue.cancelAll();
+        getNetworkAdapter().cancel(null);
         // TODO: 05/12/2018 Additional handling required on provider logic implementation.
     }
 
@@ -325,13 +362,20 @@ public class Gigya<T> {
         final TreeMap<String, Object> params = new TreeMap<>();
         params.put("loginID", username);
         params.put("password", password);
-        send(new LoginApi<>(_configuration, _sessionManager, _accountClazz).getRequest(params, callback, new GigyaInterceptionCallback<T>() {
+        params.put("include", "profile,data,subscriptions,preferences");
+//        send(new LoginApi<>(_configuration, _sessionManager, _accountClazz).getRequest(params, callback, new GigyaInterceptionCallback<T>() {
+//            @Override
+//            public void intercept(T obj) {
+//                // TODO: 20/12/2018 Interception here might be a problem. Should we call getAccountInfo in login flow?
+//                _account = obj;
+//            }
+//        }));
+        new LoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(params, callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
-                // TODO: 20/12/2018 Interception here might be a problem. Should we call getAccountInfo in login flow?
                 _account = obj;
             }
-        }));
+        });
     }
 
     /**
@@ -346,13 +390,19 @@ public class Gigya<T> {
             callback.onSuccess(_account);
             return;
         }
-        send(new GetAccountApi<>(_configuration, _sessionManager, _accountClazz).getRequest(null, callback, new GigyaInterceptionCallback<T>() {
-
+        new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
                 _account = obj;
             }
-        }));
+        });
+//        send(new GetAccountApi<>(_configuration, _sessionManager, _accountClazz).getRequest(null, callback, new GigyaInterceptionCallback<T>() {
+//
+//            @Override
+//            public void intercept(T obj) {
+//                _account = obj;
+//            }
+//        }));
     }
 
     /**
@@ -414,6 +464,14 @@ public class Gigya<T> {
                     }
                 })
         );
+    }
+
+    //endregion
+
+    //region User Interface & presentation
+
+    public void presetNativeLogin(Map<String, Object> params) {
+        GigyaPresenter.presentNativeLogin(_appContext, _configuration, params);
     }
 
     //endregion

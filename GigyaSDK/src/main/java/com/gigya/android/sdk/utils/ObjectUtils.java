@@ -20,7 +20,7 @@ public class ObjectUtils {
             final Object value = item.getValue();
             if (value instanceof Map) {
                 if (updated.get(key) != null && original.get(key) != null) {
-                    Map<String, Object> childResult = difference((Map<String, Object>) updated.get(key), (Map<String, Object>) original.get(key));
+                    Map<String, Object> childResult = difference((Map<String, Object>) original.get(key), (Map<String, Object>) updated.get(key));
                     result.put(key, childResult);
                 }
             }
