@@ -241,17 +241,19 @@ public class WebViewFragment extends DialogFragment {
         }
         final LinearLayout.LayoutParams titleViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         titleViewParams.setMargins(contentMargin, contentMargin, contentMargin, 0);
+        titleViewParams.weight = 1;
         _contentView.addView(_titleTextView, titleViewParams);
 
         /* Web frame container */
         FrameLayout webFrame = new FrameLayout(getActivity());
         final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        webFrameParams.weight = 1;
         _contentView.addView(webFrame, webFrameParams);
 
         /* WebView. */
         final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
-        webViewParams.setMargins(contentMargin, contentMargin, contentMargin, contentMargin);
+        webViewParams.setMargins(contentMargin, 0, contentMargin, contentMargin);
         webViewParams.gravity = Gravity.CENTER;
         webFrame.addView(_webView, webViewParams);
 

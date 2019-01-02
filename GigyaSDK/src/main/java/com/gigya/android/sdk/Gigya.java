@@ -385,12 +385,13 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void getAccount(GigyaCallback<T> callback) {
         // TODO: 06/12/2018 BaseGigyaAccount caching policy.
-        if (_account != null) {
-            // Cached BaseGigyaAccount instance. Return it.
-            callback.onSuccess(_account);
-            return;
-        }
-        new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(callback, new GigyaInterceptionCallback<T>() {
+//        if (_account != null) {
+//            // Cached BaseGigyaAccount instance. Return it.
+//            callback.onSuccess(_account);
+//            return;
+//        }
+        new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
+                .call(callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
                 _account = obj;
@@ -412,15 +413,23 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void setAccount(T account, GigyaCallback callback) {
-        send(new SetAccountApi<>(_configuration, _sessionManager, account, _account)
-                .getRequest(null, callback, new GigyaInterceptionCallback() {
+//        send(new SetAccountApi<>(_configuration, _sessionManager, account, _account)
+//                .getRequest(null, callback, new GigyaInterceptionCallback() {
+//                    @Override
+//                    public void intercept(Object obj) {
+//                        // Flush account cache.
+//                        _account = null;
+//                        // TODO: 17/12/2018 Maybe we should make another call to getAccount here?
+//                    }
+//                }));
+        new SetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz, account, _account)
+                .call(callback, new GigyaInterceptionCallback<T>() {
                     @Override
-                    public void intercept(Object obj) {
+                    public void intercept(T obj) {
                         // Flush account cache.
-                        _account = null;
-                        // TODO: 17/12/2018 Maybe we should make another call to getAccount here?
+                        _account = obj;
                     }
-                }));
+                });
     }
 
     /**
@@ -455,15 +464,22 @@ public class Gigya<T extends GigyaAccount> {
 
     private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
         invalidateAccount();
-        send(new RegisterApi<>(_configuration, _sessionManager, _requestQueue, _accountClazz, policy, finalize)
-                .getRequest(params, callback, new GigyaInterceptionCallback<T>() {
+        new RegisterApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz, policy, finalize)
+                .call(params, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
-                       // Stub.
                         // TODO: 18/12/2018 Should we call getAccountInfo here?
                     }
-                })
-        );
+                });
+//        send(new RegisterApi<>(_configuration, _sessionManager, _requestQueue, _accountClazz, policy, finalize)
+//                .getRequest(params, callback, new GigyaInterceptionCallback<T>() {
+//                    @Override
+//                    public void intercept(T obj) {
+//                       // Stub.
+//                        // TODO: 18/12/2018 Should we call getAccountInfo here?
+//                    }
+//                })
+//        );
     }
 
     //endregion

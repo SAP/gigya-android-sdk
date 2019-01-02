@@ -8,6 +8,9 @@ public class ObjectUtils {
 
     public static Map<String, Object> difference(Map<String, Object> original, Map<String, Object> updated) {
         Map<String, Object> result = new HashMap<>();
+        if (original == null || updated == null) {
+            return result;
+        }
         Set<Map.Entry<String, Object>> filter = original.entrySet();
         for (Map.Entry<String, Object> entry : updated.entrySet()) {
             if (!filter.contains(entry)) {

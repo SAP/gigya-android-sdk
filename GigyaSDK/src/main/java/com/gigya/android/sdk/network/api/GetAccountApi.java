@@ -72,7 +72,7 @@ public class GetAccountApi<T> extends BaseApi<T> implements IApi {
                             T interception = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                             interceptor.intercept(interception);
                         }
-                        T parsed = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        final T parsed = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         callback.onSuccess(parsed);
                         return;
                     }

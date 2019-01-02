@@ -61,7 +61,7 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gson_version"
 
-    //implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.volley:volley:1.1.1'
 
     implementation "com.github.bumptech.glide:glide:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
