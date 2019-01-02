@@ -19,12 +19,12 @@ import java.util.zip.GZIPInputStream;
 
 class HttpNetworkProvider extends NetworkProvider {
 
-    private Queue<GigyaRequest> _queue = new ConcurrentLinkedQueue<>();
+    private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
     @Override
     void addToQueue(GigyaRequest request, INetworkCallbacks networkCallbacks) {
         if (_blocked) {
-            _queue.add(request);
+            _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
         }
         // If not blocked send the request.
@@ -36,9 +36,10 @@ class HttpNetworkProvider extends NetworkProvider {
         if (_queue.isEmpty()) {
             return;
         }
-        GigyaRequest queued = _queue.poll();
+        HttpTask queued = _queue.poll();
         while (queued != null) {
-
+            queued.run();
+            queued = _queue.poll();
         }
     }
 
@@ -51,8 +52,8 @@ class HttpNetworkProvider extends NetworkProvider {
         if (!_queue.isEmpty()) {
             Iterator it = _queue.iterator();
             while (it.hasNext()) {
-                final GigyaRequest request = (GigyaRequest) it.next();
-                final String requestTag = request.getTag();
+                final HttpTask task = (HttpTask) it.next();
+                final String requestTag = task.request.getTag();
                 if (requestTag.equals(tag)) {
                     it.remove();
                 }
@@ -66,7 +67,8 @@ class HttpNetworkProvider extends NetworkProvider {
         private int code;
         private String result;
 
-        public AsyncResult(int code, String result) {
+
+        AsyncResult(int code, String result) {
             this.code = code;
             this.result = result;
         }
@@ -74,9 +76,19 @@ class HttpNetworkProvider extends NetworkProvider {
         public int getCode() {
             return code;
         }
+    }
 
-        public String getResult() {
-            return result;
+    private static class HttpTask {
+        private GigyaNetworkAsyncTask asyncTask;
+        private GigyaRequest request;
+
+        HttpTask(GigyaNetworkAsyncTask asyncTask, GigyaRequest request) {
+            this.asyncTask = asyncTask;
+            this.request = request;
+        }
+
+        void run() {
+            this.asyncTask.execute(this.request);
         }
     }
 
