@@ -34,7 +34,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var exampleSetup = SetupExample.BASIC
 
 
-    private val gigya = Gigya.getInstance()!!
+    private val gigya = Gigya.getInstance()
 
     /**
      * Send anonymous request.
@@ -69,15 +69,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
             }
             SetupExample.CUSTOM_SCHEME -> {
-                gigya.login(loginID, password, object : GigyaCallback<MyAccount>() {
-                    override fun onSuccess(obj: MyAccount?) {
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
+//                gigya.login(loginID, password, object : GigyaCallback<MyAccount>() {
+//                    override fun onSuccess(obj: MyAccount?) {
+//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+//                    }
+//
+//                    override fun onError(error: GigyaError?) {
+//                        error(error)
+//                    }
+//                })
             }
         }
     }
@@ -100,27 +100,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
             }
             SetupExample.CUSTOM_SCHEME -> {
-                gigya.register(loginID, password, policy, true, object : GigyaRegisterCallback<MyAccount>() {
-                    override fun onSuccess(obj: MyAccount?) {
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
+//                gigya.register(loginID, password, policy, true, object : GigyaRegisterCallback<MyAccount>() {
+//                    override fun onSuccess(obj: MyAccount?) {
+//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+//                    }
+//
+//                    override fun onError(error: GigyaError?) {
+//                        error(error)
+//                    }
+//                })
             }
         }
     }
 
-    //TODO: Policy.
+    //TODO: Policy.00.0
 
     /**
      * Get account information.
      */
-    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        when (exampleSetup) {
-            SetupExample.BASIC -> {
+    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) = when (exampleSetup) {
+        SetupExample.BASIC -> {
                 gigya.getAccount(object : GigyaCallback<GigyaAccount>() {
                     override fun onSuccess(obj: GigyaAccount?) {
                         account = obj
@@ -131,19 +130,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         error(error)
                     }
                 })
-            }
-            SetupExample.CUSTOM_SCHEME -> {
-                gigya.getAccount(object : GigyaCallback<MyAccount>() {
-                    override fun onSuccess(obj: MyAccount?) {
-                        myAccount = obj
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
-            }
+        }
+        SetupExample.CUSTOM_SCHEME -> {
+//            gigya.getAccount(object : GigyaCallback<MyAccount>() {
+//                override fun onSuccess(obj: MyAccount?) {
+//                    myAccount = obj
+//                    success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+//                }
+//
+//                override fun onError(error: GigyaError?) {
+//                    error(error)
+//                }
+//            })
         }
     }
 
@@ -166,16 +164,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             SetupExample.CUSTOM_SCHEME -> {
                 myAccount?.data?.report = dummyData
-                gigya.setAccount(myAccount, object : GigyaCallback<GigyaResponse>() {
-                    override fun onSuccess(obj: GigyaResponse?) {
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-
-                })
+//                gigya.setAccount(myAccount, object : GigyaCallback<GigyaResponse>() {
+//                    override fun onSuccess(obj: GigyaResponse?) {
+//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+//                    }
+//
+//                    override fun onError(error: GigyaError?) {
+//                        error(error)
+//                    }
+//
+//                })
             }
         }
     }
@@ -186,6 +184,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun logout() {
         flushAccountReferences()
         gigya.logout()
+    }
+
+    /**
+     * Present SDK native login pre defined UI.
+     */
+    fun presentNativeLogin() {
+        gigya.presetNativeLogin(mapOf<String, Any>("enabledProviders" to "facebook, googlePlus"))
     }
 
     //region Utility methods

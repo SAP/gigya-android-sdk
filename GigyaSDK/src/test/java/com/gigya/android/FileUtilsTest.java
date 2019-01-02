@@ -70,7 +70,9 @@ public class FileUtilsTest {
                 return Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaSdkConfigurationMock.json");
             }
         });
+
         final String output = FileUtils.loadConfigurationJSON(context);
+
         assertNotNull(output);
         System.out.println(output);
     }

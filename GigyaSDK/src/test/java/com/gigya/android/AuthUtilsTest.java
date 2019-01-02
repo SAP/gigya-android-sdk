@@ -77,6 +77,7 @@ public class AuthUtilsTest {
         final TreeMap<String, Object> params = new TreeMap<String, Object>() {{
             put("ApiKey", "someApiKey");
         }};
+
         AuthUtils.addAuthenticationParameters(sessionSecret, httpMethod, MOCK_URL, params);
         System.out.println(params.toString());
 

@@ -1,9 +1,9 @@
 package com.gigya.android.sample.ui
 
 import android.arch.lifecycle.ViewModelProviders
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.NavigationView
-import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
@@ -14,10 +14,10 @@ import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
-import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.ui.WebViewFragment
 import com.gigya.sample.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            WebViewFragment.PROGRESS_COLOR = getColor(R.color.colorAccent)
+        }
 
         initDrawer()
     }
@@ -79,7 +83,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_custom_scheme -> {
                 // Change the scheme to a custom account object.
                 viewModel?.exampleSetup = MainViewModel.SetupExample.CUSTOM_SCHEME
-                Gigya.getInstance().setAccountScheme(MyAccount::class.java)
+                //Gigya.getInstance().setAccountScheme(MyAccount::class.java)
                 onClear()
                 invalidateOptionsMenu()
             }
@@ -119,6 +123,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.api_set_account_info -> {
                 onSetAccount()
+            }
+            R.id.action_native_login -> {
+                presentNativeLogin()
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -178,18 +185,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         val dialog = builder.create()
         dialog.show()
-
-//        if (viewModel?.okayToRequestSetAccount()!!) {
-//            val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.SET_ACCOUNT_INFO, this)
-//            sheet.show(supportFragmentManager, "sheet")
-//        } else {
-//            response_text_view.snackbar(getString(R.string.account_not_available))
-//        }
     }
 
     //endregion
 
     //region UI presentation
+
+    private fun presentNativeLogin() {
+        viewModel?.presentNativeLogin()
+    }
+
+    //endregion
+
+    //region Result handling
 
     /**
      * On json result (response) interfacing,
@@ -199,7 +207,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         empty_response_text.gone()
         onLoadingDone()
     }
-
 
     /**
      * On Gigya error interfacing. Display error alert.

@@ -24,6 +24,7 @@ public class GigyaResponse {
     private Map<String, Object> values = new HashMap<>();
 
     public static final int INVALID_VALUE = -1;
+    public static final int OK = 200;
 
     public GigyaResponse(JSONObject jsonObject) {
         this.jsonObject = jsonObject;

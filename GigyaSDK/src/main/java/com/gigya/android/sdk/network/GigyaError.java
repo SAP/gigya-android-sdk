@@ -27,6 +27,10 @@ public class GigyaError {
         this.callId = callId;
     }
 
+    public static GigyaError generalError() {
+        return new GigyaError(400, "", "");
+    }
+
     @NonNull
     @Override
     public String toString() {

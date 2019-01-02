@@ -5,105 +5,123 @@ import android.util.Base64;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.utils.UrlUtils;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.utils.AuthUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Random;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GigyaRequestBuilder.class, Base64.class})
+@PrepareForTest({Base64.class, System.class, Random.class, GigyaRequestBuilder.class, AuthUtils.class})
 @PowerMockIgnore("javax.crypto.*")
 public class GigyaRequestBuilderTest {
+
+    private Configuration configuration = new Configuration("dummyApiKey", "us1.gigya.com");
 
     @Mock
     private SessionManager sessionManager;
 
-    private SessionInfo sessionInfo;
-
-    private TreeMap<String, Object> serverParams = new TreeMap<>();
+    @Mock
+    private Random mockRandom;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        sessionInfo = new SessionInfo("asda34asfasfj9fuas", "mockSessionToken", 9223372036854775807L);
-        when(sessionManager.getSession()).thenReturn(sessionInfo);
-
-        serverParams = new TreeMap<>();
-        serverParams.put("ApiKey", "mockApiKey");
-
-        PowerMockito.mockStatic(Base64.class);
-        PowerMockito.when(Base64.decode(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
+        when(sessionManager.getSession()).thenReturn(new SessionInfo("mockSecret", "mockToken"));
+        mockStatic(Base64.class, System.class);
+        when(Base64.decode(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 return java.util.Base64.getMimeDecoder().decode((String) invocation.getArguments()[0]);
             }
         });
-        PowerMockito.when(Base64.encode(any(byte[].class), anyInt())).thenAnswer(new Answer<Object>() {
+        when(Base64.encode(any(byte[].class), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 return java.util.Base64.getEncoder().encode((byte[]) invocation.getArguments()[0]);
             }
         });
-        PowerMockito.when(Base64.encodeToString(any(byte[].class), anyInt())).thenAnswer(new Answer<Object>() {
+        when(Base64.encodeToString(any(byte[].class), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 return new String(java.util.Base64.getEncoder().encode((byte[]) invocation.getArguments()[0]));
             }
         });
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(1545905337000L);
+        PowerMockito.whenNew(Random.class).withNoArguments().thenReturn(mockRandom);
+        PowerMockito.when(mockRandom.nextInt()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                return 1;
+            }
+        });
     }
 
     @Test
-    public void testGetBaseUrl() throws Exception {
-        Configuration configuration = new Configuration("mockApiKey", "us1.gigya.com");
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration).api("socialize.getSdkConfig");
-
-        final String baseUrl = Whitebox.invokeMethod(builder, "getBaseUrl");
-        System.out.println(baseUrl);
-        assertEquals(baseUrl, "https://socialize.us1.gigya.com/socialize.getSdkConfig");
+    public void testBuildForGetRequest() {
+        // Arrange
+        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration)
+                .sessionManager(sessionManager)
+                .api("socialize.getSDkConfig")
+                .params(new HashMap<String, Object>() {{
+                    put("include", "permissions, ids");
+                    put("apiKey", configuration.getApiKey());
+                }})
+                .httpMethod(NetworkAdapter.Method.GET);
+        // Act
+        GigyaRequest request = builder.build();
+        // Assert
+        assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig?ApiKey=dummyApiKey&apiKey=dummyApiKey&format=json&httpStatusCodes=false&" +
+                "include=permissions%2C%20ids&nonce=1545905337000_1&sdk=android_4.0.0&sig=bgYHdWtMn8PFxy%2FTmqJ4bNexjhs%3D&targetEnv=mobile&timestamp=1545905337",
+                request.getUrl());
+        assertNull(request.getEncodedParams());
+        assertEquals(NetworkAdapter.Method.GET, request.getMethod());
+        assertEquals("socialize.getSDkConfig", request.getTag());
     }
 
     @Test
-    public void testGetUrl() throws Exception {
-        Configuration configuration = new Configuration("mockApiKey", "us1.gigya.com");
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration).api("socialize.getSdkConfig").httpMethod(0);
-
-        final String encodedParams = UrlUtils.buildEncodedQuery(serverParams);
-        final String url = Whitebox.invokeMethod(builder, "getUrl", encodedParams);
-        System.out.println(url);
-        assertEquals(url, "https://socialize.us1.gigya.com/socialize.getSdkConfig?ApiKey=mockApiKey");
-    }
-
-    @Test
-    public void testAddAuthenticationParameters() throws Exception {
-        Configuration configuration = new Configuration("mockApiKey", "us1.gigya.com");
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration).api("socialize.getSdkConfig").httpMethod(0).sessionManager(sessionManager);
-        FieldSetter.setField(builder, GigyaRequestBuilder.class.getDeclaredField("serverParams"), serverParams);
-
-        Whitebox.invokeMethod(builder, "addAuthenticationParameters");
-        System.out.println(serverParams.toString());
-        assertNotNull(serverParams.get("nonce"));
-        assertNotNull(serverParams.get("timestamp"));
-        assertNotNull(serverParams.get("sig"));
+    public void testBuildForPostRequest() {
+        // Arrange
+        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration)
+                .sessionManager(sessionManager)
+                .api("socialize.getSDkConfig")
+                .params(new HashMap<String, Object>() {{
+                    put("include", "permissions, ids");
+                    put("apiKey", configuration.getApiKey());
+                }})
+                .httpMethod(NetworkAdapter.Method.POST);
+        // Act
+        GigyaRequest request = builder.build();
+        // Assert
+        assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig", request.getUrl());
+        assertNotNull(request.getEncodedParams());
+        assertEquals("ApiKey=dummyApiKey&apiKey=dummyApiKey&format=json&httpStatusCodes=false" +
+                "&include=permissions%2C%20ids&nonce=1545905337000_1&sdk=android_4.0.0&sig=k%2FKnAdrsHr0SjMXHTOMusr%2FxHJE%3D&targetEnv=mobile&timestamp=1545905337",
+                request.getEncodedParams());
+        assertEquals(NetworkAdapter.Method.POST, request.getMethod());
+        assertEquals("socialize.getSDkConfig", request.getTag());
     }
 }

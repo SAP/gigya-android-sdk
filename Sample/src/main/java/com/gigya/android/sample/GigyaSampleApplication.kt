@@ -1,7 +1,10 @@
 package com.gigya.android.sample
 
 import android.app.Application
+import android.content.pm.ApplicationInfo
+import android.os.Build
 import android.util.Log
+import android.webkit.WebView
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.log.GigyaLogger
 
@@ -9,6 +12,13 @@ class GigyaSampleApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Allow WebViews debugging.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+                WebView.setWebContentsDebuggingEnabled(true)
+            }
+        }
 
         GigyaLogger.setDebugMode(true)
         Log.d("GigyaSampleApplication", Gigya.VERSION)

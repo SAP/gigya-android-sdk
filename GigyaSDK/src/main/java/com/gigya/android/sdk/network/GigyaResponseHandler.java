@@ -12,7 +12,7 @@ import org.json.JSONObject;
 /*
 Custom response handler.
  */
-class GigyaResponseHandler<T> {
+public class GigyaResponseHandler<T> {
 
     private static final int OK = 200;
     private final Gson gson = new Gson();

@@ -5,8 +5,8 @@ import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.network.GigyaRequestBuilderOld;
+import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaRequestQueue;
 
 import java.util.Map;
@@ -109,7 +109,7 @@ public class ApiResolver<T> {
         if (regToken == null || regToken.isEmpty()) {
             return;
         }
-        GigyaRequest request = new GigyaRequestBuilder<>(configuration)
+        GigyaRequestOld request = new GigyaRequestBuilderOld<>(configuration)
                 .sessionManager(sessionManager)
                 .api("accounts.accounts.finalizeRegistration")
                 .interceptor(interceptor)

@@ -7,7 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.gigya.android.sdk.network.GigyaRequest;
+import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaRequestQueue;
 
 import org.junit.Before;
@@ -35,7 +35,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Volley.class, RequestQueue.class, StringRequest.class, Request.class, Log.class})
-public class GigyaRequestQueueTest {
+public class GigyaRequestOldQueueTest {
 
     @Mock
     private RequestQueue requestQueue;
@@ -90,14 +90,14 @@ public class GigyaRequestQueueTest {
 
         queue.cancelAll();
 
-        final Queue<GigyaRequest> privateBlockingQueue = (Queue<GigyaRequest>) blockingQueue.get(queue);
+        final Queue<GigyaRequestOld> privateBlockingQueue = (Queue<GigyaRequestOld>) blockingQueue.get(queue);
         assertTrue(privateBlockingQueue.isEmpty());
     }
 
     @Test
     public void testAdd() {
         GigyaRequestQueue queue = new GigyaRequestQueue(context);
-        GigyaRequest request = new GigyaRequest("someUrl", null, null, null, "");
+        GigyaRequestOld request = new GigyaRequestOld("someUrl", null, null, null, "");
         when(requestQueue.add(any(Request.class))).then(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {

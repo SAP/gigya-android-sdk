@@ -2,8 +2,6 @@ package com.gigya.android.sdk.log;
 
 import android.util.Log;
 
-import com.android.volley.VolleyLog;
-
 public class GigyaLogger {
 
     private static final String LOG_TAG = "GigyaSDK";
@@ -11,8 +9,10 @@ public class GigyaLogger {
 
     public static void setDebugMode(boolean debugModeEnabled) {
         DEBUG = debugModeEnabled;
-        // Enable Volley logs.
-        VolleyLog.DEBUG = debugModeEnabled;
+    }
+
+    public static boolean isDebug() {
+        return DEBUG;
     }
 
     public static void debug(String tag, String message) {

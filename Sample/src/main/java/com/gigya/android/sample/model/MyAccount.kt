@@ -1,8 +1,8 @@
 package com.gigya.android.sample.model
 
-import com.gigya.android.sdk.model.BaseGigyaAccount
+import com.gigya.android.sdk.model.GigyaAccount
 
-class MyAccount : BaseGigyaAccount() {
+class MyAccount : GigyaAccount() {
 
     var data: MyData? = null
 }

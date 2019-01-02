@@ -15,7 +15,7 @@ public class GigyaRequestQueue {
     private static final String LOG_TAG = "GigyaRequestQueue";
 
     private RequestQueue _requestQueue;
-    private Queue<GigyaRequest> _blockingQueue = new LinkedBlockingDeque<>();
+    private Queue<GigyaRequestOld> _blockingQueue = new LinkedBlockingDeque<>();
     private boolean blocked = false;
 
     public GigyaRequestQueue(Context appContext) {
@@ -40,7 +40,7 @@ public class GigyaRequestQueue {
         if (_blockingQueue.isEmpty()) {
             return;
         }
-        GigyaRequest queued = _blockingQueue.poll();
+        GigyaRequestOld queued = _blockingQueue.poll();
         while (queued != null) {
             _requestQueue.add(queued);
             queued = _blockingQueue.poll();
@@ -50,7 +50,7 @@ public class GigyaRequestQueue {
     /*
     Add new requests. Evaluate blocking status.
      */
-    public void add(GigyaRequest newRequest) {
+    public void add(GigyaRequestOld newRequest) {
         GigyaLogger.debug(LOG_TAG, "add: is blocked = " + String.valueOf(blocked) + " blocking queue size = " + _blockingQueue.size());
         if (blocked) {
             _blockingQueue.add(newRequest);

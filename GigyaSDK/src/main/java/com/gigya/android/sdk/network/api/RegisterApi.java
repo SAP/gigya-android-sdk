@@ -6,12 +6,11 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaRegisterCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.BaseGigyaAccount;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.network.GigyaRequestBuilderOld;
+import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaRequestQueue;
 
 import java.util.Map;
@@ -56,9 +55,9 @@ public class RegisterApi<T> extends BaseApi<T> implements IApi {
 
     @SuppressWarnings("unchecked")
     @Override
-    public GigyaRequest getRequest(final Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    public GigyaRequestOld getRequest(final Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
         updateRegisterPolicy(params);
-        return new GigyaRequestBuilder<InitRegistration>(configuration)
+        return new GigyaRequestBuilderOld<InitRegistration>(configuration)
                 .sessionManager(sessionManager)
                 .api(API_INIT_REGISTRATION)
                 .output(InitRegistration.class)
@@ -81,7 +80,7 @@ public class RegisterApi<T> extends BaseApi<T> implements IApi {
 
     @SuppressWarnings("unchecked")
     private <T> void sendRegistration(final Configuration configuration, final Map<String, Object> params, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
-        final GigyaRequest request = new GigyaRequestBuilder(configuration)
+        final GigyaRequestOld request = new GigyaRequestBuilderOld(configuration)
                 .sessionManager(sessionManager)
                 .api(API_REGISTER)
                 .params(params)

@@ -7,8 +7,8 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.network.GigyaRequestBuilderOld;
+import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -33,7 +33,7 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
 
     @SuppressWarnings("unchecked")
     @Override
-    public GigyaRequest getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor) {
+    public GigyaRequestOld getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor) {
 
         // Map updated account object to JSON -> Map.
         final String updatedJson = gson.toJson(account);
@@ -55,7 +55,7 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
         }
         serializeObjectFields(diff);
 
-        return new GigyaRequestBuilder(configuration)
+        return new GigyaRequestBuilderOld(configuration)
                 .sessionManager(sessionManager)
                 .api(API)
                 .params(diff)
