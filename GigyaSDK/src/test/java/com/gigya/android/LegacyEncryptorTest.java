@@ -53,6 +53,7 @@ public class LegacyEncryptorTest {
         });
         LegacyEncryptor encryptor = new LegacyEncryptor();
         SecretKey key = encryptor.getKey(context, sharedPreferences);
+        assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
         assertArrayEquals(key.getEncoded(), new byte[]{-35, 115, 3, 4, -101});
     }
@@ -70,6 +71,7 @@ public class LegacyEncryptorTest {
 
         LegacyEncryptor encryptor = new LegacyEncryptor();
         SecretKey key = encryptor.getKey(context, sharedPreferences);
+        assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
         assertNotNull(key);
     }

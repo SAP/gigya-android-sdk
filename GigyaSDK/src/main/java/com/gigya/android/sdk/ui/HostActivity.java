@@ -28,6 +28,10 @@ public class HostActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
+    public HostActivityLifecycleCallbacks getLifecycleCallbacks() {
+        return _lifecycleCallbacks;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,15 +104,15 @@ public class HostActivity extends AppCompatActivity {
         }
     }
 
-    static abstract class HostActivityLifecycleCallbacks implements Serializable {
+    public static abstract class HostActivityLifecycleCallbacks implements Serializable {
 
-        abstract void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState);
+        public abstract void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState);
 
-        abstract void onStart(AppCompatActivity activity);
+        public abstract void onStart(AppCompatActivity activity);
 
-        abstract void onResume(AppCompatActivity activity);
+        public abstract void onResume(AppCompatActivity activity);
 
-        abstract void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data);
+        public abstract void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data);
     }
 
     //endregion

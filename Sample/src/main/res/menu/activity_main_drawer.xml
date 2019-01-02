@@ -4,36 +4,37 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="none">
-        <item
-            android:id="@+id/api_anonymus"
-            android:title="anonymous" />
-        <item
-            android:id="@+id/api_login"
-            android:title="login" />
-        <item
-            android:id="@+id/api_register"
-            android:title="register" />
+        <item android:title="Api List">
+            <menu>
+                <item
+                    android:id="@+id/api_anonymus"
+                    android:title="@string/anonymous" />
+                <item
+                    android:id="@+id/api_login"
+                    android:title="@string/login" />
+                <item
+                    android:id="@+id/api_register"
+                    android:title="@string/register" />
+
+
+                <item
+                    android:id="@+id/api_get_account_info"
+                    android:title="@string/get_account" />
+
+                <item
+                    android:id="@+id/api_set_account_info"
+                    android:title="@string/set_account" />
+            </menu>
+        </item>
+
+        <item android:title="@string/user_interface">
+            <menu>
+                <item
+                    android:id="@+id/action_native_login"
+                    android:title="@string/native_login" />
+            </menu>
+        </item>
 
     </group>
-
-    <item android:title="Account APIS">
-        <menu>
-            <item
-                android:id="@+id/api_get_account_info"
-                android:title="getAccunt" />
-
-            <item
-                android:id="@+id/api_set_account_info"
-                android:title="setAccount" />
-        </menu>
-    </item>
-
-    <item android:title="User Interface">
-        <menu>
-            <item
-                android:id="@+id/action_native_login"
-                android:title="Native Login"/>
-        </menu>
-    </item>
 
 </menu>

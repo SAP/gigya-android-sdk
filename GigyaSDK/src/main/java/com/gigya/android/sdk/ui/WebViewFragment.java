@@ -49,7 +49,7 @@ public class WebViewFragment extends DialogFragment {
     public static final String ARG_TITLE = "arg_title";
     public static final String ARG_URL = "arg_url";
     public static final String ARG_REDIRECT_PREFIX = "arg_redirect_prefix";
-    public static int PROGRESS_COLOR = Color.BLUE;
+    public static int PROGRESS_COLOR = Color.BLACK; // Default color.
     /* Content views. */
     private WebView _webView;
     private LinearLayout _contentView;
@@ -67,8 +67,8 @@ public class WebViewFragment extends DialogFragment {
         fragment.setArguments(args);
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, TAG);
-        // TODO: 30/12/2018 Investigate usage of "commitAllowingStateLoss"
         fragmentTransaction.commitAllowingStateLoss();
+        // TODO: 30/12/2018 Investigate usage of "commitAllowingStateLoss"
     }
 
     @Override
@@ -244,7 +244,7 @@ public class WebViewFragment extends DialogFragment {
         titleViewParams.weight = 1;
         _contentView.addView(_titleTextView, titleViewParams);
 
-        /* Web frame container */
+        /* Web frame container. */
         FrameLayout webFrame = new FrameLayout(getActivity());
         final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         webFrameParams.weight = 1;
@@ -253,7 +253,7 @@ public class WebViewFragment extends DialogFragment {
         /* WebView. */
         final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
-        webViewParams.setMargins(contentMargin, 0, contentMargin, contentMargin);
+        webViewParams.setMargins(contentMargin, contentMargin, contentMargin, contentMargin);
         webViewParams.gravity = Gravity.CENTER;
         webFrame.addView(_webView, webViewParams);
 
@@ -297,7 +297,7 @@ public class WebViewFragment extends DialogFragment {
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.remove(this).commitAllowingStateLoss();
         // TODO: 31/12/2018 Investigate the need of "commitAllowingStateLoss"
-        // TODO: 02/01/2019 Should we finish the activity also?
+        getActivity().finish();
     }
 
     static abstract class WebViewFragmentResultCallback implements Serializable {

@@ -35,4 +35,11 @@
     <string name="not_logged_in">Not logged in.\nPlease log in or register a new account</string>
     <string name="logged_out">Logged out of your account</string>
     <string name="account_not_available">Account info not available.\nCall "getAccount" first</string>
+    <string name="anonymous">anonymous</string>
+    <string name="login">login</string>
+    <string name="register">register</string>
+    <string name="get_account">getAccount</string>
+    <string name="set_account">setAccount</string>
+    <string name="user_interface">User Interface</string>
+    <string name="native_login">Native Login</string>
 </resources>
