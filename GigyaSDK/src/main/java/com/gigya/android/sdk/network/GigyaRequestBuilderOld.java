@@ -20,6 +20,7 @@ import java.util.TreeMap;
 /*
 Request builder for all SDK communication.
  */
+@Deprecated
 public class GigyaRequestBuilderOld<T> {
 
     private static final String LOG_TAG = "GigyaRequestBuilderOld";

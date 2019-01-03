@@ -13,14 +13,19 @@ public class SessionInfoTest {
 
     @Test
     public void testShortConstructor() {
+        // Act
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET);
+        // Assert
         Assert.assertEquals(session.getExpirationTime(), Long.MAX_VALUE);
     }
 
     @Test
     public void testLongConstructor() {
+        // Arrange
         long expiration = System.currentTimeMillis() + 100;
+        // Act
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET, expiration);
+        // Assert
         Assert.assertTrue(session.isValid());
     }
 

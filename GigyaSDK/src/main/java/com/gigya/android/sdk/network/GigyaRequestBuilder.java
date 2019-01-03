@@ -10,6 +10,7 @@ import com.gigya.android.sdk.utils.UrlUtils;
 import java.util.Map;
 import java.util.TreeMap;
 
+@Deprecated
 public class GigyaRequestBuilder {
 
     private Configuration configuration;

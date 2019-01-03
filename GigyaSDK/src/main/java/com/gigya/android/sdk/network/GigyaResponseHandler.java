@@ -12,6 +12,7 @@ import org.json.JSONObject;
 /*
 Custom response handler.
  */
+@Deprecated
 public class GigyaResponseHandler<T> {
 
     private static final int OK = 200;

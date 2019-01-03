@@ -10,6 +10,7 @@ import com.gigya.android.sdk.log.GigyaLogger;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+@Deprecated
 public class GigyaRequestQueue {
 
     private static final String LOG_TAG = "GigyaRequestQueue";

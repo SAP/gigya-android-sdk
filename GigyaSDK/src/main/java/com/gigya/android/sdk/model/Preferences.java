@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.model;
 
+@Deprecated
 public class Preferences {
 
     private String description;

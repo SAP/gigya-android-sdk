@@ -21,6 +21,7 @@ import java.util.zip.GZIPInputStream;
 /*
 Volley request extension.
  */
+@Deprecated
 public class GigyaRequestOld extends StringRequest {
 
     protected static final String PROTOCOL_CHARSET = "utf-8";
