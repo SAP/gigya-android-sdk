@@ -1,6 +1,9 @@
 package com.gigya.android.sdk.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,5 +33,12 @@ public class ObjectUtils {
         }
 
         return result;
+    }
+
+    // TODO: 03/01/2019 Unit test.
+    public static List<String> mergeRemovingDuplicates(List<String> first, List<String> second) {
+        Set<String> set = new HashSet<>(first);
+        set.addAll(second);
+        return new ArrayList<>(set);
     }
 }

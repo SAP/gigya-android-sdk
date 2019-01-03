@@ -343,6 +343,7 @@ public class Gigya<T extends GigyaAccount> {
             _sessionManager.clear();
         }
         getNetworkAdapter().cancel(null);
+        GigyaPresenter.flush();
         // TODO: 05/12/2018 Additional handling required on provider logic implementation.
     }
 

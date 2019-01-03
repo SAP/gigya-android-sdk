@@ -14,16 +14,17 @@ import java.io.Serializable;
 
 public class HostActivity extends AppCompatActivity {
 
-    public static final String EXTRA_LIFECYCLE_CALLBACKS = "lifecycleCallbacks";
+    public static final String EXTRA_LIFECYCLE_CALLBACKS_ID = "lifecycleCallbacks_id";
 
     private HostActivityLifecycleCallbacks _lifecycleCallbacks;
+    private int _lifecycleCallbacksId = -1;
 
     private FrameLayout _mainFrame;
     private ProgressBar _progressBar;
 
     public static void present(Context context, HostActivityLifecycleCallbacks lifecycleCallbacks) {
         Intent intent = new Intent(context, HostActivity.class);
-        intent.putExtra(EXTRA_LIFECYCLE_CALLBACKS, lifecycleCallbacks);
+        intent.putExtra(EXTRA_LIFECYCLE_CALLBACKS_ID, GigyaPresenter.addLifecycleCallbacks(lifecycleCallbacks));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
         context.startActivity(intent);
     }
@@ -42,7 +43,8 @@ public class HostActivity extends AppCompatActivity {
         setContentView(_mainFrame);
 
         if (getIntent() != null && getIntent().getExtras() != null) {
-            _lifecycleCallbacks = (HostActivityLifecycleCallbacks) getIntent().getSerializableExtra(EXTRA_LIFECYCLE_CALLBACKS);
+            _lifecycleCallbacksId = getIntent().getIntExtra(EXTRA_LIFECYCLE_CALLBACKS_ID, -1);
+            _lifecycleCallbacks = GigyaPresenter.getCallbacks(_lifecycleCallbacksId);
         }
 
         if (_lifecycleCallbacks != null) {
@@ -76,6 +78,8 @@ public class HostActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
+        GigyaPresenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
+        System.gc();
         super.finish();
         /*
         Disable exit animation.

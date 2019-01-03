@@ -3,6 +3,7 @@ package com.gigya.android.sdk.login;
 
 import android.content.Context;
 
+import java.io.Serializable;
 import java.util.Map;
 
 public abstract class LoginProvider {
@@ -17,10 +18,10 @@ public abstract class LoginProvider {
 
     public abstract void logout();
 
-    public interface LoginProviderCallbacks {
+    public abstract static class LoginProviderCallbacks implements Serializable {
 
-        void onSuccess(String token, long expiration);
+        public abstract void onSuccess(String token, long expiration);
 
-        void onError(String error);
+        public abstract void onError(String error);
     }
 }

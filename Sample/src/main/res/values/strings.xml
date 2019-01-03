@@ -3,6 +3,7 @@
 
     <string name="api_kay">3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag</string>
     <string name="api_domain">us1.gigya.com</string>
+    <string name="facebook_app_id">113512789545198</string>
 
     <!-- General -->
     <string name="rest_error_title">Request error</string>

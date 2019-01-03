@@ -217,8 +217,8 @@ public class WebViewFragment extends DialogFragment {
         }
 
         /* UI sizes. */
-        final int contentMargin = (int) UiUtils.dpToPixel(8, getActivity());
-        final int contentPadding = (int) UiUtils.dpToPixel(16, getActivity());
+        final int dip8 = (int) UiUtils.dpToPixel(8, getActivity());
+        final int dip16 = (int) UiUtils.dpToPixel(16, getActivity());
         final Pair<Integer, Integer> screenSize = UiUtils.getScreenSize(getActivity());
 
         /* Content view. */
@@ -240,7 +240,7 @@ public class WebViewFragment extends DialogFragment {
             _titleTextView.setVisibility(View.GONE);
         }
         final LinearLayout.LayoutParams titleViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        titleViewParams.setMargins(contentMargin, contentMargin, contentMargin, 0);
+        titleViewParams.setMargins(dip16, dip8, dip8, 0);
         titleViewParams.weight = 1;
         _contentView.addView(_titleTextView, titleViewParams);
 
@@ -253,7 +253,7 @@ public class WebViewFragment extends DialogFragment {
         /* WebView. */
         final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
-        webViewParams.setMargins(contentMargin, contentMargin, contentMargin, contentMargin);
+        webViewParams.setMargins(dip8, dip8, dip8, dip8);
         webViewParams.gravity = Gravity.CENTER;
         webFrame.addView(_webView, webViewParams);
 
@@ -262,7 +262,7 @@ public class WebViewFragment extends DialogFragment {
         _progressBar.setIndeterminate(true);
         _progressBar.getIndeterminateDrawable().setColorFilter(PROGRESS_COLOR, android.graphics.PorterDuff.Mode.SRC_IN);
         _progressBar.setVisibility(View.GONE); // Default behaviour is hidden.
-        _progressBar.setPadding(contentPadding, contentPadding, contentPadding, contentPadding);
+        _progressBar.setPadding(dip16, dip16, dip16, dip16);
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBarParams.gravity = Gravity.CENTER;

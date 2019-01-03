@@ -6,6 +6,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaRegisterCallback
+import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
@@ -190,7 +191,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Present SDK native login pre defined UI.
      */
     fun presentNativeLogin() {
-        gigya.presetNativeLogin(mapOf<String, Any>("enabledProviders" to "facebook, googlePlus"))
+        gigya.presetNativeLogin(mapOf<String, Any>(
+                "enabledProviders" to "facebook, googlePlus",
+                FacebookLoginProvider.READ_PERMISSIONS to "user_birthday"
+        ))
     }
 
     //region Utility methods

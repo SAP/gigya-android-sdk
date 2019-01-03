@@ -17,10 +17,18 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.utils.ObjectUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class FacebookLoginProvider extends LoginProvider {
+
+    public static final String LOGIN_BEHAVIOUR = "facebookLoginBehavior";
+    public static final String READ_PERMISSIONS = "facebookReadPermissions";
+
+    private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};
 
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
 
@@ -49,15 +57,15 @@ public class FacebookLoginProvider extends LoginProvider {
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-
-                LoginBehavior loginBehaviour = (LoginBehavior) loginParams.get("facebookLoginBehavior");
-                if (loginBehaviour == null) {
-                    loginBehaviour = LoginBehavior.NATIVE_WITH_FALLBACK;
+                LoginManager loginManager = LoginManager.getInstance();
+                /* Set login behaviour. */
+                LoginBehavior loginBehaviour = LoginBehavior.NATIVE_WITH_FALLBACK;
+                if (loginParams != null && loginParams.containsKey(LOGIN_BEHAVIOUR)) {
+                    loginBehaviour = (LoginBehavior) loginParams.get(LOGIN_BEHAVIOUR);
                 }
-
-                LoginManager.getInstance().setLoginBehavior(loginBehaviour);
-
-                LoginManager.getInstance().registerCallback(_callbackManager, new FacebookCallback<LoginResult>() {
+                loginManager.setLoginBehavior(loginBehaviour);
+                
+                loginManager.registerCallback(_callbackManager, new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -77,6 +85,18 @@ public class FacebookLoginProvider extends LoginProvider {
                         activity.finish();
                     }
                 });
+
+                /* Set login permissions. */
+                List<String> readPermissions = Arrays.asList(DEFAULT_READ_PERMISSIONS);
+                if (loginParams != null && loginParams.containsKey(READ_PERMISSIONS)) {
+                    String userDefinedReadPermissions = (String) loginParams.get(READ_PERMISSIONS);
+                    if (userDefinedReadPermissions != null) {
+                        final String[] split = userDefinedReadPermissions.split(",");
+                        readPermissions = ObjectUtils.mergeRemovingDuplicates(readPermissions, Arrays.asList(split));
+                    }
+                }
+                /* Request login. */
+                loginManager.logInWithReadPermissions(activity, readPermissions);
             }
 
             @Override

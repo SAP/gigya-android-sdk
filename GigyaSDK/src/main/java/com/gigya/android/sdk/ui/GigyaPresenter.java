@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.SparseArray;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.utils.UrlUtils;
 
@@ -15,7 +19,96 @@ import java.util.Map;
 
 public class GigyaPresenter {
 
+    private static final String TAG = "GigyaPresenter";
+
     private static final String REDIRECT_URI = "gsapi://result/";
+
+    //region HostActivity lifecycle callbacks tracking
+
+    // TODO: 03/01/2019 When dropping support for <18 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
+
+    private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
+
+    static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
+        int id = callbacks.hashCode();
+        lifecycleSparse.append(id, callbacks);
+        return id;
+    }
+
+    static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
+        return lifecycleSparse.get(id);
+    }
+
+    static void flushLifecycleCallbacks(int id) {
+        lifecycleSparse.remove(id);
+    }
+
+    public static void flush() {
+        lifecycleSparse.clear();
+        System.gc();
+    }
+
+    //endregion
+
+    public static void presentNativeLogin(final Context context, final Configuration configuration, final Map<String, Object> params) {
+        /*
+        Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
+         */
+        final String url = getPresentationUrl(configuration, params, "login");
+        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
+            @Override
+            public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
+                Bundle args = new Bundle();
+                args.putString(WebViewFragment.ARG_TITLE, "Sign in");
+                args.putString(WebViewFragment.ARG_URL, url);
+                args.putString(WebViewFragment.ARG_REDIRECT_PREFIX, "gsapi");
+                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentResultCallback() {
+
+                    @Override
+                    void onResult( Map<String, Object> result) {
+                        /* Handle result */
+                        final String provider = (String) result.get("provider");
+                        if (provider == null) {
+                            return;
+                        }
+                        LoginProvider loginProvider = LoginProviderFactory.providerFor(activity, provider, new LoginProvider.LoginProviderCallbacks() {
+                            @Override
+                            public void onSuccess(String token, long expiration) {
+                                GigyaLogger.debug(TAG, "Login provider = " + provider + " token = " + token);
+                                activity.finish();
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                GigyaLogger.debug(TAG, "Login provider = " + provider + " error = " + error);
+                                activity.finish();
+                            }
+                        });
+                        if (loginProvider != null) {
+                            loginProvider.login(activity, params);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onStart(AppCompatActivity activity) {
+                // Stub.
+            }
+
+            @Override
+            public void onResume(AppCompatActivity activity) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
+                // Stub.
+            }
+        });
+    }
+
+    //region Utilities
 
     @SuppressWarnings("ConstantConditions")
     private static String getPresentationUrl(Configuration configuration, Map<String, Object> params, String requestType) {
@@ -46,41 +139,5 @@ public class GigyaPresenter {
         return String.format("%s://%s.%s/%s?%s", protocol, domainPrefix, configuration.getApiDomain(), endpoint, qs);
     }
 
-    public static void presentNativeLogin(Context context, final Configuration configuration, final Map<String, Object> params) {
-        /*
-        Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
-         */
-        final String url = getPresentationUrl(configuration, params, "login");
-        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
-            @Override
-            public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                Bundle args = new Bundle();
-                args.putString(WebViewFragment.ARG_TITLE, "Sign in");
-                args.putString(WebViewFragment.ARG_URL, url);
-                args.putString(WebViewFragment.ARG_REDIRECT_PREFIX, "gsapi");
-                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentResultCallback() {
-
-                    @Override
-                    void onResult(Map<String, Object> result) {
-                        /* Handle result */
-                    }
-                });
-            }
-
-            @Override
-            public void onStart(AppCompatActivity activity) {
-                // Stub.
-            }
-
-            @Override
-            public void onResume(AppCompatActivity activity) {
-                // Stub.
-            }
-
-            @Override
-            public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
-                // Stub.
-            }
-        });
-    }
+    //endregion
 }
