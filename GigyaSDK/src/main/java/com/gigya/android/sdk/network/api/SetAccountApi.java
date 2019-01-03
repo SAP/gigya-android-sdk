@@ -64,8 +64,8 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
         Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<HashMap<String, Object>>() {
         }.getType());
 
-        // Calculate difference.
-        Map<String, Object> diff = ObjectUtils.difference(originalMap, updatedMap);
+        // Calculate objectDifference.
+        Map<String, Object> diff = ObjectUtils.objectDifference(originalMap, updatedMap);
         // Must have UID or regToken.
         if (updatedMap.containsKey("UID")) {
             diff.put("UID", updatedMap.get("UID"));
@@ -84,7 +84,7 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
     }
 
     /*
-    Get account object difference.
+    Get account object objectDifference.
      */
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     private Map<String, Object> calculateDiff() {
@@ -98,8 +98,8 @@ public class SetAccountApi<T> extends BaseApi<T> implements IApi {
         Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<HashMap<String, Object>>() {
         }.getType());
 
-        /* Calculate difference. */
-        Map<String, Object> diff = ObjectUtils.difference(originalMap, updatedMap);
+        /* Calculate objectDifference. */
+        Map<String, Object> diff = ObjectUtils.objectDifference(originalMap, updatedMap);
         /* Must have UID or regToken. */
         if (updatedMap.containsKey("UID")) {
             diff.put("UID", updatedMap.get("UID"));

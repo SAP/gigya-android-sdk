@@ -1,8 +1,11 @@
 package com.gigya.android.sdk.model;
 
+import android.support.annotation.NonNull;
+
+import com.gigya.android.sdk.gson.IPostGsonProcessable;
 import com.google.gson.annotations.SerializedName;
 
-public class SessionInfo {
+public class SessionInfo implements IPostGsonProcessable {
 
     private String sessionToken;
     private String sessionSecret;
@@ -20,22 +23,28 @@ public class SessionInfo {
         validateExpirationTime();
     }
 
-    public void validateExpirationTime() {
+
+    public boolean isValid() {
+        return (this.sessionToken != null && this.sessionSecret != null && System.currentTimeMillis() < this.expirationTime);
+    }
+
+    /*
+    Validate various unlimited expiration time values and sets them to the required specification.
+     */
+    private void validateExpirationTime() {
         if (expirationTime == 0 || expirationTime == -1 || expirationTime == Long.MAX_VALUE)
             expirationTime = Long.MAX_VALUE;
     }
 
     @Override
-    public String toString() {
-        return "\n" +
-                "Secret:  " + this.sessionSecret + "\n" +
-                "Token: " + this.sessionToken + "\n" +
-                "ExpirationTime: " + this.expirationTime +
-                "\n";
+    public void onPostGsonProcess() {
+        validateExpirationTime();
     }
 
-    public boolean isValid() {
-        return (this.sessionToken != null && this.sessionSecret != null && System.currentTimeMillis() < this.expirationTime);
+    @NonNull
+    @Override
+    public String toString() {
+        return "Secret:  " + this.sessionSecret + "\n" + "Token: " + this.sessionToken + "\n" + "ExpirationTime: " + this.expirationTime;
     }
 
     //region Getters & Setters
@@ -51,7 +60,6 @@ public class SessionInfo {
     public long getExpirationTime() {
         return expirationTime;
     }
-
 
     //endregion
 }

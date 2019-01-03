@@ -16,7 +16,6 @@ import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -81,7 +80,7 @@ public class SdkConfigApi extends BaseApi implements IApi {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
-                        final SdkConfig parsed = new Gson().fromJson(jsonResponse, SdkConfig.class);
+                        final SdkConfig parsed = response.getGson().fromJson(jsonResponse, SdkConfig.class);
                         callback.onSuccess(parsed);
                         return;
                     }

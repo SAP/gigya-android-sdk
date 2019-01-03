@@ -19,7 +19,6 @@ import com.gigya.android.sdk.network.GigyaRequestQueue;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -119,7 +118,7 @@ public class RegisterApi<T> extends BaseApi<T> implements IApi {
     }
 
     private void callSendRegistration(final Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
-        GigyaRequest request = new GigyaRequestBuilder(configuration)
+        final GigyaRequest request = new GigyaRequestBuilder(configuration)
                 .sessionManager(sessionManager).params(params).api(API_REGISTER).build();
         networkAdapter.send(request, new INetworkCallbacks() {
             @Override
@@ -136,13 +135,12 @@ public class RegisterApi<T> extends BaseApi<T> implements IApi {
                             SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
                             sessionManager.setSession(session);
                         }
-                        Gson gson = new Gson();
                         params.clear(); /* Clear sensitive data once it is not required. */
                         if (interceptor != null) {
-                            T interception = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                             interceptor.intercept(interception);
                         }
-                        final T parsed = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        final T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         callback.onSuccess(parsed);
                         return;
                     }

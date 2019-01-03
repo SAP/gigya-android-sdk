@@ -2,8 +2,10 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.gson.PostProcessableTypeAdapterFactory;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +24,12 @@ public class GigyaResponse {
 
     private JSONObject jsonObject;
     private Map<String, Object> values = new HashMap<>();
+
+    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostProcessableTypeAdapterFactory()).create();
+
+    public Gson getGson() {
+        return gson;
+    }
 
     public static final int INVALID_VALUE = -1;
     public static final int OK = 200;
@@ -82,7 +90,7 @@ public class GigyaResponse {
             }
             Object field = values.get(key);
             if (field instanceof JSONObject) {
-                field = new Gson().fromJson(field.toString(), clazz);
+                field = gson.fromJson(field.toString(), clazz);
             }
             return clazz.isInstance(field) ? clazz.cast(field) : null;
         } catch (Exception e) {

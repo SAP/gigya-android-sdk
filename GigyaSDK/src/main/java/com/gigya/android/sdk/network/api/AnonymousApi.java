@@ -12,7 +12,6 @@ import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -48,13 +47,12 @@ public class AnonymousApi<H> extends BaseApi<H> {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
-                        Gson gson = new Gson();
                         if (clazz == null) {
                             /* Callback will return GigyaResponse instance */
                             callback.onSuccess((H) response);
                             return;
                         } else {
-                            H parsed = gson.fromJson(jsonResponse, clazz);
+                            H parsed = response.getGson().fromJson(jsonResponse, clazz);
                             callback.onSuccess(parsed);
                             return;
                         }

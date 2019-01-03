@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ObjectUtils {
-
-    public static Map<String, Object> difference(Map<String, Object> original, Map<String, Object> updated) {
+    
+    public static Map<String, Object> objectDifference(Map<String, Object> original, Map<String, Object> updated) {
         Map<String, Object> result = new HashMap<>();
         if (original == null || updated == null) {
             return result;
@@ -26,16 +26,15 @@ public class ObjectUtils {
             final Object value = item.getValue();
             if (value instanceof Map) {
                 if (updated.get(key) != null && original.get(key) != null) {
-                    Map<String, Object> childResult = difference((Map<String, Object>) original.get(key), (Map<String, Object>) updated.get(key));
+                    Map<String, Object> childResult = objectDifference((Map<String, Object>) original.get(key), (Map<String, Object>) updated.get(key));
                     result.put(key, childResult);
+
                 }
             }
         }
-
         return result;
     }
 
-    // TODO: 03/01/2019 Unit test.
     public static List<String> mergeRemovingDuplicates(List<String> first, List<String> second) {
         Set<String> set = new HashSet<>(first);
         set.addAll(second);

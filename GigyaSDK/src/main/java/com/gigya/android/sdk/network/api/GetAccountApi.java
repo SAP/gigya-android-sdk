@@ -16,7 +16,6 @@ import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -65,14 +64,13 @@ public class GetAccountApi<T> extends BaseApi<T> implements IApi {
                 try {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
-                    Gson gson = new Gson();
                     if (statusCode == OK) {
                         // To avoid writing a clone constructor.
                         if (interceptor != null) {
-                            T interception = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                             interceptor.intercept(interception);
                         }
-                        final T parsed = (T) gson.fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        final T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         callback.onSuccess(parsed);
                         return;
                     }

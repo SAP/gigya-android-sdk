@@ -82,7 +82,6 @@ public class SessionManager {
             GigyaLogger.error(LOG_TAG, "Failed to parse _session info from response");
             return;
         }
-        session.validateExpirationTime();
         _session = session;
         GigyaLogger.debug(LOG_TAG, "setSession : " + _session.toString());
         save();
