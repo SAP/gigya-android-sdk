@@ -16,8 +16,6 @@ public class SigUtils {
 
     private static final String ENCODING_ALGORITHM = "HmacSHA1";
 
-    // TODO: 10/12/2018 Requires Unit testing.
-
     @SuppressWarnings("StringBufferReplaceableByString")
     public static String getSignature(String secret, String httpMethod, String url, TreeMap<String, Object> params) {
         try {

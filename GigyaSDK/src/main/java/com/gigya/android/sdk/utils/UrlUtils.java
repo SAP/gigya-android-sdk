@@ -44,7 +44,6 @@ public class UrlUtils {
         }
     }
 
-    // TODO: 01/01/2019 Add unit test.
     public static String gzipDecode(byte[] data) throws IOException {
         StringBuilder output = new StringBuilder();
         final GZIPInputStream gStream = new GZIPInputStream(new ByteArrayInputStream(data));
@@ -60,7 +59,6 @@ public class UrlUtils {
         return output.toString();
     }
 
-    // TODO: 01/01/2019 Add unit test.
     public static Map<String, Object> parseUrlParameters(String url) {
         final Map<String, Object> map = new HashMap<>();
         if (url != null) {
@@ -83,7 +81,6 @@ public class UrlUtils {
         return map;
     }
 
-    // TODO: 01/01/2019 Add unit test.
     public static String getBaseUrl(String api, String apiDomain) {
         final StringBuilder sb = new StringBuilder();
         final String[] split = api.split("\\.");

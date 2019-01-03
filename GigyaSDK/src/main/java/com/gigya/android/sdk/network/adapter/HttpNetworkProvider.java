@@ -32,6 +32,12 @@ class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
+    void sendBlocking(GigyaRequest request, INetworkCallbacks networkCallbacks) {
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
+        _blocked = true;
+    }
+
+    @Override
     void release() {
         if (_queue.isEmpty()) {
             return;

@@ -11,8 +11,6 @@ import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequestOld;
-import com.gigya.android.sdk.network.GigyaRequestQueue;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.network.api.AnonymousApi;
@@ -155,35 +153,18 @@ public class Gigya<T extends GigyaAccount> {
 
     private NetworkAdapter getNetworkAdapter() {
         if (_networkAdapter == null) {
-            _networkAdapter = new NetworkAdapter(_appContext);
+            _networkAdapter = new NetworkAdapter(_appContext, new NetworkAdapter.IConfigurationBlock() {
+                @Override
+                public void onMissingConfiguration() {
+                    if (!_configuration.hasGMID()) {
+                        getSdkConfig();
+                    }
+                }
+            });
         }
         return _networkAdapter;
     }
 
-    /*
-    Main network priority request queue.
-     */
-    private GigyaRequestQueue _requestQueue;
-
-    private GigyaRequestQueue getRequestQueue() {
-        if (_requestQueue == null) {
-            _requestQueue = new GigyaRequestQueue(_appContext);
-        }
-        return _requestQueue;
-    }
-
-    /*
-    Actual SDK send request method.
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    private void send(GigyaRequestOld request) {
-        if (!_configuration.hasGMID()) {
-            getSdkConfig();
-            _requestQueue.block();
-        }
-        getRequestQueue().add(request);
-    }
 
     /*
    Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
@@ -208,25 +189,6 @@ public class Gigya<T extends GigyaAccount> {
                 GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
             }
         });
-
-//        getRequestQueue().add(new SdkConfigApi(_configuration, _sessionManager).getRequest(null, new GigyaCallback<SdkConfigApi.SdkConfig>() {
-//            @Override
-//            public void onSuccess(SdkConfigApi.SdkConfig obj) {
-//                if (isValidConfiguration()) {
-//                    _configuration.setIDs(obj.getIds());
-//                    if (_sessionManager != null) {
-//                        // Trigger session save in order to keep track of GMID, UCID.
-//                        _sessionManager.save();
-//                    }
-//                    _requestQueue.release();
-//                }
-//            }
-//
-//            @Override
-//            public void onError(GigyaError error) {
-//                GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
-//            }
-//        }, null));
     }
 
     /**
@@ -244,12 +206,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         new AnonymousApi<GigyaResponse>(_configuration, getNetworkAdapter(), _sessionManager)
                 .call(api, params, callback);
-//        send(new GigyaRequestBuilderOld(_configuration)
-//                .api(api)
-//                .sessionManager(_sessionManager)
-//                .params(params)
-//                .callback(callback)
-//                .build());
     }
 
     /**
@@ -268,13 +224,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         new AnonymousApi<>(_configuration, getNetworkAdapter(), _sessionManager,  clazz)
                 .call(api, params, callback);
-//        send(new GigyaRequestBuilderOld(_configuration)
-//                .api(api)
-//                .sessionManager(_sessionManager)
-//                .params(params)
-//                .output(clazz)
-//                .callback(callback)
-//                .build());
     }
 
     //endregion
@@ -337,7 +286,6 @@ public class Gigya<T extends GigyaAccount> {
      * This will clean all session related data persistence.
      */
     public void logout() {
-//        send("socialize.logout", null, null);
         new LogoutApi(_configuration, getNetworkAdapter(), _sessionManager).call();
         if (_sessionManager != null) {
             _sessionManager.clear();
@@ -364,13 +312,6 @@ public class Gigya<T extends GigyaAccount> {
         params.put("loginID", username);
         params.put("password", password);
         params.put("include", "profile,data,subscriptions,preferences");
-//        send(new LoginApi<>(_configuration, _sessionManager, _accountClazz).getRequest(params, callback, new GigyaInterceptionCallback<T>() {
-//            @Override
-//            public void intercept(T obj) {
-//                // TODO: 20/12/2018 Interception here might be a problem. Should we call getAccountInfo in login flow?
-//                _account = obj;
-//            }
-//        }));
         new LoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(params, callback, new GigyaInterceptionCallback<T>() {
             @Override
             public void intercept(T obj) {
@@ -398,13 +339,6 @@ public class Gigya<T extends GigyaAccount> {
                 _account = obj;
             }
         });
-//        send(new GetAccountApi<>(_configuration, _sessionManager, _accountClazz).getRequest(null, callback, new GigyaInterceptionCallback<T>() {
-//
-//            @Override
-//            public void intercept(T obj) {
-//                _account = obj;
-//            }
-//        }));
     }
 
     /**
@@ -414,15 +348,6 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void setAccount(T account, GigyaCallback callback) {
-//        send(new SetAccountApi<>(_configuration, _sessionManager, account, _account)
-//                .getRequest(null, callback, new GigyaInterceptionCallback() {
-//                    @Override
-//                    public void intercept(Object obj) {
-//                        // Flush account cache.
-//                        _account = null;
-//                        // TODO: 17/12/2018 Maybe we should make another call to getAccount here?
-//                    }
-//                }));
         new SetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz, account, _account)
                 .call(callback, new GigyaInterceptionCallback<T>() {
                     @Override
@@ -472,15 +397,6 @@ public class Gigya<T extends GigyaAccount> {
                         // TODO: 18/12/2018 Should we call getAccountInfo here?
                     }
                 });
-//        send(new RegisterApi<>(_configuration, _sessionManager, _requestQueue, _accountClazz, policy, finalize)
-//                .getRequest(params, callback, new GigyaInterceptionCallback<T>() {
-//                    @Override
-//                    public void intercept(T obj) {
-//                       // Stub.
-//                        // TODO: 18/12/2018 Should we call getAccountInfo here?
-//                    }
-//                })
-//        );
     }
 
     //endregion

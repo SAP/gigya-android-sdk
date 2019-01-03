@@ -8,6 +8,8 @@ abstract class NetworkProvider {
 
     abstract void addToQueue(GigyaRequest request, INetworkCallbacks networkCallbacks);
 
+    abstract void sendBlocking(GigyaRequest request, INetworkCallbacks networkCallbacks);
+
     void block() {
         _blocked = true;
     }

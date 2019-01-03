@@ -8,7 +8,10 @@ public class NetworkAdapter {
 
     private NetworkProvider _networkProvider;
 
-    public NetworkAdapter(Context appContext) {
+    private IConfigurationBlock _configurationBlock;
+
+    public NetworkAdapter(Context appContext, IConfigurationBlock configurationBlock) {
+        _configurationBlock = configurationBlock;
         /*
         Currently the only available network provider.
          */
@@ -23,7 +26,13 @@ public class NetworkAdapter {
 
     public void send(GigyaRequest request,
                      INetworkCallbacks networkCallbacks) {
+        _configurationBlock.onMissingConfiguration();
         _networkProvider.addToQueue(request, networkCallbacks);
+    }
+
+    public void sendBlocking(GigyaRequest request,
+                             INetworkCallbacks networkCallbacks) {
+        _networkProvider.sendBlocking(request, networkCallbacks);
     }
 
     public void block() {
@@ -50,5 +59,10 @@ public class NetworkAdapter {
         public int getValue() {
             return value;
         }
+    }
+
+    public interface IConfigurationBlock {
+
+        void onMissingConfiguration();
     }
 }

@@ -59,6 +59,13 @@ public class VolleyNetworkProvider extends NetworkProvider {
     }
 
     @Override
+    void sendBlocking(GigyaRequest request, INetworkCallbacks networkCallbacks) {
+        VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
+        _requestQueue.add(newRequest);
+        _blocked = true;
+    }
+
+    @Override
     void release() {
         super.release();
         if (_blockedQueue.isEmpty()) {

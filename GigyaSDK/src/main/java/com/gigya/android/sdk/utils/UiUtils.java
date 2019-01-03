@@ -7,8 +7,6 @@ import android.util.Pair;
 
 public class UiUtils {
 
-    // TODO: 31/12/2018 Add unit tests.
-
     /**
      * Convert dp unit to equivalent pixels, depending on device density.
      */
@@ -28,7 +26,6 @@ public class UiUtils {
      *
      * @param context Activity context.
      * @return A pair of width & height pixel dimensions.
-     *
      */
     public static Pair<Integer, Integer> getScreenSize(Activity context) {
         DisplayMetrics displayMetrics = new DisplayMetrics();

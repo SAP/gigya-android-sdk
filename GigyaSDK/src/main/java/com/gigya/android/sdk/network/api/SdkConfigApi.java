@@ -3,16 +3,12 @@ package com.gigya.android.sdk.network.api;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.android.volley.Request;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaRequestBuilderOld;
-import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
@@ -24,38 +20,12 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class SdkConfigApi extends BaseApi implements IApi {
+public class SdkConfigApi extends BaseApi  {
 
     private static final String API = "socialize.getSDKConfig";
 
-    @Deprecated
-    public SdkConfigApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager) {
-        super(configuration, sessionManager);
-
-    }
-
     public SdkConfigApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
         super(configuration, networkAdapter, sessionManager);
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    @Override
-    public GigyaRequestOld getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        params.put("include", "permissions" + (configuration.hasGMID() ? "" : ",ids"));
-        params.put("ApiKey", configuration.getApiKey());
-        return new GigyaRequestBuilderOld<SdkConfig>(configuration)
-                .api(API)
-                .sessionManager(sessionManager)
-                .httpMethod(Request.Method.GET)
-                .params(params)
-                .output(SdkConfig.class)
-                .callback(callback)
-                .priority(Request.Priority.IMMEDIATE)
-                .build();
     }
 
     public void call(final GigyaCallback<SdkConfig> callback) {
@@ -70,7 +40,7 @@ public class SdkConfigApi extends BaseApi implements IApi {
                 .sessionManager(sessionManager)
                 .build();
         // Send request.
-        networkAdapter.send(gigyaRequest, new INetworkCallbacks() {
+        networkAdapter.sendBlocking(gigyaRequest, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
                 if (callback == null) {
@@ -103,8 +73,6 @@ public class SdkConfigApi extends BaseApi implements IApi {
                 }
             }
         });
-        // Blocking network queue.
-        networkAdapter.block();
     }
 
     /*

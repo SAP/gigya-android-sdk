@@ -11,20 +11,16 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaRequestBuilderOld;
-import com.gigya.android.sdk.network.GigyaRequestOld;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
-import java.util.Map;
-
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 @SuppressWarnings("unchecked")
-public class GetAccountApi<T> extends BaseApi<T> implements IApi {
+public class GetAccountApi<T> extends BaseApi<T> {
 
     private static final String API = "accounts.getAccountInfo";
 
@@ -35,19 +31,6 @@ public class GetAccountApi<T> extends BaseApi<T> implements IApi {
 
     public GetAccountApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
         super(configuration, networkAdapter, sessionManager, clazz);
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    @Override
-    public GigyaRequestOld getRequest(Map<String, Object> params, GigyaCallback callback, GigyaInterceptionCallback interceptor) {
-        return new GigyaRequestBuilderOld<T>(configuration)
-                .sessionManager(sessionManager)
-                .api(API)
-                .output(this.clazz)
-                .callback(callback)
-                .interceptor(interceptor)
-                .build();
     }
 
     public void call(final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {

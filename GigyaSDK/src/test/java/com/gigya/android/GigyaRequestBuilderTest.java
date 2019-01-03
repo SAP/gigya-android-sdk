@@ -51,6 +51,7 @@ public class GigyaRequestBuilderTest {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(sessionManager.getSession()).thenReturn(new SessionInfo("mockSecret", "mockToken"));
+        when(sessionManager.isValidSession()).thenReturn(true);
         mockStatic(Base64.class, System.class);
         when(Base64.decode(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
@@ -94,8 +95,8 @@ public class GigyaRequestBuilderTest {
         // Act
         GigyaRequest request = builder.build();
         // Assert
-        assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig?ApiKey=dummyApiKey&apiKey=dummyApiKey&format=json&httpStatusCodes=false&" +
-                "include=permissions%2C%20ids&nonce=1545905337000_1&sdk=android_4.0.0&sig=bgYHdWtMn8PFxy%2FTmqJ4bNexjhs%3D&targetEnv=mobile&timestamp=1545905337",
+        assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig?apiKey=dummyApiKey&format=json&httpStatusCodes=false&include=permissions%2C%20ids&nonce=1545905337000_1&oauth_token=mockToken&" +
+                        "sdk=android_4.0.0&sig=DfljJQXRGfeIQAJ4lQuw5nEGrtU%3D&targetEnv=mobile&timestamp=1545905337",
                 request.getUrl());
         assertNull(request.getEncodedParams());
         assertEquals(NetworkAdapter.Method.GET, request.getMethod());
@@ -118,8 +119,8 @@ public class GigyaRequestBuilderTest {
         // Assert
         assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig", request.getUrl());
         assertNotNull(request.getEncodedParams());
-        assertEquals("ApiKey=dummyApiKey&apiKey=dummyApiKey&format=json&httpStatusCodes=false" +
-                "&include=permissions%2C%20ids&nonce=1545905337000_1&sdk=android_4.0.0&sig=k%2FKnAdrsHr0SjMXHTOMusr%2FxHJE%3D&targetEnv=mobile&timestamp=1545905337",
+        assertEquals("apiKey=dummyApiKey&format=json&httpStatusCodes=false&include=permissions%2C%20ids&" +
+                        "nonce=1545905337000_1&oauth_token=mockToken&sdk=android_4.0.0&sig=ZIt303EWT4EbTkLKCfbvKdeXiuc%3D&targetEnv=mobile&timestamp=1545905337",
                 request.getEncodedParams());
         assertEquals(NetworkAdapter.Method.POST, request.getMethod());
         assertEquals("socialize.getSDkConfig", request.getTag());
