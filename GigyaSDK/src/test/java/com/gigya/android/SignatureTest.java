@@ -63,45 +63,61 @@ public class SignatureTest {
 
     @Test
     public void testMatchingSignature() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", MOCK_API_KEY);
+        // Act
         String signature = SigUtils.getSignature(MOCK_SECRET, MOCK_HTTP_METHOD, MOCK_URL, MOCK_PARAMETERS);
-        System.out.println("Generated signature = " + signature);
+        // Assert
         Assert.assertEquals(signature, MOCK_SIGNATURE_VERIFIED);
     }
 
     @Test
     public void testNonMatchingSignature() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", "absd34as9uafs!@315asasnfasd");
+        // Act
         String signature = SigUtils.getSignature(MOCK_SECRET, MOCK_HTTP_METHOD, MOCK_URL, MOCK_PARAMETERS);
-        System.out.println("Generated signature = " + signature);
+        // Assert
         Assert.assertNotEquals(signature, MOCK_SIGNATURE_VERIFIED);
     }
 
     @Test
     public void testInvalidSignatureCreationWithNullSecret() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", MOCK_API_KEY);
+        // Act
         String signature = SigUtils.getSignature(null, MOCK_HTTP_METHOD, MOCK_URL, MOCK_PARAMETERS);
+        // Assert
         Assert.assertNull(signature);
     }
 
     @Test
     public void testInvalidSignatureCreationWithNullHttpMethod() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", MOCK_API_KEY);
+        // Act
         String signature = SigUtils.getSignature(MOCK_SECRET, null, MOCK_URL, MOCK_PARAMETERS);
+        // Assert
         Assert.assertNull(signature);
     }
 
     @Test
     public void testInvalidSignatureCreationWithNullURL() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", MOCK_API_KEY);
+        // Act
         String signature = SigUtils.getSignature(MOCK_SECRET, MOCK_HTTP_METHOD, null, MOCK_PARAMETERS);
+        // Assert
         Assert.assertNull(signature);
     }
 
     @Test
     public void testInvalidSignatureCreationWithNullParameters() {
+        // Arrange
         MOCK_PARAMETERS.put("ApiKey", MOCK_API_KEY);
+        // Act
         String signature = SigUtils.getSignature(MOCK_SECRET, MOCK_HTTP_METHOD, MOCK_URL, null);
+        // Assert
         Assert.assertNull(signature);
     }
 }

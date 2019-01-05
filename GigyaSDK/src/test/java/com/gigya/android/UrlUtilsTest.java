@@ -84,7 +84,6 @@ public class UrlUtilsTest {
         final byte[] encoded = new byte[]{31, -117, 8, 0, 0, 0, 0, 0, 0, 0, -85, -54, 44, 8, 73, 45, 46, 1, 0, 104, -32, 84, 90, 7, 0, 0, 0};
         // Act
         final String decoded = UrlUtils.gzipDecode(encoded).trim();
-        System.out.println(decoded);
         // Assert
         assertEquals("zipTest", decoded);
     }
