@@ -1,14 +1,12 @@
 package com.gigya.android.sdk.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
@@ -50,7 +48,8 @@ public class GigyaPresenter {
 
     //endregion
 
-    public static void presentNativeLogin(final Context context, final Configuration configuration, final Map<String, Object> params) {
+    public static void presentNativeLogin(final Context context, final Configuration configuration, final Map<String, Object> params,
+                                          final LoginProvider.LoginProviderCallbacks loginProviderCallbacks) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
@@ -65,45 +64,19 @@ public class GigyaPresenter {
                 WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentResultCallback() {
 
                     @Override
-                    void onResult( Map<String, Object> result) {
+                    void onResult(Map<String, Object> result) {
+                        activity.finish();
                         /* Handle result */
                         final String provider = (String) result.get("provider");
                         if (provider == null) {
                             return;
                         }
-                        LoginProvider loginProvider = LoginProviderFactory.providerFor(activity, provider, new LoginProvider.LoginProviderCallbacks() {
-                            @Override
-                            public void onSuccess(String token, long expiration) {
-                                GigyaLogger.debug(TAG, "Login provider = " + provider + " token = " + token);
-                                activity.finish();
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                GigyaLogger.debug(TAG, "Login provider = " + provider + " error = " + error);
-                                activity.finish();
-                            }
-                        });
+                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks);
                         if (loginProvider != null) {
-                            loginProvider.login(activity, params);
+                            loginProvider.login(context, params);
                         }
                     }
                 });
-            }
-
-            @Override
-            public void onStart(AppCompatActivity activity) {
-                // Stub.
-            }
-
-            @Override
-            public void onResume(AppCompatActivity activity) {
-                // Stub.
-            }
-
-            @Override
-            public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
-                // Stub.
             }
         });
     }

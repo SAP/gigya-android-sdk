@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -20,6 +21,7 @@ import com.gigya.android.sdk.network.api.LogoutApi;
 import com.gigya.android.sdk.network.api.RegisterApi;
 import com.gigya.android.sdk.network.api.SdkConfigApi;
 import com.gigya.android.sdk.network.api.SetAccountApi;
+import com.gigya.android.sdk.network.api.SocialLoginApi;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 
 import java.util.HashMap;
@@ -208,6 +210,16 @@ public class Gigya<T extends GigyaAccount> {
                 .call(api, params, callback);
     }
 
+    @NonNull
+    private Class<T> _accountClazz = (Class<T>) GigyaAccount.class;
+
+    //endregion
+
+    //region BaseGigyaAccount & Session
+
+    @Nullable
+    private SessionManager _sessionManager;
+
     /**
      * Send request to Gigya servers.
      *
@@ -222,19 +234,9 @@ public class Gigya<T extends GigyaAccount> {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        new AnonymousApi<>(_configuration, getNetworkAdapter(), _sessionManager,  clazz)
+        new AnonymousApi<>(_configuration, getNetworkAdapter(), _sessionManager, clazz)
                 .call(api, params, callback);
     }
-
-    //endregion
-
-    //region BaseGigyaAccount & Session
-
-    @Nullable
-    private SessionManager _sessionManager;
-
-    @Nullable
-    private Class<T> _accountClazz = (Class<T>) GigyaAccount.class;
 
     /*
      * Account object reference (cached).
@@ -249,6 +251,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     // TODO: 01/01/2019 This is a testing only method.
+
     /**
      * Manually set the current Account scheme.
      * Use this option if applying a custom account scheme and did not initialized the SDK using a
@@ -329,16 +332,16 @@ public class Gigya<T extends GigyaAccount> {
         // TODO: 06/12/2018 BaseGigyaAccount caching policy.
 //        if (_account != null) {
 //            // Cached BaseGigyaAccount instance. Return it.
-//            callback.onSuccess(_account);
+//            callback.onProviderLoginSuccess(_account);
 //            return;
 //        }
         new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
                 .call(callback, new GigyaInterceptionCallback<T>() {
-            @Override
-            public void intercept(T obj) {
-                _account = obj;
-            }
-        });
+                    @Override
+                    public void intercept(T obj) {
+                        _account = obj;
+                    }
+                });
     }
 
     /**
@@ -403,8 +406,22 @@ public class Gigya<T extends GigyaAccount> {
 
     //region User Interface & presentation
 
-    public void presetNativeLogin(Map<String, Object> params) {
-        GigyaPresenter.presentNativeLogin(_appContext, _configuration, params);
+    public void presetNativeLogin(Map<String, Object> params, final GigyaCallback<T> callback) {
+        GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
+            @Override
+            public void onProviderLoginSuccess(String provider, String token, long expiration) {
+                GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
+                        + provider + ", token = " + token + ", expiration = " + expiration);
+                new SocialLoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(provider, token, callback);
+            }
+
+            @Override
+            public void onProviderLoginFailed(String provider, String error) {
+                GigyaLogger.debug("Gigya", "onProviderLoginFailed: provider = "
+                        + provider + ", error =" + error);
+                // TODO: 04/01/2019 Should we invoke UI to show error to the user?
+            }
+        });
     }
 
     //endregion

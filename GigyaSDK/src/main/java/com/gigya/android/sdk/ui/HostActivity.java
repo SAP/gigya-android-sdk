@@ -112,11 +112,17 @@ public class HostActivity extends AppCompatActivity {
 
         public abstract void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState);
 
-        public abstract void onStart(AppCompatActivity activity);
+        public void onStart(AppCompatActivity activity) {
+            // Stub.
+        }
 
-        public abstract void onResume(AppCompatActivity activity);
+        public void onResume(AppCompatActivity activity) {
+            // Stub.
+        }
 
-        public abstract void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data);
+        public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
+            // Stub.
+        }
     }
 
     //endregion

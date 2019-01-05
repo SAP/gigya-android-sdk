@@ -9,10 +9,8 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 public abstract class BaseApi<T> {
 
-    @NonNull
     protected NetworkAdapter networkAdapter;
 
-    @NonNull
     protected Configuration configuration;
 
     @Nullable
@@ -23,19 +21,19 @@ public abstract class BaseApi<T> {
 
     //region Convenience constructors
 
-    public BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
+    BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
         this.configuration = configuration;
         this.networkAdapter = networkAdapter;
         this.sessionManager = sessionManager;
     }
 
-    public BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
+    BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
         this.configuration = configuration;
         this.sessionManager = sessionManager;
         this.clazz = clazz;
     }
 
-    public BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
+    BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
         this.configuration = configuration;
         this.networkAdapter = networkAdapter;
         this.sessionManager = sessionManager;

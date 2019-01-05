@@ -2,6 +2,8 @@ package com.gigya.android.sample.ui
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.util.Log
+import com.facebook.login.LoginBehavior
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
@@ -71,11 +73,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             SetupExample.CUSTOM_SCHEME -> {
 //                gigya.login(loginID, password, object : GigyaCallback<MyAccount>() {
-//                    override fun onSuccess(obj: MyAccount?) {
+//                    override fun onProviderLoginSuccess(obj: MyAccount?) {
 //                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
 //                    }
 //
-//                    override fun onError(error: GigyaError?) {
+//                    override fun onProviderLoginFailed(error: GigyaError?) {
 //                        error(error)
 //                    }
 //                })
@@ -102,11 +104,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             SetupExample.CUSTOM_SCHEME -> {
 //                gigya.register(loginID, password, policy, true, object : GigyaRegisterCallback<MyAccount>() {
-//                    override fun onSuccess(obj: MyAccount?) {
+//                    override fun onProviderLoginSuccess(obj: MyAccount?) {
 //                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
 //                    }
 //
-//                    override fun onError(error: GigyaError?) {
+//                    override fun onProviderLoginFailed(error: GigyaError?) {
 //                        error(error)
 //                    }
 //                })
@@ -134,12 +136,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         SetupExample.CUSTOM_SCHEME -> {
 //            gigya.getAccount(object : GigyaCallback<MyAccount>() {
-//                override fun onSuccess(obj: MyAccount?) {
+//                override fun onProviderLoginSuccess(obj: MyAccount?) {
 //                    myAccount = obj
 //                    success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
 //                }
 //
-//                override fun onError(error: GigyaError?) {
+//                override fun onProviderLoginFailed(error: GigyaError?) {
 //                    error(error)
 //                }
 //            })
@@ -166,11 +168,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             SetupExample.CUSTOM_SCHEME -> {
                 myAccount?.data?.report = dummyData
 //                gigya.setAccount(myAccount, object : GigyaCallback<GigyaResponse>() {
-//                    override fun onSuccess(obj: GigyaResponse?) {
+//                    override fun onProviderLoginSuccess(obj: GigyaResponse?) {
 //                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
 //                    }
 //
-//                    override fun onError(error: GigyaError?) {
+//                    override fun onProviderLoginFailed(error: GigyaError?) {
 //                        error(error)
 //                    }
 //
@@ -193,8 +195,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun presentNativeLogin() {
         gigya.presetNativeLogin(mapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus",
-                FacebookLoginProvider.READ_PERMISSIONS to "user_birthday"
-        ))
+                FacebookLoginProvider.READ_PERMISSIONS to "user_birthday",
+                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY
+        ), object: GigyaCallback<GigyaAccount>() {
+            override fun onSuccess(obj: GigyaAccount?) {
+                Log.d("presentNativeLogin", "Success")
+            }
+
+            override fun onError(error: GigyaError?) {
+                Log.d("presentNativeLogin", "onError")
+            }
+
+        })
     }
 
     //region Utility methods
