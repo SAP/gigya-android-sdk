@@ -54,8 +54,7 @@ public class GoogleLoginProvider extends LoginProvider {
         _googleClient = GoogleSignIn.getClient(context, gso);
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
-            // TODO: 05/01/2019 Check how to fetch expiration of id token.
-            loginCallbacks.onProviderLoginSuccess("google", account.getIdToken(), 0);
+            loginCallbacks.onProviderLoginSuccess("googlePlus", account.getIdToken(), 0);
             return;
         }
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
@@ -79,12 +78,14 @@ public class GoogleLoginProvider extends LoginProvider {
     private void handleSignInResult(AppCompatActivity activity, Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
+            if (account != null) {
+                final String idToken = account.getIdToken();
+                loginCallbacks.onProviderLoginSuccess("googlePlus", idToken, 0);
+                activity.finish();
+            }
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            //Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            loginCallbacks.onProviderLoginFailed("googlePlus", e.getLocalizedMessage());
+            activity.finish();
         }
     }
 }

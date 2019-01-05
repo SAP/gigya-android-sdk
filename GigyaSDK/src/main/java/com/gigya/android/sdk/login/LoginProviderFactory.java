@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider;
 import com.gigya.android.sdk.login.provider.GoogleLoginProvider;
+import com.gigya.android.sdk.login.provider.LineLoginProvider;
+import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
 
 public class LoginProviderFactory {
 
@@ -16,9 +18,19 @@ public class LoginProviderFactory {
                     return new FacebookLoginProvider(loginCallbacks);
                 }
                 break;
-            case "google":
+            case "googlePlus":
                 if (GoogleLoginProvider.isAvailable(context)) {
                     return new GoogleLoginProvider(loginCallbacks);
+                }
+                break;
+            case "line":
+                if (LineLoginProvider.isAvailable(context)) {
+                    return new LineLoginProvider(loginCallbacks);
+                }
+                break;
+            case "wechat":
+                if (WeChatLoginProvider.isAvailable(context)) {
+                    return new WeChatLoginProvider(loginCallbacks);
                 }
                 break;
         }
