@@ -4,18 +4,23 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.util.Log
 import com.facebook.login.LoginBehavior
+import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaRegisterCallback
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
+import com.gigya.android.sdk.login.provider.GoogleLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
 import com.gigya.android.sdk.network.api.RegisterApi
+import com.gigya.sample.R
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    fun getString(id: Int): String = getApplication<GigyaSampleApplication>().getString(id)
 
     enum class SetupExample {
         BASIC, CUSTOM_SCHEME
@@ -123,16 +128,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) = when (exampleSetup) {
         SetupExample.BASIC -> {
-                gigya.getAccount(object : GigyaCallback<GigyaAccount>() {
-                    override fun onSuccess(obj: GigyaAccount?) {
-                        account = obj
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
+            gigya.getAccount(object : GigyaCallback<GigyaAccount>() {
+                override fun onSuccess(obj: GigyaAccount?) {
+                    account = obj
+                    success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+                }
 
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
+                override fun onError(error: GigyaError?) {
+                    error(error)
+                }
+            })
         }
         SetupExample.CUSTOM_SCHEME -> {
 //            gigya.getAccount(object : GigyaCallback<MyAccount>() {
@@ -196,8 +201,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.presetNativeLogin(mapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus",
                 FacebookLoginProvider.READ_PERMISSIONS to "user_birthday",
-                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY
-        ), object: GigyaCallback<GigyaAccount>() {
+                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY,
+                GoogleLoginProvider.GOOGLE_SERVER_CLIENT_ID to getString(R.string.server_client_id)
+        ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("presentNativeLogin", "Success")
             }
