@@ -12,13 +12,13 @@ public class LoginProviderFactory {
 
     @Nullable
     public static LoginProvider providerFor(Context context, String providerName, LoginProvider.LoginProviderCallbacks loginCallbacks) {
-        switch (providerName) {
+        switch (providerName.toLowerCase()) {
             case "facebook":
                 if (FacebookLoginProvider.isAvailable(context)) {
                     return new FacebookLoginProvider(loginCallbacks);
                 }
                 break;
-            case "googlePlus":
+            case "googleplus":
                 if (GoogleLoginProvider.isAvailable(context)) {
                     return new GoogleLoginProvider(loginCallbacks);
                 }
@@ -35,5 +35,10 @@ public class LoginProviderFactory {
                 break;
         }
         return null;
+    }
+
+    @Nullable
+    public static LoginProvider providerForLogout(Context context, String providerName) {
+        return providerFor(context, providerName, null);
     }
 }

@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -21,7 +22,6 @@ import com.gigya.android.sdk.network.api.LogoutApi;
 import com.gigya.android.sdk.network.api.RegisterApi;
 import com.gigya.android.sdk.network.api.SdkConfigApi;
 import com.gigya.android.sdk.network.api.SetAccountApi;
-import com.gigya.android.sdk.network.api.SocialLoginApi;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 
 import java.util.HashMap;
@@ -215,7 +215,10 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region BaseGigyaAccount & Session
+    //region GigyaAccount & Session
+
+    @Nullable
+    private String _currentSocialProvider;
 
     @Nullable
     private SessionManager _sessionManager;
@@ -295,7 +298,12 @@ public class Gigya<T extends GigyaAccount> {
         }
         getNetworkAdapter().cancel(null);
         GigyaPresenter.flush();
-        // TODO: 05/12/2018 Additional handling required on provider logic implementation.
+        if (_currentSocialProvider != null) {
+            LoginProvider loginProvider = LoginProviderFactory.providerForLogout(_appContext, _currentSocialProvider);
+            if (loginProvider != null) {
+                loginProvider.logout();
+            }
+        }
     }
 
     //endregion
@@ -410,13 +418,15 @@ public class Gigya<T extends GigyaAccount> {
         GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
             @Override
             public void onProviderLoginSuccess(String provider, String token, long expiration) {
+                _currentSocialProvider = provider;
                 GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
                         + provider + ", token = " + token + ", expiration = " + expiration);
-                new SocialLoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz).call(provider, token, callback);
+                // TODO: 06/01/2019 Social login with gigya server.
             }
 
             @Override
             public void onProviderLoginFailed(String provider, String error) {
+                _currentSocialProvider = provider;
                 GigyaLogger.debug("Gigya", "onProviderLoginFailed: provider = "
                         + provider + ", error =" + error);
                 // TODO: 04/01/2019 Should we invoke UI to show error to the user?

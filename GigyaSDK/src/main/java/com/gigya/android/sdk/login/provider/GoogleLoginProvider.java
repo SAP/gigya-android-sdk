@@ -22,6 +22,8 @@ import java.util.Map;
 
 public class GoogleLoginProvider extends LoginProvider {
 
+    public static final String GOOGLE_SERVER_CLIENT_ID = "google_server_client_id";
+
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
 
@@ -32,7 +34,7 @@ public class GoogleLoginProvider extends LoginProvider {
     @UiThread
     public static boolean isAvailable(Context context) {
         try {
-            Class.forName("com.google.android.gms.common.GoogleApiAvailability");
+            Class.forName("com.google.android.gms.auth.api.signin.GoogleSignInClient");
             return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS;
         } catch (Throwable t) {
             return false;
@@ -48,13 +50,20 @@ public class GoogleLoginProvider extends LoginProvider {
 
     @Override
     public void login(Context context, Map<String, Object> loginParams) {
+        final String serverClientId = (String) loginParams.get(GOOGLE_SERVER_CLIENT_ID);
+        if (serverClientId == null) {
+            loginCallbacks.onProviderLoginFailed("googlePlus", "Missing server client id");
+            return;
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(serverClientId)
                 .requestEmail()
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             loginCallbacks.onProviderLoginSuccess("googlePlus", account.getIdToken(), 0);
+            _googleClient.signOut();
             return;
         }
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
@@ -80,11 +89,20 @@ public class GoogleLoginProvider extends LoginProvider {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null) {
                 final String idToken = account.getIdToken();
+                if (idToken == null) {
+                    loginCallbacks.onProviderLoginFailed("googlePlus", "Id token no available");
+                    return;                }
                 loginCallbacks.onProviderLoginSuccess("googlePlus", idToken, 0);
+                if (_googleClient != null) {
+                    _googleClient.signOut();
+                }
                 activity.finish();
             }
         } catch (ApiException e) {
             loginCallbacks.onProviderLoginFailed("googlePlus", e.getLocalizedMessage());
+            if (_googleClient != null) {
+                _googleClient.signOut();
+            }
             activity.finish();
         }
     }
