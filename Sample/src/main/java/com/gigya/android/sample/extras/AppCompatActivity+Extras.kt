@@ -7,7 +7,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import com.gigya.sample.R
+import com.gigya.android.sample.R
 
 private const val ERROR_ALERT_DISMISSAL_DELAY: Long = 3000
 

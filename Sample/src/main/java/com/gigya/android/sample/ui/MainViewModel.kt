@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.util.Log
 import com.facebook.login.LoginBehavior
 import com.gigya.android.sample.GigyaSampleApplication
+import com.gigya.android.sample.R
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
@@ -15,7 +16,6 @@ import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
 import com.gigya.android.sdk.network.api.RegisterApi
-import com.gigya.sample.R
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -199,7 +199,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun presentNativeLogin() {
         gigya.presetNativeLogin(mapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus",
+                "enabledProviders" to "facebook, googlePlus, line, wechat",
                 FacebookLoginProvider.READ_PERMISSIONS to "user_birthday",
                 FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY,
                 GoogleLoginProvider.GOOGLE_SERVER_CLIENT_ID to getString(R.string.server_client_id)

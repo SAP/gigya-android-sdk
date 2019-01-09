@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
@@ -18,7 +19,6 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.ui.WebViewFragment
-import com.gigya.sample.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*

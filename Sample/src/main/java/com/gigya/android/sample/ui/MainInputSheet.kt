@@ -7,7 +7,7 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.gigya.sample.R
+import com.gigya.android.sample.R
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.api.RegisterApi
 import kotlinx.android.synthetic.main.sheet_anonymous.*
