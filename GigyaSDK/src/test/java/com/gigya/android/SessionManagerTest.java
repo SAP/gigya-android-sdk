@@ -76,6 +76,7 @@ public class SessionManagerTest {
         when(sharedPreferences.getString(eq("session.Token"), (String) any())).thenReturn("");
         when(sharedPreferences.contains(eq("GS_PREFS"))).thenReturn(false);
         when(sharedPreferences.edit()).thenReturn(editor);
+        doReturn(secretKey).when(encryptor.getKey(context, sharedPreferences));
 
         PowerMockito.mockStatic(TextUtils.class);
         when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
@@ -90,7 +91,7 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionManager sessionManager = new SessionManager(gigya);
+        SessionManager sessionManager = new SessionManager(gigya, encryptor);
         // Assert
         assertNull(sessionManager.getSession());
     }
@@ -107,7 +108,7 @@ public class SessionManagerTest {
         // Arrange
         final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaEncryptedSession.txt");
         final String encryptedSession = FileUtils.streamToString(in);
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         doReturn(encryptor).when(spy, "getEncryptor");
         doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
         when(sharedPreferences.contains(eq("GS_PREFS"))).thenReturn(true);
@@ -127,7 +128,7 @@ public class SessionManagerTest {
         // Arrange
         final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaEncryptedSession.txt");
         final String encryptedSession = FileUtils.streamToString(in);
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         doReturn(encryptor).when(spy, "getEncryptor");
         doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
@@ -153,7 +154,7 @@ public class SessionManagerTest {
     @Test
     public void testClear() throws NoSuchFieldException {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
         when(editor.remove(anyString())).thenReturn(editor);
@@ -166,7 +167,7 @@ public class SessionManagerTest {
     @Test
     public void testIsLegacySession() throws Exception {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         when(sharedPreferences.getString(eq("session.Token"), (String) any())).thenReturn("mockSessionToken");
         // Act
         final boolean isLegacySession = Whitebox.invokeMethod(spy, "isLegacySession");
@@ -183,7 +184,7 @@ public class SessionManagerTest {
         // Arrange
         final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaEncryptedSession.txt");
         final String encryptedSession = FileUtils.streamToString(in);
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         doReturn(encryptor).when(spy, "getEncryptor");
         doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
         when(sharedPreferences.getString(eq("session.Token"), (String) any())).thenReturn("mockSessionToken");
@@ -216,7 +217,7 @@ public class SessionManagerTest {
         // Arrange
         final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaEncryptedSession.txt");
         final String encryptedSession = FileUtils.streamToString(in);
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         doReturn(encryptor).when(spy, "getEncryptor");
         doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
         Configuration mockConfiguration = new Configuration();
@@ -246,7 +247,7 @@ public class SessionManagerTest {
     @Test
     public void testIsValidSession() throws NoSuchFieldException {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor));
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
         // Act

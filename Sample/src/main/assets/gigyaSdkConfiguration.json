@@ -1,4 +1,5 @@
 {
-    "apiKey": "3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag",
-    "apiDomain" : "us1.gigya.com"
+  "apiKey": "3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag",
+  "apiDomain": "us1.gigya.com",
+  "accountCacheTime": 5
 }

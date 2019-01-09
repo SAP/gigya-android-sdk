@@ -28,6 +28,7 @@ import com.gigya.android.sdk.ui.GigyaPresenter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 public class Gigya<T extends GigyaAccount> {
 
@@ -152,6 +153,11 @@ public class Gigya<T extends GigyaAccount> {
             /* Try to load fom manifest meta data. */
             _configuration = Configuration.loadFromManifest(_appContext);
         }
+
+        // Set next account invalidation timestamp if available.
+        if (_configuration != null && _configuration.getAccountCacheTime() != 0) {
+            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_configuration.getAccountCacheTime());
+        }
     }
 
     private NetworkAdapter getNetworkAdapter() {
@@ -252,6 +258,9 @@ public class Gigya<T extends GigyaAccount> {
      */
     private T _account;
 
+    private long _accountInvalidationTimestamp = 0L;
+    private boolean _accountOverrideCache = false;
+
     /*
      * Flush account data (nullify).
      */
@@ -342,14 +351,35 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void getAccount(GigyaCallback<T> callback) {
-        // TODO: 06/12/2018 Account caching policy should apply.
+        if (!_accountOverrideCache && _account != null && System.currentTimeMillis() < _accountInvalidationTimestamp) {
+            callback.onSuccess(_account);
+            return;
+        }
+        if (!_accountOverrideCache) {
+            GigyaLogger.debug("Gigya Account", "Invalidating cached account");
+            // Reset invalidation timestamp
+            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_configuration.getAccountCacheTime());
+        }
         new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
                 .call(callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
-                        _account = obj;
+                        if (!_accountOverrideCache) {
+                            _account = obj;
+                        }
                     }
                 });
+    }
+
+    /**
+     * Request account info.
+     *
+     * @param overrideCache Should override the account caching option. When set to true, the SDK will not cache the account object.
+     * @param callback      Response listener callback.
+     */
+    public void getAccount(final boolean overrideCache, GigyaCallback<T> callback) {
+        _accountOverrideCache = overrideCache;
+        getAccount(callback);
     }
 
     /**

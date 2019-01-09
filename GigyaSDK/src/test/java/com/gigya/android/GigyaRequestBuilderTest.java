@@ -39,7 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PowerMockIgnore("javax.crypto.*")
 public class GigyaRequestBuilderTest {
 
-    private Configuration configuration = new Configuration("dummyApiKey", "us1.gigya.com");
+    private Configuration configuration = new Configuration("dummyApiKey", "us1.gigya.com", 5 * 60000);
 
     @Mock
     private SessionManager sessionManager;

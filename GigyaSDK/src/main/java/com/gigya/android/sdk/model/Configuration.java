@@ -18,14 +18,16 @@ public class Configuration {
     private String apiKey;
     private String apiDomain;
     private IDs IDs = new IDs();
+    private int accountCacheTime = 5;
 
     public Configuration() {
 
     }
 
-    public Configuration(String apiKey, String domain) {
+    public Configuration(String apiKey, String domain, int accountCacheTime) {
         this.apiKey = apiKey;
         this.apiDomain = domain;
+        this.accountCacheTime = accountCacheTime;
     }
 
     public void update(String apiKey, String domain) {
@@ -59,7 +61,9 @@ public class Configuration {
         return getIDs().getGmid();
     }
 
-    public String getUCID() { return getIDs().getUcid(); }
+    public String getUCID() {
+        return getIDs().getUcid();
+    }
 
     public IDs getIDs() {
         return IDs;
@@ -67,6 +71,14 @@ public class Configuration {
 
     public void setIDs(IDs IDs) {
         this.IDs = IDs;
+    }
+
+    public int getAccountCacheTime() {
+        return accountCacheTime;
+    }
+
+    public void setAccountCacheTime(int accountCacheTime) {
+        this.accountCacheTime = accountCacheTime;
     }
 
     //endregion
@@ -85,8 +97,9 @@ public class Configuration {
         return null;
     }
 
-    private static final String KEY_META_API_KEY = "com.gigya.android.apiKey";
-    private static final String KEY_META_DOMAIN = "com.gigya.android.domain";
+    private static final String KEY_META_API_KEY = "apiKey";
+    private static final String KEY_META_DOMAIN = "apiDomain";
+    private static final String KEY_ACCOUNT_CACHE_TIME = "accountCacheTime";
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     @Nullable
@@ -96,7 +109,8 @@ public class Configuration {
             Bundle bundle = ai.metaData;
             final String apiKey = bundle.getString(KEY_META_API_KEY, null);
             final String domain = bundle.getString(KEY_META_DOMAIN, "us1.gigya.com");
-            return new Configuration(apiKey, domain);
+            final int accountCacheTime = bundle.getInt(KEY_ACCOUNT_CACHE_TIME, 5);
+            return new Configuration(apiKey, domain, accountCacheTime);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
