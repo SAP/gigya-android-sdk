@@ -24,7 +24,7 @@ public abstract class LoginProvider {
 
     public abstract void login(Context context, Map<String, Object> loginParams);
 
-    public abstract void logout();
+    public abstract void logout(Context context);
 
     public abstract String getProviderSessions(String tokenOrCode, long expiration, String uid);
 

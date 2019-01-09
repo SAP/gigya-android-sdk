@@ -25,7 +25,7 @@ public class LineLoginProvider extends LoginProvider {
         }
     }
     @Override
-    public void logout() {
+    public void logout(Context context) {
 
     }
 

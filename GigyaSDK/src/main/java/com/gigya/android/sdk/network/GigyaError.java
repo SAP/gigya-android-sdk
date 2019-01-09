@@ -31,6 +31,10 @@ public class GigyaError {
         return new GigyaError(400, "", "");
     }
 
+    public static GigyaError errorFrom(String message) {
+        return new GigyaError(400, message, "");
+    }
+
     @NonNull
     @Override
     public String toString() {

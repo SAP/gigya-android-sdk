@@ -54,7 +54,6 @@ public class FacebookLoginProvider extends LoginProvider {
         }
     }
 
-
     @Override
     public boolean trackingTokenChangeEnabled() {
         return true;
@@ -92,7 +91,7 @@ public class FacebookLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void logout() {
+    public void logout(Context context) {
         if (AccessToken.getCurrentAccessToken() != null) {
             LoginManager.getInstance().logOut();
         }

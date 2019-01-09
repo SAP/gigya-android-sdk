@@ -2,6 +2,8 @@ package com.gigya.android.sdk.login.provider;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -26,13 +28,18 @@ public class GoogleLoginProvider extends LoginProvider {
 
     public static final String NAME = "googleplus";
 
-    public static final String GOOGLE_SERVER_CLIENT_ID = "google_server_client_id";
-
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
+    private String _serverClientId;
 
-    public GoogleLoginProvider(LoginProviderCallbacks loginCallbacks) {
+    public GoogleLoginProvider(Context context, LoginProviderCallbacks loginCallbacks) {
         super(loginCallbacks);
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            _serverClientId = (String) appInfo.metaData.get("googleClientId");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @UiThread
@@ -46,10 +53,15 @@ public class GoogleLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void logout() {
-        if (_googleClient != null) {
-            _googleClient.signOut();
+    public void logout(Context context) {
+        if (_googleClient == null) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestServerAuthCode(_serverClientId)
+                    .requestEmail()
+                    .build();
+            _googleClient = GoogleSignIn.getClient(context, gso);
         }
+        _googleClient.signOut();
     }
 
     @Override
@@ -67,13 +79,12 @@ public class GoogleLoginProvider extends LoginProvider {
 
     @Override
     public void login(Context context, Map<String, Object> loginParams) {
-        final String serverClientId = (String) loginParams.get(GOOGLE_SERVER_CLIENT_ID);
-        if (serverClientId == null) {
-            loginCallbacks.onProviderLoginFailed(NAME, "Missing server client id");
+        if (_serverClientId == null) {
+            loginCallbacks.onProviderLoginFailed(NAME, "Missing server client id. Check manifest implementation");
             return;
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode(serverClientId)
+                .requestServerAuthCode(_serverClientId)
                 .requestEmail()
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);

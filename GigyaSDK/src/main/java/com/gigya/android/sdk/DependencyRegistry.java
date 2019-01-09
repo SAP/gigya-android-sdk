@@ -9,13 +9,10 @@ import com.gigya.android.sdk.encryption.LegacyEncryptor;
 class DependencyRegistry {
 
     private static DependencyRegistry _sharedInstance;
-    private IEncryptor _encryptor;
 
     private DependencyRegistry() {
 
     }
-
-    //region Encryption helper
 
     public static DependencyRegistry getInstance() {
         if (_sharedInstance == null) {
@@ -23,6 +20,10 @@ class DependencyRegistry {
         }
         return _sharedInstance;
     }
+
+    //region Encryption helper
+
+    private IEncryptor _encryptor;
 
     IEncryptor getEncryptor() {
         if (_encryptor == null) {

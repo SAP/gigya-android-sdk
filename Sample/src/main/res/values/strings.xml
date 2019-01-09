@@ -4,7 +4,7 @@
     <string name="api_kay">3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag</string>
     <string name="api_domain">us1.gigya.com</string>
     <string name="facebook_app_id">113512789545198</string>
-    <string name="server_client_id">977811956095-3h65r3llr61v5icpoe3e7jnjq9avjj9e.apps.googleusercontent.com</string>
+    <string name="google_client_id">977811956095-3h65r3llr61v5icpoe3e7jnjq9avjj9e.apps.googleusercontent.com</string>
     <string name="wechatAppID">wx222c4ccaa989aa00</string>
 
     <!-- General -->

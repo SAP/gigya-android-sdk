@@ -53,7 +53,6 @@ public class WebViewFragment extends DialogFragment {
     /* Content views. */
     private WebView _webView;
     private LinearLayout _contentView;
-    private TextView _titleTextView;
     private ProgressBar _progressBar;
 
     @Nullable
@@ -230,7 +229,7 @@ public class WebViewFragment extends DialogFragment {
         _contentView.setLayoutParams(contentParams);
 
         /* Title text view. */
-        _titleTextView = new TextView(getActivity());
+        TextView _titleTextView = new TextView(getActivity());
         _titleTextView.setTextColor(Color.BLACK);
         _titleTextView.setTypeface(_titleTextView.getTypeface(), Typeface.BOLD);
         _titleTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);

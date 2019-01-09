@@ -307,7 +307,7 @@ public class Gigya<T extends GigyaAccount> {
 
         /* Logout from social provider (is available). */
         if (_currentProvider != null) {
-            _currentProvider.logout();
+            _currentProvider.logout(_appContext);
         }
     }
 
@@ -399,6 +399,7 @@ public class Gigya<T extends GigyaAccount> {
         register(params, policy, finalize, callback);
     }
 
+    /* Private initiator. */
     private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
         invalidateAccount();
         new RegisterApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz, policy, finalize)
@@ -436,11 +437,13 @@ public class Gigya<T extends GigyaAccount> {
                 /* Call intermediate load to give the client the option to trigger his own progress indicator */
                 callback.onIntermediateLoad();
 
+                /* Call notifyLogin to complete sign in process.*/
                 new NotifyLoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
                         .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                             @Override
                             public void intercept(T obj) {
                                 _account = obj;
+                                // TODO: 09/01/2019 In addition we need to persist the current provider.
                             }
                         });
             }
@@ -449,7 +452,9 @@ public class Gigya<T extends GigyaAccount> {
             public void onProviderLoginFailed(String provider, String error) {
                 GigyaLogger.debug("Gigya", "onProviderLoginFailed: provider = "
                         + provider + ", error =" + error);
-                // TODO: 04/01/2019 Prompt user?
+
+                // TODO: 09/01/2019 Need to provide a detailed error here.
+                callback.onError(GigyaError.errorFrom(error));
             }
 
             @Override

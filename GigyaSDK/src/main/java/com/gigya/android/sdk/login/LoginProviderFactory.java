@@ -20,7 +20,7 @@ public class LoginProviderFactory {
                 break;
             case "googleplus":
                 if (GoogleLoginProvider.isAvailable(context)) {
-                    return new GoogleLoginProvider(loginCallbacks);
+                    return new GoogleLoginProvider(context, loginCallbacks);
                 }
                 break;
             case "line":

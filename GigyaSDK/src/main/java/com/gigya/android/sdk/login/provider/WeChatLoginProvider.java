@@ -75,7 +75,7 @@ public class WeChatLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void logout() {
+    public void logout(Context context) {
         if (_api != null) {
             _api.detach();
         }
