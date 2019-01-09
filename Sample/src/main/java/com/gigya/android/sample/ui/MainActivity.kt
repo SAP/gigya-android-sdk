@@ -16,6 +16,7 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.ui.WebViewFragment
@@ -70,10 +71,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val custom = menu.findItem(R.id.action_custom_scheme)
         val basic = menu.findItem(R.id.action_gigya_scheme)
         val accountItem = menu.findItem(R.id.action_account)
+        val facebookPermissionsUpdateItem = menu.findItem(R.id.fb_permission_update)
 
         custom.isVisible = viewModel?.exampleSetup == MainViewModel.SetupExample.BASIC
         basic.isVisible = viewModel?.exampleSetup == MainViewModel.SetupExample.CUSTOM_SCHEME
         accountItem.isVisible = Gigya.getInstance().isLoggedIn
+
+        // Check for facebook login
+        val loginProvider = Gigya.getInstance().loginProvider
+        facebookPermissionsUpdateItem.isVisible = loginProvider != null && Gigya.getInstance().isLoggedIn && loginProvider is FacebookLoginProvider
 
         return true
     }
@@ -103,6 +109,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 viewModel?.logout()
                 invalidateAccountData()
                 response_text_view.snackbar(getString(R.string.logged_out))
+            }
+            R.id.fb_permission_update -> {
+                viewModel?.requestFacebookPermissionUpdate()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -192,7 +201,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region UI presentation
 
     private fun presentNativeLogin() {
-        viewModel?.presentNativeLogin()
+        viewModel?.presentNativeLogin(
+                success = { json ->
+                    onJsonResult(json)
+                    onAccountDataAvailable()
+                },
+                onIntermediateLoad = {
+                    onLoading()
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     //endregion

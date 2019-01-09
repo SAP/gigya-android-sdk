@@ -28,9 +28,17 @@
 
     <item
         android:id="@+id/action_account"
+        android:icon="@drawable/ic_person_24dp"
         android:orderInCategory="100"
         android:title="Logged in"
-        android:icon="@drawable/ic_person_24dp"
         android:visible="false"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/fb_permission_update"
+        android:icon="@drawable/ic_flogo_hexrbg_wht_58"
+        android:orderInCategory="100"
+        android:title="Facebook update permissions"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 </menu>

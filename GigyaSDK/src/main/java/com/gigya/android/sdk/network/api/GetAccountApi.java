@@ -24,11 +24,6 @@ public class GetAccountApi<T> extends BaseApi<T> {
 
     private static final String API = "accounts.getAccountInfo";
 
-    @Deprecated
-    public GetAccountApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
-        super(configuration, sessionManager, clazz);
-    }
-
     public GetAccountApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
         super(configuration, networkAdapter, sessionManager, clazz);
     }

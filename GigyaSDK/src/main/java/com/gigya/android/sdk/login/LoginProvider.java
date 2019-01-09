@@ -11,6 +11,11 @@ import java.util.Map;
 
 public abstract class LoginProvider {
 
+    public static class Errors {
+        public static final String USER_CANCELLED = "user_cancelled";
+        public static final String AUTHENTICATION_DENIED = "authentication_denied";
+    }
+
     protected final LoginProviderCallbacks loginCallbacks;
 
     public LoginProvider(LoginProviderCallbacks loginCallbacks) {
@@ -45,7 +50,7 @@ public abstract class LoginProvider {
 
         public abstract void onProviderLoginFailed(String provider, String error);
 
-        public abstract void onProviderTrackingTokenChanges(String provider, String newToken, long newExpiration);
+        public abstract void onProviderTrackingTokenChanges(String provider, String providerSession);
     }
 
     public abstract static class LoginPermissionCallbacks {

@@ -10,6 +10,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaRegisterCallback
+import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.login.provider.GoogleLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
@@ -197,7 +198,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Present SDK native login pre defined UI.
      */
-    fun presentNativeLogin() {
+    fun presentNativeLogin(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit) {
         gigya.presetNativeLogin(mapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus, line, wechat",
                 FacebookLoginProvider.READ_PERMISSIONS to "user_birthday",
@@ -206,13 +207,48 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("presentNativeLogin", "Success")
+                account = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onIntermediateLoad() {
+                onIntermediateLoad()
             }
 
             override fun onError(error: GigyaError?) {
                 Log.d("presentNativeLogin", "onError")
+                error(error)
             }
 
         })
+    }
+
+    fun requestFacebookPermissionUpdate() {
+        val loginProvider: FacebookLoginProvider = gigya.loginProvider as FacebookLoginProvider
+        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_locations"),
+                object : LoginProvider.LoginPermissionCallbacks() {
+
+                    override fun granted() {
+                        Log.d("PermissionUpdate", "granted")
+                    }
+
+                    override fun noAccess() {
+                        Log.d("PermissionUpdate", "noAccess")
+                    }
+
+                    override fun cancelled() {
+                        Log.d("PermissionUpdate", "cancelled")
+                    }
+
+                    override fun declined(declined: MutableList<String>?) {
+                        Log.d("PermissionUpdate", "declined")
+                    }
+
+                    override fun failed(error: String?) {
+                        Log.d("PermissionUpdate", "failed")
+                    }
+
+                })
     }
 
     //region Utility methods

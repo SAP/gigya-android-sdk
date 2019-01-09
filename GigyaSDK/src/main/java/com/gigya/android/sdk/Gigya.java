@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -19,6 +18,8 @@ import com.gigya.android.sdk.network.api.AnonymousApi;
 import com.gigya.android.sdk.network.api.GetAccountApi;
 import com.gigya.android.sdk.network.api.LoginApi;
 import com.gigya.android.sdk.network.api.LogoutApi;
+import com.gigya.android.sdk.network.api.NotifyLoginApi;
+import com.gigya.android.sdk.network.api.RefreshProviderSessionApi;
 import com.gigya.android.sdk.network.api.RegisterApi;
 import com.gigya.android.sdk.network.api.SdkConfigApi;
 import com.gigya.android.sdk.network.api.SetAccountApi;
@@ -303,6 +304,7 @@ public class Gigya<T extends GigyaAccount> {
         }
         getNetworkAdapter().cancel(null);
         GigyaPresenter.flush();
+
         /* Logout from social provider (is available). */
         if (_currentProvider != null) {
             _currentProvider.logout();
@@ -422,6 +424,7 @@ public class Gigya<T extends GigyaAccount> {
         GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
             @Override
             public void onProviderSelected(LoginProvider provider) {
+                /* Update current provider. */
                 _currentProvider = provider;
             }
 
@@ -429,7 +432,17 @@ public class Gigya<T extends GigyaAccount> {
             public void onProviderLoginSuccess(String provider, String providerSessions) {
                 GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
                         + provider + ", providerSessions = " + providerSessions);
-                // TODO: 06/01/2019 NotifyLogin?
+
+                /* Call intermediate load to give the client the option to trigger his own progress indicator */
+                callback.onIntermediateLoad();
+
+                new NotifyLoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
+                        .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
+                            @Override
+                            public void intercept(T obj) {
+                                _account = obj;
+                            }
+                        });
             }
 
             @Override
@@ -440,10 +453,17 @@ public class Gigya<T extends GigyaAccount> {
             }
 
             @Override
-            public void onProviderTrackingTokenChanges(String provider, String newToken, long newExpiration) {
+            public void onProviderTrackingTokenChanges(String provider, String providerSession) {
                 GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: provider = "
-                        + provider + ", newToken =" + newToken + ", newExpiration = " + newExpiration);
-                // TODO: 08/01/2019 Refresh provider session?
+                        + provider + ", providerSession =" + providerSession);
+
+                new RefreshProviderSessionApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
+                        .call(providerSession, callback, new GigyaInterceptionCallback<T>() {
+                            @Override
+                            public void intercept(T obj) {
+                                _account = obj;
+                            }
+                        });
             }
         });
     }

@@ -37,7 +37,7 @@ public class LoginApi<T> extends BaseApi<T> {
         super(configuration, networkAdapter, sessionManager, clazz);
     }
 
-    public void call(Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    public void call(Map<String, Object> params, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .params(params)
