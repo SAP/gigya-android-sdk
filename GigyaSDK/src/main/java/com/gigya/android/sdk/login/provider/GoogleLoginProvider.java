@@ -18,9 +18,13 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONObject;
+
 import java.util.Map;
 
 public class GoogleLoginProvider extends LoginProvider {
+
+    public static final String NAME = "googleplus";
 
     public static final String GOOGLE_SERVER_CLIENT_ID = "google_server_client_id";
 
@@ -49,20 +53,34 @@ public class GoogleLoginProvider extends LoginProvider {
     }
 
     @Override
+    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+        /* code is relevant */
+        try {
+            return new JSONObject()
+                    .put(NAME, new JSONObject()
+                            .put("code", tokenOrCode)).toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public void login(Context context, Map<String, Object> loginParams) {
         final String serverClientId = (String) loginParams.get(GOOGLE_SERVER_CLIENT_ID);
         if (serverClientId == null) {
-            loginCallbacks.onProviderLoginFailed("googlePlus", "Missing server client id");
+            loginCallbacks.onProviderLoginFailed(NAME, "Missing server client id");
             return;
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(serverClientId)
+                .requestServerAuthCode(serverClientId)
                 .requestEmail()
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
-            loginCallbacks.onProviderLoginSuccess("googlePlus", account.getIdToken(), 0);
+            /* This option should not happen theoretically because we logout out explicitly. */
+            this.loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(account.getServerAuthCode(), -1L, null));
             _googleClient.signOut();
             return;
         }
@@ -88,18 +106,20 @@ public class GoogleLoginProvider extends LoginProvider {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null) {
-                final String idToken = account.getIdToken();
-                if (idToken == null) {
-                    loginCallbacks.onProviderLoginFailed("googlePlus", "Id token no available");
-                    return;                }
-                loginCallbacks.onProviderLoginSuccess("googlePlus", idToken, 0);
+                /* Fetch server auth code */
+                final String authCode = account.getServerAuthCode();
+                if (authCode == null) {
+                    loginCallbacks.onProviderLoginFailed(NAME, "Id token no available");
+                    return;
+                }
+                this.loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(authCode, -1L, null));
                 if (_googleClient != null) {
                     _googleClient.signOut();
                 }
                 activity.finish();
             }
         } catch (ApiException e) {
-            loginCallbacks.onProviderLoginFailed("googlePlus", e.getLocalizedMessage());
+            loginCallbacks.onProviderLoginFailed(NAME, e.getLocalizedMessage());
             if (_googleClient != null) {
                 _googleClient.signOut();
             }
