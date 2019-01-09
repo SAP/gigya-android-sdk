@@ -27,7 +27,9 @@ public class WeChatLoginProvider extends LoginProvider {
     public WeChatLoginProvider(LoginProviderCallbacks loginCallbacks) {
         super(loginCallbacks);
     }
+
     private IWXAPI _api;
+    private String _appId;
 
     public static boolean isAvailable(Context context) {
         try {
@@ -46,26 +48,27 @@ public class WeChatLoginProvider extends LoginProvider {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
 
-                String appId = null;
                 try {
                     final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-                    appId = (String) appInfo.metaData.get("wechatAppID");
+                    _appId = (String) appInfo.metaData.get("wechatAppID");
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
 
-                if (appId == null) {
+                if (_appId == null) {
                     loginCallbacks.onProviderLoginFailed(NAME, "Failed to fetch application id");
                     activity.finish();
                 }
 
-                _api = WXAPIFactory.createWXAPI(context, appId, true);
-                _api.registerApp(appId);
+                _api = WXAPIFactory.createWXAPI(context, _appId, true);
+                _api.registerApp(_appId);
 
                 final SendAuth.Req req = new SendAuth.Req();
                 req.scope = "snsapi_userinfo";
                 req.state = "";
                 _api.sendReq(req);
+
+                // Finish the activity.
                 activity.finish();
             }
         });
@@ -90,12 +93,20 @@ public class WeChatLoginProvider extends LoginProvider {
                 try {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
+                    final String providerSessions = getProviderSessions(authCode, -1L, _appId);
+                    // Notify success.
+                    loginCallbacks.onProviderLoginSuccess(NAME, providerSessions);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
+                // Notify error.
+                loginCallbacks.onProviderLoginFailed(NAME, Errors.USER_CANCELLED);
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
+                // Notify error.
+                loginCallbacks.onProviderLoginFailed(NAME, Errors.AUTHENTICATION_DENIED);
                 break;
         }
     }
