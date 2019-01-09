@@ -2,15 +2,12 @@ package com.gigya.android.sdk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.IEncryptor;
-import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
-import com.gigya.android.sdk.encryption.LegacyEncryptor;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -48,6 +45,8 @@ public class SessionManager {
         return _session;
     }
 
+    private IEncryptor _encryptor;
+
     /*
     Check if the current _session is valid.
      */
@@ -61,6 +60,7 @@ public class SessionManager {
     }
 
     public SessionManager(@NonNull Gigya gigya, IEncryptor encryptor) {
+        _encryptor = encryptor;
         this._gigya = gigya;
         // Get reference to SDK shared preference file.
         load();
@@ -202,18 +202,6 @@ public class SessionManager {
     /*
     Encryptor class is responsible for generating secret/private/public keys for _session secret encryption purposes.
      */
-    private IEncryptor encryptor;
-
-    private IEncryptor getEncryptor() {
-        if (encryptor == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                encryptor = new KeyStoreEncryptor();
-            } else {
-                encryptor = new LegacyEncryptor();
-            }
-        }
-        return encryptor;
-    }
 
     private static final String ENCRYPTION_ALGORITHM = "AES";
 
@@ -223,7 +211,7 @@ public class SessionManager {
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), getPrefs());
+            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), getPrefs());
             return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -237,7 +225,7 @@ public class SessionManager {
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = getEncryptor().getKey(_gigya.getContext(), getPrefs());
+            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), getPrefs());
             return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();

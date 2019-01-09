@@ -49,7 +49,7 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext) {
         _appContext = appContext;
         init();
-        this._sessionManager = new SessionManager(this, null);
+        this._sessionManager = new SessionManager(this, DependencyRegistry.getInstance().getEncryptor());
     }
 
     private NetworkAdapter _networkAdapter;
