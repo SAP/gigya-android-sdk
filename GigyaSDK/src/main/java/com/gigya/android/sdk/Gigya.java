@@ -48,7 +48,7 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext) {
         _appContext = appContext;
         init();
-        this._sessionManager = new SessionManager(this);
+        this._sessionManager = new SessionManager(this, null);
     }
 
     private NetworkAdapter _networkAdapter;
@@ -218,7 +218,12 @@ public class Gigya<T extends GigyaAccount> {
     //region GigyaAccount & Session
 
     @Nullable
-    private String _currentSocialProvider;
+    private LoginProvider _currentProvider;
+
+    @Nullable
+    public LoginProvider getLoginProvider() {
+        return _currentProvider;
+    }
 
     @Nullable
     private SessionManager _sessionManager;
@@ -298,11 +303,9 @@ public class Gigya<T extends GigyaAccount> {
         }
         getNetworkAdapter().cancel(null);
         GigyaPresenter.flush();
-        if (_currentSocialProvider != null) {
-            LoginProvider loginProvider = LoginProviderFactory.providerForLogout(_appContext, _currentSocialProvider);
-            if (loginProvider != null) {
-                loginProvider.logout();
-            }
+        /* Logout from social provider (is available). */
+        if (_currentProvider != null) {
+            _currentProvider.logout();
         }
     }
 
@@ -337,12 +340,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void getAccount(GigyaCallback<T> callback) {
-        // TODO: 06/12/2018 BaseGigyaAccount caching policy.
-//        if (_account != null) {
-//            // Cached BaseGigyaAccount instance. Return it.
-//            callback.onProviderLoginSuccess(_account);
-//            return;
-//        }
+        // TODO: 06/12/2018 Account caching policy should apply.
         new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
                 .call(callback, new GigyaInterceptionCallback<T>() {
                     @Override
@@ -414,22 +412,38 @@ public class Gigya<T extends GigyaAccount> {
 
     //region User Interface & presentation
 
+    /**
+     * Present native login selection according to requested parameters.
+     *
+     * @param params   Requested parameters.
+     * @param callback Response listener callback.
+     */
     public void presetNativeLogin(Map<String, Object> params, final GigyaCallback<T> callback) {
         GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
             @Override
-            public void onProviderLoginSuccess(String provider, String token, long expiration) {
-                _currentSocialProvider = provider;
+            public void onProviderSelected(LoginProvider provider) {
+                _currentProvider = provider;
+            }
+
+            @Override
+            public void onProviderLoginSuccess(String provider, String providerSessions) {
                 GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
-                        + provider + ", token = " + token + ", expiration = " + expiration);
-                // TODO: 06/01/2019 Social login with gigya server.
+                        + provider + ", providerSessions = " + providerSessions);
+                // TODO: 06/01/2019 NotifyLogin?
             }
 
             @Override
             public void onProviderLoginFailed(String provider, String error) {
-                _currentSocialProvider = provider;
                 GigyaLogger.debug("Gigya", "onProviderLoginFailed: provider = "
                         + provider + ", error =" + error);
-                // TODO: 04/01/2019 Should we invoke UI to show error to the user?
+                // TODO: 04/01/2019 Prompt user?
+            }
+
+            @Override
+            public void onProviderTrackingTokenChanges(String provider, String newToken, long newExpiration) {
+                GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: provider = "
+                        + provider + ", newToken =" + newToken + ", newExpiration = " + newExpiration);
+                // TODO: 08/01/2019 Refresh provider session?
             }
         });
     }

@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -16,9 +18,12 @@ import com.facebook.login.DefaultAudience;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.ObjectUtils;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class FacebookLoginProvider extends LoginProvider {
+
+    public static final String NAME = "facebook";
 
     public static final String LOGIN_BEHAVIOUR = "facebookLoginBehavior";
     public static final String READ_PERMISSIONS = "facebookReadPermissions";
@@ -38,6 +45,31 @@ public class FacebookLoginProvider extends LoginProvider {
 
     public FacebookLoginProvider(LoginProviderCallbacks loginCallbacks) {
         super(loginCallbacks);
+    }
+
+    @Override
+    public boolean trackingTokenChangeEnabled() {
+        return true;
+    }
+
+    @Override
+    public void trackTokenChanges(@NonNull final SessionManager sessionManager) {
+        /* Tracking access token changes. */
+        new AccessTokenTracker() {
+
+            @Override
+            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+                if (!sessionManager.isValidSession()) {
+                    return;
+                }
+                // Send api request.
+                if (loginCallbacks != null) {
+                    final String newAuthToken = currentAccessToken.getToken();
+                    final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;
+                    loginCallbacks.onProviderTrackingTokenChanges(NAME, newAuthToken, expiresInSeconds);
+                }
+            }
+        };
     }
 
     public static boolean isAvailable(Context context) {
@@ -56,6 +88,19 @@ public class FacebookLoginProvider extends LoginProvider {
         if (AccessToken.getCurrentAccessToken() != null) {
             LoginManager.getInstance().logOut();
         }
+    }
+
+    @Override
+    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+        /* token & expiration is relevant */
+        try {
+            return new JSONObject()
+                    .put("facebook", new JSONObject()
+                            .put("authToken", tokenOrCode).put("tokenExpiresIn", expiration)).toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -84,7 +129,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        loginCallbacks.onProviderLoginSuccess("facebook", accessToken.getToken(), accessToken.getExpires().getTime());
+                        loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
                         activity.finish();
                     }
 

@@ -44,6 +44,10 @@ public class HostActivity extends AppCompatActivity {
 
         if (getIntent() != null && getIntent().getExtras() != null) {
             _lifecycleCallbacksId = getIntent().getIntExtra(EXTRA_LIFECYCLE_CALLBACKS_ID, -1);
+            if (_lifecycleCallbacksId == -1) {
+                finish();
+                return;
+            }
             _lifecycleCallbacks = GigyaPresenter.getCallbacks(_lifecycleCallbacksId);
         }
 
@@ -79,7 +83,6 @@ public class HostActivity extends AppCompatActivity {
     @Override
     public void finish() {
         GigyaPresenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
-        System.gc();
         super.finish();
         /*
         Disable exit animation.
@@ -108,7 +111,7 @@ public class HostActivity extends AppCompatActivity {
         }
     }
 
-    public static abstract class HostActivityLifecycleCallbacks implements Serializable {
+    public static abstract class HostActivityLifecycleCallbacks {
 
         public abstract void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState);
 

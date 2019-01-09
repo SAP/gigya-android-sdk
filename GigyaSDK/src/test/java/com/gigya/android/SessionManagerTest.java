@@ -96,30 +96,11 @@ public class SessionManagerTest {
     }
 
     @Test
-    public void testEncrypt() throws Exception {
-        // Arrange
-        final SessionManager spy = spy(new SessionManager(gigya));
-        doReturn(encryptor).when(spy, "getEncryptor");
-        doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
-        // Act
-        final String encrypted = Whitebox.invokeMethod(spy, "encrypt", "toEncrypt");
-        // Assert
-        assertNotNull(encrypted);
-        assertEquals(encrypted, "rcosq1vij78dtegb0ozgfg6my");
+    public void testNewInstanceWithEncryptedSession() {
+
     }
 
-    @Test
-    public void testDecrypt() throws Exception {
-        // Arrange
-        SessionManager spy = spy(new SessionManager(gigya));
-        doReturn(encryptor).when(spy, "getEncryptor");
-        doReturn(secretKey).when(encryptor).getKey(context, sharedPreferences);
-        // Act
-        final String decrypted = Whitebox.invokeMethod(spy, "decrypt", "rcosq1vij78dtegb0ozgfg6my");
-        // Assert
-        assertNotNull(decrypted);
-        assertEquals(decrypted, "toEncrypt");
-    }
+    // TODO: 06/01/2019 Change load tests to constructor tests.
 
     @Test
     public void testLoadWithEncryptedSession() throws Exception {
@@ -176,7 +157,10 @@ public class SessionManagerTest {
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
         when(editor.remove(anyString())).thenReturn(editor);
-        assertNotNull(spy.getSession());
+        // Act
+        spy.clear();
+        // Assert
+        assertNull(spy.getSession());
     }
 
     @Test
@@ -189,6 +173,10 @@ public class SessionManagerTest {
         // Assert
         assertTrue(isLegacySession);
     }
+
+    // TODO: 06/01/2019 Change load tests to constructor tests.
+
+    // TODO: 06/01/2019 Document how to create the encrypted session file or generify test. \
 
     @Test
     public void testLoadLegacySession() throws Exception {
@@ -221,6 +209,8 @@ public class SessionManagerTest {
         Whitebox.invokeMethod(spy, "loadLegacySession");
     }
 
+    // TODO: 06/01/2019 add test for null session.
+
     @Test
     public void testSetSession() throws Exception {
         // Arrange
@@ -246,7 +236,11 @@ public class SessionManagerTest {
         });
         // Act
         spy.setSession(sessionInfo);
+
+        // TODO: 06/01/2019 Add assertion for new session setter with new values.
     }
+
+    // TODO: 06/01/2019 Add test for null session, invalid session.
 
 
     @Test
@@ -260,7 +254,5 @@ public class SessionManagerTest {
         // Assert
         assertTrue(isValidSession);
     }
-
-
 
 }

@@ -73,6 +73,7 @@ public class GigyaPresenter {
                         }
                         LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks);
                         if (loginProvider != null) {
+                            loginProviderCallbacks.onProviderSelected(loginProvider);
                             loginProvider.login(context, params);
                         }
                     }

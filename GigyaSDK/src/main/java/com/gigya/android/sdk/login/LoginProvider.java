@@ -2,6 +2,9 @@ package com.gigya.android.sdk.login;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.gigya.android.sdk.SessionManager;
 
 import java.util.List;
 import java.util.Map;
@@ -18,13 +21,31 @@ public abstract class LoginProvider {
 
     public abstract void logout();
 
+    public abstract String getProviderSessions(String tokenOrCode, long expiration, String uid);
+
+    //region Track token changes
+
+    public void trackTokenChanges(@NonNull SessionManager sessionManager) {
+        // Stub.
+    }
+
+    public boolean trackingTokenChangeEnabled() {
+        return false;
+    }
+
+    //endregion
+
     //region Interfacing
 
     public abstract static class LoginProviderCallbacks {
 
-        public abstract void onProviderLoginSuccess(String provider, String token, long expiration);
+        public abstract void onProviderSelected(LoginProvider provider);
+
+        public abstract void onProviderLoginSuccess(String provider, String providerSessions);
 
         public abstract void onProviderLoginFailed(String provider, String error);
+
+        public abstract void onProviderTrackingTokenChanges(String provider, String newToken, long newExpiration);
     }
 
     public abstract static class LoginPermissionCallbacks {
@@ -41,4 +62,5 @@ public abstract class LoginProvider {
     }
 
     //endregion
+
 }

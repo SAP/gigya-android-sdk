@@ -60,7 +60,7 @@ public class SessionManager {
         return isValid;
     }
 
-    public SessionManager(@NonNull Gigya gigya) {
+    public SessionManager(@NonNull Gigya gigya, IEncryptor encryptor) {
         this._gigya = gigya;
         // Get reference to SDK shared preference file.
         load();
@@ -125,10 +125,7 @@ public class SessionManager {
     }
 
     private boolean isLegacySession() {
-        if (_prefs == null) {
-            return false;
-        }
-        return (!TextUtils.isEmpty(_prefs.getString("session.Token", "")));
+        return (!TextUtils.isEmpty(getPrefs().getString("session.Token", "")));
     }
 
     /*
@@ -171,20 +168,18 @@ public class SessionManager {
     Load legacy session from prefs, clear it and save as new.
      */
     private void loadLegacySession() {
-        if (_prefs == null) {
-            return;
-        }
-        final String token = _prefs.getString("session.Token", null);
-        final String secret = _prefs.getString("session.Secret", null);
-        final long expiration = _prefs.getLong("session.ExpirationTime", 0);
+        SharedPreferences prefs = getPrefs();
+        final String token = prefs.getString("session.Token", null);
+        final String secret = prefs.getString("session.Secret", null);
+        final long expiration = prefs.getLong("session.ExpirationTime", 0);
         _session = new SessionInfo(secret, token, expiration);
 
-        final String ucid = _prefs.getString("ucid", null);
-        final String gmid = _prefs.getString("gmid", null);
+        final String ucid = prefs.getString("ucid", null);
+        final String gmid = prefs.getString("gmid", null);
         _gigya.getConfiguration().updateIds(ucid, gmid);
 
         // Clear the legacy session.
-        SharedPreferences.Editor editor = _prefs.edit();
+        SharedPreferences.Editor editor = prefs.edit();
         editor.remove("ucid");
         editor.remove("gmid");
         editor.remove("lastLoginProvider");
@@ -201,6 +196,8 @@ public class SessionManager {
     //endregion
 
     //region Session encryption/decryption
+
+    // TODO: 06/01/2019 Move encryptor to Gigya singleton -> Inject in constructor.
 
     /*
     Encryptor class is responsible for generating secret/private/public keys for _session secret encryption purposes.
@@ -221,7 +218,7 @@ public class SessionManager {
     private static final String ENCRYPTION_ALGORITHM = "AES";
 
     /*
-    Encrypt _session secret.
+    Encrypt session secret.
      */
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
@@ -235,7 +232,7 @@ public class SessionManager {
     }
 
     /*
-    Decrypt _session secret.
+    Decrypt encrypt secret.
      */
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
