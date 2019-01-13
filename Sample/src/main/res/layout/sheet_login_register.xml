@@ -32,7 +32,7 @@
             android:id="@+id/login_register_sheet_username_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="toolmarmel.alt4@gmail.com"
+            android:text="toolmarmel.alt3@gmail.com"
             android:textSize="14sp" />
 
     </android.support.design.widget.TextInputLayout>

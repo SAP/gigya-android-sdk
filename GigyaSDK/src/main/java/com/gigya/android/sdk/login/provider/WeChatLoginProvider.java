@@ -25,7 +25,7 @@ public class WeChatLoginProvider extends LoginProvider {
     public static final String NAME = "wechat";
 
     public WeChatLoginProvider(LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks);
+        super(loginCallbacks, null);
     }
 
     private IWXAPI _api;

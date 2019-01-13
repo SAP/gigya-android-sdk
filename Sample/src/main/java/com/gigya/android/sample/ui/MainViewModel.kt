@@ -199,8 +199,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun presentNativeLogin(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit) {
         gigya.presetNativeLogin(mapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus, line, wechat",
-                FacebookLoginProvider.READ_PERMISSIONS to "user_birthday",
-                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY
+                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.NATIVE_WITH_FALLBACK
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("presentNativeLogin", "Success")
@@ -222,7 +221,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun requestFacebookPermissionUpdate() {
         val loginProvider: FacebookLoginProvider = gigya.loginProvider as FacebookLoginProvider
-        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_locations"),
+        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
                 object : LoginProvider.LoginPermissionCallbacks() {
 
                     override fun granted() {

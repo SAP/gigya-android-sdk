@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -133,11 +134,8 @@ public class Gigya<T extends GigyaAccount> {
     public void init(String apiKey, String apiDomain) {
         // Override existing configuration when applied explicitly.
         _configuration.update(apiKey, apiDomain);
+        init();
     }
-
-    //endregion
-
-    //region Networking
 
     /**
      * Implicitly initialize the SDK.
@@ -158,7 +156,18 @@ public class Gigya<T extends GigyaAccount> {
         if (_configuration != null && _configuration.getAccountCacheTime() != 0) {
             _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_configuration.getAccountCacheTime());
         }
+
+        // Load last provider if exists.
+        String lastProviderName = DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
+                .getString("lastLoginProvider", null);
+        if (lastProviderName != null) {
+            _currentProvider = LoginProviderFactory.providerFor(_appContext, lastProviderName, null, _loginTrackerCallback);
+        }
     }
+
+    //endregion
+
+    //region Networking
 
     private NetworkAdapter getNetworkAdapter() {
         if (_networkAdapter == null) {
@@ -318,6 +327,9 @@ public class Gigya<T extends GigyaAccount> {
         if (_currentProvider != null) {
             _currentProvider.logout(_appContext);
         }
+
+        /* Persistence related logout tasks. */
+        DependencyRegistry.getInstance().getPersistenceHandler(_appContext).onLogout();
     }
 
     //endregion
@@ -443,7 +455,42 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region User Interface & presentation
+    //region Native login
+
+    /*
+    Token tracker callback. Shared between all providers (if needed).
+     */
+    private LoginProvider.LoginProviderTrackerCallback _loginTrackerCallback = new LoginProvider.LoginProviderTrackerCallback() {
+        @Override
+        public void onProviderTrackingTokenChanges(String provider, String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
+            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: provider = "
+                    + provider + ", providerSession =" + providerSession);
+
+            /* Refresh session token. */
+            new RefreshProviderSessionApi(_configuration, getNetworkAdapter(), _sessionManager)
+                    .call(providerSession, new GigyaCallback() {
+                        @Override
+                        public void onSuccess(Object obj) {
+                            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: Success");
+
+                            if (permissionCallbacks != null) {
+                                permissionCallbacks.granted();
+                            }
+                            /* Invalidate cached account. */
+                            _account = null;
+                        }
+
+                        @Override
+                        public void onError(GigyaError error) {
+                            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: Error: " + error.getLocalizedMessage());
+
+                            if (permissionCallbacks != null) {
+                                permissionCallbacks.failed(error.getLocalizedMessage());
+                            }
+                        }
+                    });
+        }
+    };
 
     /**
      * Present native login selection according to requested parameters.
@@ -460,7 +507,7 @@ public class Gigya<T extends GigyaAccount> {
             }
 
             @Override
-            public void onProviderLoginSuccess(String provider, String providerSessions) {
+            public void onProviderLoginSuccess(final String provider, String providerSessions) {
                 GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
                         + provider + ", providerSessions = " + providerSessions);
 
@@ -473,7 +520,15 @@ public class Gigya<T extends GigyaAccount> {
                             @Override
                             public void intercept(T obj) {
                                 _account = obj;
-                                // TODO: 09/01/2019 In addition we need to persist the current provider.
+
+                                /* Persist updated provider. */
+                                DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
+                                        .onLoginProviderUpdated(provider);
+
+                                /* If this provider supports token tracking enable it. */
+                                if (_currentProvider != null) {
+                                    _currentProvider.trackTokenChanges(_sessionManager);
+                                }
                             }
                         });
             }
@@ -487,19 +542,6 @@ public class Gigya<T extends GigyaAccount> {
                 callback.onError(GigyaError.errorFrom(error));
             }
 
-            @Override
-            public void onProviderTrackingTokenChanges(String provider, String providerSession) {
-                GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: provider = "
-                        + provider + ", providerSession =" + providerSession);
-
-                new RefreshProviderSessionApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
-                        .call(providerSession, callback, new GigyaInterceptionCallback<T>() {
-                            @Override
-                            public void intercept(T obj) {
-                                _account = obj;
-                            }
-                        });
-            }
         });
     }
 

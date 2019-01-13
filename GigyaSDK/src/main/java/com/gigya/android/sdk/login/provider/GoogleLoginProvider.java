@@ -33,7 +33,7 @@ public class GoogleLoginProvider extends LoginProvider {
     private String _serverClientId;
 
     public GoogleLoginProvider(Context context, LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks);
+        super(loginCallbacks, null);
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             _serverClientId = (String) appInfo.metaData.get("googleClientId");

@@ -1,5 +1,6 @@
 package com.gigya.android.sdk;
 
+import android.content.Context;
 import android.os.Build;
 
 import com.gigya.android.sdk.encryption.IEncryptor;
@@ -34,6 +35,19 @@ class DependencyRegistry {
             }
         }
         return _encryptor;
+    }
+
+    //endregion
+
+    //region Persistence
+
+    private PersistenceHandler _persistenceHandler;
+
+    PersistenceHandler getPersistenceHandler(Context appContext) {
+        if (_persistenceHandler == null) {
+            _persistenceHandler = new PersistenceHandler(appContext);
+        }
+        return _persistenceHandler;
     }
 
     //endregion

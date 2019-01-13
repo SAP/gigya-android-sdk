@@ -6,10 +6,7 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -23,16 +20,15 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class RefreshProviderSessionApi<T> extends BaseApi<T> {
+public class RefreshProviderSessionApi extends BaseApi {
 
     private static final String API = "socialize.refreshProviderSession";
 
-    public RefreshProviderSessionApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager,
-                                     @NonNull Class<T> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
+    public RefreshProviderSessionApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
+        super(configuration, networkAdapter, sessionManager);
     }
 
-    public void call(String providerSession, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+    public void call(String providerSession, final GigyaCallback callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("providerSession", providerSession);
         GigyaRequest request = new GigyaRequestBuilder(configuration)
@@ -51,18 +47,7 @@ public class RefreshProviderSessionApi<T> extends BaseApi<T> {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
-                        /* Update session info */
-                        if (response.contains("sessionInfo") && sessionManager != null) {
-                            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
-                            sessionManager.setSession(session);
-                        }
-                        // To avoid writing a clone constructor.
-                        if (interceptor != null) {
-                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
-                            interceptor.intercept(interception);
-                        }
-                        T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
-                        callback.onSuccess(parsed);
+                        callback.onSuccess(response);
                         return;
                     }
                     final int errorCode = response.getErrorCode();

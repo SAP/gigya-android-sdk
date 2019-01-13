@@ -11,7 +11,7 @@ import java.util.Map;
 public class LineLoginProvider extends LoginProvider {
 
     public LineLoginProvider(LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks);
+        super(loginCallbacks, null);
     }
 
     public static boolean isAvailable(Context context) {

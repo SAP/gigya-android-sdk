@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -46,8 +45,10 @@ public class FacebookLoginProvider extends LoginProvider {
 
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
 
-    public FacebookLoginProvider(LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks);
+    private AccessTokenTracker _tokenTracker;
+
+    public FacebookLoginProvider(LoginProviderCallbacks loginCallbacks, LoginProviderTrackerCallback trackerCallback) {
+        super(loginCallbacks, trackerCallback);
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);
             FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
@@ -55,14 +56,12 @@ public class FacebookLoginProvider extends LoginProvider {
     }
 
     @Override
-    public boolean trackingTokenChangeEnabled() {
-        return true;
-    }
-
-    @Override
-    public void trackTokenChanges(@NonNull final SessionManager sessionManager) {
+    public void trackTokenChanges(@Nullable final SessionManager sessionManager) {
+        if (sessionManager == null) {
+            return;
+        }
         /* Tracking access token changes. */
-        new AccessTokenTracker() {
+        _tokenTracker = new AccessTokenTracker() {
 
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
@@ -73,7 +72,7 @@ public class FacebookLoginProvider extends LoginProvider {
                 if (loginCallbacks != null) {
                     final String newAuthToken = currentAccessToken.getToken();
                     final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;
-                    loginCallbacks.onProviderTrackingTokenChanges(NAME, getProviderSessions(newAuthToken, expiresInSeconds, null));
+                    trackerCallback.onProviderTrackingTokenChanges(NAME, getProviderSessions(newAuthToken, expiresInSeconds, null), null);
                 }
             }
         };
@@ -92,6 +91,9 @@ public class FacebookLoginProvider extends LoginProvider {
 
     @Override
     public void logout(Context context) {
+        if (_tokenTracker != null) {
+            _tokenTracker.stopTracking();
+        }
         if (AccessToken.getCurrentAccessToken() != null) {
             LoginManager.getInstance().logOut();
         }
@@ -174,6 +176,7 @@ public class FacebookLoginProvider extends LoginProvider {
      */
     public void requestPermissionsUpdate(Context context, final String permissionsType, List<String> permissionList,
                                          final LoginPermissionCallbacks permissionCallbacks) {
+        _tokenTracker.stopTracking();
         if (AccessToken.getCurrentAccessToken() == null) {
             permissionCallbacks.noAccess();
             return;
@@ -193,42 +196,42 @@ public class FacebookLoginProvider extends LoginProvider {
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
 
                 final LoginManager loginManager = LoginManager.getInstance();
-                loginManager.logOut();
                 loginManager.setDefaultAudience(DefaultAudience.FRIENDS); // default.
+                loginManager.registerCallback(_callbackManager, new FacebookCallback<LoginResult>() {
 
-//                loginManager.registerCallback(_callbackManager, new FacebookCallback<LoginResult>() {
-//
-//                    @Override
-//                    public void onSuccess(LoginResult loginResult) {
-//                        loginManager.unregisterCallback(_callbackManager);
-//                        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-//
-//                        /* Check if all permissions were granted. */
-//                        if (accessToken.getDeclinedPermissions().isEmpty()) {
-//                            permissionCallbacks.granted();
-//                        } else {
-//                            permissionCallbacks.declined(new ArrayList<>(accessToken.getDeclinedPermissions()));
-//                        }
-//
-//                        activity.finish();
-//                    }
-//
-//                    @Override
-//                    public void onCancel() {
-//                        loginManager.unregisterCallback(_callbackManager);
-//                        permissionCallbacks.cancelled();
-//
-//                        activity.finish();
-//                    }
-//
-//                    @Override
-//                    public void onError(FacebookException error) {
-//                        loginManager.unregisterCallback(_callbackManager);
-//                        permissionCallbacks.failed(error.getLocalizedMessage());
-//
-//                        activity.finish();
-//                    }
-//                });
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        loginManager.unregisterCallback(_callbackManager);
+                        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+
+                        /* Check if all permissions were granted. */
+                        if (accessToken.getDeclinedPermissions().isEmpty()) {
+                            final long expiresInSeconds = accessToken.getExpires().getTime() / 1000;
+                            trackerCallback.onProviderTrackingTokenChanges(NAME, getProviderSessions(accessToken.getToken(), expiresInSeconds, null), permissionCallbacks);
+                            _tokenTracker.startTracking();
+                        } else {
+                            permissionCallbacks.declined(new ArrayList<>(accessToken.getDeclinedPermissions()));
+                        }
+
+                        activity.finish();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        loginManager.unregisterCallback(_callbackManager);
+                        permissionCallbacks.cancelled();
+
+                        activity.finish();
+                    }
+
+                    @Override
+                    public void onError(FacebookException error) {
+                        loginManager.unregisterCallback(_callbackManager);
+                        permissionCallbacks.failed(error.getLocalizedMessage());
+
+                        activity.finish();
+                    }
+                });
 
                 if (permissionsType.equals(READ_PERMISSIONS)) {
                     loginManager.logInWithReadPermissions(activity, requestPermissions);

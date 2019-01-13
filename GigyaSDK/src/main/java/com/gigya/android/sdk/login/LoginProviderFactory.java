@@ -11,11 +11,12 @@ import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
 public class LoginProviderFactory {
 
     @Nullable
-    public static LoginProvider providerFor(Context context, String providerName, LoginProvider.LoginProviderCallbacks loginCallbacks) {
+    public static LoginProvider providerFor(Context context, String providerName,
+                                            LoginProvider.LoginProviderCallbacks loginCallbacks, LoginProvider.LoginProviderTrackerCallback trackerCallback) {
         switch (providerName.toLowerCase()) {
             case "facebook":
                 if (FacebookLoginProvider.isAvailable(context)) {
-                    return new FacebookLoginProvider(loginCallbacks);
+                    return new FacebookLoginProvider(loginCallbacks, trackerCallback);
                 }
                 break;
             case "googleplus":
@@ -39,6 +40,6 @@ public class LoginProviderFactory {
 
     @Nullable
     public static LoginProvider providerForLogout(Context context, String providerName) {
-        return providerFor(context, providerName, null);
+        return providerFor(context, providerName, null, null);
     }
 }

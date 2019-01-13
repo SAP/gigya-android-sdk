@@ -197,8 +197,6 @@ public class SessionManager {
 
     //region Session encryption/decryption
 
-    // TODO: 06/01/2019 Move encryptor to Gigya singleton -> Inject in constructor.
-
     /*
     Encryptor class is responsible for generating secret/private/public keys for _session secret encryption purposes.
      */
