@@ -152,12 +152,12 @@ public class Gigya<T extends GigyaAccount> {
             _configuration = Configuration.loadFromManifest(_appContext);
         }
 
-        // Set next account invalidation timestamp if available.
+        /* Set next account invalidation timestamp if available. */
         if (_configuration != null && _configuration.getAccountCacheTime() != 0) {
             _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_configuration.getAccountCacheTime());
         }
 
-        // Load last provider if exists.
+        /* Load last provider if exists. */
         String lastProviderName = DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
                 .getString("lastLoginProvider", null);
         if (lastProviderName != null) {
@@ -463,7 +463,7 @@ public class Gigya<T extends GigyaAccount> {
     private LoginProvider.LoginProviderTrackerCallback _loginTrackerCallback = new LoginProvider.LoginProviderTrackerCallback() {
         @Override
         public void onProviderTrackingTokenChanges(String provider, String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
-            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: provider = "
+            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: provider = "
                     + provider + ", providerSession =" + providerSession);
 
             /* Refresh session token. */
@@ -471,7 +471,7 @@ public class Gigya<T extends GigyaAccount> {
                     .call(providerSession, new GigyaCallback() {
                         @Override
                         public void onSuccess(Object obj) {
-                            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: Success");
+                            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Success - provider token updated");
 
                             if (permissionCallbacks != null) {
                                 permissionCallbacks.granted();
@@ -482,7 +482,7 @@ public class Gigya<T extends GigyaAccount> {
 
                         @Override
                         public void onError(GigyaError error) {
-                            GigyaLogger.debug("Gigya", "onProviderTrackingTokenChanges: Error: " + error.getLocalizedMessage());
+                            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Error: " + error.getLocalizedMessage());
 
                             if (permissionCallbacks != null) {
                                 permissionCallbacks.failed(error.getLocalizedMessage());
@@ -508,7 +508,7 @@ public class Gigya<T extends GigyaAccount> {
 
             @Override
             public void onProviderLoginSuccess(final String provider, String providerSessions) {
-                GigyaLogger.debug("Gigya", "onProviderLoginSuccess: provider = "
+                GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
                         + provider + ", providerSessions = " + providerSessions);
 
                 /* Call intermediate load to give the client the option to trigger his own progress indicator */
@@ -535,14 +535,14 @@ public class Gigya<T extends GigyaAccount> {
 
             @Override
             public void onProviderLoginFailed(String provider, String error) {
-                GigyaLogger.debug("Gigya", "onProviderLoginFailed: provider = "
+                GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
                         + provider + ", error =" + error);
 
                 // TODO: 09/01/2019 Need to provide a detailed error here.
                 callback.onError(GigyaError.errorFrom(error));
             }
 
-        });
+        }, _loginTrackerCallback);
     }
 
     //endregion

@@ -207,7 +207,9 @@ public class FacebookLoginProvider extends LoginProvider {
                         /* Check if all permissions were granted. */
                         if (accessToken.getDeclinedPermissions().isEmpty()) {
                             final long expiresInSeconds = accessToken.getExpires().getTime() / 1000;
-                            trackerCallback.onProviderTrackingTokenChanges(NAME, getProviderSessions(accessToken.getToken(), expiresInSeconds, null), permissionCallbacks);
+                            // Continue flow -> refresh provider token.
+                            trackerCallback.onProviderTrackingTokenChanges(NAME,
+                                    getProviderSessions(accessToken.getToken(), expiresInSeconds, null), permissionCallbacks);
                             _tokenTracker.startTracking();
                         } else {
                             permissionCallbacks.declined(new ArrayList<>(accessToken.getDeclinedPermissions()));

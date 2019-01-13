@@ -49,7 +49,8 @@ public class GigyaPresenter {
     //endregion
 
     public static void presentNativeLogin(final Context context, final Configuration configuration, final Map<String, Object> params,
-                                          final LoginProvider.LoginProviderCallbacks loginProviderCallbacks) {
+                                          final LoginProvider.LoginProviderCallbacks loginProviderCallbacks,
+                                          final LoginProvider.LoginProviderTrackerCallback trackerCallback) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
@@ -71,7 +72,7 @@ public class GigyaPresenter {
                         if (provider == null) {
                             return;
                         }
-                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks);
+                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks, trackerCallback);
                         if (loginProvider != null) {
                             loginProviderCallbacks.onProviderSelected(loginProvider);
                             loginProvider.login(context, params);
