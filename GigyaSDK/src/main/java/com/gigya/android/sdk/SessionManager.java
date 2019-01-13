@@ -1,6 +1,5 @@
 package com.gigya.android.sdk;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,11 +17,6 @@ import org.json.JSONObject;
 import javax.crypto.SecretKey;
 
 public class SessionManager {
-
-    /*
-     * SDK shared preference file key for _session persistence.
-     */
-    private static final String PREFS_FILE_KEY = "GSLIB";
 
     /*
      * SDK shared preference key for _session string.
@@ -47,6 +41,8 @@ public class SessionManager {
 
     private IEncryptor _encryptor;
 
+    private PersistenceHandler _persistenceHandler;
+
     /*
     Check if the current _session is valid.
      */
@@ -59,19 +55,12 @@ public class SessionManager {
         return isValid;
     }
 
-    public SessionManager(@NonNull Gigya gigya, IEncryptor encryptor) {
+    public SessionManager(@NonNull Gigya gigya, IEncryptor encryptor, PersistenceHandler persistenceHandler) {
         _encryptor = encryptor;
+        _persistenceHandler = persistenceHandler;
         this._gigya = gigya;
         // Get reference to SDK shared preference file.
         load();
-    }
-
-    @NonNull
-    private SharedPreferences getPrefs() {
-        if (this._prefs == null) {
-            this._prefs = _gigya.getContext().getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
-        }
-        return _prefs;
     }
 
     /*
@@ -94,7 +83,7 @@ public class SessionManager {
      */
     public void clear() {
         GigyaLogger.debug(LOG_TAG, "clear: ");
-        getPrefs().edit().remove(PREFS_KEY_SESSION).apply();
+        _persistenceHandler.remove(PREFS_KEY_SESSION);
         this._session = null;
     }
 
@@ -117,7 +106,7 @@ public class SessionManager {
             final String encryptedSession = encrypt(sessionJSON);
 
             // Save to preferences.
-            getPrefs().edit().putString(PREFS_KEY_SESSION, encryptedSession).apply();
+            _persistenceHandler.add(PREFS_KEY_SESSION, encryptedSession);
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion to " + ex.getMessage());
@@ -125,7 +114,7 @@ public class SessionManager {
     }
 
     private boolean isLegacySession() {
-        return (!TextUtils.isEmpty(getPrefs().getString("session.Token", "")));
+        return (!TextUtils.isEmpty(_persistenceHandler.getString("session.Token", "")));
     }
 
     /*
@@ -137,8 +126,8 @@ public class SessionManager {
             return;
         }
         // Load from preferences.
-        if (getPrefs().contains(PREFS_KEY_SESSION)) {
-            String encryptedSession = getPrefs().getString(PREFS_KEY_SESSION, null);
+        if (_persistenceHandler.contains(PREFS_KEY_SESSION)) {
+            String encryptedSession = _persistenceHandler.getString(PREFS_KEY_SESSION, null);
             if (!TextUtils.isEmpty(encryptedSession)) {
 
                 // Decrypt _session string.
@@ -168,26 +157,18 @@ public class SessionManager {
     Load legacy session from prefs, clear it and save as new.
      */
     private void loadLegacySession() {
-        SharedPreferences prefs = getPrefs();
-        final String token = prefs.getString("session.Token", null);
-        final String secret = prefs.getString("session.Secret", null);
-        final long expiration = prefs.getLong("session.ExpirationTime", 0);
+        final String token = _persistenceHandler.getString("session.Token", null);
+        final String secret = _persistenceHandler.getString("session.Secret", null);
+        final long expiration = _persistenceHandler.getLong("session.ExpirationTime", 0L);
         _session = new SessionInfo(secret, token, expiration);
 
-        final String ucid = prefs.getString("ucid", null);
-        final String gmid = prefs.getString("gmid", null);
+        final String ucid = _persistenceHandler.getString("ucid", null);
+        final String gmid = _persistenceHandler.getString("gmid", null);
         _gigya.getConfiguration().updateIds(ucid, gmid);
 
         // Clear the legacy session.
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove("ucid");
-        editor.remove("gmid");
-        editor.remove("lastLoginProvider");
-        editor.remove("session.Token");
-        editor.remove("session.Secret");
-        editor.remove("tsOffset");
-        editor.remove("session.ExpirationTime");
-        editor.apply();
+        _persistenceHandler.remove("ucid", "gmid", "lastLoginProvider", "session.Token",
+                "session.Secret", "tsOffset", "session.ExpirationTime");
 
         // Save session in current construct.
         save();
@@ -209,7 +190,7 @@ public class SessionManager {
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), getPrefs());
+            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), _persistenceHandler);
             return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -223,7 +204,7 @@ public class SessionManager {
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), getPrefs());
+            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), _persistenceHandler);
             return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();

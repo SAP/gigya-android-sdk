@@ -65,6 +65,5 @@ dependencies {
     compileOnly 'com.facebook.android:facebook-android-sdk:4.39.0'
     compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
     compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.1.6'
-
     compileOnly 'com.android.volley:volley:1.1.1'
 }

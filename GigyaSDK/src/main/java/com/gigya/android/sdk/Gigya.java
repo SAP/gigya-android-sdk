@@ -51,7 +51,9 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext) {
         _appContext = appContext;
         init();
-        this._sessionManager = new SessionManager(this, DependencyRegistry.getInstance().getEncryptor());
+        this._sessionManager = new SessionManager(this,
+                DependencyRegistry.getInstance().getEncryptor(),
+                DependencyRegistry.getInstance().getPersistenceHandler(_appContext));
     }
 
     private NetworkAdapter _networkAdapter;

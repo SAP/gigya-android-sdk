@@ -2,13 +2,13 @@ package com.gigya.android.sdk.encryption;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.PersistenceHandler;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.CipherUtils;
 
@@ -55,7 +55,7 @@ public class KeyStoreEncryptor implements IEncryptor {
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Nullable
-    public SecretKey getKey(Context appContext, SharedPreferences prefs) throws EncryptionException {
+    public SecretKey getKey(Context appContext, PersistenceHandler persistenceHandler) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, "getKey: ");
         try {
             if (!_keyStore.containsAlias(GS_KEYSTORE_ALIAS)) {
@@ -120,7 +120,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 byte[] encryptedAES = cipher.doFinal(secretKey.getEncoded());
                 // Save encrypted AES to sharedPreferences
                 final String newEncryptedSecret = CipherUtils.bytesToString(encryptedAES);
-                prefs.edit().putString(GS_PREFA_ALIAS, newEncryptedSecret).apply();
+                persistenceHandler.add(GS_PREFA_ALIAS, newEncryptedSecret);
                 return secretKey;
 
             } else if (!_keyStore.entryInstanceOf(GS_KEYSTORE_ALIAS, KeyStore.PrivateKeyEntry.class)) {
@@ -130,7 +130,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 IF not delete the entry and create a new one.
                  */
                 _keyStore.deleteEntry(GS_KEYSTORE_ALIAS);
-                return getKey(appContext, prefs);
+                return getKey(appContext, persistenceHandler);
 
             } else {
 
@@ -138,7 +138,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 Keystore instance exist. Load keys and decrypt secret.
                  */
 
-                String aesKey = prefs.getString(GS_PREFA_ALIAS, null);
+                String aesKey = persistenceHandler.getString(GS_PREFA_ALIAS, null);
                 if (aesKey != null && _keyStore.containsAlias(GS_KEYSTORE_ALIAS) && _keyStore.entryInstanceOf(GS_KEYSTORE_ALIAS, KeyStore.PrivateKeyEntry.class)) {
                     final PrivateKey privateKey = (PrivateKey) _keyStore.getKey(GS_KEYSTORE_ALIAS, null);
                     final Cipher cipher = Cipher.getInstance(RSA_CIPHER);
