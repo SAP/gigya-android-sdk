@@ -279,20 +279,6 @@ public class Gigya<T extends GigyaAccount> {
         _account = null;
     }
 
-    // TODO: 01/01/2019 This is a testing only method.
-
-    /**
-     * Manually set the current Account scheme.
-     * Use this option if applying a custom account scheme and did not initialized the SDK using a
-     * custom account class reference.
-     *
-     * @param accountClazz Custom account reference.
-     */
-    public void setAccountScheme(@NonNull Class<T> accountClazz) {
-        invalidateAccount();
-        _accountClazz = accountClazz;
-    }
-
     /**
      * Get current session.
      *
@@ -479,7 +465,7 @@ public class Gigya<T extends GigyaAccount> {
                                 permissionCallbacks.granted();
                             }
                             /* Invalidate cached account. */
-                            _account = null;
+                            invalidateAccount();
                         }
 
                         @Override

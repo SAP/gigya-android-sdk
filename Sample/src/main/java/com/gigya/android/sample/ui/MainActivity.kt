@@ -17,7 +17,6 @@ import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
-import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.ui.WebViewFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -86,20 +85,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_custom_scheme -> {
-                // Change the scheme to a custom account object.
-                viewModel?.exampleSetup = MainViewModel.SetupExample.CUSTOM_SCHEME
-                //Gigya.getInstance().setAccountScheme(MyAccount::class.java)
-                onClear()
-                invalidateOptionsMenu()
-            }
-            R.id.action_gigya_scheme -> {
-                // Change to scheme to the default GigyaAccount scheme.
-                viewModel?.exampleSetup = MainViewModel.SetupExample.BASIC
-                Gigya.getInstance().setAccountScheme(GigyaAccount::class.java)
-                onClear()
-                invalidateOptionsMenu()
-            }
             R.id.action_clear -> {
                 onClear()
             }

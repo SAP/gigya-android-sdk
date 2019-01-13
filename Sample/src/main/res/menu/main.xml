@@ -2,19 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_custom_scheme"
-        android:orderInCategory="100"
-        android:title="MyAccount scheme"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_gigya_scheme"
-        android:orderInCategory="100"
-        android:title="Basic scheme"
-        android:visible="false"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/action_clear"
         android:orderInCategory="100"
         android:title="Clear"

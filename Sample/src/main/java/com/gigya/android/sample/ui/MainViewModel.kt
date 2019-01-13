@@ -40,8 +40,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     var exampleSetup = SetupExample.BASIC
 
-
     private val gigya = Gigya.getInstance()
+
+//    private val gigya = Gigya.getInstance(getApplication(), MyAccount::class.java)
 
     /**
      * Send anonymous request.
