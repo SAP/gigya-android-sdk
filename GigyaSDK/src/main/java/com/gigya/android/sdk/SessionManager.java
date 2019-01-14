@@ -1,6 +1,5 @@
 package com.gigya.android.sdk;
 
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -24,9 +23,6 @@ public class SessionManager {
     private static final String PREFS_KEY_SESSION = "GS_PREFS";
 
     private static final String LOG_TAG = "SessionManager";
-
-    @Nullable
-    private SharedPreferences _prefs;
 
     @NonNull
     private Gigya _gigya;

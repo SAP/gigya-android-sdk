@@ -38,8 +38,4 @@ public class LoginProviderFactory {
         return null;
     }
 
-    @Nullable
-    public static LoginProvider providerForLogout(Context context, String providerName) {
-        return providerFor(context, providerName, null, null);
-    }
 }

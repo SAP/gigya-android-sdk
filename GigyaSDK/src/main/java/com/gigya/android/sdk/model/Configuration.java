@@ -13,12 +13,16 @@ import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Configuration {
 
     private String apiKey;
     private String apiDomain;
     private IDs IDs = new IDs();
     private int accountCacheTime = 5;
+    private Map<String, String> appIds = new HashMap<>();
 
     public Configuration() {
 
@@ -79,6 +83,14 @@ public class Configuration {
 
     public void setAccountCacheTime(int accountCacheTime) {
         this.accountCacheTime = accountCacheTime;
+    }
+
+    public Map<String, String> getAppIds() {
+        return appIds;
+    }
+
+    public void setAppIds(Map<String, String> appIds) {
+        this.appIds = appIds;
     }
 
     //endregion

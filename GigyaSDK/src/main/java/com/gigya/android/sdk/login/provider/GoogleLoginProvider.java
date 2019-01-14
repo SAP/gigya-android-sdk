@@ -26,20 +26,28 @@ import java.util.Map;
 
 public class GoogleLoginProvider extends LoginProvider {
 
-    public static final String NAME = "googleplus";
+    @Override
+    public String getName() {
+        return "googleplus";
+    }
 
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
-    private String _serverClientId;
 
     public GoogleLoginProvider(Context context, LoginProviderCallbacks loginCallbacks) {
+        // TODO: 14/01/2019 Do we still need this fallback?
         super(loginCallbacks, null);
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            _serverClientId = (String) appInfo.metaData.get("googleClientId");
+            providerClientId = (String) appInfo.metaData.get("googleClientId");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean clientIdRequired() {
+        return true;
     }
 
     @UiThread
@@ -56,7 +64,7 @@ public class GoogleLoginProvider extends LoginProvider {
     public void logout(Context context) {
         if (_googleClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestServerAuthCode(_serverClientId)
+                    .requestServerAuthCode(providerClientId)
                     .requestEmail()
                     .build();
             _googleClient = GoogleSignIn.getClient(context, gso);
@@ -69,7 +77,7 @@ public class GoogleLoginProvider extends LoginProvider {
         /* code is relevant */
         try {
             return new JSONObject()
-                    .put(NAME, new JSONObject()
+                    .put(getName(), new JSONObject()
                             .put("code", tokenOrCode)).toString();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -79,19 +87,20 @@ public class GoogleLoginProvider extends LoginProvider {
 
     @Override
     public void login(Context context, Map<String, Object> loginParams) {
-        if (_serverClientId == null) {
-            loginCallbacks.onProviderLoginFailed(NAME, "Missing server client id. Check manifest implementation");
+        if (providerClientId == null) {
+            loginCallbacks.onProviderLoginFailed(getName(), "Missing server client id. Check manifest implementation");
             return;
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode(_serverClientId)
+                .requestServerAuthCode(providerClientId)
                 .requestEmail()
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             /* This option should not happen theoretically because we logout out explicitly. */
-            this.loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(account.getServerAuthCode(), -1L, null));
+            this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessions(account.getServerAuthCode(), -1L, null));
             _googleClient.signOut();
             return;
         }
@@ -120,17 +129,17 @@ public class GoogleLoginProvider extends LoginProvider {
                 /* Fetch server auth code */
                 final String authCode = account.getServerAuthCode();
                 if (authCode == null) {
-                    loginCallbacks.onProviderLoginFailed(NAME, "Id token no available");
+                    loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
                     return;
                 }
-                this.loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(authCode, -1L, null));
+                this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessions(authCode, -1L, null));
                 if (_googleClient != null) {
                     _googleClient.signOut();
                 }
                 activity.finish();
             }
         } catch (ApiException e) {
-            loginCallbacks.onProviderLoginFailed(NAME, e.getLocalizedMessage());
+            loginCallbacks.onProviderLoginFailed(getName(), e.getLocalizedMessage());
             if (_googleClient != null) {
                 _googleClient.signOut();
             }

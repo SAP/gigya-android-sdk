@@ -1,6 +1,7 @@
 package com.gigya.android.sdk;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -160,10 +161,22 @@ public class Gigya<T extends GigyaAccount> {
         }
 
         /* Load last provider if exists. */
-        String lastProviderName = DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
+        final String lastProviderName = DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
                 .getString("lastLoginProvider", null);
         if (lastProviderName != null) {
             _currentProvider = LoginProviderFactory.providerFor(_appContext, lastProviderName, null, _loginTrackerCallback);
+            /* Must call sdk config to fetch related client ids for login provider. */
+            getSdkConfig(new Runnable() {
+                @Override
+                public void run() {
+                    if (!_configuration.getAppIds().isEmpty() && _currentProvider != null) {
+                        final String providerClientId = _configuration.getAppIds().get(lastProviderName);
+                        if (providerClientId != null) {
+                            _currentProvider.updateProviderClientId(providerClientId);
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -177,7 +190,7 @@ public class Gigya<T extends GigyaAccount> {
                 @Override
                 public void onMissingConfiguration() {
                     if (!_configuration.hasGMID()) {
-                        getSdkConfig();
+                        getSdkConfig(null);
                     }
                 }
             });
@@ -189,18 +202,22 @@ public class Gigya<T extends GigyaAccount> {
     /*
    Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
     */
-    private void getSdkConfig() {
+    private void getSdkConfig(final Runnable completionHandler) {
         GigyaLogger.debug(LOG_TAG, "api: socialize.getSDKConfig queued execute");
-        new SdkConfigApi(_configuration, _networkAdapter, _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
+        new SdkConfigApi(_configuration, getNetworkAdapter(), _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
             @Override
             public void onSuccess(SdkConfigApi.SdkConfig obj) {
                 if (isValidConfiguration()) {
                     _configuration.setIDs(obj.getIds());
+                    _configuration.setAppIds(obj.getAppIds());
                     if (_sessionManager != null) {
                         // Trigger session save in order to keep track of GMID, UCID.
                         _sessionManager.save();
                     }
                     _networkAdapter.release();
+                }
+                if (completionHandler != null) {
+                    completionHandler.run();
                 }
             }
 
@@ -486,8 +503,30 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Requested parameters.
      * @param callback Response listener callback.
      */
-    public void presetNativeLogin(Map<String, Object> params, final GigyaCallback<T> callback) {
+    public void presetNativeLogin(final Map<String, Object> params, final GigyaCallback<T> callback) {
         GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
+
+            @Override
+            public void onConfigurationRequired(final Activity activity, final LoginProvider loginProvider) {
+                getSdkConfig(new Runnable() {
+                    @Override
+                    public void run() {
+                        /* Okay to release activity. */
+                        activity.finish();
+
+                        if (!_configuration.getAppIds().isEmpty()) {
+                            /* Update provider client id if available */
+                            final String providerClientId = _configuration.getAppIds().get(loginProvider.getName());
+                            if (providerClientId != null) {
+                                loginProvider.updateProviderClientId(providerClientId);
+                            }
+                        }
+
+                        loginProvider.login(_appContext, params);
+                    }
+                });
+            }
+
             @Override
             public void onProviderSelected(LoginProvider provider) {
                 /* Update current provider. */

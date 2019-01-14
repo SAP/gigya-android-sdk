@@ -22,7 +22,10 @@ import java.util.Map;
 
 public class WeChatLoginProvider extends LoginProvider {
 
-    public static final String NAME = "wechat";
+    @Override
+    public String getName() {
+        return "wechat";
+    }
 
     public WeChatLoginProvider(LoginProviderCallbacks loginCallbacks) {
         super(loginCallbacks, null);
@@ -56,7 +59,7 @@ public class WeChatLoginProvider extends LoginProvider {
                 }
 
                 if (_appId == null) {
-                    loginCallbacks.onProviderLoginFailed(NAME, "Failed to fetch application id");
+                    loginCallbacks.onProviderLoginFailed(getName(), "Failed to fetch application id");
                     activity.finish();
                 }
 
@@ -76,6 +79,7 @@ public class WeChatLoginProvider extends LoginProvider {
 
     @Override
     public void logout(Context context) {
+        // TODO: 14/01/2019 Investigate. Is detach enough?
         if (_api != null) {
             _api.detach();
         }
@@ -95,18 +99,18 @@ public class WeChatLoginProvider extends LoginProvider {
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessions(authCode, -1L, _appId);
                     // Notify success.
-                    loginCallbacks.onProviderLoginSuccess(NAME, providerSessions);
+                    loginCallbacks.onProviderLoginSuccess(getName(), providerSessions);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
                 // Notify error.
-                loginCallbacks.onProviderLoginFailed(NAME, Errors.USER_CANCELLED);
+                loginCallbacks.onProviderLoginFailed(getName(), Errors.USER_CANCELLED);
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
                 // Notify error.
-                loginCallbacks.onProviderLoginFailed(NAME, Errors.AUTHENTICATION_DENIED);
+                loginCallbacks.onProviderLoginFailed(getName(), Errors.AUTHENTICATION_DENIED);
                 break;
         }
     }
@@ -116,7 +120,7 @@ public class WeChatLoginProvider extends LoginProvider {
         /* code is relevant */
         try {
             return new JSONObject()
-                    .put(NAME, new JSONObject()
+                    .put(getName(), new JSONObject()
                             .put("code", tokenOrCode).put("providerUID", uid)).toString();
         } catch (Exception ex) {
             ex.printStackTrace();

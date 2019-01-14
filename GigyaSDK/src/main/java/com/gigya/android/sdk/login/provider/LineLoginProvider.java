@@ -10,6 +10,11 @@ import java.util.Map;
 
 public class LineLoginProvider extends LoginProvider {
 
+    @Override
+    public String getName() {
+        return "line";
+    }
+
     public LineLoginProvider(LoginProviderCallbacks loginCallbacks) {
         super(loginCallbacks, null);
     }
@@ -24,6 +29,7 @@ public class LineLoginProvider extends LoginProvider {
             return false;
         }
     }
+
     @Override
     public void logout(Context context) {
 

@@ -66,9 +66,9 @@
             android:name="wechatAppID"
             android:value="@string/wechatAppID" />
 
-        <meta-data
-            android:name="googleClientId"
-            android:value="@string/google_client_id"/>
+        <!--<meta-data-->
+            <!--android:name="googleClientId"-->
+            <!--android:value="@string/google_client_id"/>-->
 
     </application>
 

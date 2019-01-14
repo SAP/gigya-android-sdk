@@ -66,14 +66,34 @@ public class GigyaPresenter {
 
                     @Override
                     void onResult(Map<String, Object> result) {
-                        activity.finish();
-                        /* Handle result */
+                        /* Handle result. */
                         final String provider = (String) result.get("provider");
                         if (provider == null) {
                             return;
                         }
+
+                        login(provider);
+                    }
+
+                    private void login(final String provider) {
                         LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks, trackerCallback);
                         if (loginProvider != null) {
+                            if (loginProvider.clientIdRequired() && configuration.getAppIds().isEmpty()) {
+                                loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
+                                return;
+                            }
+
+                            /* Okay to release activity. */
+                            activity.finish();
+
+                            if (!configuration.getAppIds().isEmpty()) {
+                                /* Update provider client id if available */
+                                final String providerClientId = configuration.getAppIds().get(provider);
+                                if (providerClientId != null) {
+                                    loginProvider.updateProviderClientId(providerClientId);
+                                }
+                            }
+
                             loginProviderCallbacks.onProviderSelected(loginProvider);
                             loginProvider.login(context, params);
                         }

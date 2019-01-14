@@ -34,8 +34,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class FacebookLoginProvider extends LoginProvider {
-
-    public static final String NAME = "facebook";
+    @Override
+    public String getName() {
+        return "facebook";
+    }
 
     public static final String LOGIN_BEHAVIOUR = "facebookLoginBehavior";
     public static final String READ_PERMISSIONS = "facebookReadPermissions";
@@ -72,7 +74,7 @@ public class FacebookLoginProvider extends LoginProvider {
                 if (loginCallbacks != null) {
                     final String newAuthToken = currentAccessToken.getToken();
                     final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;
-                    trackerCallback.onProviderTrackingTokenChanges(NAME, getProviderSessions(newAuthToken, expiresInSeconds, null), null);
+                    trackerCallback.onProviderTrackingTokenChanges(getName(), getProviderSessions(newAuthToken, expiresInSeconds, null), null);
                 }
             }
         };
@@ -138,7 +140,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        loginCallbacks.onProviderLoginSuccess(NAME, getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
+                        loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
 
                         activity.finish();
                     }
@@ -208,7 +210,7 @@ public class FacebookLoginProvider extends LoginProvider {
                         if (accessToken.getDeclinedPermissions().isEmpty()) {
                             final long expiresInSeconds = accessToken.getExpires().getTime() / 1000;
                             // Continue flow -> refresh provider token.
-                            trackerCallback.onProviderTrackingTokenChanges(NAME,
+                            trackerCallback.onProviderTrackingTokenChanges(getName(),
                                     getProviderSessions(accessToken.getToken(), expiresInSeconds, null), permissionCallbacks);
                             _tokenTracker.startTracking();
                         } else {

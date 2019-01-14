@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.login;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
@@ -11,17 +12,28 @@ import java.util.Map;
 
 public abstract class LoginProvider {
 
+    public abstract String getName();
+
     public static class Errors {
         public static final String USER_CANCELLED = "user_cancelled";
         public static final String AUTHENTICATION_DENIED = "authentication_denied";
     }
 
+    protected String providerClientId;
     protected final LoginProviderCallbacks loginCallbacks;
     protected final LoginProviderTrackerCallback trackerCallback;
 
     public LoginProvider(LoginProviderCallbacks loginCallbacks, LoginProviderTrackerCallback trackerCallback) {
         this.loginCallbacks = loginCallbacks;
         this.trackerCallback = trackerCallback;
+    }
+
+    public void updateProviderClientId(String providerClientId) {
+        this.providerClientId = providerClientId;
+    }
+
+    public boolean clientIdRequired() {
+        return false;
     }
 
     public abstract void login(Context context, Map<String, Object> loginParams);
@@ -41,6 +53,8 @@ public abstract class LoginProvider {
     //region Interfacing
 
     public abstract static class LoginProviderCallbacks {
+
+        public abstract void onConfigurationRequired(Activity activity, LoginProvider loginProvider);
 
         public abstract void onProviderSelected(LoginProvider provider);
 

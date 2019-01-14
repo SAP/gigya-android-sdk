@@ -20,9 +20,10 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class SdkConfigApi extends BaseApi  {
+public class SdkConfigApi extends BaseApi {
 
     private static final String API = "socialize.getSDKConfig";
+    private final String API_INCLUDES = "permissions,ids,appIds";
 
     public SdkConfigApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
         super(configuration, networkAdapter, sessionManager);
@@ -30,7 +31,7 @@ public class SdkConfigApi extends BaseApi  {
 
     public void call(final GigyaCallback<SdkConfig> callback) {
         Map<String, Object> params = new HashMap<>();
-        params.put("include", "permissions" + (configuration.hasGMID() ? "" : ",ids"));
+        params.put("include", API_INCLUDES);
         params.put("ApiKey", configuration.getApiKey());
         // Build request.
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
@@ -82,9 +83,16 @@ public class SdkConfigApi extends BaseApi  {
 
         Configuration.IDs ids = new Configuration.IDs();
 
+        Map<String, String> appIds = new HashMap<>();
+
         public Configuration.IDs getIds() {
             return ids;
         }
+
+        public Map<String, String> getAppIds() {
+            return appIds;
+        }
     }
+
 
 }

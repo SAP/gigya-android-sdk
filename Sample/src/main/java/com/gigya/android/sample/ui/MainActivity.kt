@@ -67,13 +67,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         menuInflater.inflate(R.menu.main, menu)
 
         // Reference dynamic item views in oreder to apply visibility logic.
-        val custom = menu.findItem(R.id.action_custom_scheme)
-        val basic = menu.findItem(R.id.action_gigya_scheme)
         val accountItem = menu.findItem(R.id.action_account)
         val facebookPermissionsUpdateItem = menu.findItem(R.id.fb_permission_update)
 
-        custom.isVisible = viewModel?.exampleSetup == MainViewModel.SetupExample.BASIC
-        basic.isVisible = viewModel?.exampleSetup == MainViewModel.SetupExample.CUSTOM_SCHEME
         accountItem.isVisible = Gigya.getInstance().isLoggedIn
 
         // Check for facebook login
