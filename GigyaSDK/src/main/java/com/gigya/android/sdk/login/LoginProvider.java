@@ -45,7 +45,7 @@ public abstract class LoginProvider {
     //region Track token changes
 
     public void trackTokenChanges(@Nullable SessionManager sessionManager) {
-        // Stub.
+        // Stub. Override only if provider tracks token changes.
     }
 
     //endregion

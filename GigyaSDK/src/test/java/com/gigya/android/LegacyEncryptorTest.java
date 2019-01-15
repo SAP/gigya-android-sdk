@@ -1,16 +1,14 @@
 package com.gigya.android;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
+import com.gigya.android.sdk.PersistenceHandler;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 
@@ -20,6 +18,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class LegacyEncryptorTest {
@@ -28,11 +27,7 @@ public class LegacyEncryptorTest {
 
     @Mock
     private
-    SharedPreferences sharedPreferences;
-
-    @Mock
-    private
-    SharedPreferences.Editor editor;
+    PersistenceHandler persistenceHandler;
 
     @Mock
     private
@@ -45,32 +40,22 @@ public class LegacyEncryptorTest {
 
     @Test
     public void testGetKeyWithSavedPreferencesAlias() {
-        when(sharedPreferences.getString(anyString(), (String) any())).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                return encryptedSecret;
-            }
-        });
+        when(persistenceHandler.getString(anyString(), (String) any())).thenReturn(encryptedSecret);
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, sharedPreferences);
+        SecretKey key = encryptor.getKey(context, persistenceHandler);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
+
         assertArrayEquals(key.getEncoded(), new byte[]{-35, 115, 3, 4, -101});
     }
 
     @Test
     public void testGetKeyNew() {
-        when(sharedPreferences.getString(anyString(), (String) any())).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                return null;
-            }
-        });
-        when(sharedPreferences.edit()).thenReturn(editor);
-        when(editor.putString(anyString(), anyString())).thenReturn(editor);
+        when(persistenceHandler.getString(anyString(), anyString())).thenReturn(null);
+        doNothing().when(persistenceHandler).add(anyString(), anyString());
 
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, sharedPreferences);
+        SecretKey key = encryptor.getKey(context, persistenceHandler);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
         assertNotNull(key);

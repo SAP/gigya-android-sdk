@@ -52,7 +52,7 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext) {
         _appContext = appContext;
         init();
-        this._sessionManager = new SessionManager(this,
+        _sessionManager = new SessionManager(this,
                 DependencyRegistry.getInstance().getEncryptor(),
                 DependencyRegistry.getInstance().getPersistenceHandler(_appContext));
     }
@@ -148,11 +148,13 @@ public class Gigya<T extends GigyaAccount> {
      * For explicit setting see {@link #init(String, String)} method.
      */
     private void init() {
-        /* Try to from assets JSON file, */
-        _configuration = Configuration.loadFromJson(_appContext);
-        if (_configuration == null) {
-            /* Try to load fom manifest meta data. */
-            _configuration = Configuration.loadFromManifest(_appContext);
+        if (_configuration.getApiKey() == null) {
+            /* Try to from assets JSON file, */
+            _configuration = Configuration.loadFromJson(_appContext);
+            if (_configuration == null) {
+                /* Try to load fom manifest meta data. */
+                _configuration = Configuration.loadFromManifest(_appContext);
+            }
         }
 
         /* Set next account invalidation timestamp if available. */
@@ -165,18 +167,20 @@ public class Gigya<T extends GigyaAccount> {
                 .getString("lastLoginProvider", null);
         if (lastProviderName != null) {
             _currentProvider = LoginProviderFactory.providerFor(_appContext, lastProviderName, null, _loginTrackerCallback);
-            /* Must call sdk config to fetch related client ids for login provider. */
-            getSdkConfig(new Runnable() {
-                @Override
-                public void run() {
-                    if (!_configuration.getAppIds().isEmpty() && _currentProvider != null) {
-                        final String providerClientId = _configuration.getAppIds().get(lastProviderName);
-                        if (providerClientId != null) {
-                            _currentProvider.updateProviderClientId(providerClientId);
+            if (_currentProvider != null && _currentProvider.clientIdRequired()) {
+                /* Must call sdk config to fetch related client ids for login provider. */
+                getSdkConfig(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!_configuration.getAppIds().isEmpty() && _currentProvider != null) {
+                            final String providerClientId = _configuration.getAppIds().get(lastProviderName);
+                            if (providerClientId != null) {
+                                _currentProvider.updateProviderClientId(providerClientId);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 

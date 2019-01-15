@@ -104,6 +104,7 @@ public class GoogleLoginProvider extends LoginProvider {
             _googleClient.signOut();
             return;
         }
+
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
 
             @Override
@@ -136,6 +137,7 @@ public class GoogleLoginProvider extends LoginProvider {
                 if (_googleClient != null) {
                     _googleClient.signOut();
                 }
+
                 activity.finish();
             }
         } catch (ApiException e) {
@@ -143,6 +145,7 @@ public class GoogleLoginProvider extends LoginProvider {
             if (_googleClient != null) {
                 _googleClient.signOut();
             }
+
             activity.finish();
         }
     }
