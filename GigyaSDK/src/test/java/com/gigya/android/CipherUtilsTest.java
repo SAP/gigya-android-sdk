@@ -4,8 +4,6 @@ import com.gigya.android.sdk.utils.CipherUtils;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -18,31 +16,37 @@ public class CipherUtilsTest {
 
     @Test
     public void testBytesToString() {
+        // Arrange
         final byte[] expectedRead = new byte[]{-127, -126, -125};
+        // Act
         final String str = CipherUtils.bytesToString(expectedRead);
-        System.out.println(str);
+        // Assert
         assertEquals(str, "f1if7");
     }
 
     @Test
     public void testStringToBytes() {
+        // Arrange
         final String str = "f1if7";
+        // Act
         final byte[] bytes = CipherUtils.stringToBytes(str);
-        System.out.println(Arrays.toString(bytes));
+        // Assert
         assertArrayEquals(bytes, new byte[]{-127, -126, -125});
     }
 
     @Test
     public void testEncrypt() {
+        // Act
         final String encrypted = CipherUtils.encrypt("toEncrypt", "AES", secretKey);
-        System.out.println(encrypted);
+        // Assert
         assertEquals(encrypted, "rcosq1vij78dtegb0ozgfg6my");
     }
 
     @Test
     public void testDecrypt() {
+        // Act
         final String decrypted = CipherUtils.decrypt("rcosq1vij78dtegb0ozgfg6my", "AES", secretKey);
-        System.out.println(decrypted);
+        // Assert
         assertEquals(decrypted, "toEncrypt");
     }
 }
