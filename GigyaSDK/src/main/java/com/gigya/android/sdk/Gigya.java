@@ -549,7 +549,7 @@ public class Gigya<T extends GigyaAccount> {
 
             @Override
             public void onCanceled() {
-
+                callback.onCancelledOperation();
             }
 
             @Override

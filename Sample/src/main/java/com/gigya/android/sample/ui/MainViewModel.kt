@@ -3,7 +3,6 @@ package com.gigya.android.sample.ui
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.util.Log
-import com.facebook.login.LoginBehavior
 import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
@@ -197,10 +196,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Present SDK native login pre defined UI.
      */
-    fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.showLoginProviders(mapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus, yahoo",
-                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY
+    fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
+        gigya.showLoginProviders(mutableMapOf<String, Any>(
+                "enabledProviders" to "facebook, googlePlus, yahoo"
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showLoginProviders", "Success")
@@ -210,6 +208,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onIntermediateLoad() {
                 onIntermediateLoad()
+            }
+
+            override fun onCancelledOperation() {
+                cancel()
             }
 
             override fun onError(error: GigyaError?) {

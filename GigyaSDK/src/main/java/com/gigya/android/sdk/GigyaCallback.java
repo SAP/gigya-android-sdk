@@ -12,5 +12,9 @@ public abstract class GigyaCallback<T> {
         // Stub.
     }
 
+    public void onCancelledOperation() {
+        // Stub.
+    }
+
 }
 

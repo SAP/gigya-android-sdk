@@ -149,7 +149,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     @Override
                     public void onCancel() {
                         loginManager.unregisterCallback(_callbackManager);
-                        loginCallbacks.onProviderLoginFailed("facebook", "Operation cancelled");
+                        loginCallbacks.onCanceled();
 
                         activity.finish();
                     }

@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 viewModel?.requestFacebookPermissionUpdate(
                         granted = { response_text_view.snackbar("Permission granted") },
                         fail = { why -> response_text_view.snackbar(why) },
-                        cancel = {  response_text_view.snackbar("Request cancelled") }
+                        cancel = { response_text_view.snackbar("Request cancelled") }
                 )
             }
         }
@@ -197,6 +197,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
                 }
+                , cancel = { response_text_view.snackbar("Request cancelled") }
         )
     }
 
