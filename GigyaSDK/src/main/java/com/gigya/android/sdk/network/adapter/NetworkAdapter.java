@@ -18,7 +18,7 @@ public class NetworkAdapter {
         if (VolleyNetworkProvider.isAvailable()) {
             _networkProvider = new VolleyNetworkProvider(appContext);
         }
-        ///.... Add additional providers such as retrofit etc.
+        /* Add additional providers such as retrofit etc. */
         else {
             _networkProvider = new HttpNetworkProvider();
         }
