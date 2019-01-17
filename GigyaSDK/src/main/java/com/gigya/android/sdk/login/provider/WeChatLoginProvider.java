@@ -97,7 +97,7 @@ public class WeChatLoginProvider extends LoginProvider {
                 try {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
-                    final String providerSessions = getProviderSessions(authCode, -1L, _appId);
+                    final String providerSessions = getProviderSessionsForRequest(authCode, -1L, _appId);
                     // Notify success.
                     loginCallbacks.onProviderLoginSuccess(getName(), providerSessions);
                 } catch (Exception e) {
@@ -116,7 +116,7 @@ public class WeChatLoginProvider extends LoginProvider {
     }
 
     @Override
-    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+    public String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid) {
         /* code is relevant */
         try {
             return new JSONObject()

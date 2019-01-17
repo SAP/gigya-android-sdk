@@ -36,7 +36,7 @@ public class LineLoginProvider extends LoginProvider {
     }
 
     @Override
-    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+    public String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid) {
         return null;
     }
 

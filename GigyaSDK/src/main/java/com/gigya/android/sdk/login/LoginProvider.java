@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.model.SessionInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -40,10 +41,11 @@ public abstract class LoginProvider {
 
     public abstract void logout(Context context);
 
-    public abstract String getProviderSessions(String tokenOrCode, long expiration, String uid);
+    public abstract String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid);
 
     //region Track token changes
 
+    // TODO: 15/01/2019 Don't need session manager.
     public void trackTokenChanges(@Nullable SessionManager sessionManager) {
         // Stub. Override only if provider tracks token changes.
     }
@@ -52,15 +54,25 @@ public abstract class LoginProvider {
 
     //region Interfacing
 
+    public interface LoginProviderConfigCallback {
+        void onConfigurationRequired();
+    }
+
     public abstract static class LoginProviderCallbacks {
 
         public abstract void onConfigurationRequired(Activity activity, LoginProvider loginProvider);
+
+        public abstract void onCanceled();
 
         public abstract void onProviderSelected(LoginProvider provider);
 
         public abstract void onProviderLoginSuccess(String provider, String providerSessions);
 
         public abstract void onProviderLoginFailed(String provider, String error);
+
+        public void onProviderSession(String provider, SessionInfo sessionInfo) {
+            // Stub.
+        }
     }
 
     public abstract static class LoginProviderTrackerCallback {

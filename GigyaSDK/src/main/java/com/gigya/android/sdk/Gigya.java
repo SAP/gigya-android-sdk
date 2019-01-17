@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
@@ -25,7 +27,7 @@ import com.gigya.android.sdk.network.api.RefreshProviderSessionApi;
 import com.gigya.android.sdk.network.api.RegisterApi;
 import com.gigya.android.sdk.network.api.SdkConfigApi;
 import com.gigya.android.sdk.network.api.SetAccountApi;
-import com.gigya.android.sdk.ui.GigyaPresenter;
+import com.gigya.android.sdk.ui.GigyaLoginPresenter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +57,10 @@ public class Gigya<T extends GigyaAccount> {
         _sessionManager = new SessionManager(this,
                 DependencyRegistry.getInstance().getEncryptor(),
                 DependencyRegistry.getInstance().getPersistenceHandler(_appContext));
+        if (_currentProvider != null) {
+            /* Track provider token changes if necessary. */
+            _currentProvider.trackTokenChanges(_sessionManager);
+        }
     }
 
     private NetworkAdapter _networkAdapter;
@@ -81,7 +87,7 @@ public class Gigya<T extends GigyaAccount> {
         return Gigya.getInstance(appContext, GigyaAccount.class);
     }
 
-    //region Initialization
+    //region Initialize
 
     /**
      * Gigya default api domain.
@@ -134,6 +140,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey    Client API-KEY
      * @param apiDomain Request Domain.
      */
+    @SuppressWarnings("WeakerAccess")
     public void init(String apiKey, String apiDomain) {
         // Override existing configuration when applied explicitly.
         _configuration.update(apiKey, apiDomain);
@@ -166,10 +173,10 @@ public class Gigya<T extends GigyaAccount> {
         final String lastProviderName = DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
                 .getString("lastLoginProvider", null);
         if (lastProviderName != null) {
-            _currentProvider = LoginProviderFactory.providerFor(_appContext, lastProviderName, null, _loginTrackerCallback);
-            if (_currentProvider != null && _currentProvider.clientIdRequired()) {
+            _currentProvider = LoginProviderFactory.providerFor(_appContext, _configuration, lastProviderName, null, _loginTrackerCallback);
+            if (_currentProvider.clientIdRequired()) {
                 /* Must call sdk config to fetch related client ids for login provider. */
-                getSdkConfig(new Runnable() {
+                loadSDKConfig(new Runnable() {
                     @Override
                     public void run() {
                         if (!_configuration.getAppIds().isEmpty() && _currentProvider != null) {
@@ -194,7 +201,7 @@ public class Gigya<T extends GigyaAccount> {
                 @Override
                 public void onMissingConfiguration() {
                     if (!_configuration.hasGMID()) {
-                        getSdkConfig(null);
+                        loadSDKConfig(null);
                     }
                 }
             });
@@ -206,7 +213,7 @@ public class Gigya<T extends GigyaAccount> {
     /*
    Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
     */
-    private void getSdkConfig(final Runnable completionHandler) {
+    private void loadSDKConfig(final Runnable completionHandler) {
         GigyaLogger.debug(LOG_TAG, "api: socialize.getSDKConfig queued execute");
         new SdkConfigApi(_configuration, getNetworkAdapter(), _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
             @Override
@@ -249,6 +256,7 @@ public class Gigya<T extends GigyaAccount> {
                 .call(api, params, callback);
     }
 
+    @SuppressWarnings("unchecked")
     @NonNull
     private Class<T> _accountClazz = (Class<T>) GigyaAccount.class;
 
@@ -330,7 +338,12 @@ public class Gigya<T extends GigyaAccount> {
             _sessionManager.clear();
         }
         getNetworkAdapter().cancel(null);
-        GigyaPresenter.flush();
+        GigyaLoginPresenter.flush();
+
+        /* Clearing cached cookies. */
+        CookieSyncManager.createInstance(_appContext);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
 
         /* Logout from social provider (is available). */
         if (_currentProvider != null) {
@@ -379,7 +392,8 @@ public class Gigya<T extends GigyaAccount> {
         if (!_accountOverrideCache) {
             GigyaLogger.debug("Gigya Account", "Invalidating cached account");
             // Reset invalidation timestamp
-            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_configuration.getAccountCacheTime());
+            final int accountCacheTime = _configuration.getAccountCacheTime();
+            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(accountCacheTime);
         }
         new GetAccountApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
                 .call(callback, new GigyaInterceptionCallback<T>() {
@@ -501,18 +515,20 @@ public class Gigya<T extends GigyaAccount> {
         }
     };
 
+    // TODO: 17/01/2019 Code review 15/1/19 - Refactor login provider callback -> move into GigyaLoginPresenter.
+
     /**
      * Present native login selection according to requested parameters.
      *
      * @param params   Requested parameters.
      * @param callback Response listener callback.
      */
-    public void presetNativeLogin(final Map<String, Object> params, final GigyaCallback<T> callback) {
-        GigyaPresenter.presentNativeLogin(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
+    public void showLoginProviders(final Map<String, Object> params, final GigyaCallback<T> callback) {
+        GigyaLoginPresenter.showNativeLoginProviders(_appContext, _configuration, params, new LoginProvider.LoginProviderCallbacks() {
 
             @Override
             public void onConfigurationRequired(final Activity activity, final LoginProvider loginProvider) {
-                getSdkConfig(new Runnable() {
+                loadSDKConfig(new Runnable() {
                     @Override
                     public void run() {
                         /* Okay to release activity. */
@@ -529,6 +545,11 @@ public class Gigya<T extends GigyaAccount> {
                         loginProvider.login(_appContext, params);
                     }
                 });
+            }
+
+            @Override
+            public void onCanceled() {
+
             }
 
             @Override
@@ -573,9 +594,28 @@ public class Gigya<T extends GigyaAccount> {
                 callback.onError(GigyaError.errorFrom(error));
             }
 
+            @Override
+            public void onProviderSession(final String provider, SessionInfo sessionInfo) {
+
+                /* Call intermediate load to give the client the option to trigger his own progress indicator */
+                callback.onIntermediateLoad();
+
+                /* Call notifyLogin to complete sign in process.*/
+                new NotifyLoginApi<>(_configuration, getNetworkAdapter(), _sessionManager, _accountClazz)
+                        .call(sessionInfo, callback, new GigyaInterceptionCallback<T>() {
+                            @Override
+                            public void intercept(T obj) {
+                                _account = obj;
+
+                                /* Persist updated provider. */
+                                DependencyRegistry.getInstance().getPersistenceHandler(_appContext)
+                                        .onLoginProviderUpdated(provider);
+                            }
+                        });
+            }
+
         }, _loginTrackerCallback);
     }
 
     //endregion
-
 }

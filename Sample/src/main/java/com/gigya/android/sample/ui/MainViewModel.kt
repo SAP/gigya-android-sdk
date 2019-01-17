@@ -197,13 +197,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Present SDK native login pre defined UI.
      */
-    fun presentNativeLogin(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.presetNativeLogin(mapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus, line, wechat",
-                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.NATIVE_WITH_FALLBACK
+    fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.showLoginProviders(mapOf<String, Any>(
+                "enabledProviders" to "facebook, googlePlus, yahoo",
+                FacebookLoginProvider.LOGIN_BEHAVIOUR to LoginBehavior.WEB_VIEW_ONLY
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
-                Log.d("presentNativeLogin", "Success")
+                Log.d("showLoginProviders", "Success")
                 account = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
@@ -213,36 +213,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(error: GigyaError?) {
-                Log.d("presentNativeLogin", "onError")
+                Log.d("showLoginProviders", "onError")
                 error(error)
             }
 
         })
     }
 
-    fun requestFacebookPermissionUpdate() {
+    /**
+     * Request additional Facebook permissions.
+     */
+    fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
         val loginProvider: FacebookLoginProvider = gigya.loginProvider as FacebookLoginProvider
         loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
                 object : LoginProvider.LoginPermissionCallbacks() {
 
                     override fun granted() {
                         Log.d("PermissionUpdate", "granted")
+                        granted()
                     }
 
                     override fun noAccess() {
                         Log.d("PermissionUpdate", "noAccess")
+                        failed("No access")
                     }
 
                     override fun cancelled() {
                         Log.d("PermissionUpdate", "cancelled")
+                        cancel()
                     }
 
                     override fun declined(declined: MutableList<String>?) {
                         Log.d("PermissionUpdate", "declined")
+                        fail("Declined")
                     }
 
                     override fun failed(error: String?) {
                         Log.d("PermissionUpdate", "failed")
+                        fail("Error")
                     }
 
                 })

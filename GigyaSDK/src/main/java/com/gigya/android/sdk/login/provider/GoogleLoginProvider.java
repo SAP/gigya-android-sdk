@@ -1,10 +1,12 @@
 package com.gigya.android.sdk.login.provider;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
@@ -15,9 +17,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import org.json.JSONObject;
@@ -73,7 +77,7 @@ public class GoogleLoginProvider extends LoginProvider {
     }
 
     @Override
-    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+    public String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid) {
         /* code is relevant */
         try {
             return new JSONObject()
@@ -100,8 +104,8 @@ public class GoogleLoginProvider extends LoginProvider {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             /* This option should not happen theoretically because we logout out explicitly. */
-            this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessions(account.getServerAuthCode(), -1L, null));
-            _googleClient.signOut();
+            this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
+            finish(null);
             return;
         }
 
@@ -126,27 +130,47 @@ public class GoogleLoginProvider extends LoginProvider {
     private void handleSignInResult(AppCompatActivity activity, Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            if (account != null) {
+            if (account == null) {
+                loginCallbacks.onProviderLoginFailed(getName(), "Account unavailable");
+            } else {
                 /* Fetch server auth code */
                 final String authCode = account.getServerAuthCode();
                 if (authCode == null) {
                     loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
-                    return;
+                } else {
+                    this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessionsForRequest(authCode, -1L, null));
                 }
-                this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessions(authCode, -1L, null));
-                if (_googleClient != null) {
-                    _googleClient.signOut();
-                }
+            }
+            finish(activity);
+        } catch (ApiException e) {
+            final int exceptionStatusCode = e.getStatusCode();
+            switch (exceptionStatusCode) {
+                case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
+                    loginCallbacks.onCanceled();
+                    break;
+                case GoogleSignInStatusCodes.SIGN_IN_FAILED:
+                default:
+                    loginCallbacks.onProviderLoginFailed(getName(), e.getLocalizedMessage());
+                    break;
+            }
+            finish(activity);
+        }
+    }
 
+    private void finish(final Activity activity) {
+        if (_googleClient != null) {
+            _googleClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (activity != null) {
+                        activity.finish();
+                    }
+                }
+            });
+        } else {
+            if (activity != null) {
                 activity.finish();
             }
-        } catch (ApiException e) {
-            loginCallbacks.onProviderLoginFailed(getName(), e.getLocalizedMessage());
-            if (_googleClient != null) {
-                _googleClient.signOut();
-            }
-
-            activity.finish();
         }
     }
 }

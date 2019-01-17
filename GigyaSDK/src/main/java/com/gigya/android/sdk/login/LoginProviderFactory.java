@@ -1,17 +1,17 @@
 package com.gigya.android.sdk.login;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider;
 import com.gigya.android.sdk.login.provider.GoogleLoginProvider;
 import com.gigya.android.sdk.login.provider.LineLoginProvider;
 import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
+import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
+import com.gigya.android.sdk.model.Configuration;
 
 public class LoginProviderFactory {
 
-    @Nullable
-    public static LoginProvider providerFor(Context context, String providerName,
+    public static LoginProvider providerFor(Context context, Configuration configuration, String providerName,
                                             LoginProvider.LoginProviderCallbacks loginCallbacks, LoginProvider.LoginProviderTrackerCallback trackerCallback) {
         switch (providerName.toLowerCase()) {
             case "facebook":
@@ -35,7 +35,7 @@ public class LoginProviderFactory {
                 }
                 break;
         }
-        return null;
+        return new WebViewLoginProvider(configuration, loginCallbacks);
     }
 
 }

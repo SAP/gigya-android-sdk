@@ -13,7 +13,6 @@ import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Configuration {
@@ -22,7 +21,7 @@ public class Configuration {
     private String apiDomain;
     private IDs IDs = new IDs();
     private int accountCacheTime = 5;
-    private Map<String, String> appIds = new HashMap<>();
+    private Map<String, String> appIds;
 
     public Configuration() {
 
@@ -49,6 +48,10 @@ public class Configuration {
 
     public boolean hasGMID() {
         return !TextUtils.isEmpty(getIDs().gmid);
+    }
+
+    public boolean isSynced() {
+        return appIds != null;
     }
 
     //region Getters & Setters

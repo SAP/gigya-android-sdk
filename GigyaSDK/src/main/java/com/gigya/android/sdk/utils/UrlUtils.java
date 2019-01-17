@@ -63,22 +63,29 @@ public class UrlUtils {
         final Map<String, Object> map = new HashMap<>();
         if (url != null) {
             String querySplit[] = url.split("\\?");
+            String hashSplit[] = url.split("#");
             if (querySplit.length > 1) {
-                String parameters[] = querySplit[1].split("&");
-                for (String parameter : parameters) {
-                    String pair[] = parameter.split("=");
-                    try {
-                        if (pair.length > 1) {
-                            final String value = URLDecoder.decode(pair[1], "UTF8");
-                            map.put(pair[0], value);
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
+                parseParameters(map, querySplit[1]);
+            }  else if (hashSplit.length > 1) {
+                parseParameters(map, hashSplit[1]);
             }
         }
         return map;
+    }
+
+    private static void parseParameters(Map<String, Object> map, String s) {
+        String parameters[] = s.split("&");
+        for (String parameter : parameters) {
+            String pair[] = parameter.split("=");
+            try {
+                if (pair.length > 1) {
+                    final String value = URLDecoder.decode(pair[1], "UTF8");
+                    map.put(pair[0], value);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     public static String getBaseUrl(String api, String apiDomain) {

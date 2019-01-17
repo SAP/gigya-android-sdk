@@ -92,7 +92,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 response_text_view.snackbar(getString(R.string.logged_out))
             }
             R.id.fb_permission_update -> {
-                viewModel?.requestFacebookPermissionUpdate()
+                viewModel?.requestFacebookPermissionUpdate(
+                        granted = { response_text_view.snackbar("Permission granted") },
+                        fail = { why -> response_text_view.snackbar(why) },
+                        cancel = {  response_text_view.snackbar("Request cancelled") }
+                )
             }
         }
         return super.onOptionsItemSelected(item)
@@ -182,7 +186,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region UI presentation
 
     private fun presentNativeLogin() {
-        viewModel?.presentNativeLogin(
+        viewModel?.showLoginProviders(
                 success = { json ->
                     onJsonResult(json)
                     onAccountDataAvailable()

@@ -48,6 +48,7 @@ public class WebViewFragment extends DialogFragment {
     /* Arguments. */
     public static final String ARG_TITLE = "arg_title";
     public static final String ARG_URL = "arg_url";
+    public static final String ARG_BODY = "arg_body";
     public static final String ARG_REDIRECT_PREFIX = "arg_redirect_prefix";
     public static int PROGRESS_COLOR = Color.BLACK; // Default color.
     /* Content views. */
@@ -56,11 +57,12 @@ public class WebViewFragment extends DialogFragment {
     private ProgressBar _progressBar;
 
     @Nullable
-    private String _url, _redirectPrefix, _title;
-    @Nullable
-    private WebViewFragmentResultCallback _resultCallback;
+    private String _url, _body, _redirectPrefix, _title;
 
-    public static void present(AppCompatActivity activity, Bundle args, WebViewFragmentResultCallback resultCallback) {
+    @Nullable
+    private WebViewFragmentLifecycleCallbacks _resultCallback;
+
+    public static void present(AppCompatActivity activity, Bundle args, WebViewFragmentLifecycleCallbacks resultCallback) {
         WebViewFragment fragment = new WebViewFragment();
         fragment._resultCallback = resultCallback;
         fragment.setArguments(args);
@@ -83,6 +85,7 @@ public class WebViewFragment extends DialogFragment {
         }
         Bundle args = getArguments();
         _url = args.getString(ARG_URL);
+        _body = args.getString(ARG_BODY);
         _redirectPrefix = args.getString(ARG_REDIRECT_PREFIX);
         _title = args.getString(ARG_TITLE);
     }
@@ -100,17 +103,25 @@ public class WebViewFragment extends DialogFragment {
         return _contentView;
     }
 
+    @SuppressWarnings("CharsetObjectCanBeUsed") // <- Only from API 19.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (_url != null) {
-            // Load url.
-            _webView.loadUrl(_url);
+            if (_body != null) {
+                _webView.postUrl(_url, _body.getBytes());
+            } else {
+                // Load url.
+                _webView.loadUrl(_url);
+            }
         }
     }
 
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
+        if (_resultCallback != null) {
+            _resultCallback.onWebViewCancel();
+        }
         if (getActivity() != null) {
             getActivity().onBackPressed();
         }
@@ -290,7 +301,7 @@ public class WebViewFragment extends DialogFragment {
             return;
         }
         if (_resultCallback != null) {
-            _resultCallback.onResult(resultObject);
+            _resultCallback.onWebViewResult(resultObject);
         }
         // Remove fragment from stack. Do not finish host activity.
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
@@ -299,10 +310,12 @@ public class WebViewFragment extends DialogFragment {
         getActivity().finish();
     }
 
-    static abstract class WebViewFragmentResultCallback implements Serializable {
-
-        abstract void onResult(Map<String, Object> result);
-    }
-
     //endregion
+
+    public static abstract class WebViewFragmentLifecycleCallbacks implements Serializable {
+
+        public abstract void onWebViewResult(Map<String, Object> result);
+
+        public abstract void onWebViewCancel();
+    }
 }

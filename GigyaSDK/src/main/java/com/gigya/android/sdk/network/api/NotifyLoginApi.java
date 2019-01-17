@@ -30,6 +30,16 @@ public class NotifyLoginApi<T> extends BaseApi<T> {
         super(configuration, networkAdapter, sessionManager, clazz);
     }
 
+    public void call(SessionInfo sessionInfo, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+        // Update session.
+        if (sessionManager != null) {
+            sessionManager.setSession(sessionInfo);
+        }
+        // Request account info.
+        new GetAccountApi<>(configuration, networkAdapter, sessionManager, clazz)
+                .call(callback, interceptor);
+    }
+
     public void call(String providerSessions, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         final Map<String, Object> params = new HashMap<>();
         params.put("providerSessions", providerSessions);

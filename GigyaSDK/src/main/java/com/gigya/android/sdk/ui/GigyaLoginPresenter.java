@@ -9,21 +9,22 @@ import android.util.SparseArray;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
+import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GigyaPresenter {
+public class GigyaLoginPresenter {
 
-    private static final String TAG = "GigyaPresenter";
+    private static final String TAG = "GigyaLoginPresenter";
 
     private static final String REDIRECT_URI = "gsapi://result/";
 
     //region HostActivity lifecycle callbacks tracking
 
-    // TODO: 03/01/2019 When dropping support for <18 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
+    // TODO: 03/01/2019 When dropping support for <17 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
 
     private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
 
@@ -48,9 +49,9 @@ public class GigyaPresenter {
 
     //endregion
 
-    public static void presentNativeLogin(final Context context, final Configuration configuration, final Map<String, Object> params,
-                                          final LoginProvider.LoginProviderCallbacks loginProviderCallbacks,
-                                          final LoginProvider.LoginProviderTrackerCallback trackerCallback) {
+    public static void showNativeLoginProviders(final Context context, final Configuration configuration, final Map<String, Object> params,
+                                                final LoginProvider.LoginProviderCallbacks loginProviderCallbacks,
+                                                final LoginProvider.LoginProviderTrackerCallback trackerCallback) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
@@ -62,41 +63,53 @@ public class GigyaPresenter {
                 args.putString(WebViewFragment.ARG_TITLE, "Sign in");
                 args.putString(WebViewFragment.ARG_URL, url);
                 args.putString(WebViewFragment.ARG_REDIRECT_PREFIX, "gsapi");
-                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentResultCallback() {
+                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
                     @Override
-                    void onResult(Map<String, Object> result) {
+                    public void onWebViewResult(Map<String, Object> result) {
                         /* Handle result. */
                         final String provider = (String) result.get("provider");
                         if (provider == null) {
+                            /* Internal check. Should not happen if SDK implementation is correct. */
                             return;
                         }
-
                         login(provider);
                     }
 
+                    @Override
+                    public void onWebViewCancel() {
+                        /* User cancelled WebView. */
+                        loginProviderCallbacks.onCanceled();
+                    }
+
                     private void login(final String provider) {
-                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, provider, loginProviderCallbacks, trackerCallback);
-                        if (loginProvider != null) {
-                            if (loginProvider.clientIdRequired() && configuration.getAppIds().isEmpty()) {
-                                loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
-                                return;
-                            }
+                        params.put("provider", provider);
+                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, configuration,
+                                provider, loginProviderCallbacks, trackerCallback);
 
-                            /* Okay to release activity. */
-                            activity.finish();
-
-                            if (!configuration.getAppIds().isEmpty()) {
-                                /* Update provider client id if available */
-                                final String providerClientId = configuration.getAppIds().get(provider);
-                                if (providerClientId != null) {
-                                    loginProvider.updateProviderClientId(providerClientId);
-                                }
-                            }
-
-                            loginProviderCallbacks.onProviderSelected(loginProvider);
-                            loginProvider.login(context, params);
+                        if (loginProvider instanceof WebViewLoginProvider && !configuration.hasGMID()) {
+                            /* WebView Provider must have basic config fields. */
+                            loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
+                            return;
                         }
+                        if (loginProvider.clientIdRequired() && !configuration.isSynced()) {
+                            loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
+                            return;
+                        }
+
+                        /* Okay to release activity. */
+                        activity.finish();
+
+                        if (configuration.isSynced()) {
+                            /* Update provider client id if available */
+                            final String providerClientId = configuration.getAppIds().get(provider);
+                            if (providerClientId != null) {
+                                loginProvider.updateProviderClientId(providerClientId);
+                            }
+                        }
+
+                        loginProviderCallbacks.onProviderSelected(loginProvider);
+                        loginProvider.login(context, params);
                     }
                 });
             }
