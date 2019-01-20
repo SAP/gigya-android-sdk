@@ -4,54 +4,45 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.SparseArray;
 
+import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.PersistenceManager;
+import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GigyaLoginPresenter {
+public class GigyaLoginPresenter extends GigyaPresenter {
 
-    private static final String TAG = "GigyaLoginPresenter";
+    private static final String LOG_TAG = "GigyaLoginPresenter";
 
     private static final String REDIRECT_URI = "gsapi://result/";
 
-    //region HostActivity lifecycle callbacks tracking
-
-    // TODO: 03/01/2019 When dropping support for <17 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
-
-    private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
-
-    static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
-        int id = callbacks.hashCode();
-        lifecycleSparse.append(id, callbacks);
-        return id;
+    public GigyaLoginPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
+        super(apiManager, persistenceManager);
     }
 
-    static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
-        return lifecycleSparse.get(id);
+    public interface LoginPresentationCallbacks {
+        void onProviderSelected(LoginProvider loginProvider);
+
+        void onCancelled();
     }
 
-    static void flushLifecycleCallbacks(int id) {
-        lifecycleSparse.remove(id);
-    }
-
-    public static void flush() {
-        lifecycleSparse.clear();
-        System.gc();
-    }
-
-    //endregion
-
-    public static void showNativeLoginProviders(final Context context, final Configuration configuration, final Map<String, Object> params,
-                                                final LoginProvider.LoginProviderCallbacks loginProviderCallbacks,
-                                                final LoginProvider.LoginProviderTrackerCallback trackerCallback) {
+    public <T> void showNativeLoginProviders(final Context context,
+                                             final Configuration configuration,
+                                             final Map<String, Object> params,
+                                             final LoginProvider.LoginProviderTrackerCallback trackerCallback,
+                                             final LoginPresentationCallbacks presentationCallbacks,
+                                             final GigyaCallback<T> callback) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
@@ -79,21 +70,95 @@ public class GigyaLoginPresenter {
                     @Override
                     public void onWebViewCancel() {
                         /* User cancelled WebView. */
-                        loginProviderCallbacks.onCanceled();
+                        presentationCallbacks.onCancelled();
                     }
+
+                    /* Determine if we need to fetch SDK configuration. */
+                    LoginProvider.LoginProviderConfigCallback _configCallback = new LoginProvider.LoginProviderConfigCallback() {
+                        @Override
+                        public void onConfigurationRequired(final LoginProvider provider) {
+                            _apiManager.loadConfig(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (configuration.isSynced()) {
+                                        /* Update provider client id if available */
+                                        final String providerClientId = configuration.getAppIds().get(provider.getName());
+                                        if (providerClientId != null) {
+                                            provider.updateProviderClientId(providerClientId);
+                                        }
+                                        if (activity != null) {
+                                            activity.finish();
+                                        }
+                                        provider.login(context, params);
+                                    }
+                                }
+                            });
+                        }
+                    };
+
+                    /* Login provider operation callbacks. */
+                    LoginProvider.LoginProviderCallbacks _loginCallbacks = new LoginProvider.LoginProviderCallbacks() {
+
+                        @Override
+                        public void onCanceled() {
+                            presentationCallbacks.onCancelled();
+                        }
+
+                        @Override
+                        public void onProviderLoginSuccess(final LoginProvider provider, String providerSessions) {
+                            GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
+                                    + provider + ", providerSessions = " + providerSessions);
+                            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+                            callback.onIntermediateLoad();
+
+                            _apiManager.notifyLogin(providerSessions, callback, new Runnable() {
+                                @Override
+                                public void run() {
+                                    /* Safe to say this is the current selected provider. */
+                                    presentationCallbacks.onProviderSelected(provider);
+                                    _persistenceManager.onLoginProviderUpdated(provider.getName());
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onProviderSession(final LoginProvider provider, SessionInfo sessionInfo) {
+                            /* Login process via Web has generated a new session. */
+
+                            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+                            callback.onIntermediateLoad();
+
+                            /* Call notifyLogin to complete sign in process.*/
+                            _apiManager.notifyLogin(sessionInfo, callback, new Runnable() {
+                                @Override
+                                public void run() {
+                                    /* Safe to say this is the current selected provider. */
+                                    presentationCallbacks.onProviderSelected(provider);
+                                    _persistenceManager.onLoginProviderUpdated(provider.getName());
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onProviderLoginFailed(String provider, String error) {
+                            GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
+                                    + provider + ", error =" + error);
+                            callback.onError(GigyaError.errorFrom(error));
+                        }
+                    };
 
                     private void login(final String provider) {
                         params.put("provider", provider);
                         LoginProvider loginProvider = LoginProviderFactory.providerFor(context, configuration,
-                                provider, loginProviderCallbacks, trackerCallback);
+                                provider, _loginCallbacks, trackerCallback);
 
                         if (loginProvider instanceof WebViewLoginProvider && !configuration.hasGMID()) {
                             /* WebView Provider must have basic config fields. */
-                            loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
+                            _configCallback.onConfigurationRequired(loginProvider);
                             return;
                         }
                         if (loginProvider.clientIdRequired() && !configuration.isSynced()) {
-                            loginProviderCallbacks.onConfigurationRequired(activity, loginProvider);
+                            _configCallback.onConfigurationRequired(loginProvider);
                             return;
                         }
 
@@ -108,7 +173,6 @@ public class GigyaLoginPresenter {
                             }
                         }
 
-                        loginProviderCallbacks.onProviderSelected(loginProvider);
                         loginProvider.login(context, params);
                     }
                 });

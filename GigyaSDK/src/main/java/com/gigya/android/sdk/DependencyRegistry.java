@@ -22,6 +22,19 @@ class DependencyRegistry {
         return _sharedInstance;
     }
 
+    //region Account manager
+
+    private AccountManager _accountManager;
+
+    public <T> AccountManager<T> getAccountManager() {
+        if (_accountManager == null) {
+            _accountManager = new AccountManager<T>();
+        }
+        return _accountManager;
+    }
+
+    //endregion
+
     //region Encryption helper
 
     private IEncryptor _encryptor;
@@ -41,13 +54,13 @@ class DependencyRegistry {
 
     //region Persistence
 
-    private PersistenceHandler _persistenceHandler;
+    private PersistenceManager _persistenceManager;
 
-    PersistenceHandler getPersistenceHandler(Context appContext) {
-        if (_persistenceHandler == null) {
-            _persistenceHandler = new PersistenceHandler(appContext);
+    PersistenceManager getPersistenceHandler(Context appContext) {
+        if (_persistenceManager == null) {
+            _persistenceManager = new PersistenceManager(appContext);
         }
-        return _persistenceHandler;
+        return _persistenceManager;
     }
 
     //endregion

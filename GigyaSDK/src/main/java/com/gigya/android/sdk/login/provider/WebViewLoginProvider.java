@@ -54,7 +54,7 @@ public class WebViewLoginProvider extends LoginProvider {
                         final String status = (String) result.get("status");
                         if (status != null && status.equals("ok")) {
                             final SessionInfo sessionInfo = parseSessionInfo(result);
-                            loginCallbacks.onProviderSession(provider, sessionInfo);
+                            loginCallbacks.onProviderSession(WebViewLoginProvider.this, sessionInfo);
                         } else {
                             loginCallbacks.onProviderLoginFailed(provider, "Failed to login");
                         }

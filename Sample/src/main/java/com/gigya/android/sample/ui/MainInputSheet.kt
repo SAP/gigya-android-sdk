@@ -8,8 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gigya.android.sample.R
+import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.network.api.RegisterApi
 import kotlinx.android.synthetic.main.sheet_anonymous.*
 import kotlinx.android.synthetic.main.sheet_login_register.*
 import kotlinx.android.synthetic.main.sheet_set_account.*

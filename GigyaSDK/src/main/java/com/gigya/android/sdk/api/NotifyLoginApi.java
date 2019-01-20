@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.network.api;
+package com.gigya.android.sdk.api;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -89,8 +89,8 @@ public class NotifyLoginApi<T> extends BaseApi<T> {
         SessionInfo sessionInfo;
         final String sessionSecret = notifyResponse.getField("sessionSecret", String.class);
         final String sessionToken = notifyResponse.getField("sessionToken", String.class);
-        if (notifyResponse.contains("expirationTime")) {
-            final Long expirationTime = notifyResponse.getField("expirationTime", Long.class);
+        final Long expirationTime = notifyResponse.getField("expirationTime", Long.class);
+        if (expirationTime != null) {
             sessionInfo = new SessionInfo(sessionSecret, sessionToken, expirationTime);
         } else {
             sessionInfo = new SessionInfo(sessionSecret, sessionToken);

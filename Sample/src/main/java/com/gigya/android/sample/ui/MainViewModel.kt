@@ -8,12 +8,12 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaRegisterCallback
+import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
-import com.gigya.android.sdk.network.api.RegisterApi
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -197,7 +197,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Present SDK native login pre defined UI.
      */
     fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.showLoginProviders(mutableMapOf<String, Any>(
+        gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus, yahoo"
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
@@ -228,7 +228,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
         val loginProvider: FacebookLoginProvider = gigya.loginProvider as FacebookLoginProvider
         loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
-                object : LoginProvider.LoginPermissionCallbacks() {
+                object : LoginProvider.LoginPermissionCallbacks {
 
                     override fun granted() {
                         Log.d("PermissionUpdate", "granted")

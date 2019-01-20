@@ -10,7 +10,7 @@ public class SessionInfo implements IPostGsonProcessable {
     private String sessionToken;
     private String sessionSecret;
     @SerializedName(value = "expirationTime", alternate = {"expires_in"})
-    private long expirationTime = Long.MAX_VALUE;
+    private long expirationTime;
 
     public SessionInfo(String secret, String token) {
         this(secret, token, Long.MAX_VALUE);

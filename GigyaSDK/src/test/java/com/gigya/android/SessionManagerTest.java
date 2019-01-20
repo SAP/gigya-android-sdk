@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.PersistenceHandler;
+import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.SessionInfo;
@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class SessionManagerTest {
 
     @Mock
-    private PersistenceHandler persistenceHandler;
+    private PersistenceManager persistenceManager;
 
     @Mock
     private Context context;
@@ -63,10 +63,10 @@ public class SessionManagerTest {
         doReturn(context).when(gigya).getContext();
 
         // Persistence handler mocks.
-        when(persistenceHandler.getString("session.Token", null)).thenReturn(null);
-        when(persistenceHandler.contains("GS_PREFS")).thenReturn(false);
+        when(persistenceManager.getString("session.Token", null)).thenReturn(null);
+        when(persistenceManager.contains("GS_PREFS")).thenReturn(false);
         // Encryptor mocks.
-        doReturn(secretKey).when(encryptor.getKey(context, persistenceHandler));
+        doReturn(secretKey).when(encryptor.getKey(context, persistenceManager));
         // Android specific mocks.
         PowerMockito.mockStatic(TextUtils.class);
         when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
@@ -81,7 +81,7 @@ public class SessionManagerTest {
     @Test
     public void testIsValidSession() throws NoSuchFieldException {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceHandler));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
         // Act
@@ -93,7 +93,7 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceHandler);
+        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
         // Assert
         assertNull(sessionManager.getSession());
     }
@@ -117,7 +117,7 @@ public class SessionManagerTest {
     @Test
     public void testClear() throws NoSuchFieldException {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceHandler));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
         // Act
@@ -129,7 +129,7 @@ public class SessionManagerTest {
     @Test
     public void testIsLegacySession() throws Exception {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceHandler));
+        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
         // Act
         final boolean isLegacySession = Whitebox.invokeMethod(spy, "isLegacySession");
         // Assert

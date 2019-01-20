@@ -141,7 +141,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
+                        loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
 
                         activity.finish();
                     }

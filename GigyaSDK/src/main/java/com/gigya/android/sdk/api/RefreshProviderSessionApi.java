@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.network.api;
+package com.gigya.android.sdk.api;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,29 +15,29 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
+public class RefreshProviderSessionApi extends BaseApi {
 
-@SuppressWarnings("unchecked")
-public class AnonymousApi<H> extends BaseApi<H> {
+    private static final String API = "socialize.refreshProviderSession";
 
-    public AnonymousApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
+    public RefreshProviderSessionApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
         super(configuration, networkAdapter, sessionManager);
     }
 
-    public AnonymousApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<H> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
-    }
-
-    public void call(String api, Map<String, Object> params, final GigyaCallback<H> callback) {
+    public void call(String providerSession, final GigyaCallback callback) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("providerSession", providerSession);
         GigyaRequest request = new GigyaRequestBuilder(configuration)
-                .params(params)
-                .api(api)
                 .sessionManager(sessionManager)
+                .params(params)
+                .api(API)
                 .build();
         networkAdapter.send(request, new INetworkCallbacks() {
+            @SuppressWarnings("unchecked")
             @Override
             public void onResponse(String jsonResponse) {
                 if (callback == null) {
@@ -47,15 +47,8 @@ public class AnonymousApi<H> extends BaseApi<H> {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
-                        if (clazz == null) {
-                            /* Callback will return GigyaResponse instance */
-                            callback.onSuccess((H) response);
-                            return;
-                        } else {
-                            H parsed = response.getGson().fromJson(jsonResponse, clazz);
-                            callback.onSuccess(parsed);
-                            return;
-                        }
+                        callback.onSuccess(response);
+                        return;
                     }
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
@@ -63,6 +56,7 @@ public class AnonymousApi<H> extends BaseApi<H> {
                     callback.onError(new GigyaError(errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    callback.onError(GigyaError.generalError());
                 }
             }
 
@@ -73,5 +67,8 @@ public class AnonymousApi<H> extends BaseApi<H> {
                 }
             }
         });
+
     }
+
+
 }

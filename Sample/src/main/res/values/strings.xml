@@ -47,4 +47,5 @@
     <string name="set_account">setAccount</string>
     <string name="user_interface">User Interface</string>
     <string name="native_login">Native Login</string>
+    <string name="choose_action">Choose an action from the drawer menu</string>
 </resources>

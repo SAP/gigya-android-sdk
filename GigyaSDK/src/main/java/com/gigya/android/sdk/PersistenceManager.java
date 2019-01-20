@@ -3,7 +3,7 @@ package com.gigya.android.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class PersistenceHandler {
+public class PersistenceManager {
 
     /*
      * SDK shared preference file key for _session persistence.
@@ -12,7 +12,7 @@ public class PersistenceHandler {
 
     private SharedPreferences _sharedPrefs;
 
-    PersistenceHandler(Context context) {
+    PersistenceManager(Context context) {
         _sharedPrefs = context.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
     }
 
@@ -51,7 +51,7 @@ public class PersistenceHandler {
 
     //region Login providers
 
-    void onLoginProviderUpdated(String providerName) {
+    public void onLoginProviderUpdated(String providerName) {
         _sharedPrefs.edit().putString("lastLoginProvider", providerName).apply();
     }
 

@@ -99,7 +99,7 @@ public class WeChatLoginProvider extends LoginProvider {
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessionsForRequest(authCode, -1L, _appId);
                     // Notify success.
-                    loginCallbacks.onProviderLoginSuccess(getName(), providerSessions);
+                    loginCallbacks.onProviderLoginSuccess(this, providerSessions);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

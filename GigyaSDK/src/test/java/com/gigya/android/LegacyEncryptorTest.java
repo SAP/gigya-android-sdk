@@ -2,7 +2,7 @@ package com.gigya.android;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.PersistenceHandler;
+import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
 
 import org.junit.Before;
@@ -27,7 +27,7 @@ public class LegacyEncryptorTest {
 
     @Mock
     private
-    PersistenceHandler persistenceHandler;
+    PersistenceManager persistenceManager;
 
     @Mock
     private
@@ -40,9 +40,9 @@ public class LegacyEncryptorTest {
 
     @Test
     public void testGetKeyWithSavedPreferencesAlias() {
-        when(persistenceHandler.getString(anyString(), (String) any())).thenReturn(encryptedSecret);
+        when(persistenceManager.getString(anyString(), (String) any())).thenReturn(encryptedSecret);
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, persistenceHandler);
+        SecretKey key = encryptor.getKey(context, persistenceManager);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
 
@@ -51,11 +51,11 @@ public class LegacyEncryptorTest {
 
     @Test
     public void testGetKeyNew() {
-        when(persistenceHandler.getString(anyString(), anyString())).thenReturn(null);
-        doNothing().when(persistenceHandler).add(anyString(), anyString());
+        when(persistenceManager.getString(anyString(), anyString())).thenReturn(null);
+        doNothing().when(persistenceManager).add(anyString(), anyString());
 
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, persistenceHandler);
+        SecretKey key = encryptor.getKey(context, persistenceManager);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
         assertNotNull(key);

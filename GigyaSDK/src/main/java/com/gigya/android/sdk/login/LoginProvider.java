@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.login;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
@@ -29,6 +28,12 @@ public abstract class LoginProvider {
         this.trackerCallback = trackerCallback;
     }
 
+    public abstract void login(Context context, Map<String, Object> loginParams);
+
+    public abstract void logout(Context context);
+
+    public abstract String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid);
+
     public void updateProviderClientId(String providerClientId) {
         this.providerClientId = providerClientId;
     }
@@ -36,12 +41,6 @@ public abstract class LoginProvider {
     public boolean clientIdRequired() {
         return false;
     }
-
-    public abstract void login(Context context, Map<String, Object> loginParams);
-
-    public abstract void logout(Context context);
-
-    public abstract String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid);
 
     //region Track token changes
 
@@ -55,42 +54,36 @@ public abstract class LoginProvider {
     //region Interfacing
 
     public interface LoginProviderConfigCallback {
-        void onConfigurationRequired();
+        void onConfigurationRequired(LoginProvider provider);
     }
 
-    public abstract static class LoginProviderCallbacks {
+    public interface LoginProviderCallbacks {
 
-        public abstract void onConfigurationRequired(Activity activity, LoginProvider loginProvider);
+        void onCanceled();
 
-        public abstract void onCanceled();
+        void onProviderLoginSuccess(LoginProvider provider, String providerSessions);
 
-        public abstract void onProviderSelected(LoginProvider provider);
+        void onProviderLoginFailed(String provider, String error);
 
-        public abstract void onProviderLoginSuccess(String provider, String providerSessions);
-
-        public abstract void onProviderLoginFailed(String provider, String error);
-
-        public void onProviderSession(String provider, SessionInfo sessionInfo) {
-            // Stub.
-        }
+        void onProviderSession(LoginProvider provider, SessionInfo sessionInfo);
     }
 
-    public abstract static class LoginProviderTrackerCallback {
+    public interface LoginProviderTrackerCallback {
 
-        public abstract void onProviderTrackingTokenChanges(String provider, String providerSession, LoginProvider.LoginPermissionCallbacks permissionCallbacks);
+        void onProviderTrackingTokenChanges(String provider, String providerSession, LoginProvider.LoginPermissionCallbacks permissionCallbacks);
     }
 
-    public abstract static class LoginPermissionCallbacks {
+    public interface LoginPermissionCallbacks {
 
-        public abstract void granted();
+        void granted();
 
-        public abstract void noAccess();
+        void noAccess();
 
-        public abstract void cancelled();
+        void cancelled();
 
-        public abstract void declined(List<String> declined);
+        void declined(List<String> declined);
 
-        public abstract void failed(String error);
+        void failed(String error);
     }
 
     //endregion

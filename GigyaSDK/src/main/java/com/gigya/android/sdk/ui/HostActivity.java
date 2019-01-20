@@ -46,7 +46,7 @@ public class HostActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-            _lifecycleCallbacks = GigyaLoginPresenter.getCallbacks(_lifecycleCallbacksId);
+            _lifecycleCallbacks = GigyaPresenter.getCallbacks(_lifecycleCallbacksId);
         }
 
         if (_lifecycleCallbacks != null) {
@@ -80,7 +80,7 @@ public class HostActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        GigyaLoginPresenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
+        GigyaPresenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
         super.finish();
         /*
         Disable exit animation.

@@ -68,9 +68,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Reference dynamic item views in oreder to apply visibility logic.
         val accountItem = menu.findItem(R.id.action_account)
+        val logoutItem = menu.findItem(R.id.action_logout);
         val facebookPermissionsUpdateItem = menu.findItem(R.id.fb_permission_update)
 
-        accountItem.isVisible = Gigya.getInstance().isLoggedIn
+        val isLoggedIn = Gigya.getInstance().isLoggedIn
+        accountItem.isVisible = isLoggedIn
+        logoutItem.isVisible = isLoggedIn
 
         // Check for facebook login
         val loginProvider = Gigya.getInstance().loginProvider
@@ -105,7 +108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.api_anonymus -> {
-                onSendAnonymousRequest(); }
+                onSendAnonymousRequest()
+            }
             R.id.api_login -> {
                 onLogin()
             }

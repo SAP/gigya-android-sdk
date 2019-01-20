@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.network.api;
+package com.gigya.android.sdk.api;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -6,7 +6,10 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -15,33 +18,33 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class SdkConfigApi extends BaseApi {
 
-    private static final String API = "socialize.getSDKConfig";
-    private final String API_INCLUDES = "permissions,ids,appIds";
+@SuppressWarnings("unchecked")
+public class LoginApi<T> extends BaseApi<T> {
 
-    public SdkConfigApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
-        super(configuration, networkAdapter, sessionManager);
+    private static final String API = "accounts.login";
+
+    @Deprecated
+    public LoginApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
+        super(configuration, sessionManager, clazz);
     }
 
-    public void call(final GigyaCallback<SdkConfig> callback) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("include", API_INCLUDES);
-        params.put("ApiKey", configuration.getApiKey());
-        // Build request.
+    public LoginApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
+        super(configuration, networkAdapter, sessionManager, clazz);
+    }
+
+    public void call(Map<String, Object> params, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
-                .httpMethod(NetworkAdapter.Method.GET)
                 .params(params)
+                .httpMethod(NetworkAdapter.Method.GET)
                 .sessionManager(sessionManager)
                 .build();
-        // Send request.
-        networkAdapter.sendBlocking(gigyaRequest, new INetworkCallbacks() {
+        networkAdapter.send(gigyaRequest, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
                 if (callback == null) {
@@ -51,18 +54,26 @@ public class SdkConfigApi extends BaseApi {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
-                        final SdkConfig parsed = response.getGson().fromJson(jsonResponse, SdkConfig.class);
+                        /* Update session info */
+                        if (response.contains("sessionInfo") && sessionManager != null) {
+                            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
+                            sessionManager.setSession(session);
+                        }
+                        // To avoid writing a clone constructor.
+                        if (interceptor != null) {
+                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                            interceptor.intercept(interception);
+                        }
+                        T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         callback.onSuccess(parsed);
                         return;
                     }
-                    // Error handling.
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
                     final String callId = response.getCallId();
                     callback.onError(new GigyaError(errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    // TODO: 31/12/2018 Need to define general error (what it contains).
                     callback.onError(GigyaError.generalError());
                 }
             }
@@ -75,24 +86,4 @@ public class SdkConfigApi extends BaseApi {
             }
         });
     }
-
-    /*
-    Helper class.
-     */
-    public static class SdkConfig {
-
-        Configuration.IDs ids = new Configuration.IDs();
-
-        Map<String, String> appIds = new HashMap<>();
-
-        public Configuration.IDs getIds() {
-            return ids;
-        }
-
-        public Map<String, String> getAppIds() {
-            return appIds;
-        }
-    }
-
-
 }

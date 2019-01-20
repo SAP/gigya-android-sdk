@@ -104,7 +104,7 @@ public class GoogleLoginProvider extends LoginProvider {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             /* This option should not happen theoretically because we logout out explicitly. */
-            this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
+            this.loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
             finish(null);
             return;
         }
@@ -138,7 +138,7 @@ public class GoogleLoginProvider extends LoginProvider {
                 if (authCode == null) {
                     loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
                 } else {
-                    this.loginCallbacks.onProviderLoginSuccess(getName(), getProviderSessionsForRequest(authCode, -1L, null));
+                    this.loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null));
                 }
             }
             finish(activity);

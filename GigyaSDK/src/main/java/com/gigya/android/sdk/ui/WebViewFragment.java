@@ -37,7 +37,6 @@ import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.utils.UiUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
-import java.io.Serializable;
 import java.net.URLDecoder;
 import java.util.Map;
 
@@ -312,10 +311,10 @@ public class WebViewFragment extends DialogFragment {
 
     //endregion
 
-    public static abstract class WebViewFragmentLifecycleCallbacks implements Serializable {
+    public interface WebViewFragmentLifecycleCallbacks {
 
-        public abstract void onWebViewResult(Map<String, Object> result);
+        void onWebViewResult(Map<String, Object> result);
 
-        public abstract void onWebViewCancel();
+        void onWebViewCancel();
     }
 }
