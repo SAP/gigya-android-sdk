@@ -198,7 +198,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus, yahoo"
+                "enabledProviders" to "facebook, googlePlus, line, yahoo"
         ), object : GigyaCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showLoginProviders", "Success")

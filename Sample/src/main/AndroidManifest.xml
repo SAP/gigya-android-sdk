@@ -34,13 +34,13 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
-        <meta-data
-            android:name="apiKey"
-            android:value="3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag" />
+        <!--<meta-data-->
+            <!--android:name="apiKey"-->
+            <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
 
-        <meta-data
-            android:name="accountCacheTime"
-            android:value="5"/>
+        <!--<meta-data-->
+            <!--android:name="accountCacheTime"-->
+            <!--android:value="1"/>-->
 
         <!-- Facebook integration -->
         <activity
@@ -65,6 +65,12 @@
         <meta-data
             android:name="wechatAppID"
             android:value="@string/wechatAppID" />
+
+
+        <!-- Line integration -->
+        <meta-data
+            android:name="lineChannelID"
+            android:value="@string/line_Channel_ID"/>
 
         <!--<meta-data-->
             <!--android:name="googleClientId"-->

@@ -8,6 +8,7 @@
 
     <string name="google_client_id">977811956095-3h65r3llr61v5icpoe3e7jnjq9avjj9e.apps.googleusercontent.com</string>
     <string name="wechatAppID">wx222c4ccaa989aa00</string>
+    <string name="line_Channel_ID">1618046855</string>
 
     <!-- General -->
     <string name="rest_error_title">Request error</string>
@@ -47,5 +48,5 @@
     <string name="set_account">setAccount</string>
     <string name="user_interface">User Interface</string>
     <string name="native_login">Native Login</string>
-    <string name="choose_action">Choose an action from the drawer menu</string>
+    <string name="choose_action">Choose an action from\nthe drawer menu</string>
 </resources>

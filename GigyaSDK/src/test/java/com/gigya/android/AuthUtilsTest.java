@@ -72,23 +72,21 @@ public class AuthUtilsTest {
 
     @Test
     public void testAddAuthenticationParameters() {
+        // Arrange
         final String sessionSecret = "asda34asfasfj9fuas";
         final int httpMethod = 1; //"POST"
         final TreeMap<String, Object> params = new TreeMap<String, Object>() {{
             put("ApiKey", "someApiKey");
         }};
-
+        // Act
         AuthUtils.addAuthenticationParameters(sessionSecret, httpMethod, MOCK_URL, params);
-        System.out.println(params.toString());
-
+        // Assert
         assertNotNull(params.get("timestamp"));
         final String timestamp = (String) params.get("timestamp");
         assertEquals(timestamp, String.valueOf(1545905337));
-
         assertNotNull(params.get("nonce"));
         final String nonce = (String) params.get("nonce");
         assertEquals(nonce, "1545905337000_1");
-
         assertNotNull(params.get("sig"));
         final String signature = (String) params.get("sig");
         assertEquals(signature, "nC69hzGbTdPW3WlUl6k0ZeCd0CY=");

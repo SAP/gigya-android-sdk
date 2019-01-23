@@ -1,6 +1,9 @@
 package com.gigya.android.sdk.utils;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,11 +24,25 @@ public class FileUtils {
         return streamToString(is);
     }
 
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "CharsetObjectCanBeUsed"})
     public static String streamToString(InputStream is) throws IOException {
         final int size = is.available();
         byte[] buffer = new byte[size];
         is.read(buffer);
         is.close();
         return new String(buffer, "UTF-8");
+    }
+
+    // TODO: 23/01/2019 Require unit tests
+    @Nullable
+    public static String stringFromMetaData(Context context, String fieldName) {
+        String field = null;
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            field = (String) appInfo.metaData.get(fieldName);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return field;
     }
 }

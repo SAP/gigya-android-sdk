@@ -132,7 +132,7 @@ public class ApiManager<T> {
     }
 
     public void notifyLogin(String providerSessions, GigyaCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<T>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
+        new NotifyLoginApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {

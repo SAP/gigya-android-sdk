@@ -427,7 +427,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaCallback<T> callback) {
-        new GigyaLoginPresenter(_apiManager, DependencyRegistry.getInstance().getPersistenceHandler(_appContext))
+        new GigyaLoginPresenter(getApiManager(), DependencyRegistry.getInstance().getPersistenceHandler(_appContext))
                 .showNativeLoginProviders(_appContext, _configuration, params, _loginTrackerCallback, new GigyaLoginPresenter.LoginPresentationCallbacks() {
                     @Override
                     public void onProviderSelected(LoginProvider loginProvider) {

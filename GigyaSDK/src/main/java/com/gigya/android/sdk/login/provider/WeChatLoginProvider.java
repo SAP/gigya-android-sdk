@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.utils.FileUtils;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -36,8 +37,7 @@ public class WeChatLoginProvider extends LoginProvider {
 
     public static boolean isAvailable(Context context) {
         try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            String appId = (String) appInfo.metaData.get("wechatAppID");
+            String appId = FileUtils.stringFromMetaData(context, "wechatAppID");
             IWXAPI api = WXAPIFactory.createWXAPI(context, appId, false);
             return (appId != null && api.isWXAppInstalled());
         } catch (Throwable t) {
