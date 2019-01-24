@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.utils;
 
 import android.util.Base64;
 

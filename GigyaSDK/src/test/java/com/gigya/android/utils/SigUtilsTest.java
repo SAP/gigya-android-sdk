@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.utils;
 
 import android.util.Base64;
 
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Base64.class})
 @PowerMockIgnore("javax.crypto.*")
-public class SignatureTest {
+public class SigUtilsTest {
 
     private final String MOCK_SECRET = "asda34asfasfj9fuas";
     private final String MOCK_HTTP_METHOD = "POST";

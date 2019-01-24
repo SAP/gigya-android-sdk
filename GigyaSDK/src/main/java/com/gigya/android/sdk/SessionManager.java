@@ -110,7 +110,7 @@ public class SessionManager {
     }
 
     private boolean isLegacySession() {
-        return (!TextUtils.isEmpty(_persistenceManager.getString("session.Token", "")));
+        return (!TextUtils.isEmpty(_persistenceManager.getString("session.Token", null)));
     }
 
     /*

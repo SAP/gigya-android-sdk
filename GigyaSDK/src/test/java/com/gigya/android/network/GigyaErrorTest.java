@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.network;
 
 import com.gigya.android.sdk.network.GigyaError;
 

@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.model;
 
 import com.gigya.android.sdk.model.SessionInfo;
 

@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.utils;
 
 import com.gigya.android.sdk.utils.CipherUtils;
 

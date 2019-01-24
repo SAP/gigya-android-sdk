@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -13,25 +14,17 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
-    private static final String TAG = "WXEntryActivity";
-
     private void handleWXIntent() {
-        Gigya gigya = Gigya.getInstance();
-        if (gigya != null) {
-            WeChatLoginProvider loginProvider = (WeChatLoginProvider) gigya.getLoginProvider();
-            if (loginProvider != null) {
-                loginProvider.handleIntent(getIntent(), this);
-            }
+        final WeChatLoginProvider loginProvider = getLoginProvider();
+        if (loginProvider != null) {
+            loginProvider.handleIntent(getIntent(), this);
         }
     }
 
     private void handleWXResponse(BaseResp baseResp) {
-        Gigya gigya = Gigya.getInstance();
-        if (gigya != null) {
-            WeChatLoginProvider loginProvider = (WeChatLoginProvider) Gigya.getInstance().getLoginProvider();
-            if (loginProvider != null) {
-                loginProvider.handleResponse(baseResp);
-            }
+        final WeChatLoginProvider loginProvider = getLoginProvider();
+        if (loginProvider != null) {
+            loginProvider.handleResponse(baseResp);
         }
     }
 
@@ -49,11 +42,20 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @Override
     public void onReq(BaseReq baseReq) {
-        // Stub.
+        // Stub. Currently unused.
     }
 
     @Override
     public void onResp(BaseResp baseResp) {
         handleWXResponse(baseResp);
+    }
+
+    @Nullable
+    private WeChatLoginProvider getLoginProvider() {
+        final LoginProvider loginProvider = Gigya.getInstance().getLoginProvider();
+        if (loginProvider instanceof WeChatLoginProvider) {
+            return (WeChatLoginProvider) loginProvider;
+        }
+        return null;
     }
 }

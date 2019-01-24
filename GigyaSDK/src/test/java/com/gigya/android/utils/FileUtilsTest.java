@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.utils;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

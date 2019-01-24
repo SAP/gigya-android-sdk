@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.encryption;
 
 import android.content.Context;
 

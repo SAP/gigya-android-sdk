@@ -7,34 +7,33 @@ import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
+import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
-import java.io.InputStream;
-import java.util.Objects;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -44,6 +43,9 @@ public class SessionManagerTest {
 
     @Mock
     private PersistenceManager persistenceManager;
+
+    @Mock
+    private Configuration configuration;
 
     @Mock
     private Context context;
@@ -61,12 +63,14 @@ public class SessionManagerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         doReturn(context).when(gigya).getContext();
+        when(gigya.getConfiguration()).thenReturn(configuration);
 
         // Persistence handler mocks.
         when(persistenceManager.getString("session.Token", null)).thenReturn(null);
         when(persistenceManager.contains("GS_PREFS")).thenReturn(false);
+        doNothing().when(persistenceManager).remove(anyString());
         // Encryptor mocks.
-        doReturn(secretKey).when(encryptor.getKey(context, persistenceManager));
+        when(encryptor.getKey(context, persistenceManager)).thenReturn(secretKey);
         // Android specific mocks.
         PowerMockito.mockStatic(TextUtils.class);
         when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
@@ -79,18 +83,6 @@ public class SessionManagerTest {
     }
 
     @Test
-    public void testIsValidSession() throws NoSuchFieldException {
-        // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
-        SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
-        FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
-        // Act
-        final boolean isValidSession = spy.isValidSession();
-        // Assert
-        assertTrue(isValidSession);
-    }
-
-    @Test
     public void testNewInstance() {
         // Act
         SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
@@ -99,48 +91,59 @@ public class SessionManagerTest {
     }
 
     @Test
-    public void testNewInstanceWithEncryptedSession() {
-
-    }
-
-
-    @Test
-    public void testNewInstanceWithLegacySession()  {
-
-    }
-
-    @Test
-    public void testNewInstanceWithNullSession() {
-
-    }
-
-    @Test
-    public void testClear() throws NoSuchFieldException {
+    public void testIsValidSession() { // Also tests setSession.
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
+        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
-        FieldSetter.setField(spy, SessionManager.class.getDeclaredField("_session"), sessionInfo);
+        sessionManager.setSession(sessionInfo);
         // Act
-        spy.clear();
+        final boolean isValidSession = sessionManager.isValidSession();
         // Assert
-        assertNull(spy.getSession());
+        assertTrue(isValidSession);
     }
 
     @Test
-    public void testIsLegacySession() throws Exception {
+    public void testClear() {
         // Arrange
-        SessionManager spy = spy(new SessionManager(gigya, encryptor, persistenceManager));
+        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
+        SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
+        sessionManager.setSession(sessionInfo);
         // Act
-        final boolean isLegacySession = Whitebox.invokeMethod(spy, "isLegacySession");
+        sessionManager.clear();
         // Assert
-        assertTrue(isLegacySession);
+        assertNull(sessionManager.getSession());
     }
+
     @Test
-    public void testSetSession() throws Exception {
+    public void testNewInstanceWithEncryptedSession() {
         // Arrange
-        final InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaEncryptedSession.txt");
-        final String encryptedSession = FileUtils.streamToString(in);
-
+        final String encryptedSession = "94jlrvylz9th5cv35vjcfap1ip295dqws1u430je3n8ctzoctagh6vdukiyz83qoog6bk2lq8m520q1y9livgt2ae1zomh0xvlls3rtg7" +
+                "d6b71d4kk9jets8bv3pv79238tzgqmzhlzabev3z9q1p8xy1f5s8gmeq01xpw4lczdz90uoqnqua6js44yxqn3a8o64vddaw1ix319plvc234zldjyxtncu2tqi7r7lqqiqonjke1cp2add";
+        when(persistenceManager.contains("GS_PREFS")).thenReturn(true);
+        when(persistenceManager.getString(eq("GS_PREFS"), (String) eq(null))).thenReturn(encryptedSession);
+        // Act
+        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
+        // Assert
+        assertNotNull(sessionManager.getSession());
+        assertEquals("mockSessionSecret", sessionManager.getSession().getSessionSecret());
+        assertEquals("mockSessionToken", sessionManager.getSession().getSessionToken());
+        assertEquals(9223372036854775807L, sessionManager.getSession().getExpirationTime());
     }
 
+    @Test
+    public void testNewInstanceWithLegacySession() {
+        // Arrange
+        when(persistenceManager.getString(eq("session.Token"), (String) eq(null))).thenReturn("mockLegacySessionToken");
+        when(persistenceManager.getString(eq("session.Secret"), (String) eq(null))).thenReturn("mockLegacySessionSecret");
+        when(persistenceManager.getLong(eq("session.ExpirationTime"), eq(0L))).thenReturn(9223372036854775807L);
+        when(persistenceManager.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
+        when(persistenceManager.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
+        // Act
+        SessionManager sessionManager = new SessionManager(gigya, encryptor, persistenceManager);
+        // Assert
+        assertNotNull(sessionManager.getSession());
+        assertEquals("mockLegacySessionSecret", sessionManager.getSession().getSessionSecret());
+        assertEquals("mockLegacySessionToken", sessionManager.getSession().getSessionToken());
+        assertEquals(9223372036854775807L, sessionManager.getSession().getExpirationTime());
+    }
 }
