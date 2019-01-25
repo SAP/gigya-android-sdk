@@ -2,8 +2,6 @@ package com.gigya.android.sdk.login.provider;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -51,13 +49,7 @@ public class WeChatLoginProvider extends LoginProvider {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
 
-                try {
-                    final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-                    _appId = (String) appInfo.metaData.get("wechatAppID");
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-
+                _appId = FileUtils.stringFromMetaData(context, "wechatAppID");
                 if (_appId == null) {
                     loginCallbacks.onProviderLoginFailed(getName(), "Failed to fetch application id");
                     activity.finish();
@@ -79,7 +71,6 @@ public class WeChatLoginProvider extends LoginProvider {
 
     @Override
     public void logout(Context context) {
-        // TODO: 14/01/2019 Investigate. Is detach enough?
         if (_api != null) {
             _api.detach();
         }
@@ -98,18 +89,15 @@ public class WeChatLoginProvider extends LoginProvider {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessionsForRequest(authCode, -1L, _appId);
-                    // Notify success.
                     loginCallbacks.onProviderLoginSuccess(this, providerSessions);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
-                // Notify error.
-                loginCallbacks.onProviderLoginFailed(getName(), Errors.USER_CANCELLED);
+                loginCallbacks.onCanceled();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
-                // Notify error.
                 loginCallbacks.onProviderLoginFailed(getName(), Errors.AUTHENTICATION_DENIED);
                 break;
         }

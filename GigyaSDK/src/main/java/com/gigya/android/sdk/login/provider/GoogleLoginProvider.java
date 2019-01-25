@@ -150,7 +150,7 @@ public class GoogleLoginProvider extends LoginProvider {
                     break;
                 case GoogleSignInStatusCodes.SIGN_IN_FAILED:
                 default:
-                    loginCallbacks.onProviderLoginFailed(getName(), e.getLocalizedMessage());
+                    loginCallbacks.onProviderLoginFailed(getName(), GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
                     break;
             }
             finish(activity);

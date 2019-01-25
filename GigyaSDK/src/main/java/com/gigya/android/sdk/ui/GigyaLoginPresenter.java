@@ -132,8 +132,6 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                             _apiManager.notifyLogin(sessionInfo, callback, new Runnable() {
                                 @Override
                                 public void run() {
-                                    /* Safe to say this is the current selected provider. */
-                                    presentationCallbacks.onProviderSelected(provider);
                                     _persistenceManager.onLoginProviderUpdated(provider.getName());
                                 }
                             });
@@ -161,6 +159,9 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                             _configCallback.onConfigurationRequired(loginProvider);
                             return;
                         }
+
+                        /* Login provider selected. */
+                        presentationCallbacks.onProviderSelected(loginProvider);
 
                         /* Okay to release activity. */
                         activity.finish();

@@ -26,6 +26,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         if (loginProvider != null) {
             loginProvider.handleResponse(baseResp);
         }
+        finish();
     }
 
     @Override
@@ -57,5 +58,14 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             return (WeChatLoginProvider) loginProvider;
         }
         return null;
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        /*
+        Disable exit animation.
+         */
+        overridePendingTransition(0, 0);
     }
 }

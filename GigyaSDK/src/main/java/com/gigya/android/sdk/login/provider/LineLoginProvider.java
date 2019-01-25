@@ -62,7 +62,7 @@ public class LineLoginProvider extends LoginProvider {
         /* Only token is relevant */
         try {
             return new JSONObject()
-                    .put("line", new JSONObject()
+                    .put(getName(), new JSONObject()
                             .put("authToken", tokenOrCode)).toString();
         } catch (Exception ex) {
             ex.printStackTrace();
