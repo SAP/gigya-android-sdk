@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -60,7 +62,24 @@ public abstract class WebViewFragment extends DialogFragment {
         return _contentView;
     }
 
-    protected abstract void setUpWebView();
+    @SuppressLint("SetJavaScriptEnabled")
+    protected void setUpWebView() {
+        _webView = new WebView(getActivity());
+
+        /* Content UI & scrolling */
+        _webView.setVerticalScrollBarEnabled(true);
+        _webView.setHorizontalScrollBarEnabled(true);
+        _webView.setInitialScale(1);
+        _webView.setFocusable(true);
+
+        /* Web settings */
+        final WebSettings webSettings = _webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setUseWideViewPort(true);
+    }
 
     private void createView() {
         if (getActivity() == null) {

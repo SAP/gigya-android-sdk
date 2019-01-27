@@ -125,6 +125,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_native_login -> {
                 presentNativeLogin()
             }
+            R.id.action_screen_sets -> {
+                showDefaultScreenSets()
+            }
+            R.id.action_comments -> {
+                showComments()
+            }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -203,6 +209,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 , cancel = { response_text_view.snackbar("Request cancelled") }
         )
+    }
+
+    private fun showDefaultScreenSets() {
+
+    }
+
+    private fun showComments() {
+
     }
 
     //endregion

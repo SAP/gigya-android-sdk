@@ -32,6 +32,14 @@
                 <item
                     android:id="@+id/action_native_login"
                     android:title="@string/native_login" />
+
+                <item
+                    android:id="@+id/action_screen_sets"
+                    android:title="@string/default_screensets"/>
+
+                <item
+                    android:id="@+id/action_comments"
+                    android:title="@string/comments"/>
             </menu>
         </item>
 

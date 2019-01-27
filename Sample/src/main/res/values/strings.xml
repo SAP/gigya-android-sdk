@@ -49,4 +49,7 @@
     <string name="user_interface">User Interface</string>
     <string name="native_login">Native Login</string>
     <string name="choose_action">Choose an action from\nthe drawer menu</string>
+    <string name="show_plugin">Show plugin</string>
+    <string name="default_screensets">Default ScreenSets</string>
+    <string name="comments">Comments</string>
 </resources>

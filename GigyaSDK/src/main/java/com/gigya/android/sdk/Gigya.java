@@ -19,6 +19,7 @@ import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
 import java.util.HashMap;
@@ -427,6 +428,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
         new GigyaLoginPresenter(getApiManager(), DependencyRegistry.getInstance().getPersistenceHandler(_appContext))
                 .showNativeLoginProviders(_appContext, _configuration, params, _loginTrackerCallback, new GigyaLoginPresenter.LoginPresentationCallbacks() {
                     @Override
@@ -442,6 +444,16 @@ public class Gigya<T extends GigyaAccount> {
                     }
 
                 }, callback);
+    }
+
+    //endregion
+
+    //region Plugins
+
+    public void showPlugin(String plugin, Map<String, Object> params) {
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + plugin + ", with parameters:\n" + params.toString());
+        new GigyaPluginPresenter(getApiManager(), DependencyRegistry.getInstance().getPersistenceHandler(_appContext))
+                .showPlugin(_appContext, _configuration, true, plugin, params, null);
     }
 
     //endregion

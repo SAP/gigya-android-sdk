@@ -258,6 +258,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
+    fun showScreenSets() {
+        val params = mutableMapOf<String, Any>()
+        gigya.showPlugin("", params)
+    }
+
     //region Utility methods
 
     /**

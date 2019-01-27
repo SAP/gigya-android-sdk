@@ -15,7 +15,6 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -93,21 +92,7 @@ public class ProviderFragment extends WebViewFragment {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void setUpWebView() {
-        _webView = new WebView(getActivity());
-
-        /* Content UI & scrolling */
-        _webView.setVerticalScrollBarEnabled(true);
-        _webView.setHorizontalScrollBarEnabled(true);
-        _webView.setInitialScale(1);
-        _webView.setFocusable(true);
-
-        /* Web settings */
-        final WebSettings webSettings = _webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setSupportZoom(true);
-        webSettings.setBuiltInZoomControls(true);
-        webSettings.setUseWideViewPort(true);
+        super.setUpWebView();
 
         _webView.setWebChromeClient(new WebChromeClient() {
             @Override
