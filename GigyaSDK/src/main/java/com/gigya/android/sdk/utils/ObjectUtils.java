@@ -8,6 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class ObjectUtils {
+
+    public static <T, V> boolean safeEquals(T first, V second) {
+        if (first != null && second != null) {
+            return first.equals(second);
+        }
+        return false;
+    }
     
     public static Map<String, Object> objectDifference(Map<String, Object> original, Map<String, Object> updated) {
         Map<String, Object> result = new HashMap<>();

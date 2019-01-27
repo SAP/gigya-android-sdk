@@ -6,13 +6,14 @@ import android.os.Build;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
+import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.ui.WebBridge;
 
-class DependencyRegistry {
+public class DependencyRegistry {
 
     private static DependencyRegistry _sharedInstance;
 
     private DependencyRegistry() {
-
     }
 
     public static DependencyRegistry getInstance() {
@@ -21,6 +22,16 @@ class DependencyRegistry {
         }
         return _sharedInstance;
     }
+
+    //region Configuration
+
+    public Configuration _configuration = new Configuration();
+
+    public void setConfiguration(Configuration configuration) {
+        _configuration = configuration;
+    }
+
+    //endregion
 
     //region Account manager
 
@@ -61,6 +72,14 @@ class DependencyRegistry {
             _persistenceManager = new PersistenceManager(appContext);
         }
         return _persistenceManager;
+    }
+
+    //endregion
+
+    //region Injections
+
+    public void inject(WebBridge webBridge) {
+        webBridge.inject(_configuration);
     }
 
     //endregion

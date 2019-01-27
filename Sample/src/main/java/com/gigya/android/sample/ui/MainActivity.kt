@@ -212,11 +212,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showDefaultScreenSets() {
-
+        viewModel?.showScreenSets()
     }
 
     private fun showComments() {
-
+        viewModel?.showComments()
     }
 
     //endregion

@@ -14,6 +14,7 @@ import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
+import com.gigya.android.sdk.ui.plugin.PluginFragment
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -260,7 +261,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showScreenSets() {
         val params = mutableMapOf<String, Any>()
-        gigya.showPlugin("", params)
+        params["screenSet"] = "Default-RegistrationLogin"
+        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params)
+    }
+
+    fun showComments() {
+        val params = mutableMapOf<String, Any>()
+        params["categoryID"] = "Support"
+        params["streamID"] = 1
+        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params)
     }
 
     //region Utility methods
