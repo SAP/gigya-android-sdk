@@ -7,10 +7,10 @@ import com.gigya.android.sdk.PersistenceManager;
 
 public abstract class GigyaPresenter {
 
-    ApiManager _apiManager;
-    PersistenceManager _persistenceManager;
+    protected ApiManager _apiManager;
+    protected PersistenceManager _persistenceManager;
 
-    GigyaPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
+    public GigyaPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
         _apiManager = apiManager;
         _persistenceManager = persistenceManager;
     }
@@ -21,17 +21,17 @@ public abstract class GigyaPresenter {
 
     private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
 
-    static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
+    public static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
         int id = callbacks.hashCode();
         lifecycleSparse.append(id, callbacks);
         return id;
     }
 
-    static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
+    public static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
         return lifecycleSparse.get(id);
     }
 
-    static void flushLifecycleCallbacks(int id) {
+    public static void flushLifecycleCallbacks(int id) {
         lifecycleSparse.remove(id);
     }
 

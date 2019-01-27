@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
+
 public class HostActivity extends AppCompatActivity {
 
     public static final String EXTRA_LIFECYCLE_CALLBACKS_ID = "lifecycleCallbacks_id";

@@ -14,6 +14,7 @@ import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;
+import com.gigya.android.sdk.ui.provider.ProviderFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.Map;
@@ -43,10 +44,10 @@ public class WebViewLoginProvider extends LoginProvider {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putString(WebViewFragment.ARG_URL, postRequest.first);
-                args.putString(WebViewFragment.ARG_BODY, postRequest.second);
-                args.putString(WebViewFragment.ARG_REDIRECT_PREFIX, "gsapi");
-                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
+                args.putString(ProviderFragment.ARG_URL, postRequest.first);
+                args.putString(ProviderFragment.ARG_BODY, postRequest.second);
+                args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
+                ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
                     @Override
                     public void onWebViewResult(Map<String, Object> result) {

@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.ui;
+package com.gigya.android.sdk.ui.provider;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,6 +16,9 @@ import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.ui.GigyaPresenter;
+import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
@@ -51,10 +54,10 @@ public class GigyaLoginPresenter extends GigyaPresenter {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putString(WebViewFragment.ARG_TITLE, "Sign in");
-                args.putString(WebViewFragment.ARG_URL, url);
-                args.putString(WebViewFragment.ARG_REDIRECT_PREFIX, "gsapi");
-                WebViewFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
+                args.putString(ProviderFragment.ARG_TITLE, "Sign in");
+                args.putString(ProviderFragment.ARG_URL, url);
+                args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
+                ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
                     @Override
                     public void onWebViewResult(Map<String, Object> result) {
