@@ -18,6 +18,9 @@ public class SigUtils {
 
     @SuppressWarnings("StringBufferReplaceableByString")
     public static String getSignature(String secret, String httpMethod, String url, TreeMap<String, Object> params) {
+        if (params == null || url == null || httpMethod == null || secret == null) {
+            return null;
+        }
         try {
             StringBuilder normalizedUrl = new StringBuilder();
             java.net.URL u = new java.net.URL(url);
