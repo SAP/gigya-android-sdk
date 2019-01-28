@@ -40,7 +40,6 @@ public class SessionManager {
 
     private Context _appContext;
 
-
     public SessionManager(Context appContext) {
         _appContext = appContext;
         DependencyRegistry.getInstance().inject(this);
@@ -48,7 +47,7 @@ public class SessionManager {
         load();
     }
 
-    void inject(Configuration configuration, IEncryptor encryptor, PersistenceManager persistenceManager) {
+    public void inject(Configuration configuration, IEncryptor encryptor, PersistenceManager persistenceManager) {
         _configuration = configuration;
         _encryptor = encryptor;
         _persistenceManager = persistenceManager;

@@ -98,20 +98,24 @@ public class DependencyRegistry {
         return _persistenceManager;
     }
 
+    public IEncryptor getEncryptor() {
+        return _encryptor;
+    }
+
     //endregion
 
     //region Injections
 
     public void inject(WebBridge webBridge) {
-        webBridge.inject(_configuration);
+        webBridge.inject(getConfiguration());
     }
 
     public void inject(SessionManager sessionManager) {
-        sessionManager.inject(_configuration, _encryptor, _persistenceManager);
+        sessionManager.inject(getConfiguration(), getEncryptor(), getPersistenceManager());
     }
 
     public <T> void inject(ApiManager<T> apiManager) {
-        apiManager.inject(_configuration, _networkAdapter, _sessionManager, _accountManager);
+        apiManager.inject(getConfiguration(),getNetworkAdapter(),  getSessionManager(), this.<T>getAccountManager());
     }
 
     //endregion
