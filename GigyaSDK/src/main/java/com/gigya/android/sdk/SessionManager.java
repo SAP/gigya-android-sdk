@@ -1,6 +1,6 @@
 package com.gigya.android.sdk;
 
-import android.support.annotation.NonNull;
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -24,9 +24,6 @@ public class SessionManager {
 
     private static final String LOG_TAG = "SessionManager";
 
-    @NonNull
-    private Gigya _gigya;
-
     @Nullable
     private SessionInfo _session;
 
@@ -39,24 +36,22 @@ public class SessionManager {
 
     private PersistenceManager _persistenceManager;
 
-    /*
-    Check if the current _session is valid.
-     */
-    public boolean isValidSession() {
-        boolean isValid = false;
-        if (_session != null) {
-            isValid = _session.isValid();
-            GigyaLogger.debug(LOG_TAG, "isValid: " + String.valueOf(isValid));
-        }
-        return isValid;
-    }
+    private Configuration _configuration;
 
-    public SessionManager(@NonNull Gigya gigya, IEncryptor encryptor, PersistenceManager persistenceManager) {
-        _encryptor = encryptor;
-        _persistenceManager = persistenceManager;
-        this._gigya = gigya;
+    private Context _appContext;
+
+
+    public SessionManager(Context appContext) {
+        _appContext = appContext;
+        DependencyRegistry.getInstance().inject(this);
         // Get reference to SDK shared preference file.
         load();
+    }
+
+    void inject(Configuration configuration, IEncryptor encryptor, PersistenceManager persistenceManager) {
+        _configuration = configuration;
+        _encryptor = encryptor;
+        _persistenceManager = persistenceManager;
     }
 
     /*
@@ -70,6 +65,18 @@ public class SessionManager {
         _session = session;
         GigyaLogger.debug(LOG_TAG, "setSession : " + _session.toString());
         save();
+    }
+
+    /*
+    Check if the current _session is valid.
+     */
+    public boolean isValidSession() {
+        boolean isValid = false;
+        if (_session != null) {
+            isValid = _session.isValid();
+            GigyaLogger.debug(LOG_TAG, "isValid: " + String.valueOf(isValid));
+        }
+        return isValid;
     }
 
     //region Session persistence
@@ -93,9 +100,8 @@ public class SessionManager {
             jsonObject.put("sessionSecret", _session != null ? _session.getSessionSecret() : null);
             jsonObject.put("expirationTime", _session != null ? _session.getExpirationTime() : null);
 
-            final Configuration configuration = _gigya.getConfiguration();
-            jsonObject.put("ucid", configuration.getUCID());
-            jsonObject.put("gmid", configuration.getGMID());
+            jsonObject.put("ucid", _configuration.getUCID());
+            jsonObject.put("gmid", _configuration.getGMID());
 
             // Encrypt _session.
             final String sessionJSON = jsonObject.toString();
@@ -138,7 +144,7 @@ public class SessionManager {
 
                     final String ucid = jsonObject.getString("ucid");
                     final String gmid = jsonObject.getString("gmid");
-                    _gigya.getConfiguration().updateIds(ucid, gmid);
+                    _configuration.updateIds(ucid, gmid);
 
                     GigyaLogger.debug(LOG_TAG, "Session load: " + _session.toString());
                 } catch (Exception ex) {
@@ -160,7 +166,7 @@ public class SessionManager {
 
         final String ucid = _persistenceManager.getString("ucid", null);
         final String gmid = _persistenceManager.getString("gmid", null);
-        _gigya.getConfiguration().updateIds(ucid, gmid);
+        _configuration.updateIds(ucid, gmid);
 
         // Clear the legacy session.
         _persistenceManager.remove("ucid", "gmid", "lastLoginProvider", "session.Token",
@@ -186,7 +192,7 @@ public class SessionManager {
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), _persistenceManager);
+            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceManager);
             return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -200,7 +206,7 @@ public class SessionManager {
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_gigya.getContext(), _persistenceManager);
+            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceManager);
             return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();

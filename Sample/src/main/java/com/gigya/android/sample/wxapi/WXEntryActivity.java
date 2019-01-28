@@ -53,7 +53,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @Nullable
     private WeChatLoginProvider getLoginProvider() {
-        final LoginProvider loginProvider = Gigya.getInstance().getLoginProvider();
+        /* Be sure to create initialize the Gigya instance. */
+        final LoginProvider loginProvider = Gigya.getInstance().getCurrentProvider();
         if (loginProvider instanceof WeChatLoginProvider) {
             return (WeChatLoginProvider) loginProvider;
         }

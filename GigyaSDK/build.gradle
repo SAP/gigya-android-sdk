@@ -48,8 +48,8 @@ ext {
 }
 
 dependencies {
-    //implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    /* Test libraries. */
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.json:json:20141113'
     testImplementation 'androidx.test:core:1.1.0'
@@ -59,12 +59,14 @@ dependencies {
     testImplementation 'org.apache.httpcomponents:httpcore:4.4.9'
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.5'
 
+    /* Implementations. */
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
 
+    /* Compile only third party libraries. */
+    compileOnly files('libs/line-sdk-4.0.10.aar')
     compileOnly 'com.facebook.android:facebook-android-sdk:4.39.0'
     compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
     compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.1.6'
     compileOnly 'com.android.volley:volley:1.1.1'
-    compileOnly files('libs/line-sdk-4.0.10.aar')
 }

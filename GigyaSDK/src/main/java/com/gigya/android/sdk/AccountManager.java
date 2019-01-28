@@ -1,7 +1,9 @@
 package com.gigya.android.sdk;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.GigyaAccount;
 
 import java.util.concurrent.TimeUnit;
@@ -61,4 +63,20 @@ public class AccountManager<T> {
             _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_accountCacheTime);
         }
     }
+
+    //region Login provider
+
+    @Nullable
+    private LoginProvider _loginProvider;
+
+    public void updateLoginProvider(@NonNull  LoginProvider loginProvider) {
+        _loginProvider = loginProvider;
+    }
+
+    @Nullable
+    public LoginProvider getLoginProvider() {
+        return _loginProvider;
+    }
+
+    //endregion
 }

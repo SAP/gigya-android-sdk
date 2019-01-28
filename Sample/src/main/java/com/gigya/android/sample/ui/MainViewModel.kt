@@ -227,7 +227,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Request additional Facebook permissions.
      */
     fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
-        val loginProvider: FacebookLoginProvider = gigya.loginProvider as FacebookLoginProvider
+        val loginProvider: FacebookLoginProvider = gigya.currentProvider as FacebookLoginProvider
         loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
                 object : LoginProvider.LoginPermissionCallbacks {
 

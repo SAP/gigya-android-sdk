@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         logoutItem.isVisible = isLoggedIn
 
         // Check for facebook login
-        val loginProvider = Gigya.getInstance().loginProvider
+        val loginProvider = Gigya.getInstance().currentProvider
         facebookPermissionsUpdateItem.isVisible = loginProvider != null && Gigya.getInstance().isLoggedIn && loginProvider is FacebookLoginProvider
 
         return true

@@ -3,6 +3,7 @@ package com.gigya.android.sdk;
 import com.gigya.android.sdk.api.AnonymousApi;
 import com.gigya.android.sdk.api.GetAccountApi;
 import com.gigya.android.sdk.api.LoginApi;
+import com.gigya.android.sdk.api.LogoutApi;
 import com.gigya.android.sdk.api.NotifyLoginApi;
 import com.gigya.android.sdk.api.RegisterApi;
 import com.gigya.android.sdk.api.SdkConfigApi;
@@ -28,8 +29,12 @@ public class ApiManager<T> {
     public SessionManager _sessionManager;
     public AccountManager<T> _accountManager;
 
-    public ApiManager(Configuration configuration, NetworkAdapter networkAdapter,
-                      SessionManager sessionManager, AccountManager<T> accountManager) {
+    public ApiManager() {
+        DependencyRegistry.getInstance().inject(this);
+    }
+
+    public void inject(Configuration configuration, NetworkAdapter networkAdapter,
+                       SessionManager sessionManager, AccountManager<T> accountManager) {
         _configuration = configuration;
         _networkAdapter = networkAdapter;
         _sessionManager = sessionManager;
@@ -77,6 +82,10 @@ public class ApiManager<T> {
         }
         new AnonymousApi<>(_configuration, _networkAdapter, _sessionManager, clazz)
                 .call(api, params, callback);
+    }
+
+    public void logout() {
+        new LogoutApi(_configuration, _networkAdapter, _sessionManager).call();
     }
 
     public void login(String username, String password, GigyaCallback<T> callback) {

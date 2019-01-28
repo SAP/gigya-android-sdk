@@ -38,6 +38,17 @@ public class Configuration {
         this.apiDomain = domain;
     }
 
+    public void update(Configuration configuration) {
+        update(configuration.getApiKey(), configuration.getApiDomain());
+        if (configuration.hasGMID()) {
+            setIDs(configuration.getIDs());
+        }
+        if (configuration.getAppIds() != null) {
+            setAppIds(configuration.getAppIds());
+        }
+        accountCacheTime = configuration.getAccountCacheTime();
+    }
+
     public void updateIds(String ucid, String gmid) {
         getIDs().update(ucid, gmid);
     }

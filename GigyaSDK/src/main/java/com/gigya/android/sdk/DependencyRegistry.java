@@ -7,6 +7,7 @@ import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.ui.WebBridge;
 
 public class DependencyRegistry {
@@ -23,54 +24,77 @@ public class DependencyRegistry {
         return _sharedInstance;
     }
 
-    //region Configuration
+    //region Dependencies
 
-    public Configuration _configuration = new Configuration();
+    private Configuration _configuration = new Configuration();
+    private IEncryptor _encryptor;
+    private PersistenceManager _persistenceManager;
+    private NetworkAdapter _networkAdapter;
+    private ApiManager _apiManager;
+    private SessionManager _sessionManager;
+    private AccountManager _accountManager;
 
-    public void setConfiguration(Configuration configuration) {
-        _configuration = configuration;
+    /**
+     * @param appContext Application context.
+     * @param <T>        Account scheme
+     */
+    public <T> void init(Context appContext) {
+        // Persistence manager.
+        _persistenceManager = new PersistenceManager(appContext);
+        // Initialize encryptor.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            _encryptor = new KeyStoreEncryptor();
+        } else {
+            _encryptor = new LegacyEncryptor();
+        }
+        // Network adapter.
+        _networkAdapter = new NetworkAdapter(appContext, new NetworkAdapter.IConfigurationBlock() {
+            @Override
+            public void onMissingConfiguration() {
+                if (!DependencyRegistry.getInstance()._configuration.hasGMID()) {
+                    _apiManager.loadConfig(null);
+                }
+            }
+        });
+        _accountManager = new AccountManager<T>();
+        _sessionManager = new SessionManager(appContext);
+        // Api manager
+        _apiManager = new ApiManager<T>();
     }
 
     //endregion
 
-    //region Account manager
+    //region Setters
 
-    private AccountManager _accountManager;
+    public void setConfiguration(Configuration configuration) {
+        _configuration.update(configuration);
+    }
+
+    //endregion
+
+    //region Getters
+
+    public Configuration getConfiguration() {
+        return _configuration;
+    }
+
+    public SessionManager getSessionManager() {
+        return _sessionManager;
+    }
 
     public <T> AccountManager<T> getAccountManager() {
-        if (_accountManager == null) {
-            _accountManager = new AccountManager<T>();
-        }
         return _accountManager;
     }
 
-    //endregion
-
-    //region Encryption helper
-
-    private IEncryptor _encryptor;
-
-    IEncryptor getEncryptor() {
-        if (_encryptor == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                _encryptor = new KeyStoreEncryptor();
-            } else {
-                _encryptor = new LegacyEncryptor();
-            }
-        }
-        return _encryptor;
+    public ApiManager getApiManager() {
+        return _apiManager;
     }
 
-    //endregion
+    public NetworkAdapter getNetworkAdapter() {
+        return _networkAdapter;
+    }
 
-    //region Persistence
-
-    private PersistenceManager _persistenceManager;
-
-    PersistenceManager getPersistenceHandler(Context appContext) {
-        if (_persistenceManager == null) {
-            _persistenceManager = new PersistenceManager(appContext);
-        }
+    public PersistenceManager getPersistenceManager() {
         return _persistenceManager;
     }
 
@@ -80,6 +104,14 @@ public class DependencyRegistry {
 
     public void inject(WebBridge webBridge) {
         webBridge.inject(_configuration);
+    }
+
+    public void inject(SessionManager sessionManager) {
+        sessionManager.inject(_configuration, _encryptor, _persistenceManager);
+    }
+
+    public <T> void inject(ApiManager<T> apiManager) {
+        apiManager.inject(_configuration, _networkAdapter, _sessionManager, _accountManager);
     }
 
     //endregion
