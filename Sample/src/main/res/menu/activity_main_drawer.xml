@@ -4,18 +4,19 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="none">
-        <item android:title="Api List">
+        <item android:title="@string/api_list">
             <menu>
                 <item
-                    android:id="@+id/api_anonymus"
+                    android:id="@+id/api_anonymous"
                     android:title="@string/anonymous" />
+
                 <item
                     android:id="@+id/api_login"
                     android:title="@string/login" />
+
                 <item
                     android:id="@+id/api_register"
                     android:title="@string/register" />
-
 
                 <item
                     android:id="@+id/api_get_account_info"
@@ -35,11 +36,11 @@
 
                 <item
                     android:id="@+id/action_screen_sets"
-                    android:title="@string/default_screensets"/>
+                    android:title="@string/default_screensets" />
 
                 <item
                     android:id="@+id/action_comments"
-                    android:title="@string/comments"/>
+                    android:title="@string/comments" />
             </menu>
         </item>
 

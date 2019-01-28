@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.api_anonymus -> {
+            R.id.api_anonymous -> {
                 onSendAnonymousRequest()
             }
             R.id.api_login -> {

@@ -66,7 +66,7 @@ public class PluginFragment extends WebViewFragment {
 
     private boolean _obfuscate;
 
-    private WebBridge _webBridge = new WebBridge();
+    private WebBridge _webBridge;
 
     private PluginFragmentCallbacks _pluginCallbacks;
 
@@ -93,8 +93,10 @@ public class PluginFragment extends WebViewFragment {
     protected void setUpWebView() {
         super.setUpWebView();
 
+        _webBridge = new WebBridge(_obfuscate);
+        _webBridge.attach(_webView);
+
         _webView.getSettings().setAllowFileAccess(true);
-        _webBridge.attach(_webView, _apiKey, _obfuscate);
         _webView.setWebViewClient(new WebViewClient() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -127,7 +129,7 @@ public class PluginFragment extends WebViewFragment {
                     _pluginCallbacks.onError(GigyaError.generalError());
                 } else if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_EXCEPTION)) {
                     _pluginCallbacks.onError(GigyaError.generalError());
-                } else if (!_webBridge.handleUrl(_webView, uri.toString())) {
+                } else if (!_webBridge.handleUrl(uri.toString())) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(browserIntent);
                 }

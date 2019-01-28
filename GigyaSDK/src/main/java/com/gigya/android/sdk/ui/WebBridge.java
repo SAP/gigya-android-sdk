@@ -2,31 +2,45 @@ package com.gigya.android.sdk.ui;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.util.Base64;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import com.gigya.android.sdk.DependencyRegistry;
+import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class WebBridge {
 
+    private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
+
     private static final String LOG_TAG = "WebBridge";
 
-    private Configuration _configuration;
+    private WeakReference<WebView> _webViewRef;
 
-    public WebBridge() {
+    private Configuration _configuration;
+    private SessionManager _sessionManager;
+    private boolean _shouldObfuscate;
+
+    public WebBridge(boolean shouldObfuscate) {
+        _shouldObfuscate = shouldObfuscate;
         DependencyRegistry.getInstance().inject(this);
     }
 
-    public void inject(Configuration configuration) {
+    public void inject(Configuration configuration, SessionManager sessionManager) {
         _configuration = configuration;
+        _sessionManager = sessionManager;
     }
 
     private enum Actions {
@@ -41,16 +55,38 @@ public class WebBridge {
     }
 
     private void invokeCallback(String callbackId, String baseInvocationString) {
-
+        GigyaLogger.debug(LOG_TAG, "invokeCallback: " + baseInvocationString);
+        String value = obfuscate(baseInvocationString, true);
+        final String invocation = String.format("javascript:%s['%s'](%s);", CALLBACK_JS_PATH, callbackId, value);
+        final WebView webView = _webViewRef.get();
+        if (webView == null) {
+            return;
+        }
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                if (android.os.Build.VERSION.SDK_INT > 18) {
+                    webView.evaluateJavascript(invocation, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            GigyaLogger.debug("Callback", value);
+                        }
+                    });
+                } else {
+                    webView.loadUrl(invocation);
+                }
+            }
+        });
     }
 
     @SuppressLint("AddJavascriptInterface")
-    public void attach(WebView webView, final String apiKey, final boolean obfuscate) {
+    public void attach(WebView webView) {
+        _webViewRef = new WeakReference<>(webView);
         webView.addJavascriptInterface(new Object() {
 
             @JavascriptInterface
             public String getAPIKey() {
-                return apiKey;
+                return _configuration.getApiKey();
             }
 
             @JavascriptInterface
@@ -60,7 +96,7 @@ public class WebBridge {
 
             @JavascriptInterface
             public String getObfuscationStrategy() {
-                if (obfuscate) {
+                if (_shouldObfuscate) {
                     return "base64";
                 } else {
                     return "";
@@ -84,7 +120,7 @@ public class WebBridge {
         }, "__gigAPIAdapterSettings");
     }
 
-    public boolean handleUrl(WebView webView, String url) {
+    public boolean handleUrl(String url) {
         if (url.startsWith("gsapi://")) {
             Uri uri = Uri.parse(url);
             return invoke(uri.getHost(), uri.getPath().replace("/", ""), uri.getEncodedQuery());
@@ -92,31 +128,52 @@ public class WebBridge {
         return false;
     }
 
-    public boolean invoke(String actionString, String method, String queryStringParams) {
-        final Map<String, Object> params = UrlUtils.parseUrlParameters(queryStringParams);
+    private boolean invoke(String actionString, String method, String queryStringParams) {
+        if (actionString == null) {
+            return false;
+        }
+
+        GigyaLogger.debug(LOG_TAG, "invoke: " + actionString);
+
+        final Map<String, Object> data = new HashMap<>();
+        UrlUtils.parseUrlParameters(data, queryStringParams);
+        GigyaLogger.debug(LOG_TAG, "invoke: data:\n" + data.toString());
+
         Actions action;
         try {
-            action = Actions.valueOf(actionString.toLowerCase(Locale.ROOT));
+            action = Actions.valueOf(actionString.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
             return true;
         }
 
-        final String callbackId = (String) params.get("callbackID");
+        final String callbackId = (String) data.get("callbackID");
+
+        final Map<String, Object> params = new HashMap<>();
+        UrlUtils.parseUrlParameters(params, deobfuscate((String) data.get("params")));
+        GigyaLogger.debug(LOG_TAG, "invoke: params:\n" + params.toString());
+
+        final Map<String, Object> settings = new HashMap<>();
+        UrlUtils.parseUrlParameters(settings, (String) data.get("settings"));
+        GigyaLogger.debug(LOG_TAG, "invoke: settings:\n" + settings.toString());
 
         switch (action) {
             case GET_IDS:
                 getIds(callbackId);
                 break;
             case REGISTER_FOR_NAMESPACE_EVENTS:
+                registerForNamespaceEvents();
                 break;
             case SEND_REQUEST:
+                sendRequest(callbackId, method, params, settings);
                 break;
             case IS_SESSION_VALID:
+                isSessionValid(callbackId);
                 break;
             case SEND_OAUTH_REQUEST:
                 break;
             case ON_PLUGIN_EVENT:
+                onPluginEvent(params);
                 break;
             case ON_CUSTOM_EVENT:
                 break;
@@ -140,24 +197,66 @@ public class WebBridge {
         }
     }
 
-    private void sendReqeust() {
+    //region Actions
+
+    private void sendRequest(final String callbackId, String method, Map<String, Object> params, Map<String, Object> settings) {
 
     }
 
-    private void isSessionValid() {
-
+    private void isSessionValid(String callbackId) {
+        invokeCallback(callbackId, String.valueOf(_sessionManager.isValidSession()));
     }
 
-    private void sendOAuthRequest() {
-
+    private void sendOAuthRequest(final String callbackId, String method, Map<String, Object> params, Map<String, Object> settings) {
+        // TODO: 28/01/2019 Should perform login.
     }
 
-    private void onPluginEvent() {
-
+    private void onPluginEvent(Map<String, Object> params) {
+        String containerId = (String) params.get("sourceContainerID");
+        if (containerId != null) {
+            // TODO: 28/01/2019 Throttle event.
+        }
     }
 
     private void registerForNamespaceEvents() {
-
+        // TODO: 28/01/2019 Not how to implement it yet.
     }
+
+    //endregion
+
+    //region Obfuscation
+
+    @SuppressWarnings("CharsetObjectCanBeUsed")
+    private String obfuscate(String string, boolean quote) {
+        if (_shouldObfuscate) {
+            try {
+                byte[] data = string.getBytes("UTF-8");
+                String base64 = Base64.encodeToString(data, Base64.DEFAULT);
+                if (quote) {
+                    return "\"" + base64 + "\"";
+                } else {
+                    return base64;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return string;
+    }
+
+    @SuppressWarnings("CharsetObjectCanBeUsed")
+    private String deobfuscate(String base64String) {
+        if (_shouldObfuscate) {
+            try {
+                byte[] data = Base64.decode(base64String, Base64.DEFAULT);
+                return new String(data, "UTF-8");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return base64String;
+    }
+
+    //endregion
 }
 

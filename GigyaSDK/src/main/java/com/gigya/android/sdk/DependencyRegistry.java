@@ -107,7 +107,7 @@ public class DependencyRegistry {
     //region Injections
 
     public void inject(WebBridge webBridge) {
-        webBridge.inject(getConfiguration());
+        webBridge.inject(getConfiguration(), getSessionManager());
     }
 
     public void inject(SessionManager sessionManager) {
@@ -115,7 +115,7 @@ public class DependencyRegistry {
     }
 
     public <T> void inject(ApiManager<T> apiManager) {
-        apiManager.inject(getConfiguration(),getNetworkAdapter(),  getSessionManager(), this.<T>getAccountManager());
+        apiManager.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), this.<T>getAccountManager());
     }
 
     //endregion

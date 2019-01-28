@@ -68,6 +68,33 @@ public class UrlUtilsTest {
     }
 
     @Test
+    public void testParseUrlParameters() {
+        // Arrange
+        final String toParse = "callbackID=1548684488840_0.4937520447293755&param1=1&param2=two";
+        // Act
+        final Map<String, Object> map = new HashMap<>();
+        UrlUtils.parseUrlParameters(map, toParse);
+        // Assert
+        assertTrue(map.size() > 1);
+        assertNotNull(map.get("callbackID"));
+        assertNotNull(map.get("param1"));
+        assertEquals("1", map.get("param1"));
+        assertNotNull(map.get("param2"));
+        assertEquals("two", map.get("param2"));
+    }
+
+    @Test
+    public void testPraseUrlParametersWithNullUrl() {
+        // Arrange
+        final String toParse = null;
+        // Act
+        final Map<String, Object> map = new HashMap<>();
+        UrlUtils.parseUrlParameters(map, toParse);
+        // Assert
+        assertTrue(map.size() == 0);
+    }
+
+    @Test
     public void testGetBaseUrl() {
         // Arrage
         final String api = "socialize.getSdkConfig";

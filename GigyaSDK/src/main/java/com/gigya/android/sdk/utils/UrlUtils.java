@@ -65,15 +65,18 @@ public class UrlUtils {
             String querySplit[] = url.split("\\?");
             String hashSplit[] = url.split("#");
             if (querySplit.length > 1) {
-                parseParameters(map, querySplit[1]);
-            }  else if (hashSplit.length > 1) {
-                parseParameters(map, hashSplit[1]);
+                parseUrlParameters(map, querySplit[1]);
+            } else if (hashSplit.length > 1) {
+                parseUrlParameters(map, hashSplit[1]);
             }
         }
         return map;
     }
 
-    private static void parseParameters(Map<String, Object> map, String s) {
+    public static void parseUrlParameters(Map<String, Object> map, String s) {
+        if (s == null) {
+            return;
+        }
         String parameters[] = s.split("&");
         for (String parameter : parameters) {
             String pair[] = parameter.split("=");
