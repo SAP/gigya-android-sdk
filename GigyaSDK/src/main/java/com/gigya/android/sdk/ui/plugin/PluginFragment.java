@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -32,7 +34,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PluginFragment extends WebViewFragment {
+public class PluginFragment extends WebViewFragment implements HostActivity.OnBackPressListener {
 
     /* Plugin variants. */
     public static final String PLUGIN_SCREENSETS = "accounts.screenSet";
@@ -80,6 +82,32 @@ public class PluginFragment extends WebViewFragment {
         if (_fullScreen) {
             setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         }
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (_webView.canGoBack()) {
+            _webView.goBack();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof HostActivity) {
+            ((HostActivity) context).addBackPressListener(this);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        final HostActivity hostActivity = (HostActivity) getActivity();
+        if (hostActivity != null) {
+            hostActivity.removeBackPressListener(this);
+        }
+        super.onDetach();
     }
 
     @Override
@@ -265,9 +293,7 @@ public class PluginFragment extends WebViewFragment {
             if (width == 0) {
                 width = (int) (UiUtils.getScreenSize((Activity) getView().getContext()).first * 0.9);
             }
-            final float density = getActivity().getResources().getDisplayMetrics().density;
-            final double requestedWidth = width / density - 16.0F;
-            _params.put("width", 354);
+            _params.put("width", UiUtils.pixelsToDp(width, getView().getContext()));
         }
         // TODO: 27/01/2019 Add disabled providers...
     }

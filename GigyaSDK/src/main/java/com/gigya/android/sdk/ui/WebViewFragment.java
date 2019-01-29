@@ -64,6 +64,9 @@ public abstract class WebViewFragment extends DialogFragment {
             getDialog().getWindow().setBackgroundDrawable(getRoundedCornerBackground());
         }
         createView();
+        _contentView.setFocusable(true);
+        _contentView.setFocusableInTouchMode(true);
+
         return _contentView;
     }
 
@@ -184,5 +187,6 @@ public abstract class WebViewFragment extends DialogFragment {
         void onWebViewResult(Map<String, Object> result);
 
         void onWebViewCancel();
+
     }
 }

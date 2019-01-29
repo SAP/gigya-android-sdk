@@ -3,6 +3,7 @@ package com.gigya.android.sdk.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +12,9 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HostActivity extends AppCompatActivity {
 
@@ -96,6 +100,36 @@ public class HostActivity extends AppCompatActivity {
         _progressBar.setVisibility(View.GONE); // Default behaviour is hidden.
         _mainFrame.addView(_progressBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
+
+    //region OnKey handling
+
+    public interface OnBackPressListener {
+        boolean onBackPressed();
+    }
+
+    private final List<OnBackPressListener> backPressHandlerList = new ArrayList<>();
+
+    public void addBackPressListener(@NonNull OnBackPressListener handler) {
+        backPressHandlerList.add(handler);
+    }
+
+    public void removeBackPressListener(@NonNull OnBackPressListener handler) {
+        backPressHandlerList.remove(handler);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (backPressHandlerList.size() == 0) {
+            super.onBackPressed();
+        }
+        for (OnBackPressListener listener : backPressHandlerList) {
+            if (!listener.onBackPressed()) {
+                super.onBackPressed();
+            }
+        }
+    }
+
+    //endregion
 
     //region UI bindings
 
