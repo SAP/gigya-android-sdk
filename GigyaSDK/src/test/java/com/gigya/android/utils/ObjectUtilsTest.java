@@ -22,6 +22,21 @@ import static org.junit.Assert.assertNull;
 public class ObjectUtilsTest {
 
     @Test
+    public void testFirstNonNull() {
+        // Arrange
+        final String notNull = "NotNull";
+        final String isNull = null;
+        // Act
+        final String notNullCheck = ObjectUtils.firstNonNull(notNull, "Okay thanks");
+        final String isNullCheck = ObjectUtils.firstNonNull(isNull, "No Im not null!");
+        // Assert
+        assertNotNull(notNullCheck);
+        assertEquals("NotNull", notNull);
+        assertNotNull(isNullCheck);
+        assertEquals("No Im not null!", isNullCheck);
+    }
+
+    @Test
     public void testFlatObjectDifference() {
         // Arrange
         final Map<String, Object> original = new HashMap<String, Object>() {{

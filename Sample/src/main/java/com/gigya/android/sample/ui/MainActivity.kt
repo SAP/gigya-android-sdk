@@ -87,6 +87,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_clear -> {
                 onClear()
             }
+            R.id.action_reinit -> {
+                reInit()
+            }
             // Logout User.
             R.id.action_logout -> {
                 onClear()
@@ -137,6 +140,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //endregion
+
+    /**
+     * Providing the option to re-initialize the SDK with different ApiKey, ApiDomain parameters.
+     */
+    private fun reInit() {
+        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.REINIT, this)
+        sheet.show(supportFragmentManager, "sheet")
+    }
 
     //region APIs
 

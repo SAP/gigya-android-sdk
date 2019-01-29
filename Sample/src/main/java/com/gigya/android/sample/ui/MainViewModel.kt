@@ -262,6 +262,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showScreenSets() {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
+        //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params)
     }
 

@@ -18,7 +18,6 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="empty_input">Empty input. Check it out!</string>
-    <string name="logged_in">Logged in</string>
     <string name="account">Account</string>
     <string name="session">Session</string>
     <string name="logout">Logout</string>
@@ -53,4 +52,8 @@
     <string name="default_screensets">Default ScreenSets</string>
     <string name="comments">Comments</string>
     <string name="api_list">Api List</string>
+    <string name="re_init">Re-init</string>
+    <string name="clear">Clear</string>
+    <string name="logged_in">Logged in</string>
+    <string name="facebook_update_permissions">Facebook update permissions</string>
 </resources>

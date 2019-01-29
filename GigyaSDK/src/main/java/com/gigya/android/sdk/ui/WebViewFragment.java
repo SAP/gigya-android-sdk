@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -47,6 +48,10 @@ public abstract class WebViewFragment extends DialogFragment {
         setUpWebView();
     }
 
+    protected boolean wrapContent() {
+        return true;
+    }
+
     protected abstract void parseArguments();
 
     @Nullable
@@ -66,19 +71,9 @@ public abstract class WebViewFragment extends DialogFragment {
     protected void setUpWebView() {
         _webView = new WebView(getActivity());
 
-        /* Content UI & scrolling */
-        _webView.setVerticalScrollBarEnabled(true);
-        _webView.setHorizontalScrollBarEnabled(true);
-        _webView.setInitialScale(1);
-        _webView.setFocusable(true);
-
-        /* Web settings */
         final WebSettings webSettings = _webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
-        webSettings.setSupportZoom(true);
-        webSettings.setBuiltInZoomControls(true);
-        webSettings.setUseWideViewPort(true);
     }
 
     private void createView() {
@@ -92,14 +87,58 @@ public abstract class WebViewFragment extends DialogFragment {
         final Pair<Integer, Integer> screenSize = UiUtils.getScreenSize(getActivity());
 
         /* Content view. */
-        _contentView = new LinearLayout(getActivity());
-        _contentView.setOrientation(LinearLayout.VERTICAL);
-        final ViewGroup.LayoutParams contentParams = new ViewGroup.LayoutParams(
-                Math.min(screenSize.first, screenSize.second) * 9 / 10,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        _contentView.setLayoutParams(contentParams);
+        setupContentView(getActivity(), screenSize);
 
         /* Title text view. */
+        setupTitleTextView(dip16, dip8, dip8, 0);
+
+        /* Web frame container. */
+        FrameLayout webFrame = setupWebView(getActivity(), dip8, screenSize);
+
+        /* Progress bar. */
+        setupProgressView(webFrame, dip16);
+    }
+
+    //region UI blocks
+
+    private void setupContentView(Context context, Pair<Integer, Integer> screenSize) {
+        _contentView = new LinearLayout(context);
+        _contentView.setOrientation(LinearLayout.VERTICAL);
+        final ViewGroup.LayoutParams contentParams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                wrapContent() ? ViewGroup.LayoutParams.WRAP_CONTENT : ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        _contentView.setLayoutParams(contentParams);
+    }
+
+    @NonNull
+    private FrameLayout setupWebView(Context context, int margin, Pair<Integer, Integer> screenSize) {
+        FrameLayout webFrame = new FrameLayout(context);
+        final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(
+                (int) (UiUtils.isPortrait(context) ?
+                        Math.min(screenSize.first, screenSize.second) * 0.9 :
+                        Math.max(screenSize.first, screenSize.second) * 0.9),
+                wrapContent() ? LinearLayout.LayoutParams.WRAP_CONTENT :
+                        (int) (UiUtils.isPortrait(context) ?
+                                Math.max(screenSize.first, screenSize.second) * 0.9 :
+                                Math.min(screenSize.first, screenSize.second) * 0.9
+                        )
+        );
+        webFrameParams.weight = 1;
+        _contentView.addView(webFrame, webFrameParams);
+
+        /* WebView. */
+        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        webViewParams.setMargins(margin, margin, margin, margin);
+        webViewParams.gravity = Gravity.CENTER;
+        webFrame.addView(_webView, webViewParams);
+        return webFrame;
+    }
+
+    private void setupTitleTextView(int marginLeft, int marginTop, int marginRight, int marginBottom) {
         TextView _titleTextView = new TextView(getActivity());
         _titleTextView.setTextColor(Color.BLACK);
         _titleTextView.setTypeface(_titleTextView.getTypeface(), Typeface.BOLD);
@@ -110,29 +149,17 @@ public abstract class WebViewFragment extends DialogFragment {
             _titleTextView.setVisibility(View.GONE);
         }
         final LinearLayout.LayoutParams titleViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        titleViewParams.setMargins(dip16, dip8, dip8, 0);
+        titleViewParams.setMargins(marginLeft, marginTop, marginRight, marginBottom);
         titleViewParams.weight = 1;
         _contentView.addView(_titleTextView, titleViewParams);
+    }
 
-        /* Web frame container. */
-        FrameLayout webFrame = new FrameLayout(getActivity());
-        final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        webFrameParams.weight = 1;
-        _contentView.addView(webFrame, webFrameParams);
-
-        /* WebView. */
-        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        webViewParams.setMargins(dip8, dip8, dip8, dip8);
-        webViewParams.gravity = Gravity.CENTER;
-        webFrame.addView(_webView, webViewParams);
-
-        /* Progress bar. */
+    private void setupProgressView(FrameLayout webFrame, int margin) {
         _progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyle);
         _progressBar.setIndeterminate(true);
         _progressBar.getIndeterminateDrawable().setColorFilter(PROGRESS_COLOR, android.graphics.PorterDuff.Mode.SRC_IN);
         _progressBar.setVisibility(View.GONE); // Default behaviour is hidden.
-        _progressBar.setPadding(dip16, dip16, dip16, dip16);
+        _progressBar.setPadding(margin, margin, margin, margin);
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBarParams.gravity = Gravity.CENTER;

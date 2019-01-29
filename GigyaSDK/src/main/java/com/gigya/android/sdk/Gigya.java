@@ -144,9 +144,8 @@ public class Gigya<T extends GigyaAccount> {
         }
 
         /* Load last provider if exists. */
-        final String lastProviderName = getPersistenceManager()
-                .getString("lastLoginProvider", null);
-        if (lastProviderName != null) {
+        final String lastProviderName = getPersistenceManager().getString("lastLoginProvider", null);
+        if (lastProviderName != null && getCurrentProvider() == null) {
             final LoginProvider loginProvider = LoginProviderFactory.providerFor(_appContext, configuration, lastProviderName, null, _loginTrackerCallback);
             getAccountManager().updateLoginProvider(loginProvider);
             if (loginProvider.clientIdRequired()) {
@@ -439,7 +438,7 @@ public class Gigya<T extends GigyaAccount> {
     public void showPlugin(String plugin, Map<String, Object> params) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + plugin + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter(getApiManager(), getPersistenceManager())
-                .showPlugin(_appContext, getConfiguration(), true, plugin, params, null);
+                .showPlugin(_appContext, getConfiguration(), false, plugin, params, null);
     }
 
     //endregion

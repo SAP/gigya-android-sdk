@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GigyaPluginPresenter extends GigyaPresenter {
+
+    public static final String SHOW_FULL_SCREEN = "show_full_screen";
+
     public GigyaPluginPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
         super(apiManager, persistenceManager);
     }

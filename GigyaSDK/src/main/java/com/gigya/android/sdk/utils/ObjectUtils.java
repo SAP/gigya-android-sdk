@@ -1,5 +1,8 @@
 package com.gigya.android.sdk.utils;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 public class ObjectUtils {
+
+    public static <T> T firstNonNull(@Nullable T first, @NonNull T second) {
+        return first != null ? first : second;
+    }
 
     public static <T, V> boolean safeEquals(T first, V second) {
         if (first != null && second != null) {
@@ -15,7 +23,7 @@ public class ObjectUtils {
         }
         return false;
     }
-    
+
     public static Map<String, Object> objectDifference(Map<String, Object> original, Map<String, Object> updated) {
         Map<String, Object> result = new HashMap<>();
         if (original == null || updated == null) {

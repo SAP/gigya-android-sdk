@@ -2,15 +2,21 @@ package com.gigya.android.sdk.ui;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
+import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.json.JSONArray;
@@ -23,6 +29,10 @@ import java.util.Map;
 
 public class WebBridge {
 
+    public interface WebBridgeInteractions {
+        void onPluginEvent(Map<String, Object> event, String containerID);
+    }
+
     private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
 
     private static final String LOG_TAG = "WebBridge";
@@ -31,16 +41,23 @@ public class WebBridge {
 
     private Configuration _configuration;
     private SessionManager _sessionManager;
+    private ApiManager _apiManager;
+
     private boolean _shouldObfuscate;
 
-    public WebBridge(boolean shouldObfuscate) {
+    @NonNull
+    private WebBridgeInteractions _interactions;
+
+    public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions interactions) {
         _shouldObfuscate = shouldObfuscate;
+        _interactions = interactions;
         DependencyRegistry.getInstance().inject(this);
     }
 
-    public void inject(Configuration configuration, SessionManager sessionManager) {
+    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager) {
         _configuration = configuration;
         _sessionManager = sessionManager;
+        _apiManager = apiManager;
     }
 
     private enum Actions {
@@ -128,7 +145,7 @@ public class WebBridge {
         return false;
     }
 
-    private boolean invoke(String actionString, String method, String queryStringParams) {
+    private boolean invoke(String actionString, String api, String queryStringParams) {
         if (actionString == null) {
             return false;
         }
@@ -151,11 +168,9 @@ public class WebBridge {
 
         final Map<String, Object> params = new HashMap<>();
         UrlUtils.parseUrlParameters(params, deobfuscate((String) data.get("params")));
-        GigyaLogger.debug(LOG_TAG, "invoke: params:\n" + params.toString());
 
         final Map<String, Object> settings = new HashMap<>();
         UrlUtils.parseUrlParameters(settings, (String) data.get("settings"));
-        GigyaLogger.debug(LOG_TAG, "invoke: settings:\n" + settings.toString());
 
         switch (action) {
             case GET_IDS:
@@ -165,12 +180,13 @@ public class WebBridge {
                 registerForNamespaceEvents();
                 break;
             case SEND_REQUEST:
-                sendRequest(callbackId, method, params, settings);
+                sendRequest(callbackId, api, params, settings);
                 break;
             case IS_SESSION_VALID:
                 isSessionValid(callbackId);
                 break;
             case SEND_OAUTH_REQUEST:
+                sendOAuthRequest(callbackId, api, params, settings);
                 break;
             case ON_PLUGIN_EVENT:
                 onPluginEvent(params);
@@ -187,6 +203,7 @@ public class WebBridge {
     }
 
     private void getIds(String callbackId) {
+        GigyaLogger.debug(LOG_TAG, "getIds: ");
         try {
             final String ids = new JSONObject()
                     .put("ucid", _configuration.getUCID()).put("gmid", _configuration.getGMID())
@@ -199,26 +216,55 @@ public class WebBridge {
 
     //region Actions
 
-    private void sendRequest(final String callbackId, String method, Map<String, Object> params, Map<String, Object> settings) {
+    private void sendRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
+        GigyaLogger.debug(LOG_TAG, "sendRequest: with params:\n" + params.toString());
 
+        // TODO: 29/01/2019 Should add support for non Https in GigyaRequest.
+        final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
+        final boolean requiresSession = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("requiresSession"), "false"));
+
+        if (api.equals("accounts.getAccountInfo") && _sessionManager.isValidSession()) {
+            params.remove("regToken");
+        }
+
+        _apiManager.sendAnonymous(api, params, new GigyaCallback<GigyaResponse>() {
+            @Override
+            public void onSuccess(GigyaResponse obj) {
+                GigyaLogger.debug(LOG_TAG, obj.asJson());
+                invokeCallback(callbackId, obj.asJson());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.error(LOG_TAG, error.toString());
+            }
+        });
     }
 
     private void isSessionValid(String callbackId) {
+        GigyaLogger.debug(LOG_TAG, "isSessionValid: ");
+
         invokeCallback(callbackId, String.valueOf(_sessionManager.isValidSession()));
     }
 
-    private void sendOAuthRequest(final String callbackId, String method, Map<String, Object> params, Map<String, Object> settings) {
+    private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
+        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: with params:\n" + params.toString());
+
         // TODO: 28/01/2019 Should perform login.
     }
 
     private void onPluginEvent(Map<String, Object> params) {
+        GigyaLogger.debug(LOG_TAG, "onPluginEvent: with params:\n" + params.toString());
+
         String containerId = (String) params.get("sourceContainerID");
         if (containerId != null) {
-            // TODO: 28/01/2019 Throttle event.
+            _interactions.onPluginEvent(params, containerId);
         }
     }
 
     private void registerForNamespaceEvents() {
+        GigyaLogger.debug(LOG_TAG, "registerForNamespaceEvents: ");
+
         // TODO: 28/01/2019 Not how to implement it yet.
     }
 

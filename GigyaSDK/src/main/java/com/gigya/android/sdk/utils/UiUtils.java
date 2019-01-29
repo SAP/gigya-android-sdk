@@ -2,6 +2,7 @@ package com.gigya.android.sdk.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 
@@ -31,5 +32,10 @@ public class UiUtils {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         context.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return new Pair<>(displayMetrics.widthPixels, displayMetrics.heightPixels);
+    }
+
+    public static boolean isPortrait(Context context) {
+        final int orientation = context.getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 }

@@ -19,7 +19,7 @@ class MainInputSheet : BottomSheetDialogFragment() {
     private var viewModel: MainViewModel? = null;
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO
+        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT
     }
 
     interface IApiResultCallback {
@@ -64,18 +64,19 @@ class MainInputSheet : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        if (type == MainInputType.ANONYMOUS) {
-            setupForAnonymous()
+        when(type) {
+            MainInputType.REINIT -> setupForReInit()
+            MainInputType.ANONYMOUS -> setupForAnonymous()
+            MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
+            MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
         }
+    }
 
-        if (type == MainInputType.REGISTER || type == MainInputType.LOGIN) {
-            setupForLoginRegister()
-        }
+    /**
+     * Setup for SDK re-initialization option/
+     */
+    private fun setupForReInit() {
 
-        if (type == MainInputType.SET_ACCOUNT_INFO) {
-            setupForSetAccountInfo()
-        }
     }
 
     /**

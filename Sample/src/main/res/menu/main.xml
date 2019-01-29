@@ -4,20 +4,26 @@
     <item
         android:id="@+id/action_clear"
         android:orderInCategory="100"
-        android:title="Clear"
+        android:title="@string/clear"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_reinit"
+        android:orderInCategory="100"
+        android:title="@string/re_init"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
-        android:title="Logout"
+        android:title="@string/logout"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_account"
         android:icon="@drawable/ic_person_24dp"
         android:orderInCategory="100"
-        android:title="Logged in"
+        android:title="@string/logged_in"
         android:visible="false"
         app:showAsAction="always" />
 
@@ -25,7 +31,7 @@
         android:id="@+id/fb_permission_update"
         android:icon="@drawable/ic_flogo_hexrbg_wht_58"
         android:orderInCategory="100"
-        android:title="Facebook update permissions"
+        android:title="@string/facebook_update_permissions"
         android:visible="false"
         app:showAsAction="ifRoom" />
 </menu>

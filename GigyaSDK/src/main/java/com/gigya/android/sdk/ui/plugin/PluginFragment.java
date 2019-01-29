@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.gigya.android.sdk.utils.UiUtils;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class PluginFragment extends WebViewFragment {
 
@@ -64,11 +66,26 @@ public class PluginFragment extends WebViewFragment {
     private String _apiKey, _apiDomain, _plugin;
     private HashMap<String, Object> _params;
 
+    private boolean _fullScreen;
+
     private boolean _obfuscate;
 
     private WebBridge _webBridge;
 
     private PluginFragmentCallbacks _pluginCallbacks;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (_fullScreen) {
+            setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        }
+    }
+
+    @Override
+    protected boolean wrapContent() {
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -83,6 +100,10 @@ public class PluginFragment extends WebViewFragment {
         _plugin = args.getString(ARG_PLUGIN);
         _params = (HashMap<String, Object>) args.getSerializable(ARG_PARAMS);
 
+        if (_params != null) {
+            _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPluginPresenter.SHOW_FULL_SCREEN), false);
+        }
+
         if (_apiKey == null || _plugin == null) {
             /* Implementation error. */
             dismiss();
@@ -93,10 +114,6 @@ public class PluginFragment extends WebViewFragment {
     protected void setUpWebView() {
         super.setUpWebView();
 
-        _webBridge = new WebBridge(_obfuscate);
-        _webBridge.attach(_webView);
-
-        _webView.getSettings().setAllowFileAccess(true);
         _webView.setWebViewClient(new WebViewClient() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -142,6 +159,25 @@ public class PluginFragment extends WebViewFragment {
                 return true;
             }
         });
+
+        _webBridge = new WebBridge(_obfuscate, new WebBridge.WebBridgeInteractions() {
+
+            @Override
+            public void onPluginEvent(Map<String, Object> event, String containerID) {
+                if (containerID.equals(CONTAINER_ID)) {
+                    final String eventName = (String) ObjectUtils.firstNonNull(event.get("eventName"), "");
+                    if (eventName.equals("load")) {
+                        _progressBar.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (eventName.equals("hide") || eventName.equals("close")) {
+                        dismiss();
+                    }
+                }
+            }
+        });
+
+        _webBridge.attach(_webView);
     }
 
     @Override
@@ -227,9 +263,11 @@ public class PluginFragment extends WebViewFragment {
         if (getView() != null) {
             int width = getView().getWidth();
             if (width == 0) {
-                width = (int) (UiUtils.getScreenSize((Activity) getView().getContext()).first * 0.8);
+                width = (int) (UiUtils.getScreenSize((Activity) getView().getContext()).first * 0.9);
             }
-            _params.put("width", width);
+            final float density = getActivity().getResources().getDisplayMetrics().density;
+            final double requestedWidth = width / density - 16.0F;
+            _params.put("width", 354);
         }
         // TODO: 27/01/2019 Add disabled providers...
     }
