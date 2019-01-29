@@ -20,6 +20,7 @@ import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.BuildConfig;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -49,8 +50,8 @@ public class FacebookLoginProvider extends LoginProvider {
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
     private AccessTokenTracker _tokenTracker;
 
-    public FacebookLoginProvider(LoginProviderCallbacks loginCallbacks, LoginProviderTrackerCallback trackerCallback) {
-        super(loginCallbacks, trackerCallback);
+    public FacebookLoginProvider(GigyaCallback callback) {
+        super(callback);
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);
             FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
@@ -71,10 +72,10 @@ public class FacebookLoginProvider extends LoginProvider {
                     return;
                 }
                 // Send api request.
-                if (loginCallbacks != null) {
+                if (_loginCallbacks != null) {
                     final String newAuthToken = currentAccessToken.getToken();
                     final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;
-                    trackerCallback.onProviderTrackingTokenChanges(getName(), getProviderSessionsForRequest(newAuthToken, expiresInSeconds, null), null);
+                    _loginTrackerCallback.onProviderTrackingTokenChanges(getName(), getProviderSessionsForRequest(newAuthToken, expiresInSeconds, null), null);
                 }
             }
         };
@@ -141,7 +142,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
+                        _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
 
                         activity.finish();
                     }
@@ -149,7 +150,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     @Override
                     public void onCancel() {
                         loginManager.unregisterCallback(_callbackManager);
-                        loginCallbacks.onCanceled();
+                        _loginCallbacks.onCanceled();
 
                         activity.finish();
                     }
@@ -157,7 +158,7 @@ public class FacebookLoginProvider extends LoginProvider {
                     @Override
                     public void onError(FacebookException error) {
                         loginManager.unregisterCallback(_callbackManager);
-                        loginCallbacks.onProviderLoginFailed("facebook", error.getLocalizedMessage());
+                        _loginCallbacks.onProviderLoginFailed("facebook", error.getLocalizedMessage());
 
                         activity.finish();
                     }
@@ -213,7 +214,7 @@ public class FacebookLoginProvider extends LoginProvider {
                         if (accessToken.getDeclinedPermissions().isEmpty()) {
                             final long expiresInSeconds = accessToken.getExpires().getTime() / 1000;
                             // Continue flow -> refresh provider token.
-                            trackerCallback.onProviderTrackingTokenChanges(getName(),
+                            _loginTrackerCallback.onProviderTrackingTokenChanges(getName(),
                                     getProviderSessionsForRequest(accessToken.getToken(), expiresInSeconds, null), permissionCallbacks);
                             if (_tokenTracker != null) {
                                 _tokenTracker.startTracking();

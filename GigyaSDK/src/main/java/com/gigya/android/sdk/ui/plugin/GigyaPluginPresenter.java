@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.GigyaPresenter;
@@ -20,12 +18,13 @@ public class GigyaPluginPresenter extends GigyaPresenter {
 
     public static final String SHOW_FULL_SCREEN = "show_full_screen";
 
-    public GigyaPluginPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
-        super(apiManager, persistenceManager);
-    }
+    public void showPlugin(Context context,
+                           final Configuration configuration,
+                           final boolean obfuscate,
+                           final String plugin,
+                           final Map<String, Object> params,
+                           final GigyaCallback callback) {
 
-    public <T> void showPlugin(Context context, final Configuration configuration, final boolean obfuscate,
-                               final String plugin, final Map<String, Object> params, final GigyaCallback<T> callback) {
         if (!params.containsKey("lang")) {
             params.put("lang", "en");
         }
@@ -44,9 +43,7 @@ public class GigyaPluginPresenter extends GigyaPresenter {
                 PluginFragment.present(activity, args, new PluginFragment.PluginFragmentCallbacks() {
 
                     @Override
-                    public void onEvent(String event) {
-
-                    }
+                    public void onEvent(String event) { }
 
                     @Override
                     public void onCancel() {
@@ -57,7 +54,7 @@ public class GigyaPluginPresenter extends GigyaPresenter {
                     public void onError(GigyaError error) {
 
                     }
-                });
+                }, callback);
             }
         });
     }

@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -38,9 +39,9 @@ public class GoogleLoginProvider extends LoginProvider {
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
 
-    public GoogleLoginProvider(Context context, LoginProviderCallbacks loginCallbacks) {
+    public GoogleLoginProvider(Context context, GigyaCallback callback) {
         // TODO: 14/01/2019 Do we still need this fallback?
-        super(loginCallbacks, null);
+        super(callback);
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             providerClientId = (String) appInfo.metaData.get("googleClientId");
@@ -92,7 +93,7 @@ public class GoogleLoginProvider extends LoginProvider {
     @Override
     public void login(Context context, Map<String, Object> loginParams) {
         if (providerClientId == null) {
-            loginCallbacks.onProviderLoginFailed(getName(), "Missing server client id. Check manifest implementation");
+            _loginCallbacks.onProviderLoginFailed(getName(), "Missing server client id. Check manifest implementation");
             return;
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -104,7 +105,7 @@ public class GoogleLoginProvider extends LoginProvider {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             /* This option should not happen theoretically because we logout out explicitly. */
-            this.loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
+            _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
             finish(null);
             return;
         }
@@ -131,14 +132,14 @@ public class GoogleLoginProvider extends LoginProvider {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account == null) {
-                loginCallbacks.onProviderLoginFailed(getName(), "Account unavailable");
+                _loginCallbacks.onProviderLoginFailed(getName(), "Account unavailable");
             } else {
                 /* Fetch server auth code */
                 final String authCode = account.getServerAuthCode();
                 if (authCode == null) {
-                    loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
+                    _loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
                 } else {
-                    this.loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null));
+                    _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null));
                 }
             }
             finish(activity);
@@ -146,11 +147,11 @@ public class GoogleLoginProvider extends LoginProvider {
             final int exceptionStatusCode = e.getStatusCode();
             switch (exceptionStatusCode) {
                 case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                    loginCallbacks.onCanceled();
+                    _loginCallbacks.onCanceled();
                     break;
                 case GoogleSignInStatusCodes.SIGN_IN_FAILED:
                 default:
-                    loginCallbacks.onProviderLoginFailed(getName(), GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
+                    _loginCallbacks.onProviderLoginFailed(getName(), GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
                     break;
             }
             finish(activity);

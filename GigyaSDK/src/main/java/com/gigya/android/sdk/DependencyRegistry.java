@@ -6,8 +6,10 @@ import android.os.Build;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
+import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.WebBridge;
 
 public class DependencyRegistry {
@@ -116,6 +118,14 @@ public class DependencyRegistry {
 
     public <T> void inject(ApiManager<T> apiManager) {
         apiManager.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), this.<T>getAccountManager());
+    }
+
+    public void inject(LoginProvider provider) {
+        provider.inject(getConfiguration(), getApiManager(), getPersistenceManager(), getSessionManager(), getAccountManager());
+    }
+
+    public void inject(GigyaPresenter presenter) {
+        presenter.inject(getSessionManager(), getAccountManager());
     }
 
     //endregion

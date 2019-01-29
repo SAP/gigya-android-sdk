@@ -263,14 +263,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
         //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
-        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params)
+        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object: GigyaCallback<GigyaResponse>() {
+            override fun onSuccess(obj: GigyaResponse?) {
+
+            }
+
+            override fun onError(error: GigyaError?) {
+
+            }
+        })
     }
 
     fun showComments() {
         val params = mutableMapOf<String, Any>()
         params["categoryID"] = "Support"
         params["streamID"] = 1
-        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params)
+        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object: GigyaCallback<GigyaResponse>() {
+            override fun onSuccess(obj: GigyaResponse?) {
+
+            }
+
+            override fun onError(error: GigyaError?) {
+
+            }
+        })
     }
 
     //region Utility methods

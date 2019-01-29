@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
@@ -26,8 +27,8 @@ public class WebViewLoginProvider extends LoginProvider {
 
     private Configuration _configuration;
 
-    public WebViewLoginProvider(Configuration configuration, LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks, null);
+    public WebViewLoginProvider(Configuration configuration, GigyaCallback callback) {
+        super(callback);
         _configuration = configuration;
     }
 
@@ -55,16 +56,16 @@ public class WebViewLoginProvider extends LoginProvider {
                         final String status = (String) result.get("status");
                         if (status != null && status.equals("ok")) {
                             final SessionInfo sessionInfo = parseSessionInfo(result);
-                            loginCallbacks.onProviderSession(WebViewLoginProvider.this, sessionInfo);
+                            _loginCallbacks.onProviderSession(WebViewLoginProvider.this, sessionInfo);
                         } else {
-                            loginCallbacks.onProviderLoginFailed(provider, "Failed to login");
+                            _loginCallbacks.onProviderLoginFailed(provider, "Failed to login");
                         }
                         activity.finish();
                     }
 
                     @Override
                     public void onWebViewCancel() {
-                        loginCallbacks.onCanceled();
+                        _loginCallbacks.onCanceled();
                         activity.finish();
                     }
                 });

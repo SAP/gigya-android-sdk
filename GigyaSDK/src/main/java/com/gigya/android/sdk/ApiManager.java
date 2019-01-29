@@ -5,10 +5,12 @@ import com.gigya.android.sdk.api.GetAccountApi;
 import com.gigya.android.sdk.api.LoginApi;
 import com.gigya.android.sdk.api.LogoutApi;
 import com.gigya.android.sdk.api.NotifyLoginApi;
+import com.gigya.android.sdk.api.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.RegisterApi;
 import com.gigya.android.sdk.api.SdkConfigApi;
 import com.gigya.android.sdk.api.SetAccountApi;
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -161,6 +163,31 @@ public class ApiManager<T> {
                         _accountManager.setAccount(obj);
                         if (completionHandler != null) {
                             completionHandler.run();
+                        }
+                    }
+                });
+    }
+
+    public void updateProviderSessions(String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
+        new RefreshProviderSessionApi(_configuration, _networkAdapter, _sessionManager)
+                .call(providerSession, new GigyaCallback() {
+                    @Override
+                    public void onSuccess(Object obj) {
+                        GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Success - provider token updated");
+
+                        if (permissionCallbacks != null) {
+                            permissionCallbacks.granted();
+                        }
+                        /* Invalidate cached account. */
+                        _accountManager.invalidateAccount();
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Error: " + error.getLocalizedMessage());
+
+                        if (permissionCallbacks != null) {
+                            permissionCallbacks.failed(error.getLocalizedMessage());
                         }
                     }
                 });

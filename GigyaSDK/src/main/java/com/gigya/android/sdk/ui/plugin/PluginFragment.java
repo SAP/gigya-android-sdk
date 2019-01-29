@@ -22,6 +22,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
@@ -56,10 +57,11 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
     private static final String CONTAINER_ID = "pluginContainer";
     private static final int JS_TIMEOUT = 10000;
 
-    public static void present(AppCompatActivity activity, Bundle args, @NonNull PluginFragmentCallbacks pluginCallbacks) {
+    public static void present(AppCompatActivity activity, Bundle args, @NonNull PluginFragmentCallbacks pluginCallbacks, @NonNull GigyaCallback callback) {
         PluginFragment fragment = new PluginFragment();
         fragment.setArguments(args);
         fragment._pluginCallbacks = pluginCallbacks;
+        fragment._gigyaCallback = callback;
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, LOG_TAG);
         fragmentTransaction.commitAllowingStateLoss();
@@ -75,6 +77,8 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
     private WebBridge _webBridge;
 
     private PluginFragmentCallbacks _pluginCallbacks;
+
+    private GigyaCallback _gigyaCallback;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

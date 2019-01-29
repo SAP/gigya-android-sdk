@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Base64;
@@ -13,7 +14,11 @@ import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.login.LoginProviderFactory;
+import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -47,6 +52,8 @@ public class WebBridge {
 
     @NonNull
     private WebBridgeInteractions _interactions;
+
+    private LoginProvider.LoginProviderCallbacks _loginProviderCallbacks;
 
     public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions interactions) {
         _shouldObfuscate = shouldObfuscate;
@@ -250,7 +257,44 @@ public class WebBridge {
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: with params:\n" + params.toString());
 
-        // TODO: 28/01/2019 Should perform login.
+        final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
+        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider, new GigyaCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount obj) {
+                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
+            }
+        });
+
+        final Activity activity = (Activity) _webViewRef.get().getContext();
+
+        if (loginProvider instanceof WebViewLoginProvider && !_configuration.hasGMID()) {
+            /* WebView Provider must have basic config fields. */
+            loginProvider.configurationRequired(activity, params);
+            return;
+        }
+        if (loginProvider.clientIdRequired() && !_configuration.isSynced()) {
+            loginProvider.configurationRequired(activity, params);
+            return;
+        }
+
+        if (_configuration.isSynced()) {
+            /* Update provider client id if available */
+            final String providerClientId = _configuration.getAppIds().get(provider);
+            if (providerClientId != null) {
+                loginProvider.updateProviderClientId(providerClientId);
+            }
+        }
+
+        if (activity != null) {
+            activity.finish();
+        }
+
+        loginProvider.login(_webViewRef.get().getContext(), params);
     }
 
     private void onPluginEvent(Map<String, Object> params) {

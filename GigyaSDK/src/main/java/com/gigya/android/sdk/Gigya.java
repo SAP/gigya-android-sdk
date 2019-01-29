@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.gigya.android.sdk.api.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.RegisterApi;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
@@ -15,7 +14,6 @@ import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
@@ -146,7 +144,7 @@ public class Gigya<T extends GigyaAccount> {
         /* Load last provider if exists. */
         final String lastProviderName = getPersistenceManager().getString("lastLoginProvider", null);
         if (lastProviderName != null && getCurrentProvider() == null) {
-            final LoginProvider loginProvider = LoginProviderFactory.providerFor(_appContext, configuration, lastProviderName, null, _loginTrackerCallback);
+            final LoginProvider loginProvider = LoginProviderFactory.providerFor(_appContext, configuration, lastProviderName, null);
             getAccountManager().updateLoginProvider(loginProvider);
             if (loginProvider.clientIdRequired()) {
                 /* Must call sdk config to fetch related client ids for login provider. */
@@ -371,41 +369,6 @@ public class Gigya<T extends GigyaAccount> {
 
     //region Native login
 
-    /*
-    Token tracker callback. Shared between all providers (if needed).
-     */
-    private LoginProvider.LoginProviderTrackerCallback _loginTrackerCallback = new LoginProvider.LoginProviderTrackerCallback() {
-        @Override
-        public void onProviderTrackingTokenChanges(String provider, String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
-            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: provider = "
-                    + provider + ", providerSession =" + providerSession);
-
-            /* Refresh session token. */
-            new RefreshProviderSessionApi(getConfiguration(), getNetworkAdapter(), getSessionManager())
-                    .call(providerSession, new GigyaCallback() {
-                        @Override
-                        public void onSuccess(Object obj) {
-                            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Success - provider token updated");
-
-                            if (permissionCallbacks != null) {
-                                permissionCallbacks.granted();
-                            }
-                            /* Invalidate cached account. */
-                            getAccountManager().invalidateAccount();
-                        }
-
-                        @Override
-                        public void onError(GigyaError error) {
-                            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Error: " + error.getLocalizedMessage());
-
-                            if (permissionCallbacks != null) {
-                                permissionCallbacks.failed(error.getLocalizedMessage());
-                            }
-                        }
-                    });
-        }
-    };
-
     /**
      * Present native login selection according to requested parameters.
      *
@@ -414,31 +377,17 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
-        new GigyaLoginPresenter(getApiManager(), getPersistenceManager())
-                .showNativeLoginProviders(_appContext, getConfiguration(), params, _loginTrackerCallback, new GigyaLoginPresenter.LoginPresentationCallbacks() {
-                    @Override
-                    public void onProviderSelected(LoginProvider loginProvider) {
-                        /* Update current provider. */
-                        getAccountManager().updateLoginProvider(loginProvider);
-                        loginProvider.trackTokenChanges(getSessionManager());
-                    }
-
-                    @Override
-                    public void onCancelled() {
-                        callback.onCancelledOperation();
-                    }
-
-                }, callback);
+        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, getConfiguration(), params, callback);
     }
 
     //endregion
 
     //region Plugins
 
-    public void showPlugin(String plugin, Map<String, Object> params) {
+    public <H> void showPlugin(String plugin, Map<String, Object> params, final GigyaCallback<H> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + plugin + ", with parameters:\n" + params.toString());
-        new GigyaPluginPresenter(getApiManager(), getPersistenceManager())
-                .showPlugin(_appContext, getConfiguration(), false, plugin, params, null);
+        new GigyaPluginPresenter()
+                .showPlugin(_appContext, getConfiguration(), false, plugin, params, callback);
     }
 
     //endregion

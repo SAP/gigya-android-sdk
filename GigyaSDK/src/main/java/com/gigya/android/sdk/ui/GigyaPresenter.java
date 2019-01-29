@@ -2,17 +2,25 @@ package com.gigya.android.sdk.ui;
 
 import android.util.SparseArray;
 
-import com.gigya.android.sdk.ApiManager;
-import com.gigya.android.sdk.PersistenceManager;
+import com.gigya.android.sdk.AccountManager;
+import com.gigya.android.sdk.DependencyRegistry;
+import com.gigya.android.sdk.SessionManager;
 
 public abstract class GigyaPresenter {
 
-    protected ApiManager _apiManager;
-    protected PersistenceManager _persistenceManager;
+    private static final String LOG_TAG = "GigyaPresenter";
 
-    public GigyaPresenter(ApiManager apiManager, PersistenceManager persistenceManager) {
-        _apiManager = apiManager;
-        _persistenceManager = persistenceManager;
+    protected SessionManager _sessionManager;
+    protected AccountManager _accountManager;
+
+    public GigyaPresenter() {
+        DependencyRegistry.getInstance().inject(this);
+    }
+
+
+    public void inject(SessionManager sessionManager, AccountManager accountManager) {
+        _sessionManager = sessionManager;
+        _accountManager = accountManager;
     }
 
     //region HostActivity lifecycle callbacks tracking

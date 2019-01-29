@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -26,8 +27,8 @@ public class WeChatLoginProvider extends LoginProvider {
         return "wechat";
     }
 
-    public WeChatLoginProvider(LoginProviderCallbacks loginCallbacks) {
-        super(loginCallbacks, null);
+    public WeChatLoginProvider(GigyaCallback callback) {
+        super(callback);
     }
 
     private IWXAPI _api;
@@ -51,7 +52,7 @@ public class WeChatLoginProvider extends LoginProvider {
 
                 _appId = FileUtils.stringFromMetaData(context, "wechatAppID");
                 if (_appId == null) {
-                    loginCallbacks.onProviderLoginFailed(getName(), "Failed to fetch application id");
+                    _loginCallbacks.onProviderLoginFailed(getName(), "Failed to fetch application id");
                     activity.finish();
                 }
 
@@ -89,16 +90,16 @@ public class WeChatLoginProvider extends LoginProvider {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessionsForRequest(authCode, -1L, _appId);
-                    loginCallbacks.onProviderLoginSuccess(this, providerSessions);
+                    _loginCallbacks.onProviderLoginSuccess(this, providerSessions);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
-                loginCallbacks.onCanceled();
+                _loginCallbacks.onCanceled();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
-                loginCallbacks.onProviderLoginFailed(getName(), Errors.AUTHENTICATION_DENIED);
+                _loginCallbacks.onProviderLoginFailed(getName(), Errors.AUTHENTICATION_DENIED);
                 break;
         }
     }

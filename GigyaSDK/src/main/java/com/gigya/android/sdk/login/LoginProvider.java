@@ -1,32 +1,147 @@
 package com.gigya.android.sdk.login;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.AccountManager;
+import com.gigya.android.sdk.ApiManager;
+import com.gigya.android.sdk.DependencyRegistry;
+import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.List;
 import java.util.Map;
 
 public abstract class LoginProvider {
 
+    private static final String LOG_TAG = "LoginProvider";
+
+    protected GigyaCallback _callback;
+
+    private Configuration _configuration;
+    private ApiManager _apiManager;
+    private PersistenceManager _persistenceManager;
+    private SessionManager _sessionManager;
+    private AccountManager _accountManager;
+
+    public LoginProvider(GigyaCallback callback) {
+        DependencyRegistry.getInstance().inject(this);
+        _callback = callback;
+    }
+
+    public void inject(Configuration configuration, ApiManager apiManager, PersistenceManager persistenceManager, SessionManager sessionManager, AccountManager accountManager) {
+        _configuration = configuration;
+        _apiManager = apiManager;
+        _persistenceManager = persistenceManager;
+        _sessionManager = sessionManager;
+        _accountManager = accountManager;
+    }
+
     public abstract String getName();
 
-    public static class Errors {
-        public static final String USER_CANCELLED = "user_cancelled";
-        public static final String AUTHENTICATION_DENIED = "authentication_denied";
-    }
-
     protected String providerClientId;
-    protected final LoginProviderCallbacks loginCallbacks;
-    protected final LoginProviderTrackerCallback trackerCallback;
 
-    public LoginProvider(LoginProviderCallbacks loginCallbacks, LoginProviderTrackerCallback trackerCallback) {
-        this.loginCallbacks = loginCallbacks;
-        this.trackerCallback = trackerCallback;
+    // region Callbacks
+
+    /* Determine if we need to fetch SDK configuration. */
+    protected LoginProvider.LoginProviderConfigCallback _configCallback = new LoginProvider.LoginProviderConfigCallback() {
+        @Override
+        public void onConfigurationRequired(final Activity activity, final LoginProvider provider, final Map<String, Object> params) {
+            _apiManager.loadConfig(new Runnable() {
+                @Override
+                public void run() {
+                    if (_configuration.isSynced()) {
+                        /* Update provider client id if available */
+                        final String providerClientId = _configuration.getAppIds().get(provider.getName());
+                        if (providerClientId != null) {
+                            provider.updateProviderClientId(providerClientId);
+                        }
+                        final Context appContext = activity.getApplicationContext();
+                        activity.finish();
+                        provider.login(appContext, params);
+                    }
+                }
+            });
+        }
+    };
+
+    public void configurationRequired(final Activity activity, final Map<String, Object> params) {
+        _configCallback.onConfigurationRequired(activity, this, params);
     }
+
+    /*
+    Token tracker callback. Shared between all providers (if needed).
+    */
+    protected LoginProvider.LoginProviderTrackerCallback _loginTrackerCallback = new LoginProvider.LoginProviderTrackerCallback() {
+        @Override
+        public void onProviderTrackingTokenChanges(String provider, String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
+            GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: provider = "
+                    + provider + ", providerSession =" + providerSession);
+
+            /* Refresh session token. */
+            _apiManager.updateProviderSessions(providerSession, permissionCallbacks);
+        }
+    };
+
+    /* Login provider operation callbacks. */
+    protected LoginProvider.LoginProviderCallbacks _loginCallbacks = new LoginProvider.LoginProviderCallbacks() {
+
+        @Override
+        public void onCanceled() {
+            _callback.onCancelledOperation();
+        }
+
+        @Override
+        public void onProviderLoginSuccess(final LoginProvider provider, String providerSessions) {
+            GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
+                    + provider + ", providerSessions = " + providerSessions);
+            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+            _callback.onIntermediateLoad();
+
+            _apiManager.notifyLogin(providerSessions, _callback, new Runnable() {
+                @Override
+                public void run() {
+                    /* Safe to say this is the current selected provider. */
+                    _accountManager.updateLoginProvider(provider);
+                    provider.trackTokenChanges(_sessionManager);
+
+                    _persistenceManager.onLoginProviderUpdated(provider.getName());
+                }
+            });
+        }
+
+        @Override
+        public void onProviderSession(final LoginProvider provider, SessionInfo sessionInfo) {
+            /* Login process via Web has generated a new session. */
+
+            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+            _callback.onIntermediateLoad();
+
+            /* Call notifyLogin to complete sign in process.*/
+            _apiManager.notifyLogin(sessionInfo, _callback, new Runnable() {
+                @Override
+                public void run() {
+                    _persistenceManager.onLoginProviderUpdated(provider.getName());
+                }
+            });
+        }
+
+        @Override
+        public void onProviderLoginFailed(String provider, String error) {
+            GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
+                    + provider + ", error =" + error);
+            _callback.onError(GigyaError.errorFrom(error));
+        }
+    };
+
+    //endregion
 
     public abstract void login(Context context, Map<String, Object> loginParams);
 
@@ -54,7 +169,7 @@ public abstract class LoginProvider {
     //region Interfacing
 
     public interface LoginProviderConfigCallback {
-        void onConfigurationRequired(LoginProvider provider);
+        void onConfigurationRequired(Activity activity, LoginProvider provider, Map<String, Object> params);
     }
 
     public interface LoginProviderCallbacks {
@@ -88,4 +203,8 @@ public abstract class LoginProvider {
 
     //endregion
 
+    public static class Errors {
+        public static final String USER_CANCELLED = "user_cancelled";
+        public static final String AUTHENTICATION_DENIED = "authentication_denied";
+    }
 }
