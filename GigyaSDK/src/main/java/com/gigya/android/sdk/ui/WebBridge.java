@@ -9,6 +9,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
+import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
@@ -18,7 +19,6 @@ import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class WebBridge {
+public class WebBridge<T> {
 
     public interface WebBridgeInteractions {
         void onPluginEvent(Map<String, Object> event, String containerID);
@@ -47,6 +47,7 @@ public class WebBridge {
     private Configuration _configuration;
     private SessionManager _sessionManager;
     private ApiManager _apiManager;
+    private AccountManager<T> _accountManager;
 
     private boolean _shouldObfuscate;
 
@@ -61,10 +62,11 @@ public class WebBridge {
         DependencyRegistry.getInstance().inject(this);
     }
 
-    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager) {
+    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager, AccountManager<T> accountManager) {
         _configuration = configuration;
         _sessionManager = sessionManager;
         _apiManager = apiManager;
+        _accountManager = accountManager;
     }
 
     private enum Actions {
@@ -258,9 +260,10 @@ public class WebBridge {
         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: with params:\n" + params.toString());
 
         final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
-        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider, new GigyaCallback<GigyaAccount>() {
+        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider,
+                new GigyaCallback<T>() {
             @Override
-            public void onSuccess(GigyaAccount obj) {
+            public void onSuccess(T obj) {
                 GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
             }
 

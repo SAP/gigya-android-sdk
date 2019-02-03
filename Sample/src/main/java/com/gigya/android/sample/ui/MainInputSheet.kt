@@ -8,15 +8,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gigya.android.sample.R
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.sheet_anonymous.*
 import kotlinx.android.synthetic.main.sheet_login_register.*
+import kotlinx.android.synthetic.main.sheet_re_init.*
 import kotlinx.android.synthetic.main.sheet_set_account.*
+import org.jetbrains.anko.design.snackbar
 
 class MainInputSheet : BottomSheetDialogFragment() {
 
-    private var viewModel: MainViewModel? = null;
+    private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
         ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT
@@ -26,6 +29,7 @@ class MainInputSheet : BottomSheetDialogFragment() {
         fun onLoading()
         fun onJsonResult(json: String)
         fun onError(error: GigyaError)
+        fun onReInit()
     }
 
     var type: MainInputType? = null
@@ -55,6 +59,7 @@ class MainInputSheet : BottomSheetDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = when (type) {
+            MainInputType.REINIT -> R.layout.sheet_re_init
             MainInputType.ANONYMOUS -> R.layout.sheet_anonymous
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.sheet_login_register
             MainInputType.SET_ACCOUNT_INFO -> R.layout.sheet_set_account
@@ -64,7 +69,7 @@ class MainInputSheet : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        when(type) {
+        when (type) {
             MainInputType.REINIT -> setupForReInit()
             MainInputType.ANONYMOUS -> setupForAnonymous()
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
@@ -73,10 +78,43 @@ class MainInputSheet : BottomSheetDialogFragment() {
     }
 
     /**
-     * Setup for SDK re-initialization option/
+     * Setup for SDK re-initialization option.
      */
     private fun setupForReInit() {
+        re_init_apply_button.setOnClickListener {
+            val apiDomainId: Int = api_domain_selection_group.checkedRadioButtonId
+            val apiDomainString: String = when (apiDomainId) {
+                R.id.domain_us1 -> "us1.gigya.com"
+                R.id.domain_eu1 -> "eu1.gigya.com"
+                R.id.domain_au1 -> "au1.gigya.com"
+                R.id.domain_il1 -> "il1.gigya.com"
+                R.id.domain_il5 -> "il5.gigya.com"
+                else -> ""
+            }
 
+            val envId: Int = env_selection_group.checkedRadioButtonId
+            val envString: String = when (envId) {
+                R.id.env_prod -> ""
+                R.id.env_st1 -> "-st1"
+                R.id.env_st2 -> "-st2"
+                else -> ""
+            }
+
+            val apiKeyString: String = api_key_sheet_edit.text.toString().trim()
+            if (apiKeyString.isEmpty()) {
+                api_key_sheet_edit.snackbar("Must enter new Api-Key for re-initialization")
+            }
+
+            var newDomainString: String = apiDomainString
+            if (!envString.isEmpty()) {
+                newDomainString = apiDomainString.substring(0, 3) + envString + apiDomainString.substring(3, apiDomainString.length)
+            }
+
+            Gigya.getInstance().init(apiKeyString, newDomainString)
+            api_key_sheet_edit.snackbar("Re-initialized SDK")
+            resultCallback.onReInit()
+            dismiss()
+        }
     }
 
     /**

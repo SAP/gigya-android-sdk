@@ -235,6 +235,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region Result handling
 
     /**
+     * SDK re-initialized. force logout/clear session.
+     */
+    override fun onReInit() {
+        viewModel?.logout()
+        onClear()
+    }
+
+    /**
      * On json result (response) interfacing,
      */
     override fun onJsonResult(json: String) {

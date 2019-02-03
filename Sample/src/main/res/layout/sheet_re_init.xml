@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/re_init_sheet_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Re-Initialize SDK using new Api Key/Domain pair"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/api_key_sheet_input"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="Enter new api key"
+        android:textColorHint="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintEnd_toEndOf="@id/re_init_sheet_title"
+        app:layout_constraintStart_toStartOf="@id/re_init_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/re_init_sheet_title">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/api_key_sheet_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/api_domain_selection_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintStart_toStartOf="@id/api_key_sheet_input"
+        app:layout_constraintTop_toBottomOf="@id/api_key_sheet_input">
+
+        <RadioButton
+            android:id="@+id/domain_us1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:text="us1" />
+
+        <RadioButton
+            android:id="@+id/domain_eu1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="eu1" />
+
+        <RadioButton
+            android:id="@+id/domain_au1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="au1" />
+
+        <RadioButton
+            android:id="@+id/domain_ru1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="ru1" />
+
+        <RadioButton
+            android:id="@+id/domain_il1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="il1" />
+
+        <RadioButton
+            android:id="@+id/domain_il5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="il5" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/env_selection_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@+id/api_domain_selection_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/api_domain_selection_group"
+        app:layout_constraintTop_toBottomOf="@id/api_key_sheet_input">
+
+        <RadioButton
+            android:id="@+id/env_prod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:text="production" />
+
+        <RadioButton
+            android:id="@+id/env_st1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="staging 1" />
+
+        <RadioButton
+            android:id="@+id/env_st2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="staging 2" />
+
+    </RadioGroup>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/re_init_apply_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="Apply"
+        android:textColor="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/api_domain_selection_group" />
+
+</android.support.constraint.ConstraintLayout>
