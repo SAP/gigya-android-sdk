@@ -13,6 +13,7 @@ import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
@@ -34,8 +35,14 @@ import java.util.Map;
 
 public class WebBridge<T> {
 
-    public interface WebBridgeInteractions {
+    public interface WebBridgeInteractions<T> {
         void onPluginEvent(Map<String, Object> event, String containerID);
+
+        void onAuthEvent(T obj);
+
+        void onCancel();
+
+        void onError(GigyaError error);
     }
 
     private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
@@ -52,9 +59,7 @@ public class WebBridge<T> {
     private boolean _shouldObfuscate;
 
     @NonNull
-    private WebBridgeInteractions _interactions;
-
-    private LoginProvider.LoginProviderCallbacks _loginProviderCallbacks;
+    private WebBridgeInteractions<T> _interactions;
 
     public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions interactions) {
         _shouldObfuscate = shouldObfuscate;
@@ -261,17 +266,25 @@ public class WebBridge<T> {
 
         final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
         final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider,
-                new GigyaCallback<T>() {
-            @Override
-            public void onSuccess(T obj) {
-                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
-            }
+                new GigyaLoginCallback<T>() {
+                    @Override
+                    public void onCancelledOperation() {
+                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onCancelledOperation");
+                        _interactions.onCancel();
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
-            }
-        });
+                    @Override
+                    public void onSuccess(T obj) {
+                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
+                        _interactions.onAuthEvent(obj);
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
+                        _interactions.onError(error);
+                    }
+                });
 
         final Activity activity = (Activity) _webViewRef.get().getContext();
 

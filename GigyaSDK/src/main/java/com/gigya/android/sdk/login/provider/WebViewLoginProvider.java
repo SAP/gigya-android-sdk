@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
@@ -27,7 +27,7 @@ public class WebViewLoginProvider extends LoginProvider {
 
     private Configuration _configuration;
 
-    public WebViewLoginProvider(Configuration configuration, GigyaCallback callback) {
+    public WebViewLoginProvider(Configuration configuration, GigyaLoginCallback callback) {
         super(callback);
         _configuration = configuration;
     }

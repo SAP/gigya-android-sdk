@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -39,7 +39,7 @@ public class GoogleLoginProvider extends LoginProvider {
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
 
-    public GoogleLoginProvider(Context context, GigyaCallback callback) {
+    public GoogleLoginProvider(Context context, GigyaLoginCallback callback) {
         // TODO: 14/01/2019 Do we still need this fallback?
         super(callback);
         try {

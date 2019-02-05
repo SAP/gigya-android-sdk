@@ -293,7 +293,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param password Login password.
      * @param callback Response listener callback.
      */
-    public void login(String username, String password, GigyaCallback<T> callback) {
+    public void login(String username, String password, GigyaLoginCallback<T> callback) {
         getApiManager().login(username, password, callback);
     }
 
@@ -375,7 +375,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Requested parameters.
      * @param callback Response listener callback.
      */
-    public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaCallback<T> callback) {
+    public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
         new GigyaLoginPresenter().showNativeLoginProviders(_appContext, getConfiguration(), params, callback);
     }
@@ -384,7 +384,15 @@ public class Gigya<T extends GigyaAccount> {
 
     //region Plugins
 
-    public <H> void showPlugin(String plugin, Map<String, Object> params, final GigyaCallback<H> callback) {
+    /**
+     * Present plugin dialog fragment with given plugin type & parameters.
+     *
+     * @param plugin   Requested plugin for display.
+     * @param params   Requested parameters.
+     * @param callback Response listener callback.
+     * @param <H>      Callback custom class scheme.
+     */
+    public <H> void showPlugin(String plugin, Map<String, Object> params, final GigyaPluginCallback<H> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + plugin + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter()
                 .showPlugin(_appContext, getConfiguration(), false, plugin, params, callback);

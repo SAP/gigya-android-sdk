@@ -20,7 +20,7 @@ import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.BuildConfig;
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -50,7 +50,7 @@ public class FacebookLoginProvider extends LoginProvider {
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
     private AccessTokenTracker _tokenTracker;
 
-    public FacebookLoginProvider(GigyaCallback callback) {
+    public FacebookLoginProvider(GigyaLoginCallback callback) {
         super(callback);
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);

@@ -10,13 +10,5 @@ public abstract class GigyaCallback<T> {
 
     public abstract void onError(GigyaError error);
 
-    public void onIntermediateLoad() {
-        // Stub.
-    }
-
-    public void onCancelledOperation() {
-        // Stub.
-    }
-
 }
 

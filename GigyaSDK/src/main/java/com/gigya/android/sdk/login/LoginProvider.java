@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.log.GigyaLogger;
@@ -23,7 +23,7 @@ public abstract class LoginProvider {
 
     private static final String LOG_TAG = "LoginProvider";
 
-    protected GigyaCallback _callback;
+    protected GigyaLoginCallback _callback;
 
     private Configuration _configuration;
     private ApiManager _apiManager;
@@ -31,7 +31,7 @@ public abstract class LoginProvider {
     private SessionManager _sessionManager;
     private AccountManager _accountManager;
 
-    public LoginProvider(GigyaCallback callback) {
+    public LoginProvider(GigyaLoginCallback callback) {
         DependencyRegistry.getInstance().inject(this);
         _callback = callback;
     }

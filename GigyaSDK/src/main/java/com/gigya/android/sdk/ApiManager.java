@@ -90,7 +90,7 @@ public class ApiManager<T> {
         new LogoutApi(_configuration, _networkAdapter, _sessionManager).call();
     }
 
-    public void login(String username, String password, GigyaCallback<T> callback) {
+    public void login(String username, String password, GigyaLoginCallback<T> callback) {
         _accountManager.invalidateAccount();
         final TreeMap<String, Object> params = new TreeMap<>();
         params.put("loginID", username);

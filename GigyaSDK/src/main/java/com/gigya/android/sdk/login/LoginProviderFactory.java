@@ -3,7 +3,7 @@ package com.gigya.android.sdk.login;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider;
 import com.gigya.android.sdk.login.provider.GoogleLoginProvider;
 import com.gigya.android.sdk.login.provider.LineLoginProvider;
@@ -13,7 +13,7 @@ import com.gigya.android.sdk.model.Configuration;
 
 public class LoginProviderFactory {
 
-    public static LoginProvider providerFor(Context context, Configuration configuration, @NonNull String providerName, GigyaCallback callback) {
+    public static LoginProvider providerFor(Context context, Configuration configuration, @NonNull String providerName, GigyaLoginCallback callback) {
         switch (providerName.toLowerCase()) {
             case "facebook":
                 if (FacebookLoginProvider.isAvailable(context)) {

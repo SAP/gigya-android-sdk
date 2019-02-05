@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
@@ -28,7 +28,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     public <T> void showNativeLoginProviders(final Context context,
                                              final Configuration configuration,
                                              final Map<String, Object> params,
-                                             final GigyaCallback<T> callback) {
+                                             final GigyaLoginCallback<T> callback) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */

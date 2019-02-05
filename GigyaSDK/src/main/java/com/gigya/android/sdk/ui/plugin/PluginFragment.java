@@ -22,7 +22,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
@@ -35,7 +35,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PluginFragment extends WebViewFragment implements HostActivity.OnBackPressListener {
+public class PluginFragment<T> extends WebViewFragment implements HostActivity.OnBackPressListener {
 
     /* Plugin variants. */
     public static final String PLUGIN_SCREENSETS = "accounts.screenSet";
@@ -57,11 +57,10 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
     private static final String CONTAINER_ID = "pluginContainer";
     private static final int JS_TIMEOUT = 10000;
 
-    public static void present(AppCompatActivity activity, Bundle args, @NonNull PluginFragmentCallbacks pluginCallbacks, @NonNull GigyaCallback callback) {
+    public static void present(AppCompatActivity activity, Bundle args, @NonNull GigyaPluginCallback pluginCallbacks) {
         PluginFragment fragment = new PluginFragment();
         fragment.setArguments(args);
         fragment._pluginCallbacks = pluginCallbacks;
-        fragment._gigyaCallback = callback;
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, LOG_TAG);
         fragmentTransaction.commitAllowingStateLoss();
@@ -76,9 +75,7 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
 
     private WebBridge _webBridge;
 
-    private PluginFragmentCallbacks _pluginCallbacks;
-
-    private GigyaCallback _gigyaCallback;
+    private GigyaPluginCallback<T> _pluginCallbacks;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -145,7 +142,6 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
     @Override
     protected void setUpWebView() {
         super.setUpWebView();
-
         _webView.setWebViewClient(new WebViewClient() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -192,7 +188,7 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
             }
         });
 
-        _webBridge = new WebBridge(_obfuscate, new WebBridge.WebBridgeInteractions() {
+        _webBridge = new WebBridge(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
 
             @Override
             public void onPluginEvent(Map<String, Object> event, String containerID) {
@@ -204,8 +200,26 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
 
                     if (eventName.equals("hide") || eventName.equals("close")) {
                         dismiss();
+                        return;
                     }
+
+                    _pluginCallbacks.onEvent(eventName, event);
                 }
+            }
+
+            @Override
+            public void onAuthEvent(T obj) {
+                _pluginCallbacks.onSuccess(obj);
+            }
+
+            @Override
+            public void onCancel() {
+                _pluginCallbacks.onCancel();
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                _pluginCallbacks.onError(error);
             }
         });
 
@@ -300,13 +314,5 @@ public class PluginFragment extends WebViewFragment implements HostActivity.OnBa
             _params.put("width", UiUtils.pixelsToDp(width, getView().getContext()));
         }
         // TODO: 27/01/2019 Add disabled providers...
-    }
-
-    public interface PluginFragmentCallbacks {
-        void onEvent(String event);
-
-        void onCancel();
-
-        void onError(GigyaError error);
     }
 }

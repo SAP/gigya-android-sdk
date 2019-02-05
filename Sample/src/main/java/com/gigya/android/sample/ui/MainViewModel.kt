@@ -5,9 +5,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.util.Log
 import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.GigyaCallback
-import com.gigya.android.sdk.GigyaRegisterCallback
+import com.gigya.android.sdk.*
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
@@ -66,7 +64,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         flushAccountReferences()
         when (exampleSetup) {
             SetupExample.BASIC -> {
-                gigya.login(loginID, password, object : GigyaCallback<GigyaAccount>() {
+                gigya.login(loginID, password, object : GigyaLoginCallback<GigyaAccount>() {
+                    override fun onCancelledOperation() {
+                        // Cancelled.
+                    }
+
                     override fun onSuccess(obj: GigyaAccount?) {
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
@@ -200,7 +202,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo"
-        ), object : GigyaCallback<GigyaAccount>() {
+        ), object : GigyaLoginCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showLoginProviders", "Success")
                 account = obj
@@ -263,14 +265,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
         //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
-        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object: GigyaCallback<GigyaResponse>() {
-            override fun onSuccess(obj: GigyaResponse?) {
+        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object: GigyaPluginCallback<GigyaAccount>() {
+            override fun onSuccess(obj: GigyaAccount?) {
+                Log.d("showScreenSets", "Success")
+            }
 
+            override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
+                Log.d("showScreenSets", "onEvent")
+            }
+
+            override fun onCancel() {
+                Log.d("showScreenSets", "onCancel")
             }
 
             override fun onError(error: GigyaError?) {
-
+                Log.d("showScreenSets", "onError")
             }
+
         })
     }
 
@@ -278,13 +289,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val params = mutableMapOf<String, Any>()
         params["categoryID"] = "Support"
         params["streamID"] = 1
-        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object: GigyaCallback<GigyaResponse>() {
-            override fun onSuccess(obj: GigyaResponse?) {
+        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object: GigyaPluginCallback<GigyaAccount>() {
+            override fun onSuccess(obj: GigyaAccount?) {
+                Log.d("showComments", "onSuccess")
+            }
 
+            override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
+                Log.d("showComments", "onEvent")
+            }
+
+            override fun onCancel() {
+                Log.d("showComments", "onCancel")
             }
 
             override fun onError(error: GigyaError?) {
-
+                Log.d("showComments", "onError")
             }
         })
     }
