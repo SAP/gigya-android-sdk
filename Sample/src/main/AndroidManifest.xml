@@ -4,6 +4,7 @@
     package="com.gigya.android.sample">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="com.gigya.android.sample.GigyaSampleApplication"
@@ -35,12 +36,12 @@
             android:theme="@style/Theme.AppCompat.Translucent" />
 
         <!--<meta-data-->
-            <!--android:name="apiKey"-->
-            <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
+        <!--android:name="apiKey"-->
+        <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
 
         <!--<meta-data-->
-            <!--android:name="accountCacheTime"-->
-            <!--android:value="1"/>-->
+        <!--android:name="accountCacheTime"-->
+        <!--android:value="1"/>-->
 
         <!-- Facebook integration -->
         <activity
@@ -70,11 +71,11 @@
         <!-- Line integration -->
         <meta-data
             android:name="lineChannelID"
-            android:value="@string/line_Channel_ID"/>
+            android:value="@string/line_Channel_ID" />
 
         <!--<meta-data-->
-            <!--android:name="googleClientId"-->
-            <!--android:value="@string/google_client_id"/>-->
+        <!--android:name="googleClientId"-->
+        <!--android:value="@string/google_client_id"/>-->
 
     </application>
 

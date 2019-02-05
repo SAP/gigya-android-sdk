@@ -29,7 +29,7 @@ import java.util.Map;
 
 public abstract class WebViewFragment extends DialogFragment {
 
-    private static final String TAG = "WebViewFragment";
+    private static final String LOG_TAG = "WebViewFragment";
 
     public static int PROGRESS_COLOR = Color.BLACK; // Default color.1
 
@@ -118,22 +118,24 @@ public abstract class WebViewFragment extends DialogFragment {
     private FrameLayout setupWebView(Context context, int margin, Pair<Integer, Integer> screenSize) {
         FrameLayout webFrame = new FrameLayout(context);
         final LinearLayout.LayoutParams webFrameParams = new LinearLayout.LayoutParams(
-                (int) (UiUtils.isPortrait(context) ?
-                        Math.min(screenSize.first, screenSize.second) * 0.9 :
-                        Math.max(screenSize.first, screenSize.second) * 0.9),
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        webFrameParams.weight = 1;
+        webFrameParams.gravity = Gravity.CENTER;
+        _contentView.addView(webFrame, webFrameParams);
+
+        /* WebView. */
+        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(
+
+                        (int) (UiUtils.isPortrait(context) ?
+                Math.min(screenSize.first, screenSize.second) * 0.9 :
+                Math.max(screenSize.first, screenSize.second) * 0.9),
                 wrapContent() ? LinearLayout.LayoutParams.WRAP_CONTENT :
                         (int) (UiUtils.isPortrait(context) ?
                                 Math.max(screenSize.first, screenSize.second) * 0.9 :
                                 Math.min(screenSize.first, screenSize.second) * 0.9
                         )
-        );
-        webFrameParams.weight = 1;
-        _contentView.addView(webFrame, webFrameParams);
-
-        /* WebView. */
-        final FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT
         );
         webViewParams.setMargins(margin, margin, margin, margin);
         webViewParams.gravity = Gravity.CENTER;

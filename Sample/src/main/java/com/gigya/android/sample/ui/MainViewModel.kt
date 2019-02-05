@@ -12,6 +12,7 @@ import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
+import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter
 import com.gigya.android.sdk.ui.plugin.PluginFragment
 import com.google.gson.GsonBuilder
 
@@ -261,11 +262,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
+    fun showAccountDetails() {
+        val params = mutableMapOf<String, Any>()
+        params["screenSet"] = "Default-ProfileUpdate"
+        params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true //Full screen option.
+        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
+            override fun onSuccess(obj: GigyaAccount?) {
+                Log.d("showAccountDetails", "Success")
+            }
+
+            override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
+                Log.d("showAccountDetails", "onEvent")
+            }
+
+            override fun onCancel() {
+                Log.d("showAccountDetails", "onCancel")
+            }
+
+            override fun onError(error: GigyaError?) {
+                Log.d("showAccountDetails", "onError")
+            }
+        })
+    }
+
     fun showScreenSets() {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
         //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
-        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object: GigyaPluginCallback<GigyaAccount>() {
+        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showScreenSets", "Success")
             }
@@ -281,7 +305,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             override fun onError(error: GigyaError?) {
                 Log.d("showScreenSets", "onError")
             }
-
         })
     }
 
@@ -289,7 +312,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val params = mutableMapOf<String, Any>()
         params["categoryID"] = "Support"
         params["streamID"] = 1
-        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object: GigyaPluginCallback<GigyaAccount>() {
+        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showComments", "onSuccess")
             }

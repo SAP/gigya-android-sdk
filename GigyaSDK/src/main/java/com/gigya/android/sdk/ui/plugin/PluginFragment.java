@@ -1,18 +1,24 @@
 package com.gigya.android.sdk.ui.plugin;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.ValueCallback;
@@ -23,6 +29,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.gigya.android.sdk.GigyaPluginCallback;
+import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
@@ -32,8 +39,14 @@ import com.gigya.android.sdk.utils.UiUtils;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.app.Activity.RESULT_OK;
 
 public class PluginFragment<T> extends WebViewFragment implements HostActivity.OnBackPressListener {
 
@@ -78,6 +91,13 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     private GigyaPluginCallback<T> _pluginCallbacks;
 
     @Override
+    protected boolean wrapContent() {
+        return false;
+    }
+
+    //region lifecycle
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (_fullScreen) {
@@ -86,6 +106,15 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     }
 
     @Override
+    public void onDestroyView() {
+        if (_imagePathCallback != null) {
+            _imagePathCallback = null;
+        }
+        super.onDestroyView();
+    }
+
+    @Override
+
     public boolean onBackPressed() {
         if (_webView.canGoBack()) {
             _webView.goBack();
@@ -112,8 +141,23 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     }
 
     @Override
-    protected boolean wrapContent() {
-        return false;
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        _pluginCallbacks.onCancel();
+        if (getActivity() != null) {
+            getActivity().onBackPressed();
+        }
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                final String html = getHTML();
+                _webView.loadDataWithBaseURL("http://www.gigya.com", html, "text/html", "utf-8", null);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -140,8 +184,57 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        GigyaLogger.debug(LOG_TAG, "onRequestPermissionsResult:");
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                GigyaLogger.debug(LOG_TAG, "External storage permission explicitly granted.");
+                if (_imagePathCallback != null) {
+                    sendImageChooserIntent();
+                }
+            } else {
+                // Permission denied by the user.
+                GigyaLogger.debug(LOG_TAG, "External storage permission explicitly denied.");
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (requestCode != FILE_CHOOSER_MEDIA_REQUEST_CODE || _imagePathCallback == null) {
+                super.onActivityResult(requestCode, resultCode, data);
+                return;
+            }
+            Uri[] results = null;
+            if (resultCode == RESULT_OK) {
+                if (data != null && data.getDataString() != null) {
+                    String dataString = data.getDataString();
+                    results = new Uri[]{Uri.parse(dataString)};
+                }
+                // If there is not data, then we may have taken a photo
+                else if (_cameraTempImagePath != null) {
+                    results = new Uri[]{Uri.parse(_cameraTempImagePath)};
+                }
+            }
+            _imagePathCallback.onReceiveValue(results);
+            _imagePathCallback = null;
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    //endregion
+
+    //region WebView setup
+
+    @Override
     protected void setUpWebView() {
         super.setUpWebView();
+
+        _webView.getSettings().setLoadWithOverviewMode(true);
+        _webView.getSettings().setUseWideViewPort(true);
+
         _webView.setWebViewClient(new WebViewClient() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -181,15 +274,16 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
             }
         });
 
-        _webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                return true;
-            }
-        });
+        setUpFileChooserInteraction();
+        setupWebBridge();
+    }
 
+    //endregion
+
+    //region WebBridge
+
+    private void setupWebBridge() {
         _webBridge = new WebBridge(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
-
             @Override
             public void onPluginEvent(Map<String, Object> event, String containerID) {
                 if (containerID.equals(CONTAINER_ID)) {
@@ -222,40 +316,97 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
                 _pluginCallbacks.onError(error);
             }
         });
-
         _webBridge.attach(_webView);
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        _pluginCallbacks.onCancel();
-        if (getActivity() != null) {
-            getActivity().onBackPressed();
-        }
-    }
+    //endregion
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        view.post(new Runnable() {
+    //region File chooser
+
+    private static final int PERMISSION_REQUEST_CODE = 14;
+    private static final int FILE_CHOOSER_MEDIA_REQUEST_CODE = 15;
+    private String _cameraTempImagePath;
+    private ValueCallback<Uri[]> _imagePathCallback;
+
+    private void setUpFileChooserInteraction() {
+        _webView.setWebChromeClient(new WebChromeClient() {
+
             @Override
-            public void run() {
-                final String html = getHTML();
-                _webView.loadDataWithBaseURL("http://www.gigya.com", html, "text/html", "utf-8", null);
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                // TODO: 05/02/2019 Verify flow for pre M devices!
+                if (_imagePathCallback != null) {
+                    _imagePathCallback.onReceiveValue(null);
+                }
+                // TODO: 05/02/2019 Nullify it onDestroy()
+                _imagePathCallback = filePathCallback;
+
+                GigyaLogger.debug(LOG_TAG, "onShowFileChooser: ");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (getActivity() == null) {
+                        return false;
+                    }
+                    final int externalStoragePermission = ContextCompat.checkSelfPermission(webView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (externalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                    } else {
+                        GigyaLogger.debug(LOG_TAG, "External storage permission implicitly granted.");
+                        sendImageChooserIntent();
+                    }
+                }
+                return true;
             }
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        // TODO: 27/01/2019 Handle permission result.
+    private void sendImageChooserIntent() {
+        if (getActivity() == null) {
+            return;
+        }
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            File imageFile = null;
+            try {
+                imageFile = createImageFile();
+                takePictureIntent.putExtra("imagePath", _cameraTempImagePath);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            if (imageFile != null) {
+                _cameraTempImagePath = "file:" + imageFile.getAbsolutePath();
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
+            } else {
+                takePictureIntent = null;
+            }
+        }
+
+        final Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        contentSelectionIntent.setType("image/*");
+
+        final Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, takePictureIntent != null ?
+                new Intent[]{takePictureIntent} : new Intent[0]);
+        startActivityForResult(chooserIntent, FILE_CHOOSER_MEDIA_REQUEST_CODE);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // TODO: 27/01/2019 Handle result
+    @SuppressLint("SimpleDateFormat")
+    private File createImageFile() throws IOException {
+        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        final String imageFileName = "JPEG_" + timeStamp + "_";
+        final File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
     }
+
+    //endregion
+
+    //region HTML & parameters
 
     private String getHTML() {
         organizeParameters();
@@ -315,4 +466,6 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
         }
         // TODO: 27/01/2019 Add disabled providers...
     }
+
+    //endregion
 }

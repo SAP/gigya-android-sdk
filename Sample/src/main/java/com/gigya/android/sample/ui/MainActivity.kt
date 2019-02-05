@@ -61,6 +61,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        /* Setup drawer navigation header click listener. */
+        nav_view.getHeaderView(0)?.setOnClickListener {
+            if (Gigya.getInstance().isLoggedIn) {
+                showAccountDetails()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -228,6 +235,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showComments() {
         viewModel?.showComments()
+    }
+
+    private fun showAccountDetails() {
+        viewModel?.showAccountDetails()
     }
 
     //endregion

@@ -298,6 +298,16 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Login given a specific 3rd party provider.
+     *
+     * @param provider Provider name as described in site console
+     * @param callback Login response listener callback.
+     */
+    public void login(String provider, GigyaLoginCallback<T> callback) {
+        // TODO: 05/02/2019 Add new api flow.
+    }
+
+    /**
      * Request account info.
      *
      * @param callback Response listener callback.
