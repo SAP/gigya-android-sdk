@@ -35,8 +35,8 @@
                     android:title="@string/native_login" />
 
                 <item
-                    android:id="@+id/action_screen_sets"
-                    android:title="@string/default_screensets" />
+                    android:id="@+id/action_raas"
+                    android:title="@string/raas" />
 
                 <item
                     android:id="@+id/action_comments"

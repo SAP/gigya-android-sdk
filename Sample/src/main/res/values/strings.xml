@@ -42,6 +42,7 @@
     <string name="choose_action">Choose an action from\nthe drawer menu</string>
     <string name="show_plugin">Show plugin</string>
     <string name="default_screensets">Default ScreenSets</string>
+    <string name="raas">Registration as a service</string>
     <string name="comments">Comments</string>
     <string name="api_list">Api List</string>
     <string name="re_init">Re-init</string>

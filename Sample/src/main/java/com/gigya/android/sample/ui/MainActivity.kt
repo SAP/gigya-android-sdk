@@ -135,8 +135,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_native_login -> {
                 presentNativeLogin()
             }
-            R.id.action_screen_sets -> {
-                showDefaultScreenSets()
+            R.id.action_raas -> {
+                showRAAS()
             }
             R.id.action_comments -> {
                 showComments()
@@ -229,8 +229,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    private fun showDefaultScreenSets() {
-        viewModel?.showScreenSets()
+    private fun showRAAS() {
+        viewModel?.registrationAsAService()
     }
 
     private fun showComments() {

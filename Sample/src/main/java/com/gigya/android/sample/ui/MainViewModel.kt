@@ -267,9 +267,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         params["screenSet"] = "Default-ProfileUpdate"
         params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true //Full screen option.
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
-            override fun onSuccess(obj: GigyaAccount?) {
-                Log.d("showAccountDetails", "Success")
-            }
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
                 Log.d("showAccountDetails", "onEvent")
@@ -285,25 +282,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun showScreenSets() {
+    fun registrationAsAService() {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
         //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
-            override fun onSuccess(obj: GigyaAccount?) {
-                Log.d("showScreenSets", "Success")
+            override fun onLogin(obj: GigyaAccount?) {
+                Log.d("registrationAsAService", "onLogin")
             }
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
-                Log.d("showScreenSets", "onEvent")
+                Log.d("registrationAsAService", "onEvent")
             }
 
             override fun onCancel() {
-                Log.d("showScreenSets", "onCancel")
+                Log.d("registrationAsAService", "onCancel")
             }
 
             override fun onError(error: GigyaError?) {
-                Log.d("showScreenSets", "onError")
+                Log.d("registrationAsAService", "onError")
             }
         })
     }
@@ -313,8 +310,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         params["categoryID"] = "Support"
         params["streamID"] = 1
         gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object : GigyaPluginCallback<GigyaAccount>() {
-            override fun onSuccess(obj: GigyaAccount?) {
-                Log.d("showComments", "onSuccess")
+            override fun onLogin(obj: GigyaAccount?) {
+                Log.d("showComments", "onLogin")
+            }
+
+            override fun onLogout() {
+                Log.d("showComments", "onLogout")
             }
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {

@@ -303,7 +303,7 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
 
             @Override
             public void onAuthEvent(T obj) {
-                _pluginCallbacks.onSuccess(obj);
+                _pluginCallbacks.onLogin(obj);
             }
 
             @Override
