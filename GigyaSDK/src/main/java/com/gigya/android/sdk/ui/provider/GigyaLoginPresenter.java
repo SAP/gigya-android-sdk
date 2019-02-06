@@ -40,6 +40,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                 args.putString(ProviderFragment.ARG_TITLE, "Sign in");
                 args.putString(ProviderFragment.ARG_URL, url);
                 args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
+                args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
                 ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
                     @Override

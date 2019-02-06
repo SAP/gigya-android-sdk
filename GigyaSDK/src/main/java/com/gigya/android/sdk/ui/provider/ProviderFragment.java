@@ -24,6 +24,7 @@ import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ProviderFragment extends WebViewFragment {
@@ -50,10 +51,10 @@ public class ProviderFragment extends WebViewFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        parseArguments();
         setUpWebView();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void parseArguments() {
         if (getArguments() == null) {
@@ -64,6 +65,7 @@ public class ProviderFragment extends WebViewFragment {
         _body = args.getString(ARG_BODY);
         _redirectPrefix = args.getString(ARG_REDIRECT_PREFIX);
         _title = args.getString(ARG_TITLE);
+        _params = (HashMap<String, Object>) args.getSerializable(ARG_PARAMS);
     }
 
     @SuppressWarnings("CharsetObjectCanBeUsed") // <- Only from API 19.

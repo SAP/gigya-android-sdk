@@ -1,7 +1,6 @@
 package com.gigya.android.sample.ui
 
 import android.arch.lifecycle.ViewModelProviders
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -18,7 +17,6 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.ui.WebViewFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -36,10 +34,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            WebViewFragment.PROGRESS_COLOR = getColor(R.color.colorAccent)
-        }
 
         initDrawer()
     }

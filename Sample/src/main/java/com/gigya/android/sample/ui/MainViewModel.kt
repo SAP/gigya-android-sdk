@@ -2,6 +2,7 @@ package com.gigya.android.sample.ui
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
@@ -12,7 +13,7 @@ import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
-import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter
+import com.gigya.android.sdk.ui.GigyaPresenter
 import com.gigya.android.sdk.ui.plugin.PluginFragment
 import com.google.gson.GsonBuilder
 
@@ -202,7 +203,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo"
+                "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo",
+                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)
         ), object : GigyaLoginCallback<GigyaAccount>() {
             override fun onSuccess(obj: GigyaAccount?) {
                 Log.d("showLoginProviders", "Success")
@@ -265,8 +267,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showAccountDetails() {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-ProfileUpdate"
-        params[GigyaPluginPresenter.STYLE] = com.gigya.android.sample.R.style.PluginDialog
-        params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true // This will override the style parameter. You can specify full screen attributes in your custom style.
+        params[GigyaPresenter.SHOW_FULL_SCREEN] = true
+        params[GigyaPresenter.PROGRESS_COLOR] = ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
@@ -286,6 +288,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun registrationAsAService(onLogin: (String) -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
+        params[GigyaPresenter.PROGRESS_COLOR] = ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(obj: GigyaAccount?) {
                 Log.d("registrationAsAService", "onLogin")
@@ -303,12 +306,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(error: GigyaError?) {
                 Log.d("registrationAsAService", "onError")
+                onError(error)
             }
         })
     }
 
     fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
+        params[GigyaPresenter.PROGRESS_COLOR] = ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)
         params["categoryID"] = "Support"
         params["streamID"] = 1
         gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object : GigyaPluginCallback<GigyaAccount>() {
@@ -334,6 +339,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(error: GigyaError?) {
                 Log.d("showComments", "onError")
+                onError(error)
             }
         })
     }

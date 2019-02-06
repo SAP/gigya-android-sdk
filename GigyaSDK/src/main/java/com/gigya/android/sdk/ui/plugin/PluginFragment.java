@@ -61,7 +61,6 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     public static final String ARG_API_DOMAIN = "arg_api_domain";
     public static final String ARG_OBFUSCATE = "arg_obfuscate";
     public static final String ARG_PLUGIN = "arg_plugin";
-    public static final String ARG_PARAMS = "arg_params";
 
     /* Private descriptors. */
     private static final String REDIRECT_URL_SCHEME = "gsapi";
@@ -79,12 +78,7 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    private int _style = -1;
-
     private String _apiKey, _apiDomain, _plugin;
-    private HashMap<String, Object> _params;
-
-    private boolean _fullScreen;
 
     private boolean _obfuscate;
 
@@ -103,10 +97,9 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* When using GigyaPluginPresenter.SHOW_FULL_SCREEN option the style attribute will be ignored. */
         if (_fullScreen) {
             setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        } else if (_style != -1) {
-            setStyle(DialogFragment.STYLE_NORMAL, _style);
         }
     }
 
@@ -177,12 +170,6 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
         _obfuscate = args.getBoolean(ARG_OBFUSCATE);
         _plugin = args.getString(ARG_PLUGIN);
         _params = (HashMap<String, Object>) args.getSerializable(ARG_PARAMS);
-
-
-        if (_params != null) {
-            _style = (int) ObjectUtils.firstNonNull(_params.get(GigyaPluginPresenter.STYLE), -1);
-            _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPluginPresenter.SHOW_FULL_SCREEN), false);
-        }
 
         if (_apiKey == null || _plugin == null) {
             /* Implementation error. */

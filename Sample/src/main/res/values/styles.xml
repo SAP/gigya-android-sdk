@@ -38,11 +38,4 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="PluginDialog">
-        <!-- Add these attributes for full screen display -->
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
-
-
 </resources>

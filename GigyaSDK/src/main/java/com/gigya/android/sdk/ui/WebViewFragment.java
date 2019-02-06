@@ -23,21 +23,29 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UiUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class WebViewFragment extends DialogFragment {
 
     private static final String LOG_TAG = "WebViewFragment";
 
-    public static int PROGRESS_COLOR = Color.BLACK; // Default color.1
+    public static final String ARG_PARAMS = "arg_params";
 
     /* Content views. */
     protected WebView _webView;
     protected FrameLayout _contentView, _webFrame;
     private LinearLayout _webContentView;
     protected ProgressBar _progressBar;
+
+    protected HashMap<String, Object> _params;
+
+    /* Style parameters. */
+    protected boolean _fullScreen;
+    private int _progressColorStyle = Color.BLACK;
 
     @Nullable
     protected String _url, _body, _redirectPrefix, _title;
@@ -46,11 +54,19 @@ public abstract class WebViewFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         parseArguments();
+        parseStyleParameters();
         setUpWebView();
     }
 
     protected boolean wrapContent() {
         return true;
+    }
+
+    private void parseStyleParameters() {
+        if (_params != null) {
+            _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.SHOW_FULL_SCREEN), false);
+            _progressColorStyle = (int) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.PROGRESS_COLOR), Color.BLACK);
+        }
     }
 
     protected abstract void parseArguments();
@@ -166,7 +182,7 @@ public abstract class WebViewFragment extends DialogFragment {
         _progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyle);
         _progressBar.setIndeterminate(true);
         _progressBar.setBackgroundColor(Color.TRANSPARENT);
-        _progressBar.getIndeterminateDrawable().setColorFilter(PROGRESS_COLOR, android.graphics.PorterDuff.Mode.SRC_IN);
+        _progressBar.getIndeterminateDrawable().setColorFilter(_progressColorStyle, android.graphics.PorterDuff.Mode.SRC_IN);
         _progressBar.setVisibility(View.GONE); // Default behaviour is hidden.
         _progressBar.setPadding(margin, margin, margin, margin); // The padding is what sets the initial height.
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT

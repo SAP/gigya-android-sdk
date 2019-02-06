@@ -9,14 +9,12 @@ import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.ui.WebViewFragment;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GigyaPluginPresenter extends GigyaPresenter {
-
-    public static final String SHOW_FULL_SCREEN = "show_full_screen";
-    public static final String STYLE = "style";
 
     public void showPlugin(Context context,
                            final Configuration configuration,
@@ -39,7 +37,7 @@ public class GigyaPluginPresenter extends GigyaPresenter {
                 args.putString(PluginFragment.ARG_API_DOMAIN, configuration.getApiDomain());
                 args.putBoolean(PluginFragment.ARG_OBFUSCATE, obfuscate);
                 args.putString(PluginFragment.ARG_PLUGIN, plugin);
-                args.putSerializable(PluginFragment.ARG_PARAMS, (HashMap) params);
+                args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
                 PluginFragment.present(activity, args, callback);
             }
         });
