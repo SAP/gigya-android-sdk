@@ -92,7 +92,7 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
 
     @Override
     protected boolean wrapContent() {
-        return false;
+        return !_fullScreen;
     }
 
     //region lifecycle
@@ -231,9 +231,6 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     @Override
     protected void setUpWebView() {
         super.setUpWebView();
-
-        _webView.getSettings().setLoadWithOverviewMode(true);
-        _webView.getSettings().setUseWideViewPort(true);
 
         _webView.setWebViewClient(new WebViewClient() {
 
