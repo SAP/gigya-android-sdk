@@ -282,13 +282,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun registrationAsAService() {
+    fun registrationAsAService(onLogin: (String) -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
         //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(obj: GigyaAccount?) {
                 Log.d("registrationAsAService", "onLogin")
+                account = obj
+                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
@@ -305,17 +307,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun showComments() {
+    fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
         params["categoryID"] = "Support"
         params["streamID"] = 1
         gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(obj: GigyaAccount?) {
                 Log.d("showComments", "onLogin")
+                account = obj
+                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onLogout() {
                 Log.d("showComments", "onLogout")
+                logout()
+                onLogout()
             }
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {

@@ -9,7 +9,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
-import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
@@ -35,10 +34,14 @@ import java.util.Map;
 
 public class WebBridge<T> {
 
+    public enum AuthEvent {
+        LOGIN, LOGOUT, ADD_CONNECTION
+    }
+
     public interface WebBridgeInteractions<T> {
         void onPluginEvent(Map<String, Object> event, String containerID);
 
-        void onAuthEvent(T obj);
+        void onAuthEvent(AuthEvent authEvent, T obj);
 
         void onCancel();
 
@@ -54,24 +57,22 @@ public class WebBridge<T> {
     private Configuration _configuration;
     private SessionManager _sessionManager;
     private ApiManager _apiManager;
-    private AccountManager<T> _accountManager;
 
     private boolean _shouldObfuscate;
 
     @NonNull
     private WebBridgeInteractions<T> _interactions;
 
-    public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions interactions) {
+    public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions<T> interactions) {
         _shouldObfuscate = shouldObfuscate;
         _interactions = interactions;
         DependencyRegistry.getInstance().inject(this);
     }
 
-    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager, AccountManager<T> accountManager) {
+    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager) {
         _configuration = configuration;
         _sessionManager = sessionManager;
         _apiManager = apiManager;
-        _accountManager = accountManager;
     }
 
     private enum Actions {
@@ -191,7 +192,7 @@ public class WebBridge<T> {
                 getIds(callbackId);
                 break;
             case REGISTER_FOR_NAMESPACE_EVENTS:
-                registerForNamespaceEvents();
+                registerForNamespaceEvents(params);
                 break;
             case SEND_REQUEST:
                 sendRequest(callbackId, api, params, settings);
@@ -230,7 +231,12 @@ public class WebBridge<T> {
 
     //region Actions
 
-    private void sendRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
+    private void isSessionValid(String callbackId) {
+        GigyaLogger.debug(LOG_TAG, "isSessionValid: ");
+        invokeCallback(callbackId, String.valueOf(_sessionManager.isValidSession()));
+    }
+
+    private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
         GigyaLogger.debug(LOG_TAG, "sendRequest: with params:\n" + params.toString());
 
         // TODO: 29/01/2019 Should add support for non Https in GigyaRequest.
@@ -245,6 +251,7 @@ public class WebBridge<T> {
             @Override
             public void onSuccess(GigyaResponse obj) {
                 GigyaLogger.debug(LOG_TAG, obj.asJson());
+                handleAuthRequests(api, obj);
                 invokeCallback(callbackId, obj.asJson());
             }
 
@@ -255,10 +262,16 @@ public class WebBridge<T> {
         });
     }
 
-    private void isSessionValid(String callbackId) {
-        GigyaLogger.debug(LOG_TAG, "isSessionValid: ");
-
-        invokeCallback(callbackId, String.valueOf(_sessionManager.isValidSession()));
+    private void handleAuthRequests(String api, GigyaResponse response) {
+        switch (api) {
+            case "socialize.logout":
+                _interactions.onAuthEvent(AuthEvent.LOGOUT, null);
+                break;
+            case "socialize.addConnection":
+                break;
+            default:
+                break;
+        }
     }
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
@@ -276,7 +289,7 @@ public class WebBridge<T> {
                     @Override
                     public void onSuccess(T obj) {
                         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
-                        _interactions.onAuthEvent(obj);
+                        _interactions.onAuthEvent(AuthEvent.LOGIN, obj);
                     }
 
                     @Override
@@ -322,10 +335,10 @@ public class WebBridge<T> {
         }
     }
 
-    private void registerForNamespaceEvents() {
-        GigyaLogger.debug(LOG_TAG, "registerForNamespaceEvents: ");
-
-        // TODO: 28/01/2019 Not how to implement it yet.
+    private void registerForNamespaceEvents(Map<String, Object> params) {
+        final String namespace = ObjectUtils.firstNonNull((String) params.get("namespace"), "");
+        GigyaLogger.debug(LOG_TAG, "registerForNamespaceEvents: with namespace = " + namespace);
+        /* This method is no longer used. */
     }
 
     //endregion

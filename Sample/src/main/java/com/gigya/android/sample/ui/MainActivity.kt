@@ -230,11 +230,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showRAAS() {
-        viewModel?.registrationAsAService()
+        viewModel?.registrationAsAService(
+                onLogin = { json ->
+                    onJsonResult(json)
+                    onAccountDataAvailable()
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     private fun showComments() {
-        viewModel?.showComments()
+        viewModel?.showComments(
+                onLogin = { json ->
+                    onJsonResult(json)
+                    onAccountDataAvailable()
+                },
+                onLogout = {
+                    onClear()
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     private fun showAccountDetails() {

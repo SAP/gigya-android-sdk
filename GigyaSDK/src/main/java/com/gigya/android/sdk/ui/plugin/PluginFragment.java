@@ -283,27 +283,26 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     //region WebBridge
 
     private void setupWebBridge() {
-        _webBridge = new WebBridge(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
+        _webBridge = new WebBridge<>(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
             @Override
             public void onPluginEvent(Map<String, Object> event, String containerID) {
                 if (containerID.equals(CONTAINER_ID)) {
                     final String eventName = (String) ObjectUtils.firstNonNull(event.get("eventName"), "");
                     if (eventName.equals("load")) {
+                        GigyaLogger.debug(LOG_TAG, "onPluginEvent: Load");
                         _progressBar.setVisibility(View.INVISIBLE);
                     }
-
                     if (eventName.equals("hide") || eventName.equals("close")) {
                         dismiss();
                         return;
                     }
-
                     _pluginCallbacks.onEvent(eventName, event);
                 }
             }
 
             @Override
-            public void onAuthEvent(T obj) {
-                _pluginCallbacks.onLogin(obj);
+            public void onAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
+                handleAuthEvent(authEvent, obj);
             }
 
             @Override
@@ -317,6 +316,21 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
             }
         });
         _webBridge.attach(_webView);
+    }
+
+    private void handleAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
+        switch (authEvent) {
+            case LOGIN:
+                _pluginCallbacks.onLogin(obj);
+                break;
+            case LOGOUT:
+                _pluginCallbacks.onLogout();
+                break;
+            case ADD_CONNECTION:
+                break;
+            default:
+                break;
+        }
     }
 
     //endregion
