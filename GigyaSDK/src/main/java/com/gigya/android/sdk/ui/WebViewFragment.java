@@ -61,7 +61,7 @@ public abstract class WebViewFragment extends DialogFragment {
         if (getActivity() == null) {
             return null;
         }
-        if (getDialog().getWindow() != null) {
+        if (getDialog().getWindow() != null && wrapContent()) {
             getDialog().getWindow().setBackgroundDrawable(getRoundedCornerBackground());
         }
         createView();

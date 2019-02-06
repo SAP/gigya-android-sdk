@@ -68,6 +68,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 showAccountDetails()
             }
         }
+
+        /* If we are already logged in - get account info and update relevant account UI (drawer header). */
+        if (Gigya.getInstance().isLoggedIn) {
+            onGetAccount()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -249,6 +254,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 },
                 onLogout = {
                     onClear()
+                    response_text_view.snackbar(getString(R.string.logged_out))
                 },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }

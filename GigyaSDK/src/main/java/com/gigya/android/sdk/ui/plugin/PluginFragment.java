@@ -79,6 +79,8 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
         fragmentTransaction.commitAllowingStateLoss();
     }
 
+    private int _style = -1;
+
     private String _apiKey, _apiDomain, _plugin;
     private HashMap<String, Object> _params;
 
@@ -100,8 +102,11 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (_fullScreen) {
             setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        } else if (_style != -1) {
+            setStyle(DialogFragment.STYLE_NORMAL, _style);
         }
     }
 
@@ -173,7 +178,9 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
         _plugin = args.getString(ARG_PLUGIN);
         _params = (HashMap<String, Object>) args.getSerializable(ARG_PARAMS);
 
+
         if (_params != null) {
+            _style = (int) ObjectUtils.firstNonNull(_params.get(GigyaPluginPresenter.STYLE), -1);
             _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPluginPresenter.SHOW_FULL_SCREEN), false);
         }
 

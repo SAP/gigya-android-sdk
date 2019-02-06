@@ -265,7 +265,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showAccountDetails() {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-ProfileUpdate"
-        params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true //Full screen option.
+        params[GigyaPluginPresenter.STYLE] = com.gigya.android.sample.R.style.PluginDialog
+        params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true // This will override the style parameter. You can specify full screen attributes in your custom style.
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
 
             override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
@@ -285,7 +286,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun registrationAsAService(onLogin: (String) -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
         params["screenSet"] = "Default-RegistrationLogin"
-        //params[GigyaPluginPresenter.SHOW_FULL_SCREEN] = true
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, params, object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(obj: GigyaAccount?) {
                 Log.d("registrationAsAService", "onLogin")
