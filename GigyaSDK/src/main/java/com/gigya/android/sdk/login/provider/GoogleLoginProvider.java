@@ -12,6 +12,7 @@ import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -68,6 +69,10 @@ public class GoogleLoginProvider extends LoginProvider {
     @Override
     public void logout(Context context) {
         if (_googleClient == null) {
+            if (providerClientId == null) {
+                GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");
+                return;
+            }
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestServerAuthCode(providerClientId)
                     .requestEmail()

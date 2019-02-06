@@ -347,25 +347,22 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
 
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                // TODO: 05/02/2019 Verify flow for pre M devices!
+                GigyaLogger.debug(LOG_TAG, "onShowFileChooser: ");
+
                 if (_imagePathCallback != null) {
                     _imagePathCallback.onReceiveValue(null);
                 }
                 // TODO: 05/02/2019 Nullify it onDestroy()
                 _imagePathCallback = filePathCallback;
 
-                GigyaLogger.debug(LOG_TAG, "onShowFileChooser: ");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (getActivity() == null) {
-                        return false;
-                    }
-                    final int externalStoragePermission = ContextCompat.checkSelfPermission(webView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                    if (externalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-                    } else {
-                        GigyaLogger.debug(LOG_TAG, "External storage permission implicitly granted.");
-                        sendImageChooserIntent();
-                    }
+                final int externalStoragePermission = ContextCompat.checkSelfPermission(webView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (externalStoragePermission == PackageManager.PERMISSION_GRANTED) {
+                    sendImageChooserIntent();
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                } else {
+                    GigyaLogger.error(LOG_TAG, "Application must include Manifest.permission.WRITE_EXTERNAL_STORAGE in order to communicate with file system");
+                    return false;
                 }
                 return true;
             }

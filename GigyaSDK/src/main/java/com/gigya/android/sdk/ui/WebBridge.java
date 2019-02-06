@@ -34,6 +34,8 @@ import java.util.Map;
 
 public class WebBridge<T> {
 
+    private static final String LOG_TAG = "WebBridge";
+
     public enum AuthEvent {
         LOGIN, LOGOUT, ADD_CONNECTION
     }
@@ -50,14 +52,10 @@ public class WebBridge<T> {
 
     private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
 
-    private static final String LOG_TAG = "WebBridge";
-
     private WeakReference<WebView> _webViewRef;
-
     private Configuration _configuration;
     private SessionManager _sessionManager;
     private ApiManager _apiManager;
-
     private boolean _shouldObfuscate;
 
     @NonNull
