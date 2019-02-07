@@ -69,6 +69,16 @@ public class GigyaResponse {
         }
     }
 
+    @Nullable
+    public <T> T parseTo(Class<T> clazz) {
+        try {
+            return getGson().fromJson(asJson(), clazz);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean contains(String key) {
         return values.containsKey(key);
     }

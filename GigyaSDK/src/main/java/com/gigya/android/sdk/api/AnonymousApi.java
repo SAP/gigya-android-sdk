@@ -1,17 +1,12 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
@@ -23,12 +18,12 @@ import static com.gigya.android.sdk.network.GigyaResponse.OK;
 @SuppressWarnings("unchecked")
 public class AnonymousApi<H> extends BaseApi<H> {
 
-    public AnonymousApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
-        super(configuration, networkAdapter, sessionManager);
+    public AnonymousApi() {
+        super();
     }
 
-    public AnonymousApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<H> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
+    public AnonymousApi(Class<H> clazz) {
+        super(clazz);
     }
 
     public void call(String api, Map<String, Object> params, final GigyaCallback<H> callback) {
@@ -47,6 +42,10 @@ public class AnonymousApi<H> extends BaseApi<H> {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
+                        if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
+                            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
+                            sessionManager.setSession(session);
+                        }
                         if (clazz == null) {
                             /* Callback will return GigyaResponse instance */
                             callback.onSuccess((H) response);

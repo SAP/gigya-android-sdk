@@ -30,6 +30,7 @@ import android.webkit.WebViewClient;
 
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
@@ -48,7 +49,7 @@ import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
-public class PluginFragment<T> extends WebViewFragment implements HostActivity.OnBackPressListener {
+public class PluginFragment<T extends GigyaAccount> extends WebViewFragment implements HostActivity.OnBackPressListener {
 
     /* Plugin variants. */
     public static final String PLUGIN_SCREENSETS = "accounts.screenSet";
@@ -250,7 +251,7 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                // TODO: 27/01/2019 Error. 
+                // TODO: 27/01/2019 Error.
             }
 
             private void overrideUrlLoad(Uri uri) {
@@ -284,9 +285,10 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
                         _progressBar.setVisibility(View.INVISIBLE);
                     }
                     if (eventName.equals("hide") || eventName.equals("close")) {
-                        dismiss();
+                        dismissAndFinish();
                         return;
                     }
+
                     _pluginCallbacks.onEvent(eventName, event);
                 }
             }
@@ -343,7 +345,7 @@ public class PluginFragment<T> extends WebViewFragment implements HostActivity.O
                 if (_imagePathCallback != null) {
                     _imagePathCallback.onReceiveValue(null);
                 }
-                // TODO: 05/02/2019 Nullify it onDestroy()
+
                 _imagePathCallback = filePathCallback;
 
                 final int externalStoragePermission = ContextCompat.checkSelfPermission(webView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);

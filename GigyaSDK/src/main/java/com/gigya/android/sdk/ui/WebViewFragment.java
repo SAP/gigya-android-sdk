@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -16,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
@@ -46,6 +48,7 @@ public abstract class WebViewFragment extends DialogFragment {
     /* Style parameters. */
     protected boolean _fullScreen;
     private int _progressColorStyle = Color.BLACK;
+    private float _cornerRadiusStyle = 16f;
 
     @Nullable
     protected String _url, _body, _redirectPrefix, _title;
@@ -58,6 +61,22 @@ public abstract class WebViewFragment extends DialogFragment {
         setUpWebView();
     }
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        }
+        return dialog;
+    }
+
+    protected void dismissAndFinish() {
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
+    }
+
     protected boolean wrapContent() {
         return true;
     }
@@ -66,6 +85,7 @@ public abstract class WebViewFragment extends DialogFragment {
         if (_params != null) {
             _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.SHOW_FULL_SCREEN), false);
             _progressColorStyle = (int) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.PROGRESS_COLOR), Color.BLACK);
+            _cornerRadiusStyle = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.CORNER_RADIUS), 16f);
         }
     }
 
@@ -183,12 +203,12 @@ public abstract class WebViewFragment extends DialogFragment {
         _progressBar.setIndeterminate(true);
         _progressBar.setBackgroundColor(Color.TRANSPARENT);
         _progressBar.getIndeterminateDrawable().setColorFilter(_progressColorStyle, android.graphics.PorterDuff.Mode.SRC_IN);
-        _progressBar.setVisibility(View.GONE); // Default behaviour is hidden.
+        _progressBar.setVisibility(View.INVISIBLE); // Default behaviour is hidden.
         _progressBar.setPadding(margin, margin, margin, margin); // The padding is what sets the initial height.
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBarParams.gravity = Gravity.CENTER;
-        _webFrame.addView(_progressBar, progressBarParams);
+        _webContentView.addView(_progressBar, progressBarParams);
     }
 
     //endregion
@@ -198,7 +218,7 @@ public abstract class WebViewFragment extends DialogFragment {
     private Drawable getRoundedCornerBackground() {
         GradientDrawable gradientDrawable = new GradientDrawable();
         gradientDrawable.setColor(Color.WHITE);
-        gradientDrawable.setCornerRadius(30f);
+        gradientDrawable.setCornerRadius(_cornerRadiusStyle);
         return gradientDrawable;
     }
 

@@ -1,15 +1,9 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -24,20 +18,15 @@ import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 
 @SuppressWarnings("unchecked")
-public class LoginApi<T> extends BaseApi<T> {
+public class LoginApi<T extends GigyaAccount> extends BaseApi<T> {
 
     private static final String API = "accounts.login";
 
-    @Deprecated
-    public LoginApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
-        super(configuration, sessionManager, clazz);
+    public LoginApi(Class<T> clazz) {
+        super(clazz);
     }
 
-    public LoginApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
-    }
-
-    public void call(Map<String, Object> params, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+    public void call(Map<String, Object> params, final GigyaCallback callback) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .params(params)
@@ -60,11 +49,10 @@ public class LoginApi<T> extends BaseApi<T> {
                             sessionManager.setSession(session);
                         }
                         // To avoid writing a clone constructor.
-                        if (interceptor != null) {
-                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
-                            interceptor.intercept(interception);
-                        }
+                        T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        // Update account.
+                        accountManager.setAccount(interception);
                         callback.onSuccess(parsed);
                         return;
                     }

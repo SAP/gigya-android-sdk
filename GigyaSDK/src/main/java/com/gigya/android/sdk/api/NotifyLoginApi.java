@@ -1,11 +1,7 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
@@ -13,7 +9,6 @@ import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
@@ -22,13 +17,13 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class NotifyLoginApi<T> extends BaseApi<T> {
+public class NotifyLoginApi<T extends GigyaAccount> extends BaseApi<T> {
+
+    public NotifyLoginApi(Class<T> clazz) {
+        super(clazz);
+    }
 
     private static final String API = "socialize.notifyLogin";
-
-    public NotifyLoginApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
-    }
 
     public void call(SessionInfo sessionInfo, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         // Update session.
@@ -36,8 +31,7 @@ public class NotifyLoginApi<T> extends BaseApi<T> {
             sessionManager.setSession(sessionInfo);
         }
         // Request account info.
-        new GetAccountApi<>(configuration, networkAdapter, sessionManager, clazz)
-                .call(callback, interceptor);
+        getAccount(callback, interceptor);
     }
 
     public void call(String providerSessions, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
@@ -102,7 +96,25 @@ public class NotifyLoginApi<T> extends BaseApi<T> {
         }
 
         // Request account info.
-        new GetAccountApi<>(configuration, networkAdapter, sessionManager, clazz)
-                .call(callback, interceptor);
+        getAccount(callback, interceptor);
+    }
+
+    private void getAccount(final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+        // Request account info.
+        new GetAccountApi<>(clazz)
+                .call(new GigyaCallback<T>() {
+                    @Override
+                    public void onSuccess(T obj) {
+                        if (interceptor != null) {
+                            interceptor.intercept(obj);
+                        }
+                        callback.onSuccess(obj);
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        callback.onError(error);
+                    }
+                });
     }
 }

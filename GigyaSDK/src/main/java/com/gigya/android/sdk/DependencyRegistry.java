@@ -3,6 +3,7 @@ package com.gigya.android.sdk;
 import android.content.Context;
 import android.os.Build;
 
+import com.gigya.android.sdk.api.BaseApi;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
@@ -58,10 +59,10 @@ public class DependencyRegistry {
                 }
             }
         });
-        _accountManager = new AccountManager<T>();
+        _accountManager = new AccountManager<>();
         _sessionManager = new SessionManager(appContext);
         // Api manager
-        _apiManager = new ApiManager<T>();
+        _apiManager = new ApiManager();
     }
 
     //endregion
@@ -84,7 +85,7 @@ public class DependencyRegistry {
         return _sessionManager;
     }
 
-    public <T> AccountManager<T> getAccountManager() {
+    public AccountManager getAccountManager() {
         return _accountManager;
     }
 
@@ -109,15 +110,15 @@ public class DependencyRegistry {
     //region Injections
 
     public void inject(WebBridge webBridge) {
-        webBridge.inject(getConfiguration(), getSessionManager(), getApiManager());
+        webBridge.inject(getConfiguration(), getSessionManager(), getApiManager(), getAccountManager());
     }
 
     public void inject(SessionManager sessionManager) {
         sessionManager.inject(getConfiguration(), getEncryptor(), getPersistenceManager());
     }
 
-    public <T> void inject(ApiManager<T> apiManager) {
-        apiManager.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), this.<T>getAccountManager());
+    public void inject(ApiManager apiManager) {
+        apiManager.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), getAccountManager());
     }
 
     public void inject(LoginProvider provider) {
@@ -126,6 +127,10 @@ public class DependencyRegistry {
 
     public void inject(GigyaPresenter presenter) {
         presenter.inject(getSessionManager(), getAccountManager());
+    }
+
+    public void inject(BaseApi api) {
+        api.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), getAccountManager());
     }
 
     //endregion

@@ -1,8 +1,9 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.AccountManager;
+import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
@@ -10,33 +11,29 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 public abstract class BaseApi<T> {
 
     protected NetworkAdapter networkAdapter;
-
     protected Configuration configuration;
-
-    @Nullable
     protected SessionManager sessionManager;
+    protected AccountManager accountManager;
 
     @Nullable
     protected Class<T> clazz;
 
     //region Convenience constructors
 
-    BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
+    public void inject(Configuration configuration, NetworkAdapter networkAdapter, SessionManager sessionManager,
+                       AccountManager accountManager) {
         this.configuration = configuration;
         this.networkAdapter = networkAdapter;
         this.sessionManager = sessionManager;
+        this.accountManager = accountManager;
     }
 
-    BaseApi(@NonNull Configuration configuration, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
-        this.configuration = configuration;
-        this.sessionManager = sessionManager;
-        this.clazz = clazz;
+    BaseApi() {
+        DependencyRegistry.getInstance().inject(this);
     }
 
-    BaseApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @NonNull Class<T> clazz) {
-        this.configuration = configuration;
-        this.networkAdapter = networkAdapter;
-        this.sessionManager = sessionManager;
+    BaseApi(@Nullable Class<T> clazz) {
+        DependencyRegistry.getInstance().inject(this);
         this.clazz = clazz;
     }
 

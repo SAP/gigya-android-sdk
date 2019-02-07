@@ -1,20 +1,15 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
@@ -23,7 +18,7 @@ import java.util.Map;
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 @SuppressWarnings("unchecked")
-public class RegisterApi<T> extends BaseApi<T> {
+public class RegisterApi<T extends GigyaAccount> extends BaseApi<T> {
 
     public enum RegisterPolicy {
         EMAIL, USERNAME, EMAIL_OR_USERNAME
@@ -36,10 +31,10 @@ public class RegisterApi<T> extends BaseApi<T> {
     private final boolean finalize;
     private final RegisterPolicy policy;
 
-    public RegisterApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz,
+    public RegisterApi(@Nullable Class<T> clazz,
                        RegisterPolicy policy,
                        boolean finalize) {
-        super(configuration, networkAdapter, sessionManager, clazz);
+        super(clazz);
         this.finalize = finalize;
         this.policy = policy;
     }
@@ -61,7 +56,7 @@ public class RegisterApi<T> extends BaseApi<T> {
         }
     }
 
-    public void call(final Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    public void call(final Map<String, Object> params, final GigyaCallback callback) {
         updateRegisterPolicy(params);
         GigyaRequest request = new GigyaRequestBuilder(configuration).sessionManager(sessionManager).api(API_INIT_REGISTRATION).build();
         networkAdapter.send(request, new INetworkCallbacks() {
@@ -82,7 +77,7 @@ public class RegisterApi<T> extends BaseApi<T> {
                         params.put("regToken", regToken);
                         params.put("finalizeRegistration", finalize);
                         /* Chain actual registration request. */
-                        callSendRegistration(params, callback, interceptor);
+                        callSendRegistration(params, callback);
                         return;
                     }
                     final int errorCode = response.getErrorCode();
@@ -104,7 +99,7 @@ public class RegisterApi<T> extends BaseApi<T> {
         });
     }
 
-    private void callSendRegistration(final Map<String, Object> params, final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    private void callSendRegistration(final Map<String, Object> params, final GigyaCallback callback) {
         final GigyaRequest request = new GigyaRequestBuilder(configuration)
                 .sessionManager(sessionManager).params(params).api(API_REGISTER).build();
         networkAdapter.send(request, new INetworkCallbacks() {
@@ -123,11 +118,9 @@ public class RegisterApi<T> extends BaseApi<T> {
                             sessionManager.setSession(session);
                         }
                         params.clear(); /* Clear sensitive data once it is not required. */
-                        if (interceptor != null) {
-                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
-                            interceptor.intercept(interception);
-                        }
+                        final T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         final T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        accountManager.setAccount(interception);
                         callback.onSuccess(parsed);
                         return;
                     }

@@ -1,10 +1,6 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaRequest;
@@ -24,10 +20,6 @@ public class SdkConfigApi extends BaseApi {
 
     private static final String API = "socialize.getSDKConfig";
     private final String API_INCLUDES = "permissions,ids,appIds";
-
-    public SdkConfigApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager) {
-        super(configuration, networkAdapter, sessionManager);
-    }
 
     public void call(final GigyaCallback<SdkConfig> callback) {
         Map<String, Object> params = new HashMap<>();

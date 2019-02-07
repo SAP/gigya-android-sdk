@@ -10,8 +10,9 @@ public abstract class GigyaPresenter {
 
     private static final String LOG_TAG = "GigyaPresenter";
 
-    public static final String SHOW_FULL_SCREEN = "show_full_screen";
-    public static final String PROGRESS_COLOR = "progress_color";
+    public static final String SHOW_FULL_SCREEN = "style_show_full_screen";
+    public static final String PROGRESS_COLOR = "style_progress_color";
+    public static final String CORNER_RADIUS = "style_corner_radius";
 
     protected SessionManager _sessionManager;
     protected AccountManager _accountManager;

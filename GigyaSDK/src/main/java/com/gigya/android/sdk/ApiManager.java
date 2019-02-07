@@ -12,6 +12,7 @@ import com.gigya.android.sdk.api.SetAccountApi;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
@@ -22,21 +23,21 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @SuppressWarnings("WeakerAccess") // Access should remain public for client use.
-public class ApiManager<T> {
+public class ApiManager {
 
     public static final String LOG_TAG = "ApiManager";
 
     public Configuration _configuration;
     public NetworkAdapter _networkAdapter;
     public SessionManager _sessionManager;
-    public AccountManager<T> _accountManager;
+    public AccountManager _accountManager;
 
     public ApiManager() {
         DependencyRegistry.getInstance().inject(this);
     }
 
     public void inject(Configuration configuration, NetworkAdapter networkAdapter,
-                       SessionManager sessionManager, AccountManager<T> accountManager) {
+                       SessionManager sessionManager, AccountManager accountManager) {
         _configuration = configuration;
         _networkAdapter = networkAdapter;
         _sessionManager = sessionManager;
@@ -44,7 +45,7 @@ public class ApiManager<T> {
     }
 
     public void loadConfig(final Runnable completionHandler) {
-        new SdkConfigApi(_configuration, _networkAdapter, _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
+        new SdkConfigApi().call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
             @Override
             public void onSuccess(SdkConfigApi.SdkConfig obj) {
                 if (_configuration.hasApiKey()) {
@@ -68,12 +69,12 @@ public class ApiManager<T> {
         });
     }
 
-    public void sendAnonymous(String api, Map<String, Object> params, GigyaCallback<GigyaResponse> callback) {
+    public void sendAnonymous(String api, Map<String, Object> params, final GigyaCallback<GigyaResponse> callback) {
         if (!_configuration.hasApiKey()) {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        new AnonymousApi<GigyaResponse>(_configuration, _networkAdapter, _sessionManager)
+        new AnonymousApi<GigyaResponse>()
                 .call(api, params, callback);
     }
 
@@ -82,72 +83,46 @@ public class ApiManager<T> {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        new AnonymousApi<>(_configuration, _networkAdapter, _sessionManager, clazz)
+        new AnonymousApi<>(clazz)
                 .call(api, params, callback);
     }
 
     public void logout() {
-        new LogoutApi(_configuration, _networkAdapter, _sessionManager).call();
+        new LogoutApi().call();
     }
 
-    public void login(String username, String password, GigyaLoginCallback<T> callback) {
+    public <T extends GigyaAccount> void login(String username, String password, GigyaLoginCallback callback) {
         _accountManager.invalidateAccount();
         final TreeMap<String, Object> params = new TreeMap<>();
         params.put("loginID", username);
         params.put("password", password);
         params.put("include", "profile,data,subscriptions,preferences");
-        new LoginApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
-                .call(params, callback, new GigyaInterceptionCallback<T>() {
-                    @Override
-                    public void intercept(T obj) {
-                        DependencyRegistry.getInstance().getAccountManager().setAccount(obj);
-                    }
-                });
+        new LoginApi<T>(_accountManager.getAccountClazz()).call(params, callback);
     }
 
-    public void getAccount(GigyaCallback<T> callback) {
+    public <T extends GigyaAccount> void getAccount(GigyaCallback callback) {
         if (_accountManager.getCachedAccount()) {
             callback.onSuccess(_accountManager.getAccount());
             return;
         }
         _accountManager.nextAccountInvalidationTimestamp();
-        new GetAccountApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
-                .call(callback, new GigyaInterceptionCallback<T>() {
-                    @Override
-                    public void intercept(T obj) {
-                        _accountManager.setAccount(obj);
-                    }
-                });
+        new GetAccountApi<T>(_accountManager.getAccountClazz()).call(callback);
     }
 
-    public void setAccount(T account, GigyaCallback<T> callback) {
-        new SetAccountApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz(), account, _accountManager.getAccount())
-                .call(callback, new GigyaInterceptionCallback<T>() {
-                    @Override
-                    public void intercept(T obj) {
-                        // Flush account cache.
-                        _accountManager.setAccount(obj);
-                    }
-                });
+    public <T extends GigyaAccount> void setAccount(T account, GigyaCallback callback) {
+        new SetAccountApi<>(_accountManager.getAccountClazz(), account, _accountManager.getAccount()).call(callback);
     }
 
-    public void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
+    public <T extends GigyaAccount> void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
         _accountManager.invalidateAccount();
-        new RegisterApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz(), policy, finalize)
-                .call(params, callback, new GigyaInterceptionCallback<T>() {
-                    @Override
-                    public void intercept(T obj) {
-                        // TODO: 18/12/2018 Should we call getAccountInfo here?
-                    }
-                });
+        new RegisterApi<T>(_accountManager.getAccountClazz(), policy, finalize).call(params, callback);
     }
 
-    public void notifyLogin(String providerSessions, GigyaCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
+    public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaCallback<T> callback, final Runnable completionHandler) {
+        new NotifyLoginApi<T>(_accountManager.getAccountClazz())
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
-                        _accountManager.setAccount(obj);
                         if (completionHandler != null) {
                             completionHandler.run();
                         }
@@ -155,12 +130,11 @@ public class ApiManager<T> {
                 });
     }
 
-    public void notifyLogin(SessionInfo sessionInfo, final GigyaCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<>(_configuration, _networkAdapter, _sessionManager, _accountManager.getAccountClazz())
+    public <T extends GigyaAccount> void notifyLogin(SessionInfo sessionInfo, final GigyaCallback<T> callback, final Runnable completionHandler) {
+        new NotifyLoginApi<T>(_accountManager.getAccountClazz())
                 .call(sessionInfo, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
-                        _accountManager.setAccount(obj);
                         if (completionHandler != null) {
                             completionHandler.run();
                         }
@@ -169,7 +143,7 @@ public class ApiManager<T> {
     }
 
     public void updateProviderSessions(String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
-        new RefreshProviderSessionApi(_configuration, _networkAdapter, _sessionManager)
+        new RefreshProviderSessionApi()
                 .call(providerSession, new GigyaCallback() {
                     @Override
                     public void onSuccess(Object obj) {

@@ -8,7 +8,7 @@ import com.gigya.android.sdk.model.GigyaAccount;
 
 import java.util.concurrent.TimeUnit;
 
-public class AccountManager<T> {
+public class AccountManager<T extends GigyaAccount> {
 
     /*
      * Account object reference (cached).
@@ -50,7 +50,7 @@ public class AccountManager<T> {
         _accountClazz = accountClazz;
     }
 
-    public Class<T> getAccountClazz() {
+    public Class<? extends GigyaAccount> getAccountClazz() {
         return _accountClazz;
     }
 
@@ -69,7 +69,7 @@ public class AccountManager<T> {
     @Nullable
     private LoginProvider _loginProvider;
 
-    public void updateLoginProvider(@NonNull  LoginProvider loginProvider) {
+    public void updateLoginProvider(@NonNull LoginProvider loginProvider) {
         _loginProvider = loginProvider;
     }
 

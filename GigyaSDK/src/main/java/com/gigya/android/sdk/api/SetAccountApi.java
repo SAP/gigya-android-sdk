@@ -4,15 +4,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +21,7 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class SetAccountApi<T> extends BaseApi<T>  {
+public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T>  {
 
     private static final String API = "accounts.setAccountInfo";
 
@@ -33,9 +30,9 @@ public class SetAccountApi<T> extends BaseApi<T>  {
     @NonNull
     final private T account, privateAccount;
 
-    public SetAccountApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz,
+    public SetAccountApi(@Nullable Class<T> clazz,
                          @NonNull T account, @NonNull T privateAccount) {
-        super(configuration, networkAdapter, sessionManager, clazz);
+        super(clazz);
         this.account = account;
         this.privateAccount = privateAccount;
     }
@@ -69,7 +66,7 @@ public class SetAccountApi<T> extends BaseApi<T>  {
 
 
     @SuppressWarnings({"unchecked"})
-    public void call(final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    public void call(final GigyaCallback callback) {
         GigyaRequest request = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .sessionManager(sessionManager)
@@ -86,7 +83,7 @@ public class SetAccountApi<T> extends BaseApi<T>  {
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         /* Chain a getAccount call */
-                        new GetAccountApi<>(configuration, networkAdapter, sessionManager, clazz).call(callback, interceptor);
+                        new GetAccountApi<>(clazz).call(callback);
                         return;
                     }
                     final int errorCode = response.getErrorCode();

@@ -1,34 +1,27 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 @SuppressWarnings("unchecked")
-public class GetAccountApi<T> extends BaseApi<T> {
+public class GetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
+
+    public GetAccountApi(Class<T> clazz) {
+        super(clazz);
+    }
 
     private static final String API = "accounts.getAccountInfo";
 
-    public GetAccountApi(@NonNull Configuration configuration, @NonNull NetworkAdapter networkAdapter, @Nullable SessionManager sessionManager, @Nullable Class<T> clazz) {
-        super(configuration, networkAdapter, sessionManager, clazz);
-    }
-
-    public void call(final GigyaCallback callback, final GigyaInterceptionCallback interceptor) {
+    public void call(final GigyaCallback callback) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .sessionManager(sessionManager)
@@ -44,11 +37,9 @@ public class GetAccountApi<T> extends BaseApi<T> {
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         // To avoid writing a clone constructor.
-                        if (interceptor != null) {
-                            T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
-                            interceptor.intercept(interception);
-                        }
+                        T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
                         final T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        accountManager.setAccount(interception);
                         callback.onSuccess(parsed);
                         return;
                     }
