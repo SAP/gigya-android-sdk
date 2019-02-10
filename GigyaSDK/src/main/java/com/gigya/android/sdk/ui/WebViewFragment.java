@@ -73,7 +73,7 @@ public abstract class WebViewFragment extends DialogFragment {
 
     protected void dismissAndFinish() {
         if (getActivity() != null) {
-            getActivity().finish();
+            getActivity().onBackPressed();
         }
     }
 

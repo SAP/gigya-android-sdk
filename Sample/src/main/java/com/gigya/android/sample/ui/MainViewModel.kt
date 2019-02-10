@@ -287,7 +287,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    fun registrationAsAService(onLogin: (String) -> Unit, error: (GigyaError?) -> Unit) {
+    fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, mutableMapOf<String, Any>(
                 "screenSet" to "Default-RegistrationLogin",
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
@@ -315,7 +315,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, error: (GigyaError?) -> Unit) {
+    fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),

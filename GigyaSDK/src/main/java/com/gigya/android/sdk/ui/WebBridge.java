@@ -259,6 +259,7 @@ public class WebBridge<T extends GigyaAccount> {
             @Override
             public void onError(GigyaError error) {
                 GigyaLogger.error(LOG_TAG, error.toString());
+                invokeCallback(callbackId, error.getData());
             }
         });
     }

@@ -51,7 +51,7 @@ public class SdkConfigApi extends BaseApi {
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
                     final String callId = response.getCallId();
-                    callback.onError(new GigyaError(errorCode, localizedMessage, callId));
+                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     // TODO: 31/12/2018 Need to define general error (what it contains).

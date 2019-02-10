@@ -280,15 +280,21 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
             public void onPluginEvent(Map<String, Object> event, String containerID) {
                 if (containerID.equals(CONTAINER_ID)) {
                     final String eventName = (String) ObjectUtils.firstNonNull(event.get("eventName"), "");
-                    if (eventName.equals("load")) {
-                        GigyaLogger.debug(LOG_TAG, "onPluginEvent: Load");
-                        _progressBar.setVisibility(View.INVISIBLE);
+                    switch (eventName) {
+                        case "load":
+                            _progressBar.setVisibility(View.INVISIBLE);
+                            break;
+                        case "hide":
+                        case "close":
+                            dismissAndFinish();
+                            return;
+                        case "error":
+                            _pluginCallbacks.onError(GigyaError.errorFrom(event));
+                            return;
+                        default:
+                            _pluginCallbacks.onEvent(eventName, event);
+                            break;
                     }
-                    if (eventName.equals("hide") || eventName.equals("close")) {
-                        dismissAndFinish();
-                        return;
-                    }
-
                     _pluginCallbacks.onEvent(eventName, event);
                 }
             }

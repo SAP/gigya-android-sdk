@@ -234,8 +234,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onJsonResult(json)
                     onAccountDataAvailable()
                 },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
+                onError = { possibleError ->
+                    possibleError?.let { error ->
+                        // We cant display an alert on top of an alert.
+                    }
                 }
         )
     }
@@ -243,6 +245,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showComments() {
         viewModel?.showComments(
                 onLogin = { json ->
+
                     onJsonResult(json)
                     onAccountDataAvailable()
                 },
@@ -250,8 +253,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onClear()
                     response_text_view.snackbar(getString(R.string.logged_out))
                 },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
+                onError = { possibleError ->
+                    possibleError?.let {
+                        // We cant display an alert on top of an alert.
+                    }
                 }
         )
     }

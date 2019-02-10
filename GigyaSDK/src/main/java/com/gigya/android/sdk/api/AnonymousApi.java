@@ -59,7 +59,7 @@ public class AnonymousApi<H> extends BaseApi<H> {
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
                     final String callId = response.getCallId();
-                    callback.onError(new GigyaError(errorCode, localizedMessage, callId));
+                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

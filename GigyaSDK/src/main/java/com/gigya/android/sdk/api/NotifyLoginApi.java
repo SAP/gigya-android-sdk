@@ -62,7 +62,7 @@ public class NotifyLoginApi<T extends GigyaAccount> extends BaseApi<T> {
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
                     final String callId = response.getCallId();
-                    callback.onError(new GigyaError(errorCode, localizedMessage, callId));
+                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());
