@@ -275,6 +275,7 @@ public class WebBridge<T extends GigyaAccount> {
                 _interactions.onAuthEvent(AuthEvent.ADD_CONNECTION, null);
                 break;
             case "accounts.register":
+            case "accounts.login":
                 _interactions.onAuthEvent(AuthEvent.LOGIN, (T) response.parseTo(_accountManager.getAccountClazz()));
                 break;
             default:

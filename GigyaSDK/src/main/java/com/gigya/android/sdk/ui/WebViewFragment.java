@@ -72,9 +72,14 @@ public abstract class WebViewFragment extends DialogFragment {
     }
 
     protected void dismissAndFinish() {
-        if (getActivity() != null) {
-            getActivity().onBackPressed();
-        }
+        _webView.post(new Runnable() {
+            @Override
+            public void run() {
+                if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            }
+        });
     }
 
     protected boolean wrapContent() {
@@ -208,7 +213,7 @@ public abstract class WebViewFragment extends DialogFragment {
         final FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
                 , ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBarParams.gravity = Gravity.CENTER;
-        _webContentView.addView(_progressBar, progressBarParams);
+        _webFrame.addView(_progressBar, progressBarParams);
     }
 
     //endregion
