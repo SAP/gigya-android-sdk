@@ -12,8 +12,8 @@ public class GigyaError {
 
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;
         public static final int ERROR_ACCOUNT_PENDING_VERIFICATION = 206002;
-        public static final int ERROR_PERMISSION_DENIED = 403007;
         public static final int ERROR_PENDING_PASSWORD_CHANGE = 403100;
+        public static final int ERROR_PERMISSION_DENIED = 403007;
         public static final int ERROR_PENDING_TFA_VERIFICATION = 403101;
         public static final int ERROR_PENDING_TFA_REGISTRATION = 403102;
         public static final int ERROR_IDENTITY_EXISTS = 409001;

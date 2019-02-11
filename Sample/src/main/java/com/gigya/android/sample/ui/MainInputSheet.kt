@@ -2,7 +2,7 @@ package com.gigya.android.sample.ui
 
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.design.widget.BottomSheetDialogFragment
+import android.support.v4.app.DialogFragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +17,9 @@ import kotlinx.android.synthetic.main.sheet_re_init.*
 import kotlinx.android.synthetic.main.sheet_set_account.*
 import org.jetbrains.anko.design.snackbar
 
-class MainInputSheet : BottomSheetDialogFragment() {
+
+
+class MainInputSheet : DialogFragment() {
 
     private var viewModel: MainViewModel? = null
 
@@ -48,9 +50,15 @@ class MainInputSheet : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val layoutParams = dialog?.window?.attributes
+        layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
+        dialog?.window?.attributes = layoutParams
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         this.type = arguments!!["type"] as MainInputType
         viewModel = activity?.run {
             ViewModelProviders.of(this).get(MainViewModel::class.java)

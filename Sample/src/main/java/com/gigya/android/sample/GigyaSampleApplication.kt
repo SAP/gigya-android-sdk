@@ -26,7 +26,7 @@ class GigyaSampleApplication : Application() {
         /*
         Initialization with explicit api-key.
          */
-        Gigya.getInstance(applicationContext).init(getString(R.string.api_key_with_email_verification))
+        //Gigya.getInstance(applicationContext).init(getString(R.string.api_key_with_email_verification))
 
         /*
         Initialization with explicit api-key, api-domain type.
@@ -34,9 +34,10 @@ class GigyaSampleApplication : Application() {
         //Gigya.getInstance(applicationContext).init(getString(R.string.api_kay), getString(R.string.api_domain)))
 
         /*
-        Initialization with implicit configuration.
+        Initialization with implicit configuration & without a custom account scheme.
+        Will use the default GigyaAccount scheme.
         */
-        //Gigya.getInstance(applicationContext)
+        Gigya.getInstance(applicationContext)
 
         /*
         Initialization with implicit configuration & account scheme.

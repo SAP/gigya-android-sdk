@@ -2,7 +2,8 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    app:layout_constrainedWidth="false"
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/login_register_sheet_title"
@@ -32,7 +33,6 @@
             android:id="@+id/login_register_sheet_username_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="toolmarmel.alt3@gmail.com"
             android:textSize="14sp" />
 
     </android.support.design.widget.TextInputLayout>
