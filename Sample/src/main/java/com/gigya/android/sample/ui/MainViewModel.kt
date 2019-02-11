@@ -14,6 +14,7 @@ import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
 import com.gigya.android.sdk.ui.GigyaPresenter
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.gigya.android.sdk.ui.plugin.PluginFragment
 import com.google.gson.GsonBuilder
 
@@ -265,24 +266,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    fun showAccountDetails() {
+    fun showAccountDetails(onUpdated: () -> Unit, onCancelled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, mutableMapOf<String, Any>(
                 "screenSet" to "Default-ProfileUpdate",
                 GigyaPresenter.SHOW_FULL_SCREEN to true,
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)
-        ),
+                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
                 object : GigyaPluginCallback<GigyaAccount>() {
-
-                    override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
-                        Log.d("showAccountDetails", "onEvent")
+                    override fun onHide(event: GigyaPluginEvent, reason: String?) {
+                        if (reason != null) {
+                            when (reason) {
+                                "finished" -> {
+                                    onUpdated()
+                                }
+                                "canceled" -> {
+                                    onCancelled()
+                                }
+                            }
+                        }
                     }
 
-                    override fun onCancel() {
-                        Log.d("showAccountDetails", "onCancel")
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        Log.d("showAccountDetails", "onError")
+                    override fun onError(event: GigyaPluginEvent) {
+                        onError(GigyaError.errorFrom(event.eventMap))
                     }
                 })
     }
@@ -294,23 +298,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 GigyaPresenter.CORNER_RADIUS to 24f
         )
                 , object : GigyaPluginCallback<GigyaAccount>() {
-            override fun onLogin(obj: GigyaAccount?) {
-                Log.d("registrationAsAService", "onLogin")
-                account = obj
-                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            override fun onLogin(accountObj: GigyaAccount) {
+                account = accountObj
+                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj!!))
             }
 
-            override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
-                Log.d("registrationAsAService", "onEvent")
-            }
-
-            override fun onCancel() {
-                Log.d("registrationAsAService", "onCancel")
-            }
-
-            override fun onError(error: GigyaError?) {
-                Log.d("registrationAsAService", "onError")
-                onError(error)
+            override fun onError(event: GigyaPluginEvent) {
+                onError(GigyaError.errorFrom(event.eventMap))
             }
         })
     }
@@ -322,30 +316,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 GigyaPresenter.CORNER_RADIUS to 8f
         ),
                 object : GigyaPluginCallback<GigyaAccount>() {
-                    override fun onLogin(obj: GigyaAccount?) {
-                        Log.d("showComments", "onLogin")
-                        account = obj
-                        onLogin(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
 
-                    override fun onLogout() {
-                        Log.d("showComments", "onLogout")
-                        logout()
-                        onLogout()
-                    }
-
-                    override fun onEvent(eventName: String?, parameters: MutableMap<String, Any>?) {
-                        Log.d("showComments", "onEvent")
-                    }
-
-                    override fun onCancel() {
-                        Log.d("showComments", "onCancel")
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        Log.d("showComments", "onError")
-                        onError(error)
-                    }
                 })
     }
 

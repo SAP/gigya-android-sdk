@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,25 +39,39 @@ import com.gigya.android.sdk.ui.WebBridge;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UiUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.ERROR;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.FIELD_CHANGED;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.HIDE;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.SUBMIT;
 
 public class PluginFragment<T extends GigyaAccount> extends WebViewFragment implements HostActivity.OnBackPressListener {
+
+    private static final String LOG_TAG = "PluginFragment";
 
     /* Plugin variants. */
     public static final String PLUGIN_SCREENSETS = "accounts.screenSet";
     public static final String PLUGIN_COMMENTS = "comments.commentsUI";
-
-    private static final String LOG_TAG = "PluginFragment";
 
     /* Arguments. */
     public static final String ARG_API_KEY = "arg_api_key";
@@ -70,6 +86,8 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     private static final String CONTAINER_ID = "pluginContainer";
     private static final int JS_TIMEOUT = 10000;
 
+    private Handler _uiHandler = new Handler(Looper.getMainLooper());
+
     public static void present(AppCompatActivity activity, Bundle args, @NonNull GigyaPluginCallback pluginCallbacks) {
         PluginFragment fragment = new PluginFragment();
         fragment.setArguments(args);
@@ -80,7 +98,6 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     }
 
     private String _apiKey, _apiDomain, _plugin;
-
     private boolean _obfuscate;
 
     private WebBridge _webBridge;
@@ -142,7 +159,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        _pluginCallbacks.onCancel();
+        //_pluginCallbacks.onCancel();
         if (getActivity() != null) {
             getActivity().onBackPressed();
         }
@@ -256,9 +273,9 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
             private void overrideUrlLoad(Uri uri) {
                 if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_LOAD_ERROR)) {
-                    _pluginCallbacks.onError(GigyaError.generalError());
+                    // _pluginCallbacks.onError(GigyaError.generalError());
                 } else if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_EXCEPTION)) {
-                    _pluginCallbacks.onError(GigyaError.generalError());
+                    // _pluginCallbacks.onError(GigyaError.generalError());
                 } else if (!_webBridge.handleUrl(uri.toString())) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(browserIntent);
@@ -277,59 +294,108 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     private void setupWebBridge() {
         _webBridge = new WebBridge<>(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
             @Override
-            public void onPluginEvent(Map<String, Object> event, String containerID) {
+            public void onPluginEvent(GigyaPluginEvent event, String containerID) {
                 if (containerID.equals(CONTAINER_ID)) {
-                    final String eventName = (String) ObjectUtils.firstNonNull(event.get("eventName"), "");
-                    switch (eventName) {
-                        case "load":
-                            _progressBar.setVisibility(View.INVISIBLE);
-                            break;
-                        case "hide":
-                        case "close":
-                            dismissAndFinish();
-                            return;
-                        case "error":
-                            _pluginCallbacks.onError(GigyaError.errorFrom(event));
-                            return;
-                        default:
-                            _pluginCallbacks.onEvent(eventName, event);
-                            break;
-                    }
-                    _pluginCallbacks.onEvent(eventName, event);
+                    throttleEvents(event);
                 }
             }
 
             @Override
             public void onAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
-                handleAuthEvent(authEvent, obj);
+                throttleAuthEvents(authEvent, obj);
             }
 
             @Override
             public void onCancel() {
-                _pluginCallbacks.onCancel();
+
             }
 
             @Override
             public void onError(GigyaError error) {
-                _pluginCallbacks.onError(error);
+                Type mapType = new TypeToken<Map<String, Object>>() {
+                }.getType();
+                final Map<String, Object> eventMap = new Gson().fromJson(error.getData(), mapType);
+                _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
             }
         });
         _webBridge.attach(_webView);
     }
 
-    private void handleAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
-        switch (authEvent) {
-            case LOGIN:
-                _pluginCallbacks.onLogin(obj);
-                break;
-            case LOGOUT:
-                _pluginCallbacks.onLogout();
-                break;
-            case ADD_CONNECTION:
-                break;
-            default:
-                break;
+    private void throttleEvents(final GigyaPluginEvent event) {
+        final @PluginDefinitions.PluginEvent String eventName = event.getEvent();
+        GigyaLogger.debug(LOG_TAG, "throttleEvents: event = " + eventName);
+        if (eventName != null) {
+            _uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    switch (eventName) {
+                        case BEFORE_SCREEN_LOAD:
+                            _progressBar.setVisibility(View.VISIBLE);
+                            _pluginCallbacks.onBeforeScreenLoad(event);
+                            break;
+                        case LOAD:
+                            _progressBar.setVisibility(View.INVISIBLE);
+                            break;
+                        case AFTER_SCREEN_LOAD:
+                            _progressBar.setVisibility(View.INVISIBLE);
+                            _pluginCallbacks.onAfterScreenLoad(event);
+                            break;
+                        case FIELD_CHANGED:
+                            _pluginCallbacks.onFieldChanged(event);
+                            break;
+                        case BEFORE_VALIDATION:
+                            _pluginCallbacks.onBeforeValidation(event);
+                            break;
+                        case AFTER_VALIDATION:
+                            break;
+                        case BEFORE_SUBMIT:
+                            _pluginCallbacks.onBeforeSubmit(event);
+                            break;
+                        case SUBMIT:
+                            _pluginCallbacks.onSubmit(event);
+                            break;
+                        case AFTER_SUBMIT:
+                            _pluginCallbacks.onAfterSubmit(event);
+                            break;
+                        case HIDE:
+                            final String reason = (String) event.getEventMap().get("reason");
+                            _pluginCallbacks.onHide(event, reason);
+                            dismissAndFinish();
+                            break;
+                        case ERROR:
+                            _pluginCallbacks.onError(event);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
         }
+    }
+
+    private void throttleAuthEvents(final WebBridge.AuthEvent authEvent, final T obj) {
+        GigyaLogger.debug(LOG_TAG, "throttleAuthEvents: event = " + authEvent.ordinal());
+        _uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                switch (authEvent) {
+                    case LOGIN:
+                        _pluginCallbacks.onLogin(obj);
+                        break;
+                    case LOGOUT:
+                        _pluginCallbacks.onLogout();
+                        break;
+                    case ADD_CONNECTION:
+                        _pluginCallbacks.onConnectionAdded();
+                        break;
+                    case REMOVE_CONNECTION:
+                        _pluginCallbacks.onConnectionRemoved();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     //endregion

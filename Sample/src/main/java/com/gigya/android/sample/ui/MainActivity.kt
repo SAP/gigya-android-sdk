@@ -245,7 +245,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showComments() {
         viewModel?.showComments(
                 onLogin = { json ->
-
                     onJsonResult(json)
                     onAccountDataAvailable()
                 },
@@ -262,7 +261,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showAccountDetails() {
-        viewModel?.showAccountDetails()
+        drawer_layout.closeDrawer(GravityCompat.START)
+        viewModel?.showAccountDetails(
+                onUpdated = {
+                    onClear()
+                    response_text_view.snackbar(getString(R.string.account_updated))
+                },
+                onCancelled = {
+                    response_text_view.snackbar("Operation canceled")
+                },
+                onError = { possibleError ->
+                    possibleError?.let {
+                        // We cant display an alert on top of an alert.
+                    }
+                }
+        )
     }
 
     //endregion

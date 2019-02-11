@@ -1,22 +1,83 @@
 package com.gigya.android.sdk;
 
-import com.gigya.android.sdk.network.GigyaError;
+import android.support.annotation.NonNull;
 
-import java.util.Map;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 
 public abstract class GigyaPluginCallback<T> {
 
-    public void onLogin(T obj) {
+    /* Called when an error occurs. */
+    public void onError(@NonNull GigyaPluginEvent event) {
         // Stub.
     }
 
+    /* Called before validation of the form. */
+    public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /*
+    Called before a form is submitted. This event gives you an opportunity to perform certain actions before
+    the form is submitted, or cancel the submission by returning false.
+    */
+    public void onBeforeSubmit(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /*
+    Called when a form is submitted, can return a value or a promise. This event gives you an opportunity
+    to modify the form data when it is submitted.
+    */
+    public void onSubmit(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /* Called after a form is submitted. */
+    public void onAfterSubmit(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /*
+    Called before a new screen is rendered. This event gives you an opportunity to
+    cancel the navigation by returning false.
+    */
+    public void onBeforeScreenLoad(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /* Called after a new screen is rendered. */
+    public void onAfterScreenLoad(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /* Called when a field is changed in a managed form. */
+    public void onFieldChanged(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
+    /* Called when a user clicks the "X" (close) button or the screen is hidden following the end of the flow. */
+    public void onHide(@NonNull GigyaPluginEvent event, String reason) {
+        // Stub.
+    }
+
+    /* Called when an updated account instance is available during the flow. */
+    public void onLogin(@NonNull T accountObj) {
+        // Stub.
+    }
+
+    /* Called when a after a logout action occurs. */
     public void onLogout() {
         // Stub.
     }
 
-    public abstract void onEvent(String eventName, Map<String, Object> parameters);
+    /* Called when a new connection is successfully added to the account. */
+    public void onConnectionAdded() {
+        // Stub.
+    }
 
-    public abstract void onCancel();
+    /* Called when an existing connection is removed from the account., */
+    public void onConnectionRemoved() {
+        // Stub.
+    }
 
-    public abstract void onError(GigyaError error);
 }

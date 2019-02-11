@@ -23,6 +23,7 @@ import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
@@ -39,11 +40,11 @@ public class WebBridge<T extends GigyaAccount> {
     private static final String LOG_TAG = "WebBridge";
 
     public enum AuthEvent {
-        LOGIN, LOGOUT, ADD_CONNECTION
+        LOGIN, LOGOUT, ADD_CONNECTION, REMOVE_CONNECTION
     }
 
     public interface WebBridgeInteractions<T> {
-        void onPluginEvent(Map<String, Object> event, String containerID);
+        void onPluginEvent(GigyaPluginEvent event, String containerID);
 
         void onAuthEvent(AuthEvent authEvent, T obj);
 
@@ -157,6 +158,9 @@ public class WebBridge<T extends GigyaAccount> {
     public boolean handleUrl(String url) {
         if (url.startsWith("gsapi://")) {
             Uri uri = Uri.parse(url);
+            if (uri.getPath() == null) {
+                return false;
+            }
             return invoke(uri.getHost(), uri.getPath().replace("/", ""), uri.getEncodedQuery());
         }
         return false;
@@ -167,11 +171,8 @@ public class WebBridge<T extends GigyaAccount> {
             return false;
         }
 
-        GigyaLogger.debug(LOG_TAG, "invoke: " + actionString);
-
         final Map<String, Object> data = new HashMap<>();
         UrlUtils.parseUrlParameters(data, queryStringParams);
-        GigyaLogger.debug(LOG_TAG, "invoke: data:\n" + data.toString());
 
         Actions action;
         try {
@@ -214,7 +215,6 @@ public class WebBridge<T extends GigyaAccount> {
             default:
                 break;
         }
-
         return true;
     }
 
@@ -238,7 +238,6 @@ public class WebBridge<T extends GigyaAccount> {
     }
 
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
-        GigyaLogger.debug(LOG_TAG, "sendRequest: with params:\n" + params.toString());
 
         // TODO: 29/01/2019 Should add support for non Https in GigyaRequest.
         final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
@@ -250,15 +249,15 @@ public class WebBridge<T extends GigyaAccount> {
 
         _apiManager.sendAnonymous(api, params, new GigyaCallback<GigyaResponse>() {
             @Override
-            public void onSuccess(GigyaResponse obj) {
-                GigyaLogger.debug(LOG_TAG, obj.asJson());
+            public void onSuccess(final GigyaResponse obj) {
+                GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with result:\n" + obj.asJson());
                 handleAuthRequests(api, obj);
                 invokeCallback(callbackId, obj.asJson());
             }
 
             @Override
             public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, error.toString());
+                GigyaLogger.error(LOG_TAG, "onError for api = " + api + " with error:\n" + error.toString());
                 invokeCallback(callbackId, error.getData());
             }
         });
@@ -271,8 +270,11 @@ public class WebBridge<T extends GigyaAccount> {
                 _interactions.onAuthEvent(AuthEvent.LOGOUT, null);
                 break;
             case "socialize.addConnection":
-                // TODO: 07/02/2019 Will be handled in Business apis stories.
+            case "accounts.addConnection":
                 _interactions.onAuthEvent(AuthEvent.ADD_CONNECTION, null);
+                break;
+            case "socialize.removeConnection":
+                _interactions.onAuthEvent(AuthEvent.REMOVE_CONNECTION, null);
                 break;
             case "accounts.register":
             case "accounts.login":
@@ -284,8 +286,6 @@ public class WebBridge<T extends GigyaAccount> {
     }
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
-        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: with params:\n" + params.toString());
-
         final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
         final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider,
                 new GigyaLoginCallback<T>() {
@@ -336,11 +336,10 @@ public class WebBridge<T extends GigyaAccount> {
     }
 
     private void onPluginEvent(Map<String, Object> params) {
-        GigyaLogger.debug(LOG_TAG, "onPluginEvent: with params:\n" + params.toString());
+        final String containerId = (String) params.get("sourceContainerID");
 
-        String containerId = (String) params.get("sourceContainerID");
         if (containerId != null) {
-            _interactions.onPluginEvent(params, containerId);
+            _interactions.onPluginEvent(new GigyaPluginEvent(params), containerId);
         }
     }
 
