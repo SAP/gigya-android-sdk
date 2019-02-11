@@ -266,6 +266,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 onUpdated = {
                     onClear()
                     response_text_view.snackbar(getString(R.string.account_updated))
+                    onGetAccount()
                 },
                 onCancelled = {
                     response_text_view.snackbar("Operation canceled")

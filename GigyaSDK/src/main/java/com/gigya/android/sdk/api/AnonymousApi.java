@@ -26,7 +26,7 @@ public class AnonymousApi<H> extends BaseApi<H> {
         super(clazz);
     }
 
-    public void call(String api, Map<String, Object> params, final GigyaCallback<H> callback) {
+    public void call(final String api, Map<String, Object> params, final GigyaCallback<H> callback) {
         GigyaRequest request = new GigyaRequestBuilder(configuration)
                 .params(params)
                 .api(api)
@@ -45,6 +45,11 @@ public class AnonymousApi<H> extends BaseApi<H> {
                         if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
                             SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
                             sessionManager.setSession(session);
+                            accountManager.invalidateAccount();
+                        }
+                        // TODO: 11/02/2019 This is a patch for when using this specific api in the screensets feature.
+                        if (api.equals("accounts.setAccountInfo")) {
+                            accountManager.invalidateAccount();
                         }
                         if (clazz == null) {
                             /* Callback will return GigyaResponse instance */
