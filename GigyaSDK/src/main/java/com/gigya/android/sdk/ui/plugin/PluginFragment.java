@@ -273,9 +273,9 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
             private void overrideUrlLoad(Uri uri) {
                 if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_LOAD_ERROR)) {
-                    // _pluginCallbacks.onError(GigyaError.generalError());
+                    _pluginCallbacks.onError(null);
                 } else if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_EXCEPTION)) {
-                    // _pluginCallbacks.onError(GigyaError.generalError());
+                    _pluginCallbacks.onError(null);
                 } else if (!_webBridge.handleUrl(uri.toString())) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(browserIntent);
@@ -289,7 +289,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region WebBridge
+    //region WebBridge & interfacing
 
     private void setupWebBridge() {
         _webBridge = new WebBridge<>(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
@@ -540,7 +540,6 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
             }
             _params.put("width", UiUtils.pixelsToDp(width, getView().getContext()));
         }
-        // TODO: 27/01/2019 Add disabled providers...
     }
 
     //endregion

@@ -43,6 +43,7 @@ public class WebBridge<T extends GigyaAccount> {
         LOGIN, LOGOUT, ADD_CONNECTION, REMOVE_CONNECTION
     }
 
+    /* Specific interaction interface between the WebBridge & the PluginFragment.*/
     public interface WebBridgeInteractions<T> {
         void onPluginEvent(GigyaPluginEvent event, String containerID);
 
@@ -166,6 +167,8 @@ public class WebBridge<T extends GigyaAccount> {
         return false;
     }
 
+    //region Actions
+
     private boolean invoke(String actionString, String api, String queryStringParams) {
         if (actionString == null) {
             return false;
@@ -217,8 +220,6 @@ public class WebBridge<T extends GigyaAccount> {
         }
         return true;
     }
-
-    //region Actions
 
     private void getIds(String callbackId) {
         GigyaLogger.debug(LOG_TAG, "getIds: ");

@@ -7,7 +7,7 @@ import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 public abstract class GigyaPluginCallback<T> {
 
     /* Called when an error occurs. */
-    public void onError(@NonNull GigyaPluginEvent event) {
+    public void onError(GigyaPluginEvent event) {
         // Stub.
     }
 
