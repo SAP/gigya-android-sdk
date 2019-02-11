@@ -6,7 +6,10 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sdk.*
+import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.GigyaCallback
+import com.gigya.android.sdk.GigyaLoginCallback
+import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
@@ -102,13 +105,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         flushAccountReferences()
         when (exampleSetup) {
             SetupExample.BASIC -> {
-                gigya.register(loginID, password, policy, true, object : GigyaRegisterCallback<GigyaAccount>() {
+                gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<GigyaAccount>() {
+
                     override fun onSuccess(obj: GigyaAccount?) {
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
 
                     override fun onError(error: GigyaError?) {
                         error(error)
+                    }
+
+                    override fun onPendingVerification() {
+                        Log.d("ViewModelMain", "onPendingVerification received")
                     }
                 })
             }
@@ -125,8 +133,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-    //TODO: Policy.00.0
 
     /**
      * Get account information.

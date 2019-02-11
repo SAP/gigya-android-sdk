@@ -347,7 +347,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     @SuppressWarnings("unused")
-    public void register(String email, String password, GigyaRegisterCallback<T> callback) {
+    public void register(String email, String password, GigyaLoginCallback<T> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", email);
         params.put("password", password);
@@ -363,7 +363,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param finalize Finalize registration.
      * @param callback Response listener callback.
      */
-    public void register(String loginID, String password, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
+    public void register(String loginID, String password, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", loginID);
         params.put("password", password);
@@ -371,7 +371,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /* Private initiator. */
-    private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
+    private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
         getApiManager().register(params, policy, finalize, callback);
     }
 

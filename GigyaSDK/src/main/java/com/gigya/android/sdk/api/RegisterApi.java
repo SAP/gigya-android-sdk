@@ -2,7 +2,7 @@ package com.gigya.android.sdk.api;
 
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -18,7 +18,7 @@ import java.util.Map;
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 @SuppressWarnings("unchecked")
-public class RegisterApi<T extends GigyaAccount> extends BaseApi<T> {
+public class RegisterApi<T extends GigyaAccount> extends BaseLoginApi<T> {
 
     public enum RegisterPolicy {
         EMAIL, USERNAME, EMAIL_OR_USERNAME
@@ -56,7 +56,7 @@ public class RegisterApi<T extends GigyaAccount> extends BaseApi<T> {
         }
     }
 
-    public void call(final Map<String, Object> params, final GigyaCallback callback) {
+    public void call(final Map<String, Object> params, final GigyaLoginCallback callback) {
         updateRegisterPolicy(params);
         GigyaRequest request = new GigyaRequestBuilder(configuration).sessionManager(sessionManager).api(API_INIT_REGISTRATION).build();
         networkAdapter.send(request, new INetworkCallbacks() {
@@ -99,7 +99,7 @@ public class RegisterApi<T extends GigyaAccount> extends BaseApi<T> {
         });
     }
 
-    private void callSendRegistration(final Map<String, Object> params, final GigyaCallback callback) {
+    private void callSendRegistration(final Map<String, Object> params, final GigyaLoginCallback callback) {
         final GigyaRequest request = new GigyaRequestBuilder(configuration)
                 .sessionManager(sessionManager).params(params).api(API_REGISTER).build();
         networkAdapter.send(request, new INetworkCallbacks() {
@@ -124,10 +124,7 @@ public class RegisterApi<T extends GigyaAccount> extends BaseApi<T> {
                         callback.onSuccess(parsed);
                         return;
                     }
-                    final int errorCode = response.getErrorCode();
-                    final String localizedMessage = response.getErrorDetails();
-                    final String callId = response.getCallId();
-                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
+                    evaluateError(response, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());

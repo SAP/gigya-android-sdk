@@ -113,7 +113,7 @@ public class ApiManager {
         new SetAccountApi<>(_accountManager.getAccountClazz(), account, _accountManager.getAccount()).call(callback);
     }
 
-    public <T extends GigyaAccount> void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaRegisterCallback<T> callback) {
+    public <T extends GigyaAccount> void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
         _accountManager.invalidateAccount();
         new RegisterApi<T>(_accountManager.getAccountClazz(), policy, finalize).call(params, callback);
     }

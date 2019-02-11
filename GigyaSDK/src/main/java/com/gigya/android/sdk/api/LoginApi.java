@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.api;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -16,9 +16,8 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-
 @SuppressWarnings("unchecked")
-public class LoginApi<T extends GigyaAccount> extends BaseApi<T> {
+public class LoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
 
     private static final String API = "accounts.login";
 
@@ -26,7 +25,7 @@ public class LoginApi<T extends GigyaAccount> extends BaseApi<T> {
         super(clazz);
     }
 
-    public void call(Map<String, Object> params, final GigyaCallback callback) {
+    public void call(Map<String, Object> params, final GigyaLoginCallback callback) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .params(params)
@@ -56,10 +55,7 @@ public class LoginApi<T extends GigyaAccount> extends BaseApi<T> {
                         callback.onSuccess(parsed);
                         return;
                     }
-                    final int errorCode = response.getErrorCode();
-                    final String localizedMessage = response.getErrorDetails();
-                    final String callId = response.getCallId();
-                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
+                    evaluateError(response, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());
