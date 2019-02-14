@@ -12,11 +12,11 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.sheet_anonymous.*
+import kotlinx.android.synthetic.main.sheet_finialize_registration.*
 import kotlinx.android.synthetic.main.sheet_login_register.*
 import kotlinx.android.synthetic.main.sheet_re_init.*
 import kotlinx.android.synthetic.main.sheet_set_account.*
 import org.jetbrains.anko.design.snackbar
-
 
 
 class MainInputSheet : DialogFragment() {
@@ -24,7 +24,7 @@ class MainInputSheet : DialogFragment() {
     private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT
+        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, FINALIZE_REG
     }
 
     interface IApiResultCallback {
@@ -32,6 +32,7 @@ class MainInputSheet : DialogFragment() {
         fun onJsonResult(json: String)
         fun onError(error: GigyaError)
         fun onReInit()
+        fun onInterruption(code: Int, params: Map<String, Any>)
     }
 
     var type: MainInputType? = null
@@ -71,6 +72,7 @@ class MainInputSheet : DialogFragment() {
             MainInputType.ANONYMOUS -> R.layout.sheet_anonymous
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.sheet_login_register
             MainInputType.SET_ACCOUNT_INFO -> R.layout.sheet_set_account
+            MainInputType.FINALIZE_REG -> R.layout.sheet_finialize_registration
             else -> 0
         }
         return inflater.inflate(layout, container, false)
@@ -82,6 +84,7 @@ class MainInputSheet : DialogFragment() {
             MainInputType.ANONYMOUS -> setupForAnonymous()
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
             MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
+            MainInputType.FINALIZE_REG -> setupForFinalizeRegistration()
         }
     }
 
@@ -176,7 +179,11 @@ class MainInputSheet : DialogFragment() {
                                 else -> RegisterApi.RegisterPolicy.EMAIL_OR_USERNAME
                             },
                             success = { json -> postSuccess(json) },
-                            error = { possibleError -> postError(possibleError) })
+                            error = { possibleError -> postError(possibleError) },
+                            interruption = { code, map ->
+                                resultCallback.onInterruption(code, map)
+                                dismiss()
+                            })
                 }
             }
         }
@@ -206,6 +213,21 @@ class MainInputSheet : DialogFragment() {
                         success = { json -> postSuccess(json) },
                         error = { possibleError -> postError(possibleError) })
 
+            }
+        }
+    }
+
+    private fun setupForFinalizeRegistration() {
+        finalize_reg_sheet_send_button.setOnClickListener {
+            val regToken = finalize_reg_sheet_edit.text.toString().trim()
+            if (!regToken.isEmpty()) {
+                viewModel?.finalizeRegistration(regToken,
+                        success = { json ->
+                            postSuccess(json)
+                        },
+                        error = { possibleError ->
+                            postError(possibleError)
+                        })
             }
         }
     }

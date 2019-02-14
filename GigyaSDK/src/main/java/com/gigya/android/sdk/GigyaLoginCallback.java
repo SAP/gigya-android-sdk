@@ -1,5 +1,7 @@
 package com.gigya.android.sdk;
 
+import android.support.annotation.NonNull;
+
 public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
     public void onCancelledOperation() {
@@ -10,11 +12,11 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
         // Stub.
     }
 
-    public void onPendingVerification() {
+    public void onPendingVerification(@NonNull String regToken) {
         // Stub.
     }
 
-    public void onPendingRegistration() {
+    public void onPendingRegistration(@NonNull String regToken) {
         // Stub.
     }
 

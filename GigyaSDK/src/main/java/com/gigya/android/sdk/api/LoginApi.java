@@ -25,7 +25,7 @@ public class LoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
         super(clazz);
     }
 
-    public void call(Map<String, Object> params, final GigyaLoginCallback callback) {
+    public void call(final Map<String, Object> params, final GigyaLoginCallback callback) {
         GigyaRequest gigyaRequest = new GigyaRequestBuilder(configuration)
                 .api(API)
                 .params(params)
@@ -56,7 +56,7 @@ public class LoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
                         return;
                     }
                     /* Error may contain specific interruption. */
-                    evaluateError(response, callback);
+                    evaluateError(response, params, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());

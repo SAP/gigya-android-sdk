@@ -19,6 +19,10 @@
                     android:title="@string/register" />
 
                 <item
+                    android:id="@+id/api_finalizeReg"
+                    android:title="@string/finalizeRegistration"/>
+
+                <item
                     android:id="@+id/api_get_account_info"
                     android:title="@string/get_account" />
 

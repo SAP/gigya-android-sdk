@@ -50,5 +50,6 @@
     <string name="clear">Clear</string>
     <string name="logged_in">Logged in</string>
     <string name="facebook_update_permissions">Facebook update permissions</string>
+    <string name="finalizeRegistration">finalizeRegistration</string>
 
 </resources>

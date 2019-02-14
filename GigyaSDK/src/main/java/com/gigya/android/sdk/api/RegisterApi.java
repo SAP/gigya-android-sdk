@@ -28,8 +28,12 @@ public class RegisterApi<T extends GigyaAccount> extends BaseLoginApi<T> {
     private static final String API_REGISTER = "accounts.register";
     private static final String API_FINALIZE_REGISTRATION = "accounts.finalizeRegistration";
 
-    private final boolean finalize;
-    private final RegisterPolicy policy;
+    private boolean finalize;
+    private RegisterPolicy policy;
+
+    public RegisterApi(@Nullable Class<T> clazz) {
+        super(clazz);
+    }
 
     public RegisterApi(@Nullable Class<T> clazz,
                        RegisterPolicy policy,
@@ -125,7 +129,49 @@ public class RegisterApi<T extends GigyaAccount> extends BaseLoginApi<T> {
                         return;
                     }
                     /* Error may contain specific interruption. */
-                    evaluateError(response, callback);
+                    evaluateError(response, params, callback);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    callback.onError(GigyaError.generalError());
+                }
+            }
+
+            @Override
+            public void onError(GigyaError gigyaError) {
+                if (callback != null) {
+                    callback.onError(gigyaError);
+                }
+            }
+        });
+    }
+
+    public void callFinalize(final Map<String, Object> params, final GigyaLoginCallback callback) {
+        GigyaRequest request = new GigyaRequestBuilder(configuration).params(params).sessionManager(sessionManager).api(API_FINALIZE_REGISTRATION).build();
+        networkAdapter.send(request, new INetworkCallbacks() {
+            @Override
+            public void onResponse(String jsonResponse) {
+                if (callback == null) {
+                    return;
+                }
+                try {
+                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
+                    final int statusCode = response.getStatusCode();
+                    if (statusCode == OK) {
+                        if (response.contains("sessionInfo") && sessionManager != null) {
+                            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
+                            sessionManager.setSession(session);
+                        }
+                        params.clear(); /* Clear sensitive data once it is not required. */
+                        final T interception = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        final T parsed = (T) response.getGson().fromJson(jsonResponse, clazz != null ? clazz : GigyaAccount.class);
+                        accountManager.setAccount(interception);
+                        callback.onSuccess(parsed);
+                        return;
+                    }
+                    final int errorCode = response.getErrorCode();
+                    final String localizedMessage = response.getErrorDetails();
+                    final String callId = response.getCallId();
+                    callback.onError(new GigyaError(errorCode, localizedMessage, callId));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());

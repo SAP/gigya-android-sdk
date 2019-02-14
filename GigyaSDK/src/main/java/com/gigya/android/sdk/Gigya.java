@@ -17,6 +17,7 @@ import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
+import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
 import java.util.HashMap;
@@ -375,6 +376,11 @@ public class Gigya<T extends GigyaAccount> {
         getApiManager().register(params, policy, finalize, callback);
     }
 
+    // TODO: 14/02/2019 Add JavaDoc.
+    public void finalizeRegistration(Map<String, Object> params, GigyaLoginCallback<T> callback) {
+        getApiManager().finalizeRegistration(params, callback);
+    }
+
     //endregion
 
     //region Native login
@@ -394,18 +400,16 @@ public class Gigya<T extends GigyaAccount> {
 
     //region Plugins
 
-    /**
-     * Present plugin dialog fragment with given plugin type & parameters.
-     *
-     * @param plugin   Requested plugin for display.
-     * @param params   Requested parameters.
-     * @param callback Response listener callback.
-     * @param <H>      Callback custom class scheme.
-     */
-    public <H> void showPlugin(String plugin, Map<String, Object> params, final GigyaPluginCallback<H> callback) {
-        GigyaLogger.debug(LOG_TAG, "showPlugin: " + plugin + ", with parameters:\n" + params.toString());
+    public <H> void showScreenSets(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter()
-                .showPlugin(_appContext, getConfiguration(), false, plugin, params, callback);
+                .showPlugin(_appContext, getConfiguration(), false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
+    }
+
+    public <H> void showComments(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
+        new GigyaPluginPresenter()
+                .showPlugin(_appContext, getConfiguration(), false, PluginFragment.PLUGIN_COMMENTS, params, callback);
     }
 
     //endregion

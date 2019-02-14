@@ -125,6 +125,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.api_register -> {
                 onRegister()
             }
+            R.id.api_finalizeReg -> {
+                onFinalizeRegistration()
+            }
             R.id.api_get_account_info -> {
                 onGetAccount()
             }
@@ -159,6 +162,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onRegister() {
         val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.REGISTER, this)
+        sheet.show(supportFragmentManager, "sheet")
+    }
+
+    private fun onFinalizeRegistration() {
+        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.FINALIZE_REG, this)
         sheet.show(supportFragmentManager, "sheet")
     }
 
@@ -306,6 +314,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onError(error: GigyaError) {
         displayErrorAlert(R.string.rest_error_title, error.localizedMessage)
         onLoadingDone()
+    }
+
+    override fun onInterruption(code: Int, params: Map<String, Any>) {
+       loader.gone()
     }
 
     /**

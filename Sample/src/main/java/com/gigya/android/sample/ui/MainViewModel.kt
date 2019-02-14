@@ -18,7 +18,6 @@ import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
 import com.gigya.android.sdk.ui.GigyaPresenter
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
-import com.gigya.android.sdk.ui.plugin.PluginFragment
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -101,7 +100,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Register using loginID, password, policy.
      */
-    fun register(loginID: String, password: String, policy: RegisterApi.RegisterPolicy, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+    fun register(loginID: String, password: String, policy: RegisterApi.RegisterPolicy,
+                 success: (String) -> Unit, error: (GigyaError?) -> Unit, interruption: (Int, Map<String, Any>) -> Unit) {
         flushAccountReferences()
         when (exampleSetup) {
             SetupExample.BASIC -> {
@@ -115,8 +115,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         error(error)
                     }
 
-                    override fun onPendingVerification() {
+                    override fun onPendingRegistration(regToken: String) {
+                        Log.d("ViewModelMain", "onPendingRegistration received")
+                        interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION, mapOf("regToken" to regToken))
+                    }
+
+                    override fun onPendingVerification(regToken: String) {
                         Log.d("ViewModelMain", "onPendingVerification received")
+                        interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION, mapOf("regToken" to regToken))
                     }
                 })
             }
@@ -132,6 +138,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 //                })
             }
         }
+    }
+
+    fun finalizeRegistration(regToken: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.finalizeRegistration(mapOf("regToken" to regToken), object : GigyaLoginCallback<GigyaAccount>() {
+            override fun onSuccess(obj: GigyaAccount?) {
+                account = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
     }
 
     /**
@@ -273,7 +292,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun showAccountDetails(onUpdated: () -> Unit, onCancelled: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, mutableMapOf<String, Any>(
+        gigya.showScreenSets(mutableMapOf<String, Any>(
                 "screenSet" to "Default-ProfileUpdate",
                 GigyaPresenter.SHOW_FULL_SCREEN to true,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
@@ -298,7 +317,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showPlugin(PluginFragment.PLUGIN_SCREENSETS, mutableMapOf<String, Any>(
+        gigya.showScreenSets(mutableMapOf<String, Any>(
                 "screenSet" to "Default-RegistrationLogin",
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f
@@ -316,7 +335,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showPlugin(PluginFragment.PLUGIN_COMMENTS, mutableMapOf<String, Any>(
+        gigya.showComments(mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 8f

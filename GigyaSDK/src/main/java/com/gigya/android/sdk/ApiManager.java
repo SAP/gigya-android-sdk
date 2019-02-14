@@ -118,6 +118,10 @@ public class ApiManager {
         new RegisterApi<T>(_accountManager.getAccountClazz(), policy, finalize).call(params, callback);
     }
 
+    public <T extends GigyaAccount> void finalizeRegistration(Map<String, Object> params, GigyaLoginCallback<T> callback) {
+        new RegisterApi<T>(_accountManager.getAccountClazz()).callFinalize(params, callback);
+    }
+
     public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaCallback<T> callback, final Runnable completionHandler) {
         new NotifyLoginApi<T>(_accountManager.getAccountClazz())
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
