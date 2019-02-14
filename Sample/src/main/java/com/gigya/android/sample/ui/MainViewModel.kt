@@ -325,7 +325,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 , object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(accountObj: GigyaAccount) {
                 account = accountObj
-                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj!!))
+                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
             }
 
             override fun onError(event: GigyaPluginEvent) {
@@ -342,6 +342,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ),
                 object : GigyaPluginCallback<GigyaAccount>() {
 
+                    override fun onLogin(accountObj: GigyaAccount) {
+                        account = accountObj
+                        onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
+
+                        //TODO This might be wrong - we need to test how to retain the comments activity.
+                        showComments(onLogin, onLogout, onError)
+                    }
+
+                    override fun onLogout() {
+                        onLogout()
+                    }
                 })
     }
 
