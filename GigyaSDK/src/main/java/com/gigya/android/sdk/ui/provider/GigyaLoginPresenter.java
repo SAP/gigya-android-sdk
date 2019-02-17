@@ -26,13 +26,12 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     private static final String REDIRECT_URI = "gsapi://result/";
 
     public <T> void showNativeLoginProviders(final Context context,
-                                             final Configuration configuration,
                                              final Map<String, Object> params,
                                              final GigyaLoginCallback<T> callback) {
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
-        final String url = getPresentationUrl(configuration, params, "login");
+        final String url = getPresentationUrl(_configuration, params, "login");
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -51,7 +50,11 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                             /* Internal check. Should not happen if SDK implementation is correct. */
                             return;
                         }
-                        login(provider);
+
+                        /* Okay to release activity. */
+                        activity.finish();
+
+                        login(context, provider, params, callback);
                     }
 
                     @Override
@@ -59,43 +62,40 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                         /* User cancelled WebView. */
                         callback.onCancelledOperation();
                     }
-
-
-                    private void login(final String provider) {
-                        params.put("provider", provider);
-                        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, configuration,
-                                provider, callback);
-
-                        if (loginProvider instanceof WebViewLoginProvider && !configuration.hasGMID()) {
-                            /* WebView Provider must have basic config fields. */
-                            loginProvider.configurationRequired(activity, params);
-                            return;
-                        }
-                        if (loginProvider.clientIdRequired() && !configuration.isSynced()) {
-                            loginProvider.configurationRequired(activity, params);
-                            return;
-                        }
-
-                        /* Login provider selected. */
-                        _accountManager.updateLoginProvider(loginProvider);
-                        loginProvider.trackTokenChanges(_sessionManager);
-
-                        /* Okay to release activity. */
-                        activity.finish();
-
-                        if (configuration.isSynced()) {
-                            /* Update provider client id if available */
-                            final String providerClientId = configuration.getAppIds().get(provider);
-                            if (providerClientId != null) {
-                                loginProvider.updateProviderClientId(providerClientId);
-                            }
-                        }
-
-                        loginProvider.login(context, params);
-                    }
                 });
             }
         });
+    }
+
+    public void login(Context context, final String provider,
+                       final Map<String, Object> params, GigyaLoginCallback callback) {
+        params.put("provider", provider);
+        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _configuration,
+                provider, callback);
+
+        if (loginProvider instanceof WebViewLoginProvider && !_configuration.hasGMID()) {
+            /* WebView Provider must have basic config fields. */
+            loginProvider.configurationRequired(context, params);
+            return;
+        }
+        if (loginProvider.clientIdRequired() && !_configuration.isSynced()) {
+            loginProvider.configurationRequired(context, params);
+            return;
+        }
+
+        /* Login provider selected. */
+        _accountManager.updateLoginProvider(loginProvider);
+        loginProvider.trackTokenChanges(_sessionManager);
+
+        if (_configuration.isSynced()) {
+            /* Update provider client id if available */
+            final String providerClientId = _configuration.getAppIds().get(provider);
+            if (providerClientId != null) {
+                loginProvider.updateProviderClientId(providerClientId);
+            }
+        }
+
+        loginProvider.login(context, params);
     }
 
     //region Utilities

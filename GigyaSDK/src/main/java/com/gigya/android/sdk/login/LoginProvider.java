@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.login;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
@@ -53,7 +52,7 @@ public abstract class LoginProvider {
     /* Determine if we need to fetch SDK configuration. */
     protected LoginProvider.LoginProviderConfigCallback _configCallback = new LoginProvider.LoginProviderConfigCallback() {
         @Override
-        public void onConfigurationRequired(final Activity activity, final LoginProvider provider, final Map<String, Object> params) {
+        public void onConfigurationRequired(final Context appContext, final LoginProvider provider, final Map<String, Object> params) {
             _apiManager.loadConfig(new Runnable() {
                 @Override
                 public void run() {
@@ -63,8 +62,6 @@ public abstract class LoginProvider {
                         if (providerClientId != null) {
                             provider.updateProviderClientId(providerClientId);
                         }
-                        final Context appContext = activity.getApplicationContext();
-                        activity.finish();
                         provider.login(appContext, params);
                     }
                 }
@@ -72,8 +69,8 @@ public abstract class LoginProvider {
         }
     };
 
-    public void configurationRequired(final Activity activity, final Map<String, Object> params) {
-        _configCallback.onConfigurationRequired(activity, this, params);
+    public void configurationRequired(final Context context, final Map<String, Object> params) {
+        _configCallback.onConfigurationRequired(context, this, params);
     }
 
     /*
@@ -169,7 +166,7 @@ public abstract class LoginProvider {
     //region Interfacing
 
     public interface LoginProviderConfigCallback {
-        void onConfigurationRequired(Activity activity, LoginProvider provider, Map<String, Object> params);
+        void onConfigurationRequired(Context appContext, LoginProvider provider, Map<String, Object> params);
     }
 
     public interface LoginProviderCallbacks {

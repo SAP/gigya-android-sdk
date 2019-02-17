@@ -321,6 +321,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 "screenSet" to "Default-RegistrationLogin",
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f
+                //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
+                //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
         )
                 , object : GigyaPluginCallback<GigyaAccount>() {
             override fun onLogin(accountObj: GigyaAccount) {

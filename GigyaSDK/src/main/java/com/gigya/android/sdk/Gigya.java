@@ -132,6 +132,7 @@ public class Gigya<T extends GigyaAccount> {
                 /* Try to load fom manifest meta data. */
                 configuration = Configuration.loadFromManifest(_appContext);
             }
+
             // Update with new configuration.
             DependencyRegistry.getInstance().setConfiguration(configuration);
         }
@@ -301,10 +302,20 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login given a specific 3rd party provider.
      *
-     * @param provider Provider name as described in site console
+     * @param provider Provider name as described & configured in site console
      * @param callback Login response listener callback.
      */
-    public void login(String provider, GigyaLoginCallback<T> callback) {
+    public void login(String provider, Map<String, Object> params, GigyaLoginCallback<T> callback) {
+        new GigyaLoginPresenter().login(_appContext, provider, params, callback);
+    }
+
+    /**
+     * Add a social connection to an existing user.
+     *
+     * @param provider Provider name as described & configured in site console.
+     * @param callback Login response listener callback.
+     */
+    public void addConnection(String provider, GigyaLoginCallback<T> callback) {
         // TODO: 05/02/2019 Add new api flow.
     }
 
@@ -393,23 +404,25 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
-        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, getConfiguration(), params, callback);
+        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, params, callback);
     }
 
     //endregion
 
     //region Plugins
 
+    // TODO: 16/02/2019 JavaDoc
     public <H> void showScreenSets(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter()
-                .showPlugin(_appContext, getConfiguration(), false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
+                .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
     }
 
+    // TODO: 16/02/2019 JavaDoc
     public <H> void showComments(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter()
-                .showPlugin(_appContext, getConfiguration(), false, PluginFragment.PLUGIN_COMMENTS, params, callback);
+                .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
     }
 
     //endregion

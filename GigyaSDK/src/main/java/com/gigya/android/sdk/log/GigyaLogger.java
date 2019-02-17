@@ -28,6 +28,6 @@ public class GigyaLogger {
     }
 
     private static String logMessage(String classTAG, String message) {
-        return "<<< " + classTAG + " *** " + message + " >>>";
+        return "<< " + classTAG + " *** " + message + " >>";
     }
 }

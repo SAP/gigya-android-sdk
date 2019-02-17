@@ -5,15 +5,17 @@ import android.util.SparseArray;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.model.Configuration;
 
 public abstract class GigyaPresenter {
-
-    private static final String LOG_TAG = "GigyaPresenter";
 
     public static final String SHOW_FULL_SCREEN = "style_show_full_screen";
     public static final String PROGRESS_COLOR = "style_progress_color";
     public static final String CORNER_RADIUS = "style_corner_radius";
+    public static final String DIALOG_MAX_WIDTH = "dialog_max_width";
+    public static final String DIALOG_MAX_HEIGHT = "dialog_max_height";
 
+    protected Configuration _configuration;
     protected SessionManager _sessionManager;
     protected AccountManager _accountManager;
 
@@ -22,7 +24,8 @@ public abstract class GigyaPresenter {
     }
 
 
-    public void inject(SessionManager sessionManager, AccountManager accountManager) {
+    public void inject(Configuration configuration, SessionManager sessionManager, AccountManager accountManager) {
+        _configuration = configuration;
         _sessionManager = sessionManager;
         _accountManager = accountManager;
     }

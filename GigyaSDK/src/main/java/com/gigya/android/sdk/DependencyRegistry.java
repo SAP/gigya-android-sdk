@@ -126,7 +126,7 @@ public class DependencyRegistry {
     }
 
     public void inject(GigyaPresenter presenter) {
-        presenter.inject(getSessionManager(), getAccountManager());
+        presenter.inject(getConfiguration(), getSessionManager(), getAccountManager());
     }
 
     public void inject(BaseApi api) {

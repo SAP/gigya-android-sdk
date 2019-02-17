@@ -49,6 +49,8 @@ public abstract class WebViewFragment extends DialogFragment {
     protected boolean _fullScreen;
     private int _progressColorStyle = Color.BLACK;
     private float _cornerRadiusStyle = 16f;
+    private float _maxWidth = 0f;
+    private float _maxHeight = 0f;
 
     @Nullable
     protected String _url, _body, _redirectPrefix, _title;
@@ -91,6 +93,8 @@ public abstract class WebViewFragment extends DialogFragment {
             _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.SHOW_FULL_SCREEN), false);
             _progressColorStyle = (int) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.PROGRESS_COLOR), Color.BLACK);
             _cornerRadiusStyle = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.CORNER_RADIUS), 16f);
+            _maxWidth = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.DIALOG_MAX_WIDTH), 0f);
+            _maxHeight = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.DIALOG_MAX_HEIGHT), 0f);
         }
     }
 
@@ -132,7 +136,7 @@ public abstract class WebViewFragment extends DialogFragment {
         final Pair<Integer, Integer> screenSize = UiUtils.getScreenSize(getActivity());
 
         /* Content view. */
-        setupMainFrames(getActivity());
+        setupMainFrames(getActivity(), screenSize);
 
         /* WebView content. */
         setupWebContent(getActivity(), dip16);
@@ -149,7 +153,7 @@ public abstract class WebViewFragment extends DialogFragment {
 
     //region UI blocks
 
-    private void setupMainFrames(Context context) {
+    private void setupMainFrames(Context context, Pair<Integer, Integer> screenSize) {
         _contentView = new FrameLayout(context);
         // Content view is always match/match
         final ViewGroup.LayoutParams contentParams = new ViewGroup.LayoutParams(
@@ -157,11 +161,16 @@ public abstract class WebViewFragment extends DialogFragment {
         );
         _contentView.setLayoutParams(contentParams);
 
+        FrameLayout.LayoutParams webFrameParams;
         _webFrame = new FrameLayout(context);
-        final FrameLayout.LayoutParams webFrameParams = new FrameLayout.LayoutParams(
-                wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT,
-                wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT
-        );
+        if (_maxWidth == 0 || _maxHeight == 0) {
+            webFrameParams = new FrameLayout.LayoutParams(
+                    wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT,
+                    wrapContent() ? FrameLayout.LayoutParams.WRAP_CONTENT : FrameLayout.LayoutParams.MATCH_PARENT
+            );
+        } else {
+            webFrameParams = getFixedLayoutParams(context, screenSize);
+        }
         _contentView.addView(_webFrame, webFrameParams);
     }
 
@@ -227,16 +236,15 @@ public abstract class WebViewFragment extends DialogFragment {
         return gradientDrawable;
     }
 
-    private ViewGroup.LayoutParams getFixedLayoutParams(Context context, Pair<Integer, Integer> screenSize) {
-        return new ViewGroup.LayoutParams(
+    private FrameLayout.LayoutParams getFixedLayoutParams(Context context, Pair<Integer, Integer> screenSize) {
+        return new FrameLayout.LayoutParams(
                 (int) (UiUtils.isPortrait(context) ?
-                        Math.min(screenSize.first, screenSize.second) * 0.9 :
-                        Math.max(screenSize.first, screenSize.second) * 0.9),
-                wrapContent() ? LinearLayout.LayoutParams.WRAP_CONTENT :
-                        (int) (UiUtils.isPortrait(context) ?
-                                Math.max(screenSize.first, screenSize.second) * 0.9 :
-                                Math.min(screenSize.first, screenSize.second) * 0.9
-                        )
+                        Math.min(screenSize.first, screenSize.second) * _maxWidth :
+                        Math.max(screenSize.first, screenSize.second) * _maxWidth),
+                (int) (UiUtils.isPortrait(context) ?
+                        Math.max(screenSize.first, screenSize.second) * _maxHeight :
+                        Math.min(screenSize.first, screenSize.second) * _maxHeight
+                )
         );
     }
 
