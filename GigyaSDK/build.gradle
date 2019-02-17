@@ -56,8 +56,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
-    testImplementation 'org.apache.httpcomponents:httpcore:4.4.9'
-    testImplementation 'org.apache.httpcomponents:httpclient:4.5.5'
+    testImplementation 'org.apache.httpcomponents:httpcore:4.4.10'
+    testImplementation 'org.apache.httpcomponents:httpclient:4.5.6'
 
     /* Implementations. */
     implementation 'com.android.support:appcompat-v7:28.0.0'
@@ -69,4 +69,60 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
     compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.3.1'
     compileOnly 'com.android.volley:volley:1.1.1'
+}
+
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    if (name == 'realease') {
+
+        task createOutputDirs() {
+            file(outDir).mkdir()
+        }
+        createOutputDirs.outputs.dir files(
+                file(outDir),
+                buildDir
+        )
+        task removeOutputDirs() {
+            delete outDir, buildDir
+        }
+
+        task createAndroidJar(type: Jar, dependsOn: variant.javaCompile) {
+            baseName androidJarName
+            from variant.javaCompile.destinationDir
+            destinationDir = file(outDir)
+            include(
+                    'com/gigya/android/sdk/**',
+            )
+            manifest {
+                from sharedManifest
+            }
+        }
+
+        task createAndroidJavadoc(type: Javadoc, dependsOn: variant.javaCompile) {
+            source = variant.javaCompile.source
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+            destinationDir = new File("${outDir}/${androidDocName}")
+            include()
+            failOnError = false
+        }
+
+        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompile) {
+            from 'src'
+            def sourceDir = new File("${outDir}/${androidSrcName}")
+            sourceDir.mkdir()
+            into sourceDir
+        }
+
+        task createPropertiesFile(dependsOn: [createAndroidJar, createAndroidJavadoc, createAndroidSrc]) {
+            File propertiesFile = new File("${outDir}/${androidJarName}.jar.properties")
+            doLast {
+                propertiesFile.text = "src=${androidSrcName}\n"
+                propertiesFile.text += "doc=${androidDocName}"
+            }
+        }
+
+        task release(dependsOn: createPropertiesFile) {
+            println 'Release: Done'
+        }
+    }
 }
