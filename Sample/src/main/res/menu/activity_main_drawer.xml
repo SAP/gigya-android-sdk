@@ -15,12 +15,16 @@
                     android:title="@string/login" />
 
                 <item
+                    android:id="@+id/api_login_with_provider"
+                    android:title="Login with provider" />
+
+                <item
                     android:id="@+id/api_register"
                     android:title="@string/register" />
 
                 <item
                     android:id="@+id/api_finalizeReg"
-                    android:title="@string/finalizeRegistration"/>
+                    android:title="@string/finalizeRegistration" />
 
                 <item
                     android:id="@+id/api_get_account_info"

@@ -122,6 +122,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.api_login -> {
                 onLogin()
             }
+            R.id.api_login_with_provider -> {
+                onLoginWithProvider()
+            }
             R.id.api_register -> {
                 onRegister()
             }
@@ -172,6 +175,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onLogin() {
         val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.LOGIN, this)
+        sheet.show(supportFragmentManager, "sheet")
+    }
+
+    private fun onLoginWithProvider() {
+        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.LOGIN_WITH_PROVIDER, this)
         sheet.show(supportFragmentManager, "sheet")
     }
 
@@ -316,8 +324,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         onLoadingDone()
     }
 
+    override fun onCancel() {
+        loader.gone()
+        response_text_view.snackbar("Operation canceled")
+    }
+
+
     override fun onInterruption(code: Int, params: Map<String, Any>) {
        loader.gone()
+
     }
 
     /**

@@ -225,6 +225,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Login with specific supported social provider.
+     */
+    fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
+        gigya.login(provider, mutableMapOf<String, Any>(
+                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                GigyaPresenter.CORNER_RADIUS to 24f),
+                object : GigyaLoginCallback<GigyaAccount>() {
+                    override fun onSuccess(obj: GigyaAccount?) {
+                        Log.d("loginWithProvider", "Success")
+                        account = obj
+                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+                    }
+
+                    override fun onCancelledOperation() {
+                        cancel()
+                    }
+
+                    override fun onError(error: GigyaError?) {
+                        Log.d("showLoginProviders", "onError")
+                        error(error)
+                    }
+                })
+    }
+
+    /**
      * Present SDK native login pre defined UI.
      */
     fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {

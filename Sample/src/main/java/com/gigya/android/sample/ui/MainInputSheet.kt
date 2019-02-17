@@ -14,6 +14,7 @@ import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.sheet_anonymous.*
 import kotlinx.android.synthetic.main.sheet_finialize_registration.*
 import kotlinx.android.synthetic.main.sheet_login_register.*
+import kotlinx.android.synthetic.main.sheet_login_with_provider.*
 import kotlinx.android.synthetic.main.sheet_re_init.*
 import kotlinx.android.synthetic.main.sheet_set_account.*
 import org.jetbrains.anko.design.snackbar
@@ -24,7 +25,7 @@ class MainInputSheet : DialogFragment() {
     private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, FINALIZE_REG
+        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, FINALIZE_REG, LOGIN_WITH_PROVIDER
     }
 
     interface IApiResultCallback {
@@ -33,6 +34,7 @@ class MainInputSheet : DialogFragment() {
         fun onError(error: GigyaError)
         fun onReInit()
         fun onInterruption(code: Int, params: Map<String, Any>)
+        fun onCancel()
     }
 
     var type: MainInputType? = null
@@ -73,6 +75,7 @@ class MainInputSheet : DialogFragment() {
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.sheet_login_register
             MainInputType.SET_ACCOUNT_INFO -> R.layout.sheet_set_account
             MainInputType.FINALIZE_REG -> R.layout.sheet_finialize_registration
+            MainInputType.LOGIN_WITH_PROVIDER -> R.layout.sheet_login_with_provider
             else -> 0
         }
         return inflater.inflate(layout, container, false)
@@ -85,6 +88,7 @@ class MainInputSheet : DialogFragment() {
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
             MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
             MainInputType.FINALIZE_REG -> setupForFinalizeRegistration()
+            MainInputType.LOGIN_WITH_PROVIDER -> setupForLoginWithProvider()
         }
     }
 
@@ -139,6 +143,22 @@ class MainInputSheet : DialogFragment() {
                 viewModel?.sendAnonymous(api,
                         success = { json -> postSuccess(json) },
                         error = { possibleError -> postError(possibleError) })
+            }
+        }
+    }
+
+    private fun setupForLoginWithProvider() {
+        login_with_provider_sheet_send_button.setOnClickListener {
+            val provider = login_with_provider_sheet_edit.text.toString().trim()
+            if (!TextUtils.isEmpty(provider)) {
+                resultCallback.onLoading()
+                viewModel?.loginWithProvider(provider,
+                        success = { json -> postSuccess(json) },
+                        error = { possibleError -> postError(possibleError) },
+                        cancel = {
+                            resultCallback.onCancel()
+                            dismiss()
+                        })
             }
         }
     }
