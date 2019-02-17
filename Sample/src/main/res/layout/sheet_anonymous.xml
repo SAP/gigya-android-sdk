@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-       <android.support.v7.widget.AppCompatTextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/anonymous_sheet_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,10 +21,10 @@
         android:id="@+id/anonymous_sheet_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constrainedHeight="true"
-        android:textColorHint="@color/colorAccent"
-        android:hint="Choose anonymous api"
         android:layout_marginTop="4dp"
+        android:hint="Choose anonymous api"
+        android:textColorHint="@color/colorAccent"
+        app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="@id/anonymous_sheet_title"
         app:layout_constraintStart_toStartOf="@id/anonymous_sheet_title"
         app:layout_constraintTop_toBottomOf="@id/anonymous_sheet_title">
@@ -32,27 +32,26 @@
         <android.support.design.widget.TextInputEditText
             android:id="@+id/anonymous_sheet_edit"
             android:layout_width="match_parent"
-            android:textSize="14sp"
-            android:text="@string/anonymous_placeholder"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/anonymous_sheet_send_button"
         android:layout_width="wrap_content"
-        app:layout_constrainedWidth="true"
-        android:textColor="@color/colorAccent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:foreground="?attr/selectableItemBackground"
-        android:background="@android:color/transparent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
         android:text="Send request"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/anonymous_sheet_input"
-        app:layout_constrainedHeight="true"/>
+        android:textColor="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/anonymous_sheet_input" />
 
 </android.support.constraint.ConstraintLayout>
