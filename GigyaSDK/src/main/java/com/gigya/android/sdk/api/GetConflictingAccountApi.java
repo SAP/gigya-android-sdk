@@ -35,6 +35,7 @@ public class GetConflictingAccountApi extends BaseApi {
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         callback.onSuccess(response);
+                        return;
                     }
                     final int errorCode = response.getErrorCode();
                     final String localizedMessage = response.getErrorDetails();
@@ -58,5 +59,13 @@ public class GetConflictingAccountApi extends BaseApi {
     public static class ConflictingAccount {
         private List<String> loginProviders = new ArrayList<>();
         private String loginID;
+
+        public List<String> getLoginProviders() {
+            return loginProviders;
+        }
+
+        public String getLoginID() {
+            return loginID;
+        }
     }
 }

@@ -123,6 +123,7 @@ public class FacebookLoginProvider extends LoginProvider {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired() && permissionsGranted(readPermissions);
         if (isLoggedIn) {
+            _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
             return;
         }
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {

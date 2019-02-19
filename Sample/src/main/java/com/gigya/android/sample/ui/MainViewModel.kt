@@ -11,6 +11,8 @@ import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.RegisterApi
+import com.gigya.android.sdk.interruption.ConflictingProviderResolver
+import com.gigya.android.sdk.interruption.PendingPasswordChangeResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.model.GigyaAccount
@@ -69,19 +71,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         flushAccountReferences()
         when (exampleSetup) {
             SetupExample.BASIC -> {
-                gigya.login(loginID, password, object : GigyaLoginCallback<GigyaAccount>() {
-                    override fun onCancelledOperation() {
-                        // Cancelled.
-                    }
+                gigya.login(loginID, password,
+                        object : GigyaLoginCallback<GigyaAccount>() {
+                            override fun onCancelledOperation() {
+                                // Cancelled.
+                            }
 
-                    override fun onSuccess(obj: GigyaAccount?) {
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
+                            override fun onSuccess(obj: GigyaAccount?) {
+                                account = obj
+                                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+                            }
 
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
+                            override fun onError(error: GigyaError?) {
+                                error(error)
+                            }
+
+                            override fun onPendingPasswordChange(resolver: PendingPasswordChangeResolver) {
+                                // Show custom ui for password change. Use resolver to resolve.
+                                //resolver.resolve("toolmarmel.alt2+1@gmail.com")
+                                resolver.resolve(mapOf(
+                                        "loginID" to "toolmarmel.alt2+1@gmail.com",
+                                        "newPassword" to "jenssin123",
+                                        "secretAnswer" to "Suck"
+                                ))
+                            }
+
+                            override fun onResetPasswordLinkSent() {
+                                success("Reset password email link sent")
+                            }
+                        })
             }
             SetupExample.CUSTOM_SCHEME -> {
 //                gigya.login(loginID, password, object : GigyaCallback<MyAccount>() {
@@ -101,13 +119,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Register using loginID, password, policy.
      */
     fun register(loginID: String, password: String, policy: RegisterApi.RegisterPolicy,
-                 success: (String) -> Unit, error: (GigyaError?) -> Unit, interruption: (Int, Map<String, Any>) -> Unit) {
+                 success: (String) -> Unit, error: (GigyaError?) -> Unit, interruption: (Int, Map<String, Any?>) -> Unit) {
         flushAccountReferences()
         when (exampleSetup) {
             SetupExample.BASIC -> {
                 gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<GigyaAccount>() {
 
                     override fun onSuccess(obj: GigyaAccount?) {
+                        account = obj
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
 
@@ -115,12 +134,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         error(error)
                     }
 
-                    override fun onPendingRegistration(regToken: String) {
+                    override fun onPendingRegistration(regToken: String?) {
                         Log.d("ViewModelMain", "onPendingRegistration received")
                         interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION, mapOf("regToken" to regToken))
                     }
 
-                    override fun onPendingVerification(regToken: String) {
+                    override fun onPendingVerification(regToken: String?) {
                         Log.d("ViewModelMain", "onPendingVerification received")
                         interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION, mapOf("regToken" to regToken))
                     }
@@ -243,11 +262,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
                     override fun onError(error: GigyaError?) {
-                        Log.d("showLoginProviders", "onError")
+                        Log.d("loginWithProvider", "onError")
                         error(error)
+                    }
+
+                    override fun onConflictingAccounts(conflictingProviders: MutableList<String>?, resolver: ConflictingProviderResolver?) {
+                        // Select your provider here from the list using your customized UI.
+                        // When done use the resolver to continue the flow.
+                        //resolver?.resolveForSiteProvider("toolmarmel.alt2@gmail.com", "123123")
+                        //resolver?.resolveForSocialProvider(getApplication(), "googleplus", null)
+//                        gigya.showScreenSets(mutableMapOf<String, Any>(
+//                                "screenSet" to "Default-LinkAccounts"),
+//                                object : GigyaPluginCallback<GigyaAccount>() {
+//
+//                                }
+//                        )
                     }
                 })
     }
+
 
     /**
      * Present SDK native login pre defined UI.

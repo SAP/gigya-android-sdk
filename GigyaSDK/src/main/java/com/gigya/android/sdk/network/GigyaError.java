@@ -9,16 +9,12 @@ import java.util.Map;
 public class GigyaError {
 
     public static class Codes {
-
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;
         public static final int ERROR_ACCOUNT_PENDING_VERIFICATION = 206002;
         public static final int ERROR_PENDING_PASSWORD_CHANGE = 403100;
-        public static final int ERROR_PERMISSION_DENIED = 403007;
-        public static final int ERROR_PENDING_TFA_VERIFICATION = 403101;
-        public static final int ERROR_PENDING_TFA_REGISTRATION = 403102;
-        public static final int ERROR_IDENTITY_EXISTS = 409001;
-        public static final int ERORR_SOCIAL_PROVIDER_EXISTS = 409002;
+        public static final int ERROR_LOGIN_IDENTIFIER_EXISTS = 403043;
 
+        public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
     }
 
     /* Raw Json data. */

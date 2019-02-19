@@ -33,7 +33,7 @@ class MainInputSheet : DialogFragment() {
         fun onJsonResult(json: String)
         fun onError(error: GigyaError)
         fun onReInit()
-        fun onInterruption(code: Int, params: Map<String, Any>)
+        fun onInterruption(code: Int, params: Map<String, Any?>)
         fun onCancel()
     }
 

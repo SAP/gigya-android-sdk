@@ -26,7 +26,7 @@ class GigyaSampleApplication : Application() {
         /*
         Initialization with explicit api-key.
          */
-        //Gigya.getInstance(applicationContext).init(getString(R.string.api_key_with_email_verification))
+        Gigya.getInstance(applicationContext).init(getString(R.string.api_with_security_questions))
 
         /*
         Initialization with explicit api-key, api-domain type.

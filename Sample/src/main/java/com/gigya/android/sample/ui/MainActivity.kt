@@ -330,9 +330,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    override fun onInterruption(code: Int, params: Map<String, Any>) {
+    override fun onInterruption(code: Int, params: Map<String, Any?>) {
        loader.gone()
-
     }
 
     /**

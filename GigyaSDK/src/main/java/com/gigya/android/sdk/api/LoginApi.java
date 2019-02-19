@@ -42,6 +42,10 @@ public class LoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
                     final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
+                        if (evaluateSuccessError(response, callback)) {
+                            /* Response success with error that should be handled. */
+                            return;
+                        }
                         /* Update session info */
                         if (response.contains("sessionInfo") && sessionManager != null) {
                             SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
@@ -56,7 +60,7 @@ public class LoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
                         return;
                     }
                     /* Error may contain specific interruption. */
-                    evaluateError(response, params, callback);
+                    evaluateError(response, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());

@@ -129,7 +129,7 @@ public class RegisterApi<T extends GigyaAccount> extends BaseLoginApi<T> {
                         return;
                     }
                     /* Error may contain specific interruption. */
-                    evaluateError(response, params, callback);
+                    evaluateError(response, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());

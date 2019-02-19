@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Build;
 
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.api.flow.BaseFlow;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
+import com.gigya.android.sdk.interruption.LoginResolver;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
@@ -134,8 +134,8 @@ public class DependencyRegistry {
         api.inject(getConfiguration(), getNetworkAdapter(), getSessionManager(), getAccountManager());
     }
 
-    public void inject(BaseFlow flow) {
-        flow.inject(getConfiguration(), getNetworkAdapter(), getAccountManager(), getSessionManager());
+    public void inject(LoginResolver resolver) {
+        resolver.inject(getApiManager());
     }
 
     //endregion

@@ -2,11 +2,13 @@ package com.gigya.android.sdk;
 
 import com.gigya.android.sdk.api.AnonymousApi;
 import com.gigya.android.sdk.api.GetAccountApi;
+import com.gigya.android.sdk.api.GetConflictingAccountApi;
 import com.gigya.android.sdk.api.LoginApi;
 import com.gigya.android.sdk.api.LogoutApi;
 import com.gigya.android.sdk.api.NotifyLoginApi;
 import com.gigya.android.sdk.api.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.RegisterApi;
+import com.gigya.android.sdk.api.ResetPasswordApi;
 import com.gigya.android.sdk.api.SdkConfigApi;
 import com.gigya.android.sdk.api.SetAccountApi;
 import com.gigya.android.sdk.log.GigyaLogger;
@@ -20,7 +22,6 @@ import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 @SuppressWarnings("WeakerAccess") // Access should remain public for client use.
 public class ApiManager {
@@ -91,12 +92,8 @@ public class ApiManager {
         new LogoutApi().call();
     }
 
-    public <T extends GigyaAccount> void login(String username, String password, GigyaLoginCallback callback) {
+    public <T extends GigyaAccount> void login(Map<String, Object> params, GigyaLoginCallback callback) {
         _accountManager.invalidateAccount();
-        final TreeMap<String, Object> params = new TreeMap<>();
-        params.put("loginID", username);
-        params.put("password", password);
-        params.put("include", "profile,data,subscriptions,preferences");
         new LoginApi<T>(_accountManager.getAccountClazz()).call(params, callback);
     }
 
@@ -122,7 +119,7 @@ public class ApiManager {
         new RegisterApi<T>(_accountManager.getAccountClazz()).callFinalize(params, callback);
     }
 
-    public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaCallback<T> callback, final Runnable completionHandler) {
+    public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaLoginCallback<T> callback, final Runnable completionHandler) {
         new NotifyLoginApi<T>(_accountManager.getAccountClazz())
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                     @Override
@@ -144,6 +141,10 @@ public class ApiManager {
                         }
                     }
                 });
+    }
+
+    public void resetPassword(final Map<String, Object> params, final GigyaCallback<GigyaResponse> callback) {
+        new ResetPasswordApi().call(params, callback);
     }
 
     public void updateProviderSessions(String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
@@ -169,5 +170,9 @@ public class ApiManager {
                         }
                     }
                 });
+    }
+
+    public void getConflictingAccounts(String regToken, GigyaCallback<GigyaResponse> callback) {
+        new GetConflictingAccountApi().call(regToken, callback);
     }
 }

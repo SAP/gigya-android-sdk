@@ -6,10 +6,11 @@
     <!-- Keys -->
     <string name="api_key">3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC</string>
     <string name="api_key_with_email_verification">3_ENyIx0YxYE2bZq4Qm8oDotQiZtw7oSifr7ueTshIzQ-wDMhy6tW8-aZaAGRMYaE9</string>
+    <string name="api_with_security_questions">3_wVIrkaYyPIXE7IzjY6eCGvMNqkql7e73HENYtzemhT-JOE3cvU3_xYJcui_Pmfe5</string>
 
     <!-- IDs -->
-    <!--<string name="facebook_app_id">113512789545198</string>-->
-    <string name="facebook_app_id">418678161654216</string>
+    <string name="facebook_app_id">113512789545198</string>
+    <!--<string name="facebook_app_id">418678161654216</string>-->
     <string name="google_client_id">977811956095-3h65r3llr61v5icpoe3e7jnjq9avjj9e.apps.googleusercontent.com</string>
     <string name="wechatAppID">wx222c4ccaa989aa00</string>
     <string name="line_Channel_ID">1618046855</string>

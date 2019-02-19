@@ -22,6 +22,7 @@ import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Gigya<T extends GigyaAccount> {
 
@@ -291,12 +292,16 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login with provided id & password.
      *
-     * @param username Login username.
+     * @param loginId  LoginID.
      * @param password Login password.
      * @param callback Response listener callback.
      */
-    public void login(String username, String password, GigyaLoginCallback<T> callback) {
-        getApiManager().login(username, password, callback);
+    public void login(String loginId, String password, GigyaLoginCallback<T> callback) {
+        final Map<String, Object> params = new TreeMap<>();
+        params.put("loginID", loginId);
+        params.put("password", password);
+        params.put("include", "profile,data,subscriptions,preferences");
+        getApiManager().login(params, callback);
     }
 
     /**

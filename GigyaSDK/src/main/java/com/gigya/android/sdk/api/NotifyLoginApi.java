@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class NotifyLoginApi<T extends GigyaAccount> extends BaseApi<T> {
+public class NotifyLoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
 
     public NotifyLoginApi(Class<T> clazz) {
         super(clazz);
@@ -34,7 +35,7 @@ public class NotifyLoginApi<T extends GigyaAccount> extends BaseApi<T> {
         getAccount(callback, interceptor);
     }
 
-    public void call(String providerSessions, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+    public void call(String providerSessions, final GigyaLoginCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         final Map<String, Object> params = new HashMap<>();
         params.put("providerSessions", providerSessions);
         GigyaRequest request = new GigyaRequestBuilder(configuration)
@@ -59,10 +60,8 @@ public class NotifyLoginApi<T extends GigyaAccount> extends BaseApi<T> {
                         }
                         return;
                     }
-                    final int errorCode = response.getErrorCode();
-                    final String localizedMessage = response.getErrorDetails();
-                    final String callId = response.getCallId();
-                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
+                    /* Error may contain specific interruption. */
+                    evaluateError(response, callback);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     callback.onError(GigyaError.generalError());
