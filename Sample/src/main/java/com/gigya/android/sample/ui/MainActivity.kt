@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainInputSheet.IApiResultCallback {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainInputDialog.IApiResultCallback {
 
     private var viewModel: MainViewModel? = null
 
@@ -72,11 +72,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
-        // Reference dynamic item views in oreder to apply visibility logic.
+        // Reference dynamic item views in order to apply visibility logic.
         val accountItem = menu.findItem(R.id.action_account)
         val logoutItem = menu.findItem(R.id.action_logout);
         val facebookPermissionsUpdateItem = menu.findItem(R.id.fb_permission_update)
-
         val isLoggedIn = Gigya.getInstance().isLoggedIn
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
@@ -90,62 +89,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_clear -> {
-                onClear()
-            }
-            R.id.action_reinit -> {
-                reInit()
-            }
-            // Logout User.
-            R.id.action_logout -> {
-                onClear()
-                viewModel?.logout()
-                invalidateAccountData()
-                response_text_view.snackbar(getString(R.string.logged_out))
-            }
-            R.id.fb_permission_update -> {
-                viewModel?.requestFacebookPermissionUpdate(
-                        granted = { response_text_view.snackbar("Permission granted") },
-                        fail = { why -> response_text_view.snackbar(why) },
-                        cancel = { response_text_view.snackbar("Request cancelled") }
-                )
-            }
+            R.id.action_clear -> onClear()
+            R.id.action_reinit -> reInit()
+            R.id.action_logout -> logout()
+            R.id.fb_permission_update -> facebookPermissionUpdate()
         }
         return super.onOptionsItemSelected(item)
     }
 
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.api_anonymous -> {
-                onSendAnonymousRequest()
-            }
-            R.id.api_login -> {
-                onLogin()
-            }
-            R.id.api_login_with_provider -> {
-                onLoginWithProvider()
-            }
-            R.id.api_register -> {
-                onRegister()
-            }
-            R.id.api_finalizeReg -> {
-                onFinalizeRegistration()
-            }
-            R.id.api_get_account_info -> {
-                onGetAccount()
-            }
-            R.id.api_set_account_info -> {
-                onSetAccount()
-            }
-            R.id.action_native_login -> {
-                presentNativeLogin()
-            }
-            R.id.action_raas -> {
-                showRAAS()
-            }
-            R.id.action_comments -> {
-                showComments()
-            }
+            R.id.api_anonymous -> onSendAnonymousRequest()
+            R.id.api_login -> onLogin()
+            R.id.api_login_with_provider -> onLoginWithProvider()
+            R.id.api_register -> onRegister()
+            R.id.api_finalizeReg -> onFinalizeRegistration()
+            R.id.api_get_account_info -> onGetAccount()
+            R.id.api_set_account_info -> onSetAccount()
+            R.id.action_native_login -> presentNativeLogin()
+            R.id.action_raas -> showRAAS()
+            R.id.action_comments -> showComments()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -154,55 +118,77 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //endregion
 
     /**
+     * Log the user out of the system.
+     */
+    private fun logout() {
+        onClear()
+        viewModel?.logout()
+        invalidateAccountData()
+        response_text_view.snackbar(getString(R.string.logged_out))
+    }
+
+    /**
      * Providing the option to re-initialize the SDK with different ApiKey, ApiDomain parameters.
      */
     private fun reInit() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.REINIT, this)
+        val sheet = MainInputDialog.newInstance(MainInputDialog.MainInputType.REINIT, this)
         sheet.show(supportFragmentManager, "sheet")
+    }
+
+    /**
+     * Request Facebook provider permission update. Using this entry will require you the set up your Facebook application
+     * correctly and pass the Facebook's review in order to add & approve additional permissions.
+     */
+    private fun facebookPermissionUpdate() {
+        viewModel?.requestFacebookPermissionUpdate(
+                granted = { response_text_view.snackbar("Permission granted") },
+                fail = { why -> response_text_view.snackbar(why) },
+                cancel = { response_text_view.snackbar("Request cancelled") }
+        )
     }
 
     //region APIs
 
     private fun onRegister() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.REGISTER, this)
-        sheet.show(supportFragmentManager, "sheet")
+        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.REGISTER, this)
+        dialog.show(supportFragmentManager, "onRegister")
     }
 
     private fun onFinalizeRegistration() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.FINALIZE_REG, this)
-        sheet.show(supportFragmentManager, "sheet")
+        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.FINALIZE_REG, this)
+        dialog.show(supportFragmentManager, "onFinalizeRegistration")
     }
 
     private fun onLogin() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.LOGIN, this)
-        sheet.show(supportFragmentManager, "sheet")
+        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.LOGIN, this)
+        dialog.show(supportFragmentManager, "onLogin")
     }
 
     private fun onLoginWithProvider() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.LOGIN_WITH_PROVIDER, this)
-        sheet.show(supportFragmentManager, "sheet")
+        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.LOGIN_WITH_PROVIDER, this)
+        dialog.show(supportFragmentManager, "onLoginWithProvider")
     }
 
     private fun onSendAnonymousRequest() {
-        val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.ANONYMOUS, this)
-        sheet.show(supportFragmentManager, "sheet")
+        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.ANONYMOUS, this)
+        dialog.show(supportFragmentManager, "onSendAnonymousRequest")
     }
 
     private fun onGetAccount() {
-        if (Gigya.getInstance().isLoggedIn) {
-            onLoading()
-            viewModel?.getAccount(
-                    success = { json ->
-                        onJsonResult(json)
-                        onAccountDataAvailable()
-                    },
-                    error = { possibleError ->
-                        possibleError?.let { error -> onError(error) }
-                    }
-            )
-        } else {
+        if (!Gigya.getInstance().isLoggedIn) {
             response_text_view.snackbar(getString(R.string.not_logged_in))
+            return
         }
+        onLoading()
+        viewModel?.getAccount(
+                success = { json ->
+                    onJsonResult(json)
+                    onAccountDataAvailable()
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     private fun onSetAccount() {
@@ -210,7 +196,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder.setTitle(title).setTitle("Attention!").setMessage("Make sure all updated fields are marked as \"clientModify\"");
         builder.setPositiveButton(getString(android.R.string.ok)) { dialog, _ ->
             if (viewModel?.okayToRequestSetAccount()!!) {
-                val sheet = MainInputSheet.newInstance(MainInputSheet.MainInputType.SET_ACCOUNT_INFO, this)
+                val sheet = MainInputDialog.newInstance(MainInputDialog.MainInputType.SET_ACCOUNT_INFO, this)
                 sheet.show(supportFragmentManager, "sheet")
             } else {
                 response_text_view.snackbar(getString(R.string.account_not_available))
@@ -251,7 +237,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onAccountDataAvailable()
                 },
                 onError = { possibleError ->
-                    possibleError?.let { error ->
+                    possibleError?.let {
                         // We cant display an alert on top of an alert.
                     }
                 }
@@ -331,7 +317,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     override fun onInterruption(code: Int, params: Map<String, Any?>) {
-       loader.gone()
+        loader.gone()
     }
 
     /**

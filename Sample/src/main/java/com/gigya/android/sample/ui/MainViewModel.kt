@@ -4,7 +4,6 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.support.v4.content.ContextCompat
 import android.util.Log
-import com.gigya.android.sample.GigyaSampleApplication
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
@@ -15,7 +14,6 @@ import com.gigya.android.sdk.interruption.ConflictingProviderResolver
 import com.gigya.android.sdk.interruption.PendingPasswordChangeResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
-import com.gigya.android.sdk.model.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
 import com.gigya.android.sdk.ui.GigyaPresenter
@@ -24,30 +22,16 @@ import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    fun getString(id: Int): String = getApplication<GigyaSampleApplication>().getString(id)
-
-    enum class SetupExample {
-        BASIC, CUSTOM_SCHEME
-    }
-
-    /*
-    Gigya main account scheme model.
-     */
-    var account: GigyaAccount? = null
-
     /*
     Custom account scheme model (corresponds with site scheme).
      */
     var myAccount: MyAccount? = null
 
     /*
-    Default setup is basic. Update using activity menu
+    Using short version because SDK was initialized & account scheme was already set
+    in the Application class.
      */
-    var exampleSetup = SetupExample.BASIC
-
     private val gigya = Gigya.getInstance()
-
-//    private val gigya = Gigya.getInstance(getApplication(), MyAccount::class.java)
 
     /**
      * Send anonymous request.
@@ -69,50 +53,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun login(loginID: String, password: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        when (exampleSetup) {
-            SetupExample.BASIC -> {
-                gigya.login(loginID, password,
-                        object : GigyaLoginCallback<GigyaAccount>() {
-                            override fun onCancelledOperation() {
-                                // Cancelled.
-                            }
+        gigya.login(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
-                            override fun onSuccess(obj: GigyaAccount?) {
-                                account = obj
-                                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                            }
-
-                            override fun onError(error: GigyaError?) {
-                                error(error)
-                            }
-
-                            override fun onPendingPasswordChange(resolver: PendingPasswordChangeResolver) {
-                                // Show custom ui for password change. Use resolver to resolve.
-                                //resolver.resolve("toolmarmel.alt2+1@gmail.com")
-                                resolver.resolve(mapOf(
-                                        "loginID" to "toolmarmel.alt2+1@gmail.com",
-                                        "newPassword" to "jenssin123",
-                                        "secretAnswer" to "Suck"
-                                ))
-                            }
-
-                            override fun onResetPasswordLinkSent() {
-                                success("Reset password email link sent")
-                            }
-                        })
+            override fun onSuccess(obj: MyAccount?) {
+                myAccount = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
-            SetupExample.CUSTOM_SCHEME -> {
-//                gigya.login(loginID, password, object : GigyaCallback<MyAccount>() {
-//                    override fun onProviderLoginSuccess(obj: MyAccount?) {
-//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-//                    }
-//
-//                    override fun onProviderLoginFailed(error: GigyaError?) {
-//                        error(error)
-//                    }
-//                })
+
+            override fun onError(error: GigyaError?) {
+                error(error)
             }
-        }
+
+            override fun onCancelledOperation() {
+                // Cancelled.
+            }
+
+            override fun onPendingPasswordChange(resolver: PendingPasswordChangeResolver) {
+                // Show custom ui for password change. Resolve to send A reset password email.
+                resolver.resolve("toolmarmel.alt2+1@gmail.com")
+            }
+
+            override fun onResetPasswordEmailSent() {
+                success("Reset password email link sent")
+            }
+
+            override fun onResetPasswordSecurityVerificationFailed(resolver: PendingPasswordChangeResolver) {
+                val secretQuestion = resolver.securityQuestion
+                // Security question is available from the resolver. Show custom UI before resolving.
+                resolver.resolve("toolmarmel.alt2+1@gmail.com", "123123", "Suck")
+            }
+        })
     }
 
     /**
@@ -121,48 +91,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun register(loginID: String, password: String, policy: RegisterApi.RegisterPolicy,
                  success: (String) -> Unit, error: (GigyaError?) -> Unit, interruption: (Int, Map<String, Any?>) -> Unit) {
         flushAccountReferences()
-        when (exampleSetup) {
-            SetupExample.BASIC -> {
-                gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<GigyaAccount>() {
+        gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<MyAccount>() {
 
-                    override fun onSuccess(obj: GigyaAccount?) {
-                        account = obj
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-
-                    override fun onPendingRegistration(regToken: String?) {
-                        Log.d("ViewModelMain", "onPendingRegistration received")
-                        interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION, mapOf("regToken" to regToken))
-                    }
-
-                    override fun onPendingVerification(regToken: String?) {
-                        Log.d("ViewModelMain", "onPendingVerification received")
-                        interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION, mapOf("regToken" to regToken))
-                    }
-                })
+            override fun onSuccess(obj: MyAccount?) {
+                myAccount = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
-            SetupExample.CUSTOM_SCHEME -> {
-//                gigya.register(loginID, password, policy, true, object : GigyaRegisterCallback<MyAccount>() {
-//                    override fun onProviderLoginSuccess(obj: MyAccount?) {
-//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-//                    }
-//
-//                    override fun onProviderLoginFailed(error: GigyaError?) {
-//                        error(error)
-//                    }
-//                })
+
+            override fun onError(error: GigyaError?) {
+                error(error)
             }
-        }
+
+            override fun onPendingRegistration(regToken: String?) {
+                Log.d("ViewModelMain", "onPendingRegistration received")
+                interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION, mapOf("regToken" to regToken))
+            }
+
+            override fun onPendingVerification(regToken: String?) {
+                Log.d("ViewModelMain", "onPendingVerification received")
+                interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION, mapOf("regToken" to regToken))
+            }
+        })
     }
 
+
     fun finalizeRegistration(regToken: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.finalizeRegistration(mapOf("regToken" to regToken), object : GigyaLoginCallback<GigyaAccount>() {
-            override fun onSuccess(obj: GigyaAccount?) {
-                account = obj
+        gigya.finalizeRegistration(mapOf("regToken" to regToken), object : GigyaLoginCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                myAccount = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -175,11 +131,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Get account information.
      */
-    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) = when (exampleSetup) {
-        SetupExample.BASIC -> {
-            gigya.getAccount(object : GigyaCallback<GigyaAccount>() {
-                override fun onSuccess(obj: GigyaAccount?) {
-                    account = obj
+    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) =
+            gigya.getAccount(object : GigyaCallback<MyAccount>() {
+                override fun onSuccess(obj: MyAccount?) {
+                    myAccount = obj
                     success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                 }
 
@@ -187,52 +142,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     error(error)
                 }
             })
-        }
-        SetupExample.CUSTOM_SCHEME -> {
-//            gigya.getAccount(object : GigyaCallback<MyAccount>() {
-//                override fun onProviderLoginSuccess(obj: MyAccount?) {
-//                    myAccount = obj
-//                    success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-//                }
-//
-//                override fun onProviderLoginFailed(error: GigyaError?) {
-//                    error(error)
-//                }
-//            })
-        }
-    }
 
     /**
      * Set account information.
      */
     fun setAccount(dummyData: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        when (exampleSetup) {
-            SetupExample.BASIC -> {
-                account?.profile?.firstName = dummyData
-                gigya.setAccount(account, object : GigyaCallback<GigyaAccount>() {
-                    override fun onSuccess(obj: GigyaAccount?) {
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                    }
+        myAccount?.profile?.firstName = dummyData
+        gigya.setAccount(myAccount, object : GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
 
-                    override fun onError(error: GigyaError?) {
-                        error(error)
-                    }
-                })
+            override fun onError(error: GigyaError?) {
+                error(error)
             }
-            SetupExample.CUSTOM_SCHEME -> {
-                myAccount?.data?.report = dummyData
-//                gigya.setAccount(myAccount, object : GigyaCallback<GigyaResponse>() {
-//                    override fun onProviderLoginSuccess(obj: GigyaResponse?) {
-//                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-//                    }
-//
-//                    override fun onProviderLoginFailed(error: GigyaError?) {
-//                        error(error)
-//                    }
-//
-//                })
-            }
-        }
+        })
     }
 
     /**
@@ -250,10 +174,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(provider, mutableMapOf<String, Any>(
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f),
-                object : GigyaLoginCallback<GigyaAccount>() {
-                    override fun onSuccess(obj: GigyaAccount?) {
+                object : GigyaLoginCallback<MyAccount>() {
+                    override fun onSuccess(obj: MyAccount?) {
                         Log.d("loginWithProvider", "Success")
-                        account = obj
+                        myAccount = obj
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
 
@@ -290,10 +214,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo",
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f
-        ), object : GigyaLoginCallback<GigyaAccount>() {
-            override fun onSuccess(obj: GigyaAccount?) {
+        ), object : GigyaLoginCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
                 Log.d("showLoginProviders", "Success")
-                account = obj
+                myAccount = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -354,7 +278,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 "screenSet" to "Default-ProfileUpdate",
                 GigyaPresenter.SHOW_FULL_SCREEN to true,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
-                object : GigyaPluginCallback<GigyaAccount>() {
+                object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {
                             when (reason) {
@@ -382,9 +306,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
                 //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
         )
-                , object : GigyaPluginCallback<GigyaAccount>() {
-            override fun onLogin(accountObj: GigyaAccount) {
-                account = accountObj
+                , object : GigyaPluginCallback<MyAccount>() {
+            override fun onLogin(accountObj: MyAccount) {
+                myAccount = accountObj
                 onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
             }
 
@@ -400,10 +324,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 8f
         ),
-                object : GigyaPluginCallback<GigyaAccount>() {
+                object : GigyaPluginCallback<MyAccount>() {
 
-                    override fun onLogin(accountObj: GigyaAccount) {
-                        account = accountObj
+                    override fun onLogin(accountObj: MyAccount) {
+                        myAccount = accountObj
                         onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
 
                         //TODO This might be wrong - we need to test how to retain the comments activity.
@@ -422,7 +346,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Nullify account holders.
      */
     private fun flushAccountReferences() {
-        account = null
         myAccount = null
     }
 
@@ -431,8 +354,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * setAccount request is available only when an instance of the account is available (For this tester application only).
      */
     fun okayToRequestSetAccount(): Boolean {
-        if (exampleSetup == SetupExample.CUSTOM_SCHEME && myAccount == null) return false
-        if (exampleSetup == SetupExample.BASIC && account == null) return false
+        if (myAccount == null) return false
         return true
     }
 
@@ -441,16 +363,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Get account name.
      */
     fun getAccountName(): String? {
-        return when (exampleSetup) {
-            SetupExample.BASIC -> {
-                if (account?.profile?.firstName == null) return null
-                account?.profile?.firstName + " " + account?.profile?.lastName
-            }
-            SetupExample.CUSTOM_SCHEME -> {
-                if (myAccount?.profile?.firstName == null) return null
-                myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
-            }
-        }
+        if (myAccount?.profile?.firstName == null) return null
+        return myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
     }
 
     /**
@@ -458,10 +372,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Get account email address.
      */
     fun getAccountEmail(): String? {
-        return when (exampleSetup) {
-            SetupExample.BASIC -> account?.profile?.email
-            SetupExample.CUSTOM_SCHEME -> account?.profile?.email
-        }
+        return myAccount?.profile?.email
     }
 
     /**
@@ -469,10 +380,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Get account profile image URL.
      */
     fun getAccountProfileImage(): String? {
-        return when (exampleSetup) {
-            SetupExample.BASIC -> account?.profile?.photoURL
-            SetupExample.CUSTOM_SCHEME -> account?.profile?.photoURL
-        }
+        return myAccount?.profile?.photoURL
     }
 
     //endregion

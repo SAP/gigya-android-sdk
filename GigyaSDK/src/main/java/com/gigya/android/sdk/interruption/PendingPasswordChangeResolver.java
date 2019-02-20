@@ -4,6 +4,8 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +13,14 @@ import java.util.Map;
 public class PendingPasswordChangeResolver extends LoginResolver {
 
     private String regToken;
+    private String securityQuestion;
 
     public String getRegToken() {
         return regToken;
+    }
+
+    public String getSecurityQuestion() {
+        return securityQuestion;
     }
 
     public PendingPasswordChangeResolver(GigyaLoginCallback loginCallback, String regToken) {
@@ -34,38 +41,54 @@ public class PendingPasswordChangeResolver extends LoginResolver {
         apiManager.resetPassword(params, new GigyaCallback<GigyaResponse>() {
             @Override
             public void onSuccess(GigyaResponse obj) {
-                loginCallback.onResetPasswordLinkSent();
+                loginCallback.onResetPasswordEmailSent();
             }
 
             @Override
             public void onError(GigyaError error) {
-                loginCallback.onError(error);
+                if (!securityValidationFailed(error)) {
+                    loginCallback.onError(error);
+                }
             }
         });
+    }
+
+    private boolean securityValidationFailed(GigyaError error) {
+        final int errorCode = error.getErrorCode();
+        if (errorCode == GigyaError.Codes.ERROR_SECURITY_VERIFICATION_FAILED) {
+            /* Try to fetch the security question from the response. */
+            JsonObject jsonObject = new Gson().fromJson(error.getData(), JsonObject.class);
+            securityQuestion = jsonObject.get("secretQuestion").getAsString();
+            if (securityQuestion != null) {
+                loginCallback.onResetPasswordSecurityVerificationFailed(PendingPasswordChangeResolver.this);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Resolve Pending password state change using loginID, newPassword, secretAnswer parameters.
      * Using this resolve requires your site setup to use "passwordReset.requireSecurityCheck: true" in your site policy.
      *
-     * @param params Parameter map.
+     * @param loginID      User loginID.
+     * @param newPassword  User desired password.
+     * @param secretAnswer User secret answer.
      * @see <a href=https://developers.gigya.com/display/GD/Using+Security+Questions></a>
      */
-    public void resolve(final Map<String, Object> params) {
+    public void resolve(final String loginID, final String newPassword, final String secretAnswer) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginID);
+        params.put("newPassword", newPassword);
+        params.put("secretAnswer", secretAnswer);
         apiManager.resetPassword(params, new GigyaCallback<GigyaResponse>() {
             @Override
             public void onSuccess(GigyaResponse obj) {
-                final String loginID = (String) params.get("loginID");
-                final String newPassowrd = (String) params.get("newPassword");
                 // Re-login.
-                if (loginID != null && newPassowrd != null) {
-                    Map<String, Object> loginMap = new HashMap<>();
-                    loginMap.put("loginID", loginID);
-                    loginMap.put("password", newPassowrd);
-                    apiManager.login(loginMap, loginCallback);
-                } else {
-                    loginCallback.onError(GigyaError.generalError());
-                }
+                Map<String, Object> loginMap = new HashMap<>();
+                loginMap.put("loginID", loginID);
+                loginMap.put("password", newPassword);
+                apiManager.login(loginMap, loginCallback);
             }
 
             @Override

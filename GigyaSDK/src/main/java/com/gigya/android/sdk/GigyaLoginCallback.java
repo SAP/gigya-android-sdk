@@ -26,17 +26,29 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
         // Stub.
     }
 
-    public void onPendingPasswordChange(@NonNull PendingPasswordChangeResolver resolver) {
-        // Stub.
-    }
-
-    public void onResetPasswordLinkSent() {
-        // Stub.
-    }
+    //region Link accounts
 
     public void onConflictingAccounts(List<String> conflictingProviders, ConflictingProviderResolver resolver) {
         // Stub.
     }
+
+    //endregion
+
+    //region Password change
+
+    public void onPendingPasswordChange(@NonNull PendingPasswordChangeResolver resolver) {
+        // Stub.
+    }
+
+    public void onResetPasswordEmailSent() {
+        // Stub.
+    }
+
+    public void onResetPasswordSecurityVerificationFailed(@NonNull PendingPasswordChangeResolver resolver) {
+        // Stub.
+    }
+
+    //endregion
 
 
 }

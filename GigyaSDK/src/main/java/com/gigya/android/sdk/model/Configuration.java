@@ -22,6 +22,7 @@ public class Configuration {
     private IDs IDs = new IDs();
     private int accountCacheTime = 5;
     private Map<String, String> appIds;
+    private boolean interruptionsEnabled = true;
 
     public Configuration() {
 
@@ -105,6 +106,14 @@ public class Configuration {
 
     public void setAppIds(Map<String, String> appIds) {
         this.appIds = appIds;
+    }
+
+    public boolean isInterruptionsEnabled() {
+        return interruptionsEnabled;
+    }
+
+    public void setInterruptionsEnabled(boolean interruptionsEnabled) {
+        this.interruptionsEnabled = interruptionsEnabled;
     }
 
     //endregion

@@ -25,27 +25,32 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
     }
 
     private boolean apiInterrupted(GigyaResponse response, final GigyaLoginCallback loginCallback) {
-        /* Get regToken from parameter map. */
-        final String regToken = response.getField("regToken", String.class);
-        final int errorCode = response.getErrorCode();
-        switch (errorCode) {
-            case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
-                loginCallback.onPendingVerification(regToken);
-                return true;
-            case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-                loginCallback.onPendingRegistration(regToken);
-                return true;
-            case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
-                loginCallback.onPendingPasswordChange(new PendingPasswordChangeResolver(loginCallback, regToken));
-                return true;
-            case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                new LoginIdentifierExistsResolver(loginCallback).resolve(regToken);
-                return true;
+        if (configuration.isInterruptionsEnabled()) {
+            /* Get regToken from parameter map. */
+            final String regToken = response.getField("regToken", String.class);
+            final int errorCode = response.getErrorCode();
+            switch (errorCode) {
+                case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
+                    loginCallback.onPendingVerification(regToken);
+                    return true;
+                case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
+                    loginCallback.onPendingRegistration(regToken);
+                    return true;
+                case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
+                    loginCallback.onPendingPasswordChange(new PendingPasswordChangeResolver(loginCallback, regToken));
+                    return true;
+                case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
+                    new LoginIdentifierExistsResolver(loginCallback).resolve(regToken);
+                    return true;
+            }
         }
         return false;
     }
 
     boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
+        if (!configuration.isInterruptionsEnabled()) {
+            return false;
+        }
         final int errorCode = response.getErrorCode();
         if (errorCode == 0) {
             return false;

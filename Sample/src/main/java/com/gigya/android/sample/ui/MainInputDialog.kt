@@ -11,16 +11,16 @@ import com.gigya.android.sample.R
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.network.GigyaError
-import kotlinx.android.synthetic.main.sheet_anonymous.*
-import kotlinx.android.synthetic.main.sheet_finialize_registration.*
-import kotlinx.android.synthetic.main.sheet_login_register.*
-import kotlinx.android.synthetic.main.sheet_login_with_provider.*
-import kotlinx.android.synthetic.main.sheet_re_init.*
-import kotlinx.android.synthetic.main.sheet_set_account.*
+import kotlinx.android.synthetic.main.input_anonymous.*
+import kotlinx.android.synthetic.main.input_finialize_registration.*
+import kotlinx.android.synthetic.main.input_login_register.*
+import kotlinx.android.synthetic.main.input_login_with_provider.*
+import kotlinx.android.synthetic.main.input_re_init.*
+import kotlinx.android.synthetic.main.input_set_account.*
 import org.jetbrains.anko.design.snackbar
 
 
-class MainInputSheet : DialogFragment() {
+class MainInputDialog : DialogFragment() {
 
     private var viewModel: MainViewModel? = null
 
@@ -37,27 +37,20 @@ class MainInputSheet : DialogFragment() {
         fun onCancel()
     }
 
-    var type: MainInputType? = null
+    private var type: MainInputType? = null
 
     lateinit var resultCallback: IApiResultCallback
 
     companion object {
 
-        fun newInstance(type: MainInputType, resultCallback: IApiResultCallback): MainInputSheet {
+        fun newInstance(type: MainInputType, resultCallback: IApiResultCallback): MainInputDialog {
             val args = Bundle()
             args.putSerializable("type", type)
-            val fragment = MainInputSheet()
+            val fragment = MainInputDialog()
             fragment.arguments = args
             fragment.resultCallback = resultCallback
             return fragment
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val layoutParams = dialog?.window?.attributes
-        layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
-        dialog?.window?.attributes = layoutParams
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,14 +61,21 @@ class MainInputSheet : DialogFragment() {
         } ?: throw Exception("Invalid Activity")
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val layoutParams = dialog?.window?.attributes
+        layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
+        dialog?.window?.attributes = layoutParams
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = when (type) {
-            MainInputType.REINIT -> R.layout.sheet_re_init
-            MainInputType.ANONYMOUS -> R.layout.sheet_anonymous
-            MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.sheet_login_register
-            MainInputType.SET_ACCOUNT_INFO -> R.layout.sheet_set_account
-            MainInputType.FINALIZE_REG -> R.layout.sheet_finialize_registration
-            MainInputType.LOGIN_WITH_PROVIDER -> R.layout.sheet_login_with_provider
+            MainInputType.REINIT -> R.layout.input_re_init
+            MainInputType.ANONYMOUS -> R.layout.input_anonymous
+            MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.input_login_register
+            MainInputType.SET_ACCOUNT_INFO -> R.layout.input_set_account
+            MainInputType.FINALIZE_REG -> R.layout.input_finialize_registration
+            MainInputType.LOGIN_WITH_PROVIDER -> R.layout.input_login_with_provider
             else -> 0
         }
         return inflater.inflate(layout, container, false)
@@ -93,7 +93,7 @@ class MainInputSheet : DialogFragment() {
     }
 
     /**
-     * Setup for SDK re-initialization option.
+     * Setup input dialog for SDK re-initialization option.
      */
     private fun setupForReInit() {
         re_init_apply_button.setOnClickListener {
@@ -133,7 +133,7 @@ class MainInputSheet : DialogFragment() {
     }
 
     /**
-     * Setup bottom sheet view for sending an anonymous request.
+     * Setup input dialog for sending an anonymous request.
      */
     private fun setupForAnonymous() {
         anonymous_sheet_send_button.setOnClickListener {
@@ -147,6 +147,9 @@ class MainInputSheet : DialogFragment() {
         }
     }
 
+    /**
+     * Setup input dialog for social provider input.
+     */
     private fun setupForLoginWithProvider() {
         login_with_provider_sheet_send_button.setOnClickListener {
             val provider = login_with_provider_sheet_edit.text.toString().trim()
@@ -156,15 +159,15 @@ class MainInputSheet : DialogFragment() {
                         success = { json -> postSuccess(json) },
                         error = { possibleError -> postError(possibleError) },
                         cancel = {
-                            resultCallback.onCancel()
-                            dismiss()
+                            postCancel()
                         })
             }
         }
     }
 
+
     /**
-     * Setup bottom sheet view for sending login/registration requests.
+     * Setup input dialog for sending login/registration requests.
      */
     private fun setupForLoginRegister() {
         login_register_sheet_title.text = when (type) {
@@ -210,21 +213,12 @@ class MainInputSheet : DialogFragment() {
     }
 
     /**
-     * Setup bottom sheet view for sending a setAccount request.
+     * Setup input dialog for sending a setAccount request.
      * Update options are hard coded for a specific example only.
      * Implement according to application requirements.
      */
     private fun setupForSetAccountInfo() {
-        set_account_sheet_title.text = when (viewModel?.exampleSetup) {
-            MainViewModel.SetupExample.BASIC -> {
-                "Set account info (updating firstName)"
-            }
-            MainViewModel.SetupExample.CUSTOM_SCHEME -> {
-                "Set account info custom (updating \"report\" custom data)"
-            }
-            else -> ""
-        }
-
+        set_account_sheet_title.text = "Set account info custom (updating \"report\" custom data)"
         set_account_sheet_send_button.setOnClickListener {
             val dummyData = set_account_sheet_edit.text.toString().trim()
             if (!TextUtils.isEmpty(dummyData)) {
@@ -232,11 +226,13 @@ class MainInputSheet : DialogFragment() {
                 viewModel?.setAccount(dummyData,
                         success = { json -> postSuccess(json) },
                         error = { possibleError -> postError(possibleError) })
-
             }
         }
     }
 
+    /**
+     * Setup input dialog for regToken input in order to finalize the registration.
+     */
     private fun setupForFinalizeRegistration() {
         finalize_reg_sheet_send_button.setOnClickListener {
             val regToken = finalize_reg_sheet_edit.text.toString().trim()
@@ -252,8 +248,15 @@ class MainInputSheet : DialogFragment() {
         }
     }
 
+//region Interfacing
+
     private fun postSuccess(json: String) {
         resultCallback.onJsonResult(json)
+        dismiss()
+    }
+
+    private fun postCancel() {
+        resultCallback.onCancel()
         dismiss()
     }
 
@@ -263,4 +266,6 @@ class MainInputSheet : DialogFragment() {
         }
         dismiss()
     }
+
+//endregion
 }

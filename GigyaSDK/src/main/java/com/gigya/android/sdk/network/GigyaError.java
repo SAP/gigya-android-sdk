@@ -13,6 +13,7 @@ public class GigyaError {
         public static final int ERROR_ACCOUNT_PENDING_VERIFICATION = 206002;
         public static final int ERROR_PENDING_PASSWORD_CHANGE = 403100;
         public static final int ERROR_LOGIN_IDENTIFIER_EXISTS = 403043;
+        public static final int ERROR_SECURITY_VERIFICATION_FAILED = 400050;
 
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
     }

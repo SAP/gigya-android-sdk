@@ -5,9 +5,11 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.util.Log
 import android.webkit.WebView
+import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.log.GigyaLogger
 
+@Suppress("unused") // Referenced in manifest.
 class GigyaSampleApplication : Application() {
 
     override fun onCreate() {
@@ -24,20 +26,16 @@ class GigyaSampleApplication : Application() {
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         /*
-        Initialization with explicit api-key.
+        Initialization with explicit api-key & account scheme.
          */
-        Gigya.getInstance(applicationContext).init(getString(R.string.api_with_security_questions))
+        Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_security_questions))
 
-        /*
-        Initialization with explicit api-key, api-domain type.
-        */
-        //Gigya.getInstance(applicationContext).init(getString(R.string.api_kay), getString(R.string.api_domain)))
 
         /*
         Initialization with implicit configuration & without a custom account scheme.
         Will use the default GigyaAccount scheme.
         */
-        Gigya.getInstance(applicationContext)
+        //Gigya.getInstance(applicationContext)
 
         /*
         Initialization with implicit configuration & account scheme.

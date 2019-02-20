@@ -168,6 +168,17 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+    /**
+     * Update interruption handling.
+     * By default, the Gigya SDK will handle various API interruptions to allow simple resolving of certain common errors.
+     * Setting interruptions to FALSE will force the end user to handle his own errors.
+     *
+     * @param sdkHandles False if manually handling all errors.
+     */
+    public void handleInterruptions(boolean sdkHandles) {
+        getConfiguration().setInterruptionsEnabled(sdkHandles);
+    }
+
     //region Dependencies
 
     private Configuration getConfiguration() {
@@ -296,7 +307,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param password Login password.
      * @param callback Response listener callback.
      */
-    public void login(String loginId, String password, GigyaLoginCallback<T> callback) {
+    public void login(String loginId, String password, GigyaLoginCallback<? extends GigyaAccount> callback) {
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
         params.put("password", password);
@@ -310,7 +321,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param provider Provider name as described & configured in site console
      * @param callback Login response listener callback.
      */
-    public void login(String provider, Map<String, Object> params, GigyaLoginCallback<T> callback) {
+    public void login(String provider, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
         new GigyaLoginPresenter().login(_appContext, provider, params, callback);
     }
 
@@ -329,7 +340,7 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param callback Response listener callback.
      */
-    public void getAccount(GigyaCallback<T> callback) {
+    public void getAccount(GigyaCallback<? extends GigyaAccount> callback) {
         getApiManager().getAccount(callback);
     }
 
@@ -352,7 +363,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param account  Updated account object.
      * @param callback Response listener callback.
      */
-    public void setAccount(T account, GigyaCallback<T> callback) {
+    public void setAccount(T account, GigyaCallback<? extends GigyaAccount> callback) {
         getApiManager().setAccount(account, callback);
     }
 
@@ -364,7 +375,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     @SuppressWarnings("unused")
-    public void register(String email, String password, GigyaLoginCallback<T> callback) {
+    public void register(String email, String password, GigyaLoginCallback<? extends GigyaAccount> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", email);
         params.put("password", password);
@@ -380,7 +391,8 @@ public class Gigya<T extends GigyaAccount> {
      * @param finalize Finalize registration.
      * @param callback Response listener callback.
      */
-    public void register(String loginID, String password, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
+    public void register(String loginID, String password, RegisterApi.RegisterPolicy policy,
+                         boolean finalize, GigyaLoginCallback<? extends GigyaAccount> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", loginID);
         params.put("password", password);
@@ -388,12 +400,13 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /* Private initiator. */
-    private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
+    private void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy,
+                          boolean finalize, GigyaLoginCallback<? extends GigyaAccount> callback) {
         getApiManager().register(params, policy, finalize, callback);
     }
 
     // TODO: 14/02/2019 Add JavaDoc.
-    public void finalizeRegistration(Map<String, Object> params, GigyaLoginCallback<T> callback) {
+    public void finalizeRegistration(Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
         getApiManager().finalizeRegistration(params, callback);
     }
 
@@ -407,7 +420,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Requested parameters.
      * @param callback Response listener callback.
      */
-    public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
+    public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> callback) {
         GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
         new GigyaLoginPresenter().showNativeLoginProviders(_appContext, params, callback);
     }

@@ -1,4 +1,4 @@
 package com.gigya.android.sample.model
 
 
-data class MyData(var report: String)
+data class MyData(var subscribe: Boolean?, var terms : Boolean?, var comment: String?)
