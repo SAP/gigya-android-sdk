@@ -410,6 +410,16 @@ public class Gigya<T extends GigyaAccount> {
         getApiManager().finalizeRegistration(params, callback);
     }
 
+    /**
+     * Send a reset email password to verified email attached to the users loginId.
+     *
+     * @param loginId  User login id.
+     * @param callback Response listener callback.
+     */
+    public void forgotPassword(String loginId, GigyaCallback<GigyaResponse> callback) {
+        getApiManager().forgotPassword(loginId, callback);
+    }
+
     //endregion
 
     //region Native login

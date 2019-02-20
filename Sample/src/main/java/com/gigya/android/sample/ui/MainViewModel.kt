@@ -160,6 +160,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Send a reset password email to designated user.
+     */
+    fun forgotPassword(success: () -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.forgotPassword(myAccount!!.profile.email, object : GigyaCallback<GigyaResponse>() {
+            override fun onSuccess(obj: GigyaResponse?) {
+                success()
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
+    /**
      * Logout from current session.
      */
     fun logout() {

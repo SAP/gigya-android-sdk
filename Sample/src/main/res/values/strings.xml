@@ -51,5 +51,8 @@
     <string name="logged_in">Logged in</string>
     <string name="facebook_update_permissions">Facebook update permissions</string>
     <string name="finalizeRegistration">finalizeRegistration</string>
+    <string name="forgot_password">forgotPassword</string>
+    <string name="disable_interruptions">Disable interruptions</string>
+    <string name="enable_interruptions">Enable interruptions</string>
 
 </resources>

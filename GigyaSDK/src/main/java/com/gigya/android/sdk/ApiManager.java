@@ -21,6 +21,7 @@ import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("WeakerAccess") // Access should remain public for client use.
@@ -174,5 +175,11 @@ public class ApiManager {
 
     public void getConflictingAccounts(String regToken, GigyaCallback<GigyaResponse> callback) {
         new GetConflictingAccountApi().call(regToken, callback);
+    }
+
+    public void forgotPassword(String email, GigyaCallback<GigyaResponse> callback) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("loginID", email);
+        new ResetPasswordApi().call(params, callback);
     }
 }

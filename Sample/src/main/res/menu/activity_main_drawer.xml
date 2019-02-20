@@ -33,6 +33,11 @@
                 <item
                     android:id="@+id/api_set_account_info"
                     android:title="@string/set_account" />
+
+                <item
+                    android:id="@+id/api_forgot_password"
+                    android:title="@string/forgot_password" />
+
             </menu>
         </item>
 

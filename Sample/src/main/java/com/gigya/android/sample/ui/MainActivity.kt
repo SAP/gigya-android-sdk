@@ -93,6 +93,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_reinit -> reInit()
             R.id.action_logout -> logout()
             R.id.fb_permission_update -> facebookPermissionUpdate()
+            R.id.disable_interruptions -> Gigya.getInstance().handleInterruptions(false)
+            R.id.enable_interruptions -> Gigya.getInstance().handleInterruptions(true)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -110,6 +112,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_native_login -> presentNativeLogin()
             R.id.action_raas -> showRAAS()
             R.id.action_comments -> showComments()
+            R.id.api_forgot_password -> onForgotPassword()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -208,6 +211,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         val dialog = builder.create()
         dialog.show()
+    }
+
+    private fun onForgotPassword() {
+        viewModel?.forgotPassword(
+                success = {
+                    response_text_view.snackbar("Reset password email sent.")
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     //endregion
