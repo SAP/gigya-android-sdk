@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.interruption.LinkedAccountResolver;
 import com.gigya.android.sdk.interruption.LoginIdentifierExistsResolver;
-import com.gigya.android.sdk.interruption.PendingPasswordChangeResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 
@@ -17,13 +16,12 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
 
     void evaluateError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
         if (!apiInterrupted(response, loginCallback)) {
-            final int errorCode = response.getErrorCode();
-            final String localizedMessage = response.getErrorDetails();
-            final String callId = response.getCallId();
-            loginCallback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
+            /* Interruption is not handled. Forward the error. */
+            loginCallback.forwardError(response);
         }
     }
 
+    /* Handle specific interruptions according to pre-defined handled error codes. */
     private boolean apiInterrupted(GigyaResponse response, final GigyaLoginCallback loginCallback) {
         if (configuration.isInterruptionsEnabled()) {
             /* Get regToken from parameter map. */
@@ -31,22 +29,23 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
             final int errorCode = response.getErrorCode();
             switch (errorCode) {
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
-                    loginCallback.onPendingVerification(regToken);
+                    loginCallback.onPendingVerification(response, regToken);
                     return true;
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-                    loginCallback.onPendingRegistration(regToken);
+                    loginCallback.onPendingRegistration(response, regToken);
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
-                    loginCallback.onPendingPasswordChange(new PendingPasswordChangeResolver(loginCallback, regToken));
+                    loginCallback.onPendingPasswordChange(response);
                     return true;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    new LoginIdentifierExistsResolver(loginCallback).resolve(regToken);
+                    new LoginIdentifierExistsResolver(response, loginCallback).resolve(regToken);
                     return true;
             }
         }
         return false;
     }
 
+    /* Evaluating responses that are tagged as success but still require error handling. */
     boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
         if (!configuration.isInterruptionsEnabled()) {
             return false;
@@ -58,7 +57,7 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
         switch (errorCode) {
             case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
                 final String regToken = response.getField("regToken", String.class);
-                new LinkedAccountResolver(loginCallback).resolve(regToken);
+                new LinkedAccountResolver(response, loginCallback).resolve(regToken);
                 return true;
         }
         return false;

@@ -23,8 +23,8 @@ public class PendingPasswordChangeResolver extends LoginResolver {
         return securityQuestion;
     }
 
-    public PendingPasswordChangeResolver(GigyaLoginCallback loginCallback, String regToken) {
-        super(loginCallback);
+    public PendingPasswordChangeResolver(GigyaResponse response, GigyaLoginCallback loginCallback, String regToken) {
+        super(response, loginCallback);
         this.regToken = regToken;
     }
 

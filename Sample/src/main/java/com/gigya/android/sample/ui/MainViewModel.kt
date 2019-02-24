@@ -11,7 +11,6 @@ import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver
-import com.gigya.android.sdk.interruption.PendingPasswordChangeResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -68,20 +67,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Cancelled.
             }
 
-            override fun onPendingPasswordChange(resolver: PendingPasswordChangeResolver) {
-                // Show custom ui for password change. Resolve to send A reset password email.
-                resolver.resolve("toolmarmel.alt2+1@gmail.com")
-            }
-
-            override fun onResetPasswordEmailSent() {
-                success("Reset password email link sent")
-            }
-
-            override fun onResetPasswordSecurityVerificationFailed(resolver: PendingPasswordChangeResolver) {
-                val secretQuestion = resolver.securityQuestion
-                // Security question is available from the resolver. Show custom UI before resolving.
-                resolver.resolve("toolmarmel.alt2+1@gmail.com", "123123", "Suck")
-            }
         })
     }
 
@@ -100,16 +85,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(error: GigyaError?) {
                 error(error)
-            }
-
-            override fun onPendingRegistration(regToken: String?) {
-                Log.d("ViewModelMain", "onPendingRegistration received")
-                interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION, mapOf("regToken" to regToken))
-            }
-
-            override fun onPendingVerification(regToken: String?) {
-                Log.d("ViewModelMain", "onPendingVerification received")
-                interruption(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION, mapOf("regToken" to regToken))
             }
         })
     }
@@ -205,7 +180,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         error(error)
                     }
 
-                    override fun onConflictingAccounts(conflictingProviders: MutableList<String>?, resolver: ConflictingProviderResolver?) {
+                    override fun onConflictingAccounts(response: GigyaResponse, resolver: ConflictingProviderResolver?) {
                         // Select your provider here from the list using your customized UI.
                         // When done use the resolver to continue the flow.
                         //resolver?.resolveForSiteProvider("toolmarmel.alt2@gmail.com", "123123")

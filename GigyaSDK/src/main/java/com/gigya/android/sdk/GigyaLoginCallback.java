@@ -4,9 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver;
-import com.gigya.android.sdk.interruption.PendingPasswordChangeResolver;
-
-import java.util.List;
+import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.GigyaResponse;
 
 public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
@@ -18,37 +17,32 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
         // Stub.
     }
 
-    public void onPendingVerification(@Nullable String regToken) {
-        // Stub.
+    public void onPendingVerification(@NonNull GigyaResponse response, @Nullable String regToken) {
+        forwardError(response);
     }
 
-    public void onPendingRegistration(@Nullable String regToken) {
-        // Stub.
+    public void onPendingRegistration(@NonNull GigyaResponse response, @Nullable String regToken) {
+        forwardError(response);
     }
 
     //region Link accounts
 
-    public void onConflictingAccounts(List<String> conflictingProviders, ConflictingProviderResolver resolver) {
-        // Stub.
+    public void onConflictingAccounts(@NonNull GigyaResponse response, ConflictingProviderResolver resolver) {
+        forwardError(response);
     }
 
     //endregion
 
     //region Password change
 
-    public void onPendingPasswordChange(@NonNull PendingPasswordChangeResolver resolver) {
-        // Stub.
-    }
-
-    public void onResetPasswordEmailSent() {
-        // Stub.
-    }
-
-    public void onResetPasswordSecurityVerificationFailed(@NonNull PendingPasswordChangeResolver resolver) {
-        // Stub.
+    public void onPendingPasswordChange(@NonNull GigyaResponse response) {
+        forwardError(response);
     }
 
     //endregion
 
+    public void forwardError(@NonNull GigyaResponse response) {
+        onError(GigyaError.fromResponse(response));
+    }
 
 }

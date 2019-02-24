@@ -46,6 +46,17 @@ public class GigyaError {
         return new GigyaError(400, message, "");
     }
 
+    public static GigyaError cancelledOperation() {
+        return new GigyaError(200001, "Operation canceled", "");
+    }
+
+    public static GigyaError fromResponse(GigyaResponse response) {
+        final int errorCode = response.getErrorCode();
+        final String localizedMessage = response.getErrorDetails();
+        final String callId = response.getCallId();
+        return new GigyaError(response.asJson(), errorCode, localizedMessage, callId);
+    }
+
     public static GigyaError errorFrom(Map<String, Object> errorEvent) {
         final JSONObject jsonObj = new JSONObject(errorEvent);
         final Object errorCode = errorEvent.get("errorCode");

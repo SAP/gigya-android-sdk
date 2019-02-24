@@ -42,7 +42,7 @@ public class DependencyRegistry {
      * @param appContext Application context.
      * @param <T>        Account scheme
      */
-    public <T> void init(Context appContext) {
+    public void init(Context appContext) {
         // Persistence manager.
         _persistenceManager = new PersistenceManager(appContext);
         // Initialize encryptor.

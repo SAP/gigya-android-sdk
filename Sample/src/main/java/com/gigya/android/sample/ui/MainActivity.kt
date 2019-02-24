@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_account -> showAccountDetails()
             R.id.action_clear -> onClear()
             R.id.action_reinit -> reInit()
             R.id.action_logout -> logout()

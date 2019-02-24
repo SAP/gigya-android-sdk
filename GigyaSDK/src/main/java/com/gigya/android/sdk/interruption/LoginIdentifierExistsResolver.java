@@ -8,8 +8,8 @@ import com.gigya.android.sdk.network.GigyaResponse;
 
 public class LoginIdentifierExistsResolver extends LoginResolver {
 
-    public LoginIdentifierExistsResolver(GigyaLoginCallback loginCallback) {
-        super(loginCallback);
+    public LoginIdentifierExistsResolver(final GigyaResponse response, GigyaLoginCallback loginCallback) {
+        super(response, loginCallback);
     }
 
     public void resolve(final String regToken) {
@@ -22,8 +22,8 @@ public class LoginIdentifierExistsResolver extends LoginResolver {
                     loginCallback.onError(GigyaError.generalError());
                     return;
                 }
-                loginCallback.onConflictingAccounts(ca.getLoginProviders(), new ConflictingProviderResolver(
-                        loginCallback, regToken
+                loginCallback.onConflictingAccounts(gigyaResponse, new ConflictingProviderResolver(
+                        obj, ca.getLoginProviders(), regToken, loginCallback
                 ));
             }
 
