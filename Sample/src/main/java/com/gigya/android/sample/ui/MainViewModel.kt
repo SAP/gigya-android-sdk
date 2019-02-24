@@ -63,7 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onCancelledOperation() {
+            override fun onOperationCancelled() {
                 // Cancelled.
             }
 
@@ -171,7 +171,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
                     }
 
-                    override fun onCancelledOperation() {
+                    override fun onOperationCancelled() {
                         cancel()
                     }
 
@@ -215,7 +215,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 onIntermediateLoad()
             }
 
-            override fun onCancelledOperation() {
+            override fun onOperationCancelled() {
                 cancel()
             }
 

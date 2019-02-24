@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.model;
 
-public class GigyaAccount {
+public class GigyaAccount extends BaseModel {
 
     private String UID;
     private String UIDSignature;

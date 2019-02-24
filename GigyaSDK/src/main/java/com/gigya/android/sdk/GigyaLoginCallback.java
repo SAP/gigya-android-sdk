@@ -9,14 +9,6 @@ import com.gigya.android.sdk.network.GigyaResponse;
 
 public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
-    public void onCancelledOperation() {
-        // Stub.
-    }
-
-    public void onIntermediateLoad() {
-        // Stub.
-    }
-
     public void onPendingVerification(@NonNull GigyaResponse response, @Nullable String regToken) {
         forwardError(response);
     }

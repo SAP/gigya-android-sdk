@@ -2,18 +2,19 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.NonNull;
 
+import com.gigya.android.sdk.model.BaseModel;
+
 import org.json.JSONObject;
 
 import java.util.Map;
 
-public class GigyaError {
+public class GigyaError extends BaseModel {
 
     public static class Codes {
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;
         public static final int ERROR_ACCOUNT_PENDING_VERIFICATION = 206002;
         public static final int ERROR_PENDING_PASSWORD_CHANGE = 403100;
         public static final int ERROR_LOGIN_IDENTIFIER_EXISTS = 403043;
-        public static final int ERROR_SECURITY_VERIFICATION_FAILED = 400050;
 
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
     }
@@ -21,9 +22,7 @@ public class GigyaError {
     /* Raw Json data. */
     private String data;
 
-    private int errorCode;
     private String localizedMessage;
-    private String callId;
 
     public GigyaError(int errorCode, String localizedMessage, String callId) {
         this.errorCode = errorCode;

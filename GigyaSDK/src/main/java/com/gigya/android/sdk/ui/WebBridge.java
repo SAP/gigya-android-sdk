@@ -26,6 +26,7 @@ import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -241,6 +242,7 @@ public class WebBridge<T extends GigyaAccount> {
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
 
         // TODO: 29/01/2019 Should add support for non Https in GigyaRequest.
+
         final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
         final boolean requiresSession = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("requiresSession"), "false"));
 
@@ -263,6 +265,8 @@ public class WebBridge<T extends GigyaAccount> {
             }
         });
     }
+
+    // TODO: 24/02/2019 Connection apis are not yet verified. Redesign might use different apis for these flows!!!
 
     private void handleAuthRequests(String api, GigyaResponse response) {
         switch (api) {
@@ -291,21 +295,31 @@ public class WebBridge<T extends GigyaAccount> {
         final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider,
                 new GigyaLoginCallback<T>() {
                     @Override
-                    public void onCancelledOperation() {
-                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onCancelledOperation");
-                        _interactions.onCancel();
-                    }
-
-                    @Override
                     public void onSuccess(T obj) {
                         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
+                        String invocation = null;
+                        try {
+                            invocation = new JSONObject().put("errorCode", obj.getErrorCode()).put("userInfo", new Gson().toJson(obj)).toString();
+                        } catch (Exception ex) {
+                            GigyaLogger.error(LOG_TAG, "Error in sendOauthRequest bridge -> invocation creation -> " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
+                        invokeCallback(callbackId, invocation);
                         _interactions.onAuthEvent(AuthEvent.LOGIN, obj);
                     }
 
                     @Override
                     public void onError(GigyaError error) {
                         GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
+                        invokeCallback(callbackId, error.getData());
                         _interactions.onError(error);
+                    }
+
+                    @Override
+                    public void onOperationCancelled() {
+                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onOperationCancelled");
+                        invokeCallback(callbackId, GigyaError.cancelledOperation().getData());
+                        _interactions.onCancel();
                     }
                 });
 
