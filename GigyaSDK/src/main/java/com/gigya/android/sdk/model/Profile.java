@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.model;
 
+// TODO: 24/02/2019 Update with all remaining values from default schema
+
 public class Profile {
 
     private String email;

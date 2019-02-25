@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.interruption.LinkedAccountResolver;
 import com.gigya.android.sdk.interruption.LoginIdentifierExistsResolver;
+import com.gigya.android.sdk.interruption.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 
@@ -39,6 +40,9 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
                     return true;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
                     new LoginIdentifierExistsResolver(response, loginCallback).resolve(regToken);
+                    return true;
+                case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
+                    new TFAResolver(loginCallback).regToken(regToken).getProviders();
                     return true;
             }
         }

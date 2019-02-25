@@ -55,4 +55,9 @@
     <string name="disable_interruptions">Disable interruptions</string>
     <string name="enable_interruptions">Enable interruptions</string>
 
+        <string-array name="tfa_options">
+            <item>Phone</item>
+            <item>Time-based authentication</item>
+        </string-array>
+
 </resources>

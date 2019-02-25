@@ -315,6 +315,8 @@ public class Gigya<T extends GigyaAccount> {
         getApiManager().login(params, callback);
     }
 
+    // TODO: 24/02/2019 Add overload with providers stringDef.
+
     /**
      * Login given a specific 3rd party provider.
      *

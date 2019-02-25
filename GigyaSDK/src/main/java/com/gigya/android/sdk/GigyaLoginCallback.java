@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver;
+import com.gigya.android.sdk.interruption.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 
@@ -29,6 +30,14 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
     public void onPendingPasswordChange(@NonNull GigyaResponse response) {
         forwardError(response);
+    }
+
+    //endregion
+
+    //region TFA
+
+    public void onPendingTFARegistration(@NonNull TFAResolver resolver) {
+        // Stub.
     }
 
     //endregion

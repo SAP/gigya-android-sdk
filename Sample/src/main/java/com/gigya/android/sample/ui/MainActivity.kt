@@ -1,5 +1,6 @@
 package com.gigya.android.sample.ui
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -67,6 +68,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (Gigya.getInstance().isLoggedIn) {
             onGetAccount()
         }
+
+        viewModel?.uiShowCode?.observe(this, Observer { uiCode ->
+            when(uiCode) {
+                1 -> showTFARegistrationDialog()
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -193,6 +200,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     possibleError?.let { error -> onError(error) }
                 }
         )
+    }
+
+    private fun showTFARegistrationDialog() {
+        val dialog = TFADialog.newInstance("registration")
+        dialog.show(supportFragmentManager, "showTFARegistrationDialog")
     }
 
     private fun onSetAccount() {

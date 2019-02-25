@@ -2,6 +2,7 @@ package com.gigya.android.sample.ui
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MutableLiveData
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.gigya.android.sample.model.MyAccount
@@ -11,6 +12,7 @@ import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.RegisterApi
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver
+import com.gigya.android.sdk.interruption.TFAResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -20,6 +22,8 @@ import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    val uiShowCode = MutableLiveData<Int>()
 
     /*
     Custom account scheme model (corresponds with site scheme).
@@ -47,6 +51,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    var tfaResolver: TFAResolver? = null
+
     /**
      * Login using loginID & password.
      */
@@ -63,12 +69,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onOperationCancelled() {
-                // Cancelled.
+            override fun onPendingTFARegistration(resolver: TFAResolver) {
+                // Show TFA registration dialog.
+                tfaResolver = resolver
+                uiShowCode.postValue(1) //TODO STATIC CONSTANT
             }
-
         })
     }
+
+    fun onTFARegistrationConfirmed(mode: String, phone: String) {
+        tfaResolver?.resolveForRegistration(mode, phone)
+    }
+
+    //TODO Update register api to simple email, password for sample application.
 
     /**
      * Register using loginID, password, policy.
@@ -89,7 +102,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-
     fun finalizeRegistration(regToken: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         gigya.finalizeRegistration(mapOf("regToken" to regToken), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
@@ -106,17 +118,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Get account information.
      */
-    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) =
-            gigya.getAccount(object : GigyaCallback<MyAccount>() {
-                override fun onSuccess(obj: MyAccount?) {
-                    myAccount = obj
-                    success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                }
+    fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.getAccount(object : GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                myAccount = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
 
-                override fun onError(error: GigyaError?) {
-                    error(error)
-                }
-            })
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
 
     /**
      * Set account information.
@@ -161,7 +174,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Login with specific supported social provider.
      */
     fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.login(provider, mutableMapOf<String, Any>(
+        gigya.login(provider, mapOf<String, Any>(
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f),
                 object : GigyaLoginCallback<MyAccount>() {
@@ -195,6 +208,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
+    //TODO Rename to socialLoginWith. Add List<Providers ? StringRef>..
 
     /**
      * Present SDK native login pre defined UI.
@@ -226,6 +240,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         })
     }
+
+    //TODO Need to create the provider in order to make sure the provider is not null. Add getSocialProvider(String provider).
 
     /**
      * Request additional Facebook permissions.
@@ -262,6 +278,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 })
     }
+
+    //TODO Mandatory parameters such as screenSet need to be as a parameter.
+    //TODO StringRef for reason.
 
     fun showAccountDetails(onUpdated: () -> Unit, onCancelled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets(mutableMapOf<String, Any>(
@@ -305,6 +324,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             override fun onError(event: GigyaPluginEvent) {
                 onError(GigyaError.errorFrom(event.eventMap))
             }
+
         })
     }
 

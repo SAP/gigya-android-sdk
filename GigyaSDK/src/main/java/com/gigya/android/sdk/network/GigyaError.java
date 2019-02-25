@@ -2,19 +2,21 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.model.BaseModel;
+import com.gigya.android.sdk.model.BaseGigyaResponse;
 
 import org.json.JSONObject;
 
 import java.util.Map;
 
-public class GigyaError extends BaseModel {
+public class GigyaError extends BaseGigyaResponse {
 
     public static class Codes {
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;
         public static final int ERROR_ACCOUNT_PENDING_VERIFICATION = 206002;
         public static final int ERROR_PENDING_PASSWORD_CHANGE = 403100;
         public static final int ERROR_LOGIN_IDENTIFIER_EXISTS = 403043;
+        public static final int ERROR_PENDING_TWO_FACTOR_REGISTRATION = 403102;
+        public static final int ERROR_PENDING_TWO_FACTOR_VERIFICATION = 403101;
 
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
     }

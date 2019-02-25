@@ -35,7 +35,8 @@ public abstract class LoginProvider {
         _callback = callback;
     }
 
-    public void inject(Configuration configuration, ApiManager apiManager, PersistenceManager persistenceManager, SessionManager sessionManager, AccountManager accountManager) {
+    public void inject(Configuration configuration, ApiManager apiManager, PersistenceManager persistenceManager,
+                       SessionManager sessionManager, AccountManager accountManager) {
         _configuration = configuration;
         _apiManager = apiManager;
         _persistenceManager = persistenceManager;
