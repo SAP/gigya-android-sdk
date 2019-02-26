@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
-        android:id="@+id/methods_spinner"
+        android:id="@+id/register_provider_spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -40,7 +40,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
         app:layout_constraintStart_toStartOf="@id/register_tfa_title"
-        app:layout_constraintTop_toBottomOf="@id/methods_spinner" />
+        app:layout_constraintTop_toBottomOf="@id/register_provider_spinner" />
 
     <Spinner
         android:id="@+id/country_spinner"

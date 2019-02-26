@@ -2,7 +2,6 @@ package com.gigya.android.sdk;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.util.ArrayMap;
 
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
@@ -37,8 +36,6 @@ public class DependencyRegistry {
     private SessionManager _sessionManager;
     private AccountManager _accountManager;
 
-    private ArrayMap<String, GigyaResolver> _resolverArrayMap = new ArrayMap<>();
-
     /**
      * @param appContext Application context.
      */
@@ -56,7 +53,7 @@ public class DependencyRegistry {
         _networkAdapter = new NetworkAdapter(appContext, new NetworkAdapter.IConfigurationBlock() {
             @Override
             public void onMissingConfiguration() {
-                if (!DependencyRegistry.getInstance()._configuration.hasGMID()) {
+                if (!_configuration.hasGMID()) {
                     _apiManager.loadConfig(null);
                 }
             }
@@ -64,7 +61,7 @@ public class DependencyRegistry {
         _accountManager = new AccountManager<>();
         _sessionManager = new SessionManager(appContext, _configuration, _encryptor, _persistenceManager);
         // Api manager
-        _apiManager = new ApiManager(_networkAdapter, _sessionManager, _accountManager, _resolverArrayMap);
+        _apiManager = new ApiManager(_networkAdapter, _sessionManager, _accountManager);
     }
 
     //endregion

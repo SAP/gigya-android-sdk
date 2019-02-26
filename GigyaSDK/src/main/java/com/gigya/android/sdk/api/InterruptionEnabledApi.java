@@ -1,13 +1,10 @@
 package com.gigya.android.sdk.api;
 
-import android.support.v4.util.ArrayMap;
-
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.interruption.LinkedAccountResolver;
-import com.gigya.android.sdk.interruption.tfa.TFAProviderResolver;
+import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -16,12 +13,9 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
 
     protected final AccountManager accountManager;
-    protected final ArrayMap<String, GigyaResolver> resolverArrayMap;
 
-    public InterruptionEnabledApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                                  ArrayMap<String, GigyaResolver> resolverArrayMap) {
+    public InterruptionEnabledApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
         super(networkAdapter, sessionManager);
-        this.resolverArrayMap = resolverArrayMap;
         this.accountManager = accountManager;
     }
 
@@ -52,11 +46,10 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                    TFAProviderResolver evaluator = new TFAProviderResolver<>(sessionManager.getConfiguration(), networkAdapter, sessionManager, accountManager,
-                            resolverArrayMap,
+                    TFAResolver resolver = new TFAResolver<>(networkAdapter, sessionManager, accountManager,
                             loginCallback);
-                    evaluator.setRegToken(regToken);
-                    evaluator.getProviders();
+                    resolver.setRegToken(regToken);
+                    resolver.init();
                     return true;
             }
         }

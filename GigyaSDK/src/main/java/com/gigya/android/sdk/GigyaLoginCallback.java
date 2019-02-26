@@ -4,11 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver;
-import com.gigya.android.sdk.model.tfa.TFAProvider;
+import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
-
-import java.util.List;
 
 public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
@@ -38,11 +36,11 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
     //region TFA
 
-    public void onPendingTFARegistration(@NonNull List<TFAProvider> optionalProviders) {
+    public void onPendingTFARegistration(@NonNull TFAResolver resolver) {
         // Stub.
     }
 
-    public void onPendingTFAVerification(@NonNull List<TFAProvider> availableProviders) {
+    public void onPendingTFAVerification(@NonNull TFAResolver resolver) {
         // Stub.
     }
 

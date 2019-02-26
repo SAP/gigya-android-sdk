@@ -1,14 +1,11 @@
 package com.gigya.android.sdk.api.account;
 
 
-import android.support.v4.util.ArrayMap;
-
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.InterruptionEnabledApi;
-import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaRequest;
@@ -25,9 +22,8 @@ public class LoginApi<T extends GigyaAccount> extends InterruptionEnabledApi<T> 
     private static final String API = "accounts.login";
     private final Class<T> clazz;
 
-    public LoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                    ArrayMap<String, GigyaResolver> resolverArrayMap, Class<T> clazz) {
-        super(networkAdapter, sessionManager, accountManager, resolverArrayMap);
+    public LoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,Class<T> clazz) {
+        super(networkAdapter, sessionManager, accountManager);
         this.clazz = clazz;
     }
 

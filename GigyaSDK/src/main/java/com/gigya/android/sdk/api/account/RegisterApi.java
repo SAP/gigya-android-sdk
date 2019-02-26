@@ -1,14 +1,12 @@
 package com.gigya.android.sdk.api.account;
 
 import android.support.annotation.NonNull;
-import android.support.v4.util.ArrayMap;
 
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.InterruptionEnabledApi;
-import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -35,19 +33,17 @@ public class RegisterApi<T extends GigyaAccount> extends InterruptionEnabledApi<
     private RegisterPolicy policy;
     private final Class<T> clazz;
 
-    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                       ArrayMap<String, GigyaResolver> resolverArrayMap, @NonNull Class<T> clazz,
+    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, @NonNull Class<T> clazz,
                        RegisterPolicy policy,
                        boolean finalize) {
-        super(networkAdapter, sessionManager, accountManager, resolverArrayMap);
+        super(networkAdapter, sessionManager, accountManager);
         this.clazz = clazz;
         this.finalize = finalize;
         this.policy = policy;
     }
 
-    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                       ArrayMap<String, GigyaResolver> resolverArrayMap, @NonNull Class<T> clazz) {
-        super(networkAdapter, sessionManager, accountManager, resolverArrayMap);
+    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, @NonNull Class<T> clazz) {
+        super(networkAdapter, sessionManager, accountManager);
         this.clazz = clazz;
     }
 
@@ -57,7 +53,7 @@ public class RegisterApi<T extends GigyaAccount> extends InterruptionEnabledApi<
         this.params = params;
         updateRegisterPolicy(params);
         GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API_INIT_REGISTRATION).build();
-        sendRequest(request, API_FINALIZE_REGISTRATION, callback);
+        sendRequest(request, API_INIT_REGISTRATION, callback);
     }
 
     private void callSendRegistration(final Map<String, Object> params, final GigyaLoginCallback callback) {

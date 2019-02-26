@@ -1,7 +1,5 @@
 package com.gigya.android.sdk;
 
-import android.support.v4.util.ArrayMap;
-
 import com.gigya.android.sdk.api.AnonymousApi;
 import com.gigya.android.sdk.api.SdkConfigApi;
 import com.gigya.android.sdk.api.account.FinalizeRegistrationApi;
@@ -14,7 +12,6 @@ import com.gigya.android.sdk.api.account.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.account.RegisterApi;
 import com.gigya.android.sdk.api.account.ResetPasswordApi;
 import com.gigya.android.sdk.api.account.SetAccountApi;
-import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
@@ -38,14 +35,12 @@ public class ApiManager {
     private NetworkAdapter _networkAdapter;
     private SessionManager _sessionManager;
     private AccountManager _accountManager;
-    private ArrayMap<String, GigyaResolver> _resolverArrayMap;
 
     public ApiManager(NetworkAdapter networkAdapter,
-                      SessionManager sessionManager, AccountManager accountManager, ArrayMap<String, GigyaResolver> resolverArrayMap) {
+                      SessionManager sessionManager, AccountManager accountManager) {
         _networkAdapter = networkAdapter;
         _sessionManager = sessionManager;
         _accountManager = accountManager;
-        _resolverArrayMap = resolverArrayMap;
     }
 
     public void loadConfig(final Runnable completionHandler) {
@@ -101,7 +96,7 @@ public class ApiManager {
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void login(Map<String, Object> params, GigyaLoginCallback callback) {
         _accountManager.invalidateAccount();
-        new LoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _resolverArrayMap,
+        new LoginApi<T>(_networkAdapter, _sessionManager, _accountManager,
                 _accountManager.getAccountClazz()).call(params, callback);
     }
 
@@ -126,7 +121,7 @@ public class ApiManager {
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
         _accountManager.invalidateAccount();
-        new RegisterApi<T>(_networkAdapter, _sessionManager, _accountManager, _resolverArrayMap, _accountManager.getAccountClazz(), policy, finalize).call(params, callback);
+        new RegisterApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz(), policy, finalize).call(params, callback);
     }
 
     @SuppressWarnings("unchecked")
@@ -137,7 +132,7 @@ public class ApiManager {
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaLoginCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _resolverArrayMap, _accountManager.getAccountClazz())
+        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz())
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
@@ -150,7 +145,7 @@ public class ApiManager {
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void notifyLogin(SessionInfo sessionInfo, final GigyaCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _resolverArrayMap, _accountManager.getAccountClazz())
+        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz())
                 .call(sessionInfo, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {

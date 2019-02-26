@@ -69,10 +69,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             onGetAccount()
         }
 
-        viewModel?.uiTrigger?.observe(this, Observer { uiCode ->
-            when(uiCode) {
-                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog()
-                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog()
+        viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
+            @Suppress("UNCHECKED_CAST")
+            when(dataPair?.first) {
+                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<String>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
             }
         })
     }
@@ -203,13 +204,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    private fun showTFARegistrationDialog() {
-        val dialog = TFADialog.newInstance("registration")
+    private fun showTFARegistrationDialog(providers: ArrayList<String>) {
+        val dialog = TFADialog.newInstance("registration", providers)
         dialog.show(supportFragmentManager, "showTFARegistrationDialog")
     }
 
-    private fun showTFAVerificationDialog() {
-        val dialog = TFADialog.newInstance("verification")
+    private fun showTFAVerificationDialog(providers: ArrayList<String>) {
+        val dialog = TFADialog.newInstance("verification", providers)
         dialog.show(supportFragmentManager, "showTFAVerificationDialog")
     }
 
