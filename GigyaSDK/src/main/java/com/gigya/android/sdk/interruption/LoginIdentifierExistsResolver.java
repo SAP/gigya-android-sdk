@@ -2,7 +2,7 @@ package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.GetConflictingAccountApi;
+import com.gigya.android.sdk.api.account.GetConflictingAccountApi;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 

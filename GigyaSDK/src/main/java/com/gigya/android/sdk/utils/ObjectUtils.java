@@ -3,6 +3,8 @@ package com.gigya.android.sdk.utils;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,5 +56,10 @@ public class ObjectUtils {
         Set<String> set = new HashSet<>(first);
         set.addAll(second);
         return new ArrayList<>(set);
+    }
+
+    public static <T> T deepCopy(Gson gson, T obj, Class<T> clazz) {
+        final String json = gson.toJson(obj);
+        return gson.fromJson(json, clazz);
     }
 }

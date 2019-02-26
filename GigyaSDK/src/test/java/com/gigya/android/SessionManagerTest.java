@@ -3,9 +3,9 @@ package com.gigya.android;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.PersistenceManager;
+import com.gigya.android.sdk.SDKContext;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.Configuration;
@@ -40,7 +40,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SessionManager.class, TextUtils.class, DependencyRegistry.class})
+@PrepareForTest({SessionManager.class, TextUtils.class, SDKContext.class})
 @PowerMockIgnore("javax.crypto.*")
 public class SessionManagerTest {
 
@@ -60,7 +60,7 @@ public class SessionManagerTest {
     private IEncryptor encryptor;
 
     @Mock
-    private DependencyRegistry dependencyRegistry;
+    private SDKContext SDKContext;
 
     private SecretKey secretKey = new SecretKeySpec(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}, "AES");
 
@@ -68,23 +68,23 @@ public class SessionManagerTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mockStatic(DependencyRegistry.class);
+        mockStatic(SDKContext.class);
         doReturn(context).when(gigya).getContext();
-        when(DependencyRegistry.getInstance()).thenReturn(dependencyRegistry);
-        when(dependencyRegistry.getPersistenceManager()).thenReturn(persistenceManager);
-        when(dependencyRegistry.getEncryptor()).thenReturn(encryptor);
-        when(dependencyRegistry.getConfiguration()).thenReturn(configuration);
+        when(SDKContext.getInstance()).thenReturn(SDKContext);
+        when(SDKContext.getPersistenceManager()).thenReturn(persistenceManager);
+        when(SDKContext.getEncryptor()).thenReturn(encryptor);
+        when(SDKContext.getConfiguration()).thenReturn(configuration);
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 SessionManager sessionManager = invocation.getArgument(0);
                 sessionManager.inject(
-                        dependencyRegistry.getConfiguration(),
-                        dependencyRegistry.getEncryptor(),
-                        dependencyRegistry.getPersistenceManager());
+                        SDKContext.getConfiguration(),
+                        SDKContext.getEncryptor(),
+                        SDKContext.getPersistenceManager());
                 return null;
             }
-        }).when(dependencyRegistry).inject(any(SessionManager.class));
+        }).when(SDKContext).inject(any(SessionManager.class));
 
         // Persistence handler mocks.
         when(persistenceManager.getString("session.Token", null)).thenReturn(null);

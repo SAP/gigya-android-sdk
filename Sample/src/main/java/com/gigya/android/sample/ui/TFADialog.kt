@@ -12,6 +12,7 @@ import com.gigya.android.sample.R
 import com.gigya.android.sample.model.CountryCode
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa_registration.*
+import kotlinx.android.synthetic.main.dialog_tfa_verification.*
 
 
 class TFADialog : DialogFragment() {
@@ -80,13 +81,30 @@ class TFADialog : DialogFragment() {
         val codeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
         country_spinner.adapter = codeAdapter
 
-        send_code.setOnClickListener {
+        register_tfa_send_code.setOnClickListener {
             val country = (country_spinner).selectedItem as CountryCode
-            viewModel?.onTFARegistrationConfirmed(methods_spinner.selectedItem.toString(), country.dial_code + phone_edit.text.toString().trim())
+            val method = methods_spinner.selectedItem.toString()
+            viewModel?.onTFARegistrationConfirmed(
+                    when(method) {
+                        "Phone" -> "gigyaPhone"
+                        "Time-based authentication" -> "gigyaTotp"
+                        else -> ""
+                    },
+                    country.dial_code + phone_edit.text.toString().trim(),
+                    when (method_group.checkedRadioButtonId) {
+                        R.id.radio_sms -> "sms"
+                        R.id.radio_voice -> "voice"
+                        else -> "sms"
+                    })
+            dismiss()
         }
     }
 
     private fun setupForVerification() {
-
+        verify_tfa_send_code.setOnClickListener {
+            val code = verify_tfa_edit.text.toString().trim()
+            viewModel?.onTFAVerificationConfirmed(code)
+            dismiss()
+        }
     }
 }

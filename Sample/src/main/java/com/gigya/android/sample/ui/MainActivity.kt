@@ -69,9 +69,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             onGetAccount()
         }
 
-        viewModel?.uiShowCode?.observe(this, Observer { uiCode ->
+        viewModel?.uiTrigger?.observe(this, Observer { uiCode ->
             when(uiCode) {
-                1 -> showTFARegistrationDialog()
+                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog()
+                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog()
             }
         })
     }
@@ -205,6 +206,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showTFARegistrationDialog() {
         val dialog = TFADialog.newInstance("registration")
         dialog.show(supportFragmentManager, "showTFARegistrationDialog")
+    }
+
+    private fun showTFAVerificationDialog() {
+        val dialog = TFADialog.newInstance("verification")
+        dialog.show(supportFragmentManager, "showTFAVerificationDialog")
     }
 
     private fun onSetAccount() {

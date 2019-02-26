@@ -40,22 +40,22 @@ public class SessionManager {
 
     private Context _appContext;
 
-    public SessionManager(Context appContext) {
+    public SessionManager(Context appContext, Configuration configuration, IEncryptor encryptor, PersistenceManager persistenceManager) {
         _appContext = appContext;
-        DependencyRegistry.getInstance().inject(this);
+        _configuration = configuration;
+        _encryptor = encryptor;
+        _persistenceManager = persistenceManager;
         // Get reference to SDK shared preference file.
         load();
     }
 
-    public void inject(Configuration configuration, IEncryptor encryptor, PersistenceManager persistenceManager) {
-        _configuration = configuration;
-        _encryptor = encryptor;
-        _persistenceManager = persistenceManager;
+    public Configuration getConfiguration() {
+        return _configuration;
     }
 
     /*
-    Manually set the current session (override current).
-     */
+        Manually set the current session (override current).
+         */
     public void setSession(SessionInfo session) {
         if (session == null) {
             GigyaLogger.error(LOG_TAG, "Failed to parse _session info from response");

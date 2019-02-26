@@ -1,30 +1,39 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.Nullable;
+import android.support.v4.util.ArrayMap;
 
+import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.interruption.LinkedAccountResolver;
-import com.gigya.android.sdk.interruption.LoginIdentifierExistsResolver;
-import com.gigya.android.sdk.interruption.TFAResolver;
+import com.gigya.android.sdk.interruption.tfa.TFAProviderResolver;
+import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
-abstract class BaseLoginApi<T> extends BaseApi<T> {
+public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
 
-    BaseLoginApi(@Nullable Class<T> clazz) {
-        super(clazz);
+    protected final AccountManager accountManager;
+    protected final ArrayMap<String, GigyaResolver> resolverArrayMap;
+
+    public InterruptionEnabledApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
+                                  ArrayMap<String, GigyaResolver> resolverArrayMap) {
+        super(networkAdapter, sessionManager);
+        this.resolverArrayMap = resolverArrayMap;
+        this.accountManager = accountManager;
     }
 
-    void evaluateError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
-        if (!apiInterrupted(response, loginCallback)) {
+    protected void handleInterruptionError(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
+        if (!interrupted(response, loginCallback)) {
             /* Interruption is not handled. Forward the error. */
             loginCallback.forwardError(response);
         }
     }
 
-    /* Handle specific interruptions according to pre-defined handled error codes. */
-    private boolean apiInterrupted(GigyaResponse response, final GigyaLoginCallback loginCallback) {
-        if (configuration.isInterruptionsEnabled()) {
+    private boolean interrupted(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
+        if (sessionManager.getConfiguration().isInterruptionsEnabled()) {
             /* Get regToken from parameter map. */
             final String regToken = response.getField("regToken", String.class);
             final int errorCode = response.getErrorCode();
@@ -39,10 +48,15 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
                     loginCallback.onPendingPasswordChange(response);
                     return true;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    new LoginIdentifierExistsResolver(response, loginCallback).resolve(regToken);
+                    //TODO refactor
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
-                    new TFAResolver(loginCallback).regToken(regToken).getProviders();
+                case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
+                    TFAProviderResolver evaluator = new TFAProviderResolver<>(sessionManager.getConfiguration(), networkAdapter, sessionManager, accountManager,
+                            resolverArrayMap,
+                            loginCallback);
+                    evaluator.setRegToken(regToken);
+                    evaluator.getProviders();
                     return true;
             }
         }
@@ -50,8 +64,8 @@ abstract class BaseLoginApi<T> extends BaseApi<T> {
     }
 
     /* Evaluating responses that are tagged as success but still require error handling. */
-    boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
-        if (!configuration.isInterruptionsEnabled()) {
+    protected boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
+        if (!sessionManager.getConfiguration().isInterruptionsEnabled()) {
             return false;
         }
         final int errorCode = response.getErrorCode();

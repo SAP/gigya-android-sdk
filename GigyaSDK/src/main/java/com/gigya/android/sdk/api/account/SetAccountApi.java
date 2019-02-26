@@ -1,15 +1,19 @@
-package com.gigya.android.sdk.api;
+package com.gigya.android.sdk.api.account;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.api.BaseApi;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -21,18 +25,22 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
-public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T>  {
+public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
 
     private static final String API = "accounts.setAccountInfo";
 
     private Gson gson = new Gson();
+    private final Class<T> clazz;
+    protected final AccountManager accountManager;
 
     @NonNull
     final private T account, privateAccount;
 
-    public SetAccountApi(@Nullable Class<T> clazz,
-                         @NonNull T account, @NonNull T privateAccount) {
-        super(clazz);
+    public SetAccountApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
+                         @Nullable Class<T> clazz, @NonNull T account, @NonNull T privateAccount) {
+        super(networkAdapter, sessionManager);
+        this.accountManager = accountManager;
+        this.clazz = clazz;
         this.account = account;
         this.privateAccount = privateAccount;
     }
@@ -67,11 +75,7 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T>  {
 
     @SuppressWarnings({"unchecked"})
     public void call(final GigyaCallback callback) {
-        GigyaRequest request = new GigyaRequestBuilder(configuration)
-                .api(API)
-                .sessionManager(sessionManager)
-                .params(calculateDiff())
-                .build();
+        GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API).params(calculateDiff()).build();
         networkAdapter.send(request, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
@@ -83,7 +87,7 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T>  {
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         /* Chain a getAccount call */
-                        new GetAccountApi<>(clazz).call(callback);
+                        new GetAccountApi<>(networkAdapter, sessionManager, accountManager, clazz).call(callback);
                         return;
                     }
                     final int errorCode = response.getErrorCode();

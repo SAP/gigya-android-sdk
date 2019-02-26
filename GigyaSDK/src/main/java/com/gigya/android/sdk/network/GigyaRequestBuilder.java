@@ -12,16 +12,15 @@ import java.util.TreeMap;
 
 public class GigyaRequestBuilder {
 
-    private Configuration configuration;
     private Map<String, Object> params;
     private NetworkAdapter.Method httpMethod = NetworkAdapter.Method.POST;
     private String api;
-    private SessionManager sessionManager;
+    final private SessionManager sessionManager;
 
     //region Builder pattern
 
-    public GigyaRequestBuilder(Configuration configuration) {
-        this.configuration = configuration;
+    public GigyaRequestBuilder(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     public GigyaRequestBuilder api(String api) {
@@ -39,14 +38,10 @@ public class GigyaRequestBuilder {
         return this;
     }
 
-    public GigyaRequestBuilder sessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-        return this;
-    }
-
     //endregion
 
     public GigyaRequest build() {
+        final Configuration configuration = sessionManager.getConfiguration();
         TreeMap<String, Object> urlParams = new TreeMap<>();
         if (params != null) {
             urlParams.putAll(params);

@@ -10,9 +10,8 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.api.RegisterApi
+import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.interruption.ConflictingProviderResolver
-import com.gigya.android.sdk.interruption.TFAResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -23,7 +22,12 @@ import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    val uiShowCode = MutableLiveData<Int>()
+    companion object {
+        const val UI_TRIGGER_SHOW_TFA_REGISTRATION = 1
+        const val UI_TRIGGER_SHOW_TFA_VERIFICATION = 2
+    }
+
+    val uiTrigger = MutableLiveData<Int>()
 
     /*
     Custom account scheme model (corresponds with site scheme).
@@ -51,8 +55,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    var tfaResolver: TFAResolver? = null
-
     /**
      * Login using loginID & password.
      */
@@ -69,16 +71,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(resolver: TFAResolver) {
-                // Show TFA registration dialog.
-                tfaResolver = resolver
-                uiShowCode.postValue(1) //TODO STATIC CONSTANT
-            }
+//            override fun onPendingTFARegistration(resolverId: String) {
+//                // Show TFA registration dialog.
+//                uiTrigger.postValue(UI_TRIGGER_SHOW_TFA_REGISTRATION)
+//            }
+//
+//            override fun onPendingTFAVerification(resolverId: String) {
+//                // Show TFA verification dialog.
+//                uiTrigger.postValue(UI_TRIGGER_SHOW_TFA_VERIFICATION)
+//            }
         })
     }
 
-    fun onTFARegistrationConfirmed(mode: String, phone: String) {
-        tfaResolver?.resolveForRegistration(mode, phone)
+    fun onTFARegistrationConfirmed(mode: String, phone: String, method: String) {
+        //val tfaResolver = gigya.getResolver(GigyaResolver.TFA) as TFAProviderResolver<*>?
+        //tfaResolver?.resolveForPhoneRegistration(mode, phone, method)
+        // Show TFA verification dialog. Waiting for the response.
+        uiTrigger.postValue(UI_TRIGGER_SHOW_TFA_VERIFICATION)
+    }
+
+    fun onTFAVerificationConfirmed(code: String) {
+        //val tfaResolver = gigya.getResolver(GigyaResolver.TFA) as TFAProviderResolver<*>?
+        //tfaResolver?.completeVerification(code)
     }
 
     //TODO Update register api to simple email, password for sample application.
@@ -103,7 +117,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun finalizeRegistration(regToken: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.finalizeRegistration(mapOf("regToken" to regToken), object : GigyaLoginCallback<MyAccount>() {
+        gigya.finalizeRegistration(regToken, object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 myAccount = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))

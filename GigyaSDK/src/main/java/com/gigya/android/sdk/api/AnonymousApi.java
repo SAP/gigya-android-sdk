@@ -1,81 +1,57 @@
 package com.gigya.android.sdk.api;
 
+import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
-import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-
-import org.json.JSONObject;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.Map;
-
-import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 
 @SuppressWarnings("unchecked")
 public class AnonymousApi<H> extends BaseApi<H> {
 
-    public AnonymousApi() {
-        super();
+    private Class<H> clazz;
+
+    private final AccountManager accountManager;
+
+    public AnonymousApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
+        super(networkAdapter, sessionManager);
+        this.accountManager = accountManager;
     }
 
-    public AnonymousApi(Class<H> clazz) {
-        super(clazz);
+    public AnonymousApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
+                        Class<H> clazz) {
+        super(networkAdapter, sessionManager);
+        this.accountManager = accountManager;
+        this.clazz = clazz;
     }
 
     public void call(final String api, Map<String, Object> params, final GigyaCallback<H> callback) {
-        GigyaRequest request = new GigyaRequestBuilder(configuration)
-                .params(params)
-                .api(api)
-                .sessionManager(sessionManager)
-                .build();
-        networkAdapter.send(request, new INetworkCallbacks() {
-            @Override
-            public void onResponse(String jsonResponse) {
-                if (callback == null) {
-                    return;
-                }
-                try {
-                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
-                    final int statusCode = response.getStatusCode();
-                    if (statusCode == OK) {
-                        if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
-                            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
-                            sessionManager.setSession(session);
-                            accountManager.invalidateAccount();
-                        }
-                        // TODO: 11/02/2019 This is a patch for when using this specific api in the screensets feature.
-                        if (api.equals("accounts.setAccountInfo")) {
-                            accountManager.invalidateAccount();
-                        }
-                        if (clazz == null) {
-                            /* Callback will return GigyaResponse instance */
-                            callback.onSuccess((H) response);
-                            return;
-                        } else {
-                            H parsed = response.getGson().fromJson(jsonResponse, clazz);
-                            callback.onSuccess(parsed);
-                            return;
-                        }
-                    }
-                    final int errorCode = response.getErrorCode();
-                    final String localizedMessage = response.getErrorDetails();
-                    final String callId = response.getCallId();
-                    callback.onError(new GigyaError(response.asJson(), errorCode, localizedMessage, callId));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
+        GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(api).build();
+        sendRequest(request, api, callback);
+    }
 
-            @Override
-            public void onError(GigyaError gigyaError) {
-                if (callback != null) {
-                    callback.onError(gigyaError);
-                }
-            }
-        });
+    @Override
+    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<H> callback) {
+        if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
+            SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
+            sessionManager.setSession(session);
+            accountManager.invalidateAccount();
+        }
+        if (api.equals("accounts.setAccountInfo")) {
+            accountManager.invalidateAccount();
+        }
+        if (clazz == null) {
+            /* Callback will return GigyaResponse instance */
+            callback.onSuccess((H) response);
+        } else {
+            H parsed = response.getGson().fromJson(response.asJson(), clazz);
+            callback.onSuccess(parsed);
+        }
     }
 }

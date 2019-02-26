@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.gigya.android.sdk.api.RegisterApi;
+import com.gigya.android.sdk.api.account.RegisterApi;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.login.LoginProviderFactory;
@@ -15,7 +15,6 @@ import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaResponse;
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
@@ -197,10 +196,6 @@ public class Gigya<T extends GigyaAccount> {
         return DependencyRegistry.getInstance().getSessionManager();
     }
 
-    private NetworkAdapter getNetworkAdapter() {
-        return DependencyRegistry.getInstance().getNetworkAdapter();
-    }
-
     public LoginProvider getCurrentProvider() {
         return DependencyRegistry.getInstance().getAccountManager().getLoginProvider();
     }
@@ -278,8 +273,6 @@ public class Gigya<T extends GigyaAccount> {
     public void logout() {
         getApiManager().logout();
         getSessionManager().clear();
-
-        getNetworkAdapter().cancel(null);
         GigyaLoginPresenter.flush();
 
         /* Clearing cached cookies. */
@@ -408,8 +401,8 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     // TODO: 14/02/2019 Add JavaDoc.
-    public void finalizeRegistration(Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
-        getApiManager().finalizeRegistration(params, callback);
+    public void finalizeRegistration(String regToken, GigyaLoginCallback<? extends GigyaAccount> callback) {
+        getApiManager().finalizeRegistration(regToken, callback);
     }
 
     /**

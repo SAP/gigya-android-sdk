@@ -1,7 +1,13 @@
-package com.gigya.android.sdk.api;
+package com.gigya.android.sdk.api.account;
 
+import android.support.v4.util.ArrayMap;
+
+import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.api.InterruptionEnabledApi;
+import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
@@ -9,19 +15,19 @@ import com.gigya.android.sdk.network.GigyaInterceptionCallback;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaRequestBuilder;
 import com.gigya.android.sdk.network.GigyaResponse;
-import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
-
-import org.json.JSONObject;
+import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gigya.android.sdk.network.GigyaResponse.OK;
+public class NotifyLoginApi<T extends GigyaAccount> extends InterruptionEnabledApi<T> {
 
-public class NotifyLoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
+    private final Class<T> clazz;
 
-    public NotifyLoginApi(Class<T> clazz) {
-        super(clazz);
+    public NotifyLoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
+                          ArrayMap<String, GigyaResolver> resolverArrayMap, Class<T> clazz) {
+        super(networkAdapter, sessionManager, accountManager, resolverArrayMap);
+        this.clazz = clazz;
     }
 
     private static final String API = "socialize.notifyLogin";
@@ -35,49 +41,30 @@ public class NotifyLoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
         getAccount(callback, interceptor);
     }
 
+    private GigyaInterceptionCallback<T> interceptor;
+
     public void call(String providerSessions, final GigyaLoginCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+        this.interceptor = interceptor;
         final Map<String, Object> params = new HashMap<>();
         params.put("providerSessions", providerSessions);
-        GigyaRequest request = new GigyaRequestBuilder(configuration)
-                .sessionManager(sessionManager)
-                .params(params)
-                .api(API)
-                .build();
-        networkAdapter.send(request, new INetworkCallbacks() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void onResponse(String jsonResponse) {
-                if (callback == null) {
-                    return;
-                }
-                try {
-                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
-                    final int statusCode = response.getStatusCode();
-                    if (statusCode == OK) {
-                        /* Update session info */
-                        if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
-                            updateSessionAndRequestAccountInfo(response, callback, interceptor);
-                        }
-                        return;
-                    }
-                    /* Error may contain specific interruption. */
-                    evaluateError(response, callback);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    callback.onError(GigyaError.generalError());
-                }
-            }
-
-            @Override
-            public void onError(GigyaError gigyaError) {
-                if (callback != null) {
-                    callback.onError(gigyaError);
-                }
-            }
-        });
+        GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(API).build();
+        sendRequest(request, API, callback);
     }
 
-    private void updateSessionAndRequestAccountInfo(GigyaResponse notifyResponse, final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
+    @Override
+    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<T> callback) {
+        if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
+            updateSessionAndRequestAccountInfo(response, callback, this.interceptor);
+        }
+    }
+
+    @Override
+    protected void onRequestError(String api, GigyaResponse response, GigyaCallback<T> callback) {
+        handleInterruptionError(response, (GigyaLoginCallback) callback);
+    }
+
+    private void updateSessionAndRequestAccountInfo(GigyaResponse notifyResponse, final GigyaCallback<T> callback,
+                                                    final GigyaInterceptionCallback<T> interceptor) {
         /* Parse session info and request account info. */
         SessionInfo sessionInfo;
         final String sessionSecret = notifyResponse.getField("sessionSecret", String.class);
@@ -88,19 +75,17 @@ public class NotifyLoginApi<T extends GigyaAccount> extends BaseLoginApi<T> {
         } else {
             sessionInfo = new SessionInfo(sessionSecret, sessionToken);
         }
-
         // Update session.
         if (sessionManager != null) {
             sessionManager.setSession(sessionInfo);
         }
-
         // Request account info.
         getAccount(callback, interceptor);
     }
 
     private void getAccount(final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         // Request account info.
-        new GetAccountApi<>(clazz)
+        new GetAccountApi<>(networkAdapter, sessionManager, accountManager, clazz)
                 .call(new GigyaCallback<T>() {
                     @Override
                     public void onSuccess(T obj) {

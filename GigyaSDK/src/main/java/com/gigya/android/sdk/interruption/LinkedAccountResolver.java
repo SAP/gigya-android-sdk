@@ -15,6 +15,6 @@ public class LinkedAccountResolver extends LoginResolver {
     public void resolve(String regToken) {
         Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
-        apiManager.finalizeRegistration(params, loginCallback);
+        //apiManager.finalizeRegistration(params, loginCallback);
     }
 }

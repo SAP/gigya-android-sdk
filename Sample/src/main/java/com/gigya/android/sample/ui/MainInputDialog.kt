@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.gigya.android.sample.R
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.api.RegisterApi
+import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.input_anonymous.*
 import kotlinx.android.synthetic.main.input_finialize_registration.*

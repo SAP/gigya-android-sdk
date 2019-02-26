@@ -3,11 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/register_tfa_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -26,9 +25,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
-        app:layout_constraintTop_toBottomOf="@id/title" />
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
+        app:layout_constraintTop_toBottomOf="@id/register_tfa_title" />
 
     <TextView
         android:id="@+id/country_title"
@@ -39,8 +38,8 @@
         android:textColor="@android:color/black"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/methods_spinner" />
 
     <Spinner
@@ -48,8 +47,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/country_title" />
 
     <TextView
@@ -61,16 +60,16 @@
         android:textColor="@android:color/black"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/country_spinner" />
 
     <EditText
         android:id="@+id/phone_edit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/phone_number" />
 
     <RadioGroup
@@ -79,17 +78,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintEnd_toEndOf="@id/register_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/register_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/phone_edit">
 
         <RadioButton
+            android:id="@+id/radio_sms"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checked="true"
             android:text="SMS" />
 
         <RadioButton
+            android:id="@+id/radio_voice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -98,10 +100,11 @@
     </RadioGroup>
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/send_code"
+        android:id="@+id/register_tfa_send_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
@@ -113,6 +116,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/method_group"
+        app:layout_constraintVertical_bias="0.96"
         tools:ignore="UnusedAttribute" />
 
 </android.support.constraint.ConstraintLayout>

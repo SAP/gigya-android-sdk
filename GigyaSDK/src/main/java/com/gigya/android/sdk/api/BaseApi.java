@@ -1,12 +1,7 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.Nullable;
-
-import com.gigya.android.sdk.AccountManager;
-import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaRequest;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -19,31 +14,14 @@ import static com.gigya.android.sdk.network.GigyaResponse.OK;
 
 public abstract class BaseApi<T> {
 
-    protected NetworkAdapter networkAdapter;
-    protected Configuration configuration;
-    protected SessionManager sessionManager;
-    protected AccountManager accountManager;
-
-    @Nullable
-    protected Class<T> clazz;
+    protected final NetworkAdapter networkAdapter;
+    protected final SessionManager sessionManager;
 
     //region Convenience constructors
 
-    public void inject(Configuration configuration, NetworkAdapter networkAdapter, SessionManager sessionManager,
-                       AccountManager accountManager) {
-        this.configuration = configuration;
+    public BaseApi(NetworkAdapter networkAdapter, SessionManager sessionManager) {
         this.networkAdapter = networkAdapter;
         this.sessionManager = sessionManager;
-        this.accountManager = accountManager;
-    }
-
-    public BaseApi() {
-        DependencyRegistry.getInstance().inject(this);
-    }
-
-    public BaseApi(@Nullable Class<T> clazz) {
-        DependencyRegistry.getInstance().inject(this);
-        this.clazz = clazz;
     }
 
     //endregion
@@ -62,7 +40,8 @@ public abstract class BaseApi<T> {
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    callback.onError(GigyaError.generalError());
+                    if (callback != null)
+                        callback.onError(GigyaError.generalError());
                 }
             }
 
