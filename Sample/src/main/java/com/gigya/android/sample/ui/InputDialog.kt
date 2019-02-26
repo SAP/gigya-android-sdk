@@ -10,31 +10,28 @@ import android.view.ViewGroup
 import com.gigya.android.sample.R
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.account.RegisterApi
-import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.input_anonymous.*
-import kotlinx.android.synthetic.main.input_finialize_registration.*
 import kotlinx.android.synthetic.main.input_login_register.*
 import kotlinx.android.synthetic.main.input_login_with_provider.*
 import kotlinx.android.synthetic.main.input_re_init.*
 import kotlinx.android.synthetic.main.input_set_account.*
 import org.jetbrains.anko.design.snackbar
 
-
-class MainInputDialog : DialogFragment() {
+class InputDialog : DialogFragment() {
 
     private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, FINALIZE_REG, LOGIN_WITH_PROVIDER
+        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, LOGIN_WITH_PROVIDER
     }
 
     interface IApiResultCallback {
-        fun onLoading()
-        fun onJsonResult(json: String)
-        fun onError(error: GigyaError)
         fun onReInit()
-        fun onInterruption(code: Int, params: Map<String, Any?>)
-        fun onCancel()
+        fun onAnonymousInput(input: String)
+        fun onLoginWithProvider(provider: String)
+        fun onRegisterWith(username: String, password: String, policy: RegisterApi.RegisterPolicy)
+        fun onLoginWith(username: String, password: String)
+        fun onUpdateAccountWith(comment: String)
     }
 
     private var type: MainInputType? = null
@@ -43,10 +40,10 @@ class MainInputDialog : DialogFragment() {
 
     companion object {
 
-        fun newInstance(type: MainInputType, resultCallback: IApiResultCallback): MainInputDialog {
+        fun newInstance(type: MainInputType, resultCallback: IApiResultCallback): InputDialog {
             val args = Bundle()
             args.putSerializable("type", type)
-            val fragment = MainInputDialog()
+            val fragment = InputDialog()
             fragment.arguments = args
             fragment.resultCallback = resultCallback
             return fragment
@@ -74,7 +71,6 @@ class MainInputDialog : DialogFragment() {
             MainInputType.ANONYMOUS -> R.layout.input_anonymous
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.input_login_register
             MainInputType.SET_ACCOUNT_INFO -> R.layout.input_set_account
-            MainInputType.FINALIZE_REG -> R.layout.input_finialize_registration
             MainInputType.LOGIN_WITH_PROVIDER -> R.layout.input_login_with_provider
             else -> 0
         }
@@ -87,7 +83,6 @@ class MainInputDialog : DialogFragment() {
             MainInputType.ANONYMOUS -> setupForAnonymous()
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
             MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
-            MainInputType.FINALIZE_REG -> setupForFinalizeRegistration()
             MainInputType.LOGIN_WITH_PROVIDER -> setupForLoginWithProvider()
         }
     }
@@ -138,12 +133,8 @@ class MainInputDialog : DialogFragment() {
     private fun setupForAnonymous() {
         anonymous_sheet_send_button.setOnClickListener {
             val api = anonymous_sheet_edit.text.toString().trim()
-            if (!TextUtils.isEmpty(api)) {
-                resultCallback.onLoading()
-                viewModel?.sendAnonymous(api,
-                        success = { json -> postSuccess(json) },
-                        error = { possibleError -> postError(possibleError) })
-            }
+            resultCallback.onAnonymousInput(api)
+            dismiss()
         }
     }
 
@@ -153,18 +144,10 @@ class MainInputDialog : DialogFragment() {
     private fun setupForLoginWithProvider() {
         login_with_provider_sheet_send_button.setOnClickListener {
             val provider = login_with_provider_sheet_edit.text.toString().trim()
-            if (!TextUtils.isEmpty(provider)) {
-                resultCallback.onLoading()
-                viewModel?.loginWithProvider(provider,
-                        success = { json -> postSuccess(json) },
-                        error = { possibleError -> postError(possibleError) },
-                        cancel = {
-                            postCancel()
-                        })
-            }
+            resultCallback.onLoginWithProvider(provider)
+            dismiss()
         }
     }
-
 
     /**
      * Setup input dialog for sending login/registration requests.
@@ -189,25 +172,17 @@ class MainInputDialog : DialogFragment() {
             val username = login_register_sheet_username_edit.text.toString().trim()
             val password = login_register_sheet_password_edit.text.toString().trim()
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
-                resultCallback.onLoading()
                 if (type == MainInputType.LOGIN) {
-                    viewModel?.login(username, password,
-                            success = { json -> postSuccess(json) },
-                            error = { possibleError -> postError(possibleError) })
+                    resultCallback.onLoginWith(username, password)
                 } else if (type == MainInputType.REGISTER) {
-                    viewModel?.register(username, password,
-                            when (register_policy_radio_group.checkedRadioButtonId) {
-                                R.id.policy_email -> RegisterApi.RegisterPolicy.EMAIL
-                                R.id.policy_username -> RegisterApi.RegisterPolicy.USERNAME
-                                else -> RegisterApi.RegisterPolicy.EMAIL_OR_USERNAME
-                            },
-                            success = { json -> postSuccess(json) },
-                            error = { possibleError -> postError(possibleError) },
-                            interruption = { code, map ->
-                                resultCallback.onInterruption(code, map)
-                                dismiss()
-                            })
+                    val policy = when (register_policy_radio_group.checkedRadioButtonId) {
+                        R.id.policy_email -> RegisterApi.RegisterPolicy.EMAIL
+                        R.id.policy_username -> RegisterApi.RegisterPolicy.USERNAME
+                        else -> RegisterApi.RegisterPolicy.EMAIL_OR_USERNAME
+                    }
+                    resultCallback.onRegisterWith(username, password, policy)
                 }
+                dismiss()
             }
         }
     }
@@ -218,54 +193,11 @@ class MainInputDialog : DialogFragment() {
      * Implement according to application requirements.
      */
     private fun setupForSetAccountInfo() {
-        set_account_sheet_title.text = "Set account info custom (updating \"report\" custom data)"
+        set_account_sheet_title.text = "Set account info custom (updating \"comment\" custom data field)"
         set_account_sheet_send_button.setOnClickListener {
-            val dummyData = set_account_sheet_edit.text.toString().trim()
-            if (!TextUtils.isEmpty(dummyData)) {
-                resultCallback.onLoading()
-                viewModel?.setAccount(dummyData,
-                        success = { json -> postSuccess(json) },
-                        error = { possibleError -> postError(possibleError) })
-            }
+            val comment = set_account_sheet_edit.text.toString().trim()
+            resultCallback.onUpdateAccountWith(comment)
+            dismiss()
         }
     }
-
-    /**
-     * Setup input dialog for regToken input in order to finalize the registration.
-     */
-    private fun setupForFinalizeRegistration() {
-        finalize_reg_sheet_send_button.setOnClickListener {
-            val regToken = finalize_reg_sheet_edit.text.toString().trim()
-            if (!regToken.isEmpty()) {
-                viewModel?.finalizeRegistration(regToken,
-                        success = { json ->
-                            postSuccess(json)
-                        },
-                        error = { possibleError ->
-                            postError(possibleError)
-                        })
-            }
-        }
-    }
-
-//region Interfacing
-
-    private fun postSuccess(json: String) {
-        resultCallback.onJsonResult(json)
-        dismiss()
-    }
-
-    private fun postCancel() {
-        resultCallback.onCancel()
-        dismiss()
-    }
-
-    private fun postError(possibleError: GigyaError?) {
-        possibleError?.let { error ->
-            resultCallback.onError(error)
-        }
-        dismiss()
-    }
-
-//endregion
 }

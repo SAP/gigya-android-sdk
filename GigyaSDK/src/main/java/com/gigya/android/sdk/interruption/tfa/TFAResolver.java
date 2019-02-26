@@ -11,6 +11,7 @@ import com.gigya.android.sdk.api.tfa.TFAFinalizeApi;
 import com.gigya.android.sdk.api.tfa.TFAGetProvidersApi;
 import com.gigya.android.sdk.api.tfa.phone.TFACompleteVerificationApi;
 import com.gigya.android.sdk.interruption.GigyaResolver;
+import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFACompleteVerificationResponse;
 import com.gigya.android.sdk.model.tfa.TFAProvider;
@@ -19,14 +20,17 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
 
-    final private WeakReference<GigyaLoginCallback<T>> loginCallback;
+    private static final String LOG_TAG = "TFAResolver";
+
+    final private SoftReference<GigyaLoginCallback<T>> loginCallback;
     private String regToken;
+    private GigyaResponse originalResponse;
 
     private TFAPhoneResolver<T> phoneResolver;
     private TFATotpResolver<T> totpResolver;
@@ -34,11 +38,12 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
     public TFAResolver(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
                        GigyaLoginCallback<T> loginCallback) {
         super(networkAdapter, sessionManager, accountManager);
-        this.loginCallback = new WeakReference<>(loginCallback);
+        this.loginCallback = new SoftReference<>(loginCallback);
     }
 
-    public void setRegToken(String regToken) {
+    public void setOriginalData(String regToken, GigyaResponse response) {
         this.regToken = regToken;
+        this.originalResponse = response;
     }
 
     public void init() {
@@ -61,11 +66,11 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
         if (res.getActiveProviders().isEmpty()) {
             initResolvers(res.getInactiveProviders());
             if (loginCallback.get() != null)
-                loginCallback.get().onPendingTFARegistration(this);
+                loginCallback.get().onPendingTFARegistration(this.originalResponse, this);
         } else {
             initResolvers(res.getActiveProviders());
             if (loginCallback.get() != null)
-                loginCallback.get().onPendingTFAVerification(this);
+                loginCallback.get().onPendingTFAVerification(this.originalResponse, this);
         }
     }
 
@@ -119,7 +124,7 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
         return null;
     }
 
-    public void complete(final String selectedProvider, String code) {
+    public void submit(final String selectedProvider, String code) {
         new TFACompleteVerificationApi(networkAdapter, sessionManager)
                 .call(getAssertion(selectedProvider), getPhvToken(selectedProvider), code, new GigyaCallback<TFACompleteVerificationResponse>() {
                     @Override
@@ -155,8 +160,11 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
 
     private void finalizeRegistration() {
         if (loginCallback.get() != null) {
+            GigyaLogger.debug(LOG_TAG, "Sending finalize registration");
             new FinalizeRegistrationApi<T>(networkAdapter, sessionManager, accountManager)
                     .call(regToken, loginCallback.get());
+        } else {
+            GigyaLogger.error(LOG_TAG, "Login callback reference is null -> Not sending finalize registration");
         }
     }
 }

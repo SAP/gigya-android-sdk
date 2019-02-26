@@ -20,10 +20,10 @@ public class TFASendVerificationCodeApi extends BaseApi<TFAVerificationCodeRespo
         super(networkAdapter, sessionManager);
     }
 
-    public void call(String gigyaAssertion, long phone, String method, String lang, final GigyaCallback<TFAVerificationCodeResponse> callback) {
+    public void call(String gigyaAssertion, String phone, String method, String lang, boolean isId, final GigyaCallback<TFAVerificationCodeResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", gigyaAssertion);
-        params.put("phone", phone);
+        params.put(isId ? "phoneID": "phone", phone);
         params.put("method", method);
         params.put("lang", lang);
         GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(API).build();

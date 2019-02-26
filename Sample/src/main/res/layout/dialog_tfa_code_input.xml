@@ -3,17 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/verify_tfa_title"
+        android:id="@+id/code_input_tfa_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
-        android:text="Available authentication methods"
+        android:text="Enter verification code code:"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -21,17 +20,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
-        android:id="@+id/verify_provider_spinner"
+    <EditText
+        android:id="@+id/verify_tfa_edit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@id/verify_tfa_title"
-        app:layout_constraintStart_toStartOf="@id/verify_tfa_title"
-        app:layout_constraintTop_toBottomOf="@id/verify_tfa_title" />
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@id/code_input_tfa_title"
+        app:layout_constraintStart_toStartOf="@id/code_input_tfa_title"
+        app:layout_constraintTop_toBottomOf="@id/code_input_tfa_title" />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/verify_tfa_send_code"
+        android:id="@+id/code_input_tfa_send_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -40,13 +39,13 @@
         android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="Get the Code"
+        android:text="Submit"
         android:textColor="@color/colorAccent"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/verify_provider_spinner"
+        app:layout_constraintTop_toBottomOf="@id/verify_tfa_edit"
         app:layout_constraintVertical_bias="0.96"
         tools:ignore="UnusedAttribute" />
 

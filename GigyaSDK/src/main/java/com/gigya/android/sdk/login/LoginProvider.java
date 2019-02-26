@@ -122,7 +122,7 @@ public abstract class LoginProvider {
             /* Call intermediate load to give the client the option to trigger his own progress indicator */
             _callback.onIntermediateLoad();
 
-            /* Call notifyLogin to complete sign in process.*/
+            /* Call notifyLogin to submit sign in process.*/
             _apiManager.notifyLogin(sessionInfo, _callback, new Runnable() {
                 @Override
                 public void run() {

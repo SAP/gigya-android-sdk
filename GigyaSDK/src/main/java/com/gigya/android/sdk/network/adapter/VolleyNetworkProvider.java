@@ -30,6 +30,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
     private RequestQueue _requestQueue;
     private Queue<VolleyNetworkRequest> _blockedQueue = new ConcurrentLinkedQueue<>();
+
     VolleyNetworkProvider(Context appContext) {
         _requestQueue = Volley.newRequestQueue(appContext);
         // Enable Volley logs.
@@ -110,12 +111,12 @@ public class VolleyNetworkProvider extends NetworkProvider {
     /*
     Generate a new Volley request.
      */
-    private VolleyNetworkRequest newRequest(GigyaRequest request, final INetworkCallbacks networkCallbacks) {
+    private VolleyNetworkRequest newRequest(final GigyaRequest request, final INetworkCallbacks networkCallbacks) {
         return new VolleyNetworkRequest(request.getMethod().getValue(), request.getUrl(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        GigyaLogger.debug("GigyaResponse", response);
+                        GigyaLogger.debug("GigyaResponse", "Api: " + request.getUrl() + "\n" + response);
                         if (networkCallbacks != null) {
                             networkCallbacks.onResponse(response);
                         }
@@ -130,7 +131,9 @@ public class VolleyNetworkProvider extends NetworkProvider {
                         }
                         final String localizedMessage = error.getLocalizedMessage() == null ? "" : error.getLocalizedMessage();
                         final GigyaError gigyaError = new GigyaError(errorCode, localizedMessage, null);
-                        GigyaLogger.debug("GigyaResponse", "GigyaResponse: Error " + gigyaError.toString());
+                        GigyaLogger.debug("GigyaResponse", "GigyaResponse: Error " +
+                                "Api: " + request.getUrl() + "\n" +
+                                gigyaError.toString());
                         if (networkCallbacks != null) {
                             networkCallbacks.onError(gigyaError);
                         }

@@ -7,11 +7,15 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import com.gigya.android.sample.R
+import com.gigya.android.sample.extras.gone
+import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sdk.interruption.GigyaResolver
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.dialog_tfa_code_input.*
 import kotlinx.android.synthetic.main.dialog_tfa_registration.*
 import kotlinx.android.synthetic.main.dialog_tfa_verification.*
 
@@ -21,7 +25,7 @@ class TFADialog : DialogFragment() {
 
     companion object {
 
-        fun newInstance(mode: String, providers: ArrayList<String>): TFADialog {
+        fun newInstance(mode: String, providers: ArrayList<String>?): TFADialog {
             val dialog = TFADialog()
             val args = Bundle()
             args.putString("mode", mode)
@@ -33,7 +37,7 @@ class TFADialog : DialogFragment() {
 
     private lateinit var mode: String
 
-    var codes: Array<CountryCode>? = null
+    private var codes: Array<CountryCode>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +60,7 @@ class TFADialog : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = when (mode) {
             "registration" -> R.layout.dialog_tfa_registration
+            "code_input" -> R.layout.dialog_tfa_code_input
             "verification" -> R.layout.dialog_tfa_verification
             else -> 0
         }
@@ -65,6 +70,7 @@ class TFADialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         when (mode) {
             "registration" -> setupForRegistration()
+            "code_input" -> setupForCodeInput()
             "verification" -> setupForVerification()
         }
     }
@@ -79,6 +85,27 @@ class TFADialog : DialogFragment() {
         // Populate options spinner.
         val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
         register_provider_spinner.adapter = providerAdapter
+        register_provider_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Stub.
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (providers[position] == GigyaResolver.TFA_PHONE) {
+                    true -> {
+                        method_group.visible()
+                        phone_edit.visible()
+                        phone_number.visible()
+                    }
+                    false -> {
+                        method_group.gone()
+                        phone_edit.gone()
+                        phone_number.gone()
+                    }
+                }
+            }
+        }
+
         // Populate country code spinner.
         val codeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
         country_spinner.adapter = codeAdapter
@@ -88,7 +115,7 @@ class TFADialog : DialogFragment() {
             val method = register_provider_spinner.selectedItem.toString()
             when (method) {
                 GigyaResolver.TFA_PHONE -> {
-                    viewModel?.onTFAPhoneRegistrationConfirmed(
+                    viewModel?.onTFAPhoneRegister(
                             country.dial_code + phone_edit.text.toString().trim().replace("+", ""),
                             when (method_group.checkedRadioButtonId) {
                                 R.id.radio_sms -> "sms"
@@ -106,6 +133,14 @@ class TFADialog : DialogFragment() {
         }
     }
 
+    private fun setupForCodeInput() {
+        code_input_tfa_send_code.setOnClickListener {
+            val code = verify_tfa_edit.text.toString().trim()
+            viewModel?.onTFAPhoneCodeSubmit(code)
+            dismiss()
+        }
+    }
+
     private fun setupForVerification() {
         val providers = arguments!!.getStringArrayList("providers")
         // Populate options spinner.
@@ -113,8 +148,11 @@ class TFADialog : DialogFragment() {
         verify_provider_spinner.adapter = providerAdapter
         verify_tfa_send_code.setOnClickListener {
             val provider = verify_provider_spinner.selectedItem.toString()
-            val code = verify_tfa_edit.text.toString().trim()
-            viewModel?.onTFAVerificationConfirmed(provider, code)
+            when (provider) {
+                GigyaResolver.TFA_PHONE -> viewModel?.onTFAPhoneVerify()
+                GigyaResolver.TFA_TOTP -> {
+                }
+            }
             dismiss()
         }
     }

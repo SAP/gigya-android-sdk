@@ -48,7 +48,7 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
                     TFAResolver resolver = new TFAResolver<>(networkAdapter, sessionManager, accountManager,
                             loginCallback);
-                    resolver.setRegToken(regToken);
+                    resolver.setOriginalData(regToken, response);
                     resolver.init();
                     return true;
             }

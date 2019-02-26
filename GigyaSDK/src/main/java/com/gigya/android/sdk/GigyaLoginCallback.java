@@ -36,11 +36,15 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
     //region TFA
 
-    public void onPendingTFARegistration(@NonNull TFAResolver resolver) {
-        // Stub.
+    public void onPendingTFARegistration(@NonNull GigyaResponse response, @NonNull TFAResolver resolver) {
+        forwardError(response);
     }
 
-    public void onPendingTFAVerification(@NonNull TFAResolver resolver) {
+    public void onPendingTFAVerification(@NonNull GigyaResponse response, @NonNull TFAResolver resolver) {
+        forwardError(response);
+    }
+
+    public void onPhoneTFAVerificationCodeSent() {
         // Stub.
     }
 

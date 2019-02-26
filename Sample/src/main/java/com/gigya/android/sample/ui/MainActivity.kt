@@ -16,6 +16,7 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.activity_main.*
@@ -24,7 +25,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainInputDialog.IApiResultCallback {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, InputDialog.IApiResultCallback {
 
     private var viewModel: MainViewModel? = null
 
@@ -71,11 +72,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
             @Suppress("UNCHECKED_CAST")
-            when(dataPair?.first) {
+            when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_INPUT -> showTFACodeInputDialog()
+                MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
             }
         })
+
+        observeAccountUpdates()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -109,14 +114,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onOptionsItemSelected(item)
     }
 
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.api_anonymous -> onSendAnonymousRequest()
             R.id.api_login -> onLogin()
             R.id.api_login_with_provider -> onLoginWithProvider()
             R.id.api_register -> onRegister()
-            R.id.api_finalizeReg -> onFinalizeRegistration()
             R.id.api_get_account_info -> onGetAccount()
             R.id.api_set_account_info -> onSetAccount()
             R.id.action_native_login -> presentNativeLogin()
@@ -144,7 +147,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Providing the option to re-initialize the SDK with different ApiKey, ApiDomain parameters.
      */
     private fun reInit() {
-        val sheet = MainInputDialog.newInstance(MainInputDialog.MainInputType.REINIT, this)
+        val sheet = InputDialog.newInstance(InputDialog.MainInputType.REINIT, this)
         sheet.show(supportFragmentManager, "sheet")
     }
 
@@ -163,45 +166,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region APIs
 
     private fun onRegister() {
-        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.REGISTER, this)
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.REGISTER, this)
         dialog.show(supportFragmentManager, "onRegister")
     }
 
-    private fun onFinalizeRegistration() {
-        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.FINALIZE_REG, this)
-        dialog.show(supportFragmentManager, "onFinalizeRegistration")
-    }
-
     private fun onLogin() {
-        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.LOGIN, this)
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.LOGIN, this)
         dialog.show(supportFragmentManager, "onLogin")
     }
 
     private fun onLoginWithProvider() {
-        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.LOGIN_WITH_PROVIDER, this)
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.LOGIN_WITH_PROVIDER, this)
         dialog.show(supportFragmentManager, "onLoginWithProvider")
     }
 
     private fun onSendAnonymousRequest() {
-        val dialog = MainInputDialog.newInstance(MainInputDialog.MainInputType.ANONYMOUS, this)
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.ANONYMOUS, this)
         dialog.show(supportFragmentManager, "onSendAnonymousRequest")
-    }
-
-    private fun onGetAccount() {
-        if (!Gigya.getInstance().isLoggedIn) {
-            response_text_view.snackbar(getString(R.string.not_logged_in))
-            return
-        }
-        onLoading()
-        viewModel?.getAccount(
-                success = { json ->
-                    onJsonResult(json)
-                    onAccountDataAvailable()
-                },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
-                }
-        )
     }
 
     private fun showTFARegistrationDialog(providers: ArrayList<String>) {
@@ -214,12 +195,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.show(supportFragmentManager, "showTFAVerificationDialog")
     }
 
+    private fun showTFACodeInputDialog() {
+        val dialog = TFADialog.newInstance("code_input", null)
+        dialog.show(supportFragmentManager, "showTFACodeInputDialog")
+    }
+
+    private fun onTFAVerificationCodeSent() {
+        response_text_view.snackbar("Verification code sent")
+    }
+
+    private fun onGetAccount() {
+        if (!Gigya.getInstance().isLoggedIn) {
+            response_text_view.snackbar(getString(R.string.not_logged_in))
+            return
+        }
+        onLoading()
+        viewModel?.getAccount(
+                success = { json ->
+                    onJsonResult(json)
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
+    }
+
     private fun onSetAccount() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title).setTitle("Attention!").setMessage("Make sure all updated fields are marked as \"clientModify\"");
         builder.setPositiveButton(getString(android.R.string.ok)) { dialog, _ ->
             if (viewModel?.okayToRequestSetAccount()!!) {
-                val sheet = MainInputDialog.newInstance(MainInputDialog.MainInputType.SET_ACCOUNT_INFO, this)
+                val sheet = InputDialog.newInstance(InputDialog.MainInputType.SET_ACCOUNT_INFO, this)
                 sheet.show(supportFragmentManager, "sheet")
             } else {
                 response_text_view.snackbar(getString(R.string.account_not_available))
@@ -252,7 +258,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.showLoginProviders(
                 success = { json ->
                     onJsonResult(json)
-                    onAccountDataAvailable()
                 },
                 onIntermediateLoad = {
                     onLoading()
@@ -268,7 +273,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.registrationAsAService(
                 onLogin = { json ->
                     onJsonResult(json)
-                    onAccountDataAvailable()
                 },
                 onError = { possibleError ->
                     possibleError?.let {
@@ -282,7 +286,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.showComments(
                 onLogin = { json ->
                     onJsonResult(json)
-                    onAccountDataAvailable()
                 },
                 onLogout = {
                     onClear()
@@ -317,7 +320,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region Result handling
+    //region ViewModel interfacing
 
     /**
      * SDK re-initialized. force logout/clear session.
@@ -327,10 +330,63 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         onClear()
     }
 
+    override fun onAnonymousInput(input: String) {
+        onLoading()
+        viewModel?.sendAnonymous(input,
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
+    }
+
+    override fun onLoginWithProvider(provider: String) {
+        onLoading()
+        viewModel?.loginWithProvider(provider,
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                },
+                cancel = {
+                    onCancel()
+                })
+    }
+
+    override fun onLoginWith(username: String, password: String) {
+        onLoading()
+        viewModel?.login(username, password,
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                })
+    }
+
+    override fun onRegisterWith(username: String, password: String, policy: RegisterApi.RegisterPolicy) {
+        onLoading()
+        viewModel?.register(username, password, policy,
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                })
+    }
+
+    override fun onUpdateAccountWith(comment: String) {
+        onLoading()
+        viewModel?.setAccount(comment,
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                })
+    }
+
+    //endregion
+
+    //region UI helpers
+
     /**
-     * On json result (response) interfacing,
+     * Populate JSON result.
      */
-    override fun onJsonResult(json: String) {
+    private fun onJsonResult(json: String) {
         response_text_view.text = json
         empty_response_text.gone()
         onLoadingDone()
@@ -339,25 +395,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     /**
      * On Gigya error interfacing. Display error alert.
      */
-    override fun onError(error: GigyaError) {
+    private fun onError(error: GigyaError) {
         displayErrorAlert(R.string.rest_error_title, error.localizedMessage)
         onLoadingDone()
     }
 
-    override fun onCancel() {
+    /**
+     * Cancelled operation. Display Toast.
+     */
+    private fun onCancel() {
         loader.gone()
         response_text_view.snackbar("Operation canceled")
-    }
-
-
-    override fun onInterruption(code: Int, params: Map<String, Any?>) {
-        loader.gone()
     }
 
     /**
      * Show loading state.
      */
-    override fun onLoading() {
+    private fun onLoading() {
         loader.visible()
     }
 
@@ -382,18 +436,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region Account info binding
 
-    /**
-     * Bind account data to navigation header views.
-     */
-    private fun onAccountDataAvailable() {
-        viewModel?.getAccountName()?.let { name ->
-            nav_title.text = name
-        }
-        viewModel?.getAccountEmail()?.let { email ->
-            nav_subtitle.text = email
-        }
-        nav_subtitle.text = viewModel?.getAccountEmail()
-        nav_image.loadRoundImageWith(viewModel?.getAccountProfileImage(), R.drawable.side_nav_bar)
+    private fun observeAccountUpdates() {
+        viewModel?.account?.observe(this, Observer { myAccount ->
+            val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
+            nav_title.text = fullName
+
+            nav_subtitle.text = myAccount?.profile?.email
+
+            nav_image.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
+        })
     }
 
     /**
