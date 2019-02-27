@@ -54,8 +54,9 @@
     <string name="forgot_password">forgotPassword</string>
     <string name="disable_interruptions">Disable interruptions</string>
     <string name="enable_interruptions">Enable interruptions</string>
+    <string name="reset_tfa">Reset TFA</string>
 
-        <string-array name="tfa_options">
+    <string-array name="tfa_options">
             <item>Phone</item>
             <item>Time-based authentication</item>
         </string-array>

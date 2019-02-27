@@ -12,6 +12,7 @@ import com.gigya.android.sdk.api.account.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.account.RegisterApi;
 import com.gigya.android.sdk.api.account.ResetPasswordApi;
 import com.gigya.android.sdk.api.account.SetAccountApi;
+import com.gigya.android.sdk.api.tfa.TFAResetApi;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
@@ -189,5 +190,9 @@ public class ApiManager {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", email);
         new ResetPasswordApi(_networkAdapter, _sessionManager).call(params, callback);
+    }
+
+    public void resetTFA(String UID, GigyaCallback<GigyaResponse> callback) {
+        new TFAResetApi(_networkAdapter, _sessionManager).call(UID, callback);
     }
 }

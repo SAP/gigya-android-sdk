@@ -113,7 +113,7 @@ class TFADialog : DialogFragment() {
                                         visibility = false)
                             }
                             "verification" -> {
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, visibility = false)
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, tfa_get_code, visibility = false)
                                 toggleViewsVisibility(tfa_input_group, visibility = true)
                             }
                         }

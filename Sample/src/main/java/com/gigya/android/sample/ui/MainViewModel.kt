@@ -226,6 +226,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    fun resetTFA(success: () -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.resetTFA(object : GigyaCallback<GigyaResponse>() {
+            override fun onSuccess(obj: GigyaResponse?) {
+                success()
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
     /**
      * Logout from current session.
      */

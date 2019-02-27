@@ -64,18 +64,16 @@ public class GigyaRequestBuilder {
         }
 
         // Add authentication parameters.
-        if (sessionManager != null) {
-            if (sessionManager.isValidSession()) {
-                @SuppressWarnings("ConstantConditions") final String sessionToken = sessionManager.getSession().getSessionToken();
-                urlParams.put("oauth_token", sessionToken);
-                final String sessionSecret = sessionManager.getSession().getSessionSecret();
-                AuthUtils.addAuthenticationParameters(sessionSecret,
-                        httpMethod.getValue(),
-                        UrlUtils.getBaseUrl(api, configuration.getApiDomain()),
-                        urlParams);
-            } else {
-                urlParams.put("ApiKey", configuration.getApiKey());
-            }
+        if (sessionManager.isValidSession()) {
+            @SuppressWarnings("ConstantConditions") final String sessionToken = sessionManager.getSession().getSessionToken();
+            urlParams.put("oauth_token", sessionToken);
+            final String sessionSecret = sessionManager.getSession().getSessionSecret();
+            AuthUtils.addAuthenticationParameters(sessionSecret,
+                    httpMethod.getValue(),
+                    UrlUtils.getBaseUrl(api, configuration.getApiDomain()),
+                    urlParams);
+        } else {
+            urlParams.put("ApiKey", configuration.getApiKey());
         }
 
         // Encode url & generate encoded parameters.
