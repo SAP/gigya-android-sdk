@@ -48,6 +48,10 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
         // Stub.
     }
 
+    public void onTOTPQrCodeAvailable(@NonNull String qrCode) {
+        // Stub.
+    }
+
     //endregion
 
     public void forwardError(@NonNull GigyaResponse response) {

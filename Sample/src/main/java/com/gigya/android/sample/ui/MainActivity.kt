@@ -71,11 +71,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
+
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_INPUT -> showTFACodeInputDialog()
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
             }
         })
@@ -195,11 +195,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.show(supportFragmentManager, "showTFAVerificationDialog")
     }
 
-    private fun showTFACodeInputDialog() {
-        val dialog = TFADialog.newInstance("code_input", null)
-        dialog.show(supportFragmentManager, "showTFACodeInputDialog")
-    }
-
     private fun onTFAVerificationCodeSent() {
         response_text_view.snackbar("Verification code sent")
     }
@@ -255,7 +250,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region UI presentation
 
     private fun presentNativeLogin() {
-        viewModel?.showLoginProviders(
+        viewModel?.socialLoginWith(
                 success = { json ->
                     onJsonResult(json)
                 },

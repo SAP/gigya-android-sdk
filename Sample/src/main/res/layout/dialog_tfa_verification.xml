@@ -30,6 +30,54 @@
         app:layout_constraintStart_toStartOf="@id/verify_tfa_title"
         app:layout_constraintTop_toBottomOf="@id/verify_tfa_title" />
 
+    <TextView
+        android:id="@+id/verify_tfa_code_input_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:text="Enter verification code:"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verify_provider_spinner"
+        tools:visibility="visible" />
+
+    <EditText
+        android:id="@+id/verify_tfa_code_edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/verify_tfa_code_input_title"
+        app:layout_constraintStart_toStartOf="@id/verify_tfa_code_input_title"
+        app:layout_constraintTop_toBottomOf="@id/verify_tfa_code_input_title"
+        tools:visibility="visible" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/verify_tfa_submit_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="Submit code"
+        android:textColor="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verify_tfa_code_edit"
+        app:layout_constraintVertical_bias="0.96"
+        tools:ignore="UnusedAttribute" />
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/verify_tfa_send_code"
         android:layout_width="wrap_content"
@@ -42,12 +90,14 @@
         android:paddingEnd="10dp"
         android:text="Get the Code"
         android:textColor="@color/colorAccent"
+        android:visibility="gone"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/verify_provider_spinner"
+        app:layout_constraintEnd_toStartOf="@id/verify_tfa_submit_code"
+        app:layout_constraintTop_toBottomOf="@id/verify_tfa_code_edit"
         app:layout_constraintVertical_bias="0.96"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute"
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

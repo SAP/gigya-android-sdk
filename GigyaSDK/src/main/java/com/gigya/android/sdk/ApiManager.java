@@ -125,9 +125,9 @@ public class ApiManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends GigyaAccount> void finalizeRegistration(String regToken, GigyaLoginCallback<T> callback) {
+    public <T extends GigyaAccount> void finalizeRegistration(String regToken, GigyaLoginCallback<T> callback, Runnable completionHandler) {
         new FinalizeRegistrationApi<T>(_networkAdapter, _sessionManager, _accountManager)
-                .call(regToken, callback);
+                .call(regToken, callback, completionHandler);
     }
 
     @SuppressWarnings("unchecked")

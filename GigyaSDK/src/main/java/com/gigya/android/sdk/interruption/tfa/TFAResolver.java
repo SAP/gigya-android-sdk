@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.interruption.tfa;
 
-import android.support.annotation.Nullable;
-
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -9,13 +7,23 @@ import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.account.FinalizeRegistrationApi;
 import com.gigya.android.sdk.api.tfa.TFAFinalizeApi;
 import com.gigya.android.sdk.api.tfa.TFAGetProvidersApi;
+import com.gigya.android.sdk.api.tfa.TFAInitApi;
 import com.gigya.android.sdk.api.tfa.phone.TFACompleteVerificationApi;
+import com.gigya.android.sdk.api.tfa.phone.TFAGetRegisteredPhoneNumbersAPi;
+import com.gigya.android.sdk.api.tfa.phone.TFASendVerificationCodeApi;
+import com.gigya.android.sdk.api.tfa.totp.TFATOTPRegisterApi;
+import com.gigya.android.sdk.api.tfa.totp.TFATOTPVerifyApi;
 import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFACompleteVerificationResponse;
+import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersResponse;
+import com.gigya.android.sdk.model.tfa.TFAInitResponse;
 import com.gigya.android.sdk.model.tfa.TFAProvider;
 import com.gigya.android.sdk.model.tfa.TFAProvidersResponse;
+import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
+import com.gigya.android.sdk.model.tfa.TFATotpRegisterResponse;
+import com.gigya.android.sdk.model.tfa.TFAVerificationCodeResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
@@ -32,8 +40,14 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
     private String regToken;
     private GigyaResponse originalResponse;
 
-    private TFAPhoneResolver<T> phoneResolver;
-    private TFATotpResolver<T> totpResolver;
+    private String gigyaAssertion;
+
+    // Phone.
+    private String phvToken;
+    // TOTP
+    private String sctToken;
+
+    private ArrayList<String> providerList = new ArrayList<>(2);
 
     public TFAResolver(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
                        GigyaLoginCallback<T> loginCallback) {
@@ -64,72 +78,42 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
 
     private void evaluateProviders(TFAProvidersResponse res) {
         if (res.getActiveProviders().isEmpty()) {
-            initResolvers(res.getInactiveProviders());
+            addProviders(res.getInactiveProviders());
             if (loginCallback.get() != null)
                 loginCallback.get().onPendingTFARegistration(this.originalResponse, this);
         } else {
-            initResolvers(res.getActiveProviders());
+            addProviders(res.getActiveProviders());
             if (loginCallback.get() != null)
                 loginCallback.get().onPendingTFAVerification(this.originalResponse, this);
         }
     }
 
-    private void initResolvers(List<TFAProvider> providers) {
+    private void addProviders(List<TFAProvider> providers) {
         for (TFAProvider provider : providers) {
             switch (provider.getName()) {
                 case "gigyaPhone":
-                    phoneResolver = new TFAPhoneResolver<>(networkAdapter, sessionManager, accountManager, regToken, loginCallback);
+                    providerList.add(GigyaResolver.TFA_PHONE);
                     break;
                 case "gigyaTotp":
-                    totpResolver = new TFATotpResolver<>(networkAdapter, sessionManager, accountManager, regToken, loginCallback);
+                    providerList.add(GigyaResolver.TFA_TOTP);
                     break;
             }
         }
     }
 
-    @Nullable
-    public TFAPhoneResolver getPhoneResolver() {
-        return phoneResolver;
-    }
-
-    @Nullable
-    public TFATotpResolver getTotpResolver() {
-        return totpResolver;
-    }
-
     public ArrayList<String> getProviders() {
-        ArrayList<String> providers = new ArrayList<>(2);
-        if (phoneResolver != null) {
-            providers.add(GigyaResolver.TFA_PHONE);
-        }
-        if (totpResolver != null) {
-            providers.add(GigyaResolver.TFA_TOTP);
-        }
-        return providers;
+        return providerList;
     }
 
-    @Nullable
-    private String getAssertion(String selectedProvider) {
-        if (selectedProvider.equals(GigyaResolver.TFA_PHONE)) {
-            return phoneResolver.getGigyaAssertion();
-        }
-        return null;
-    }
+    //region Phone
 
-    @Nullable
-    private String getPhvToken(String selectedProvider) {
-        if (selectedProvider.equals(GigyaResolver.TFA_PHONE)) {
-            return phoneResolver.getPhvToken();
-        }
-        return null;
-    }
-
-    public void submit(final String selectedProvider, String code) {
-        new TFACompleteVerificationApi(networkAdapter, sessionManager)
-                .call(getAssertion(selectedProvider), getPhvToken(selectedProvider), code, new GigyaCallback<TFACompleteVerificationResponse>() {
+    public void registerPhone(final String phoneNumber, final String method) {
+        new TFAInitApi(networkAdapter, sessionManager)
+                .call(this.regToken, "gigyaPhone", "register", new GigyaCallback<TFAInitResponse>() {
                     @Override
-                    public void onSuccess(TFACompleteVerificationResponse obj) {
-                        finalizeTFA(selectedProvider, obj.getProviderAssertion());
+                    public void onSuccess(TFAInitResponse obj) {
+                        gigyaAssertion = obj.getGigyaAssertion();
+                        sendVerificationCode(phoneNumber, method, false);
                     }
 
                     @Override
@@ -141,9 +125,173 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
                 });
     }
 
-    private void finalizeTFA(String selectedProvider, String providerAssertion) {
+    public void verifyPhone() {
+        new TFAInitApi(networkAdapter, sessionManager)
+                .call(this.regToken, "gigyaPhone", "verify", new GigyaCallback<TFAInitResponse>() {
+                    @Override
+                    public void onSuccess(TFAInitResponse obj) {
+                        gigyaAssertion = obj.getGigyaAssertion();
+                        getRegisteredPhoneNumbers();
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    private void sendVerificationCode(String phoneNumber, String method, boolean isVerify) {
+        new TFASendVerificationCodeApi(networkAdapter, sessionManager)
+                .call(gigyaAssertion, phoneNumber, method,
+                        "en" /* SDK Hardcoded to English. */
+                        , isVerify, new GigyaCallback<TFAVerificationCodeResponse>() {
+                            @Override
+                            public void onSuccess(TFAVerificationCodeResponse obj) {
+                                phvToken = obj.getPhvToken();
+                                if (loginCallback.get() != null) {
+                                    loginCallback.get().onPhoneTFAVerificationCodeSent();
+                                }
+                            }
+
+                            @Override
+                            public void onError(GigyaError error) {
+                                if (loginCallback.get() != null) {
+                                    loginCallback.get().onError(error);
+                                }
+                            }
+                        }
+                );
+    }
+
+    private void getRegisteredPhoneNumbers() {
+        new TFAGetRegisteredPhoneNumbersAPi(networkAdapter, sessionManager)
+                .call(this.gigyaAssertion, new GigyaCallback<TFAGetRegisteredPhoneNumbersResponse>() {
+                    @Override
+                    public void onSuccess(TFAGetRegisteredPhoneNumbersResponse obj) {
+                        if (!obj.getPhones().isEmpty()) {
+                            TFARegisteredPhone phone = obj.getPhones().get(0);
+                            sendVerificationCode(phone.getId(), phone.getLastMethod(), true);
+                        } else {
+                            // Shouldn't happen but hey...
+                            if (loginCallback.get() != null) {
+                                loginCallback.get().onError(GigyaError.generalError());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    public void submitPhoneCode(String code) {
+        new TFACompleteVerificationApi(networkAdapter, sessionManager)
+                .call(gigyaAssertion, phvToken, code, new GigyaCallback<TFACompleteVerificationResponse>() {
+                    @Override
+                    public void onSuccess(TFACompleteVerificationResponse obj) {
+                        finalizeTFA(obj.getProviderAssertion());
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    //endregion
+
+    //region TOTP
+
+    public void registerTOTP() {
+        new TFAInitApi(networkAdapter, sessionManager)
+                .call(this.regToken, "gigyaTotp", "register", new GigyaCallback<TFAInitResponse>() {
+                    @Override
+                    public void onSuccess(TFAInitResponse obj) {
+                        gigyaAssertion = obj.getGigyaAssertion();
+                        getQrCode();
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    private void getQrCode() {
+        new TFATOTPRegisterApi(networkAdapter, sessionManager)
+                .call(this.gigyaAssertion, new GigyaCallback<TFATotpRegisterResponse>() {
+                    @Override
+                    public void onSuccess(TFATotpRegisterResponse obj) {
+                        sctToken = obj.getSctToken();
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onTOTPQrCodeAvailable(obj.getQrCode());
+                        }
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    public void submitTOTPCode(String code) {
+        new TFATOTPVerifyApi(networkAdapter, sessionManager)
+                .call(gigyaAssertion, code, sctToken, new GigyaCallback<TFACompleteVerificationResponse>() {
+                    @Override
+                    public void onSuccess(TFACompleteVerificationResponse obj) {
+                        finalizeTFA(obj.getProviderAssertion());
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    public void verifyTOTP(final String code) {
+        new TFAInitApi(networkAdapter, sessionManager)
+                .call(regToken, "gigyaTotp", "verify", new GigyaCallback<TFAInitResponse>() {
+                    @Override
+                    public void onSuccess(TFAInitResponse obj) {
+                        gigyaAssertion = obj.getGigyaAssertion();
+                        submitTOTPCode(code);
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (loginCallback.get() != null) {
+                            loginCallback.get().onError(error);
+                        }
+                    }
+                });
+    }
+
+    //endregion
+
+    //region Finalize
+
+    private void finalizeTFA(String providerAssertion) {
         new TFAFinalizeApi(networkAdapter, sessionManager)
-                .call(getAssertion(selectedProvider), providerAssertion, regToken, new GigyaCallback<GigyaResponse>() {
+                .call(gigyaAssertion, providerAssertion, regToken, new GigyaCallback<GigyaResponse>() {
                     @Override
                     public void onSuccess(GigyaResponse obj) {
                         finalizeRegistration();
@@ -162,9 +310,27 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
         if (loginCallback.get() != null) {
             GigyaLogger.debug(LOG_TAG, "Sending finalize registration");
             new FinalizeRegistrationApi<T>(networkAdapter, sessionManager, accountManager)
-                    .call(regToken, loginCallback.get());
+                    .call(regToken, loginCallback.get(), new Runnable() {
+                        @Override
+                        public void run() {
+                            // Nullify all relevant fields of the resolver.
+                            nullify();
+                        }
+                    });
         } else {
             GigyaLogger.error(LOG_TAG, "Login callback reference is null -> Not sending finalize registration");
         }
     }
+
+    private void nullify() {
+        regToken = null;
+        gigyaAssertion = null;
+        phvToken = null;
+        sctToken = null;
+        originalResponse = null;
+        providerList.clear();
+        loginCallback.clear();
+    }
+
+    //endregion
 }

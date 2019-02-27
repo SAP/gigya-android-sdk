@@ -1,5 +1,6 @@
 package com.gigya.android.sample.ui
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -11,17 +12,20 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.gone
+import com.gigya.android.sample.extras.loadBitmap
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sdk.interruption.GigyaResolver
+import com.gigya.android.sdk.utils.UiUtils
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.dialog_tfa_code_input.*
 import kotlinx.android.synthetic.main.dialog_tfa_registration.*
 import kotlinx.android.synthetic.main.dialog_tfa_verification.*
 
 class TFADialog : DialogFragment() {
 
     private var viewModel: MainViewModel? = null
+    private lateinit var mode: String
+    private var codes: Array<CountryCode>? = null
 
     companion object {
 
@@ -35,10 +39,6 @@ class TFADialog : DialogFragment() {
         }
     }
 
-    private lateinit var mode: String
-
-    private var codes: Array<CountryCode>? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = activity?.run {
@@ -46,6 +46,8 @@ class TFADialog : DialogFragment() {
         } ?: throw Exception("Invalid Activity")
         mode = arguments!!["mode"] as String
         loadCountryCodes()
+
+        observeForQrCode()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -60,7 +62,6 @@ class TFADialog : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = when (mode) {
             "registration" -> R.layout.dialog_tfa_registration
-            "code_input" -> R.layout.dialog_tfa_code_input
             "verification" -> R.layout.dialog_tfa_verification
             else -> 0
         }
@@ -70,7 +71,6 @@ class TFADialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         when (mode) {
             "registration" -> setupForRegistration()
-            "code_input" -> setupForCodeInput()
             "verification" -> setupForVerification()
         }
     }
@@ -81,6 +81,10 @@ class TFADialog : DialogFragment() {
     }
 
     private fun setupForRegistration() {
+        // Populate country code spinner.
+        val codeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
+        country_spinner.adapter = codeAdapter
+
         val providers = arguments!!.getStringArrayList("providers")
         // Populate options spinner.
         val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
@@ -93,24 +97,23 @@ class TFADialog : DialogFragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 when (providers[position] == GigyaResolver.TFA_PHONE) {
                     true -> {
-                        method_group.visible()
-                        phone_edit.visible()
-                        phone_number.visible()
+                        toggleViewsVisibility(method_group, phone_edit, phone_number, country_title, country_spinner, visibility = true)
+                        toggleViewsVisibility(register_qr_image, register_step_1, register_step_2, qr_progress, register_generated_edit, visibility = false)
+                        register_tfa_submit.text = "Get the code"
                     }
                     false -> {
-                        method_group.gone()
-                        phone_edit.gone()
-                        phone_number.gone()
+                        toggleViewsVisibility(register_step_1, register_step_2, register_qr_image, qr_progress, register_generated_edit, visibility = true)
+                        toggleViewsVisibility(method_group, phone_edit, phone_number, country_title, country_spinner, visibility = false)
+                        register_tfa_submit.text = "Submit code"
+
+                        // Register TOTP -> get QR code.
+                        viewModel?.onTFATOTPRegister()
                     }
                 }
             }
         }
 
-        // Populate country code spinner.
-        val codeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
-        country_spinner.adapter = codeAdapter
-
-        register_tfa_send_code.setOnClickListener {
+        register_tfa_submit.setOnClickListener {
             val country = (country_spinner).selectedItem as CountryCode
             val method = register_provider_spinner.selectedItem.toString()
             when (method) {
@@ -122,38 +125,83 @@ class TFADialog : DialogFragment() {
                                 R.id.radio_voice -> "voice"
                                 else -> "sms"
                             })
+                    dismiss()
                 }
                 GigyaResolver.TFA_TOTP -> {
-
-                }
-                else -> {
+                    val code = register_generated_edit.text.toString().trim()
+                    viewModel?.onTFATOTPCodeSubmit(code)
+                    dismiss()
                 }
             }
-            dismiss()
-        }
-    }
 
-    private fun setupForCodeInput() {
-        code_input_tfa_send_code.setOnClickListener {
-            val code = verify_tfa_edit.text.toString().trim()
-            viewModel?.onTFAPhoneCodeSubmit(code)
-            dismiss()
         }
     }
 
     private fun setupForVerification() {
         val providers = arguments!!.getStringArrayList("providers")
         // Populate options spinner.
-        val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers)
+        val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
         verify_provider_spinner.adapter = providerAdapter
-        verify_tfa_send_code.setOnClickListener {
-            val provider = verify_provider_spinner.selectedItem.toString()
-            when (provider) {
-                GigyaResolver.TFA_PHONE -> viewModel?.onTFAPhoneVerify()
-                GigyaResolver.TFA_TOTP -> {
+
+        verify_provider_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Stub.
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (providers[position] == GigyaResolver.TFA_PHONE) {
+                    true -> {
+                        toggleViewsVisibility(verify_tfa_send_code, visibility = true)
+                    }
+                    false -> {
+                        toggleViewsVisibility(verify_tfa_send_code, visibility = false)
+                    }
                 }
             }
+        }
+
+        verify_tfa_send_code.setOnClickListener {
+            val provider = verify_provider_spinner.selectedItem.toString()
+            if (provider == GigyaResolver.TFA_PHONE) {
+                viewModel?.onTFAPhoneVerify()
+            }
+        }
+
+        verify_tfa_submit_code.setOnClickListener {
+            val provider = verify_provider_spinner.selectedItem.toString()
+            val code = verify_tfa_code_edit.text.toString().trim()
+            when (provider) {
+                GigyaResolver.TFA_PHONE -> viewModel?.onTFAPhoneCodeSubmit(code)
+                GigyaResolver.TFA_TOTP -> viewModel?.onTFATOTPVerify(code)
+            }
             dismiss()
+        }
+    }
+
+    private fun observeForQrCode() {
+        viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
+            @Suppress("UNCHECKED_CAST")
+            when (dataPair?.first) {
+                MainViewModel.UI_TRIGGER_SHOW_QR_CODE -> {
+                    if (register_provider_spinner.selectedItem.toString() == GigyaResolver.TFA_TOTP) {
+                        showQrCode(dataPair.second as String)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun showQrCode(qrCode: String) {
+        qr_progress.gone()
+        register_qr_image.loadBitmap(UiUtils.bitmapFromBase64(qrCode))
+    }
+
+    private fun toggleViewsVisibility(vararg views: View, visibility: Boolean) {
+        for (view in views) {
+            when (visibility) {
+                true -> view.visible()
+                false -> view.gone()
+            }
         }
     }
 }

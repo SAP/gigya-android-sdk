@@ -4,12 +4,6 @@ import android.app.Activity
 import android.support.annotation.Nullable
 import android.view.View
 import android.view.ViewGroup
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers

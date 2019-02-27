@@ -400,11 +400,6 @@ public class Gigya<T extends GigyaAccount> {
         getApiManager().register(params, policy, finalize, callback);
     }
 
-    // TODO: 14/02/2019 Add JavaDoc.
-    public void finalizeRegistration(String regToken, GigyaLoginCallback<? extends GigyaAccount> callback) {
-        getApiManager().finalizeRegistration(regToken, callback);
-    }
-
     /**
      * Send a reset email password to verified email attached to the users loginId.
      *

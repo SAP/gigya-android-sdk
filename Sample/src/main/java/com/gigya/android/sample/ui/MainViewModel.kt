@@ -11,7 +11,6 @@ import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.account.RegisterApi
-import com.gigya.android.sdk.interruption.GigyaResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
@@ -23,17 +22,21 @@ import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
+    // UI event constants.
     companion object {
         const val UI_TRIGGER_SHOW_TFA_REGISTRATION = 1
         const val UI_TRIGGER_SHOW_TFA_VERIFICATION = 2
-        const val UI_TRIGGER_SHOW_TFA_CODE_INPUT = 3
-        const val UI_TRIGGER_SHOW_TFA_CODE_SENT = 4
+        const val UI_TRIGGER_SHOW_TFA_CODE_SENT = 3
+        const val UI_TRIGGER_SHOW_QR_CODE = 4
     }
 
+    /*
+     LiveData event trigger.
+     */
     val uiTrigger = MutableLiveData<Pair<Int, Any?>>()
 
     /*
-    LiveDate fo the custom account scheme model.
+    LiveData fo the custom account scheme model.
      */
     val account = MutableLiveData<MyAccount>()
 
@@ -49,27 +52,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var tfaResolver: TFAResolver<*>? = null
 
     fun onTFAPhoneRegister(phone: String, method: String) {
-        tfaResolver?.phoneResolver?.register(phone, method)
+        tfaResolver?.registerPhone(phone, method)
     }
 
     fun onTFAPhoneCodeSubmit(code: String) {
-        tfaResolver?.submit(GigyaResolver.TFA_PHONE, code)
+        tfaResolver?.submitPhoneCode(code)
     }
 
     fun onTFAPhoneVerify() {
-        tfaResolver?.phoneResolver?.verify()
+        tfaResolver?.verifyPhone()
     }
 
-    fun onTFATotpRegister() {
-        tfaResolver?.totpResolver?.register()
+    fun onTFATOTPRegister() {
+        tfaResolver?.registerTOTP()
     }
 
-    fun onTFATotpCodeSubmit(code: String) {
-        tfaResolver?.submit(GigyaResolver.TFA_TOTP, code)
+    fun onTFATOTPCodeSubmit(code: String) {
+        tfaResolver?.submitTOTPCode(code)
     }
 
-    fun onTFATotpVerify() {
-        tfaResolver?.totpResolver?.verify()
+    fun onTFATOTPVerify(code: String) {
+        tfaResolver?.verifyTOTP(code)
     }
 
     //endregion
@@ -99,11 +102,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
+                if (tfaResolver != null) {
+                    tfaResolver = null
+                }
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onError(error: GigyaError?) {
+                if (tfaResolver != null) {
+                    tfaResolver = null
+                }
                 error(error)
             }
 
@@ -118,12 +127,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onPhoneTFAVerificationCodeSent() {
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_INPUT, null))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
+            }
+
+            override fun onTOTPQrCodeAvailable(qrCode: String) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
             }
         })
     }
-
-    //TODO Update register api to simple email, password for sample application.
 
     /**
      * Register using loginID, password, policy.
@@ -134,11 +145,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
+                if (tfaResolver != null) {
+                    tfaResolver = null
+                }
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onError(error: GigyaError?) {
+                if (tfaResolver != null) {
+                    tfaResolver = null
+                }
                 error(error)
             }
 
@@ -147,8 +164,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
             }
 
+            override fun onPendingTFAVerification(response: GigyaResponse, resolver: TFAResolver<*>) {
+                tfaResolver = resolver
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
+            }
+
             override fun onPhoneTFAVerificationCodeSent() {
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_INPUT, null))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
+            }
+
+            override fun onTOTPQrCodeAvailable(qrCode: String) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
             }
         })
     }
@@ -241,14 +267,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Present SDK native login pre defined UI.
      */
-    fun showLoginProviders(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
+    fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
                 "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo",
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f
         ), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
-                Log.d("showLoginProviders", "Success")
+                Log.d("socialLoginWith", "Success")
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
@@ -262,7 +288,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(error: GigyaError?) {
-                Log.d("showLoginProviders", "onError")
+                Log.d("socialLoginWith", "onError")
                 error(error)
             }
         })
