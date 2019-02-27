@@ -2,6 +2,9 @@ package com.gigya.android.sample.ui
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.Gravity
@@ -18,8 +21,7 @@ import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sdk.interruption.GigyaResolver
 import com.gigya.android.sdk.utils.UiUtils
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.dialog_tfa_registration.*
-import kotlinx.android.synthetic.main.dialog_tfa_verification.*
+import kotlinx.android.synthetic.main.dialog_tfa.*
 
 class TFADialog : DialogFragment() {
 
@@ -35,6 +37,7 @@ class TFADialog : DialogFragment() {
             args.putString("mode", mode)
             args.putStringArrayList("providers", providers)
             dialog.arguments = args
+            dialog.isCancelable = false
             return dialog
         }
     }
@@ -45,9 +48,6 @@ class TFADialog : DialogFragment() {
             ViewModelProviders.of(this).get(MainViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
         mode = arguments!!["mode"] as String
-        loadCountryCodes()
-
-        observeForQrCode()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -60,19 +60,14 @@ class TFADialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = when (mode) {
-            "registration" -> R.layout.dialog_tfa_registration
-            "verification" -> R.layout.dialog_tfa_verification
-            else -> 0
-        }
-        return inflater.inflate(layout, container, false)
+        // dialog?.window?.setBackgroundDrawable(getRoundedCornerBackground())
+        return inflater.inflate(R.layout.dialog_tfa, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        when (mode) {
-            "registration" -> setupForRegistration()
-            "verification" -> setupForVerification()
-        }
+        loadCountryCodes()
+        observeUiTriggers()
+        setupLayout()
     }
 
     private fun loadCountryCodes() {
@@ -80,110 +75,106 @@ class TFADialog : DialogFragment() {
         codes = Gson().fromJson(json, Array<CountryCode>::class.java)
     }
 
-    private fun setupForRegistration() {
-        // Populate country code spinner.
-        val codeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
-        country_spinner.adapter = codeAdapter
-
-        val providers = arguments!!.getStringArrayList("providers")
-        // Populate options spinner.
-        val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
-        register_provider_spinner.adapter = providerAdapter
-        register_provider_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    private fun setupLayout() {
+        // Setup TFA providers adapter
+        val tfaProviders = arguments!!.getStringArrayList("providers")
+        val tfaProviderAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, tfaProviders!!)
+        tfa_providers_spinner.adapter = tfaProviderAdapter
+        tfa_providers_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Stub.
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                when (providers[position] == GigyaResolver.TFA_PHONE) {
-                    true -> {
-                        toggleViewsVisibility(method_group, phone_edit, phone_number, country_title, country_spinner, visibility = true)
-                        toggleViewsVisibility(register_qr_image, register_step_1, register_step_2, qr_progress, register_generated_edit, visibility = false)
-                        register_tfa_submit.text = "Get the code"
+                val selected = tfaProviders[position]
+                when (selected) {
+                    GigyaResolver.TFA_PHONE -> {
+                        when (mode) {
+                            "registration" -> {
+                                toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_input_group, visibility = false)
+                            }
+                            "verification" -> {
+                                // Verify Phone -> Get the code.
+                                viewModel?.onTFAPhoneVerify()
+                                toggleViewsVisibility(tfa_input_group, visibility = true)
+                                toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group,
+                                        visibility = false)
+                            }
+                        }
                     }
-                    false -> {
-                        toggleViewsVisibility(register_step_1, register_step_2, register_qr_image, qr_progress, register_generated_edit, visibility = true)
-                        toggleViewsVisibility(method_group, phone_edit, phone_number, country_title, country_spinner, visibility = false)
-                        register_tfa_submit.text = "Submit code"
-
-                        // Register TOTP -> get QR code.
-                        viewModel?.onTFATOTPRegister()
+                    GigyaResolver.TFA_TOTP -> {
+                        when (mode) {
+                            "registration" -> {
+                                // Register TOTP -> get QR code.
+                                viewModel?.onTFATOTPRegister()
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_input_group, visibility = true)
+                                toggleViewsVisibility(tfa_phone_registration_group,
+                                        visibility = false)
+                            }
+                            "verification" -> {
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, visibility = false)
+                                toggleViewsVisibility(tfa_input_group, visibility = true)
+                            }
+                        }
                     }
                 }
             }
         }
 
-        register_tfa_submit.setOnClickListener {
-            val country = (country_spinner).selectedItem as CountryCode
-            val method = register_provider_spinner.selectedItem.toString()
-            when (method) {
+        // Setup country codes adapter
+        val countryCodeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, codes!!)
+        country_code_spinner.adapter = countryCodeAdapter
+
+        // Register phone number click listener.
+        tfa_phone_submit.setOnClickListener {
+            val countryCode = (country_code_spinner).selectedItem as CountryCode
+            val phoneNumber = countryCode.dial_code + tfa_phone_number_input_edit.text.toString().trim().replace("+", "")
+            val phoneVerificationMethod = when (phone_method_radio_group.checkedRadioButtonId) {
+                R.id.radio_sms -> "sms"
+                R.id.radio_voice -> "voice"
+                else -> "sms"
+            }
+            viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
+            toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
+            toggleViewsVisibility(tfa_input_group, visibility = true)
+        }
+
+        // Get code click listener
+        tfa_get_code.setOnClickListener {
+            viewModel?.onTFAPhoneVerify()
+        }
+
+        // Submit verification code click listener
+        tfa_submit_code.setOnClickListener {
+            val code = tfa_verification_code_input_edit.text.toString().trim()
+            val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
+            when (selectedTfaProvider) {
                 GigyaResolver.TFA_PHONE -> {
-                    viewModel?.onTFAPhoneRegister(
-                            country.dial_code + phone_edit.text.toString().trim().replace("+", ""),
-                            when (method_group.checkedRadioButtonId) {
-                                R.id.radio_sms -> "sms"
-                                R.id.radio_voice -> "voice"
-                                else -> "sms"
-                            })
-                    dismiss()
+                    viewModel?.onTFAPhoneCodeSubmit(code)
                 }
                 GigyaResolver.TFA_TOTP -> {
-                    val code = register_generated_edit.text.toString().trim()
-                    viewModel?.onTFATOTPCodeSubmit(code)
-                    dismiss()
-                }
-            }
-
-        }
-    }
-
-    private fun setupForVerification() {
-        val providers = arguments!!.getStringArrayList("providers")
-        // Populate options spinner.
-        val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
-        verify_provider_spinner.adapter = providerAdapter
-
-        verify_provider_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Stub.
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                when (providers[position] == GigyaResolver.TFA_PHONE) {
-                    true -> {
-                        toggleViewsVisibility(verify_tfa_send_code, visibility = true)
-                    }
-                    false -> {
-                        toggleViewsVisibility(verify_tfa_send_code, visibility = false)
+                    when (mode) {
+                        "registration" -> viewModel?.onTFATOTPCodeSubmit(code)
+                        "verification" -> viewModel?.onTFATOTPVerify(code)
                     }
                 }
             }
+            dismissAllowingStateLoss()
         }
 
-        verify_tfa_send_code.setOnClickListener {
-            val provider = verify_provider_spinner.selectedItem.toString()
-            if (provider == GigyaResolver.TFA_PHONE) {
-                viewModel?.onTFAPhoneVerify()
-            }
-        }
-
-        verify_tfa_submit_code.setOnClickListener {
-            val provider = verify_provider_spinner.selectedItem.toString()
-            val code = verify_tfa_code_edit.text.toString().trim()
-            when (provider) {
-                GigyaResolver.TFA_PHONE -> viewModel?.onTFAPhoneCodeSubmit(code)
-                GigyaResolver.TFA_TOTP -> viewModel?.onTFATOTPVerify(code)
-            }
-            dismiss()
+        // Dialog dismissal click listener.
+        tfa_dismiss_dialog.setOnClickListener {
+            dismissAllowingStateLoss()
         }
     }
 
-    private fun observeForQrCode() {
+    private fun observeUiTriggers() {
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_QR_CODE -> {
-                    if (register_provider_spinner.selectedItem.toString() == GigyaResolver.TFA_TOTP) {
+                    if (tfa_providers_spinner.selectedItem.toString() == GigyaResolver.TFA_TOTP) {
                         showQrCode(dataPair.second as String)
                     }
                 }
@@ -192,8 +183,8 @@ class TFADialog : DialogFragment() {
     }
 
     private fun showQrCode(qrCode: String) {
-        qr_progress.gone()
-        register_qr_image.loadBitmap(UiUtils.bitmapFromBase64(qrCode))
+        qr_code_image_progress.gone()
+        qr_code_image.loadBitmap(UiUtils.bitmapFromBase64(qrCode))
     }
 
     private fun toggleViewsVisibility(vararg views: View, visibility: Boolean) {
@@ -203,5 +194,12 @@ class TFADialog : DialogFragment() {
                 false -> view.gone()
             }
         }
+    }
+
+    private fun getRoundedCornerBackground(): Drawable {
+        val gradientDrawable = GradientDrawable()
+        gradientDrawable.setColor(Color.WHITE)
+        gradientDrawable.cornerRadius = 16f
+        return gradientDrawable
     }
 }
