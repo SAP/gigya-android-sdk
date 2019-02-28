@@ -99,4 +99,11 @@ public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver 
         loginCallback.clear();
     }
 
+    @Override
+    public void cancel() {
+        if (loginCallback.get() != null) {
+            loginCallback.get().onOperationCancelled();
+        }
+        nullify();
+    }
 }

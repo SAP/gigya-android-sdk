@@ -88,4 +88,10 @@ class ConflictingAccountsDialog : DialogFragment() {
             dismissAllowingStateLoss()
         }
     }
+
+    override fun dismissAllowingStateLoss() {
+        viewModel?.cancelTFAResolver()
+        super.dismissAllowingStateLoss()
+    }
+
 }

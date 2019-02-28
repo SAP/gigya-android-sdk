@@ -410,14 +410,6 @@ public class Gigya<T extends GigyaAccount> {
         getApiManager().forgotPassword(loginId, callback);
     }
 
-    public void resetTFA(GigyaCallback<GigyaResponse> callback) {
-        if (isLoggedIn()) {
-            getApiManager().resetTFA(getAccountManager().getAccount().getUID(), callback);
-        } else {
-            GigyaLogger.error(LOG_TAG, "You must be logged in to reset TFA");
-        }
-    }
-
     //endregion
 
     //region Native login

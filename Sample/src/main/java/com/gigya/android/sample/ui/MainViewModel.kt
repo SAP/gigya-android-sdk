@@ -77,6 +77,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tfaResolver?.verifyTOTP(code)
     }
 
+    fun cancelTFAResolver() {
+        tfaResolver?.cancel()
+    }
+
     //endregion
 
     //region Link accounts
@@ -85,6 +89,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onLinkAccountWithSite(loginID: String, password: String) {
         linkAccountsResolver?.resolveForSiteProvider(loginID, password)
+    }
+
+    fun cancelLinkAccountsResolver() {
+        linkAccountsResolver?.cancel()
     }
 
     //endregion
@@ -238,18 +246,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun resetTFA(success: () -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.resetTFA(object : GigyaCallback<GigyaResponse>() {
-            override fun onSuccess(obj: GigyaResponse?) {
-                success()
-            }
-
-            override fun onError(error: GigyaError?) {
-                error(error)
-            }
-        })
-    }
-
     /**
      * Logout from current session.
      */
@@ -264,61 +260,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.login(provider, mapOf<String, Any>(
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 24f),
-                object : GigyaLoginCallback<MyAccount>() {
-                    override fun onSuccess(obj: MyAccount?) {
-                        Log.d("loginWithProvider", "Success")
-                        account.value = obj
-                        success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                        if (tfaResolver != null) {
-                            tfaResolver = null
-                        }
-                        if (linkAccountsResolver != null) {
-                            linkAccountsResolver = null
-                        }
-                    }
+                GigyaPresenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
+            
+            override fun onSuccess(obj: MyAccount?) {
+                Log.d("loginWithProvider", "Success")
+                account.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+                if (linkAccountsResolver != null) {
+                    linkAccountsResolver = null
+                }
+            }
 
-                    override fun onOperationCancelled() {
-                        cancel()
-                    }
+            override fun onError(error: GigyaError?) {
+                Log.d("loginWithProvider", "onError")
+                if (linkAccountsResolver != null) {
+                    linkAccountsResolver = null
+                }
+                error(error)
+            }
 
-                    override fun onError(error: GigyaError?) {
-                        Log.d("loginWithProvider", "onError")
-                        if (tfaResolver != null) {
-                            tfaResolver = null
-                        }
-                        if (linkAccountsResolver != null) {
-                            linkAccountsResolver = null
-                        }
-                        error(error)
-                    }
+            override fun onOperationCancelled() {
+                cancel()
+            }
 
-                    override fun onPendingTFARegistration(response: GigyaResponse, resolver: TFAResolver<*>) {
-                        tfaResolver = resolver
-                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
-                    }
+            override fun onConflictingAccounts(response: GigyaResponse, resolver: LinkAccountsResolver<*>) {
+                // Show custom UI prompting the client that a conflicting account was found.
+                linkAccountsResolver = resolver
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
+            }
 
-                    override fun onPendingTFAVerification(response: GigyaResponse, resolver: TFAResolver<*>) {
-                        tfaResolver = resolver
-                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
-                    }
-
-                    override fun onPhoneTFAVerificationCodeSent() {
-                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
-                    }
-
-                    override fun onTOTPQrCodeAvailable(qrCode: String) {
-                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
-                    }
-
-                    override fun onConflictingAccounts(response: GigyaResponse, resolver: LinkAccountsResolver<*>) {
-                        // Show custom UI prompting the client that a conflicting account was found.
-                        linkAccountsResolver = resolver
-                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
-                        //resolver.resolveForSiteProvider("toolmarmel.alt1@gmail.com", "123123")
-                    }
-
-                })
+        })
     }
 
     //endregion APIS

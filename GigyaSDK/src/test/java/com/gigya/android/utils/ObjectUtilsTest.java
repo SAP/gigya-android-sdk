@@ -1,6 +1,8 @@
 package com.gigya.android.utils;
 
+import com.gigya.android.sdk.model.SessionInfo;
 import com.gigya.android.sdk.utils.ObjectUtils;
+import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
@@ -15,8 +17,11 @@ import java.util.Objects;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("unchecked")
 public class ObjectUtilsTest {
@@ -187,5 +192,25 @@ public class ObjectUtilsTest {
         // Assert
         final List<String> assertion = Arrays.asList("1", "2", "3", "4");
         assertArrayEquals(assertion.toArray(), merged.toArray());
+    }
+
+    @Test
+    public void testDeepCopy() {
+        // Arrange
+        SessionInfo si = new SessionInfo("mockToken", "mockSecret");
+        // Act
+        SessionInfo dc = ObjectUtils.deepCopy(new Gson(), si, SessionInfo.class);
+        // Assert
+        assertNotEquals(dc, si);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void testSafeEquals() {
+        // Assert
+        assertTrue(ObjectUtils.safeEquals("anyString", "anyString"));
+        assertFalse(ObjectUtils.safeEquals("anyString", "anyS"));
+        assertFalse(ObjectUtils.safeEquals("anyString", null));
+        assertFalse(ObjectUtils.safeEquals(null, "anyString"));
     }
 }

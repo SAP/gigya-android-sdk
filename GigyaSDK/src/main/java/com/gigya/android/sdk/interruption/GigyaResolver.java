@@ -19,4 +19,6 @@ public abstract class GigyaResolver {
     public static final String TFA_PHONE = "TFA_PHONE";
     public static final String TFA_TOTP = "TFA_TOTP";
     public static final String LINK_ACCOUNTS = "LINK_ACCOUNTS";
+
+    public abstract void cancel();
 }

@@ -5,7 +5,6 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.PersistenceManager;
-import com.gigya.android.sdk.SDKContext;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.Configuration;
@@ -33,14 +32,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SessionManager.class, TextUtils.class, SDKContext.class})
+@PrepareForTest({SessionManager.class, TextUtils.class})
 @PowerMockIgnore("javax.crypto.*")
 public class SessionManagerTest {
 
@@ -59,33 +56,13 @@ public class SessionManagerTest {
     @Mock
     private IEncryptor encryptor;
 
-    @Mock
-    private SDKContext SDKContext;
-
     private SecretKey secretKey = new SecretKeySpec(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}, "AES");
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mockStatic(SDKContext.class);
         doReturn(context).when(gigya).getContext();
-        when(SDKContext.getInstance()).thenReturn(SDKContext);
-        when(SDKContext.getPersistenceManager()).thenReturn(persistenceManager);
-        when(SDKContext.getEncryptor()).thenReturn(encryptor);
-        when(SDKContext.getConfiguration()).thenReturn(configuration);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                SessionManager sessionManager = invocation.getArgument(0);
-                sessionManager.inject(
-                        SDKContext.getConfiguration(),
-                        SDKContext.getEncryptor(),
-                        SDKContext.getPersistenceManager());
-                return null;
-            }
-        }).when(SDKContext).inject(any(SessionManager.class));
-
         // Persistence handler mocks.
         when(persistenceManager.getString("session.Token", null)).thenReturn(null);
         when(persistenceManager.contains("GS_PREFS")).thenReturn(false);
@@ -106,7 +83,7 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
         // Assert
         assertNull(sessionManager.getSession());
     }
@@ -114,7 +91,7 @@ public class SessionManagerTest {
     @Test
     public void testIsValidSession() { // Also tests setSession.
         // Arrange
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionManager.setSession(sessionInfo);
         // Act
@@ -126,7 +103,7 @@ public class SessionManagerTest {
     @Test
     public void testClear() {
         // Arrange
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionManager.setSession(sessionInfo);
         // Act
@@ -143,7 +120,7 @@ public class SessionManagerTest {
         when(persistenceManager.contains("GS_PREFS")).thenReturn(true);
         when(persistenceManager.getString(eq("GS_PREFS"), (String) eq(null))).thenReturn(encryptedSession);
         // Act
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
         // Assert
         assertNotNull(sessionManager.getSession());
         assertEquals("mockSessionSecret", sessionManager.getSession().getSessionSecret());
@@ -160,7 +137,7 @@ public class SessionManagerTest {
         when(persistenceManager.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
         when(persistenceManager.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
         // Act
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
         // Assert
         assertNotNull(sessionManager.getSession());
         assertEquals("mockLegacySessionSecret", sessionManager.getSession().getSessionSecret());

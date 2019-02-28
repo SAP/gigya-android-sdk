@@ -109,5 +109,4 @@ public class FileUtilsTest {
         assertNotNull(mockMetaDataString);
         assertEquals("MOCK", mockMetaDataString);
     }
-
 }

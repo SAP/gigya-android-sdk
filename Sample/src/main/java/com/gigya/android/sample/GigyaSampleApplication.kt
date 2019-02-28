@@ -26,9 +26,9 @@ class GigyaSampleApplication : Application() {
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         /*
-        Initialization with explicit api-key & account scheme.
+        Initialization with implicit configuration & account scheme.
          */
-        //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_phone_tfa))
+        //Gigya.getInstance(applicationContext, MyAccount::class.java)
 
         /*
         Initialization with implicit configuration & without a custom account scheme.
@@ -37,8 +37,8 @@ class GigyaSampleApplication : Application() {
         //Gigya.getInstance(applicationContext)
 
         /*
-        Initialization with implicit configuration & account scheme.
+        Initialization with explicit api-key & account scheme.
          */
-        Gigya.getInstance(applicationContext, MyAccount::class.java)
+        Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_phone_tfa))
     }
 }

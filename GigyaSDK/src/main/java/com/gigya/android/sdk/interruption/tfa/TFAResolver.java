@@ -333,4 +333,12 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver {
     }
 
     //endregion
+
+    @Override
+    public void cancel() {
+        if (loginCallback.get() != null) {
+            loginCallback.get().onOperationCancelled();
+        }
+        nullify();
+    }
 }

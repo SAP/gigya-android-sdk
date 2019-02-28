@@ -33,7 +33,6 @@ public class FileUtils {
         return new String(buffer, "UTF-8");
     }
 
-    // TODO: 23/01/2019 Require unit tests
     @Nullable
     public static String stringFromMetaData(Context context, String fieldName) {
         String field = null;

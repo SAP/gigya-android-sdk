@@ -2,8 +2,11 @@ package com.gigya.android.sample.ui.dialog
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
+import android.util.Base64
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +20,6 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.interruption.GigyaResolver
-import com.gigya.android.sdk.utils.UiUtils
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa.*
 
@@ -164,6 +166,7 @@ class TFADialog : DialogFragment() {
 
         // Dialog dismissal click listener.
         tfa_dismiss_dialog.setOnClickListener {
+            viewModel?.cancelTFAResolver()
             dismissAllowingStateLoss()
         }
     }
@@ -181,9 +184,14 @@ class TFADialog : DialogFragment() {
         })
     }
 
+    private fun bitmapFromBase64(encodedImage: String): Bitmap {
+        val decodedString = Base64.decode(encodedImage.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1], Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+    }
+
     private fun showQrCode(qrCode: String) {
         qr_code_image_progress.gone()
-        qr_code_image.loadBitmap(UiUtils.bitmapFromBase64(qrCode))
+        qr_code_image.loadBitmap(bitmapFromBase64(qrCode))
     }
 
     private fun toggleViewsVisibility(vararg views: View, visibility: Boolean) {

@@ -111,7 +111,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_account -> showAccountDetails()
             R.id.action_clear -> onClear()
             R.id.action_reinit -> reInit()
-            R.id.action_reset_TFA -> resetTFA()
             R.id.action_logout -> logout()
             R.id.fb_permission_update -> facebookPermissionUpdate()
             R.id.disable_interruptions -> Gigya.getInstance().handleInterruptions(false)
@@ -138,17 +137,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //endregion
-
-    private fun resetTFA() {
-        viewModel?.resetTFA(
-                success = {
-                    response_text_view.snackbar("TFA Method reset")
-                },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
-                }
-        )
-    }
 
     /**
      * Log the user out of the system.

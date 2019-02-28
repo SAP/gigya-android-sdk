@@ -35,6 +35,7 @@ public class DependencyRegistry {
     private ApiManager _apiManager;
     private SessionManager _sessionManager;
     private AccountManager _accountManager;
+    private IEncryptor _encryptor;
 
     /**
      * @param appContext Application context.
@@ -43,7 +44,7 @@ public class DependencyRegistry {
         // Persistence manager.
         _persistenceManager = new PersistenceManager(appContext);
         // Initialize encryptor.
-        IEncryptor _encryptor;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             _encryptor = new KeyStoreEncryptor();
         } else {
@@ -99,6 +100,8 @@ public class DependencyRegistry {
     public PersistenceManager getPersistenceManager() {
         return _persistenceManager;
     }
+
+    public IEncryptor getEncryptor() { return _encryptor; }
 
     //endregion
 

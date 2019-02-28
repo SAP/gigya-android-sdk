@@ -52,6 +52,7 @@ public class GigyaRequestBuilderTest {
         MockitoAnnotations.initMocks(this);
         when(sessionManager.getSession()).thenReturn(new SessionInfo("mockSecret", "mockToken"));
         when(sessionManager.isValidSession()).thenReturn(true);
+        when(sessionManager.getConfiguration()).thenReturn(configuration);
         mockStatic(Base64.class, System.class);
         when(Base64.decode(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
@@ -84,8 +85,7 @@ public class GigyaRequestBuilderTest {
     @Test
     public void testBuildForGetRequest() {
         // Arrange
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration)
-                .sessionManager(sessionManager)
+        GigyaRequestBuilder builder = new GigyaRequestBuilder(sessionManager)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
@@ -106,8 +106,7 @@ public class GigyaRequestBuilderTest {
     @Test
     public void testBuildForPostRequest() {
         // Arrange
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(configuration)
-                .sessionManager(sessionManager)
+        GigyaRequestBuilder builder = new GigyaRequestBuilder(sessionManager)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
