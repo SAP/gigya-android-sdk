@@ -3,7 +3,7 @@ package com.gigya.android.sdk;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.interruption.ConflictingProviderResolver;
+import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaResponse;
@@ -20,7 +20,7 @@ public abstract class GigyaLoginCallback<T> extends GigyaCallback<T> {
 
     //region Link accounts
 
-    public void onConflictingAccounts(@NonNull GigyaResponse response, ConflictingProviderResolver resolver) {
+    public void onConflictingAccounts(@NonNull GigyaResponse response, @NonNull LinkAccountsResolver resolver) {
         forwardError(response);
     }
 

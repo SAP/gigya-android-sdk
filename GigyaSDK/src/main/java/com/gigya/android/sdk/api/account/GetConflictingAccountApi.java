@@ -10,7 +10,6 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GetConflictingAccountApi extends BaseApi<GigyaResponse> {
@@ -34,10 +33,10 @@ public class GetConflictingAccountApi extends BaseApi<GigyaResponse> {
     }
 
     public static class ConflictingAccount {
-        private List<String> loginProviders = new ArrayList<>();
+        private ArrayList<String> loginProviders = new ArrayList<>();
         private String loginID;
 
-        public List<String> getLoginProviders() {
+        public ArrayList<String> getLoginProviders() {
             return loginProviders;
         }
 

@@ -3,7 +3,7 @@ package com.gigya.android.sdk.api;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.interruption.LinkedAccountResolver;
+import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.model.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
@@ -42,14 +42,17 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
                     loginCallback.onPendingPasswordChange(response);
                     return true;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    //TODO refactor
+                    LinkAccountsResolver linkResolver = new LinkAccountsResolver<>(networkAdapter, sessionManager, accountManager,
+                            loginCallback);
+                    linkResolver.setOriginalData(regToken, response);
+                    linkResolver.init();
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                    TFAResolver resolver = new TFAResolver<>(networkAdapter, sessionManager, accountManager,
+                    TFAResolver tfaResolver = new TFAResolver<>(networkAdapter, sessionManager, accountManager,
                             loginCallback);
-                    resolver.setOriginalData(regToken, response);
-                    resolver.init();
+                    tfaResolver.setOriginalData(regToken, response);
+                    tfaResolver.init();
                     return true;
             }
         }
@@ -57,7 +60,7 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
     }
 
     /* Evaluating responses that are tagged as success but still require error handling. */
-    protected boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback loginCallback) {
+    protected boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
         if (!sessionManager.getConfiguration().isInterruptionsEnabled()) {
             return false;
         }
@@ -68,7 +71,7 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
         switch (errorCode) {
             case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
                 final String regToken = response.getField("regToken", String.class);
-                new LinkedAccountResolver(response, loginCallback).resolve(regToken);
+                new LinkAccountsResolver<T>(networkAdapter, sessionManager, accountManager, loginCallback).finalizeRegistration(regToken);
                 return true;
         }
         return false;

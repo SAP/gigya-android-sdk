@@ -8,11 +8,13 @@
 
     <TextView
         android:id="@+id/tfa_title"
-        android:layout_width="379dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:textSize="18sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="TFA title" />
 
     <TextView
@@ -154,7 +156,7 @@
         android:id="@+id/tfa_qr_image_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="qr_code_image_progress,qr_code_image,tfa_qr_scan_title" />
+        app:constraint_referenced_ids="qr_code_image,tfa_qr_scan_title" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/tfa_verification_code_input_edit_layout"
@@ -172,11 +174,11 @@
 
     </android.support.design.widget.TextInputLayout>
 
-
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/tfa_submit_code"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:background="@android:color/transparent"
         android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
@@ -185,15 +187,18 @@
         android:textColor="@color/colorAccent"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/tfa_title"
         app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
+        app:layout_constraintVertical_bias="1.0"
         tools:ignore="UnusedAttribute" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/tfa_get_code"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
         android:background="@android:color/transparent"
         android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
@@ -202,14 +207,17 @@
         android:textColor="@color/colorAccent"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tfa_submit_code"
         app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
+        app:layout_constraintVertical_bias="1.0"
         tools:ignore="UnusedAttribute" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/tfa_dismiss_dialog"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:background="@android:color/transparent"
         android:foreground="?attr/selectableItemBackground"
         android:paddingStart="10dp"
@@ -218,14 +226,10 @@
         android:textColor="@color/colorAccent"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/tfa_title"
         app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
+        app:layout_constraintVertical_bias="1.0"
         tools:ignore="UnusedAttribute" />
-
-    <android.support.constraint.Group
-        android:id="@+id/tfa_input_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tfa_verification_code_input_edit_layout,tfa_dismiss_dialog,tfa_get_code,tfa_submit_code" />
 
 </android.support.constraint.ConstraintLayout>

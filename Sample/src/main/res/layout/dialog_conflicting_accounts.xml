@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/ca_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Account already exists:"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/ca_login_id"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/ca_title"
+        app:layout_constraintStart_toStartOf="@id/ca_title"
+        app:layout_constraintTop_toBottomOf="@id/ca_title" />
+
+    <Spinner
+        android:id="@+id/ca_available_providers_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@id/ca_login_id"
+        app:layout_constraintStart_toStartOf="@id/ca_login_id"
+        app:layout_constraintTop_toBottomOf="@id/ca_login_id" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/ca_password_edit_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Enter account password"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/ca_login_id"
+        app:layout_constraintStart_toStartOf="@id/ca_login_id"
+        app:layout_constraintTop_toBottomOf="@id/ca_available_providers_spinner"
+        tools:visibility="visible">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/ca_password_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/ca_submit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="Link"
+        android:textColor="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/ca_title"
+        app:layout_constraintTop_toBottomOf="@id/ca_password_edit_layout"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="UnusedAttribute" />
+
+</android.support.constraint.ConstraintLayout>

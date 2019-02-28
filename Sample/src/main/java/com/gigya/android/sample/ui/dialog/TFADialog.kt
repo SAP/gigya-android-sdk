@@ -1,10 +1,7 @@
-package com.gigya.android.sample.ui
+package com.gigya.android.sample.ui.dialog
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.Gravity
@@ -18,6 +15,7 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadBitmap
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
+import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.interruption.GigyaResolver
 import com.gigya.android.sdk.utils.UiUtils
 import com.google.gson.Gson
@@ -60,7 +58,6 @@ class TFADialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // dialog?.window?.setBackgroundDrawable(getRoundedCornerBackground())
         return inflater.inflate(R.layout.dialog_tfa, container, false)
     }
 
@@ -92,12 +89,13 @@ class TFADialog : DialogFragment() {
                         when (mode) {
                             "registration" -> {
                                 toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_input_group, visibility = false)
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_verification_code_input_edit_layout,
+                                        tfa_submit_code, tfa_get_code, visibility = false)
                             }
                             "verification" -> {
                                 // Verify Phone -> Get the code.
                                 viewModel?.onTFAPhoneVerify()
-                                toggleViewsVisibility(tfa_input_group, visibility = true)
+                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
                                 toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group,
                                         visibility = false)
                             }
@@ -108,13 +106,14 @@ class TFADialog : DialogFragment() {
                             "registration" -> {
                                 // Register TOTP -> get QR code.
                                 viewModel?.onTFATOTPRegister()
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_input_group, visibility = true)
-                                toggleViewsVisibility(tfa_phone_registration_group,
+                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress,
+                                        tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+                                toggleViewsVisibility(tfa_phone_registration_group, tfa_get_code,
                                         visibility = false)
                             }
                             "verification" -> {
                                 toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, tfa_get_code, visibility = false)
-                                toggleViewsVisibility(tfa_input_group, visibility = true)
+                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
                             }
                         }
                     }
@@ -137,7 +136,7 @@ class TFADialog : DialogFragment() {
             }
             viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
             toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
-            toggleViewsVisibility(tfa_input_group, visibility = true)
+            toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
         }
 
         // Get code click listener
@@ -194,12 +193,5 @@ class TFADialog : DialogFragment() {
                 false -> view.gone()
             }
         }
-    }
-
-    private fun getRoundedCornerBackground(): Drawable {
-        val gradientDrawable = GradientDrawable()
-        gradientDrawable.setColor(Color.WHITE)
-        gradientDrawable.cornerRadius = 16f
-        return gradientDrawable
     }
 }

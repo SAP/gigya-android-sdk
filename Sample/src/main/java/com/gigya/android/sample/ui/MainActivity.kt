@@ -15,7 +15,11 @@ import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
+import com.gigya.android.sample.ui.dialog.ConflictingAccountsDialog
+import com.gigya.android.sample.ui.dialog.InputDialog
+import com.gigya.android.sample.ui.dialog.TFADialog
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.api.account.GetConflictingAccountApi
 import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -77,6 +81,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
+                MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
             }
         })
 
@@ -209,6 +214,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onTFAVerificationCodeSent() {
         response_text_view.snackbar("Verification code sent")
+    }
+
+    private fun onConflictingAccounts(conflictingAccount: GetConflictingAccountApi.ConflictingAccount) {
+        val loginID = conflictingAccount.loginID
+        val providers = conflictingAccount.loginProviders
+        val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
+        dialog.show(supportFragmentManager, "onConflictingAccounts")
     }
 
     private fun onGetAccount() {

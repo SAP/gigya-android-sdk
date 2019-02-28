@@ -1,4 +1,4 @@
-package com.gigya.android.sample.ui
+package com.gigya.android.sample.ui.dialog
 
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gigya.android.sample.R
+import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.account.RegisterApi
 import kotlinx.android.synthetic.main.input_anonymous.*

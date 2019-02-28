@@ -11,6 +11,7 @@ import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.account.RegisterApi
+import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolver
 import com.gigya.android.sdk.login.LoginProvider
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
@@ -28,6 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         const val UI_TRIGGER_SHOW_TFA_VERIFICATION = 2
         const val UI_TRIGGER_SHOW_TFA_CODE_SENT = 3
         const val UI_TRIGGER_SHOW_QR_CODE = 4
+        const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 5
     }
 
     /*
@@ -73,6 +75,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTFATOTPVerify(code: String) {
         tfaResolver?.verifyTOTP(code)
+    }
+
+    //endregion
+
+    //region Link accounts
+
+    private var linkAccountsResolver: LinkAccountsResolver<*>? = null
+
+    fun onLinkAccountWithSite(loginID: String, password: String) {
+        linkAccountsResolver?.resolveForSiteProvider(loginID, password)
     }
 
     //endregion
@@ -258,6 +270,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         Log.d("loginWithProvider", "Success")
                         account.value = obj
                         success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+                        if (tfaResolver != null) {
+                            tfaResolver = null
+                        }
+                        if (linkAccountsResolver != null) {
+                            linkAccountsResolver = null
+                        }
                     }
 
                     override fun onOperationCancelled() {
@@ -266,7 +284,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                     override fun onError(error: GigyaError?) {
                         Log.d("loginWithProvider", "onError")
+                        if (tfaResolver != null) {
+                            tfaResolver = null
+                        }
+                        if (linkAccountsResolver != null) {
+                            linkAccountsResolver = null
+                        }
                         error(error)
+                    }
+
+                    override fun onPendingTFARegistration(response: GigyaResponse, resolver: TFAResolver<*>) {
+                        tfaResolver = resolver
+                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
+                    }
+
+                    override fun onPendingTFAVerification(response: GigyaResponse, resolver: TFAResolver<*>) {
+                        tfaResolver = resolver
+                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
+                    }
+
+                    override fun onPhoneTFAVerificationCodeSent() {
+                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
+                    }
+
+                    override fun onTOTPQrCodeAvailable(qrCode: String) {
+                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
+                    }
+
+                    override fun onConflictingAccounts(response: GigyaResponse, resolver: LinkAccountsResolver<*>) {
+                        // Show custom UI prompting the client that a conflicting account was found.
+                        linkAccountsResolver = resolver
+                        uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
+                        //resolver.resolveForSiteProvider("toolmarmel.alt1@gmail.com", "123123")
                     }
 
                 })
