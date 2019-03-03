@@ -16,11 +16,10 @@ public class GetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
     private final Class<T> clazz;
     protected final AccountManager accountManager;
 
-    public GetAccountApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                         Class<T> clazz) {
+    public GetAccountApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
         super(networkAdapter, sessionManager);
         this.accountManager = accountManager;
-        this.clazz = clazz;
+        this.clazz = accountManager.getAccountClazz();
     }
 
     private static final String API = "accounts.getAccountInfo";

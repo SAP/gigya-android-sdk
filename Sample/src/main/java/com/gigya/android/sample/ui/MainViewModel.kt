@@ -219,9 +219,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Set account information.
      */
     fun setAccount(dummyData: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        account.value?.profile?.firstName = dummyData
+        /* Updating a custom data field. */
+        account.value?.data?.comment = dummyData
         gigya.setAccount(account.value, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
+                account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -261,7 +263,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(provider, mapOf<String, Any>(
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
-            
+
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("loginWithProvider", "Success")
                 account.value = obj

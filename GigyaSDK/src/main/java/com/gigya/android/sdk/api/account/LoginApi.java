@@ -22,9 +22,9 @@ public class LoginApi<T extends GigyaAccount> extends InterruptionEnabledApi<T> 
     private static final String API = "accounts.login";
     private final Class<T> clazz;
 
-    public LoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,Class<T> clazz) {
+    public LoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
         super(networkAdapter, sessionManager, accountManager);
-        this.clazz = clazz;
+        this.clazz = accountManager.getAccountClazz();
     }
 
     public void call(final Map<String, Object> params, final GigyaLoginCallback callback) {

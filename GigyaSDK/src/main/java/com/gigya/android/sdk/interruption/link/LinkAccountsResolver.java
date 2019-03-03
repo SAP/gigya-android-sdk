@@ -73,7 +73,7 @@ public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver 
         params.put("password", password);
         params.put("loginMode", "link");
         params.put("regToken", this.regToken);
-        new LoginApi<T>(networkAdapter, sessionManager, accountManager, accountManager.getAccountClazz())
+        new LoginApi<T>(networkAdapter, sessionManager, accountManager)
                 .call(params, loginCallback.get());
     }
 

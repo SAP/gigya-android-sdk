@@ -21,9 +21,9 @@ public class NotifyLoginApi<T extends GigyaAccount> extends InterruptionEnabledA
 
     private final Class<T> clazz;
 
-    public NotifyLoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, Class<T> clazz) {
+    public NotifyLoginApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
         super(networkAdapter, sessionManager, accountManager);
-        this.clazz = clazz;
+        this.clazz = accountManager.getAccountClazz();
     }
 
     private static final String API = "socialize.notifyLogin";
@@ -81,7 +81,7 @@ public class NotifyLoginApi<T extends GigyaAccount> extends InterruptionEnabledA
 
     private void getAccount(final GigyaCallback<T> callback, final GigyaInterceptionCallback<T> interceptor) {
         // Request account info.
-        new GetAccountApi<>(networkAdapter, sessionManager, accountManager, clazz)
+        new GetAccountApi<>(networkAdapter, sessionManager, accountManager)
                 .call(new GigyaCallback<T>() {
                     @Override
                     public void onSuccess(T obj) {

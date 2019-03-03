@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.model;
 
+import com.gigya.android.sdk.model.profile.Profile;
+
 public class GigyaAccount extends BaseGigyaResponse {
 
     private String UID;

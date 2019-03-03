@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.api.account;
 
-import android.support.annotation.NonNull;
-
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -33,18 +31,18 @@ public class RegisterApi<T extends GigyaAccount> extends InterruptionEnabledApi<
     private RegisterPolicy policy;
     private final Class<T> clazz;
 
-    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, @NonNull Class<T> clazz,
+    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
                        RegisterPolicy policy,
                        boolean finalize) {
         super(networkAdapter, sessionManager, accountManager);
-        this.clazz = clazz;
+        this.clazz = accountManager.getAccountClazz();
         this.finalize = finalize;
         this.policy = policy;
     }
 
-    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, @NonNull Class<T> clazz) {
+    public RegisterApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
         super(networkAdapter, sessionManager, accountManager);
-        this.clazz = clazz;
+        this.clazz = accountManager.getAccountClazz();
     }
 
     private Map<String, Object> params;

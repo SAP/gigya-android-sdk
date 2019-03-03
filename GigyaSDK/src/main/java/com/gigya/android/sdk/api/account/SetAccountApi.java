@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.api.account;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
@@ -30,17 +29,14 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
     private static final String API = "accounts.setAccountInfo";
 
     private Gson gson = new Gson();
-    private final Class<T> clazz;
     protected final AccountManager accountManager;
 
     @NonNull
     final private T account, privateAccount;
 
-    public SetAccountApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager,
-                         @Nullable Class<T> clazz, @NonNull T account, @NonNull T privateAccount) {
+    public SetAccountApi(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, @NonNull T account, @NonNull T privateAccount) {
         super(networkAdapter, sessionManager);
         this.accountManager = accountManager;
-        this.clazz = clazz;
         this.account = account;
         this.privateAccount = privateAccount;
     }
@@ -87,7 +83,7 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         /* Chain a getAccount call */
-                        new GetAccountApi<>(networkAdapter, sessionManager, accountManager, clazz).call(callback);
+                        new GetAccountApi<>(networkAdapter, sessionManager, accountManager).call(callback);
                         return;
                     }
                     final int errorCode = response.getErrorCode();

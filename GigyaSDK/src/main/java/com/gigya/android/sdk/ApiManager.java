@@ -26,7 +26,7 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("WeakerAccess") // Access should remain public for client use.
+@SuppressWarnings("WeakerAccess")
 public class ApiManager {
 
     public static final String LOG_TAG = "ApiManager";
@@ -95,8 +95,7 @@ public class ApiManager {
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void login(Map<String, Object> params, GigyaLoginCallback callback) {
         _accountManager.invalidateAccount();
-        new LoginApi<T>(_networkAdapter, _sessionManager, _accountManager,
-                _accountManager.getAccountClazz()).call(params, callback);
+        new LoginApi<T>(_networkAdapter, _sessionManager, _accountManager).call(params, callback);
     }
 
     @SuppressWarnings("unchecked")
@@ -108,19 +107,18 @@ public class ApiManager {
             return;
         }
         _accountManager.nextAccountInvalidationTimestamp();
-        new GetAccountApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz()).call(callback);
+        new GetAccountApi<T>(_networkAdapter, _sessionManager, _accountManager).call(callback);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void setAccount(T account, GigyaCallback callback) {
-        new SetAccountApi<>(_networkAdapter, _sessionManager, _accountManager,
-                _accountManager.getAccountClazz(), account, _accountManager.getAccount()).call(callback);
+        new SetAccountApi<>(_networkAdapter, _sessionManager, _accountManager, account, _accountManager.getAccount()).call(callback);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void register(Map<String, Object> params, RegisterApi.RegisterPolicy policy, boolean finalize, GigyaLoginCallback<T> callback) {
         _accountManager.invalidateAccount();
-        new RegisterApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz(), policy, finalize).call(params, callback);
+        new RegisterApi<T>(_networkAdapter, _sessionManager, _accountManager, policy, finalize).call(params, callback);
     }
 
     @SuppressWarnings("unchecked")
@@ -131,7 +129,7 @@ public class ApiManager {
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void notifyLogin(String providerSessions, GigyaLoginCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz())
+        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager)
                 .call(providerSessions, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
@@ -144,7 +142,7 @@ public class ApiManager {
 
     @SuppressWarnings("unchecked")
     public <T extends GigyaAccount> void notifyLogin(SessionInfo sessionInfo, final GigyaCallback<T> callback, final Runnable completionHandler) {
-        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager, _accountManager.getAccountClazz())
+        new NotifyLoginApi<T>(_networkAdapter, _sessionManager, _accountManager)
                 .call(sessionInfo, callback, new GigyaInterceptionCallback<T>() {
                     @Override
                     public void intercept(T obj) {
