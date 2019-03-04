@@ -7,7 +7,8 @@
     <string name="api_key">3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC</string>
     <string name="api_key_with_email_verification">3_ENyIx0YxYE2bZq4Qm8oDotQiZtw7oSifr7ueTshIzQ-wDMhy6tW8-aZaAGRMYaE9</string>
     <string name="api_with_security_questions">3_wVIrkaYyPIXE7IzjY6eCGvMNqkql7e73HENYtzemhT-JOE3cvU3_xYJcui_Pmfe5</string>
-    <string name="api_with_phone_tfa">3_29PXOpfEycBE-y-MihciV1H01aLTGnNcdhn5cG4ktNTq-oahxqtT-rU-jjT__5WC</string>
+    <string name="api_with_phone_totp_tfa">3_29PXOpfEycBE-y-MihciV1H01aLTGnNcdhn5cG4ktNTq-oahxqtT-rU-jjT__5WC</string>
+    <string name="api_with_email_tfa">3_pSp4Yzew09jQumHOLQB12Q2sZc0B3l6k9czUufvourOKg2J2SDXqCNAA3TCpF6lC</string>
 
     <!-- IDs -->
     <string name="facebook_app_id">113512789545198</string>

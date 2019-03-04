@@ -14,6 +14,7 @@ import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolver
 import com.gigya.android.sdk.login.LoginProvider
+import com.gigya.android.sdk.login.LoginProvider.*
 import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.GigyaResponse
@@ -23,7 +24,7 @@ import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    // UI event constants.
+    // UI event triggering constants.
     companion object {
         const val UI_TRIGGER_SHOW_TFA_REGISTRATION = 1
         const val UI_TRIGGER_SHOW_TFA_VERIFICATION = 2
@@ -296,14 +297,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //endregion APIS
 
-    //TODO Rename to socialLoginWith. Add List<Providers ? StringRef>..
-
     /**
      * Present SDK native login pre defined UI.
      */
     fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.loginWithSelectedLoginProviders(mutableMapOf<String, Any>(
-                "enabledProviders" to "facebook, googlePlus, line, wechat, yahoo",
+        gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE, WECHAT, YAHOO), mutableMapOf<String, Any>(
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
                 GigyaPresenter.CORNER_RADIUS to 24f
         ), object : GigyaLoginCallback<MyAccount>() {
@@ -327,8 +325,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         })
     }
-
-    //TODO Need to create the provider in order to make sure the provider is not null. Add getSocialProvider(String provider).
 
     /**
      * Request additional Facebook permissions.
@@ -419,8 +415,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.showComments(mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 8f
-        ),
+                GigyaPresenter.CORNER_RADIUS to 8f        ),
                 object : GigyaPluginCallback<MyAccount>() {
 
                     override fun onLogin(accountObj: MyAccount) {

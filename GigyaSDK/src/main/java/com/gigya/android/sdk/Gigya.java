@@ -20,6 +20,7 @@ import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -420,9 +421,10 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Requested parameters.
      * @param callback Response listener callback.
      */
-    public void loginWithSelectedLoginProviders(final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> callback) {
-        GigyaLogger.debug(LOG_TAG, "loginWithSelectedLoginProviders: with parameters:\n" + params.toString());
-        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, params, callback);
+    public void socialLoginWith(@LoginProvider.SocialProvider List<String> providers,
+                                final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> callback) {
+        GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
+        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, providers, params, callback);
     }
 
     //endregion

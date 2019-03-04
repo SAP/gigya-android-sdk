@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -17,6 +18,7 @@ import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GigyaLoginPresenter extends GigyaPresenter {
@@ -26,8 +28,10 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     private static final String REDIRECT_URI = "gsapi://result/";
 
     public <T> void showNativeLoginProviders(final Context context,
+                                             @LoginProvider.SocialProvider List<String> providers,
                                              final Map<String, Object> params,
                                              final GigyaLoginCallback<T> callback) {
+        params.put("enabledProviders", TextUtils.join(",", providers));
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
@@ -68,7 +72,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     }
 
     public void login(Context context, final String provider,
-                       final Map<String, Object> params, GigyaLoginCallback callback) {
+                      final Map<String, Object> params, GigyaLoginCallback callback) {
         params.put("provider", provider);
         LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _configuration,
                 provider, callback);
