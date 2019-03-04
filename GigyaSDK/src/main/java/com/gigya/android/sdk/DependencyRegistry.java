@@ -119,9 +119,5 @@ public class DependencyRegistry {
         presenter.inject(getConfiguration(), getSessionManager(), getAccountManager());
     }
 
-    public void inject(GigyaResolver resolver) {
-
-    }
-
     //endregion
 }

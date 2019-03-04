@@ -18,11 +18,9 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver {
+public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     private static final String LOG_TAG = "LinkAccountsResolver";
-
-    final private SoftReference<GigyaLoginCallback<T>> loginCallback;
 
     private String regToken;
     private GigyaResponse originalResponse;
@@ -34,8 +32,7 @@ public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver 
 
     public LinkAccountsResolver(NetworkAdapter networkAdapter, SessionManager sessionManager,
                                 AccountManager accountManager, GigyaLoginCallback<T> loginCallback) {
-        super(networkAdapter, sessionManager, accountManager);
-        this.loginCallback = new SoftReference<>(loginCallback);
+        super(networkAdapter, sessionManager, accountManager, loginCallback);
     }
 
     public void setOriginalData(String regToken, GigyaResponse response) {
@@ -60,9 +57,7 @@ public class LinkAccountsResolver<T extends GigyaAccount> extends GigyaResolver 
 
             @Override
             public void onError(GigyaError error) {
-                if (loginCallback.get() != null) {
-                    loginCallback.get().onError(error);
-                }
+                forwardError(error);
             }
         });
     }

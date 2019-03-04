@@ -19,6 +19,7 @@ import com.gigya.android.sample.extras.loadBitmap
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainViewModel
+import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.interruption.GigyaResolver
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa.*
@@ -87,7 +88,19 @@ class TFADialog : DialogFragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selected = tfaProviders[position]
                 when (selected) {
-                    GigyaResolver.TFA_PHONE -> {
+                    GigyaDefinitions.TFA.EMAIL -> {
+                        when (mode) {
+                            "registration" -> {
+                            }
+                            "verification" -> {
+                                tfa_submit_code.text = "Verify Email"
+                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group,
+                                        tfa_verification_code_input_edit_layout, tfa_get_code, visibility = false)
+                            }
+                        }
+                    }
+                    GigyaDefinitions.TFA.PHONE -> {
+                        tfa_submit_code.text = "Submit code"
                         when (mode) {
                             "registration" -> {
                                 toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
@@ -103,7 +116,8 @@ class TFADialog : DialogFragment() {
                             }
                         }
                     }
-                    GigyaResolver.TFA_TOTP -> {
+                    GigyaDefinitions.TFA.TOTP -> {
+                        tfa_submit_code.text = "Submit code"
                         when (mode) {
                             "registration" -> {
                                 // Register TOTP -> get QR code.
@@ -151,14 +165,17 @@ class TFADialog : DialogFragment() {
             val code = tfa_verification_code_input_edit.text.toString().trim()
             val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
             when (selectedTfaProvider) {
-                GigyaResolver.TFA_PHONE -> {
+                GigyaDefinitions.TFA.PHONE -> {
                     viewModel?.onTFAPhoneCodeSubmit(code)
                 }
-                GigyaResolver.TFA_TOTP -> {
+                GigyaDefinitions.TFA.TOTP -> {
                     when (mode) {
                         "registration" -> viewModel?.onTFATOTPCodeSubmit(code)
                         "verification" -> viewModel?.onTFATOTPVerify(code)
                     }
+                }
+                GigyaDefinitions.TFA.EMAIL -> {
+                    viewModel?.onTFAEmailVerify()
                 }
             }
             dismissAllowingStateLoss()
@@ -176,7 +193,7 @@ class TFADialog : DialogFragment() {
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_QR_CODE -> {
-                    if (tfa_providers_spinner.selectedItem.toString() == GigyaResolver.TFA_TOTP) {
+                    if (tfa_providers_spinner.selectedItem.toString() == GigyaDefinitions.TFA.TOTP) {
                         showQrCode(dataPair.second as String)
                     }
                 }

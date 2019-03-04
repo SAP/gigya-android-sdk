@@ -1,24 +1,32 @@
 package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.AccountManager;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
-public abstract class GigyaResolver {
+import java.lang.ref.SoftReference;
+
+public abstract class GigyaResolver<T> {
 
     protected NetworkAdapter networkAdapter;
     protected SessionManager sessionManager;
     protected AccountManager accountManager;
 
-    public GigyaResolver(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager) {
+    final protected SoftReference<GigyaLoginCallback<T>> loginCallback;
+
+    public GigyaResolver(NetworkAdapter networkAdapter, SessionManager sessionManager, AccountManager accountManager, GigyaLoginCallback<T> loginCallback) {
         this.networkAdapter = networkAdapter;
         this.sessionManager = sessionManager;
         this.accountManager = accountManager;
+        this.loginCallback = new SoftReference<>(loginCallback);
     }
 
-    public static final String TFA_PHONE = "TFA_PHONE";
-    public static final String TFA_TOTP = "TFA_TOTP";
-    public static final String LINK_ACCOUNTS = "LINK_ACCOUNTS";
-
     public abstract void cancel();
+
+    protected void forwardError(GigyaError error) {
+        if (loginCallback.get() != null)
+            loginCallback.get().onError(error);
+    }
 }

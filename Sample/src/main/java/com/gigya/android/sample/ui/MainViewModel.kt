@@ -82,6 +82,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tfaResolver?.cancel()
     }
 
+    fun onTFAEmailVerify() {
+        tfaResolver?.verifyEmail()
+    }
+
     //endregion
 
     //region Link accounts
