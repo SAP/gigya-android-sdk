@@ -3,10 +3,10 @@ package com.gigya.android.sdk.api;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gigya.android.sdk.network.GigyaResponse.OK;
+import static com.gigya.android.sdk.network.GigyaApiResponse.OK;
 
 public class SdkConfigApi extends BaseApi<SdkConfigApi.SdkConfig> {
 
@@ -31,15 +31,15 @@ public class SdkConfigApi extends BaseApi<SdkConfigApi.SdkConfig> {
         params.put("include", "permissions,ids,appIds");
         params.put("ApiKey", configuration.getApiKey());
         // Build request.
-        GigyaRequest gigyaRequest = new GigyaRequestBuilder(sessionManager).api(API).httpMethod(NetworkAdapter.Method.GET).params(params).build();
-        networkAdapter.sendBlocking(gigyaRequest, new INetworkCallbacks() {
+        GigyaApiRequest gigyaApiRequest = new GigyaApiRequestBuilder(sessionManager).api(API).httpMethod(NetworkAdapter.Method.GET).params(params).build();
+        networkAdapter.sendBlocking(gigyaApiRequest, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
                 if (callback == null) {
                     return;
                 }
                 try {
-                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
+                    final GigyaApiResponse response = new GigyaApiResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         final SdkConfig parsed = response.getGson().fromJson(jsonResponse, SdkConfig.class);

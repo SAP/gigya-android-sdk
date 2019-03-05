@@ -2,8 +2,8 @@ package com.gigya.android.sdk.network.adapter;
 
 import android.os.AsyncTask;
 
+import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +22,7 @@ class HttpNetworkProvider extends NetworkProvider {
     private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
     @Override
-    void addToQueue(GigyaRequest request, INetworkCallbacks networkCallbacks) {
+    void addToQueue(GigyaApiRequest request, INetworkCallbacks networkCallbacks) {
         if (_blocked) {
             _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
@@ -32,7 +32,7 @@ class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void sendBlocking(GigyaRequest request, INetworkCallbacks networkCallbacks) {
+    void sendBlocking(GigyaApiRequest request, INetworkCallbacks networkCallbacks) {
         new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
         _blocked = true;
     }
@@ -86,9 +86,9 @@ class HttpNetworkProvider extends NetworkProvider {
 
     private static class HttpTask {
         private GigyaNetworkAsyncTask asyncTask;
-        private GigyaRequest request;
+        private GigyaApiRequest request;
 
-        HttpTask(GigyaNetworkAsyncTask asyncTask, GigyaRequest request) {
+        HttpTask(GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
             this.asyncTask = asyncTask;
             this.request = request;
         }
@@ -98,7 +98,7 @@ class HttpNetworkProvider extends NetworkProvider {
         }
     }
 
-    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaRequest, Void, AsyncResult> {
+    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiRequest, Void, AsyncResult> {
 
         private INetworkCallbacks networkCallbacks;
 
@@ -107,8 +107,8 @@ class HttpNetworkProvider extends NetworkProvider {
         }
 
         @Override
-        protected AsyncResult doInBackground(GigyaRequest... gigyaRequests) {
-            GigyaRequest request = gigyaRequests[0];
+        protected AsyncResult doInBackground(GigyaApiRequest... gigyaApiRequests) {
+            GigyaApiRequest request = gigyaApiRequests[0];
             if (request != null) {
                 HttpURLConnection connection = null;
                 OutputStreamWriter outputStreamWriter = null;

@@ -2,13 +2,13 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.model.BaseGigyaResponse;
+import com.gigya.android.sdk.model.GigyaModel;
 
 import org.json.JSONObject;
 
 import java.util.Map;
 
-public class GigyaError extends BaseGigyaResponse {
+public class GigyaError extends GigyaModel {
 
     public static class Codes {
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;
@@ -51,7 +51,7 @@ public class GigyaError extends BaseGigyaResponse {
         return new GigyaError(200001, "Operation canceled", "");
     }
 
-    public static GigyaError fromResponse(GigyaResponse response) {
+    public static GigyaError fromResponse(GigyaApiResponse response) {
         final int errorCode = response.getErrorCode();
         final String localizedMessage = response.getErrorDetails();
         final String callId = response.getCallId();

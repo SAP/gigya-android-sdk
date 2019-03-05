@@ -1,8 +1,8 @@
 package com.gigya.android.sdk.model.tfa;
 
-import com.gigya.android.sdk.model.BaseGigyaResponse;
+import com.gigya.android.sdk.model.GigyaModel;
 
-public class TFACompleteVerificationResponse extends BaseGigyaResponse {
+public class TFACompleteVerificationModel extends GigyaModel {
 
     private String providerAssertion;
 

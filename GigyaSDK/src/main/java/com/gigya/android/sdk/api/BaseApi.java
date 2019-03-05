@@ -2,15 +2,15 @@ package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import org.json.JSONObject;
 
-import static com.gigya.android.sdk.network.GigyaResponse.OK;
+import static com.gigya.android.sdk.network.GigyaApiResponse.OK;
 
 public abstract class BaseApi<T> {
 
@@ -26,12 +26,12 @@ public abstract class BaseApi<T> {
 
     //endregion
 
-    protected void sendRequest(GigyaRequest request, final String api, final GigyaCallback<T> callback) {
+    protected void sendRequest(GigyaApiRequest request, final String api, final GigyaCallback<T> callback) {
         networkAdapter.send(request, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
                 try {
-                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
+                    final GigyaApiResponse response = new GigyaApiResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         onRequestSuccess(api, response, callback);
@@ -54,12 +54,12 @@ public abstract class BaseApi<T> {
         });
     }
 
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         // Stub.
     }
 
     /* Override if needed. */
-    protected void onRequestError(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestError(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         callback.onError(GigyaError.fromResponse(response));
     }
 

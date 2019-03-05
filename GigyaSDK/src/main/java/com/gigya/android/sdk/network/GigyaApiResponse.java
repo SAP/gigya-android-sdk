@@ -2,8 +2,8 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.gson.PostProcessableTypeAdapterFactory;
-import com.gigya.android.sdk.log.GigyaLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -18,23 +18,23 @@ import java.util.Map;
 /**
  * Gigya generic response class.
  */
-public class GigyaResponse {
+public class GigyaApiResponse {
 
-    private static final String LOG_TAG = "GigyaResponse";
+    private static final String LOG_TAG = "GigyaApiResponse";
+    public static final int INVALID_VALUE = -1;
+    public static final int OK = 200;
 
     private JSONObject jsonObject;
     private Map<String, Object> values = new HashMap<>();
 
+    // GSON Support.
     private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostProcessableTypeAdapterFactory()).create();
 
     public Gson getGson() {
         return gson;
     }
 
-    public static final int INVALID_VALUE = -1;
-    public static final int OK = 200;
-
-    public GigyaResponse(JSONObject jsonObject) {
+    public GigyaApiResponse(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
         try {
             flatMap(jsonObject);

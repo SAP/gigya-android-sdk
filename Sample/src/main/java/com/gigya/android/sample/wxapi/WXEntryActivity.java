@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;

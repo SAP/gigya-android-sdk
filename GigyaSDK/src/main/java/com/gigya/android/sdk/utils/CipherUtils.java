@@ -2,8 +2,8 @@ package com.gigya.android.sdk.utils;
 
 import android.annotation.SuppressLint;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
-import com.gigya.android.sdk.log.GigyaLogger;
 
 import java.math.BigInteger;
 import java.util.Arrays;

@@ -3,6 +3,7 @@ package com.gigya.android.sdk.interruption.tfa;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.account.FinalizeRegistrationApi;
@@ -17,20 +18,19 @@ import com.gigya.android.sdk.api.tfa.phone.TFASendVerificationCodeApi;
 import com.gigya.android.sdk.api.tfa.totp.TFATOTPRegisterApi;
 import com.gigya.android.sdk.api.tfa.totp.TFATOTPVerifyApi;
 import com.gigya.android.sdk.interruption.GigyaResolver;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.tfa.TFACompleteVerificationResponse;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
 import com.gigya.android.sdk.model.tfa.TFAEmail;
-import com.gigya.android.sdk.model.tfa.TFAGetEmailsResponse;
-import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersResponse;
-import com.gigya.android.sdk.model.tfa.TFAInitResponse;
+import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
+import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
+import com.gigya.android.sdk.model.tfa.TFAInitModel;
 import com.gigya.android.sdk.model.tfa.TFAProvider;
-import com.gigya.android.sdk.model.tfa.TFAProvidersResponse;
+import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
-import com.gigya.android.sdk.model.tfa.TFATotpRegisterResponse;
-import com.gigya.android.sdk.model.tfa.TFAVerificationCodeResponse;
+import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
+import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
     private static final String LOG_TAG = "TFAResolver";
 
     private String regToken;
-    private GigyaResponse originalResponse;
+    private GigyaApiResponse originalResponse;
 
     private String gigyaAssertion;
 
@@ -57,16 +57,16 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
         super(networkAdapter, sessionManager, accountManager, loginCallback);
     }
 
-    public void setOriginalData(String regToken, GigyaResponse response) {
+    public void setOriginalData(String regToken, GigyaApiResponse response) {
         this.regToken = regToken;
         this.originalResponse = response;
     }
 
     public void init() {
         new TFAGetProvidersApi(networkAdapter, sessionManager)
-                .call(this.regToken, new GigyaCallback<TFAProvidersResponse>() {
+                .call(this.regToken, new GigyaCallback<TFAProvidersModel>() {
                     @Override
-                    public void onSuccess(TFAProvidersResponse obj) {
+                    public void onSuccess(TFAProvidersModel obj) {
                         evaluateProviders(obj);
                     }
 
@@ -77,7 +77,7 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
                 });
     }
 
-    private void evaluateProviders(TFAProvidersResponse res) {
+    private void evaluateProviders(TFAProvidersModel res) {
         if (res.getActiveProviders().isEmpty()) {
             addProviders(res.getInactiveProviders());
             if (loginCallback.get() != null)
@@ -103,9 +103,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void registerPhone(final String phoneNumber, final String method) {
         new TFAInitApi(networkAdapter, sessionManager)
-                .call(this.regToken, GigyaDefinitions.TFA.PHONE, "register", new GigyaCallback<TFAInitResponse>() {
+                .call(this.regToken, GigyaDefinitions.TFA.PHONE, "register", new GigyaCallback<TFAInitModel>() {
                     @Override
-                    public void onSuccess(TFAInitResponse obj) {
+                    public void onSuccess(TFAInitModel obj) {
                         gigyaAssertion = obj.getGigyaAssertion();
                         sendVerificationCode(phoneNumber, method, false);
                     }
@@ -119,9 +119,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void verifyPhone() {
         new TFAInitApi(networkAdapter, sessionManager)
-                .call(this.regToken, GigyaDefinitions.TFA.PHONE, "verify", new GigyaCallback<TFAInitResponse>() {
+                .call(this.regToken, GigyaDefinitions.TFA.PHONE, "verify", new GigyaCallback<TFAInitModel>() {
                     @Override
-                    public void onSuccess(TFAInitResponse obj) {
+                    public void onSuccess(TFAInitModel obj) {
                         gigyaAssertion = obj.getGigyaAssertion();
                         getRegisteredPhoneNumbers();
                     }
@@ -137,9 +137,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
         new TFASendVerificationCodeApi(networkAdapter, sessionManager)
                 .call(gigyaAssertion, phoneNumber, method,
                         "en" /* SDK Hardcoded to English. */
-                        , isVerify, new GigyaCallback<TFAVerificationCodeResponse>() {
+                        , isVerify, new GigyaCallback<TFAVerificationCodeModel>() {
                             @Override
-                            public void onSuccess(TFAVerificationCodeResponse obj) {
+                            public void onSuccess(TFAVerificationCodeModel obj) {
                                 phvToken = obj.getPhvToken();
                                 if (loginCallback.get() != null) {
                                     loginCallback.get().onPhoneTFAVerificationCodeSent();
@@ -156,9 +156,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     private void getRegisteredPhoneNumbers() {
         new TFAGetRegisteredPhoneNumbersAPi(networkAdapter, sessionManager)
-                .call(this.gigyaAssertion, new GigyaCallback<TFAGetRegisteredPhoneNumbersResponse>() {
+                .call(this.gigyaAssertion, new GigyaCallback<TFAGetRegisteredPhoneNumbersModel>() {
                     @Override
-                    public void onSuccess(TFAGetRegisteredPhoneNumbersResponse obj) {
+                    public void onSuccess(TFAGetRegisteredPhoneNumbersModel obj) {
                         if (!obj.getPhones().isEmpty()) {
                             TFARegisteredPhone phone = obj.getPhones().get(0);
                             sendVerificationCode(phone.getId(), phone.getLastMethod(), true);
@@ -177,9 +177,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void submitPhoneCode(String code) {
         new TFACompleteVerificationApi(networkAdapter, sessionManager)
-                .call(gigyaAssertion, phvToken, code, new GigyaCallback<TFACompleteVerificationResponse>() {
+                .call(gigyaAssertion, phvToken, code, new GigyaCallback<TFACompleteVerificationModel>() {
                     @Override
-                    public void onSuccess(TFACompleteVerificationResponse obj) {
+                    public void onSuccess(TFACompleteVerificationModel obj) {
                         finalizeTFA(obj.getProviderAssertion());
                     }
 
@@ -196,9 +196,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void registerTOTP() {
         new TFAInitApi(networkAdapter, sessionManager)
-                .call(this.regToken, GigyaDefinitions.TFA.TOTP, "register", new GigyaCallback<TFAInitResponse>() {
+                .call(this.regToken, GigyaDefinitions.TFA.TOTP, "register", new GigyaCallback<TFAInitModel>() {
                     @Override
-                    public void onSuccess(TFAInitResponse obj) {
+                    public void onSuccess(TFAInitModel obj) {
                         gigyaAssertion = obj.getGigyaAssertion();
                         getQrCode();
                     }
@@ -214,9 +214,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     private void getQrCode() {
         new TFATOTPRegisterApi(networkAdapter, sessionManager)
-                .call(this.gigyaAssertion, new GigyaCallback<TFATotpRegisterResponse>() {
+                .call(this.gigyaAssertion, new GigyaCallback<TFATotpRegisterModel>() {
                     @Override
-                    public void onSuccess(TFATotpRegisterResponse obj) {
+                    public void onSuccess(TFATotpRegisterModel obj) {
                         sctToken = obj.getSctToken();
                         if (loginCallback.get() != null) {
                             loginCallback.get().onTOTPQrCodeAvailable(obj.getQrCode());
@@ -234,9 +234,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void submitTOTPCode(String code) {
         new TFATOTPVerifyApi(networkAdapter, sessionManager)
-                .call(gigyaAssertion, code, sctToken, new GigyaCallback<TFACompleteVerificationResponse>() {
+                .call(gigyaAssertion, code, sctToken, new GigyaCallback<TFACompleteVerificationModel>() {
                     @Override
-                    public void onSuccess(TFACompleteVerificationResponse obj) {
+                    public void onSuccess(TFACompleteVerificationModel obj) {
                         finalizeTFA(obj.getProviderAssertion());
                     }
 
@@ -251,9 +251,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void verifyTOTP(final String code) {
         new TFAInitApi(networkAdapter, sessionManager)
-                .call(regToken, GigyaDefinitions.TFA.TOTP, "verify", new GigyaCallback<TFAInitResponse>() {
+                .call(regToken, GigyaDefinitions.TFA.TOTP, "verify", new GigyaCallback<TFAInitModel>() {
                     @Override
-                    public void onSuccess(TFAInitResponse obj) {
+                    public void onSuccess(TFAInitModel obj) {
                         gigyaAssertion = obj.getGigyaAssertion();
                         submitTOTPCode(code);
                     }
@@ -273,9 +273,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     public void verifyEmail() {
         new TFAInitApi(networkAdapter, sessionManager)
-                .call(this.regToken, GigyaDefinitions.TFA.EMAIL, "verify", new GigyaCallback<TFAInitResponse>() {
+                .call(this.regToken, GigyaDefinitions.TFA.EMAIL, "verify", new GigyaCallback<TFAInitModel>() {
                     @Override
-                    public void onSuccess(TFAInitResponse obj) {
+                    public void onSuccess(TFAInitModel obj) {
                         gigyaAssertion = obj.getGigyaAssertion();
                         getEmails();
                     }
@@ -289,9 +289,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     private void getEmails() {
         new TFAGetEmailsApi(networkAdapter, sessionManager)
-                .call(this.gigyaAssertion, new GigyaCallback<TFAGetEmailsResponse>() {
+                .call(this.gigyaAssertion, new GigyaCallback<TFAGetEmailsModel>() {
                     @Override
-                    public void onSuccess(TFAGetEmailsResponse obj) {
+                    public void onSuccess(TFAGetEmailsModel obj) {
                         final List<TFAEmail> emails = obj.getEmails();
                         if (emails.isEmpty()) {
                             forwardError(GigyaError.generalError());
@@ -318,9 +318,9 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 
     private void finalizeTFA(String providerAssertion) {
         new TFAFinalizeApi(networkAdapter, sessionManager)
-                .call(gigyaAssertion, providerAssertion, regToken, new GigyaCallback<GigyaResponse>() {
+                .call(gigyaAssertion, providerAssertion, regToken, new GigyaCallback<GigyaApiResponse>() {
                     @Override
-                    public void onSuccess(GigyaResponse obj) {
+                    public void onSuccess(GigyaApiResponse obj) {
                         finalizeRegistration();
                     }
 

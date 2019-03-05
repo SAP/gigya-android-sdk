@@ -8,7 +8,7 @@ import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.SessionInfo;
 
 import org.junit.Before;
 import org.junit.Test;

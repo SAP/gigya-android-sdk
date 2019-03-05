@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.model;
 
-public abstract class BaseGigyaResponse {
+public abstract class GigyaModel {
 
     protected int statusCode;
     protected int errorCode;

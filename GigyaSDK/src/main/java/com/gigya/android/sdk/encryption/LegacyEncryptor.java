@@ -3,8 +3,8 @@ package com.gigya.android.sdk.encryption;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.PersistenceManager;
-import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.services.PersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import javax.crypto.KeyGenerator;
@@ -24,10 +24,10 @@ public class LegacyEncryptor implements IEncryptor {
 
     @Override
     @Nullable
-    public SecretKey getKey(Context appContext, PersistenceManager persistenceManager) throws EncryptionException {
+    public SecretKey getKey(Context appContext, PersistenceService persistenceService) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, "getKey: ");
         try {
-            final String encryptedSecret = persistenceManager.getString(GS_PREFA_ALIAS, null);
+            final String encryptedSecret = persistenceService.getString(GS_PREFA_ALIAS, null);
             if (encryptedSecret != null) {
 
                 /*
@@ -46,7 +46,7 @@ public class LegacyEncryptor implements IEncryptor {
             generator.init(128); // The AES key size in number of bits
             final SecretKey secretKey = generator.generateKey();
             final String newEncryptedSecret = CipherUtils.bytesToString(secretKey.getEncoded());
-            persistenceManager.add(GS_PREFA_ALIAS, newEncryptedSecret);
+            persistenceService.add(GS_PREFA_ALIAS, newEncryptedSecret);
             return secretKey;
         } catch (Exception ex) {
             throw new EncryptionException("Session encryption exception", ex.getCause());

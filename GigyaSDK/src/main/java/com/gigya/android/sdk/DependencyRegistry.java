@@ -6,13 +6,13 @@ import android.os.Build;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
-import com.gigya.android.sdk.interruption.GigyaResolver;
-import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.WebBridge;
 
+@Deprecated
 public class DependencyRegistry {
 
     private static DependencyRegistry _sharedInstance;

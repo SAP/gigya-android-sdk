@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.login.provider;
+package com.gigya.android.sdk.providers.provider;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -8,11 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;

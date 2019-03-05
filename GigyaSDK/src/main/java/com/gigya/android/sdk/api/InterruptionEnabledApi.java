@@ -5,9 +5,9 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.TFAResolver;
-import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
@@ -19,14 +19,14 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
         this.accountManager = accountManager;
     }
 
-    protected void handleInterruptionError(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
+    protected void handleInterruptionError(GigyaApiResponse response, final GigyaLoginCallback<T> loginCallback) {
         if (!interrupted(response, loginCallback)) {
             /* Interruption is not handled. Forward the error. */
             loginCallback.forwardError(response);
         }
     }
 
-    private boolean interrupted(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
+    private boolean interrupted(GigyaApiResponse response, final GigyaLoginCallback<T> loginCallback) {
         if (sessionManager.getConfiguration().isInterruptionsEnabled()) {
             /* Get regToken from parameter map. */
             final String regToken = response.getField("regToken", String.class);
@@ -60,7 +60,7 @@ public class InterruptionEnabledApi<T extends GigyaAccount> extends BaseApi<T> {
     }
 
     /* Evaluating responses that are tagged as success but still require error handling. */
-    protected boolean evaluateSuccessError(GigyaResponse response, final GigyaLoginCallback<T> loginCallback) {
+    protected boolean evaluateSuccessError(GigyaApiResponse response, final GigyaLoginCallback<T> loginCallback) {
         if (!sessionManager.getConfiguration().isInterruptionsEnabled()) {
             return false;
         }

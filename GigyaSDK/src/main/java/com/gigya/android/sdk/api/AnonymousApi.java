@@ -3,10 +3,10 @@ package com.gigya.android.sdk.api;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.Map;
@@ -32,12 +32,12 @@ public class AnonymousApi<H> extends BaseApi<H> {
     }
 
     public void call(final String api, Map<String, Object> params, final GigyaCallback<H> callback) {
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(api).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).params(params).api(api).build();
         sendRequest(request, api, callback);
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<H> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<H> callback) {
         if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
             SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
             sessionManager.setSession(session);
@@ -47,7 +47,7 @@ public class AnonymousApi<H> extends BaseApi<H> {
             accountManager.invalidateAccount();
         }
         if (clazz == null) {
-            /* Callback will return GigyaResponse instance */
+            /* Callback will return GigyaApiResponse instance */
             callback.onSuccess((H) response);
         } else {
             H parsed = response.getGson().fromJson(response.asJson(), clazz);

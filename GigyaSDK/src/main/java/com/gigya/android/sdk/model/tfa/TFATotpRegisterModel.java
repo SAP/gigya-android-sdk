@@ -1,8 +1,8 @@
 package com.gigya.android.sdk.model.tfa;
 
-import com.gigya.android.sdk.model.BaseGigyaResponse;
+import com.gigya.android.sdk.model.GigyaModel;
 
-public class TFATotpRegisterResponse extends BaseGigyaResponse {
+public class TFATotpRegisterModel extends GigyaModel {
 
     private String qrCode;
     private String sctToken;

@@ -6,11 +6,11 @@ import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gigya.android.sdk.network.GigyaResponse.OK;
+import static com.gigya.android.sdk.network.GigyaApiResponse.OK;
 
 public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
 
@@ -71,7 +71,7 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
 
     @SuppressWarnings({"unchecked"})
     public void call(final GigyaCallback callback) {
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API).params(calculateDiff()).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).api(API).params(calculateDiff()).build();
         networkAdapter.send(request, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {
@@ -79,7 +79,7 @@ public class SetAccountApi<T extends GigyaAccount> extends BaseApi<T> {
                     return;
                 }
                 try {
-                    final GigyaResponse response = new GigyaResponse(new JSONObject(jsonResponse));
+                    final GigyaApiResponse response = new GigyaApiResponse(new JSONObject(jsonResponse));
                     final int statusCode = response.getStatusCode();
                     if (statusCode == OK) {
                         /* Chain a getAccount call */

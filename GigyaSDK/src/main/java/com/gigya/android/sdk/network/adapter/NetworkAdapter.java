@@ -2,7 +2,7 @@ package com.gigya.android.sdk.network.adapter;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.network.GigyaRequest;
+import com.gigya.android.sdk.network.GigyaApiRequest;
 
 public class NetworkAdapter {
 
@@ -24,13 +24,13 @@ public class NetworkAdapter {
         }
     }
 
-    public void send(GigyaRequest request,
+    public void send(GigyaApiRequest request,
                      INetworkCallbacks networkCallbacks) {
         _configurationBlock.onMissingConfiguration();
         _networkProvider.addToQueue(request, networkCallbacks);
     }
 
-    public void sendBlocking(GigyaRequest request,
+    public void sendBlocking(GigyaApiRequest request,
                              INetworkCallbacks networkCallbacks) {
         _networkProvider.sendBlocking(request, networkCallbacks);
     }

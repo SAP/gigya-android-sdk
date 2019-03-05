@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.login.provider;
+package com.gigya.android.sdk.providers.provider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +22,7 @@ import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.BuildConfig;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.ObjectUtils;
 

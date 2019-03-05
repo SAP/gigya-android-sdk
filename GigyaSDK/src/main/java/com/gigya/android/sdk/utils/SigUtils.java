@@ -2,7 +2,7 @@ package com.gigya.android.sdk.utils;
 
 import android.util.Base64;
 
-import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.GigyaLogger;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;

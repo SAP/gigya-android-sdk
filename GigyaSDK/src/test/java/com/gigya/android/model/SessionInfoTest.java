@@ -1,6 +1,6 @@
 package com.gigya.android.model;
 
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.SessionInfo;
 
 import org.junit.Assert;
 import org.junit.Test;

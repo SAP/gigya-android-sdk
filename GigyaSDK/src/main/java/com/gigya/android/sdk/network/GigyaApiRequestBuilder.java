@@ -10,7 +10,7 @@ import com.gigya.android.sdk.utils.UrlUtils;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class GigyaRequestBuilder {
+public class GigyaApiRequestBuilder {
 
     private Map<String, Object> params;
     private NetworkAdapter.Method httpMethod = NetworkAdapter.Method.POST;
@@ -19,28 +19,28 @@ public class GigyaRequestBuilder {
 
     //region Builder pattern
 
-    public GigyaRequestBuilder(SessionManager sessionManager) {
+    public GigyaApiRequestBuilder(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
-    public GigyaRequestBuilder api(String api) {
+    public GigyaApiRequestBuilder api(String api) {
         this.api = api;
         return this;
     }
 
-    public GigyaRequestBuilder httpMethod(NetworkAdapter.Method httpMethod) {
+    public GigyaApiRequestBuilder httpMethod(NetworkAdapter.Method httpMethod) {
         this.httpMethod = httpMethod;
         return this;
     }
 
-    public GigyaRequestBuilder params(Map<String, Object> params) {
+    public GigyaApiRequestBuilder params(Map<String, Object> params) {
         this.params = params;
         return this;
     }
 
     //endregion
 
-    public GigyaRequest build() {
+    public GigyaApiRequest build() {
         final Configuration configuration = sessionManager.getConfiguration();
         TreeMap<String, Object> urlParams = new TreeMap<>();
         if (params != null) {
@@ -80,7 +80,7 @@ public class GigyaRequestBuilder {
         final String encodedParams = UrlUtils.buildEncodedQuery(urlParams);
         final String url = UrlUtils.getBaseUrl(api, configuration.getApiDomain()) + (httpMethod.equals(NetworkAdapter.Method.GET) ? "?" + encodedParams : "");
 
-        // Generate new GigyaRequest entity.
-        return new GigyaRequest(url, httpMethod == NetworkAdapter.Method.POST ? encodedParams : null, httpMethod, api);
+        // Generate new GigyaApiRequest entity.
+        return new GigyaApiRequest(url, httpMethod == NetworkAdapter.Method.POST ? encodedParams : null, httpMethod, api);
     }
 }

@@ -1,12 +1,12 @@
 package com.gigya.android.sdk.api.tfa.email;
 
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.HashMap;
@@ -20,17 +20,17 @@ public class TFASendEmailVerificationCodeApi extends BaseApi {
         super(networkAdapter, sessionManager);
     }
 
-    public void call(String gigyaAssertion, String emailID, String lang,  GigyaCallback<GigyaResponse> callback) {
+    public void call(String gigyaAssertion, String emailID, String lang,  GigyaCallback<GigyaApiResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", gigyaAssertion);
         params.put("emailID", emailID);
         params.put("lang", lang);
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(API).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).params(params).api(API).build();
         sendRequest(request, API, callback);
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback callback) {
         GigyaLogger.debug("", "");
     }
 }

@@ -3,16 +3,16 @@ package com.gigya.android.sdk.api.account;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetConflictingAccountApi extends BaseApi<GigyaResponse> {
+public class GetConflictingAccountApi extends BaseApi<GigyaApiResponse> {
 
     private static final String API = "accounts.getConflictingAccount";
 
@@ -20,15 +20,15 @@ public class GetConflictingAccountApi extends BaseApi<GigyaResponse> {
         super(networkAdapter, sessionManager);
     }
 
-    public void call(String regToken, final GigyaCallback<GigyaResponse> callback) {
+    public void call(String regToken, final GigyaCallback<GigyaApiResponse> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API).params(params).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).api(API).params(params).build();
         sendRequest(request, API, callback);
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<GigyaResponse> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<GigyaApiResponse> callback) {
         callback.onSuccess(response);
     }
 

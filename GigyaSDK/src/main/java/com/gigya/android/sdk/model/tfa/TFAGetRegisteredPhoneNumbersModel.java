@@ -1,11 +1,11 @@
 package com.gigya.android.sdk.model.tfa;
 
-import com.gigya.android.sdk.model.BaseGigyaResponse;
+import com.gigya.android.sdk.model.GigyaModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TFAGetRegisteredPhoneNumbersResponse extends BaseGigyaResponse {
+public class TFAGetRegisteredPhoneNumbersModel extends GigyaModel {
 
     private List<TFARegisteredPhone> phones = new ArrayList<>();
 

@@ -1,14 +1,14 @@
 package com.gigya.android.sdk.network.adapter;
 
-import com.gigya.android.sdk.network.GigyaRequest;
+import com.gigya.android.sdk.network.GigyaApiRequest;
 
 abstract class NetworkProvider {
 
     boolean _blocked = false;
 
-    abstract void addToQueue(GigyaRequest request, INetworkCallbacks networkCallbacks);
+    abstract void addToQueue(GigyaApiRequest request, INetworkCallbacks networkCallbacks);
 
-    abstract void sendBlocking(GigyaRequest request, INetworkCallbacks networkCallbacks);
+    abstract void sendBlocking(GigyaApiRequest request, INetworkCallbacks networkCallbacks);
 
     void block() {
         _blocked = true;

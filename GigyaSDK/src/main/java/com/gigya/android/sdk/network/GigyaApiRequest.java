@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
-public class GigyaRequest {
+public class GigyaApiRequest {
 
     @NonNull
     private String url, tag;
@@ -13,7 +13,7 @@ public class GigyaRequest {
     private String encodedParams;
     private NetworkAdapter.Method method;
 
-    GigyaRequest(@NonNull String url, @Nullable String encodedParams, NetworkAdapter.Method method, @NonNull String tag) {
+    GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, NetworkAdapter.Method method, @NonNull String tag) {
         this.url = url;
         this.encodedParams = encodedParams;
         this.method = method;

@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.model;
+package com.gigya.android.sdk.model.account;
 
 import android.support.annotation.NonNull;
 

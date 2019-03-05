@@ -6,14 +6,14 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.LoginProviderFactory;
-import com.gigya.android.sdk.login.provider.FacebookLoginProvider;
-import com.gigya.android.sdk.login.provider.GoogleLoginProvider;
-import com.gigya.android.sdk.login.provider.LineLoginProvider;
-import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
-import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
+import com.gigya.android.sdk.providers.provider.FacebookLoginProvider;
+import com.gigya.android.sdk.providers.provider.GoogleLoginProvider;
+import com.gigya.android.sdk.providers.provider.LineLoginProvider;
+import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
+import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
 
 import org.junit.Before;
 import org.junit.Test;

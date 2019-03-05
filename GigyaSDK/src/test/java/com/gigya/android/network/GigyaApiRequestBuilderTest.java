@@ -4,9 +4,9 @@ import android.util.Base64;
 
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.AuthUtils;
 
@@ -35,9 +35,9 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Base64.class, System.class, Random.class, GigyaRequestBuilder.class, AuthUtils.class})
+@PrepareForTest({Base64.class, System.class, Random.class, GigyaApiRequestBuilder.class, AuthUtils.class})
 @PowerMockIgnore("javax.crypto.*")
-public class GigyaRequestBuilderTest {
+public class GigyaApiRequestBuilderTest {
 
     private Configuration configuration = new Configuration("dummyApiKey", "us1.gigya.com", 5 * 60000);
 
@@ -85,7 +85,7 @@ public class GigyaRequestBuilderTest {
     @Test
     public void testBuildForGetRequest() {
         // Arrange
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(sessionManager)
+        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionManager)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
@@ -93,7 +93,7 @@ public class GigyaRequestBuilderTest {
                 }})
                 .httpMethod(NetworkAdapter.Method.GET);
         // Act
-        GigyaRequest request = builder.build();
+        GigyaApiRequest request = builder.build();
         // Assert
         assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig?apiKey=dummyApiKey&format=json&httpStatusCodes=false&include=permissions%2C%20ids&nonce=1545905337000_1&oauth_token=mockToken&" +
                         "sdk=android_4.0.0&sig=DfljJQXRGfeIQAJ4lQuw5nEGrtU%3D&targetEnv=mobile&timestamp=1545905337",
@@ -106,7 +106,7 @@ public class GigyaRequestBuilderTest {
     @Test
     public void testBuildForPostRequest() {
         // Arrange
-        GigyaRequestBuilder builder = new GigyaRequestBuilder(sessionManager)
+        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionManager)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
@@ -114,7 +114,7 @@ public class GigyaRequestBuilderTest {
                 }})
                 .httpMethod(NetworkAdapter.Method.POST);
         // Act
-        GigyaRequest request = builder.build();
+        GigyaApiRequest request = builder.build();
         // Assert
         assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig", request.getUrl());
         assertNotNull(request.getEncodedParams());

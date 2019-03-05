@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.model;
+package com.gigya.android.sdk.model.account;
 
 import java.util.ArrayList;
 import java.util.List;

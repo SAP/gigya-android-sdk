@@ -3,16 +3,16 @@ package com.gigya.android.sdk.api.tfa;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.model.tfa.TFAInitResponse;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.model.tfa.TFAInitModel;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TFAInitApi extends BaseApi<TFAInitResponse> {
+public class TFAInitApi extends BaseApi<TFAInitModel> {
 
     private static final String API = "accounts.tfa.initTFA";
 
@@ -20,12 +20,12 @@ public class TFAInitApi extends BaseApi<TFAInitResponse> {
         super(networkAdapter, sessionManager);
     }
 
-    public void call(String regToken, String provider, String mode, GigyaCallback<TFAInitResponse> callback) {
+    public void call(String regToken, String provider, String mode, GigyaCallback<TFAInitModel> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
         params.put("provider", provider);
         params.put("mode", mode);
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager)
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager)
                 .params(params)
                 .api(API)
                 .build();
@@ -33,8 +33,8 @@ public class TFAInitApi extends BaseApi<TFAInitResponse> {
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<TFAInitResponse> callback) {
-        final TFAInitResponse parsed = response.parseTo(TFAInitResponse.class);
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<TFAInitModel> callback) {
+        final TFAInitModel parsed = response.parseTo(TFAInitModel.class);
         callback.onSuccess(parsed);
     }
 

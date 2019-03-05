@@ -8,10 +8,10 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.LoginProviderFactory;
-import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
+import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;

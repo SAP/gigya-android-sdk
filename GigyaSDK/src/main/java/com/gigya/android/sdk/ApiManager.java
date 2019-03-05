@@ -11,21 +11,21 @@ import com.gigya.android.sdk.api.account.RefreshProviderSessionApi;
 import com.gigya.android.sdk.api.account.RegisterApi;
 import com.gigya.android.sdk.api.account.ResetPasswordApi;
 import com.gigya.android.sdk.api.account.SetAccountApi;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.login.LoginProvider;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 @SuppressWarnings("WeakerAccess")
 public class ApiManager {
 
@@ -68,13 +68,13 @@ public class ApiManager {
         });
     }
 
-    public void sendAnonymous(String api, Map<String, Object> params, final GigyaCallback<GigyaResponse> callback) {
+    public void sendAnonymous(String api, Map<String, Object> params, final GigyaCallback<GigyaApiResponse> callback) {
         final Configuration configuration = _sessionManager.getConfiguration();
         if (!configuration.hasApiKey()) {
             GigyaLogger.error(LOG_TAG, "Configuration invalid. Api-Key unavailable");
             return;
         }
-        new AnonymousApi<GigyaResponse>(_networkAdapter, _sessionManager, _accountManager)
+        new AnonymousApi<GigyaApiResponse>(_networkAdapter, _sessionManager, _accountManager)
                 .call(api, params, callback);
     }
 
@@ -155,9 +155,9 @@ public class ApiManager {
 
     public void updateProviderSessions(String providerSession, final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
         new RefreshProviderSessionApi(_networkAdapter, _sessionManager)
-                .call(providerSession, new GigyaCallback<GigyaResponse>() {
+                .call(providerSession, new GigyaCallback<GigyaApiResponse>() {
                     @Override
-                    public void onSuccess(GigyaResponse obj) {
+                    public void onSuccess(GigyaApiResponse obj) {
                         GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: Success - provider token updated");
 
                         if (permissionCallbacks != null) {
@@ -178,7 +178,7 @@ public class ApiManager {
                 });
     }
 
-    public void forgotPassword(String email, GigyaCallback<GigyaResponse> callback) {
+    public void forgotPassword(String email, GigyaCallback<GigyaApiResponse> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", email);
         new ResetPasswordApi(_networkAdapter, _sessionManager).call(params, callback);

@@ -13,11 +13,11 @@ import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolver
-import com.gigya.android.sdk.login.LoginProvider
-import com.gigya.android.sdk.login.LoginProvider.*
-import com.gigya.android.sdk.login.provider.FacebookLoginProvider
+import com.gigya.android.sdk.network.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.network.GigyaResponse
+import com.gigya.android.sdk.providers.LoginProvider
+import com.gigya.android.sdk.providers.LoginProvider.*
+import com.gigya.android.sdk.providers.provider.FacebookLoginProvider
 import com.gigya.android.sdk.ui.GigyaPresenter
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
@@ -108,8 +108,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Send anonymous request.
      */
     fun sendAnonymous(api: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.send(api, null, object : GigyaCallback<GigyaResponse>() {
-            override fun onSuccess(obj: GigyaResponse?) {
+        gigya.send(api, null, object : GigyaCallback<GigyaApiResponse>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
                 success(obj!!.asJson())
             }
 
@@ -141,12 +141,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: TFAResolver<*>) {
                 tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
             }
 
-            override fun onPendingTFAVerification(response: GigyaResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: TFAResolver<*>) {
                 tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
             }
@@ -184,12 +184,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: TFAResolver<*>) {
                 tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
             }
 
-            override fun onPendingTFAVerification(response: GigyaResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: TFAResolver<*>) {
                 tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
             }
@@ -242,8 +242,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Send a reset password email to designated user.
      */
     fun forgotPassword(success: () -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.forgotPassword(account.value!!.profile.email, object : GigyaCallback<GigyaResponse>() {
-            override fun onSuccess(obj: GigyaResponse?) {
+        gigya.forgotPassword(account.value!!.profile.email, object : GigyaCallback<GigyaApiResponse>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
                 success()
             }
 
@@ -290,7 +290,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 cancel()
             }
 
-            override fun onConflictingAccounts(response: GigyaResponse, resolver: LinkAccountsResolver<*>) {
+            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: LinkAccountsResolver<*>) {
                 // Show custom UI prompting the client that a conflicting account was found.
                 linkAccountsResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))

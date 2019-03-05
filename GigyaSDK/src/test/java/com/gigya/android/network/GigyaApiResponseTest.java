@@ -1,6 +1,6 @@
 package com.gigya.android.network;
 
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import org.json.JSONException;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 
-public class GigyaResponseTest {
+public class GigyaApiResponseTest {
 
     private JSONObject mockJson() throws IOException, JSONException {
         InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaResponseMock.json");
@@ -22,11 +22,11 @@ public class GigyaResponseTest {
         return new JSONObject(json);
     }
 
-    private GigyaResponse mockResponse() throws IOException, JSONException {
-        return new GigyaResponse(mockJson());
+    private GigyaApiResponse mockResponse() throws IOException, JSONException {
+        return new GigyaApiResponse(mockJson());
     }
 
-    private GigyaResponse response;
+    private GigyaApiResponse response;
 
     @Before
     public void setup() throws IOException, JSONException {
@@ -40,12 +40,12 @@ public class GigyaResponseTest {
 
     @Test
     public void testStatusCode() {
-        Assert.assertNotEquals(response.getStatusCode(), GigyaResponse.INVALID_VALUE);
+        Assert.assertNotEquals(response.getStatusCode(), GigyaApiResponse.INVALID_VALUE);
     }
 
     @Test
     public void testErrorCode() {
-        Assert.assertNotEquals(response.getErrorCode(), GigyaResponse.INVALID_VALUE);
+        Assert.assertNotEquals(response.getErrorCode(), GigyaApiResponse.INVALID_VALUE);
     }
 
     @Test

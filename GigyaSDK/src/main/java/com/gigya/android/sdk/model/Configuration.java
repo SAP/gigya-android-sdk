@@ -9,12 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
 
 import java.util.Map;
 
+@Deprecated
 public class Configuration {
 
     private String apiKey;

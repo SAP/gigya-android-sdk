@@ -19,7 +19,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 

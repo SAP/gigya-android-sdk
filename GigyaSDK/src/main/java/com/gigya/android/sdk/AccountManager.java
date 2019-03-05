@@ -3,11 +3,12 @@ package com.gigya.android.sdk;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.providers.LoginProvider;
 
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class AccountManager<T extends GigyaAccount> {
 
     /*

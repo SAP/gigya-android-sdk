@@ -5,12 +5,12 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.InterruptionEnabledApi;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -50,17 +50,17 @@ public class RegisterApi<T extends GigyaAccount> extends InterruptionEnabledApi<
     public void call(final Map<String, Object> params, final GigyaLoginCallback callback) {
         this.params = params;
         updateRegisterPolicy(params);
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API_INIT_REGISTRATION).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).api(API_INIT_REGISTRATION).build();
         sendRequest(request, API_INIT_REGISTRATION, callback);
     }
 
     private void callSendRegistration(final Map<String, Object> params, final GigyaLoginCallback callback) {
-        final GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(API_REGISTER).build();
+        final GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).params(params).api(API_REGISTER).build();
         sendRequest(request, API_REGISTER, callback);
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         switch (api) {
             case API_INIT_REGISTRATION:
                 final String regToken = (String) response.getField("regToken");
@@ -88,7 +88,7 @@ public class RegisterApi<T extends GigyaAccount> extends InterruptionEnabledApi<
     }
 
     @Override
-    protected void onRequestError(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestError(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         handleInterruptionError(response, (GigyaLoginCallback) callback);
     }
 

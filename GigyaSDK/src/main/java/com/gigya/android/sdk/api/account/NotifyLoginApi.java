@@ -5,13 +5,13 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.InterruptionEnabledApi;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.GigyaInterceptionCallback;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
 import java.util.HashMap;
@@ -43,23 +43,23 @@ public class NotifyLoginApi<T extends GigyaAccount> extends InterruptionEnabledA
         this.interceptor = interceptor;
         final Map<String, Object> params = new HashMap<>();
         params.put("providerSessions", providerSessions);
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).params(params).api(API).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).params(params).api(API).build();
         sendRequest(request, API, callback);
     }
 
     @Override
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         if (sessionManager != null && response.contains("sessionSecret") && response.contains("sessionToken")) {
             updateSessionAndRequestAccountInfo(response, callback, this.interceptor);
         }
     }
 
     @Override
-    protected void onRequestError(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestError(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         handleInterruptionError(response, (GigyaLoginCallback) callback);
     }
 
-    private void updateSessionAndRequestAccountInfo(GigyaResponse notifyResponse, final GigyaCallback<T> callback,
+    private void updateSessionAndRequestAccountInfo(GigyaApiResponse notifyResponse, final GigyaCallback<T> callback,
                                                     final GigyaInterceptionCallback<T> interceptor) {
         /* Parse session info and request account info. */
         SessionInfo sessionInfo;

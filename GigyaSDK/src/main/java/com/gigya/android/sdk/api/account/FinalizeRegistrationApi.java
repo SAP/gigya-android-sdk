@@ -4,11 +4,11 @@ import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -35,7 +35,7 @@ public class FinalizeRegistrationApi<T extends GigyaAccount> extends BaseApi<T> 
         params.put("regToken", regToken);
         params.put("include", "profile,data,emails,subscriptions,preferences");
         params.put("includeUserInfo", "true");
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager)
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager)
                 .api(API)
                 .params(params)
                 .build();
@@ -44,7 +44,7 @@ public class FinalizeRegistrationApi<T extends GigyaAccount> extends BaseApi<T> 
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void onRequestSuccess(String api, GigyaResponse response, GigyaCallback<T> callback) {
+    protected void onRequestSuccess(String api, GigyaApiResponse response, GigyaCallback<T> callback) {
         if (response.contains("sessionInfo") && sessionManager != null) {
             SessionInfo session = response.getField("sessionInfo", SessionInfo.class);
             sessionManager.setSession(session);

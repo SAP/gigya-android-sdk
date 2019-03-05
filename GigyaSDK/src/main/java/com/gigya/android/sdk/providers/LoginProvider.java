@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.login;
+package com.gigya.android.sdk.providers;
 
 
 import android.content.Context;
@@ -8,12 +8,12 @@ import android.support.annotation.StringDef;
 import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.lang.annotation.Retention;

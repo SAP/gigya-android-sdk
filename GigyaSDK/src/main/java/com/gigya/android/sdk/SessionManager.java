@@ -6,15 +6,15 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.IEncryptor;
-import com.gigya.android.sdk.log.GigyaLogger;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.SessionInfo;
+import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
 
+@Deprecated
 public class SessionManager {
 
     /*
@@ -191,7 +191,7 @@ public class SessionManager {
     private String encrypt(String plain) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceManager);
+            final SecretKey secretKey = null; //_encryptor.getKey(_appContext, _persistenceManager);
             return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -205,7 +205,7 @@ public class SessionManager {
     private String decrypt(String encrypted) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceManager);
+            final SecretKey secretKey = null;//_encryptor.getKey(_appContext, _persistenceManager);
             return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -8,8 +8,8 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.PersistenceManager;
-import com.gigya.android.sdk.log.GigyaLogger;
+import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.services.PersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import java.math.BigInteger;
@@ -55,7 +55,7 @@ public class KeyStoreEncryptor implements IEncryptor {
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Nullable
-    public SecretKey getKey(Context appContext, PersistenceManager persistenceManager) throws EncryptionException {
+    public SecretKey getKey(Context appContext, PersistenceService persistenceService) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, "getKey: ");
         try {
             if (!_keyStore.containsAlias(GS_KEYSTORE_ALIAS)) {
@@ -120,7 +120,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 byte[] encryptedAES = cipher.doFinal(secretKey.getEncoded());
                 // Save encrypted AES to sharedPreferences
                 final String newEncryptedSecret = CipherUtils.bytesToString(encryptedAES);
-                persistenceManager.add(GS_PREFA_ALIAS, newEncryptedSecret);
+                persistenceService.add(GS_PREFA_ALIAS, newEncryptedSecret);
                 return secretKey;
 
             } else if (!_keyStore.entryInstanceOf(GS_KEYSTORE_ALIAS, KeyStore.PrivateKeyEntry.class)) {
@@ -130,7 +130,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 IF not delete the entry and create a new one.
                  */
                 _keyStore.deleteEntry(GS_KEYSTORE_ALIAS);
-                return getKey(appContext, persistenceManager);
+                return getKey(appContext, persistenceService);
 
             } else {
 
@@ -138,7 +138,7 @@ public class KeyStoreEncryptor implements IEncryptor {
                 Keystore instance exist. Load keys and decrypt secret.
                  */
 
-                String aesKey = persistenceManager.getString(GS_PREFA_ALIAS, null);
+                String aesKey = persistenceService.getString(GS_PREFA_ALIAS, null);
                 if (aesKey != null && _keyStore.containsAlias(GS_KEYSTORE_ALIAS) && _keyStore.entryInstanceOf(GS_KEYSTORE_ALIAS, KeyStore.PrivateKeyEntry.class)) {
                     final PrivateKey privateKey = (PrivateKey) _keyStore.getKey(GS_KEYSTORE_ALIAS, null);
                     final Cipher cipher = Cipher.getInstance(RSA_CIPHER);

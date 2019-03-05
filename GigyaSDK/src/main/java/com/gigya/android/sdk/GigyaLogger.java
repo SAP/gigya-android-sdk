@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.log;
+package com.gigya.android.sdk;
 
 import android.util.Log;
 

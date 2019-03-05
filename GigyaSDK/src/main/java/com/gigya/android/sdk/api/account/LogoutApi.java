@@ -2,12 +2,12 @@ package com.gigya.android.sdk.api.account;
 
 import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.BaseApi;
-import com.gigya.android.sdk.network.GigyaRequest;
-import com.gigya.android.sdk.network.GigyaRequestBuilder;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 
-public class LogoutApi extends BaseApi<GigyaResponse> {
+public class LogoutApi extends BaseApi<GigyaApiResponse> {
 
     private static final String API = "socialize.logout";
 
@@ -19,7 +19,7 @@ public class LogoutApi extends BaseApi<GigyaResponse> {
     }
 
     public void call() {
-        GigyaRequest request = new GigyaRequestBuilder(sessionManager).api(API).build();
+        GigyaApiRequest request = new GigyaApiRequestBuilder(sessionManager).api(API).build();
         sendRequest(request, API, null);
     }
 }

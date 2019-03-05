@@ -8,13 +8,12 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.gigya.android.sdk.api.account.RegisterApi;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.LoginProviderFactory;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.GigyaAccount;
-import com.gigya.android.sdk.model.SessionInfo;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
@@ -36,6 +35,8 @@ public class Gigya<T extends GigyaAccount> {
     @NonNull
     final private Context _appContext;
 
+    final GigyaContext<T> _gigyaContext;
+
     @NonNull
     public Context getContext() {
         return _appContext;
@@ -43,6 +44,7 @@ public class Gigya<T extends GigyaAccount> {
 
     private Gigya(@NonNull Context appContext) {
         _appContext = appContext;
+        _gigyaContext = new GigyaContext<>(appContext);
         DependencyRegistry.getInstance().init(appContext);
         init();
         if (getCurrentProvider() != null) {
@@ -224,7 +226,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     @SuppressWarnings("unchecked")
-    public void send(String api, Map<String, Object> params, GigyaCallback<GigyaResponse> callback) {
+    public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> callback) {
         getApiManager().sendAnonymous(api, params, callback);
     }
 
@@ -407,7 +409,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param loginId  User login id.
      * @param callback Response listener callback.
      */
-    public void forgotPassword(String loginId, GigyaCallback<GigyaResponse> callback) {
+    public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> callback) {
         getApiManager().forgotPassword(loginId, callback);
     }
 

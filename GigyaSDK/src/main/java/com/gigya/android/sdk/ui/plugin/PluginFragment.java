@@ -30,9 +30,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;

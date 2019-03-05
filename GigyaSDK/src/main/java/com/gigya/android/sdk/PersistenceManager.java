@@ -3,6 +3,7 @@ package com.gigya.android.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+@Deprecated
 public class PersistenceManager {
 
     /*

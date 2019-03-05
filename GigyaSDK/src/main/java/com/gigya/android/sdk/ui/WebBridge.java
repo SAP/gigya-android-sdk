@@ -13,16 +13,16 @@ import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.ApiManager;
 import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.login.LoginProvider;
-import com.gigya.android.sdk.login.LoginProviderFactory;
-import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
-import com.gigya.android.sdk.model.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.GigyaResponse;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
+import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -241,7 +241,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
 
-        // TODO: 29/01/2019 Should add support for non Https in GigyaRequest.
+        // TODO: 29/01/2019 Should add support for non Https in GigyaApiRequest.
 
         final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
         final boolean requiresSession = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("requiresSession"), "false"));
@@ -250,9 +250,9 @@ public class WebBridge<T extends GigyaAccount> {
             params.remove("regToken");
         }
 
-        _apiManager.sendAnonymous(api, params, new GigyaCallback<GigyaResponse>() {
+        _apiManager.sendAnonymous(api, params, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onSuccess(final GigyaResponse obj) {
+            public void onSuccess(final GigyaApiResponse obj) {
                 GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with result:\n" + obj.asJson());
                 handleAuthRequests(api, obj);
                 invokeCallback(callbackId, obj.asJson());
@@ -268,7 +268,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     // TODO: 24/02/2019 Connection apis are not yet verified. Redesign might use different apis for these flows!!!
 
-    private void handleAuthRequests(String api, GigyaResponse response) {
+    private void handleAuthRequests(String api, GigyaApiResponse response) {
         switch (api) {
             case "socialize.logout":
             case "accounts.logout":

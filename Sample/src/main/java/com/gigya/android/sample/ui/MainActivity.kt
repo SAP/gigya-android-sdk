@@ -21,8 +21,8 @@ import com.gigya.android.sample.ui.dialog.TFADialog
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.api.account.GetConflictingAccountApi
 import com.gigya.android.sdk.api.account.RegisterApi
-import com.gigya.android.sdk.login.provider.FacebookLoginProvider
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.providers.provider.FacebookLoginProvider
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*

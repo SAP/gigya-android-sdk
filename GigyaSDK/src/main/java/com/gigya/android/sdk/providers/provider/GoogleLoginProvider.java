@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.login.provider;
+package com.gigya.android.sdk.providers.provider;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,9 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.log.GigyaLogger;
-import com.gigya.android.sdk.login.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;

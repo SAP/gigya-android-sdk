@@ -1,15 +1,15 @@
-package com.gigya.android.sdk.login;
+package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.login.provider.FacebookLoginProvider;
-import com.gigya.android.sdk.login.provider.GoogleLoginProvider;
-import com.gigya.android.sdk.login.provider.LineLoginProvider;
-import com.gigya.android.sdk.login.provider.WeChatLoginProvider;
-import com.gigya.android.sdk.login.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.providers.provider.FacebookLoginProvider;
+import com.gigya.android.sdk.providers.provider.GoogleLoginProvider;
+import com.gigya.android.sdk.providers.provider.LineLoginProvider;
+import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
+import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
 
 public class LoginProviderFactory {
 
