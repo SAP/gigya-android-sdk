@@ -20,11 +20,6 @@ public class SessionService {
     private static final String LOG_TAG = "SessionService";
 
     /*
-     * SDK shared preference key for _session string.
-     */
-    private static final String PREFS_KEY_SESSION = "GS_PREFS";
-
-    /*
     Session info encryption algorithm.
      */
     private static final String ENCRYPTION_ALGORITHM = "AES";
@@ -106,14 +101,14 @@ public class SessionService {
      */
     public void clear() {
         GigyaLogger.debug(LOG_TAG, "clear: ");
-        _persistenceService.remove(PREFS_KEY_SESSION);
+        _persistenceService.clearSession();
         this._session = null;
     }
 
     /**
      * Save session data to encrypted persistence store.
      */
-    void save() {
+    public void save() {
         GigyaLogger.error(LOG_TAG, "save:");
         JSONObject jsonObject = new JSONObject();
         try {
@@ -126,7 +121,7 @@ public class SessionService {
             final String sessionJSON = jsonObject.toString();
             final String encryptedSession = encrypt(sessionJSON);
             /* Save to preferences. */
-            _persistenceService.add(PREFS_KEY_SESSION, encryptedSession);
+            _persistenceService.setSession(encryptedSession);
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion to " + ex.getMessage());
@@ -156,8 +151,8 @@ public class SessionService {
             return;
         }
         /* Load from preferences. */
-        if (_persistenceService.contains(PREFS_KEY_SESSION)) {
-            String encryptedSession = _persistenceService.getString(PREFS_KEY_SESSION, null);
+        if (_persistenceService.hasSession()) {
+            String encryptedSession = _persistenceService.getSession();
             if (!TextUtils.isEmpty(encryptedSession)) {
                 /* Decrypt _session string. */
                 final String sessionJson = decrypt(encryptedSession);

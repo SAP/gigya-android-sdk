@@ -10,7 +10,6 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.api.account.RegisterApi
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolver
 import com.gigya.android.sdk.network.GigyaApiResponse

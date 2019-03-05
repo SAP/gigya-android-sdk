@@ -1,16 +1,7 @@
 package com.gigya.android.sdk;
 
-import com.gigya.android.sdk.api.AnonymousApi;
-import com.gigya.android.sdk.api.SdkConfigApi;
-import com.gigya.android.sdk.api.account.FinalizeRegistrationApi;
-import com.gigya.android.sdk.api.account.GetAccountApi;
-import com.gigya.android.sdk.api.account.LoginApi;
-import com.gigya.android.sdk.api.account.LogoutApi;
-import com.gigya.android.sdk.api.account.NotifyLoginApi;
-import com.gigya.android.sdk.api.account.RefreshProviderSessionApi;
-import com.gigya.android.sdk.api.account.RegisterApi;
-import com.gigya.android.sdk.api.account.ResetPasswordApi;
-import com.gigya.android.sdk.api.account.SetAccountApi;
+import com.gigya.android.sdk.api.account_dep.FinalizeRegistrationApi;
+import com.gigya.android.sdk.api.account_dep.NotifyLoginApi;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -44,28 +35,28 @@ public class ApiManager {
 
     public void loadConfig(final Runnable completionHandler) {
         final Configuration configuration = _sessionManager.getConfiguration();
-        new SdkConfigApi(_networkAdapter, _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
-            @Override
-            public void onSuccess(SdkConfigApi.SdkConfig obj) {
-                if (configuration.hasApiKey()) {
-                    configuration.setIDs(obj.getIds());
-                    configuration.setAppIds(obj.getAppIds());
-                    if (_sessionManager != null) {
-                        /* Trigger session save in order to keep track of GMID, UCID. */
-                        _sessionManager.save();
-                    }
-                    _networkAdapter.release();
-                }
-                if (completionHandler != null) {
-                    completionHandler.run();
-                }
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
-            }
-        });
+//        new SdkConfigApi(_networkAdapter, _sessionManager).call(new GigyaCallback<SdkConfigApi.SdkConfig>() {
+//            @Override
+//            public void onSuccess(SdkConfigApi.SdkConfig obj) {
+//                if (configuration.hasApiKey()) {
+//                    configuration.setIDs(obj.getIds());
+//                    configuration.setAppIds(obj.getAppIds());
+//                    if (_sessionManager != null) {
+//                        /* Trigger session save in order to keep track of GMID, UCID. */
+//                        _sessionManager.save();
+//                    }
+//                    _networkAdapter.release();
+//                }
+//                if (completionHandler != null) {
+//                    completionHandler.run();
+//                }
+//            }
+//
+//            @Override
+//            public void onError(GigyaError error) {
+//                GigyaLogger.error(LOG_TAG, "getSDKConfig error: " + error.toString());
+//            }
+//        });
     }
 
     public void sendAnonymous(String api, Map<String, Object> params, final GigyaCallback<GigyaApiResponse> callback) {

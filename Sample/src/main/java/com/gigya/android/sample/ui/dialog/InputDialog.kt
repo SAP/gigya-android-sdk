@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import com.gigya.android.sample.R
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.api.account.RegisterApi
 import kotlinx.android.synthetic.main.input_anonymous.*
 import kotlinx.android.synthetic.main.input_login_register.*
 import kotlinx.android.synthetic.main.input_login_with_provider.*

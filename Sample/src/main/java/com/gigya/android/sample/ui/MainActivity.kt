@@ -19,8 +19,7 @@ import com.gigya.android.sample.ui.dialog.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.dialog.InputDialog
 import com.gigya.android.sample.ui.dialog.TFADialog
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.api.account.GetConflictingAccountApi
-import com.gigya.android.sdk.api.account.RegisterApi
+import com.gigya.android.sdk.api.account_dep.GetConflictingAccountApi
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.providers.provider.FacebookLoginProvider
 import kotlinx.android.synthetic.main.activity_main.*

@@ -24,6 +24,7 @@ public class GigyaApiResponse {
     public static final int INVALID_VALUE = -1;
     public static final int OK = 200;
 
+    private String json;
     private JSONObject jsonObject;
     private Map<String, Object> values = new HashMap<>();
 
@@ -34,9 +35,10 @@ public class GigyaApiResponse {
         return gson;
     }
 
-    public GigyaApiResponse(JSONObject jsonObject) {
-        this.jsonObject = jsonObject;
+    public GigyaApiResponse(String json) {
+        this.json = json;
         try {
+            this.jsonObject = new JSONObject(json);
             flatMap(jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -61,12 +63,7 @@ public class GigyaApiResponse {
     }
 
     public String asJson() {
-        try {
-            return jsonObject.toString(2);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return jsonObject.toString();
-        }
+        return this.json;
     }
 
     @Nullable

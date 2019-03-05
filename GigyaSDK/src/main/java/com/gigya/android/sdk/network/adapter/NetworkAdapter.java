@@ -25,7 +25,11 @@ public class NetworkAdapter {
     }
 
     public void send(GigyaApiRequest request,
-                     INetworkCallbacks networkCallbacks) {
+                     INetworkCallbacks networkCallbacks, boolean blocking) {
+        if (blocking) {
+            sendBlocking(request, networkCallbacks);
+            return;
+        }
         _configurationBlock.onMissingConfiguration();
         _networkProvider.addToQueue(request, networkCallbacks);
     }

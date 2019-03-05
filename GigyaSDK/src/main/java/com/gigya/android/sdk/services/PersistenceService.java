@@ -15,6 +15,11 @@ public class PersistenceService {
      */
     private static final String PREFS_FILE_KEY = "GSLIB";
 
+    /*
+     * SDK shared preference key for _session string.
+     */
+    private static final String PREFS_KEY_SESSION = "GS_PREFS";
+
     @NonNull
     private SharedPreferences _prefs;
 
@@ -82,7 +87,24 @@ public class PersistenceService {
 
     //endregion
 
-    // Task specific.
+    // Session specific.
+
+    public void setSession(String encrypted) {
+        add(PREFS_KEY_SESSION, encrypted);
+    }
+
+    @Nullable
+    public String getSession() {
+        return getString(PREFS_KEY_SESSION, null);
+    }
+
+    public void clearSession() {
+        remove(PREFS_KEY_SESSION);
+    }
+
+    public boolean hasSession() {
+        return contains(PREFS_KEY_SESSION);
+    }
 
     private static final String LAST_LOGIN_PROVIDER_KEY = "lastLoginProvider";
 

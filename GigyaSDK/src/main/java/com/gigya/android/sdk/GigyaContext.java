@@ -25,6 +25,15 @@ public class GigyaContext<T extends GigyaAccount> {
     @NonNull
     private Config _config = new Config();
 
+    @NonNull
+    public Config getConfig() {
+        return _config;
+    }
+
+    public void setConfig(@NonNull Config config) {
+        _config = config;
+    }
+
     /*
     Service for accessing shared preference persistence used mostly for session data encrypted persist.
      */
@@ -35,10 +44,18 @@ public class GigyaContext<T extends GigyaAccount> {
      */
     private AccountService<T> _accountService;
 
+    public AccountService<T> getAccountService() {
+        return _accountService;
+    }
+
     /*
     Service for handling session data & lifecycle.
      */
     private SessionService _sessionService;
+
+    public SessionService getSessionService() {
+        return _sessionService;
+    }
 
     /*
     Encryption generator. Varies according to Android API level due to KeyStore backwards
@@ -51,6 +68,9 @@ public class GigyaContext<T extends GigyaAccount> {
      */
     private ApiService<T> _apiService;
 
+    public ApiService<T> getApiService() {
+        return _apiService;
+    }
 
     public GigyaContext(Context appContext) {
         // Initialize all services.
@@ -69,4 +89,5 @@ public class GigyaContext<T extends GigyaAccount> {
     private IEncryptor newEncryptor() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? new KeyStoreEncryptor() : new LegacyEncryptor();
     }
+
 }

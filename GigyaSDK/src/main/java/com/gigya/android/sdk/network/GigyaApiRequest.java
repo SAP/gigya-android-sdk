@@ -8,16 +8,16 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 public class GigyaApiRequest {
 
     @NonNull
-    private String url, tag;
+    private String url, api;
     @Nullable
     private String encodedParams;
     private NetworkAdapter.Method method;
 
-    GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, NetworkAdapter.Method method, @NonNull String tag) {
+    GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, NetworkAdapter.Method method, @NonNull String api) {
         this.url = url;
         this.encodedParams = encodedParams;
         this.method = method;
-        this.tag = tag;
+        this.api = api;
     }
 
     @NonNull
@@ -36,6 +36,11 @@ public class GigyaApiRequest {
 
     @NonNull
     public String getTag() {
-        return tag;
+        return api;
+    }
+
+    @NonNull
+    public String getApi() {
+        return api;
     }
 }

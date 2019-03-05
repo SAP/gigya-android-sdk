@@ -1,21 +1,26 @@
 package com.gigya.android.sdk.services;
 
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.utils.ObjectUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class AccountService<T extends GigyaAccount> {
+public class AccountService<A extends GigyaAccount> {
 
     /*
     Cached generic account object.
      */
-    private T _cachedAccount;
+    private A _cachedAccount;
 
-    public T getAccount() {
+    public A getAccount() {
         return _cachedAccount;
     }
 
-    public void setAccount(T account) {
+    public void setAccount(A account) {
         _cachedAccount = account;
     }
 
@@ -29,9 +34,13 @@ public class AccountService<T extends GigyaAccount> {
     // Account scheme.
 
     @SuppressWarnings("unchecked")
-    private Class<T> _accountScheme = (Class<T>) GigyaAccount.class;
+    private Class<A> _accountScheme = (Class<A>) GigyaAccount.class;
 
-    public void updateAccountSchene(Class<T> accountScheme) {
+    public Class<A> getAccountScheme() {
+        return _accountScheme;
+    }
+
+    public void updateAccountSchene(Class<A> accountScheme) {
         _accountScheme = accountScheme;
     }
 
@@ -82,4 +91,43 @@ public class AccountService<T extends GigyaAccount> {
     }
 
     //endregion
+
+    /**
+     * Get account object objectDifference.
+     */
+    @SuppressWarnings({"ConstantConditions"})
+    public Map<String, Object> calculateDiff(Gson gson, A cachedAccount, A updatedAccount) {
+        /* Map updated account object to JSON -> Map. */
+        final String updatedJson = gson.toJson(updatedAccount);
+        Map<String, Object> updatedMap = gson.fromJson(updatedJson, new TypeToken<HashMap<String, Object>>() {
+        }.getType());
+
+        /* Map original account object to JSON -> Map. */
+        final String originalJson = gson.toJson(cachedAccount);
+        Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<HashMap<String, Object>>() {
+        }.getType());
+
+        /* Calculate objectDifference. */
+        Map<String, Object> diff = ObjectUtils.objectDifference(originalMap, updatedMap);
+        /* Must have UID or regToken. */
+        if (updatedMap.containsKey("UID")) {
+            diff.put("UID", updatedMap.get("UID"));
+        } else if (updatedMap.containsKey("regToken")) {
+            diff.put("regToken", updatedMap.get("regToken"));
+        }
+        serializeObjectFields(gson, diff);
+        return diff;
+    }
+
+    /**
+     * Object represented field values must be set as JSON Objects. So we are reverting each one to
+     * its JSON String representation.
+     */
+    private void serializeObjectFields(Gson gson, Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() instanceof Map) {
+                map.put(entry.getKey(), gson.toJson(entry.getValue()));
+            }
+        }
+    }
 }
