@@ -20,7 +20,6 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.GigyaDefinitions
-import com.gigya.android.sdk.interruption.GigyaResolver
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa.*
 
@@ -109,7 +108,7 @@ class TFADialog : DialogFragment() {
                             }
                             "verification" -> {
                                 // Verify Phone -> Get the code.
-                                viewModel?.onTFAPhoneVerify()
+                                // viewModel?.onTFAPhoneVerify()
                                 toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
                                 toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group,
                                         visibility = false)
@@ -150,14 +149,14 @@ class TFADialog : DialogFragment() {
                 R.id.radio_voice -> "voice"
                 else -> "sms"
             }
-            viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
+            // viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
             toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
             toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
         }
 
         // Get code click listener
         tfa_get_code.setOnClickListener {
-            viewModel?.onTFAPhoneVerify()
+            // viewModel?.onTFAPhoneVerify()
         }
 
         // Submit verification code click listener
@@ -166,7 +165,7 @@ class TFADialog : DialogFragment() {
             val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
             when (selectedTfaProvider) {
                 GigyaDefinitions.TFA.PHONE -> {
-                    viewModel?.onTFAPhoneCodeSubmit(code)
+                    //viewModel?.onTFAPhoneCodeSubmit(code)
                 }
                 GigyaDefinitions.TFA.TOTP -> {
                     when (mode) {
@@ -175,7 +174,7 @@ class TFADialog : DialogFragment() {
                     }
                 }
                 GigyaDefinitions.TFA.EMAIL -> {
-                    viewModel?.onTFAEmailVerify()
+                    //viewModel?.onTFAEmailVerify()
                 }
             }
             dismissAllowingStateLoss()
@@ -183,7 +182,7 @@ class TFADialog : DialogFragment() {
 
         // Dialog dismissal click listener.
         tfa_dismiss_dialog.setOnClickListener {
-            viewModel?.cancelTFAResolver()
+            //viewModel?.cancelTFAResolver()
             dismissAllowingStateLoss()
         }
     }

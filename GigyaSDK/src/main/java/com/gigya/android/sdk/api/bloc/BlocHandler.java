@@ -2,41 +2,41 @@ package com.gigya.android.sdk.api.bloc;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.ApiService;
-import com.gigya.android.sdk.services.SessionService;
 
-public class BlocHandler {
+public class BlocHandler<A extends GigyaAccount> {
 
     private static final String LOG_TAG = "BlocHandler";
 
-    final private SessionService _sessionService;
-    private AccountService _accountService;
-    private ApiService _apiService;
+    private final ApiService<A> _apiService;
 
-    public BlocHandler(SessionService sessionService, AccountService accountService, ApiService apiService) {
-        _sessionService = sessionService;
-        _accountService = accountService;
+    public BlocHandler(ApiService<A> apiService) {
         _apiService = apiService;
     }
 
-    public boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback loginCallback) {
-        if (_sessionService.getConfig().isInterruptionsEnabled()) {
+    public boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        if (_apiService.isInterruptionsEnabled()) {
             final int errorCode = apiResponse.getErrorCode();
             GigyaLogger.debug(LOG_TAG, "evaluateInterruptionError: True with errorCode = " + errorCode);
             switch (errorCode) {
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
+                    loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
                     return true;
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
+                    loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
+                    loginCallback.onPendingPasswordChange(apiResponse);
                     return true;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
+                    optionalResolveForConflictingAccounts(apiResponse, loginCallback);
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
+                    optionalResolveForTFA(apiResponse, loginCallback);
                     return true;
                 default:
                     return false;
@@ -61,5 +61,13 @@ public class BlocHandler {
 
     private String getRegToken(GigyaApiResponse apiResponse) {
         return apiResponse.getField("regToken", String.class);
+    }
+
+    private void optionalResolveForConflictingAccounts(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        new GigyaLinkAccountsResolver<>(_apiService, apiResponse, loginCallback).init();
+    }
+
+    private void optionalResolveForTFA(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        new GigyaTFAResolver<>(_apiService, apiResponse, loginCallback).init();
     }
 }

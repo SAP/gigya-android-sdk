@@ -29,7 +29,7 @@ class InputDialog : DialogFragment() {
         fun onReInit()
         fun onAnonymousInput(input: String)
         fun onLoginWithProvider(provider: String)
-        fun onRegisterWith(username: String, password: String, policy: RegisterApi.RegisterPolicy)
+        fun onRegisterWith(username: String, password: String)
         fun onLoginWith(username: String, password: String)
         fun onUpdateAccountWith(comment: String)
     }
@@ -160,13 +160,6 @@ class InputDialog : DialogFragment() {
                 ""
             }
         }
-        register_policy_radio_group.visibility = when (type) {
-            MainInputType.LOGIN -> View.GONE
-            MainInputType.REGISTER -> View.VISIBLE
-            else -> {
-                View.GONE
-            }
-        }
 
         login_register_sheet_send_button.setOnClickListener {
             val username = login_register_sheet_username_edit.text.toString().trim()
@@ -175,12 +168,7 @@ class InputDialog : DialogFragment() {
                 if (type == MainInputType.LOGIN) {
                     resultCallback.onLoginWith(username, password)
                 } else if (type == MainInputType.REGISTER) {
-                    val policy = when (register_policy_radio_group.checkedRadioButtonId) {
-                        R.id.policy_email -> RegisterApi.RegisterPolicy.EMAIL
-                        R.id.policy_username -> RegisterApi.RegisterPolicy.USERNAME
-                        else -> RegisterApi.RegisterPolicy.EMAIL_OR_USERNAME
-                    }
-                    resultCallback.onRegisterWith(username, password, policy)
+                    resultCallback.onRegisterWith(username, password)
                 }
                 dismiss()
             }

@@ -79,7 +79,7 @@ public abstract class LoginProvider {
             GigyaLogger.debug(LOG_TAG, "onProviderTrackingTokenChanges: provider = "
                     + provider + ", providerSession =" + providerSession);
             // Refresh session token.
-            _apiService.refreshNativeProvicerSession(providerSession, permissionCallbacks);
+            _apiService.refreshNativeProviderSession(providerSession, permissionCallbacks);
         }
     };
 

@@ -59,33 +59,33 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <RadioGroup
-        android:id="@+id/register_policy_radio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input"
-        app:layout_constraintVertical_bias="1">
+    <!--<RadioGroup-->
+        <!--android:id="@+id/register_policy_radio_group"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginStart="16dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:layout_marginBottom="8dp"-->
+        <!--app:layout_constrainedHeight="true"-->
+        <!--app:layout_constrainedWidth="true"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input"-->
+        <!--app:layout_constraintVertical_bias="1">-->
 
-        <RadioButton
-            android:id="@+id/policy_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="Email" />
+        <!--<RadioButton-->
+            <!--android:id="@+id/policy_email"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:checked="true"-->
+            <!--android:text="Email" />-->
 
-        <RadioButton
-            android:id="@+id/policy_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Username" />
-    </RadioGroup>
+        <!--<RadioButton-->
+            <!--android:id="@+id/policy_username"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Username" />-->
+    <!--</RadioGroup>-->
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/login_register_sheet_send_button"

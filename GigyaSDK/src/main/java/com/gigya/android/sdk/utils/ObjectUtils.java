@@ -2,6 +2,7 @@ package com.gigya.android.sdk.utils;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 
 import com.google.gson.Gson;
 
@@ -24,6 +25,16 @@ public class ObjectUtils {
             return first.equals(second);
         }
         return false;
+    }
+
+    public static Map<String, Object> mapOf(List<Pair<String, Object>> pairs) {
+        Map<String, Object> map = new HashMap<>();
+        for (Pair<String, Object> pair : pairs) {
+            if (pair.first != null && pair.second != null) {
+                map.put(pair.first, pair.second);
+            }
+        }
+        return map;
     }
 
     public static Map<String, Object> objectDifference(Map<String, Object> original, Map<String, Object> updated) {

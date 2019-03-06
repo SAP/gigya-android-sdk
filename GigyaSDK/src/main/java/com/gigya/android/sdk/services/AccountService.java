@@ -20,7 +20,7 @@ public class AccountService<A extends GigyaAccount> {
         return _cachedAccount;
     }
 
-    public void setAccount(A account) {
+    public void setAccount(A  account) {
         _cachedAccount = account;
     }
 

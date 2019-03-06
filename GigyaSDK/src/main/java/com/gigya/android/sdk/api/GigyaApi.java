@@ -30,11 +30,11 @@ public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
     protected final SessionService _sessionService;
     protected final AccountService<A> _accountService;
 
-    @Nullable
+    @NonNull
     final private Class<T> _responseClazz;
 
     public GigyaApi(NetworkAdapter networkAdapter, SessionService sessionService, AccountService<A> accountService,
-                    @Nullable Class<T> responseClazz) {
+                    @NonNull Class<T> responseClazz) {
         _adapter = networkAdapter;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -109,15 +109,9 @@ public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
             _accountService.invalidateAccount();
         }
         // Parse to requested response scheme if available. Other wise forward unchecked GigyaApiResponse.
-        if (_responseClazz != null) {
-            T parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _responseClazz);
-            if (callback != null) {
-                callback.onSuccess(parsed);
-            }
-        } else {
-            if (callback != null) {
-                callback.onSuccess((T) apiResponse);
-            }
+        T parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _responseClazz);
+        if (callback != null) {
+            callback.onSuccess(parsed);
         }
     }
 

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -54,10 +52,10 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Nullable
     private WeChatLoginProvider getLoginProvider() {
         /* Be sure to create initialize the Gigya instance. */
-        final LoginProvider loginProvider = Gigya.getInstance().getCurrentProvider();
-        if (loginProvider instanceof WeChatLoginProvider) {
-            return (WeChatLoginProvider) loginProvider;
-        }
+//        final LoginProvider loginProvider = Gigya.getInstance().getCurrentProvider();
+//        if (loginProvider instanceof WeChatLoginProvider) {
+//            return (WeChatLoginProvider) loginProvider;
+//        }
         return null;
     }
 

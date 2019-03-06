@@ -15,13 +15,11 @@ import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
-import com.gigya.android.sample.ui.dialog.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.dialog.InputDialog
 import com.gigya.android.sample.ui.dialog.TFADialog
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.api.account_dep.GetConflictingAccountApi
+import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.providers.provider.FacebookLoginProvider
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -77,10 +75,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
-                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<String>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<TFAProvider>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
-                MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
+               // MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
             }
         })
 
@@ -99,8 +97,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         logoutItem.isVisible = isLoggedIn
 
         // Check for facebook login
-        val loginProvider = Gigya.getInstance().currentProvider
-        facebookPermissionsUpdateItem.isVisible = loginProvider != null && Gigya.getInstance().isLoggedIn && loginProvider is FacebookLoginProvider
+        //val loginProvider = Gigya.getInstance().currentProvider
+        //facebookPermissionsUpdateItem.isVisible = loginProvider != null && Gigya.getInstance().isLoggedIn && loginProvider is FacebookLoginProvider
 
         return true
     }
@@ -160,11 +158,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * correctly and pass the Facebook's review in order to add & approve additional permissions.
      */
     private fun facebookPermissionUpdate() {
-        viewModel?.requestFacebookPermissionUpdate(
-                granted = { response_text_view.snackbar("Permission granted") },
-                fail = { why -> response_text_view.snackbar(why) },
-                cancel = { response_text_view.snackbar("Request cancelled") }
-        )
+//        viewModel?.requestFacebookPermissionUpdate(
+//                granted = { response_text_view.snackbar("Permission granted") },
+//                fail = { why -> response_text_view.snackbar(why) },
+//                cancel = { response_text_view.snackbar("Request cancelled") }
+//        )
     }
 
     //region APIs
@@ -189,8 +187,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.show(supportFragmentManager, "onSendAnonymousRequest")
     }
 
-    private fun showTFARegistrationDialog(providers: ArrayList<String>) {
-        val dialog = TFADialog.newInstance("registration", providers)
+    private fun showTFARegistrationDialog(providers: ArrayList<TFAProvider>) {
+
+        val dialog = TFADialog.newInstance("registration", ArrayList(providers.map { it.name }))
         dialog.show(supportFragmentManager, "showTFARegistrationDialog")
     }
 
@@ -203,12 +202,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         response_text_view.snackbar("Verification code sent")
     }
 
-    private fun onConflictingAccounts(conflictingAccount: GetConflictingAccountApi.ConflictingAccount) {
-        val loginID = conflictingAccount.loginID
-        val providers = conflictingAccount.loginProviders
-        val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
-        dialog.show(supportFragmentManager, "onConflictingAccounts")
-    }
+//    private fun onConflictingAccounts(conflictingAccount: GetConflictingAccountApi.ConflictingAccount) {
+//        val loginID = conflictingAccount.loginID
+//        val providers = conflictingAccount.loginProviders
+//        val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
+//        dialog.show(supportFragmentManager, "onConflictingAccounts")
+//    }
 
     private fun onGetAccount() {
         if (!Gigya.getInstance().isLoggedIn) {
@@ -367,9 +366,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 })
     }
 
-    override fun onRegisterWith(username: String, password: String, policy: RegisterApi.RegisterPolicy) {
+    override fun onRegisterWith(username: String, password: String) {
         onLoading()
-        viewModel?.register(username, password, policy,
+        viewModel?.register(username, password,
                 success = { json -> onJsonResult(json) },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }

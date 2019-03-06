@@ -31,7 +31,7 @@ public class GigyaContext<A extends GigyaAccount> {
     }
 
     public void setConfig(@NonNull Config config) {
-        _config = config;
+        _config.updateWith(config);
     }
 
     /*

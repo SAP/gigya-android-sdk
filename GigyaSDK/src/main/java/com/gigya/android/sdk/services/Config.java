@@ -73,11 +73,14 @@ public class Config {
 
     public Config updateWith(Config config) {
         updateWith(config.getApiKey(), config.getApiDomain(), config.getAccountCacheTime());
-        if (gmid != null) {
+        if (config.getGmid() != null) {
             this.gmid = config.getGmid();
         }
-        if (ucid != null) {
+        if (config.getUcid() != null) {
             this.ucid = config.getUcid();
+        }
+        if (config.getAppIds() != null) {
+            this.appIds = config.getAppIds();
         }
         return this;
     }

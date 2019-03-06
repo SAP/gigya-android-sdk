@@ -3,6 +3,7 @@ package com.gigya.android.sdk.services;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -20,6 +21,7 @@ import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +40,10 @@ public class ApiService<A extends GigyaAccount> {
     final private SessionService _sessionService;
     final private AccountService<A> _accountService;
 
+    public boolean isInterruptionsEnabled() {
+        return _sessionService.getConfig().isInterruptionsEnabled();
+    }
+
     /*
     Business login handler for interruption enabled Apis.
      */
@@ -55,7 +61,7 @@ public class ApiService<A extends GigyaAccount> {
                 }
             }
         });
-        _blocHandler = new BlocHandler(_sessionService, _accountService, this);
+        _blocHandler = new BlocHandler(this);
     }
 
     //region Available APIs
@@ -125,7 +131,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param params        Request parameters.
      * @param loginCallback Login response callback.
      */
-    public void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
+    public void login(Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
@@ -137,10 +143,12 @@ public class ApiService<A extends GigyaAccount> {
 
             @Override
             public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                //TODO Handle interruption.
+                if (!_blocHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
 
             }
-        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, loginCallback);
+        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, (GigyaCallback<A>) loginCallback);
     }
 
     /**
@@ -150,10 +158,10 @@ public class ApiService<A extends GigyaAccount> {
      *
      * @param callback Response callback.
      */
-    public void getAccount(final GigyaCallback<A> callback) {
+    public void getAccount(final GigyaCallback<? extends GigyaAccount> callback) {
         if (_accountService.isCachedAccount()) {
             // Always return a deep copy.
-            callback.onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
+            ((GigyaCallback<A>) callback).onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
         } else {
             new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
 
@@ -166,7 +174,7 @@ public class ApiService<A extends GigyaAccount> {
                     }
                 }
             }.execute(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, NetworkAdapter.Method.POST,
-                    null, callback);
+                    null, (GigyaCallback<A>) callback);
         }
     }
 
@@ -176,7 +184,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param updatedAccount Updated account object.
      * @param callback       Response callback.
      */
-    public void setAccount(A updatedAccount, final GigyaCallback<A> callback) {
+    public void setAccount(A updatedAccount, final GigyaCallback<? extends GigyaAccount> callback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, GigyaCallback<A> callback) {
@@ -185,7 +193,7 @@ public class ApiService<A extends GigyaAccount> {
                 getAccount(callback);
             }
         }.execute(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, NetworkAdapter.Method.POST,
-                _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), callback);
+                _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), (GigyaCallback<A>) callback);
     }
 
     // TODO: 05/03/2019 Waiting for endpoint implementation. 
@@ -199,7 +207,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param params        Request parameters.
      * @param loginCallback Response callback.
      */
-    public void register(final Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
+    public void register(final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         new GigyaApi<GigyaApiResponse, A>(_adapter, _sessionService, _accountService, GigyaApiResponse.class) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
@@ -222,7 +230,7 @@ public class ApiService<A extends GigyaAccount> {
                             callback.onSuccess(onAccountBasedApiSuccess(apiResponse, callback));
                         }
                     }
-                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, loginCallback);
+                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) loginCallback);
             }
 
             @Override
@@ -251,7 +259,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param providerSession     Provider session structure as String.
      * @param permissionCallbacks Login permissions callback.
      */
-    public void refreshNativeProvicerSession(String providerSession, @Nullable final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
+    public void refreshNativeProviderSession(String providerSession, @Nullable final LoginProvider.LoginPermissionCallbacks permissionCallbacks) {
         Map<String, Object> params = new HashMap<>();
         params.put("providerSession", providerSession);
         new GigyaApi<>(_adapter, _sessionService, _accountService, GigyaApiResponse.class)
@@ -274,23 +282,29 @@ public class ApiService<A extends GigyaAccount> {
                 });
     }
 
-    //endregion
-
-    //region TFA Apis
-
-//    public void getEmails(String gigyaAssertion, GigyaCallback<TFAGetEmailsModel> callback) {
-//        final Map<String, Object> params = new HashMap<>();
-//        params.put("gigyaAssertion", gigyaAssertion);
-//        new GigyaApi<>(_adapter, _sessionService, _accountService, TFAGetEmailsModel.class)
-//                .execute(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, NetworkAdapter.Method.POST, params, callback);
-//    }
-//
-//    public void sendEmailVerificationCode(String gigyaAssertion, String emailID, String lang,  GigyaCallback<GigyaApiResponse> callback) {
-//        final Map<String, Object> params = new HashMap<>();
-//        params.put("gigyaAssertion", gigyaAssertion);
-//        params.put("emailID", emailID);
-//        params.put("lang", lang);
-//    }
+    /**
+     * Finalize pending registration/verification using provided RegToken.
+     * Response includes full optional account data.
+     *
+     * @param regToken      Provided registration token.
+     * @param loginCallback Login response callback.
+     */
+    public void finalizeRegistration(String regToken, final GigyaLoginCallback<? extends GigyaAccount> loginCallback, @Nullable final Runnable completionHadler) {
+        new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
+            @Override
+            public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                super.onRequestSuccess(api, apiResponse, callback);
+                if (completionHadler != null) {
+                    completionHadler.run();
+                }
+            }
+        }.execute(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, NetworkAdapter.Method.POST,
+                ObjectUtils.mapOf(Arrays.asList(
+                        new Pair<String, Object>("regToken", regToken),
+                        new Pair<String, Object>("include", "profile,data,emails,subscriptions,preferences"),
+                        new Pair<String, Object>("includeUserInfo", "true"))),
+                (GigyaCallback<A>) loginCallback);
+    }
 
     //endregion
 

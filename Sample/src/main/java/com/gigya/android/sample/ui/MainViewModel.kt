@@ -8,15 +8,13 @@ import android.util.Log
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
+import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
+import com.gigya.android.sdk.api.bloc.GigyaTFAResolver
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
-import com.gigya.android.sdk.interruption.tfa.TFAResolver
 import com.gigya.android.sdk.network.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.providers.LoginProvider
-import com.gigya.android.sdk.providers.LoginProvider.*
-import com.gigya.android.sdk.providers.provider.FacebookLoginProvider
 import com.gigya.android.sdk.ui.GigyaPresenter
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
@@ -51,39 +49,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //region TFA
 
-    private var tfaResolver: TFAResolver<*>? = null
+    private var tfaResolver: GigyaTFAResolver<*>? = null
 
-    fun onTFAPhoneRegister(phone: String, method: String) {
-        tfaResolver?.registerPhone(phone, method)
-    }
-
-    fun onTFAPhoneCodeSubmit(code: String) {
-        tfaResolver?.submitPhoneCode(code)
-    }
-
-    fun onTFAPhoneVerify() {
-        tfaResolver?.verifyPhone()
-    }
+//    fun onTFAPhoneRegister(phone: String, method: String) {
+//        tfaResolver?.registerPhone(phone, method)
+//    }
+//
+//    fun onTFAPhoneCodeSubmit(code: String) {
+//        tfaResolver?.submitPhoneCode(code)
+//    }
+//
+//    fun onTFAPhoneVerify() {
+//        tfaResolver?.verifyPhone()
+//    }
 
     fun onTFATOTPRegister() {
-        tfaResolver?.registerTOTP()
+        tfaResolver?.registerTotp()
     }
 
     fun onTFATOTPCodeSubmit(code: String) {
-        tfaResolver?.submitTOTPCode(code)
+        tfaResolver?.submitTotpCode(code)
     }
 
     fun onTFATOTPVerify(code: String) {
-        tfaResolver?.verifyTOTP(code)
+        tfaResolver?.verifyTotp(code)
     }
 
-    fun cancelTFAResolver() {
-        tfaResolver?.cancel()
-    }
-
-    fun onTFAEmailVerify() {
-        tfaResolver?.verifyEmail()
-    }
+//    fun cancelTFAResolver() {
+//        tfaResolver?.cancel()
+//    }
+//
+//    fun onTFAEmailVerify() {
+//        tfaResolver?.verifyEmail()
+//    }
 
     //endregion
 
@@ -91,13 +89,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private var linkAccountsResolver: LinkAccountsResolver<*>? = null
 
-    fun onLinkAccountWithSite(loginID: String, password: String) {
-        linkAccountsResolver?.resolveForSiteProvider(loginID, password)
-    }
-
-    fun cancelLinkAccountsResolver() {
-        linkAccountsResolver?.cancel()
-    }
+//    fun onLinkAccountWithSite(loginID: String, password: String) {
+//        linkAccountsResolver?.resolveForSiteProvider(loginID, password)
+//    }
+//
+//    fun cancelLinkAccountsResolver() {
+//        linkAccountsResolver?.cancel()
+//    }
 
     //endregion
 
@@ -140,15 +138,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
                 tfaResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
-            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: TFAResolver<*>) {
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
                 tfaResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
             }
+
+//            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: TFAResolver<*>) {
+//                tfaResolver = resolver
+//                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
+//            }
+//
+//            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: TFAResolver<*>) {
+//                tfaResolver = resolver
+//                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
+//            }
 
             override fun onPhoneTFAVerificationCodeSent() {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
@@ -163,10 +171,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Register using loginID, password, policy.
      */
-    fun register(loginID: String, password: String, policy: RegisterApi.RegisterPolicy,
+    fun register(loginID: String, password: String,
                  success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        gigya.register(loginID, password, policy, true, object : GigyaLoginCallback<MyAccount>() {
+        gigya.register(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 if (tfaResolver != null) {
@@ -183,14 +191,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: TFAResolver<*>) {
-                tfaResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.providers))
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
-            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: TFAResolver<*>) {
-                tfaResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.providers))
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
             }
 
             override fun onPhoneTFAVerificationCodeSent() {
@@ -289,11 +295,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 cancel()
             }
 
-            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: LinkAccountsResolver<*>) {
-                // Show custom UI prompting the client that a conflicting account was found.
-                linkAccountsResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
-            }
+//            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: LinkAccountsResolver<*>) {
+//                // Show custom UI prompting the client that a conflicting account was found.
+//                linkAccountsResolver = resolver
+//                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
+//            }
 
         })
     }
@@ -329,41 +335,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    /**
-     * Request additional Facebook permissions.
-     */
-    fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
-        val loginProvider: FacebookLoginProvider = gigya.currentProvider as FacebookLoginProvider
-        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
-                object : LoginProvider.LoginPermissionCallbacks {
-
-                    override fun granted() {
-                        Log.d("PermissionUpdate", "granted")
-                        granted()
-                    }
-
-                    override fun noAccess() {
-                        Log.d("PermissionUpdate", "noAccess")
-                        failed("No access")
-                    }
-
-                    override fun cancelled() {
-                        Log.d("PermissionUpdate", "cancelled")
-                        cancel()
-                    }
-
-                    override fun declined(declined: MutableList<String>?) {
-                        Log.d("PermissionUpdate", "declined")
-                        fail("Declined")
-                    }
-
-                    override fun failed(error: String?) {
-                        Log.d("PermissionUpdate", "failed")
-                        fail("Error")
-                    }
-
-                })
-    }
+//    /**
+//     * Request additional Facebook permissions.
+//     */
+//    fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
+//        val loginProvider: FacebookLoginProvider = gigya.currentProvider as FacebookLoginProvider
+//        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
+//                object : LoginProvider.LoginPermissionCallbacks {
+//
+//                    override fun granted() {
+//                        Log.d("PermissionUpdate", "granted")
+//                        granted()
+//                    }
+//
+//                    override fun noAccess() {
+//                        Log.d("PermissionUpdate", "noAccess")
+//                        failed("No access")
+//                    }
+//
+//                    override fun cancelled() {
+//                        Log.d("PermissionUpdate", "cancelled")
+//                        cancel()
+//                    }
+//
+//                    override fun declined(declined: MutableList<String>?) {
+//                        Log.d("PermissionUpdate", "declined")
+//                        fail("Declined")
+//                    }
+//
+//                    override fun failed(error: String?) {
+//                        Log.d("PermissionUpdate", "failed")
+//                        fail("Error")
+//                    }
+//
+//                })
+//    }
 
     //TODO Mandatory parameters such as screenSet need to be as a parameter.
     //TODO StringRef for reason.
@@ -418,7 +424,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.showComments(mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 8f        ),
+                GigyaPresenter.CORNER_RADIUS to 8f),
                 object : GigyaPluginCallback<MyAccount>() {
 
                     override fun onLogin(accountObj: MyAccount) {
