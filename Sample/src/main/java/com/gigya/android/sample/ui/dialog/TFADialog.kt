@@ -149,14 +149,17 @@ class TFADialog : DialogFragment() {
                 R.id.radio_voice -> "voice"
                 else -> "sms"
             }
-            // viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
+            // Update visibility.
             toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
             toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
+            // Submit register.
+            viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
+
         }
 
         // Get code click listener
         tfa_get_code.setOnClickListener {
-            // viewModel?.onTFAPhoneVerify()
+            viewModel?.onTFAPhoneVerify()
         }
 
         // Submit verification code click listener
@@ -165,7 +168,7 @@ class TFADialog : DialogFragment() {
             val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
             when (selectedTfaProvider) {
                 GigyaDefinitions.TFA.PHONE -> {
-                    //viewModel?.onTFAPhoneCodeSubmit(code)
+                    viewModel?.onTFAPhoneCodeSubmit(code)
                 }
                 GigyaDefinitions.TFA.TOTP -> {
                     when (mode) {

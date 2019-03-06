@@ -5,8 +5,11 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.api.bloc.GigyaTFAResolver;
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
+import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+
+import java.util.List;
 
 public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
 
@@ -42,6 +45,10 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
 
     public void onPendingTFAVerification(@NonNull GigyaApiResponse response, @NonNull GigyaTFAResolver resolver) {
         forwardError(response);
+    }
+
+    public void onRegisteredTFAPhoneNumbers(@NonNull List<TFARegisteredPhone> registeredPhoneList) {
+        // Stub.
     }
 
     public void onPhoneTFAVerificationCodeSent() {
