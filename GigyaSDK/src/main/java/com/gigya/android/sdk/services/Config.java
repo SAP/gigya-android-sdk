@@ -84,6 +84,10 @@ public class Config {
 
     //endregion
 
+    public boolean isProviderSynced() {
+        return appIds != null;
+    }
+
     //region Getters & Setters
 
     public String getApiKey() {

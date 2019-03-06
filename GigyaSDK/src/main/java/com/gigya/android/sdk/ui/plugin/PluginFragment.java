@@ -30,6 +30,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.model.account.GigyaAccount;
@@ -88,10 +89,13 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     private Handler _uiHandler = new Handler(Looper.getMainLooper());
 
-    public static void present(AppCompatActivity activity, Bundle args, @NonNull GigyaPluginCallback pluginCallbacks) {
+    private GigyaContext _gigyaContext;
+
+    public static void present(AppCompatActivity activity, Bundle args, @NonNull GigyaContext gigyaContext, @NonNull GigyaPluginCallback pluginCallbacks) {
         PluginFragment fragment = new PluginFragment();
         fragment.setArguments(args);
         fragment._pluginCallbacks = pluginCallbacks;
+        fragment._gigyaContext = gigyaContext;
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, LOG_TAG);
         fragmentTransaction.commitAllowingStateLoss();
@@ -292,7 +296,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     //region WebBridge & interfacing
 
     private void setupWebBridge() {
-        _webBridge = new WebBridge<>(_obfuscate, new WebBridge.WebBridgeInteractions<T>() {
+        _webBridge = new WebBridge<>(_gigyaContext, _obfuscate, new WebBridge.WebBridgeInteractions<T>() {
             @Override
             public void onPluginEvent(GigyaPluginEvent event, String containerID) {
                 if (containerID.equals(CONTAINER_ID)) {

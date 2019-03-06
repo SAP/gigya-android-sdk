@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -27,8 +28,8 @@ public class WeChatLoginProvider extends LoginProvider {
         return "wechat";
     }
 
-    public WeChatLoginProvider(GigyaLoginCallback callback) {
-        super(callback);
+    public WeChatLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
+        super(gigyaContext, callback);
     }
 
     private IWXAPI _api;

@@ -2,7 +2,6 @@ package com.gigya.android.network;
 
 import android.util.Base64;
 
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;

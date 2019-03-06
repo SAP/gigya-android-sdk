@@ -5,20 +5,30 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.GigyaDefinitions;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Service for accessing Gigya context specific shared preference persistence.
  */
 public class PersistenceService {
 
     /*
-     * SDK shared preference file key for _session persistence.
+     * File key for SDK preferences persistence.
      */
     private static final String PREFS_FILE_KEY = "GSLIB";
 
     /*
-     * SDK shared preference key for _session string.
+     * Value key for Session persistence.
      */
     private static final String PREFS_KEY_SESSION = "GS_PREFS";
+
+    /**
+     * Value key for last used social providers.
+     */
+    private static final String PREFS_KEY_PROVIDER_SET = "GS_PROVIDER_SET";
 
     @NonNull
     private SharedPreferences _prefs;
@@ -98,30 +108,40 @@ public class PersistenceService {
         return getString(PREFS_KEY_SESSION, null);
     }
 
-    public void clearSession() {
+    void clearSession() {
         remove(PREFS_KEY_SESSION);
     }
 
-    public boolean hasSession() {
+    boolean hasSession() {
         return contains(PREFS_KEY_SESSION);
     }
 
-    private static final String LAST_LOGIN_PROVIDER_KEY = "lastLoginProvider";
+    //endregion
+
+    //region Social providers
 
     /**
-     * On account logout, Remove last login provider reference.
+     * Get all used social providers.
+     *
+     * @return Set<String> of user used social providers.
      */
-    public void onAccountLogout() {
-        remove(LAST_LOGIN_PROVIDER_KEY);
+    @Nullable
+    public Set<String> getSocialProviders() {
+        return _prefs.getStringSet(PREFS_KEY_PROVIDER_SET, null);
     }
 
     /**
-     * Add last login provider reference when available and verified.
+     * Track social providers used.
      *
-     * @param socialProvider Social login provider name.
+     * @param provider Social provider descriptor {@link GigyaDefinitions.Providers.SocialProvider}.
      */
-    public void updateLastSocialLoginProvider(String socialProvider) {
-        add(LAST_LOGIN_PROVIDER_KEY, socialProvider);
+    public void addSocialProvider(@GigyaDefinitions.Providers.SocialProvider String provider) {
+        Set<String> providerSet = getSocialProviders();
+        if (providerSet == null) {
+            providerSet = new HashSet<>();
+        }
+        providerSet.add(provider);
+        _prefs.edit().putStringSet(PREFS_KEY_PROVIDER_SET, providerSet).apply();
     }
 
     //endregion

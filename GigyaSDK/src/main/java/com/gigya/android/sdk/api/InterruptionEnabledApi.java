@@ -1,8 +1,6 @@
 package com.gigya.android.sdk.api;
 
-import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.model.account.GigyaAccount;

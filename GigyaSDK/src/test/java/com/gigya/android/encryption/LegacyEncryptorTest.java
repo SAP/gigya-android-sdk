@@ -2,7 +2,6 @@ package com.gigya.android.encryption;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.PersistenceManager;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
 
 import org.junit.Before;
@@ -19,7 +18,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 public class LegacyEncryptorTest {
 

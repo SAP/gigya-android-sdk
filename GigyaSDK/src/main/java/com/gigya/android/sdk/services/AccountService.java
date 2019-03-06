@@ -40,7 +40,7 @@ public class AccountService<A extends GigyaAccount> {
         return _accountScheme;
     }
 
-    public void updateAccountSchene(Class<A> accountScheme) {
+    public void updateAccountScheme(Class<A> accountScheme) {
         _accountScheme = accountScheme;
     }
 

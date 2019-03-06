@@ -9,20 +9,17 @@ import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
-import com.gigya.android.sdk.AccountManager;
-import com.gigya.android.sdk.ApiManager;
-import com.gigya.android.sdk.DependencyRegistry;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -45,7 +42,7 @@ public class WebBridge<T extends GigyaAccount> {
     }
 
     /* Specific interaction interface between the WebBridge & the PluginFragment.*/
-    public interface WebBridgeInteractions<T> {
+    public interface WebBridgeInteractions<T extends GigyaAccount> {
         void onPluginEvent(GigyaPluginEvent event, String containerID);
 
         void onAuthEvent(AuthEvent authEvent, T obj);
@@ -58,26 +55,16 @@ public class WebBridge<T extends GigyaAccount> {
     private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
 
     private WeakReference<WebView> _webViewRef;
-    private Configuration _configuration;
-    private SessionManager _sessionManager;
-    private ApiManager _apiManager;
-    private AccountManager _accountManager;
     private boolean _shouldObfuscate;
+    private GigyaContext _gigyaContext;
 
     @NonNull
-    private WebBridgeInteractions<GigyaAccount> _interactions;
+    private WebBridgeInteractions<T> _interactions;
 
-    public WebBridge(boolean shouldObfuscate, @NonNull WebBridgeInteractions interactions) {
+    public WebBridge(GigyaContext gigyaContext, boolean shouldObfuscate, @NonNull WebBridgeInteractions<T> interactions) {
+        _gigyaContext = gigyaContext;
         _shouldObfuscate = shouldObfuscate;
         _interactions = interactions;
-        DependencyRegistry.getInstance().inject(this);
-    }
-
-    public void inject(Configuration configuration, SessionManager sessionManager, ApiManager apiManager, AccountManager accountManager) {
-        _configuration = configuration;
-        _sessionManager = sessionManager;
-        _apiManager = apiManager;
-        _accountManager = accountManager;
     }
 
     private enum Actions {
@@ -123,7 +110,7 @@ public class WebBridge<T extends GigyaAccount> {
 
             @JavascriptInterface
             public String getAPIKey() {
-                return _configuration.getApiKey();
+                return _gigyaContext.getConfig().getApiKey();
             }
 
             @JavascriptInterface
@@ -224,9 +211,10 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void getIds(String callbackId) {
         GigyaLogger.debug(LOG_TAG, "getIds: ");
+        final Config config = _gigyaContext.getConfig();
         try {
             final String ids = new JSONObject()
-                    .put("ucid", _configuration.getUCID()).put("gmid", _configuration.getGMID())
+                    .put("ucid", config.getUcid()).put("gmid", config.getGmid())
                     .toString();
             invokeCallback(callbackId, ids);
         } catch (Exception ex) {
@@ -236,7 +224,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void isSessionValid(String callbackId) {
         GigyaLogger.debug(LOG_TAG, "isSessionValid: ");
-        invokeCallback(callbackId, String.valueOf(_sessionManager.isValidSession()));
+        invokeCallback(callbackId, String.valueOf(_gigyaContext.getSessionService().isValidSession()));
     }
 
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
@@ -246,13 +234,13 @@ public class WebBridge<T extends GigyaAccount> {
         final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
         final boolean requiresSession = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("requiresSession"), "false"));
 
-        if (api.equals("accounts.getAccountInfo") && _sessionManager.isValidSession()) {
+        if (api.equals("accounts.getAccountInfo") && _gigyaContext.getSessionService().isValidSession()) {
             params.remove("regToken");
         }
 
-        _apiManager.sendAnonymous(api, params, new GigyaCallback<GigyaApiResponse>() {
+        _gigyaContext.getApiService().send(api, params, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onSuccess(final GigyaApiResponse obj) {
+            public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with result:\n" + obj.asJson());
                 handleAuthRequests(api, obj);
                 invokeCallback(callbackId, obj.asJson());
@@ -283,7 +271,8 @@ public class WebBridge<T extends GigyaAccount> {
                 break;
             case "accounts.register":
             case "accounts.login":
-                _interactions.onAuthEvent(AuthEvent.LOGIN, (T) response.parseTo(_accountManager.getAccountClazz()));
+                _interactions.onAuthEvent(AuthEvent.LOGIN,
+                        (T) response.parseTo(_gigyaContext.getAccountService().getAccountScheme()));
                 break;
             default:
                 break;
@@ -292,7 +281,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
         final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
-        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _configuration, provider,
+        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _gigyaContext, provider,
                 new GigyaLoginCallback<T>() {
                     @Override
                     public void onSuccess(T obj) {
@@ -325,19 +314,20 @@ public class WebBridge<T extends GigyaAccount> {
 
         final Activity activity = (Activity) _webViewRef.get().getContext();
 
-        if (loginProvider instanceof WebViewLoginProvider && !_configuration.hasGMID()) {
-            /* WebView Provider must have basic config fields. */
+        final Config config = _gigyaContext.getConfig();
+        if (loginProvider instanceof WebViewLoginProvider && config.getGmid() == null) {
+            // WebView Provider must have basic config fields.
             loginProvider.configurationRequired(activity, params);
             return;
         }
-        if (loginProvider.clientIdRequired() && !_configuration.isSynced()) {
+        if (loginProvider.clientIdRequired() && !config.isProviderSynced()) {
             loginProvider.configurationRequired(activity, params);
             return;
         }
 
-        if (_configuration.isSynced()) {
-            /* Update provider client id if available */
-            final String providerClientId = _configuration.getAppIds().get(provider);
+        if (config.isProviderSynced()) {
+            // Update provider client id if available
+            final String providerClientId = config.getAppIds().get(provider);
             if (providerClientId != null) {
                 loginProvider.updateProviderClientId(providerClientId);
             }

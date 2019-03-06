@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.PersistenceManager;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -25,7 +23,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

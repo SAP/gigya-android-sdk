@@ -1,10 +1,8 @@
 package com.gigya.android.sdk.interruption.link;
 
-import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.api.account_dep.FinalizeRegistrationApi;
 import com.gigya.android.sdk.api.account_dep.GetConflictingAccountApi;
 import com.gigya.android.sdk.interruption.GigyaResolver;

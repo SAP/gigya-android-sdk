@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
@@ -33,8 +34,8 @@ public class LineLoginProvider extends LoginProvider {
         return "line";
     }
 
-    public LineLoginProvider(GigyaLoginCallback callback) {
-        super(callback);
+    public LineLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
+        super(gigyaContext, callback);
     }
 
     public static boolean isAvailable(Context context) {

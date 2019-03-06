@@ -17,7 +17,7 @@ import com.gigya.android.sdk.services.SessionService;
 /**
  * Gigya context specific service dependency holder/initiator.
  */
-public class GigyaContext<T extends GigyaAccount> {
+public class GigyaContext<A extends GigyaAccount> {
 
     /*
     SDK main configuration file.
@@ -39,12 +39,16 @@ public class GigyaContext<T extends GigyaAccount> {
      */
     private PersistenceService _persistenceService;
 
-    /*
-    Service for storing cached account data and handling any account related logic.
-     */
-    private AccountService<T> _accountService;
+    public PersistenceService getPersistenceService() {
+        return _persistenceService;
+    }
 
-    public AccountService<T> getAccountService() {
+    /*
+        Service for storing cached account data and handling any account related logic.
+         */
+    private AccountService<A> _accountService;
+
+    public AccountService<A> getAccountService() {
         return _accountService;
     }
 
@@ -66,9 +70,9 @@ public class GigyaContext<T extends GigyaAccount> {
     /*
     Service for initiating all API calls.
      */
-    private ApiService<T> _apiService;
+    private ApiService<A> _apiService;
 
-    public ApiService<T> getApiService() {
+    public ApiService<A> getApiService() {
         return _apiService;
     }
 

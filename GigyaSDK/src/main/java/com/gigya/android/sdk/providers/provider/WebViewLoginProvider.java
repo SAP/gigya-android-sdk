@@ -8,9 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -25,11 +25,8 @@ public class WebViewLoginProvider extends LoginProvider {
 
     private static final String TAG = "WebViewLoginProvider";
 
-    private Configuration _configuration;
-
-    public WebViewLoginProvider(Configuration configuration, GigyaLoginCallback callback) {
-        super(callback);
-        _configuration = configuration;
+    public WebViewLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
+        super(gigyaContext, callback);
     }
 
     @Override
@@ -97,13 +94,13 @@ public class WebViewLoginProvider extends LoginProvider {
         /* Remove if added. */
         loginParams.remove(FacebookLoginProvider.LOGIN_BEHAVIOUR);
 
-        final String url = "https://socialize." + _configuration.getApiDomain() + "/socialize.login";
+        final String url = "https://socialize." + _config.getApiDomain() + "/socialize.login";
         final TreeMap<String, Object> urlParams = new TreeMap<>();
         urlParams.put("redirect_uri", "gsapi://login_result");
         urlParams.put("response_type", "token");
-        urlParams.put("client_id", _configuration.getApiKey());
-        urlParams.put("gmid", _configuration.getGMID());
-        urlParams.put("ucid", _configuration.getUCID());
+        urlParams.put("client_id", _config.getApiKey());
+        urlParams.put("gmid", _config.getGmid());
+        urlParams.put("ucid", _config.getUcid());
 
         /* x_params additions. */
         for (Map.Entry entry : loginParams.entrySet()) {

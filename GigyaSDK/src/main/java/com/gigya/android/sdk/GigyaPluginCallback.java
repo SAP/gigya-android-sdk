@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 
-public abstract class GigyaPluginCallback<T> {
+public abstract class GigyaPluginCallback<A> {
 
     /* Called when an error occurs. */
     public void onError(GigyaPluginEvent event) {
@@ -61,7 +61,7 @@ public abstract class GigyaPluginCallback<T> {
     }
 
     /* Called when an updated account instance is available during the flow. */
-    public void onLogin(@NonNull T accountObj) {
+    public void onLogin(@NonNull A accountObj) {
         // Stub.
     }
 

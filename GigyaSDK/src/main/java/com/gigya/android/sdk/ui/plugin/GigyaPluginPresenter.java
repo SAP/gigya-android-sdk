@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -14,6 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GigyaPluginPresenter extends GigyaPresenter {
+
+    private GigyaContext _gigyaContext;
+
+    public GigyaPluginPresenter(GigyaContext gigyaContext) {
+        super(gigyaContext);
+        _gigyaContext = gigyaContext;
+    }
 
     public void showPlugin(Context context,
                            final boolean obfuscate,
@@ -31,12 +39,12 @@ public class GigyaPluginPresenter extends GigyaPresenter {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putString(PluginFragment.ARG_API_KEY, _configuration.getApiKey());
-                args.putString(PluginFragment.ARG_API_DOMAIN, _configuration.getApiDomain());
+                args.putString(PluginFragment.ARG_API_KEY, _config.getApiKey());
+                args.putString(PluginFragment.ARG_API_DOMAIN, _config.getApiDomain());
                 args.putBoolean(PluginFragment.ARG_OBFUSCATE, obfuscate);
                 args.putString(PluginFragment.ARG_PLUGIN, plugin);
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                PluginFragment.present(activity, args, callback);
+                PluginFragment.present(activity, args, _gigyaContext, callback);
             }
         });
     }

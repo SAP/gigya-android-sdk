@@ -10,6 +10,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApi;
 import com.gigya.android.sdk.api.GigyaConfigApi;
+import com.gigya.android.sdk.api.bloc.BlocHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -37,6 +38,11 @@ public class ApiService<A extends GigyaAccount> {
     final private SessionService _sessionService;
     final private AccountService<A> _accountService;
 
+    /*
+    Business login handler for interruption enabled Apis.
+     */
+    private BlocHandler _blocHandler;
+
     public ApiService(Context appContext, SessionService sessionService, AccountService<A> accountService) {
         _sessionService = sessionService;
         _accountService = accountService;
@@ -49,6 +55,7 @@ public class ApiService<A extends GigyaAccount> {
                 }
             }
         });
+        _blocHandler = new BlocHandler(_sessionService, _accountService, this);
     }
 
     //region Available APIs
@@ -115,10 +122,10 @@ public class ApiService<A extends GigyaAccount> {
      * Request account login according to specified parameters.
      * Will invalidate the cached account on success.
      *
-     * @param params   Request parameters.
-     * @param callback Response callback.
+     * @param params        Request parameters.
+     * @param loginCallback Login response callback.
      */
-    public void login(Map<String, Object> params, GigyaLoginCallback<A> callback) {
+    public void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
@@ -127,7 +134,13 @@ public class ApiService<A extends GigyaAccount> {
                     callback.onSuccess(onAccountBasedApiSuccess(apiResponse, callback));
                 }
             }
-        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, callback);
+
+            @Override
+            public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                //TODO Handle interruption.
+
+            }
+        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, loginCallback);
     }
 
     /**

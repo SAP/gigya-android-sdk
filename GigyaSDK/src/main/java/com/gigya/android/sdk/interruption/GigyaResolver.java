@@ -1,8 +1,6 @@
 package com.gigya.android.sdk.interruption;
 
-import com.gigya.android.sdk.AccountManager;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 

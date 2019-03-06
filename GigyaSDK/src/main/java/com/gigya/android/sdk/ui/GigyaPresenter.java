@@ -2,10 +2,10 @@ package com.gigya.android.sdk.ui;
 
 import android.util.SparseArray;
 
-import com.gigya.android.sdk.AccountManager;
-import com.gigya.android.sdk.DependencyRegistry;
-import com.gigya.android.sdk.SessionManager;
-import com.gigya.android.sdk.model.Configuration;
+import com.gigya.android.sdk.GigyaContext;
+import com.gigya.android.sdk.services.AccountService;
+import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.SessionService;
 
 public abstract class GigyaPresenter {
 
@@ -15,19 +15,14 @@ public abstract class GigyaPresenter {
     public static final String DIALOG_MAX_WIDTH = "dialog_max_width";
     public static final String DIALOG_MAX_HEIGHT = "dialog_max_height";
 
-    protected Configuration _configuration;
-    protected SessionManager _sessionManager;
-    protected AccountManager _accountManager;
+    protected Config _config;
+    protected SessionService _sessionService;
+    protected AccountService _accountService;
 
-    public GigyaPresenter() {
-        DependencyRegistry.getInstance().inject(this);
-    }
-
-
-    public void inject(Configuration configuration, SessionManager sessionManager, AccountManager accountManager) {
-        _configuration = configuration;
-        _sessionManager = sessionManager;
-        _accountManager = accountManager;
+    public GigyaPresenter(GigyaContext gigyaContext) {
+        _config = gigyaContext.getConfig();
+        _sessionService = gigyaContext.getSessionService();
+        _accountService = gigyaContext.getAccountService();
     }
 
     //region HostActivity lifecycle callbacks tracking

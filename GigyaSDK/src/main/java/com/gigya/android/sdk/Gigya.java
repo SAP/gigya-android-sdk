@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.SparseArray;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -11,6 +12,7 @@ import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
@@ -20,6 +22,7 @@ import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class Gigya<T extends GigyaAccount> {
@@ -36,6 +39,8 @@ public class Gigya<T extends GigyaAccount> {
 
     private final GigyaContext<T> _gigyaContext;
 
+    private SparseArray<LoginProvider> _usedLoginProviders = new SparseArray<>();
+
     @NonNull
     public Context getContext() {
         return _appContext;
@@ -44,12 +49,8 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
         _appContext = appContext;
         _gigyaContext = new GigyaContext<>(appContext);
-        _gigyaContext.getAccountService().updateAccountSchene(accountScheme);
+        _gigyaContext.getAccountService().updateAccountScheme(accountScheme);
         init();
-//        if (getCurrentProvider() != null) {
-//            /* Track provider token changes if necessary. */
-//            getCurrentProvider().trackTokenChanges(getSessionManager());
-//        }
     }
 
     /*
@@ -128,10 +129,10 @@ public class Gigya<T extends GigyaAccount> {
     private void init() {
         Config config = _gigyaContext.getConfig();
         if (config.getApiKey() == null) {
-            /* Try to from assets JSON file, */
+            // Try to from assets JSON file,
             config = Config.loadFromJson(_appContext);
             if (config == null) {
-                /* Try to load fom manifest meta data. */
+                // Try to load fom manifest meta data.
                 config = Config.loadFromManifest(_appContext);
             }
             if (config != null) {
@@ -140,34 +141,35 @@ public class Gigya<T extends GigyaAccount> {
             }
         }
 
-        /* Set next account invalidation timestamp if available. */
+        // Set next account invalidation timestamp if available.
         if (config != null && config.getAccountCacheTime() != 0) {
             final AccountService<T> accountService = _gigyaContext.getAccountService();
             accountService.setAccountCacheTime(config.getAccountCacheTime());
             accountService.nextAccountInvalidationTimestamp();
         }
 
-        // TODO: 05/03/2019 Fix this. How to we keep track of the enabled providers?
-        /* Load last provider if exists. */
-//        final String lastProviderName = getPersistenceManager().getString("lastLoginProvider", null);
-//        if (lastProviderName != null && getCurrentProvider() == null) {
-//            final LoginProvider loginProvider = LoginProviderFactory.providerFor(_appContext, config, lastProviderName, null);
-//            getAccountManager().updateLoginProvider(loginProvider);
-//            if (loginProvider.clientIdRequired()) {
-//                /* Must call sdk config to fetch related client ids for login provider. */
-//                loadSDKConfig(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (!getConfiguration().getAppIds().isEmpty() && getCurrentProvider() != null) {
-//                            final String providerClientId = getConfiguration().getAppIds().get(lastProviderName);
-//                            if (providerClientId != null) {
-//                                getCurrentProvider().updateProviderClientId(providerClientId);
-//                            }
-//                        }
-//                    }
-//                });
-//            }
-//        }
+        // Check if any social providers are used. If so. Instantiate them and check for server available client ids.
+        final Set<String> usedSocialProviders = _gigyaContext.getPersistenceService().getSocialProviders();
+        if (usedSocialProviders != null) {
+            String[] usedSocialProvidersArray = usedSocialProviders.toArray(new String[0]);
+            for (int i = 0; i < usedSocialProviders.size(); i++) {
+                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, config, usedSocialProvidersArray[i], null);
+                _usedLoginProviders.append(i, provider);
+                if (provider.clientIdRequired()) {
+                    // Must call sdk config to fetch related client ids for login provider.
+                    loadSDKConfig(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Map<String, String> appIds = _gigyaContext.getConfig().getAppIds();
+                            if (appIds.containsKey(provider.getName())) {
+                                final String providerClientId = appIds.get(provider.getName());
+                                provider.updateProviderClientId(providerClientId);
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 
     //endregion
@@ -243,19 +245,22 @@ public class Gigya<T extends GigyaAccount> {
      * This will clean all session related data persistence.
      */
     public void logout() {
+        GigyaLogger.debug(LOG_TAG, "logout: ");
         _gigyaContext.getApiService().logout();
         _gigyaContext.getSessionService().clear(); // Will clear preferences as well.
         GigyaLoginPresenter.flush();
 
-        /* Clearing cached cookies. */
+        // Clearing cached cookies.
         CookieSyncManager.createInstance(_appContext);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();
 
-        /* Logout from social provider (is available). */
-//        if (getCurrentProvider() != null) {
-//            getCurrentProvider().logout(_appContext);
-//        }
+        // Logout of any available social provider.
+        for (int i = 0; i < _usedLoginProviders.size(); i++) {
+            int key = _usedLoginProviders.keyAt(i);
+            LoginProvider provider = _usedLoginProviders.get(key);
+            provider.logout(_appContext);
+        }
     }
 
     //endregion
@@ -270,6 +275,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void login(String loginId, String password, GigyaLoginCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "login: with loginId = " + loginId);
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
         params.put("password", password);
@@ -282,21 +288,12 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login given a specific 3rd party provider.
      *
-     * @param provider Provider name as described & configured in site console
-     * @param callback Login response listener callback.
+     * @param socialProvider Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param callback       Login response callback.
      */
-    public void login(String provider, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
-        new GigyaLoginPresenter().login(_appContext, provider, params, callback);
-    }
-
-    /**
-     * Add a social connection to an existing user.
-     *
-     * @param provider Provider name as described & configured in site console.
-     * @param callback Login response listener callback.
-     */
-    public void addConnection(String provider, GigyaLoginCallback<T> callback) {
-        // TODO: 05/02/2019 Add new api flow.
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
+        GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
+        new GigyaLoginPresenter(_gigyaContext).login(_appContext, socialProvider, params, callback);
     }
 
     /**
@@ -305,6 +302,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void getAccount(GigyaCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount: ");
         _gigyaContext.getApiService().getAccount(callback);
     }
 
@@ -316,6 +314,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unused")
     public void getAccount(final boolean overrideCache, GigyaCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + overrideCache);
         _gigyaContext.getAccountService().setAccountOverrideCache(overrideCache);
         getAccount(callback);
     }
@@ -327,6 +326,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void setAccount(T account, GigyaCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "setAccount: ");
         _gigyaContext.getApiService().setAccount(account, callback);
     }
 
@@ -339,6 +339,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unused")
     public void register(String email, String password, GigyaLoginCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "register: with email: " + email);
         Map<String, Object> params = new HashMap<>();
         params.put("loginID", email);
         params.put("password", password);
@@ -352,6 +353,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback Response listener callback.
      */
     public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> callback) {
+        GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
         _gigyaContext.getApiService().forgotPassword(loginId, callback);
     }
 
@@ -360,32 +362,44 @@ public class Gigya<T extends GigyaAccount> {
     //region Native login
 
     /**
-     * Present native login selection according to requested parameters.
+     * Present social login selection list.
      *
-     * @param params   Requested parameters.
-     * @param callback Response listener callback.
+     * @param providers List of selected social providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param params    Request parameters.
+     * @param callback  Login response callback.
      */
-    public void socialLoginWith(@LoginProvider.SocialProvider List<String> providers,
+    public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
                                 final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> callback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
-        new GigyaLoginPresenter().showNativeLoginProviders(_appContext, providers, params, callback);
+        new GigyaLoginPresenter(_gigyaContext).showNativeLoginProviders(_appContext, providers, params, callback);
     }
 
     //endregion
 
     //region Plugins
 
-    // TODO: 16/02/2019 JavaDoc
-    public <H> void showScreenSets(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
+    /**
+     * Show Gigya ScreenSets flow using the PluginFragment.
+     * UI will be presented via WebView.
+     *
+     * @param params   General ScreenSet flow parameters.
+     * @param callback Plugin callback.
+     */
+    public void showScreenSets(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
-        new GigyaPluginPresenter()
+        new GigyaPluginPresenter(_gigyaContext)
                 .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
     }
 
-    // TODO: 16/02/2019 JavaDoc
-    public <H> void showComments(Map<String, Object> params, final GigyaPluginCallback<H> callback) {
+    /**
+     * Show Comments ScreenSets.
+     *
+     * @param params   Comments ScreenSet flow parameters.
+     * @param callback Plugin callback.
+     */
+    public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        new GigyaPluginPresenter()
+        new GigyaPluginPresenter(_gigyaContext)
                 .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
     }
 

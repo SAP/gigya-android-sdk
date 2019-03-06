@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -20,9 +21,10 @@ import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.BuildConfig;
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.SessionManager;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.SessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -50,8 +52,8 @@ public class FacebookLoginProvider extends LoginProvider {
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
     private AccessTokenTracker _tokenTracker;
 
-    public FacebookLoginProvider(GigyaLoginCallback callback) {
-        super(callback);
+    public FacebookLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
+        super(gigyaContext, callback);
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);
             FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
@@ -59,16 +61,13 @@ public class FacebookLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void trackTokenChanges(@Nullable final SessionManager sessionManager) {
-        if (sessionManager == null) {
-            return;
-        }
-        /* Tracking access token changes. */
+    public void trackTokenChanges(@NonNull final SessionService sessionService) {
+        // Tracking access token changes.
         _tokenTracker = new AccessTokenTracker() {
 
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                if (!sessionManager.isValidSession()) {
+                if (!sessionService.isValidSession()) {
                     return;
                 }
                 // Send api request.

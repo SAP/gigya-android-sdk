@@ -7,11 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaContext;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.GigyaPresenter;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;
@@ -27,15 +29,22 @@ public class GigyaLoginPresenter extends GigyaPresenter {
 
     private static final String REDIRECT_URI = "gsapi://result/";
 
+    private GigyaContext _gigyaContext;
+
+    public GigyaLoginPresenter(GigyaContext gigyaContext) {
+        super(gigyaContext);
+        _gigyaContext = gigyaContext;
+    }
+
     public <T> void showNativeLoginProviders(final Context context,
-                                             @LoginProvider.SocialProvider List<String> providers,
+                                             @GigyaDefinitions.Providers.SocialProvider List<String> providers,
                                              final Map<String, Object> params,
                                              final GigyaLoginCallback<T> callback) {
         params.put("enabledProviders", TextUtils.join(",", providers));
         /*
         Url generation must be out of the lifecycle callback scope. Otherwise we will have a serializable error.
          */
-        final String url = getPresentationUrl(_configuration, params, "login");
+        final String url = getPresentationUrl(_config, params, "login");
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -74,26 +83,28 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     public void login(Context context, final String provider,
                       final Map<String, Object> params, GigyaLoginCallback callback) {
         params.put("provider", provider);
-        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _configuration,
+        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _gigyaContext,
                 provider, callback);
 
-        if (loginProvider instanceof WebViewLoginProvider && !_configuration.hasGMID()) {
+        if (loginProvider instanceof WebViewLoginProvider && _config.getGmid() == null) {
             /* WebView Provider must have basic config fields. */
             loginProvider.configurationRequired(context, params);
             return;
         }
-        if (loginProvider.clientIdRequired() && !_configuration.isSynced()) {
+        if (loginProvider.clientIdRequired() && !_config.isProviderSynced()) {
             loginProvider.configurationRequired(context, params);
             return;
         }
 
         /* Login provider selected. */
-        _accountManager.updateLoginProvider(loginProvider);
-        loginProvider.trackTokenChanges(_sessionManager);
+        // TODO: 05/03/2019
+        // _accountService.updateLoginProvider(loginProvider);
 
-        if (_configuration.isSynced()) {
+        loginProvider.trackTokenChanges(_sessionService);
+
+        if (_config.isProviderSynced()) {
             /* Update provider client id if available */
-            final String providerClientId = _configuration.getAppIds().get(provider);
+            final String providerClientId = _config.getAppIds().get(provider);
             if (providerClientId != null) {
                 loginProvider.updateProviderClientId(providerClientId);
             }
@@ -105,10 +116,10 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     //region Utilities
 
     @SuppressWarnings("ConstantConditions")
-    private static String getPresentationUrl(Configuration configuration, Map<String, Object> params, String requestType) {
+    private static String getPresentationUrl(Config config, Map<String, Object> params, String requestType) {
         /* Setup parameters. */
         final Map<String, Object> urlParams = new HashMap<>();
-        urlParams.put("apiKey", configuration.getApiKey());
+        urlParams.put("apiKey", config.getApiKey());
         urlParams.put("requestType", requestType);
         if (params.containsKey("enabledProviders")) {
             urlParams.put("enabledProviders", params.get("enabledProviders"));
@@ -130,7 +141,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
         final String endpoint = "gs/mobile/loginui.aspx";
         final String protocol = "https";
         final String domainPrefix = "socialize";
-        return String.format("%s://%s.%s/%s?%s", protocol, domainPrefix, configuration.getApiDomain(), endpoint, qs);
+        return String.format("%s://%s.%s/%s?%s", protocol, domainPrefix, config.getApiDomain(), endpoint, qs);
     }
 
     //endregion
