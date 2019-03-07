@@ -16,10 +16,10 @@ import java.util.Objects;
 
 public class GigyaApiResponseTest {
 
-    private JSONObject mockJson() throws IOException, JSONException {
+    private String mockJson() throws IOException, JSONException {
         InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaResponseMock.json");
         String json = FileUtils.streamToString(in);
-        return new JSONObject(json);
+        return new JSONObject(json).toString();
     }
 
     private GigyaApiResponse mockResponse() throws IOException, JSONException {

@@ -1,12 +1,14 @@
-package com.gigya.android;
+package com.gigya.android.services;
 
 import android.content.Context;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.encryption.IEncryptor;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.PersistenceService;
+import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +25,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -34,15 +37,15 @@ import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SessionManager.class, TextUtils.class})
+@PrepareForTest({SessionService.class, TextUtils.class})
 @PowerMockIgnore("javax.crypto.*")
 public class SessionManagerTest {
 
     @Mock
-    private PersistenceManager persistenceManager;
+    private PersistenceService persistenceService;
 
     @Mock
-    private Configuration configuration;
+    private Config config;
 
     @Mock
     private Context context;
@@ -61,11 +64,11 @@ public class SessionManagerTest {
         MockitoAnnotations.initMocks(this);
         doReturn(context).when(gigya).getContext();
         // Persistence handler mocks.
-        when(persistenceManager.getString("session.Token", null)).thenReturn(null);
-        when(persistenceManager.contains("GS_PREFS")).thenReturn(false);
-        doNothing().when(persistenceManager).remove(anyString());
+        when(persistenceService.getString("session.Token", null)).thenReturn(null);
+        when(persistenceService.contains("GS_PREFS")).thenReturn(false);
+        doNothing().when(persistenceService).remove(anyString());
         // Encryptor mocks.
-        when(encryptor.getKey(context, persistenceManager)).thenReturn(secretKey);
+        when(encryptor.getKey(context, persistenceService)).thenReturn(secretKey);
         // Android specific mocks.
         PowerMockito.mockStatic(TextUtils.class);
         when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
@@ -80,19 +83,19 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         // Assert
-        assertNull(sessionManager.getSession());
+        assertNull(sessionService.getSession());
     }
 
     @Test
     public void testIsValidSession() { // Also tests setSession.
         // Arrange
-        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
-        sessionManager.setSession(sessionInfo);
+        sessionService.setSession(sessionInfo);
         // Act
-        final boolean isValidSession = sessionManager.isValidSession();
+        final boolean isValidSession = sessionService.isValidSession();
         // Assert
         assertTrue(isValidSession);
     }
@@ -100,13 +103,13 @@ public class SessionManagerTest {
     @Test
     public void testClear() {
         // Arrange
-        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
-        sessionManager.setSession(sessionInfo);
+        sessionService.setSession(sessionInfo);
         // Act
-        sessionManager.clear();
+        sessionService.clear();
         // Assert
-        assertNull(sessionManager.getSession());
+        assertNull(sessionService.getSession());
     }
 
     @Test
@@ -114,31 +117,31 @@ public class SessionManagerTest {
         // Arrange
         final String encryptedSession = "94jlrvylz9th5cv35vjcfap1ip295dqws1u430je3n8ctzoctagh6vdukiyz83qoog6bk2lq8m520q1y9livgt2ae1zomh0xvlls3rtg7" +
                 "d6b71d4kk9jets8bv3pv79238tzgqmzhlzabev3z9q1p8xy1f5s8gmeq01xpw4lczdz90uoqnqua6js44yxqn3a8o64vddaw1ix319plvc234zldjyxtncu2tqi7r7lqqiqonjke1cp2add";
-        when(persistenceManager.contains("GS_PREFS")).thenReturn(true);
-        when(persistenceManager.getString(eq("GS_PREFS"), (String) eq(null))).thenReturn(encryptedSession);
+        when(persistenceService.contains("GS_PREFS")).thenReturn(true);
+        when(persistenceService.getString(eq("GS_PREFS"), (String) eq(null))).thenReturn(encryptedSession);
         // Act
-        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         // Assert
-        assertNotNull(sessionManager.getSession());
-        assertEquals("mockSessionSecret", sessionManager.getSession().getSessionSecret());
-        assertEquals("mockSessionToken", sessionManager.getSession().getSessionToken());
-        assertEquals(9223372036854775807L, sessionManager.getSession().getExpirationTime());
+        assertNotNull(sessionService.getSession());
+        assertEquals("mockSessionSecret", sessionService.getSession().getSessionSecret());
+        assertEquals("mockSessionToken", sessionService.getSession().getSessionToken());
+        assertEquals(9223372036854775807L, sessionService.getSession().getExpirationTime());
     }
 
     @Test
     public void testNewInstanceWithLegacySession() {
         // Arrange
-        when(persistenceManager.getString(eq("session.Token"), (String) eq(null))).thenReturn("mockLegacySessionToken");
-        when(persistenceManager.getString(eq("session.Secret"), (String) eq(null))).thenReturn("mockLegacySessionSecret");
-        when(persistenceManager.getLong(eq("session.ExpirationTime"), eq(0L))).thenReturn(9223372036854775807L);
-        when(persistenceManager.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
-        when(persistenceManager.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
+        when(persistenceService.getString(eq("session.Token"), (String) eq(null))).thenReturn("mockLegacySessionToken");
+        when(persistenceService.getString(eq("session.Secret"), (String) eq(null))).thenReturn("mockLegacySessionSecret");
+        when(persistenceService.getLong(eq("session.ExpirationTime"), eq(0L))).thenReturn(9223372036854775807L);
+        when(persistenceService.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
+        when(persistenceService.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
         // Act
-        SessionManager sessionManager = new SessionManager(context, configuration, encryptor, persistenceManager);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         // Assert
-        assertNotNull(sessionManager.getSession());
-        assertEquals("mockLegacySessionSecret", sessionManager.getSession().getSessionSecret());
-        assertEquals("mockLegacySessionToken", sessionManager.getSession().getSessionToken());
-        assertEquals(9223372036854775807L, sessionManager.getSession().getExpirationTime());
+        assertNotNull(sessionService.getSession());
+        assertEquals("mockLegacySessionSecret", sessionService.getSession().getSessionSecret());
+        assertEquals("mockLegacySessionToken", sessionService.getSession().getSessionToken());
+        assertEquals(9223372036854775807L, sessionService.getSession().getExpirationTime());
     }
 }

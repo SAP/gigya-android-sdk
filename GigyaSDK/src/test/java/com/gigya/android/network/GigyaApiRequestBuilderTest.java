@@ -2,11 +2,12 @@ package com.gigya.android.network;
 
 import android.util.Base64;
 
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
+import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.SessionService;
 import com.gigya.android.sdk.utils.AuthUtils;
 
 import org.junit.Before;
@@ -38,20 +39,23 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PowerMockIgnore("javax.crypto.*")
 public class GigyaApiRequestBuilderTest {
 
-    private Configuration configuration = new Configuration("dummyApiKey", "us1.gigya.com", 5 * 60000);
+    private Config config = new Config();
 
     @Mock
-    private SessionManager sessionManager;
+    private SessionService sessionService;
 
     @Mock
     private Random mockRandom;
 
     @Before
     public void setup() throws Exception {
+        config.setApiKey("dummyApiKey");
+        config.setApiDomain("us1.gigya.com");
+        config.setAccountCacheTime(5 * 60000);
         MockitoAnnotations.initMocks(this);
-        when(sessionManager.getSession()).thenReturn(new SessionInfo("mockSecret", "mockToken"));
-        when(sessionManager.isValidSession()).thenReturn(true);
-        when(sessionManager.getConfiguration()).thenReturn(configuration);
+        when(sessionService.getSession()).thenReturn(new SessionInfo("mockSecret", "mockToken"));
+        when(sessionService.isValidSession()).thenReturn(true);
+        when(sessionService.getConfig()).thenReturn(config);
         mockStatic(Base64.class, System.class);
         when(Base64.decode(anyString(), anyInt())).thenAnswer(new Answer<Object>() {
             @Override
@@ -84,11 +88,11 @@ public class GigyaApiRequestBuilderTest {
     @Test
     public void testBuildForGetRequest() {
         // Arrange
-        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionManager)
+        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionService)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
-                    put("apiKey", configuration.getApiKey());
+                    put("apiKey", config.getApiKey());
                 }})
                 .httpMethod(NetworkAdapter.Method.GET);
         // Act
@@ -105,11 +109,11 @@ public class GigyaApiRequestBuilderTest {
     @Test
     public void testBuildForPostRequest() {
         // Arrange
-        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionManager)
+        GigyaApiRequestBuilder builder = new GigyaApiRequestBuilder(sessionService)
                 .api("socialize.getSDkConfig")
                 .params(new HashMap<String, Object>() {{
                     put("include", "permissions, ids");
-                    put("apiKey", configuration.getApiKey());
+                    put("apiKey", config.getApiKey());
                 }})
                 .httpMethod(NetworkAdapter.Method.POST);
         // Act

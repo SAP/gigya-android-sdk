@@ -1,12 +1,12 @@
-package com.gigya.android.login;
+package com.gigya.android.providers;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.model.Configuration;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.providers.provider.FacebookLoginProvider;
@@ -38,7 +38,7 @@ public class LoginProviderFactoryTest {
     private Context context;
 
     @Mock
-    private Configuration configuration;
+    private GigyaContext gigyaContext;
 
     @Mock
     private ApplicationInfo applicationInfo;
@@ -67,7 +67,7 @@ public class LoginProviderFactoryTest {
     @Test
     public void testProviderForWithInvalidProviderName() {
         // Act
-        LoginProvider webProvider = LoginProviderFactory.providerFor(context, configuration, "nonExisting", callback);
+        LoginProvider webProvider = LoginProviderFactory.providerFor(context, gigyaContext, "nonExisting", callback);
         // Assert
         assertNotNull(webProvider);
         assertTrue(webProvider instanceof WebViewLoginProvider);
@@ -78,7 +78,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(FacebookLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider facebookLoginProvider = LoginProviderFactory.providerFor(context, configuration, "facebook", callback);
+        LoginProvider facebookLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "facebook", callback);
         // Assert
         assertNotNull(facebookLoginProvider);
         assertTrue(facebookLoginProvider instanceof FacebookLoginProvider);
@@ -89,7 +89,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(GoogleLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider googleLoginProvider = LoginProviderFactory.providerFor(context, configuration, "googleplus", callback);
+        LoginProvider googleLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "googleplus", callback);
         // Assert
         assertNotNull(googleLoginProvider);
         assertTrue(googleLoginProvider instanceof GoogleLoginProvider);
@@ -100,7 +100,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(LineLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider lineLoginProvider = LoginProviderFactory.providerFor(context, configuration, "line", callback);
+        LoginProvider lineLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "line", callback);
         // Assert
         assertNotNull(lineLoginProvider);
         assertTrue(lineLoginProvider instanceof LineLoginProvider);
@@ -111,7 +111,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(WeChatLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider weChatLoginProvider = LoginProviderFactory.providerFor(context, configuration, "wechat", callback);
+        LoginProvider weChatLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "wechat", callback);
         // Assert
         assertNotNull(weChatLoginProvider);
         assertTrue(weChatLoginProvider instanceof WeChatLoginProvider);

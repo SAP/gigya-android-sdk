@@ -149,6 +149,5 @@ public class Config {
         this.interruptionsEnabled = interruptionsEnabled;
     }
 
-
     //endregion
 }

@@ -30,6 +30,9 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     protected abstract void init();
 
+    /**
+     * Clear the resolver from data. Release login callback.
+     */
     public abstract void clear();
 
     boolean checkCallback() {

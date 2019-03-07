@@ -221,7 +221,7 @@ class TFAFragment : Fragment() {
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
-                MainViewModel.UI_TRIGGER_SHOW_QR_CODE -> {
+                MainViewModel.UI_TRIGGER_SHOW_TFA_QR_CODE -> {
                     if (tfa_providers_spinner.selectedItem.toString() == GigyaDefinitions.TFA.TOTP) {
                         showQrCode(dataPair.second as String)
                     }

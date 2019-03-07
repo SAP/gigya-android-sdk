@@ -12,7 +12,6 @@ import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.bloc.GigyaTFAResolver
-import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
@@ -23,19 +22,22 @@ import com.google.gson.GsonBuilder
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    // UI event triggering constants.
+    /*
+    UI event triggering constants.
+     */
     companion object {
         const val UI_TRIGGER_SHOW_TFA_REGISTRATION = 1
         const val UI_TRIGGER_SHOW_TFA_VERIFICATION = 2
         const val UI_TRIGGER_SHOW_TFA_CODE_SENT = 3
-        const val UI_TRIGGER_SHOW_QR_CODE = 4
-        const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 5
-        const val UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS = 6
-        const val UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE = 7
-        const val UI_TRIGGER_SHOW_TFA_EMAIL_SENT = 8
+        const val UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS = 4
+        const val UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE = 5
+        const val UI_TRIGGER_SHOW_TFA_EMAIL_SENT = 6
+        const val UI_TRIGGER_SHOW_TFA_QR_CODE = 7
+        const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 8
     }
 
     override fun onCleared() {
+        // Clearing the resolver when the ViewModel clears.
         tfaResolver?.clear()
     }
 
@@ -55,8 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     private val gigya = Gigya.getInstance()
 
-
-    //region TFA
+    //region TFA FLOW
 
     /*
     Keeping reference to the TFA resolver to allow flow continuation.
@@ -105,9 +106,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //endregion
 
-    //region Link accounts
-
-    private var linkAccountsResolver: LinkAccountsResolver<*>? = null
+    //region LINK ACCOUNTS
 
 //    fun onLinkAccountWithSite(loginID: String, password: String) {
 //        linkAccountsResolver?.resolveForSiteProvider(loginID, password)
@@ -177,7 +176,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onTotpTFAQrCodeAvailable(qrCode: String) {
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_QR_CODE, qrCode))
             }
 
             override fun onEmailTFAAddressesAvailable(emails: MutableList<TFAEmail>?) {
@@ -227,7 +226,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onTotpTFAQrCodeAvailable(qrCode: String) {
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_QR_CODE, qrCode))
             }
 
         })
@@ -302,16 +301,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("loginWithProvider", "Success")
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-                if (linkAccountsResolver != null) {
-                    linkAccountsResolver = null
-                }
             }
 
             override fun onError(error: GigyaError?) {
                 Log.d("loginWithProvider", "onError")
-                if (linkAccountsResolver != null) {
-                    linkAccountsResolver = null
-                }
                 error(error)
             }
 
@@ -329,6 +322,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //endregion APIS
+
+    //region WEBVIEW
 
     /**
      * Present SDK native login pre defined UI.
@@ -429,7 +424,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    //region Utility methods
+    //endregion
+
+    //region UTILITY
 
     /**
      * Nullify account holders.

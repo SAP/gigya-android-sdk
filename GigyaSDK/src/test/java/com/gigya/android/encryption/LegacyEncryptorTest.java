@@ -3,6 +3,7 @@ package com.gigya.android.encryption;
 import android.content.Context;
 
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
+import com.gigya.android.sdk.services.PersistenceService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 public class LegacyEncryptorTest {
 
@@ -25,7 +27,7 @@ public class LegacyEncryptorTest {
 
     @Mock
     private
-    PersistenceManager persistenceManager;
+    PersistenceService persistenceService;
 
     @Mock
     private
@@ -38,9 +40,9 @@ public class LegacyEncryptorTest {
 
     @Test
     public void testGetKeyWithSavedPreferencesAlias() {
-        when(persistenceManager.getString(anyString(), (String) any())).thenReturn(encryptedSecret);
+        when(persistenceService.getString(anyString(), (String) any())).thenReturn(encryptedSecret);
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, persistenceManager);
+        SecretKey key = encryptor.getKey(context, persistenceService);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
 
@@ -49,11 +51,11 @@ public class LegacyEncryptorTest {
 
     @Test
     public void testGetKeyNew() {
-        when(persistenceManager.getString(anyString(), anyString())).thenReturn(null);
-        doNothing().when(persistenceManager).add(anyString(), anyString());
+        when(persistenceService.getString(anyString(), anyString())).thenReturn(null);
+        doNothing().when(persistenceService).add(anyString(), anyString());
 
         LegacyEncryptor encryptor = new LegacyEncryptor();
-        SecretKey key = encryptor.getKey(context, persistenceManager);
+        SecretKey key = encryptor.getKey(context, persistenceService);
         assert key != null;
         System.out.println(Arrays.toString(key.getEncoded()));
         assertNotNull(key);
