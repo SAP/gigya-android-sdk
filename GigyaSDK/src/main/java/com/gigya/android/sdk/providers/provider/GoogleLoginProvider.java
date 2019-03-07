@@ -31,11 +31,13 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
+
 public class GoogleLoginProvider extends LoginProvider {
 
     @Override
     public String getName() {
-        return "googleplus";
+        return GOOGLE;
     }
 
     private static final int RC_SIGN_IN = 0;

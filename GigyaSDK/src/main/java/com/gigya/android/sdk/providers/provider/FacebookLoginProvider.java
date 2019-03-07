@@ -36,10 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
+
 public class FacebookLoginProvider extends LoginProvider {
+
     @Override
     public String getName() {
-        return "facebook";
+        return FACEBOOK;
     }
 
     // Param keys.

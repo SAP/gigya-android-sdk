@@ -21,11 +21,13 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
+
 public class WeChatLoginProvider extends LoginProvider {
 
     @Override
     public String getName() {
-        return "wechat";
+        return WECHAT;
     }
 
     public WeChatLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {

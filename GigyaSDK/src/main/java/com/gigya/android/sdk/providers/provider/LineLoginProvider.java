@@ -23,16 +23,18 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
+
 public class LineLoginProvider extends LoginProvider {
 
     private static final String LOG_TAG = "LineLoginProvider";
 
-    private static final int REQUEST_CODE = 1;
-
     @Override
     public String getName() {
-        return "line";
+        return LINE;
     }
+
+    private static final int REQUEST_CODE = 1;
 
     public LineLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
         super(gigyaContext, callback);

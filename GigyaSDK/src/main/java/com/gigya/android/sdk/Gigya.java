@@ -185,6 +185,19 @@ public class Gigya<T extends GigyaAccount> {
         _gigyaContext.getConfig().setInterruptionsEnabled(sdkHandles);
     }
 
+    @Nullable
+    public LoginProvider getSocialProvier(@GigyaDefinitions.Providers.SocialProvider String provider) {
+        for (int i = 0; i < _usedLoginProviders.size(); i++) {
+            int key = _usedLoginProviders.keyAt(i);
+            // get the object by the key.
+            LoginProvider usedProvider = _usedLoginProviders.get(key);
+            if (usedProvider.getName().equals(provider)) {
+                return usedProvider;
+            }
+        }
+        return null;
+    }
+
     //region Business APis
     /*
    Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
