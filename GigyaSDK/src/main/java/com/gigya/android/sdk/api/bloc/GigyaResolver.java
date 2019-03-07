@@ -13,15 +13,15 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     private static final String LOG_TAG = "GigyaResolver";
 
-    protected final ApiService<A> _apiService;
+    final ApiService<A> _apiService;
 
-    protected final SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
+    final SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
 
-    protected final GigyaApiResponse _originalResponse;
+    final GigyaApiResponse _originalResponse;
 
-    protected final String _regToken;
+    final String _regToken;
 
-    public GigyaResolver(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    GigyaResolver(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         _apiService = apiService;
         _originalResponse = originalResponse;
         _regToken = originalResponse.getField("regToken", String.class);
@@ -32,7 +32,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     public abstract void clear();
 
-    protected boolean checkCallback() {
+    boolean checkCallback() {
         if (_loginCallback.get() != null) {
             return true;
         }
@@ -40,7 +40,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
         return false;
     }
 
-    protected void forwardError(GigyaError error) {
+    void forwardError(GigyaError error) {
         if (_loginCallback.get() != null)
             _loginCallback.get().onError(error);
     }

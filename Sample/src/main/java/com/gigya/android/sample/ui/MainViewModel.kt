@@ -68,6 +68,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tfaResolver?.submitPhoneCode(code)
     }
 
+    fun onTFAPhoneSelectedForVerification(number: TFARegisteredPhone) {
+        tfaResolver?.sendPhoneVerificationCode(number.id, number.lastMethod, true)
+    }
+
     fun onTFAPhoneVerify() {
         tfaResolver?.verifyPhone()
     }
@@ -338,45 +342,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-//    /**
-//     * Request additional Facebook permissions.
-//     */
-//    fun requestFacebookPermissionUpdate(granted: () -> Unit, fail: (String) -> Unit, cancel: () -> Unit) {
-//        val loginProvider: FacebookLoginProvider = gigya.currentProvider as FacebookLoginProvider
-//        loginProvider.requestPermissionsUpdate(getApplication(), FacebookLoginProvider.READ_PERMISSIONS, listOf("user_birthday"),
-//                object : LoginProvider.LoginPermissionCallbacks {
-//
-//                    override fun granted() {
-//                        Log.d("PermissionUpdate", "granted")
-//                        granted()
-//                    }
-//
-//                    override fun noAccess() {
-//                        Log.d("PermissionUpdate", "noAccess")
-//                        failed("No access")
-//                    }
-//
-//                    override fun cancelled() {
-//                        Log.d("PermissionUpdate", "cancelled")
-//                        cancel()
-//                    }
-//
-//                    override fun declined(declined: MutableList<String>?) {
-//                        Log.d("PermissionUpdate", "declined")
-//                        fail("Declined")
-//                    }
-//
-//                    override fun failed(error: String?) {
-//                        Log.d("PermissionUpdate", "failed")
-//                        fail("Error")
-//                    }
-//
-//                })
-//    }
-
-    //TODO Mandatory parameters such as screenSet need to be as a parameter.
-    //TODO StringRef for reason.
-
     fun showAccountDetails(onUpdated: () -> Unit, onCancelled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets(mutableMapOf<String, Any>(
                 "screenSet" to "Default-ProfileUpdate",
@@ -401,6 +366,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 })
     }
+
+    //TODO Mandatory parameters such as screenSet need to be as a parameter.
+    //TODO StringRef for reason.
 
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets(mutableMapOf<String, Any>(

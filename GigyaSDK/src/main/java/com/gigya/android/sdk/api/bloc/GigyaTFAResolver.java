@@ -195,10 +195,10 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * @param mode      Token mode (register/verify).
      * @param arguments Additional arguments
      */
-    private void onInit(String provider, String mode, Map<String, String> arguments) {
+    private void onInit(String provider, String mode, @Nullable  Map<String, String> arguments) {
         switch (provider) {
             case GigyaDefinitions.TFA.TOTP:
-                onInitTotp(mode, arguments.get("code"));
+                onInitTotp(mode, arguments);
                 break;
             case GigyaDefinitions.TFA.PHONE:
                 onInitPhone(mode, arguments);
@@ -234,15 +234,18 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * On TFA initialization for TOTP.
      *
      * @param mode         Token mode (register/verify).
-     * @param optionalCode Optional authorization code passed when in "verify" mode.
+     * @param arguments Optional arguments map.
      */
-    private void onInitTotp(String mode, @Nullable String optionalCode) {
+    private void onInitTotp(String mode, @Nullable Map<String, String> arguments) {
         switch (mode) {
             case "register":
                 getTotpQRCode();
                 break;
             case "verify":
-                submitTotpCode(optionalCode);
+                if (arguments != null) {
+                    final String code = arguments.get("code");
+                    submitTotpCode(code);
+                }
                 break;
         }
     }
@@ -356,7 +359,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * @param method     Verification code receive method (sms/voice).
      * @param isVerify   is "verify" mode?
      */
-    private void sendPhoneVerificationCode(final String numberOfId, final String method, final boolean isVerify) {
+    public void sendPhoneVerificationCode(final String numberOfId, final String method, final boolean isVerify) {
         _apiService.send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE,
                 ObjectUtils.mapOf(Arrays.asList(
                         new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),

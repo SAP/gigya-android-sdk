@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.api;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.GigyaCallback;
@@ -54,5 +55,11 @@ public class GigyaConfigApi<A extends GigyaAccount> extends GigyaApi<GigyaApiRes
                 callback.onSuccess(apiResponse);
             }
         }
+    }
+
+    @Override
+    public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
+        super.onRequestError(api, apiResponse, callback);
+        _adapter.release();
     }
 }

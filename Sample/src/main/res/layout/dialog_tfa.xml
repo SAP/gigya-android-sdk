@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <TextView
         android:id="@+id/tfa_title"
@@ -71,6 +72,16 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/tfa_phone_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/tfa_phone_number_input_edit_layout"
+        app:layout_constraintStart_toStartOf="@id/tfa_phone_number_input_edit_layout"
+        app:layout_constraintTop_toTopOf="@id/tfa_phone_number_input_edit_layout"
+        tools:visibility="visible" />
+
     <RadioGroup
         android:id="@+id/phone_method_radio_group"
         android:layout_width="0dp"
@@ -136,6 +147,7 @@
         android:id="@+id/qr_code_image"
         android:layout_width="140dp"
         android:layout_height="140dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="@id/tfa_title"
         app:layout_constraintStart_toStartOf="@id/tfa_title"
         app:layout_constraintTop_toBottomOf="@id/tfa_qr_scan_title" />
@@ -161,6 +173,7 @@
         android:id="@+id/tfa_verification_code_input_edit_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter verification code"
         app:layout_constraintEnd_toEndOf="@id/tfa_title"
         app:layout_constraintStart_toStartOf="@id/tfa_title"

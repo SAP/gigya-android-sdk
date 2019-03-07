@@ -196,6 +196,10 @@ public class ApiService<A extends GigyaAccount> {
                 _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), (GigyaCallback<A>) callback);
     }
 
+    public void notifyLogin(String providerSessions) {
+
+    }
+
     // TODO: 05/03/2019 Waiting for endpoint implementation. 
     public void nativeLogin() {
 

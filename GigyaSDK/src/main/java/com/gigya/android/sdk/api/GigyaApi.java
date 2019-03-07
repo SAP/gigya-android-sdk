@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
 
-    final NetworkAdapter _adapter;
+    protected final NetworkAdapter _adapter;
     protected final SessionService _sessionService;
     protected final AccountService<A> _accountService;
 
@@ -62,6 +62,9 @@ public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
      * @param isBlocking True if sending the request in blocking queue state,
      */
     protected void send(final GigyaApiRequest apiRequest, final GigyaCallback<T> callback, boolean isBlocking) {
+        if (isBlocking) {
+            _adapter.block();
+        }
         _adapter.send(apiRequest, new INetworkCallbacks() {
             @Override
             public void onResponse(String jsonResponse) {

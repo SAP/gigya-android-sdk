@@ -16,7 +16,7 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.ui.dialog.InputDialog
-import com.gigya.android.sample.ui.dialog.TFADialog
+import com.gigya.android.sample.ui.dialog.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<TFAProvider>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
-               // MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
+                // MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
             }
         })
 
@@ -90,8 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Reference dynamic item views in order to apply visibility logic.
         val accountItem = menu.findItem(R.id.action_account)
-        val logoutItem = menu.findItem(R.id.action_logout);
-        val facebookPermissionsUpdateItem = menu.findItem(R.id.fb_permission_update)
+        val logoutItem = menu.findItem(R.id.action_logout)
         val isLoggedIn = Gigya.getInstance().isLoggedIn
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
@@ -109,7 +108,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_clear -> onClear()
             R.id.action_reinit -> reInit()
             R.id.action_logout -> logout()
-            R.id.fb_permission_update -> facebookPermissionUpdate()
             R.id.disable_interruptions -> Gigya.getInstance().handleInterruptions(false)
             R.id.enable_interruptions -> Gigya.getInstance().handleInterruptions(true)
         }
@@ -153,18 +151,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sheet.show(supportFragmentManager, "sheet")
     }
 
-    /**
-     * Request Facebook provider permission update. Using this entry will require you the set up your Facebook application
-     * correctly and pass the Facebook's review in order to add & approve additional permissions.
-     */
-    private fun facebookPermissionUpdate() {
-//        viewModel?.requestFacebookPermissionUpdate(
-//                granted = { response_text_view.snackbar("Permission granted") },
-//                fail = { why -> response_text_view.snackbar(why) },
-//                cancel = { response_text_view.snackbar("Request cancelled") }
-//        )
-    }
-
     //region APIs
 
     private fun onRegister() {
@@ -188,14 +174,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showTFARegistrationDialog(providers: ArrayList<TFAProvider>) {
-
-        val dialog = TFADialog.newInstance("registration", ArrayList(providers.map { it.name }))
-        dialog.show(supportFragmentManager, "showTFARegistrationDialog")
+        val fragment = TFAFragment.newInstance("registration", ArrayList(providers.map { it.name }))
+        supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
     private fun showTFAVerificationDialog(providers: ArrayList<String>) {
-        val dialog = TFADialog.newInstance("verification", providers)
-        dialog.show(supportFragmentManager, "showTFAVerificationDialog")
+        val fragment = TFAFragment.newInstance("verification", providers)
+        supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
     private fun onTFAVerificationCodeSent() {

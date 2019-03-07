@@ -5,9 +5,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.util.Base64
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,15 +15,17 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.gone
+import com.gigya.android.sample.extras.hideKeyboard
 import com.gigya.android.sample.extras.loadBitmap
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.GigyaDefinitions
+import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa.*
 
-class TFADialog : DialogFragment() {
+class TFAFragment : Fragment() {
 
     private var viewModel: MainViewModel? = null
     private lateinit var mode: String
@@ -31,13 +33,12 @@ class TFADialog : DialogFragment() {
 
     companion object {
 
-        fun newInstance(mode: String, providers: ArrayList<String>?): TFADialog {
-            val dialog = TFADialog()
+        fun newInstance(mode: String, providers: ArrayList<String>?): TFAFragment {
+            val dialog = TFAFragment()
             val args = Bundle()
             args.putString("mode", mode)
             args.putStringArrayList("providers", providers)
             dialog.arguments = args
-            dialog.isCancelable = false
             return dialog
         }
     }
@@ -48,15 +49,6 @@ class TFADialog : DialogFragment() {
             ViewModelProviders.of(this).get(MainViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
         mode = arguments!!["mode"] as String
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val layoutParams = dialog?.window?.attributes
-        layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
-        layoutParams?.gravity = Gravity.TOP
-        layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        dialog?.window?.attributes = layoutParams
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -103,7 +95,7 @@ class TFADialog : DialogFragment() {
                         when (mode) {
                             "registration" -> {
                                 toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_verification_code_input_edit_layout,
+                                toggleViewsVisibility(tfa_qr_image_group, tfa_verification_code_input_edit_layout, qr_code_image_progress,
                                         tfa_submit_code, tfa_get_code, visibility = false)
                             }
                             "verification" -> {
@@ -154,7 +146,6 @@ class TFADialog : DialogFragment() {
             toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
             // Submit register.
             viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
-
         }
 
         // Get code click listener
@@ -168,7 +159,13 @@ class TFADialog : DialogFragment() {
             val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
             when (selectedTfaProvider) {
                 GigyaDefinitions.TFA.PHONE -> {
-                    viewModel?.onTFAPhoneCodeSubmit(code)
+                    when (mode) {
+                        "registration" -> viewModel?.onTFAPhoneCodeSubmit(code)
+                        "verification" -> {
+                            val wrapper = tfa_phone_spinner.selectedItem as TFAPoneWrapper
+                            viewModel?.onTFAPhoneSelectedForVerification(wrapper.phone!!)
+                        }
+                    }
                 }
                 GigyaDefinitions.TFA.TOTP -> {
                     when (mode) {
@@ -180,14 +177,17 @@ class TFADialog : DialogFragment() {
                     //viewModel?.onTFAEmailVerify()
                 }
             }
-            dismissAllowingStateLoss()
+            activity?.let {
+                (it as AppCompatActivity).hideKeyboard()
+                it.onBackPressed()
+            }
         }
+    }
 
-        // Dialog dismissal click listener.
-        tfa_dismiss_dialog.setOnClickListener {
-            //viewModel?.cancelTFAResolver()
-            dismissAllowingStateLoss()
-        }
+    override fun onDestroyView() {
+        // Just to make sure.
+        viewModel?.cancelTFAResolver()
+        super.onDestroyView()
     }
 
     private fun observeUiTriggers() {
@@ -199,8 +199,21 @@ class TFADialog : DialogFragment() {
                         showQrCode(dataPair.second as String)
                     }
                 }
+                MainViewModel.UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS -> {
+                    if (tfa_providers_spinner.selectedItem.toString() == GigyaDefinitions.TFA.PHONE) {
+                        updateWithPhoneNumbers(dataPair.second as MutableList<TFARegisteredPhone>)
+                    }
+                }
             }
         })
+    }
+
+    private fun updateWithPhoneNumbers(phoneNumberList: MutableList<TFARegisteredPhone>) {
+        val wrapped = phoneNumberList.map { TFAPoneWrapper(it) }
+        val phoneNumberAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, wrapped)
+        tfa_phone_spinner.adapter = phoneNumberAdapter
+        toggleViewsVisibility(tfa_phone_spinner, visibility = true)
+        toggleViewsVisibility(tfa_get_code, visibility = false)
     }
 
     private fun bitmapFromBase64(encodedImage: String): Bitmap {
@@ -219,6 +232,19 @@ class TFADialog : DialogFragment() {
                 true -> view.visible()
                 false -> view.gone()
             }
+        }
+    }
+
+    inner class TFAPoneWrapper(phone: TFARegisteredPhone) {
+
+        var phone: TFARegisteredPhone? = null
+
+        init {
+            this.phone = phone
+        }
+
+        override fun toString(): String {
+            return phone?.obfuscated!!
         }
     }
 }
