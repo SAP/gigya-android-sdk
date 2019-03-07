@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.api.bloc.GigyaTFAResolver;
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
+import com.gigya.android.sdk.model.tfa.TFAEmail;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -55,7 +56,15 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
         // Stub.
     }
 
-    public void onTOTPQrCodeAvailable(@NonNull String qrCode) {
+    public void onTotpTFAQrCodeAvailable(@NonNull String qrCode) {
+        // Stub.
+    }
+
+    public void onEmailTFAAddressesAvailable(@Nullable List<TFAEmail> emails) {
+        // Stub.
+    }
+
+    public void onEmailTFAVerificationEmailSent() {
         // Stub.
     }
 

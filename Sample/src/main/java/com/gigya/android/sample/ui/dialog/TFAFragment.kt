@@ -21,9 +21,11 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.GigyaDefinitions
+import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.dialog_tfa.*
+import org.jetbrains.anko.toast
 
 class TFAFragment : Fragment() {
 
@@ -82,16 +84,19 @@ class TFAFragment : Fragment() {
                     GigyaDefinitions.TFA.EMAIL -> {
                         when (mode) {
                             "registration" -> {
+                                // Not available for Email TFA setup.
                             }
                             "verification" -> {
-                                tfa_submit_code.text = "Verify Email"
-                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group,
-                                        tfa_verification_code_input_edit_layout, tfa_get_code, visibility = false)
+                                tfa_get_code.text = "Verify Email"
+                                toggleViewsVisibility(tfa_emails_spinner, visibility = true)
+                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group, tfa_emails_spinner,
+                                        tfa_verification_code_input_edit_layout, visibility = false)
+                                viewModel?.verifyEmail()
                             }
                         }
                     }
                     GigyaDefinitions.TFA.PHONE -> {
-                        tfa_submit_code.text = "Submit code"
+                        tfa_get_code.text = "Get code"
                         when (mode) {
                             "registration" -> {
                                 toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
@@ -99,16 +104,15 @@ class TFAFragment : Fragment() {
                                         tfa_submit_code, tfa_get_code, visibility = false)
                             }
                             "verification" -> {
-                                // Verify Phone -> Get the code.
-                                // viewModel?.onTFAPhoneVerify()
-                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
-                                toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group,
-                                        visibility = false)
+                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+                                toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group, tfa_get_code, visibility = false)
+                                // Verify Phone -> Request valid phone numbers.
+                                viewModel?.onTFAPhoneVerify()
                             }
                         }
                     }
                     GigyaDefinitions.TFA.TOTP -> {
-                        tfa_submit_code.text = "Submit code"
+                        tfa_get_code.text = "Get code"
                         when (mode) {
                             "registration" -> {
                                 // Register TOTP -> get QR code.
@@ -150,44 +154,67 @@ class TFAFragment : Fragment() {
 
         // Get code click listener
         tfa_get_code.setOnClickListener {
-            viewModel?.onTFAPhoneVerify()
+            val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
+            when (selectedTfaProvider) {
+                GigyaDefinitions.TFA.PHONE -> {
+                    when (mode) {
+                        "verification" -> {
+                            val wrapper = tfa_phone_numbers_spinner.selectedItem as TFAPoneWrapper
+                            viewModel?.onTFAPhoneSelectedForVerification(wrapper.phone!!)
+                        }
+                    }
+                }
+                GigyaDefinitions.TFA.EMAIL -> {
+                    // Only supports verification mode.
+                    val tfaEmail = (tfa_emails_spinner.selectedItem as TFAEmailWrapper).email
+                    tfaEmail?.let {
+                        viewModel?.onTFAVerifyWithEmail(it)
+                    }
+                }
+            }
         }
 
         // Submit verification code click listener
         tfa_submit_code.setOnClickListener {
             val code = tfa_verification_code_input_edit.text.toString().trim()
             val selectedTfaProvider = tfa_providers_spinner.selectedItem.toString()
-            when (selectedTfaProvider) {
-                GigyaDefinitions.TFA.PHONE -> {
-                    when (mode) {
-                        "registration" -> viewModel?.onTFAPhoneCodeSubmit(code)
-                        "verification" -> {
-                            val wrapper = tfa_phone_spinner.selectedItem as TFAPoneWrapper
-                            viewModel?.onTFAPhoneSelectedForVerification(wrapper.phone!!)
+            if (checkCode(code)) {
+                when (selectedTfaProvider) {
+                    GigyaDefinitions.TFA.PHONE -> {
+                        when (mode) {
+                            //TODO Consolidate.
+                            "registration" -> viewModel?.onTFAPhoneCodeSubmit(code)
+                            "verification" -> viewModel?.onTFAPhoneCodeSubmit(code)
                         }
                     }
-                }
-                GigyaDefinitions.TFA.TOTP -> {
-                    when (mode) {
-                        "registration" -> viewModel?.onTFATOTPCodeSubmit(code)
-                        "verification" -> viewModel?.onTFATOTPVerify(code)
+                    GigyaDefinitions.TFA.TOTP -> {
+                        when (mode) {
+                            "registration" -> viewModel?.onTFATOTPCodeSubmit(code)
+                            "verification" -> viewModel?.onTFATOTPVerify(code)
+                        }
+                    }
+                    GigyaDefinitions.TFA.EMAIL -> {
+                        viewModel?.onTFAVerifyEmailWith(code)
                     }
                 }
-                GigyaDefinitions.TFA.EMAIL -> {
-                    //viewModel?.onTFAEmailVerify()
-                }
             }
-            activity?.let {
-                (it as AppCompatActivity).hideKeyboard()
-                it.onBackPressed()
-            }
+            dismiss()
         }
     }
 
-    override fun onDestroyView() {
-        // Just to make sure.
-        viewModel?.cancelTFAResolver()
-        super.onDestroyView()
+    private fun checkCode(code: String): Boolean {
+        if (code.isEmpty()) {
+            activity?.toast("Code is empty... Please fill in provided authentication code")
+            return false
+        }
+        return true
+    }
+
+    private fun dismiss() {
+        activity?.let {
+            (it as AppCompatActivity).hideKeyboard()
+            it.onBackPressed()
+        }
     }
 
     private fun observeUiTriggers() {
@@ -204,6 +231,9 @@ class TFAFragment : Fragment() {
                         updateWithPhoneNumbers(dataPair.second as MutableList<TFARegisteredPhone>)
                     }
                 }
+                MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> activity?.toast("Verification code sent")
+                MainViewModel.UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE ->
+                    updateWithAvailableEmailAddressesForVerification(dataPair.second as MutableList<TFAEmail>)
             }
         })
     }
@@ -211,9 +241,16 @@ class TFAFragment : Fragment() {
     private fun updateWithPhoneNumbers(phoneNumberList: MutableList<TFARegisteredPhone>) {
         val wrapped = phoneNumberList.map { TFAPoneWrapper(it) }
         val phoneNumberAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, wrapped)
-        tfa_phone_spinner.adapter = phoneNumberAdapter
-        toggleViewsVisibility(tfa_phone_spinner, visibility = true)
-        toggleViewsVisibility(tfa_get_code, visibility = false)
+        tfa_phone_numbers_spinner.adapter = phoneNumberAdapter
+        toggleViewsVisibility(tfa_phone_numbers_spinner, tfa_get_code, visibility = true)
+        toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
+    }
+
+    private fun updateWithAvailableEmailAddressesForVerification(emailList: MutableList<TFAEmail>) {
+        val wrapped = emailList.map { TFAEmailWrapper(it) }
+        val emailAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, wrapped)
+        tfa_emails_spinner.adapter = emailAdapter
+        toggleViewsVisibility(tfa_emails_spinner, tfa_verification_code_input_edit_layout, visibility = true)
     }
 
     private fun bitmapFromBase64(encodedImage: String): Bitmap {
@@ -235,6 +272,9 @@ class TFAFragment : Fragment() {
         }
     }
 
+    /**
+     * Custom wrapper class for display purposes only.
+     */
     inner class TFAPoneWrapper(phone: TFARegisteredPhone) {
 
         var phone: TFARegisteredPhone? = null
@@ -245,6 +285,19 @@ class TFAFragment : Fragment() {
 
         override fun toString(): String {
             return phone?.obfuscated!!
+        }
+    }
+
+    inner class TFAEmailWrapper(email: TFAEmail) {
+
+        var email: TFAEmail? = null
+
+        init {
+            this.email = email
+        }
+
+        override fun toString(): String {
+            return email?.obfuscated!!
         }
     }
 }

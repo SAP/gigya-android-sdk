@@ -37,6 +37,26 @@
         app:layout_constraintStart_toStartOf="@+id/tfa_title"
         app:layout_constraintTop_toBottomOf="@+id/tfa_providers_title" />
 
+    <Spinner
+        android:id="@+id/tfa_phone_numbers_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/tfa_title"
+        app:layout_constraintStart_toStartOf="@id/tfa_title"
+        app:layout_constraintTop_toBottomOf="@id/tfa_providers_spinner"
+        tools:visibility="visible" />
+
+    <Spinner
+        android:id="@+id/tfa_emails_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/tfa_title"
+        app:layout_constraintStart_toStartOf="@id/tfa_title"
+        app:layout_constraintTop_toBottomOf="@id/tfa_phone_numbers_spinner"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/tfa_country_title"
         android:layout_width="0dp"
@@ -45,7 +65,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@id/tfa_title"
         app:layout_constraintStart_toStartOf="@id/tfa_title"
-        app:layout_constraintTop_toBottomOf="@id/tfa_providers_spinner" />
+        app:layout_constraintTop_toBottomOf="@id/tfa_emails_spinner" />
 
     <Spinner
         android:id="@+id/country_code_spinner"
@@ -71,16 +91,6 @@
             android:layout_height="wrap_content" />
 
     </android.support.design.widget.TextInputLayout>
-
-    <Spinner
-        android:id="@+id/tfa_phone_spinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/tfa_phone_number_input_edit_layout"
-        app:layout_constraintStart_toStartOf="@id/tfa_phone_number_input_edit_layout"
-        app:layout_constraintTop_toTopOf="@id/tfa_phone_number_input_edit_layout"
-        tools:visibility="visible" />
 
     <RadioGroup
         android:id="@+id/phone_method_radio_group"
@@ -202,7 +212,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/tfa_title"
         app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.2"
         tools:ignore="UnusedAttribute" />
 
     <android.support.v7.widget.AppCompatButton
@@ -222,26 +232,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tfa_submit_code"
         app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
-        app:layout_constraintVertical_bias="1.0"
-        tools:ignore="UnusedAttribute" />
-
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/tfa_dismiss_dialog"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/transparent"
-        android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:text="Dismiss"
-        android:textColor="@color/colorAccent"
-        app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/tfa_title"
-        app:layout_constraintTop_toBottomOf="@id/tfa_verification_code_input_edit_layout"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.2"
         tools:ignore="UnusedAttribute" />
 
 </android.support.constraint.ConstraintLayout>

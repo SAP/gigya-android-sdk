@@ -9,6 +9,8 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
+import com.gigya.android.sdk.model.tfa.TFAEmail;
+import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
 import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
 import com.gigya.android.sdk.model.tfa.TFAInitModel;
 import com.gigya.android.sdk.model.tfa.TFAProvider;
@@ -44,8 +46,21 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
     private String gigyaAssertion;
 
-    public GigyaTFAResolver(ApiService<A> apiService, GigyaApiResponse apiResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    GigyaTFAResolver(ApiService<A> apiService, GigyaApiResponse apiResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         super(apiService, apiResponse, loginCallback);
+    }
+
+    @Override
+    public void clear() {
+        GigyaLogger.debug(LOG_TAG, "clear: Nullity data");
+        this.phvToken = null;
+        this.gigyaAssertion = null;
+        this.inactiveProviders.clear();
+        this.activeProviders.clear();
+        this.sctToken = null;
+        if (checkCallback()) {
+            _loginCallback.clear();
+        }
     }
 
     /**
@@ -92,7 +107,11 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
         }
     }
 
+    //region GENERAL
+
     /**
+     * Initialize TFA flow.
+     *
      * @param provider  Requested TFA provider
      * @param mode      Token mode (register/verify).
      * @param arguments Additional arguments
@@ -113,9 +132,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
                     @Override
                     public void onError(GigyaError error) {
-                        if (checkCallback()) {
-                            _loginCallback.get().onError(error);
-                        }
+                        forwardError(error);
                     }
                 });
     }
@@ -141,9 +158,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
                     @Override
                     public void onError(GigyaError error) {
-                        if (checkCallback()) {
-                            _loginCallback.get().onError(error);
-                        }
+                        forwardError(error);
                     }
                 }
         );
@@ -165,9 +180,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
             @Override
             public void onError(GigyaError error) {
-                if (checkCallback()) {
-                    _loginCallback.get().onError(error);
-                }
+                forwardError(error);
             }
         });
     }
@@ -195,7 +208,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * @param mode      Token mode (register/verify).
      * @param arguments Additional arguments
      */
-    private void onInit(String provider, String mode, @Nullable  Map<String, String> arguments) {
+    private void onInit(String provider, String mode, @Nullable Map<String, String> arguments) {
         switch (provider) {
             case GigyaDefinitions.TFA.TOTP:
                 onInitTotp(mode, arguments);
@@ -204,9 +217,12 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                 onInitPhone(mode, arguments);
                 break;
             case GigyaDefinitions.TFA.EMAIL:
+                onInitEmail();
                 break;
         }
     }
+
+    //endregion
 
     //region TOTP
 
@@ -233,7 +249,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     /**
      * On TFA initialization for TOTP.
      *
-     * @param mode         Token mode (register/verify).
+     * @param mode      Token mode (register/verify).
      * @param arguments Optional arguments map.
      */
     private void onInitTotp(String mode, @Nullable Map<String, String> arguments) {
@@ -261,7 +277,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                     public void onSuccess(TFATotpRegisterModel obj) {
                         GigyaTFAResolver.this.sctToken = obj.getSctToken();
                         if (checkCallback()) {
-                            _loginCallback.get().onTOTPQrCodeAvailable(obj.getQrCode());
+                            _loginCallback.get().onTotpTFAQrCodeAvailable(obj.getQrCode());
                         }
                     }
 
@@ -333,6 +349,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     }
 
     private void getRegisteredPhoneNumbers() {
+        GigyaLogger.debug(LOG_TAG, "getRegisteredPhoneNumbers: ");
         _apiService.send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS,
                 ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion))),
                 TFAGetRegisteredPhoneNumbersModel.class, new GigyaCallback<TFAGetRegisteredPhoneNumbersModel>() {
@@ -396,13 +413,98 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                 new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
                 new Pair<String, Object>("code", code),
                 new Pair<String, Object>("phvToken", phvToken)));
-        completeVerification(GigyaDefinitions.API.API_TFA_PNONE_COMPLETE_VERIFICATION, params);
+        completeVerification(GigyaDefinitions.API.API_TFA_PHONE_COMPLETE_VERIFICATION, params);
     }
 
     //endregion
 
-    @Override
-    public void clear() {
-        GigyaLogger.debug(LOG_TAG, "clear: Nullity data ");
+    //region EMAIL
+
+    public void verifyEmail() {
+        initTFA(GigyaDefinitions.TFA.EMAIL, "verify", null);
     }
+
+    /**
+     * On TFA initialization for Email.
+     * Currently supports verification mode only.
+     */
+    private void onInitEmail() {
+        getVerifiedEmails();
+    }
+
+    /**
+     * Request Email TFA registered email addresses.
+     */
+    private void getVerifiedEmails() {
+        GigyaLogger.debug(LOG_TAG, "getVerifiedEmails ");
+        _apiService.send(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS,
+                ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion))),
+                TFAGetEmailsModel.class, new GigyaCallback<TFAGetEmailsModel>() {
+                    @Override
+                    public void onSuccess(TFAGetEmailsModel obj) {
+                        final List<TFAEmail> emails = obj.getEmails();
+                        if (emails.isEmpty()) {
+                            forwardError(GigyaError.generalError());
+                            return;
+                        }
+                        // Forward emails.
+                        if (checkCallback()) {
+                            _loginCallback.get().onEmailTFAAddressesAvailable(emails);
+                        }
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        forwardError(error);
+                    }
+                });
+    }
+
+    /**
+     * Verify the selected email address.
+     * This will result in an verification email sent to the selected email address that contains the verification code needed
+     * to complete the verification process.
+     *
+     * @param tfaEmail Selected TFAEmail instance.
+     */
+    public void verifyWithEmail(TFAEmail tfaEmail) {
+        GigyaLogger.debug(LOG_TAG, "verifyWithEmail: " + tfaEmail.getObfuscated() + " with id = " + tfaEmail.getId());
+        _apiService.send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE,
+                ObjectUtils.mapOf(Arrays.asList(
+                        new Pair<String, Object>("emailID", tfaEmail.getId()),
+                        new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
+                        new Pair<String, Object>("lang", "eng"))),
+                TFAVerificationCodeModel.class, new GigyaCallback<TFAVerificationCodeModel>() {
+                    @Override
+                    public void onSuccess(TFAVerificationCodeModel obj) {
+                        GigyaTFAResolver.this.phvToken = obj.getPhvToken();
+                        if (checkCallback()) {
+                            _loginCallback.get().onEmailTFAVerificationEmailSent();
+                        }
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        forwardError(error);
+                    }
+                }
+        );
+    }
+
+    /**
+     * Submit received code via email in order to finalize the login.
+     *
+     * @param code Authentication code.
+     */
+    public void sendEmailVerificationCode(String code) {
+        GigyaLogger.debug(LOG_TAG, "sendEmailVerificationCode: with code = " + code);
+        Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
+                new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
+                new Pair<String, Object>("code", code),
+                new Pair<String, Object>("phvToken", phvToken)));
+        completeVerification(GigyaDefinitions.API.API_TFA_EMAIL_COMPLETE_VERIFICATION, params);
+    }
+
+    //endregion
+
 }

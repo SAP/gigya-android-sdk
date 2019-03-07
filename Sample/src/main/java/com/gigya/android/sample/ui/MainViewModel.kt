@@ -13,6 +13,7 @@ import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.bloc.GigyaTFAResolver
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
+import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
@@ -30,6 +31,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         const val UI_TRIGGER_SHOW_QR_CODE = 4
         const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 5
         const val UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS = 6
+        const val UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE = 7
+        const val UI_TRIGGER_SHOW_TFA_EMAIL_SENT = 8
     }
 
     override fun onCleared() {
@@ -88,13 +91,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tfaResolver?.verifyTotp(code)
     }
 
-    fun cancelTFAResolver() {
-        tfaResolver?.clear()
+    fun verifyEmail() {
+        tfaResolver?.verifyEmail()
     }
 
-//    fun onTFAEmailVerify() {
-//        tfaResolver?.verifyEmail()
-//    }
+    fun onTFAVerifyWithEmail(tfaEmail: TFAEmail) {
+        tfaResolver?.verifyWithEmail(tfaEmail)
+    }
+
+    fun onTFAVerifyEmailWith(code: String) {
+        tfaResolver?.sendEmailVerificationCode(code)
+    }
 
     //endregion
 
@@ -169,9 +176,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
             }
 
-            override fun onTOTPQrCodeAvailable(qrCode: String) {
+            override fun onTotpTFAQrCodeAvailable(qrCode: String) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
             }
+
+            override fun onEmailTFAAddressesAvailable(emails: MutableList<TFAEmail>?) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE, emails))
+            }
+
+            override fun onEmailTFAVerificationEmailSent() {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_EMAIL_SENT, null))
+            }
+
         })
     }
 
@@ -210,9 +226,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
             }
 
-            override fun onTOTPQrCodeAvailable(qrCode: String) {
+            override fun onTotpTFAQrCodeAvailable(qrCode: String) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_QR_CODE, qrCode))
             }
+
         })
     }
 

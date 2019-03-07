@@ -41,7 +41,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
     }
 
     void forwardError(GigyaError error) {
-        if (_loginCallback.get() != null)
+        if (checkCallback())
             _loginCallback.get().onError(error);
     }
 }

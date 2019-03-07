@@ -25,6 +25,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
+import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, InputDialog.IApiResultCallback {
 
@@ -76,8 +77,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<TFAProvider>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<String>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> onTFAVerificationCodeSent()
+                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<TFAProvider>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_EMAIL_SENT -> toast("Verification email sent")
                 // MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
             }
         })
@@ -178,13 +179,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
-    private fun showTFAVerificationDialog(providers: ArrayList<String>) {
-        val fragment = TFAFragment.newInstance("verification", providers)
+    private fun showTFAVerificationDialog(providers: ArrayList<TFAProvider>) {
+        val fragment = TFAFragment.newInstance("verification", ArrayList(providers.map { it.name }))
         supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
-    }
-
-    private fun onTFAVerificationCodeSent() {
-        response_text_view.snackbar("Verification code sent")
     }
 
 //    private fun onConflictingAccounts(conflictingAccount: GetConflictingAccountApi.ConflictingAccount) {
@@ -417,6 +414,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Call to clear current JSON response presentation.
      */
     private fun onClear() {
+        loader.gone()
         response_text_view.text = ""
         empty_response_text.visible()
         invalidateOptionsMenu()

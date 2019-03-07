@@ -14,8 +14,10 @@ import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.SessionService;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,12 +44,14 @@ public class GigyaConfigApi<A extends GigyaAccount> extends GigyaApi<GigyaApiRes
         if (!TextUtils.isEmpty(currentSDKConfig.getApiKey())) {  // Has apiKey.
             final String gmid = apiResponse.getField("gmid", String.class);
             final String ucid = apiResponse.getField("ucid", String.class);
-            Map<String, String> appIDs = apiResponse.getGson().fromJson("appIds",
-                    new TypeToken<Map<String, String>>() {
-                    }.getType());
+            final JsonObject appIdsJson = apiResponse.getField("appIds", JsonObject.class);
+            Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+            if (appIdsJson != null) {
+                Map<String, String> appIds = apiResponse.getGson().fromJson(appIdsJson.toString(), mapType);
+                currentSDKConfig.setAppIds(appIds);
+            }
             currentSDKConfig.setGmid(gmid);
             currentSDKConfig.setUcid(ucid);
-            currentSDKConfig.setAppIds(appIDs);
             // Trigger session save to keep track of gmid/ucid values.
             _sessionService.save();
             _adapter.release();

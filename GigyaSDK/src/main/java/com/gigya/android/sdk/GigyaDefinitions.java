@@ -28,7 +28,8 @@ public class GigyaDefinitions {
         public static final String API_TFA_FINALIZE = "accounts.tfa.finalizeTFA";
         public static final String API_TFA_EMAIL_GET_EMAILS = "accounts.tfa.email.getEmails";
         public static final String API_TFA_EMAIL_SEND_VERIFICATION_CODE = "accounts.tfa.email.sendVerificationCode";
-        public static final String API_TFA_PNONE_COMPLETE_VERIFICATION = "accounts.tfa.phone.completeVerification";
+        public static final String API_TFA_EMAIL_COMPLETE_VERIFICATION = "accounts.tfa.email.completeVerification";
+        public static final String API_TFA_PHONE_COMPLETE_VERIFICATION = "accounts.tfa.phone.completeVerification";
         public static final String API_TFA_PHONE_GET_REGISTERED_NUMBERS = "accounts.tfa.phone.getRegisteredPhoneNumbers";
         public static final String API_TFA_PHONE_SEND_VERIFICATION_CODE = "accounts.tfa.phone.sendVerificationCode";
         public static final String API_TFA_TOTP_REGISTER = "accounts.tfa.totp.register";

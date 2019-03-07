@@ -187,7 +187,7 @@ public class TFAResolver<T extends GigyaAccount> extends GigyaResolver<T> {
 //                    public void onSuccess(TFATotpRegisterModel obj) {
 //                        sctToken = obj.getSctToken();
 //                        if (loginCallback.get() != null) {
-////                            loginCallback.get().onTOTPQrCodeAvailable(obj.getQrCode());
+////                            loginCallback.get().onTotpTFAQrCodeAvailable(obj.getQrCode());
 ////                        }
 //                    }
 //
