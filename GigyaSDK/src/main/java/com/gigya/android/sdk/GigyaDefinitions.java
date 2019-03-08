@@ -42,6 +42,18 @@ public class GigyaDefinitions {
         public static final String TOTP = "gigyaTotp";
     }
 
+    public static class Plugin {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({FINISHED, CANCELED })
+        public @interface PluginReason {
+
+        }
+
+        public static final String FINISHED = "finished";
+        public static final String CANCELED = "canceled";
+    }
+
     public static class Providers {
 
         @Retention(RetentionPolicy.SOURCE)

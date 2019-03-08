@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.api.bloc;
 
+import android.support.annotation.StringDef;
+
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.GigyaAccount;
@@ -7,6 +9,8 @@ import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.services.ApiService;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.SoftReference;
 
 public abstract class GigyaResolver<A extends GigyaAccount> {
@@ -44,7 +48,20 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
     }
 
     void forwardError(GigyaError error) {
-        if (checkCallback())
+        if (checkCallback()) {
             _loginCallback.get().onError(error);
+            // Forwarding an error must result in clearing the login callback reference.
+            // Login/Register flow will have to restart.
+            clear();
+        }
     }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({TFA, LINK_ACCOUNTS})
+    public @interface ResolverType {
+
+    }
+
+    public static final String TFA = "tfa_resolver";
+    public static final String LINK_ACCOUNTS = "link_accounts_resolver";
 }

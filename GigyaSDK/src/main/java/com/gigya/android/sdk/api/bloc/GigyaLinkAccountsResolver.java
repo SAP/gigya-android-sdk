@@ -7,7 +7,7 @@ import com.gigya.android.sdk.services.ApiService;
 
 public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
-    public GigyaLinkAccountsResolver(ApiService<A> apiService, GigyaApiResponse apiResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    GigyaLinkAccountsResolver(ApiService<A> apiService, GigyaApiResponse apiResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         super(apiService, apiResponse, loginCallback);
     }
 
@@ -21,4 +21,7 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
 
     }
 
+    public void finalizeFlow() {
+
+    }
 }

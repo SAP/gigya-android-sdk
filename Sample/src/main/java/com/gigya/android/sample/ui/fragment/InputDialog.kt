@@ -1,4 +1,4 @@
-package com.gigya.android.sample.ui.dialog
+package com.gigya.android.sample.ui.fragment
 
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle

@@ -88,7 +88,7 @@ public abstract class LoginProvider {
 
         @Override
         public void onCanceled() {
-            _callback.onOperationCancelled();
+            _callback.onOperationCanceled();
         }
 
         @Override

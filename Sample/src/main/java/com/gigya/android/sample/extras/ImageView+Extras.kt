@@ -18,5 +18,4 @@ fun ImageView.loadRoundImageWith(url: String?, error: Int) {
                 .error(error)
                 .apply(RequestOptions.circleCropTransform()).into(this)
     }
-
 }

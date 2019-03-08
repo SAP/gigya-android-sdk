@@ -272,7 +272,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                // TODO: 27/01/2019 Error.
+                _pluginCallbacks.onError(null);
             }
 
             private void overrideUrlLoad(Uri uri) {

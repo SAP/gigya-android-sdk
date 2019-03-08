@@ -8,6 +8,8 @@ import android.util.Log
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
+import com.gigya.android.sdk.GigyaDefinitions.Plugin.CANCELED
+import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
@@ -308,7 +310,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onOperationCancelled() {
+            override fun onOperationCanceled() {
                 cancel()
             }
 
@@ -343,7 +345,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 onIntermediateLoad()
             }
 
-            override fun onOperationCancelled() {
+            override fun onOperationCanceled() {
                 cancel()
             }
 
@@ -354,20 +356,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun showAccountDetails(onUpdated: () -> Unit, onCancelled: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets(mutableMapOf<String, Any>(
-                "screenSet" to "Default-ProfileUpdate",
+    fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
+        gigya.showScreenSets("Default-ProfileUpdate", mutableMapOf<String, Any>(
                 GigyaPresenter.SHOW_FULL_SCREEN to true,
                 GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {
                             when (reason) {
-                                "finished" -> {
+                                FINISHED -> {
                                     onUpdated()
                                 }
-                                "canceled" -> {
-                                    onCancelled()
+                                CANCELED -> {
+                                    onCanceled()
                                 }
                             }
                         }
@@ -379,17 +380,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    //TODO Mandatory parameters such as screenSet need to be as a parameter.
-    //TODO StringRef for reason.
-
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets(mutableMapOf<String, Any>(
-                "screenSet" to "Default-RegistrationLogin",
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 24f
-                //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
-                //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
-        )
+        gigya.showScreenSets("Default-RegistrationLogin",
+                mutableMapOf<String, Any>(
+                        GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                        GigyaPresenter.CORNER_RADIUS to 24f
+                        //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
+                        //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
+                )
                 , object : GigyaPluginCallback<MyAccount>() {
             override fun onLogin(accountObj: MyAccount) {
                 account.value = accountObj

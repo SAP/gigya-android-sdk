@@ -11,7 +11,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApi;
 import com.gigya.android.sdk.api.GigyaConfigApi;
-import com.gigya.android.sdk.api.bloc.BlocHandler;
+import com.gigya.android.sdk.api.bloc.InterruptionHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -47,7 +47,7 @@ public class ApiService<A extends GigyaAccount> {
     /*
     Business login handler for interruption enabled Apis.
      */
-    private BlocHandler _blocHandler;
+    private InterruptionHandler _interruptionHandler;
 
     public ApiService(Context appContext, SessionService sessionService, AccountService<A> accountService) {
         _sessionService = sessionService;
@@ -61,7 +61,7 @@ public class ApiService<A extends GigyaAccount> {
                 }
             }
         });
-        _blocHandler = new BlocHandler(this);
+        _interruptionHandler = new InterruptionHandler<>(this);
     }
 
     //region Available APIs
@@ -135,15 +135,16 @@ public class ApiService<A extends GigyaAccount> {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                //TODO Handle interruption.
-                if (callback != null) {
-                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse, callback));
+                if (!_interruptionHandler.evaluateInterruptionSuccess(apiResponse)) {
+                    if (callback != null) {
+                        callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                    }
                 }
             }
 
             @Override
             public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                if (!_blocHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
                     loginCallback.onError(GigyaError.fromResponse(apiResponse));
                 }
 
@@ -229,9 +230,10 @@ public class ApiService<A extends GigyaAccount> {
                 new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
                     @Override
                     public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                        //TODO Handle interruption.
-                        if (callback != null) {
-                            callback.onSuccess(onAccountBasedApiSuccess(apiResponse, callback));
+                        if (!_interruptionHandler.evaluateInterruptionSuccess(apiResponse)) {
+                            if (callback != null) {
+                                callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                            }
                         }
                     }
                 }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) loginCallback);
@@ -239,7 +241,9 @@ public class ApiService<A extends GigyaAccount> {
 
             @Override
             public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
-                loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
             }
         }.execute(GigyaDefinitions.API.API_INIT_REGISTRATION, NetworkAdapter.Method.POST, params, null);
     }
@@ -293,14 +297,23 @@ public class ApiService<A extends GigyaAccount> {
      * @param regToken      Provided registration token.
      * @param loginCallback Login response callback.
      */
-    public void finalizeRegistration(String regToken, final GigyaLoginCallback<? extends GigyaAccount> loginCallback, @Nullable final Runnable completionHadler) {
+    public void finalizeRegistration(String regToken, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                super.onRequestSuccess(api, apiResponse, callback);
-                if (completionHadler != null) {
-                    completionHadler.run();
+                if (callback != null) {
+                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
                 }
+                // Finalizing the registration is the final step when suing any interruption resolver. Therefore
+                // We will always clear all resolvers on completion or on errors.
+                _interruptionHandler.clearAll();
+            }
+
+            @Override
+            public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                super.onRequestError(api, apiResponse, callback);
+                // Clearing all resolvers on error.
+                _interruptionHandler.clearAll();
             }
         }.execute(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, NetworkAdapter.Method.POST,
                 ObjectUtils.mapOf(Arrays.asList(
@@ -320,9 +333,8 @@ public class ApiService<A extends GigyaAccount> {
      * 2 -> Invalidate the cached account instance in the AccountService.
      *
      * @param apiResponse API response.
-     * @param callback    Response callback.
      */
-    private A onAccountBasedApiSuccess(GigyaApiResponse apiResponse, GigyaCallback<A> callback) {
+    public A onAccountBasedApiSuccess(GigyaApiResponse apiResponse) {
         if (apiResponse.contains("SessionInfo")) {
             if (apiResponse.contains("sessionSecret")) {
                 final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);

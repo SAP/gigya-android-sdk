@@ -305,8 +305,8 @@ public class WebBridge<T extends GigyaAccount> {
                     }
 
                     @Override
-                    public void onOperationCancelled() {
-                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onOperationCancelled");
+                    public void onOperationCanceled() {
+                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onOperationCanceled");
                         invokeCallback(callbackId, GigyaError.cancelledOperation().getData());
                         _interactions.onCancel();
                     }

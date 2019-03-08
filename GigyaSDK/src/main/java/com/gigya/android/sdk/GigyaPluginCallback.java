@@ -56,7 +56,7 @@ public abstract class GigyaPluginCallback<A> {
     }
 
     /* Called when a user clicks the "X" (close) button or the screen is hidden following the end of the flow. */
-    public void onHide(@NonNull GigyaPluginEvent event, String reason) {
+    public void onHide(@NonNull GigyaPluginEvent event, @GigyaDefinitions.Plugin.PluginReason String reason) {
         // Stub.
     }
 

@@ -8,7 +8,7 @@ public abstract class GigyaCallback<T> {
 
     public abstract void onError(GigyaError error);
 
-    public void onOperationCancelled() {
+    public void onOperationCanceled() {
         // Stub.
     }
 

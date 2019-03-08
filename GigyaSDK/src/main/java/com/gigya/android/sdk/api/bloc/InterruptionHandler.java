@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.api.bloc;
 
+import android.support.v4.util.ArrayMap;
+
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.GigyaAccount;
@@ -7,13 +9,34 @@ import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.services.ApiService;
 
-public class BlocHandler<A extends GigyaAccount> {
+import java.util.Map;
 
-    private static final String LOG_TAG = "BlocHandler";
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+public class InterruptionHandler<A extends GigyaAccount> {
+
+    private static final String LOG_TAG = "InterruptionHandler";
 
     private final ApiService<A> _apiService;
 
-    public BlocHandler(ApiService<A> apiService) {
+    private ArrayMap<String, GigyaResolver<A>> _resolvers = new ArrayMap<>();
+
+    public ArrayMap<String, GigyaResolver<A>> getResolvers() {
+        return _resolvers;
+    }
+
+    /**
+     * Clear all resolvers (nullify and release login callback references).
+     * Then remove from holder ArrayMap.
+     */
+    public void clearAll() {
+        for (Map.Entry<String, GigyaResolver<A>> entry : _resolvers.entrySet()) {
+            GigyaResolver resolver = entry.getValue();
+            resolver.clear();
+        }
+        _resolvers.clear();
+    }
+
+    public InterruptionHandler(ApiService<A> apiService) {
         _apiService = apiService;
     }
 
@@ -53,6 +76,10 @@ public class BlocHandler<A extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "evaluateInterruptionSuccess: True with errorCode = " + errorCode);
         switch (errorCode) {
             case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
+                final GigyaLinkAccountsResolver<A> linkAccountsResolver = (GigyaLinkAccountsResolver<A>) _resolvers.get(GigyaResolver.LINK_ACCOUNTS);
+                if (linkAccountsResolver != null) {
+                    linkAccountsResolver.finalizeFlow();
+                }
                 return true;
             default:
                 return false;
@@ -63,11 +90,27 @@ public class BlocHandler<A extends GigyaAccount> {
         return apiResponse.getField("regToken", String.class);
     }
 
+    /**
+     * Initialize conflicting accounts resolver.
+     *
+     * @param apiResponse   Original error response.
+     * @param loginCallback Login result callback.
+     */
     private void optionalResolveForConflictingAccounts(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        new GigyaLinkAccountsResolver<>(_apiService, apiResponse, loginCallback).init();
+        final GigyaLinkAccountsResolver<A> resolver = new GigyaLinkAccountsResolver<>(_apiService, apiResponse, loginCallback);
+        _resolvers.put(GigyaResolver.LINK_ACCOUNTS, resolver);
+        resolver.init();
     }
 
+    /**
+     * Initialize TFA resolver.
+     *
+     * @param apiResponse Original error response.
+     *                    * @param loginCallback Login result callback.
+     */
     private void optionalResolveForTFA(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        new GigyaTFAResolver<>(_apiService, apiResponse, loginCallback).init();
+        final GigyaTFAResolver<A> resolver = new GigyaTFAResolver<>(_apiService, apiResponse, loginCallback);
+        _resolvers.put(GigyaResolver.TFA, resolver);
+        resolver.init();
     }
 }

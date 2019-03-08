@@ -1,4 +1,4 @@
-package com.gigya.android.sample.ui.dialog
+package com.gigya.android.sample.ui.fragment
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -19,15 +19,16 @@ import com.gigya.android.sample.extras.hideKeyboard
 import com.gigya.android.sample.extras.loadBitmap
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.CountryCode
+import com.gigya.android.sample.ui.MainActivity
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.dialog_tfa.*
+import kotlinx.android.synthetic.main.fragment_tfa.*
 import org.jetbrains.anko.toast
 
-class TFAFragment : Fragment() {
+class TFAFragment : Fragment(), BackPressListener {
 
     private var viewModel: MainViewModel? = null
     private lateinit var mode: String
@@ -53,8 +54,16 @@ class TFAFragment : Fragment() {
         mode = arguments!!["mode"] as String
     }
 
+    override fun onBackPressed() {
+        // If back button is pressed make sure to call onCancel to indicate that the operation was
+        // explicitly cancelled.
+        activity?.let { mainActivity ->
+            (mainActivity as MainActivity).onCancel()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.dialog_tfa, container, false)
+        return inflater.inflate(R.layout.fragment_tfa, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,11 +72,17 @@ class TFAFragment : Fragment() {
         setupLayout()
     }
 
+    /*
+     Load the country code list from JSON asset file.
+     */
     private fun loadCountryCodes() {
         val json: String = context?.assets?.open("countryCodes.json")?.bufferedReader().use { it!!.readText() }
         codes = Gson().fromJson(json, Array<CountryCode>::class.java)
     }
 
+    /*
+     Setup the main fragment layout.
+     */
     private fun setupLayout() {
         // Setup TFA providers adapter
         val tfaProviders = arguments!!.getStringArrayList("providers")
@@ -202,6 +217,9 @@ class TFAFragment : Fragment() {
         }
     }
 
+    /*
+    Check code is available for submit. Prompt if not.
+     */
     private fun checkCode(code: String): Boolean {
         if (code.isEmpty()) {
             activity?.toast("Code is empty... Please fill in provided authentication code")
@@ -210,6 +228,9 @@ class TFAFragment : Fragment() {
         return true
     }
 
+    /*
+    Explicitly dismiss fragment..
+     */
     private fun dismiss() {
         activity?.let {
             (it as AppCompatActivity).hideKeyboard()
@@ -217,6 +238,9 @@ class TFAFragment : Fragment() {
         }
     }
 
+    /*
+    Observe uiTrigger LiveData variable from view model.
+     */
     private fun observeUiTriggers() {
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
             @Suppress("UNCHECKED_CAST")
@@ -228,7 +252,7 @@ class TFAFragment : Fragment() {
                 }
                 MainViewModel.UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS -> {
                     if (tfa_providers_spinner.selectedItem.toString() == GigyaDefinitions.TFA.PHONE) {
-                        updateWithPhoneNumbers(dataPair.second as MutableList<TFARegisteredPhone>)
+                        updateWithAvailablePhoneNumbersForVerification(dataPair.second as MutableList<TFARegisteredPhone>)
                     }
                 }
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> activity?.toast("Verification code sent")
@@ -238,7 +262,10 @@ class TFAFragment : Fragment() {
         })
     }
 
-    private fun updateWithPhoneNumbers(phoneNumberList: MutableList<TFARegisteredPhone>) {
+    /*
+    Update layout with available registered phone numbers.
+     */
+    private fun updateWithAvailablePhoneNumbersForVerification(phoneNumberList: MutableList<TFARegisteredPhone>) {
         val wrapped = phoneNumberList.map { TFAPoneWrapper(it) }
         val phoneNumberAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, wrapped)
         tfa_phone_numbers_spinner.adapter = phoneNumberAdapter
@@ -246,6 +273,9 @@ class TFAFragment : Fragment() {
         toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
     }
 
+    /*
+    Update layout with available registered email addresses.
+     */
     private fun updateWithAvailableEmailAddressesForVerification(emailList: MutableList<TFAEmail>) {
         val wrapped = emailList.map { TFAEmailWrapper(it) }
         val emailAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, wrapped)
@@ -253,14 +283,19 @@ class TFAFragment : Fragment() {
         toggleViewsVisibility(tfa_emails_spinner, tfa_verification_code_input_edit_layout, visibility = true)
     }
 
-    private fun bitmapFromBase64(encodedImage: String): Bitmap {
-        val decodedString = Base64.decode(encodedImage.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1], Base64.DEFAULT)
-        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-    }
-
+    /*
+    Decode and display provided QR code needed to register a TOTP authenticator application.
+     */
     private fun showQrCode(qrCode: String) {
         qr_code_image_progress.gone()
         qr_code_image.loadBitmap(bitmapFromBase64(qrCode))
+    }
+
+    //region UTILITY
+
+    private fun bitmapFromBase64(encodedImage: String): Bitmap {
+        val decodedString = Base64.decode(encodedImage.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1], Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
     }
 
     private fun toggleViewsVisibility(vararg views: View, visibility: Boolean) {
@@ -271,6 +306,10 @@ class TFAFragment : Fragment() {
             }
         }
     }
+
+    //endregion
+
+    //region WRAPPERS
 
     /**
      * Custom wrapper class for display purposes only.
@@ -300,4 +339,6 @@ class TFAFragment : Fragment() {
             return email?.obfuscated!!
         }
     }
+
+    //endregion
 }

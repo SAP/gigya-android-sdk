@@ -138,6 +138,48 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     }
 
     /**
+     * InitTFA request success. Vary tasks according to provider & mode.
+     *
+     * @param provider  Gigya TFA provider.
+     * @param mode      Token mode (register/verify).
+     * @param arguments Additional arguments
+     */
+    private void onInit(String provider, String mode, @Nullable Map<String, String> arguments) {
+        switch (provider) {
+            case GigyaDefinitions.TFA.TOTP:
+                onInitTotp(mode, arguments);
+                break;
+            case GigyaDefinitions.TFA.PHONE:
+                onInitPhone(mode, arguments);
+                break;
+            case GigyaDefinitions.TFA.EMAIL:
+                onInitEmail();
+                break;
+        }
+    }
+
+    /**
+     * Complete TFA verification (for multiple providers).
+     * First step before finalizing the registration.
+     *
+     * @param api    Request API.
+     * @param params Request parameters.
+     */
+    private void completeVerification(String api, Map<String, Object> params) {
+        _apiService.send(api, params, TFACompleteVerificationModel.class, new GigyaCallback<TFACompleteVerificationModel>() {
+            @Override
+            public void onSuccess(TFACompleteVerificationModel obj) {
+                finalizeTFA(obj.getProviderAssertion());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                forwardError(error);
+            }
+        });
+    }
+
+    /**
      * Finalize the TFA flow once a provider assertion is available.
      *
      * @param providerAssertion Gigya TFA provider assertion token.
@@ -165,62 +207,15 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     }
 
     /**
-     * Complete TFA verification (for multiple providers).
-     * First step before finalizing the registration.
-     *
-     * @param api    Request API.
-     * @param params Request parameters.
-     */
-    private void completeVerification(String api, Map<String, Object> params) {
-        _apiService.send(api, params, TFACompleteVerificationModel.class, new GigyaCallback<TFACompleteVerificationModel>() {
-            @Override
-            public void onSuccess(TFACompleteVerificationModel obj) {
-                finalizeTFA(obj.getProviderAssertion());
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                forwardError(error);
-            }
-        });
-    }
-
-    /**
      * Finalizing the flow.
      */
     private void finalizeRegistration() {
         if (checkCallback()) {
             GigyaLogger.debug(LOG_TAG, "finalizeRegistration: ");
-            _apiService.finalizeRegistration(_regToken, _loginCallback.get(), new Runnable() {
-                @Override
-                public void run() {
-                    // Clear the resolver of al context or sensitive data.
-                    clear();
-                }
-            });
+            _apiService.finalizeRegistration(_regToken, _loginCallback.get());
         }
     }
 
-    /**
-     * InitTFA request success. Vary tasks according to provider & mode.
-     *
-     * @param provider  Gigya TFA provider.
-     * @param mode      Token mode (register/verify).
-     * @param arguments Additional arguments
-     */
-    private void onInit(String provider, String mode, @Nullable Map<String, String> arguments) {
-        switch (provider) {
-            case GigyaDefinitions.TFA.TOTP:
-                onInitTotp(mode, arguments);
-                break;
-            case GigyaDefinitions.TFA.PHONE:
-                onInitPhone(mode, arguments);
-                break;
-            case GigyaDefinitions.TFA.EMAIL:
-                onInitEmail();
-                break;
-        }
-    }
 
     //endregion
 

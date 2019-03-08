@@ -73,7 +73,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
                     @Override
                     public void onWebViewCancel() {
                         /* User cancelled WebView. */
-                        callback.onOperationCancelled();
+                        callback.onOperationCanceled();
                     }
                 });
             }

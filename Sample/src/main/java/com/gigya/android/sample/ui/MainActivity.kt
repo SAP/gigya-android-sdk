@@ -15,8 +15,9 @@ import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
-import com.gigya.android.sample.ui.dialog.InputDialog
-import com.gigya.android.sample.ui.dialog.TFAFragment
+import com.gigya.android.sample.ui.fragment.BackPressListener
+import com.gigya.android.sample.ui.fragment.InputDialog
+import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -26,6 +27,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.toast
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, InputDialog.IApiResultCallback {
 
@@ -45,9 +47,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+            return
         }
+        // Trigger on back press trigger in the current fragment.
+        supportFragmentManager.findFragmentById(R.id.frag_container)?.let { fragment ->
+            if (fragment is BackPressListener) {
+                (fragment as BackPressListener).onBackPressed()
+            }
+        }
+        super.onBackPressed()
     }
 
     //region Drawer setup
@@ -294,7 +302,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     response_text_view.snackbar(getString(R.string.account_updated))
                     onGetAccount()
                 },
-                onCancelled = {
+                onCanceled = {
                     response_text_view.snackbar("Operation canceled")
                 },
                 onError = { possibleError ->
@@ -390,7 +398,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     /**
      * Cancelled operation. Display Toast.
      */
-    private fun onCancel() {
+    fun onCancel() {
         loader.gone()
         response_text_view.snackbar("Operation canceled")
     }

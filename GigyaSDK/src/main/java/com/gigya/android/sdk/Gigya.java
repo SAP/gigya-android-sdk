@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.SparseArray;
+import android.support.v4.util.ArrayMap;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -39,7 +39,7 @@ public class Gigya<T extends GigyaAccount> {
 
     private final GigyaContext<T> _gigyaContext;
 
-    private SparseArray<LoginProvider> _usedLoginProviders = new SparseArray<>();
+    private ArrayMap<String, LoginProvider> _usedLoginProviders = new ArrayMap<>();
 
     @NonNull
     public Context getContext() {
@@ -151,10 +151,9 @@ public class Gigya<T extends GigyaAccount> {
         // Check if any social providers are used. If so. Instantiate them and check for server available client ids.
         final Set<String> usedSocialProviders = _gigyaContext.getPersistenceService().getSocialProviders();
         if (usedSocialProviders != null) {
-            String[] usedSocialProvidersArray = usedSocialProviders.toArray(new String[0]);
-            for (int i = 0; i < usedSocialProviders.size(); i++) {
-                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext, usedSocialProvidersArray[i], null);
-                _usedLoginProviders.append(i, provider);
+            for (String identifier : usedSocialProviders) {
+                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext, identifier, null);
+                _usedLoginProviders.put(identifier, provider);
                 if (provider.clientIdRequired()) {
                     // Must call sdk config to fetch related client ids for login provider.
                     loadSDKConfig(new Runnable() {
@@ -185,15 +184,16 @@ public class Gigya<T extends GigyaAccount> {
         _gigyaContext.getConfig().setInterruptionsEnabled(sdkHandles);
     }
 
+    /**
+     * Get reference to used social login provider (if exists) given an identifier.
+     *
+     * @param provider Provider name identifier {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @return LoginProvider instance.
+     */
     @Nullable
-    public LoginProvider getSocialProvier(@GigyaDefinitions.Providers.SocialProvider String provider) {
-        for (int i = 0; i < _usedLoginProviders.size(); i++) {
-            int key = _usedLoginProviders.keyAt(i);
-            // get the object by the key.
-            LoginProvider usedProvider = _usedLoginProviders.get(key);
-            if (usedProvider.getName().equals(provider)) {
-                return usedProvider;
-            }
+    public LoginProvider getSocialProvider(@GigyaDefinitions.Providers.SocialProvider String provider) {
+        if (_usedLoginProviders.containsKey(provider)) {
+            return _usedLoginProviders.get(provider);
         }
         return null;
     }
@@ -269,10 +269,8 @@ public class Gigya<T extends GigyaAccount> {
         cookieManager.removeAllCookie();
 
         // Logout of any available social provider.
-        for (int i = 0; i < _usedLoginProviders.size(); i++) {
-            int key = _usedLoginProviders.keyAt(i);
-            LoginProvider provider = _usedLoginProviders.get(key);
-            provider.logout(_appContext);
+        for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {
+            entry.getValue().logout(_appContext);
         }
     }
 
@@ -295,8 +293,6 @@ public class Gigya<T extends GigyaAccount> {
         params.put("include", "profile,data,subscriptions,preferences");
         _gigyaContext.getApiService().login(params, callback);
     }
-
-    // TODO: 24/02/2019 Add overload with providers stringDef.
 
     /**
      * Login given a specific 3rd party provider.
@@ -395,10 +391,12 @@ public class Gigya<T extends GigyaAccount> {
      * Show Gigya ScreenSets flow using the PluginFragment.
      * UI will be presented via WebView.
      *
-     * @param params   General ScreenSet flow parameters.
-     * @param callback Plugin callback.
+     * @param screensSet Main ScreensSet group identifier
+     * @param params     ScreensSet flow parameters.
+     * @param callback   Plugin callback.
      */
-    public void showScreenSets(Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
+    public void showScreenSets(String screensSet, Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
+        params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter(_gigyaContext)
                 .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
