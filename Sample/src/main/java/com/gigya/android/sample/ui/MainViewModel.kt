@@ -14,7 +14,8 @@ import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.interruption.GigyaLinkAccountsResolver
-import com.gigya.android.sdk.api.interruption.GigyaTFAResolver
+import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFARegistrationResolver
+import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFAVerificationResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
@@ -40,8 +41,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
-        // Clearing the resolver when the ViewModel clears.
-        tfaResolver?.clear()
+        // Clearing resolvers when the ViewModel clears.
+        tfaRegistrationResolver?.clear()
+        tfaVerificationResolver?.clear()
+        linkAccountsResolver?.clear()
     }
 
     /*
@@ -62,50 +65,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //region TFA FLOW
 
-    /*
-    Keeping reference to the TFA resolver to allow flow continuation.
-     */
-    private var tfaResolver: GigyaTFAResolver<*>? = null
+    var tfaRegistrationResolver: IGigyaTFARegistrationResolver? = null
 
-    fun onTFAPhoneRegister(phone: String, method: String) {
-        tfaResolver?.registerPhone(phone, method)
-    }
-
-    fun onTFAPhoneCodeSubmit(code: String) {
-        tfaResolver?.submitPhoneCode(code)
-    }
-
-    fun onTFAPhoneSelectedForVerification(number: TFARegisteredPhone) {
-        tfaResolver?.sendPhoneVerificationCode(number.id, number.lastMethod, true)
-    }
-
-    fun onTFAPhoneVerify() {
-        tfaResolver?.verifyPhone()
-    }
-
-    fun onTFATOTPRegister() {
-        tfaResolver?.registerTotp()
-    }
-
-    fun onTFATOTPCodeSubmit(code: String) {
-        tfaResolver?.submitTotpCode(code)
-    }
-
-    fun onTFATOTPVerify(code: String) {
-        tfaResolver?.verifyTotp(code)
-    }
-
-    fun verifyEmail() {
-        tfaResolver?.verifyEmail()
-    }
-
-    fun onTFAVerifyWithEmail(tfaEmail: TFAEmail) {
-        tfaResolver?.verifyWithEmail(tfaEmail)
-    }
-
-    fun onTFAVerifyEmailWith(code: String) {
-        tfaResolver?.sendEmailVerificationCode(code)
-    }
+    var tfaVerificationResolver: IGigyaTFAVerificationResolver? = null
 
     //endregion
 
@@ -155,13 +117,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
-                tfaResolver = resolver
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: IGigyaTFARegistrationResolver) {
+                tfaRegistrationResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
-            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
-                tfaResolver = resolver
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: IGigyaTFAVerificationResolver) {
+                tfaVerificationResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
             }
 
@@ -197,27 +159,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.register(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                if (tfaResolver != null) {
-                    tfaResolver = null
-                }
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onError(error: GigyaError?) {
-                if (tfaResolver != null) {
-                    tfaResolver = null
-                }
                 error(error)
             }
 
-            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
-                tfaResolver = resolver
+            override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: IGigyaTFARegistrationResolver) {
+                tfaRegistrationResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
-            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
-                tfaResolver = resolver
+            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: IGigyaTFAVerificationResolver) {
+                tfaVerificationResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
             }
 

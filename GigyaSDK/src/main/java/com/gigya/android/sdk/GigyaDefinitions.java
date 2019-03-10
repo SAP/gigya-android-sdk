@@ -39,6 +39,13 @@ public class GigyaDefinitions {
     }
 
     public static class TFA {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({EMAIL, PHONE, TOTP})
+        public @interface TFAProvider {
+
+        }
+
         public static final String EMAIL = "gigyaEmail";
         public static final String PHONE = "gigyaPhone";
         public static final String TOTP = "gigyaTotp";
@@ -57,10 +64,6 @@ public class GigyaDefinitions {
     }
 
     public static class Providers {
-
-//        public SocialProvider from(String name){
-//
-//        }
 
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({AMAZON, BLOGGER, FACEBOOK, FOURSQUARE, GOOGLE, INSTAGRAM, KAKAO, LINE, LINKEDIN, WECHAT,

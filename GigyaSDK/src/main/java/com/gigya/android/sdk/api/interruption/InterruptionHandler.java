@@ -4,6 +4,8 @@ import android.support.v4.util.ArrayMap;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.interruption.tfa.GigyaTFARegistrationResolver;
+import com.gigya.android.sdk.api.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -58,8 +60,10 @@ public class InterruptionHandler<A extends GigyaAccount> {
                     optionalResolveForConflictingAccounts(apiResponse, loginCallback);
                     return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
+                    optionalResolveForTFARegistration(apiResponse, loginCallback);
+                    return true;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                    optionalResolveForTFA(apiResponse, loginCallback);
+                    optionalResolveForTFAVerification(apiResponse, loginCallback);
                     return true;
                 default:
                     return false;
@@ -107,16 +111,32 @@ public class InterruptionHandler<A extends GigyaAccount> {
     }
 
     /**
-     * Initialize TFA resolver.
+     * Initialize TFA registration resolver.
      *
-     * @param apiResponse Original error response.
-     *                    * @param loginCallback Login result callback.
+     * @param apiResponse   Original error response.
+     * @param loginCallback Login result callback.
      */
-    private void optionalResolveForTFA(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA);
+    private void optionalResolveForTFARegistration(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA_REG);
         if (resolver == null) {
-            resolver = new GigyaTFAResolver<>();
-            _resolvers.put(GigyaResolver.TFA, resolver);
+            resolver = new GigyaTFARegistrationResolver<>();
+            _resolvers.put(GigyaResolver.TFA_REG, resolver);
+        }
+        resolver.clear();
+        resolver.init(_apiService, apiResponse, loginCallback);
+    }
+
+    /**
+     * Initialize TFA verification resolver.
+     *
+     * @param apiResponse   Original error response.
+     * @param loginCallback Login result callback.
+     */
+    private void optionalResolveForTFAVerification(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA_VER);
+        if (resolver == null) {
+            resolver = new GigyaTFAVerificationResolver<>();
+            _resolvers.put(GigyaResolver.TFA_VER, resolver);
         }
         resolver.clear();
         resolver.init(_apiService, apiResponse, loginCallback);

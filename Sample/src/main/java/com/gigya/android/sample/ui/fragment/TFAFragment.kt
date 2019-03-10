@@ -106,7 +106,8 @@ class TFAFragment : Fragment(), BackPressListener {
                                 toggleViewsVisibility(tfa_emails_spinner, visibility = true)
                                 toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group, tfa_emails_spinner,
                                         tfa_verification_code_input_edit_layout, visibility = false)
-                                viewModel?.verifyEmail()
+                                // Start flow.
+                                viewModel?.tfaVerificationResolver?.startVerifyWithEmail()
                             }
                         }
                     }
@@ -121,8 +122,9 @@ class TFAFragment : Fragment(), BackPressListener {
                             "verification" -> {
                                 toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
                                 toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group, tfa_get_code, visibility = false)
+
                                 // Verify Phone -> Request valid phone numbers.
-                                viewModel?.onTFAPhoneVerify()
+                                viewModel?.tfaVerificationResolver?.startVerifyWithPhone()
                             }
                         }
                     }
@@ -130,12 +132,13 @@ class TFAFragment : Fragment(), BackPressListener {
                         tfa_get_code.text = "Get code"
                         when (mode) {
                             "registration" -> {
-                                // Register TOTP -> get QR code.
-                                viewModel?.onTFATOTPRegister()
                                 toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress,
                                         tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
                                 toggleViewsVisibility(tfa_phone_registration_group, tfa_get_code,
                                         visibility = false)
+
+                                // Register TOTP -> get QR code.
+                                viewModel?.tfaRegistrationResolver?.startRegistrationWithTotp()
                             }
                             "verification" -> {
                                 toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, tfa_get_code, visibility = false)
@@ -163,8 +166,9 @@ class TFAFragment : Fragment(), BackPressListener {
             // Update visibility.
             toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
             toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
+
             // Submit register.
-            viewModel?.onTFAPhoneRegister(phoneNumber, phoneVerificationMethod)
+            viewModel?.tfaRegistrationResolver?.startRegistrationWithPhone(phoneNumber, phoneVerificationMethod)
         }
 
         // Get code click listener
@@ -175,7 +179,7 @@ class TFAFragment : Fragment(), BackPressListener {
                     when (mode) {
                         "verification" -> {
                             val wrapper = tfa_phone_numbers_spinner.selectedItem as TFAPoneWrapper
-                            viewModel?.onTFAPhoneSelectedForVerification(wrapper.phone!!)
+                            viewModel?.tfaVerificationResolver?.sendCodeToPhone(wrapper.phone!!)
                         }
                     }
                 }
@@ -183,7 +187,7 @@ class TFAFragment : Fragment(), BackPressListener {
                     // Only supports verification mode.
                     val tfaEmail = (tfa_emails_spinner.selectedItem as TFAEmailWrapper).email
                     tfaEmail?.let {
-                        viewModel?.onTFAVerifyWithEmail(it)
+                        viewModel?.tfaVerificationResolver?.sendCodeToeEmail(it)
                     }
                 }
             }
@@ -197,19 +201,18 @@ class TFAFragment : Fragment(), BackPressListener {
                 when (selectedTfaProvider) {
                     GigyaDefinitions.TFA.PHONE -> {
                         when (mode) {
-                            //TODO Consolidate.
-                            "registration" -> viewModel?.onTFAPhoneCodeSubmit(code)
-                            "verification" -> viewModel?.onTFAPhoneCodeSubmit(code)
+                            "registration" -> viewModel?.tfaRegistrationResolver?.verifyCode(GigyaDefinitions.TFA.PHONE, code)
+                            "verification" -> viewModel?.tfaVerificationResolver?.verifyCode(GigyaDefinitions.TFA.PHONE, code)
                         }
                     }
                     GigyaDefinitions.TFA.TOTP -> {
                         when (mode) {
-                            "registration" -> viewModel?.onTFATOTPCodeSubmit(code)
-                            "verification" -> viewModel?.onTFATOTPVerify(code)
+                            "registration" -> viewModel?.tfaRegistrationResolver?.verifyCode(GigyaDefinitions.TFA.TOTP, code)
+                            "verification" -> viewModel?.tfaVerificationResolver?.verifyCode(GigyaDefinitions.TFA.TOTP, code)
                         }
                     }
                     GigyaDefinitions.TFA.EMAIL -> {
-                        viewModel?.onTFAVerifyEmailWith(code)
+                        viewModel?.tfaVerificationResolver?.verifyCode(GigyaDefinitions.TFA.EMAIL, code)
                     }
                 }
             }

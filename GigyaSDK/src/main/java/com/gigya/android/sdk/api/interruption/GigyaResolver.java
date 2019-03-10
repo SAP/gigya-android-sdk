@@ -19,9 +19,9 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     ApiService<A> _apiService;
 
-    SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
+    protected SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
 
-    GigyaApiResponse _originalResponse;
+    protected GigyaApiResponse _originalResponse;
 
     String _regToken;
 
@@ -61,11 +61,12 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    @StringDef({TFA, LINK_ACCOUNTS})
+    @StringDef({TFA_REG, TFA_VER, LINK_ACCOUNTS})
     public @interface ResolverType {
 
     }
 
-    public static final String TFA = "tfa_resolver";
+    public static final String TFA_REG = "tfa_registration_resolver";
+    public static final String TFA_VER = "tfa_verification_resolver";
     public static final String LINK_ACCOUNTS = "link_accounts_resolver";
 }

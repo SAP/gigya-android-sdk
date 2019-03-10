@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
+public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
     private static final String LOG_TAG = "GigyaTFAResolver";
 
@@ -94,19 +94,18 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     /**
      * Forward first interruption to end user after providers are available (active & inactive).    sad
      */
-    private void forwardInitialInterruption() {
-        if (isAttached()) {
-            final int errorCode = _originalResponse.getErrorCode();
-            if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
-                _loginCallback.get().onPendingTFARegistration(_originalResponse, this);
-            } else if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
-                _loginCallback.get().onPendingTFAVerification(_originalResponse, this);
-            } else {
-                GigyaLogger.error(LOG_TAG, "forwardInitialInterruption: Error does not meet interruption requirements. Sending general to avoid overflow");
-                forwardError(GigyaError.generalError());
-            }
-        }
-    }
+    protected abstract void forwardInitialInterruption();
+//        if (isAttached()) {
+//            final int errorCode = _originalResponse.getErrorCode();
+//            if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
+//                _loginCallback.get().onPendingTFARegistration(_originalResponse, this);
+//            } else if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
+//                _loginCallback.get().onPendingTFAVerification(_originalResponse, this);
+//            } else {
+//                GigyaLogger.error(LOG_TAG, "forwardInitialInterruption: Error does not meet interruption requirements. Sending general to avoid overflow");
+//                forwardError(GigyaError.generalError());
+//            }
+//        }
 
     //region GENERAL
 
@@ -227,7 +226,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     /**
      * Register TOTP. Will request the QR code needed for authenticator application.
      */
-    public void registerTotp() {
+    protected void registerTotp() {
         initTFA(GigyaDefinitions.TFA.TOTP, "register", null);
     }
 
@@ -236,7 +235,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      *
      * @param code Authentication code.
      */
-    public void verifyTotp(final String code) {
+    protected void verifyTotp(final String code) {
         final Map<String, String> arguments = new HashMap<>();
         arguments.put("code", code);
         initTFA(GigyaDefinitions.TFA.TOTP, "register", arguments);
@@ -291,7 +290,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      *
      * @param code Authentication code.
      */
-    public void submitTotpCode(String code) {
+    protected void submitTotpCode(String code) {
         GigyaLogger.debug(LOG_TAG, "submitTotpCode: with code = " + code);
         Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
                 new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
@@ -311,7 +310,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     /**
      * Register TOTP. Will request the QR code needed for authenticator application.
      */
-    public void registerPhone(final String number, final String method) {
+    protected void registerPhone(final String number, final String method) {
         final Map<String, String> arguments = new HashMap<>();
         arguments.put("number", number);
         arguments.put("method", method);
@@ -321,7 +320,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
     /**
      * Request phone number verification.
      */
-    public void verifyPhone() {
+    protected void verifyPhone() {
         initTFA(GigyaDefinitions.TFA.PHONE, "verify", null);
     }
 
@@ -372,7 +371,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * @param method     Verification code receive method (sms/voice).
      * @param isVerify   is "verify" mode?
      */
-    public void sendPhoneVerificationCode(final String numberOfId, final String method, final boolean isVerify) {
+    protected void sendPhoneVerificationCode(final String numberOfId, final String method, final boolean isVerify) {
         _apiService.send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE,
                 ObjectUtils.mapOf(Arrays.asList(
                         new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
@@ -403,7 +402,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      *
      * @param code Authentication code.
      */
-    public void submitPhoneCode(String code) {
+    protected void submitPhoneCode(String code) {
         GigyaLogger.debug(LOG_TAG, "submitPhoneCode: with code = " + code);
         Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
                 new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
@@ -416,7 +415,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
     //region EMAIL
 
-    public void verifyEmail() {
+    protected void verifyEmail() {
         initTFA(GigyaDefinitions.TFA.EMAIL, "verify", null);
     }
 
@@ -463,7 +462,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      *
      * @param tfaEmail Selected TFAEmail instance.
      */
-    public void verifyWithEmail(TFAEmail tfaEmail) {
+    protected void verifyWithEmail(TFAEmail tfaEmail) {
         GigyaLogger.debug(LOG_TAG, "verifyWithEmail: " + tfaEmail.getObfuscated() + " with id = " + tfaEmail.getId());
         _apiService.send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE,
                 ObjectUtils.mapOf(Arrays.asList(
@@ -492,7 +491,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      *
      * @param code Authentication code.
      */
-    public void sendEmailVerificationCode(String code) {
+    protected void submitEmailCode(String code) {
         GigyaLogger.debug(LOG_TAG, "sendEmailVerificationCode: with code = " + code);
         Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
                 new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
