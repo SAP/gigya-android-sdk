@@ -283,7 +283,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                     eventMap.put("dismiss", true);
                     _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
                 }
-                //dismissAndFinish();
+                dismissAndFinish();
             }
 
             private void overrideUrlLoad(Uri uri) {
@@ -296,7 +296,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                     if (_pluginCallbacks != null) {
                         _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
                     }
-                    //dismissAndFinish();
+                    dismissAndFinish();
                 } else if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_EXCEPTION)) {
                     eventMap.put("eventName", "error");
                     eventMap.put("errorCode", 405001);
@@ -305,7 +305,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                     if (_pluginCallbacks != null) {
                         _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
                     }
-                   // dismissAndFinish();
+                    dismissAndFinish();
                 } else if (!_webBridge.handleUrl(uri.toString())) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(browserIntent);
