@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.api.bloc;
+package com.gigya.android.sdk.api.interruption;
 
 import android.support.annotation.StringDef;
 
@@ -17,38 +17,41 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     private static final String LOG_TAG = "GigyaResolver";
 
-    final ApiService<A> _apiService;
+    ApiService<A> _apiService;
 
-    final SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
+    SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
 
-    final GigyaApiResponse _originalResponse;
+    GigyaApiResponse _originalResponse;
 
-    final String _regToken;
+    String _regToken;
 
-    GigyaResolver(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         _apiService = apiService;
         _originalResponse = originalResponse;
         _regToken = originalResponse.getField("regToken", String.class);
         _loginCallback = new SoftReference<GigyaLoginCallback<? extends GigyaAccount>>(loginCallback);
     }
 
-    protected abstract void init();
-
     /**
      * Clear the resolver from data. Release login callback.
      */
     public abstract void clear();
 
-    boolean checkCallback() {
+    /**
+     * Is resolver attached to the LoginCallback reference.
+     *
+     * @return True if login callback reference is attached.
+     */
+    public boolean isAttached() {
         if (_loginCallback.get() != null) {
             return true;
         }
-        GigyaLogger.debug(LOG_TAG, "checkCallback: GigyaLoginCallback reference is null -> resolver flow broken");
+        GigyaLogger.error(LOG_TAG, "isAttached: GigyaLoginCallback reference is null -> resolver flow broken");
         return false;
     }
 
     void forwardError(GigyaError error) {
-        if (checkCallback()) {
+        if (isAttached()) {
             _loginCallback.get().onError(error);
             // Forwarding an error must result in clearing the login callback reference.
             // Login/Register flow will have to restart.

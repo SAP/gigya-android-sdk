@@ -11,7 +11,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApi;
 import com.gigya.android.sdk.api.GigyaConfigApi;
-import com.gigya.android.sdk.api.bloc.InterruptionHandler;
+import com.gigya.android.sdk.api.interruption.InterruptionHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;

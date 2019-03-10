@@ -16,9 +16,11 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.ui.fragment.BackPressListener
+import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.activity_main.*
@@ -84,10 +86,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
-                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationDialog(dataPair.second as ArrayList<TFAProvider>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationDialog(dataPair.second as ArrayList<TFAProvider>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationFragment(dataPair.second as ArrayList<TFAProvider>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationFragment(dataPair.second as ArrayList<TFAProvider>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_EMAIL_SENT -> toast("Verification email sent")
-                // MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as GetConflictingAccountApi.ConflictingAccount)
+                MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as ConflictingAccounts)
             }
         })
 
@@ -103,11 +105,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val isLoggedIn = Gigya.getInstance().isLoggedIn
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
-
-        // Check for facebook login
-        //val loginProvider = Gigya.getInstance().currentProvider
-        //facebookPermissionsUpdateItem.isVisible = loginProvider != null && Gigya.getInstance().isLoggedIn && loginProvider is FacebookLoginProvider
-
         return true
     }
 
@@ -162,43 +159,67 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region APIs
 
+    /**
+     * Show input dialog for registration
+     */
     private fun onRegister() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.REGISTER, this)
         dialog.show(supportFragmentManager, "onRegister")
     }
 
+    /**
+     * Show input dialog for login.
+     */
     private fun onLogin() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.LOGIN, this)
         dialog.show(supportFragmentManager, "onLogin")
     }
 
+    /**
+     * Show input dialog for social provider input.
+     */
     private fun onLoginWithProvider() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.LOGIN_WITH_PROVIDER, this)
         dialog.show(supportFragmentManager, "onLoginWithProvider")
     }
 
+    /**
+     * Show input dialog for anonymous request.
+     */
     private fun onSendAnonymousRequest() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.ANONYMOUS, this)
         dialog.show(supportFragmentManager, "onSendAnonymousRequest")
     }
 
-    private fun showTFARegistrationDialog(providers: ArrayList<TFAProvider>) {
+    /**
+     * Show TFA fragment for registration mode.
+     */
+    private fun showTFARegistrationFragment(providers: ArrayList<TFAProvider>) {
         val fragment = TFAFragment.newInstance("registration", ArrayList(providers.map { it.name }))
         supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
-    private fun showTFAVerificationDialog(providers: ArrayList<TFAProvider>) {
+    /**
+     * Show TFA fragment for verification mode.
+     */
+    private fun showTFAVerificationFragment(providers: ArrayList<TFAProvider>) {
         val fragment = TFAFragment.newInstance("verification", ArrayList(providers.map { it.name }))
         supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
-//    private fun onConflictingAccounts(conflictingAccount: GetConflictingAccountApi.ConflictingAccount) {
-//        val loginID = conflictingAccount.loginID
-//        val providers = conflictingAccount.loginProviders
-//        val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
-//        dialog.show(supportFragmentManager, "onConflictingAccounts")
-//    }
+    /**
+     * Show conflicting accounts dialog.
+     */
+    private fun onConflictingAccounts(conflictingAccount: ConflictingAccounts) {
+        val loginID = conflictingAccount.loginID
+        val providers = conflictingAccount.loginProviders
+        val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
+        dialog.show(supportFragmentManager, "onConflictingAccounts")
+    }
 
+    /**
+     * Request account instance update.
+     */
     private fun onGetAccount() {
         if (!Gigya.getInstance().isLoggedIn) {
             response_text_view.snackbar(getString(R.string.not_logged_in))
@@ -215,6 +236,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
+    /**
+     * Set account requested from navigation menu.
+     * Will show dialog to remind client to make sure all fields he is requesting to update are marked as "clientModify".
+     */
     private fun onSetAccount() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title).setTitle("Attention!").setMessage("Make sure all updated fields are marked as \"clientModify\"");
@@ -234,6 +259,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.show()
     }
 
+    /**
+     * Forgot password requested from navigation menu.
+     */
     private fun onForgotPassword() {
         viewModel?.forgotPassword(
                 success = {
@@ -249,6 +277,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region UI presentation
 
+    /**
+     * Native login requested from navigation menu.
+     * Present Gigya WebView with requested social login providers.
+     */
     private fun presentNativeLogin() {
         viewModel?.socialLoginWith(
                 success = { json ->
@@ -264,6 +296,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
+    /**
+     * Registration as a service requested from navigation menu.
+     */
     private fun showRAAS() {
         viewModel?.registrationAsAService(
                 onLogin = { json ->
@@ -277,6 +312,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
+    /**
+     * Comments requested from navigation menu.
+     */
     private fun showComments() {
         viewModel?.showComments(
                 onLogin = { json ->
@@ -294,6 +332,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
+    /**
+     * Show account details. Will use ScreenSet.
+     */
     private fun showAccountDetails() {
         drawer_layout.closeDrawer(GravityCompat.START)
         viewModel?.showAccountDetails(
@@ -365,6 +406,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 })
     }
 
+    /**
+     * Trigger a set account call using the string provided.
+     */
     override fun onUpdateAccountWith(comment: String) {
         onLoading()
         viewModel?.setAccount(comment,

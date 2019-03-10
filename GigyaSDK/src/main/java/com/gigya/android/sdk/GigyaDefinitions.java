@@ -22,6 +22,7 @@ public class GigyaDefinitions {
         public static final String API_INIT_REGISTRATION = "accounts.initRegistration";
         public static final String API_REGISTER = "accounts.register";
         public static final String API_FINALIZE_REGISTRATION = "accounts.finalizeRegistration";
+        public static final String API_GET_CONFLICTING_ACCOUNTS = "accounts.getConflictingAccount";
         // TFA
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
@@ -45,7 +46,7 @@ public class GigyaDefinitions {
     public static class Plugin {
 
         @Retention(RetentionPolicy.SOURCE)
-        @StringDef({FINISHED, CANCELED })
+        @StringDef({FINISHED, CANCELED})
         public @interface PluginReason {
 
         }

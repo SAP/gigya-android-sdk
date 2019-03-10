@@ -3,7 +3,8 @@ package com.gigya.android.sdk;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.api.bloc.GigyaTFAResolver;
+import com.gigya.android.sdk.api.interruption.GigyaLinkAccountsResolver;
+import com.gigya.android.sdk.api.interruption.GigyaTFAResolver;
 import com.gigya.android.sdk.model.tfa.TFAEmail;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -23,9 +24,9 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
 
     //region Link accounts
 
-//    public void onConflictingAccounts(@NonNull GigyaApiResponse response, @NonNull LinkAccountsResolver resolver) {
-//        forwardError(response);
-//    }
+    public void onConflictingAccounts(@NonNull GigyaApiResponse response, @NonNull GigyaLinkAccountsResolver resolver) {
+        forwardError(response);
+    }
 
     //endregion
 

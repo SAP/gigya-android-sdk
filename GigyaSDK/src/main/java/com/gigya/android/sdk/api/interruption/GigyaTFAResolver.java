@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.api.bloc;
+package com.gigya.android.sdk.api.interruption;
 
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
@@ -46,19 +46,19 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
     private String gigyaAssertion;
 
-    GigyaTFAResolver(ApiService<A> apiService, GigyaApiResponse apiResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        super(apiService, apiResponse, loginCallback);
-    }
-
     @Override
     public void clear() {
         GigyaLogger.debug(LOG_TAG, "clear: Nullity data");
         this.phvToken = null;
         this.gigyaAssertion = null;
-        this.inactiveProviders.clear();
-        this.activeProviders.clear();
+        if (this.inactiveProviders != null) {
+            this.inactiveProviders.clear();
+        }
+        if (this.activeProviders != null) {
+            this.activeProviders.clear();
+        }
         this.sctToken = null;
-        if (checkCallback()) {
+        if (isAttached()) {
             _loginCallback.clear();
         }
     }
@@ -69,7 +69,8 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * for the continuation of the flow.
      */
     @Override
-    protected void init() {
+    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+        super.init(apiService, originalResponse, loginCallback);
         GigyaLogger.debug(LOG_TAG, "Resolver init - request providers");
         // Request providers. Populate active & inactive on response.
         _apiService.send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS,
@@ -94,7 +95,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * Forward first interruption to end user after providers are available (active & inactive).    sad
      */
     private void forwardInitialInterruption() {
-        if (checkCallback()) {
+        if (isAttached()) {
             final int errorCode = _originalResponse.getErrorCode();
             if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
                 _loginCallback.get().onPendingTFARegistration(_originalResponse, this);
@@ -210,7 +211,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
      * Finalizing the flow.
      */
     private void finalizeRegistration() {
-        if (checkCallback()) {
+        if (isAttached()) {
             GigyaLogger.debug(LOG_TAG, "finalizeRegistration: ");
             _apiService.finalizeRegistration(_regToken, _loginCallback.get());
         }
@@ -271,14 +272,14 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                     @Override
                     public void onSuccess(TFATotpRegisterModel obj) {
                         GigyaTFAResolver.this.sctToken = obj.getSctToken();
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onTotpTFAQrCodeAvailable(obj.getQrCode());
                         }
                     }
 
                     @Override
                     public void onError(GigyaError error) {
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onError(error);
                         }
                     }
@@ -350,14 +351,14 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                 TFAGetRegisteredPhoneNumbersModel.class, new GigyaCallback<TFAGetRegisteredPhoneNumbersModel>() {
                     @Override
                     public void onSuccess(TFAGetRegisteredPhoneNumbersModel obj) {
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onRegisteredTFAPhoneNumbers(obj.getPhones());
                         }
                     }
 
                     @Override
                     public void onError(GigyaError error) {
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onError(error);
                         }
                     }
@@ -383,14 +384,14 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                     @Override
                     public void onSuccess(TFAVerificationCodeModel obj) {
                         GigyaTFAResolver.this.phvToken = obj.getPhvToken();
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onPhoneTFAVerificationCodeSent();
                         }
                     }
 
                     @Override
                     public void onError(GigyaError error) {
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onError(error);
                         }
                     }
@@ -443,7 +444,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                             return;
                         }
                         // Forward emails.
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onEmailTFAAddressesAvailable(emails);
                         }
                     }
@@ -473,7 +474,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                     @Override
                     public void onSuccess(TFAVerificationCodeModel obj) {
                         GigyaTFAResolver.this.phvToken = obj.getPhvToken();
-                        if (checkCallback()) {
+                        if (isAttached()) {
                             _loginCallback.get().onEmailTFAVerificationEmailSent();
                         }
                     }

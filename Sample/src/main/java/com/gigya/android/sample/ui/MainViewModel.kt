@@ -13,7 +13,8 @@ import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.api.bloc.GigyaTFAResolver
+import com.gigya.android.sdk.api.interruption.GigyaLinkAccountsResolver
+import com.gigya.android.sdk.api.interruption.GigyaTFAResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
@@ -110,13 +111,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //region LINK ACCOUNTS
 
-//    fun onLinkAccountWithSite(loginID: String, password: String) {
-//        linkAccountsResolver?.resolveForSiteProvider(loginID, password)
-//    }
-//
-//    fun cancelLinkAccountsResolver() {
-//        linkAccountsResolver?.cancel()
-//    }
+    /*
+    Keeping reference to the LINK_ACCOUNTS resolver to allow flow continuation.
+     */
+    private var linkAccountsResolver: GigyaLinkAccountsResolver<*>? = null
+
+    fun onLinkAccountWithSite(loginID: String, password: String) {
+        linkAccountsResolver?.resolveForSite(loginID, password)
+    }
 
     //endregion
 
@@ -145,17 +147,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                if (tfaResolver != null) {
-                    tfaResolver = null
-                }
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onError(error: GigyaError?) {
-                if (tfaResolver != null) {
-                    tfaResolver = null
-                }
                 error(error)
             }
 
@@ -216,11 +212,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onPendingTFARegistration(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
+                tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
             override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: GigyaTFAResolver<*>) {
+                tfaResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
+            }
+
+            override fun onRegisteredTFAPhoneNumbers(registeredPhoneList: MutableList<TFARegisteredPhone>) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS, registeredPhoneList))
             }
 
             override fun onPhoneTFAVerificationCodeSent() {
@@ -314,12 +316,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 cancel()
             }
 
-//            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: LinkAccountsResolver<*>) {
-//                // Show custom UI prompting the client that a conflicting account was found.
-//                linkAccountsResolver = resolver
-//                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
-//            }
-
+            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: GigyaLinkAccountsResolver<*>) {
+                linkAccountsResolver = resolver
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
+            }
         })
     }
 

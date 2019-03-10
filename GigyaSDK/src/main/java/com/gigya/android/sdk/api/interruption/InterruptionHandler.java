@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.api.bloc;
+package com.gigya.android.sdk.api.interruption;
 
 import android.support.v4.util.ArrayMap;
 
@@ -29,11 +29,11 @@ public class InterruptionHandler<A extends GigyaAccount> {
      * Then remove from holder ArrayMap.
      */
     public void clearAll() {
+        GigyaLogger.debug(LOG_TAG, "clearAll: ");
         for (Map.Entry<String, GigyaResolver<A>> entry : _resolvers.entrySet()) {
             GigyaResolver resolver = entry.getValue();
             resolver.clear();
         }
-        _resolvers.clear();
     }
 
     public InterruptionHandler(ApiService<A> apiService) {
@@ -97,9 +97,13 @@ public class InterruptionHandler<A extends GigyaAccount> {
      * @param loginCallback Login result callback.
      */
     private void optionalResolveForConflictingAccounts(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        final GigyaLinkAccountsResolver<A> resolver = new GigyaLinkAccountsResolver<>(_apiService, apiResponse, loginCallback);
-        _resolvers.put(GigyaResolver.LINK_ACCOUNTS, resolver);
-        resolver.init();
+        GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.LINK_ACCOUNTS);
+        if (resolver == null) {
+            resolver = new GigyaLinkAccountsResolver<>();
+            _resolvers.put(GigyaResolver.LINK_ACCOUNTS, resolver);
+        }
+        resolver.clear();
+        resolver.init(_apiService, apiResponse, loginCallback);
     }
 
     /**
@@ -109,8 +113,12 @@ public class InterruptionHandler<A extends GigyaAccount> {
      *                    * @param loginCallback Login result callback.
      */
     private void optionalResolveForTFA(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
-        final GigyaTFAResolver<A> resolver = new GigyaTFAResolver<>(_apiService, apiResponse, loginCallback);
-        _resolvers.put(GigyaResolver.TFA, resolver);
-        resolver.init();
+        GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA);
+        if (resolver == null) {
+            resolver = new GigyaTFAResolver<>();
+            _resolvers.put(GigyaResolver.TFA, resolver);
+        }
+        resolver.clear();
+        resolver.init(_apiService, apiResponse, loginCallback);
     }
 }
