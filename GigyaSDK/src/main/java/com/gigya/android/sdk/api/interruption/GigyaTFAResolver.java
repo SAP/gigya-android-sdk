@@ -92,20 +92,9 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     }
 
     /**
-     * Forward first interruption to end user after providers are available (active & inactive).    sad
+     * Forward first interruption to end user after providers are available (active & inactive).
      */
     protected abstract void forwardInitialInterruption();
-//        if (isAttached()) {
-//            final int errorCode = _originalResponse.getErrorCode();
-//            if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
-//                _loginCallback.get().onPendingTFARegistration(_originalResponse, this);
-//            } else if (errorCode == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
-//                _loginCallback.get().onPendingTFAVerification(_originalResponse, this);
-//            } else {
-//                GigyaLogger.error(LOG_TAG, "forwardInitialInterruption: Error does not meet interruption requirements. Sending general to avoid overflow");
-//                forwardError(GigyaError.generalError());
-//            }
-//        }
 
     //region GENERAL
 

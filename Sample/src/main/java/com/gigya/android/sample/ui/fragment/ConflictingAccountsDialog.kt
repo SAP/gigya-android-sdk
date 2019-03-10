@@ -82,7 +82,7 @@ class ConflictingAccountsDialog : DialogFragment() {
             when (provider) {
                 "site" -> {
                     val pass = ca_password_edit.text.toString().trim()
-                    //viewModel?.onLinkAccountWithSite(loginID, pass)
+                    viewModel?.onLinkAccountWithSite(loginID, pass)
                 }
             }
             dismissAllowingStateLoss()
@@ -90,7 +90,6 @@ class ConflictingAccountsDialog : DialogFragment() {
     }
 
     override fun dismissAllowingStateLoss() {
-        //viewModel?.cancelTFAResolver()
         super.dismissAllowingStateLoss()
     }
 
