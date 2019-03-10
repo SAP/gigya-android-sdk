@@ -197,8 +197,25 @@ public class ApiService<A extends GigyaAccount> {
                 _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), (GigyaCallback<A>) callback);
     }
 
-    public void notifyLogin(String providerSessions) {
+    public void notifyLogin(final String providerSessions, final GigyaLoginCallback<? extends GigyaAccount> loginCallback, Runnable completionHandler) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("providerSessions", providerSessions);
+        new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
+            @Override
+            public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                if (callback != null) {
+                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                }
+            }
 
+            @Override
+            public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
+            }
+        }
+                .execute(GigyaDefinitions.API.API_NOTIFY_LOGIN, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) loginCallback);
     }
 
     // TODO: 05/03/2019 Waiting for endpoint implementation. 
@@ -335,7 +352,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param apiResponse API response.
      */
     public A onAccountBasedApiSuccess(GigyaApiResponse apiResponse) {
-        if (apiResponse.contains("SessionInfo")) {
+        if (apiResponse.contains("sessionInfo")) {
             if (apiResponse.contains("sessionSecret")) {
                 final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);
                 _sessionService.setSession(newSession);

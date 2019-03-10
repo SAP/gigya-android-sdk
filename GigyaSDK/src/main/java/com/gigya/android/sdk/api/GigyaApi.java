@@ -99,7 +99,7 @@ public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
      */
     @Override
     public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<T> callback) {
-        if (apiResponse.contains("sessionSecret")) {
+        if (apiResponse.contains("sessionInfo")) {
             final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);
             _sessionService.setSession(newSession);
             _accountService.invalidateAccount();
@@ -108,10 +108,16 @@ public class GigyaApi<T, A extends GigyaAccount> implements IGigyaApi<T> {
         if (api.equals(GigyaDefinitions.API.API_SET_ACCOUNT_INFO)) {
             _accountService.invalidateAccount();
         }
-        // Parse to requested response scheme if available. Other wise forward unchecked GigyaApiResponse.
-        T parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _responseClazz);
-        if (callback != null) {
-            callback.onSuccess(parsed);
+        if (_responseClazz == GigyaApiResponse.class) {
+            // Parse to requested response scheme if available. Other wise forward unchecked GigyaApiResponse.
+            if (callback != null) {
+                callback.onSuccess((T) apiResponse);
+            }
+        } else {
+            T parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _responseClazz);
+            if (callback != null) {
+                callback.onSuccess(parsed);
+            }
         }
     }
 

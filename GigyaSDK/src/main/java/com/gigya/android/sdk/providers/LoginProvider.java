@@ -95,35 +95,33 @@ public abstract class LoginProvider {
         public void onProviderLoginSuccess(final LoginProvider provider, String providerSessions) {
             GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
                     + provider + ", providerSessions = " + providerSessions);
-            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+            // Call intermediate load to give the client the option to trigger his own progress indicator.
             _callback.onIntermediateLoad();
 
-//            _apiManager.notifyLogin(providerSessions, _callback, new Runnable() {
-//                @Override
-//                public void run() {
-//                    /* Safe to say this is the current selected provider. */
-//                    _accountManager.updateLoginProvider(provider);
-//                    provider.trackTokenChanges();
-//
-//                    _persistenceManager.onLoginProviderUpdated(provider.getName());
-//                }
-//            });
+            // all notifyLogin to submit sign in process.
+            _apiService.notifyLogin(providerSessions, _callback, new Runnable() {
+                @Override
+                public void run() {
+                    //Safe to say this is the current selected provider.
+                    GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: notifyLogin completion handler");
+                    _persistenceService.addSocialProvider(provider.getName());
+                    provider.trackTokenChanges(_sessionService);
+                }
+            });
         }
 
+        /* Login process via Web has generated a new session. */
         @Override
         public void onProviderSession(final LoginProvider provider, SessionInfo sessionInfo) {
-            /* Login process via Web has generated a new session. */
-
-            /* Call intermediate load to give the client the option to trigger his own progress indicator */
+            // Call intermediate load to give the client the option to trigger his own progress indicator */
             _callback.onIntermediateLoad();
 
-            /* Call notifyLogin to submit sign in process.*/
-//            _apiManager.notifyLogin(sessionInfo, _callback, new Runnable() {
-//                @Override
-//                public void run() {
-//                    _persistenceManager.onLoginProviderUpdated(provider.getName());
-//                }
-//            });
+            _persistenceService.addSocialProvider(provider.getName());
+
+            // Update session and call getAccountInfo.
+            _sessionService.setSession(sessionInfo);
+            _accountService.invalidateAccount();
+            _apiService.getAccount(_callback);
         }
 
         @Override

@@ -229,8 +229,6 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
 
-        // TODO: 29/01/2019 Should add support for non Https in GigyaApiRequest.
-
         final boolean forceHttps = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("forceHttps"), "false"));
         final boolean requiresSession = Boolean.parseBoolean(ObjectUtils.firstNonNull((String) settings.get("requiresSession"), "false"));
 

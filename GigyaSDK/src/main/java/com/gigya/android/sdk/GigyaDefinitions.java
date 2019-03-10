@@ -23,6 +23,7 @@ public class GigyaDefinitions {
         public static final String API_REGISTER = "accounts.register";
         public static final String API_FINALIZE_REGISTRATION = "accounts.finalizeRegistration";
         public static final String API_GET_CONFLICTING_ACCOUNTS = "accounts.getConflictingAccount";
+        public static final String API_NOTIFY_LOGIN = "accounts.notifyLogin";
         // TFA
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
@@ -56,6 +57,10 @@ public class GigyaDefinitions {
     }
 
     public static class Providers {
+
+//        public SocialProvider from(String name){
+//
+//        }
 
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({AMAZON, BLOGGER, FACEBOOK, FOURSQUARE, GOOGLE, INSTAGRAM, KAKAO, LINE, LINKEDIN, WECHAT,

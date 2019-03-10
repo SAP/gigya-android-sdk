@@ -395,11 +395,12 @@ public class Gigya<T extends GigyaAccount> {
      * @param params     ScreensSet flow parameters.
      * @param callback   Plugin callback.
      */
-    public void showScreenSets(String screensSet, Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
+    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter(_gigyaContext)
                 .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
+
     }
 
     /**

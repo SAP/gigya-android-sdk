@@ -139,7 +139,7 @@ public class LineLoginProvider extends LoginProvider {
                 GigyaLogger.debug(LOG_TAG, "Line logout success");
             } else {
                 /* Logout error. */
-                GigyaLogger.debug(LOG_TAG, "Line logout error");
+                GigyaLogger.error(LOG_TAG, "Line logout error");
             }
             _client = null;
         }

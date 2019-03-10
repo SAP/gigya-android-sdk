@@ -29,6 +29,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
         _apiService = apiService;
         _originalResponse = originalResponse;
         _regToken = originalResponse.getField("regToken", String.class);
+        // TODO: 10/03/2019 If regToken in null throw an error.
         _loginCallback = new SoftReference<GigyaLoginCallback<? extends GigyaAccount>>(loginCallback);
     }
 

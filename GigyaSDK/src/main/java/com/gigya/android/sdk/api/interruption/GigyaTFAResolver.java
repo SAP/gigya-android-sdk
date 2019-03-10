@@ -103,7 +103,7 @@ public class GigyaTFAResolver<A extends GigyaAccount> extends GigyaResolver<A> {
                 _loginCallback.get().onPendingTFAVerification(_originalResponse, this);
             } else {
                 GigyaLogger.error(LOG_TAG, "forwardInitialInterruption: Error does not meet interruption requirements. Sending general to avoid overflow");
-                _loginCallback.get().onError(GigyaError.generalError());
+                forwardError(GigyaError.generalError());
             }
         }
     }

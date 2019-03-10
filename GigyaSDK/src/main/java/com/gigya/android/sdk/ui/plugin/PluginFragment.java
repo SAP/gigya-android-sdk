@@ -2,6 +2,7 @@ package com.gigya.android.sdk.ui.plugin;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -270,16 +271,41 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                 _progressBar.setVisibility(View.VISIBLE);
             }
 
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                _pluginCallbacks.onError(null);
+                GigyaLogger.error(LOG_TAG, "setWebViewClient: onReceivedError: " + error.getDescription());
+                if (_pluginCallbacks != null) {
+                    Map<String, Object> eventMap = new HashMap<>();
+                    eventMap.put("eventName", "error");
+                    eventMap.put("errorCode", error.getErrorCode());
+                    eventMap.put("description", error.getDescription());
+                    eventMap.put("dismiss", true);
+                    _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
+                }
+                //dismissAndFinish();
             }
 
             private void overrideUrlLoad(Uri uri) {
+                final Map<String, Object> eventMap = new HashMap<>();
                 if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_LOAD_ERROR)) {
-                    _pluginCallbacks.onError(null);
+                    eventMap.put("eventName", "error");
+                    eventMap.put("description", "Failed loading socialize.js");
+                    eventMap.put("errorCode", 500032);
+                    eventMap.put("dismiss", true);
+                    if (_pluginCallbacks != null) {
+                        _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
+                    }
+                    //dismissAndFinish();
                 } else if (ObjectUtils.safeEquals(uri.getScheme(), REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), ON_JS_EXCEPTION)) {
-                    _pluginCallbacks.onError(null);
+                    eventMap.put("eventName", "error");
+                    eventMap.put("errorCode", 405001);
+                    eventMap.put("description", "Javascript error while loading plugin. Please make sure the plugin name is correct.");
+                    eventMap.put("dismiss", true);
+                    if (_pluginCallbacks != null) {
+                        _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
+                    }
+                   // dismissAndFinish();
                 } else if (!_webBridge.handleUrl(uri.toString())) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(browserIntent);
