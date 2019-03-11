@@ -2,9 +2,23 @@ apply plugin: 'com.android.library'
 
 def androidVersion = file('version.txt').text
 
+ext {
+    outDir = "${projectDir}/dist"
+    androidJarName = "gigya-sdk-${androidVersion}"
+    androidDocName = "gigya-sdk-${androidVersion}-javadoc"
+    androidSrcName = "gigya-sdk-${androidVersion}-source"
+    sharedManifest = manifest {
+        attributes(
+                'Implementation-Vendor': 'Gigya inc.',
+                'Implementation-Title': 'Gigya Android SDK',
+                'Implementation-Version': androidVersion
+        )
+    }
+}
+
 android {
 
-    compileSdkVersion 28
+    compileSdkVersion 27
 
     defaultConfig {
         //noinspection MinSdkTooLow
@@ -33,23 +47,13 @@ android {
     }
 }
 
-ext {
-    outDir = "${projectDir}/dist"
-    androidJarName = "gigya-sdk-${androidVersion}"
-    androidDocName = "gigya-sdk-${androidVersion}-javadoc"
-    androidSrcName = "gigya-sdk-${androidVersion}-source"
-    sharedManifest = manifest {
-        attributes(
-                'Implementation-Vendor': 'Gigya inc.',
-                'Implementation-Title': 'Gigya Android SDK',
-                'Implementation-Version': androidVersion
-        )
-    }
+configurations {
+    extraLibs
 }
 
 dependencies {
 
-    /* Test libraries. */
+    // Test implementations.
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.json:json:20141113'
     testImplementation 'androidx.test:core:1.1.0'
@@ -59,11 +63,14 @@ dependencies {
     testImplementation 'org.apache.httpcomponents:httpcore:4.4.10'
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.6'
 
-    /* Implementations. */
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    // Implementations.
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    /* Compile only third party libraries. */
+    // Extra libraries included in packaged JAR file.
+    extraLibs 'com.google.code.gson:gson:2.8.5'
+
+    // Compile only libraries. Not included in packaged JAR file.
     compileOnly files('libs/line-sdk-4.0.10.aar')
     compileOnly 'com.facebook.android:facebook-android-sdk:4.39.0'
     compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
@@ -73,7 +80,7 @@ dependencies {
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
-    if (name == 'realease') {
+    if (name == 'release') {
 
         task createOutputDirs() {
             file(outDir).mkdir()
@@ -86,27 +93,30 @@ android.libraryVariants.all { variant ->
             delete outDir, buildDir
         }
 
-        task createAndroidJar(type: Jar, dependsOn: variant.javaCompile) {
+        task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
             baseName androidJarName
-            from variant.javaCompile.destinationDir
+            from variant.javaCompileProvider.get().destinationDir
+            from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
             destinationDir = file(outDir)
             include(
                     'com/gigya/android/sdk/**',
+                    'com/google/gson/**'
             )
             manifest {
                 from sharedManifest
             }
+
         }
 
-        task createAndroidJavadoc(type: Javadoc, dependsOn: variant.javaCompile) {
-            source = variant.javaCompile.source
+        task createAndroidJavadoc(type: Javadoc, dependsOn: variant.javaCompileProvider) {
+            source = variant.javaCompileProvider.get().source
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
             destinationDir = new File("${outDir}/${androidDocName}")
             include()
             failOnError = false
         }
 
-        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompile) {
+        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompileProvider) {
             from 'src'
             def sourceDir = new File("${outDir}/${androidSrcName}")
             sourceDir.mkdir()

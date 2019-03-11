@@ -281,7 +281,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //endregion APIS
 
-    //region WEBVIEW
+    //region WEB VIEW
 
     /**
      * Present SDK native login pre defined UI.
