@@ -30,6 +30,11 @@ public class PersistenceService {
      */
     private static final String PREFS_KEY_PROVIDER_SET = "GS_PROVIDER_SET";
 
+    /**
+     * Value key for session expiration timestamp.
+     */
+    private static final String PREFS_KEY_SESSION_EXPIRE_TIMESTAMP = "GS_SESSION_EXPIRE_TIMESTAMP";
+
     @NonNull
     private SharedPreferences _prefs;
 
@@ -37,7 +42,7 @@ public class PersistenceService {
         _prefs = appContext.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
     }
 
-    //region Object access.
+    //region OBJECT ACCESS
 
     /**
      * Check element availability by given key.
@@ -82,6 +87,17 @@ public class PersistenceService {
         _prefs.edit().putString(key, element).apply();
     }
 
+
+    /**
+     * Add Long element to persistence given key value.
+     *
+     * @param key     Specified key.
+     * @param element Long element to persist.
+     */
+    public void add(String key, long element) {
+        _prefs.edit().putLong(key, element).apply();
+    }
+
     /**
      * Remove multiple String elements from persistence.
      *
@@ -97,7 +113,7 @@ public class PersistenceService {
 
     //endregion
 
-    // Session specific.
+    //region SESSION SPECIFIC
 
     public void setSession(String encrypted) {
         add(PREFS_KEY_SESSION, encrypted);
@@ -116,9 +132,17 @@ public class PersistenceService {
         return contains(PREFS_KEY_SESSION);
     }
 
+    public void setSessionExpiration(long expiration) {
+        add(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, expiration);
+    }
+
+    public long getSessionExpiration() {
+        return getLong(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
+    }
+
     //endregion
 
-    //region Social providers
+    //region SOCIAL PROVIDERS
 
     /**
      * Get all used social providers.

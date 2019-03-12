@@ -76,6 +76,7 @@ public class SessionService {
     /**
      * Set a new session reference.
      * Referenced object will be set & session info will persist.
+     * Make sure to call this method only when a brand new session data is available and not an existing reference!!
      *
      * @param session New session reference.
      */
@@ -85,6 +86,9 @@ public class SessionService {
             return;
         }
         _session = session;
+        if (_session.getExpirationTime() > 0) {
+            _sessionWillExpireIn = System.currentTimeMillis() + (_session.getExpirationTime() * 1000);
+        }
         save();
         GigyaLogger.debug(LOG_TAG, session.toString());
     }
@@ -123,11 +127,18 @@ public class SessionService {
             jsonObject.put("expirationTime", _session != null ? _session.getExpirationTime() : null);
             jsonObject.put("ucid", _config.getUcid());
             jsonObject.put("gmid", _config.getGmid());
-            /* Encrypt _session. */
+
+            // Encrypt _session.
             final String sessionJSON = jsonObject.toString();
             final String encryptedSession = encrypt(sessionJSON);
-            /* Save to preferences. */
+
+            // Save to preferences.
             _persistenceService.setSession(encryptedSession);
+
+            // Persist session expiration if available.
+            if (_sessionWillExpireIn > 0) {
+                _persistenceService.setSessionExpiration(_sessionWillExpireIn);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion to " + ex.getMessage());
@@ -168,12 +179,15 @@ public class SessionService {
                     final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
                     final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
                     final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
-                    _session = new SessionInfo(sessionSecret, sessionToken, expirationTime, false);
+                    _session = new SessionInfo(sessionSecret, sessionToken, expirationTime);
 
                     final String ucid = jsonObject.getString("ucid");
                     _config.setUcid(ucid);
                     final String gmid = jsonObject.getString("gmid");
                     _config.setGmid(gmid);
+
+                    // Get session expiration if exists.
+                    _sessionWillExpireIn = _persistenceService.getSessionExpiration();
 
                     GigyaLogger.debug(LOG_TAG, "Session load: " + _session.toString());
                 } catch (Exception ex) {
@@ -191,7 +205,7 @@ public class SessionService {
         final String token = _persistenceService.getString("session.Token", null);
         final String secret = _persistenceService.getString("session.Secret", null);
         final long expiration = _persistenceService.getLong("session.ExpirationTime", 0L);
-        _session = new SessionInfo(secret, token, expiration, false);
+        _session = new SessionInfo(secret, token, expiration);
         final String ucid = _persistenceService.getString("ucid", null);
         _config.setUcid(ucid);
         final String gmid = _persistenceService.getString("gmid", null);
@@ -247,20 +261,22 @@ public class SessionService {
 
     //region SESSION EXPIRATION TRACKING
 
-    private CountDownTimer sessionLifeCountdownTimer;
+    private long _sessionWillExpireIn = 0;
+
+    private CountDownTimer _sessionLifeCountdownTimer;
 
     public void cancelSessionCountdownTimer() {
-        if (sessionLifeCountdownTimer != null) sessionLifeCountdownTimer.cancel();
+        if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
     }
 
     public void startSessionCountdownTimerIfNeeded() {
         if (_session == null) {
             return;
         }
-        if (_session.isValid() && _session.isSetToExpire()) {
+        if (_session.isValid() && _sessionWillExpireIn > 0) {
             // Session is set to expire.
-            final long timeUntilSessionExpires = _session.getExpirationTime() - System.currentTimeMillis();
-            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: " + timeUntilSessionExpires + " start countdown timer");
+            final long timeUntilSessionExpires = _sessionWillExpireIn - System.currentTimeMillis();
+            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: " + (timeUntilSessionExpires / 1000) + " start countdown timer");
             // Just in case.
             if (timeUntilSessionExpires > 0) {
                 startSessionCountdown(timeUntilSessionExpires);
@@ -270,7 +286,7 @@ public class SessionService {
 
     private void startSessionCountdown(long future) {
         cancelSessionCountdownTimer();
-        sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
+        _sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
             @Override
             public void onTick(long millisUntilFinished) {
                 // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
@@ -280,6 +296,7 @@ public class SessionService {
             @Override
             public void onFinish() {
                 GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
+                _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
                 // Send "session expired" local broadcast.
                 LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_EXPIRED));
             }

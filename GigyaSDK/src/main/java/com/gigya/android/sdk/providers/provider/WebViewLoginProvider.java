@@ -76,7 +76,7 @@ public class WebViewLoginProvider extends LoginProvider {
         final String expiresInString = (String) result.get("expires_in");
         final long expiresIn = Long.parseLong(expiresInString != null ? expiresInString : "0");
         final String secret = (String) result.get("x_access_token_secret");
-        return new SessionInfo(secret, accessToken, expiresIn, true);
+        return new SessionInfo(secret, accessToken, expiresIn);
     }
 
     @Override

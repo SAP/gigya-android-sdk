@@ -1,60 +1,26 @@
 package com.gigya.android.sdk.model.account;
 
-import android.support.annotation.NonNull;
-
-import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.gson.IPostGsonProcessable;
 import com.google.gson.annotations.SerializedName;
 
-public class SessionInfo implements IPostGsonProcessable {
+public class SessionInfo{
 
     private String sessionToken;
     private String sessionSecret;
     @SerializedName(value = "expirationTime", alternate = {"expires_in"})
-    private long expirationTime;
+    private long expirationTime; // In seconds.
 
     public SessionInfo(String secret, String token) {
-        this(secret, token, Long.MAX_VALUE, false);
+        this(secret, token, 0);
     }
 
-    public SessionInfo(String secret, String token, long expirationSeconds, boolean validate) {
+    public SessionInfo(String secret, String token, long expirationSeconds) {
         this.sessionSecret = secret;
         this.sessionToken = token;
         this.expirationTime = expirationSeconds;
-        if (validate) {
-            validateExpirationTime();
-        }
     }
 
     public boolean isValid() {
-        return (this.sessionToken != null && this.sessionSecret != null && System.currentTimeMillis() < this.expirationTime);
-    }
-
-    /*
-    Validate various unlimited expiration time values and sets them to the required specification.
-     */
-    private void validateExpirationTime() {
-        GigyaLogger.debug("SessionInfo", "validateExpirationTime: ");
-        if (expirationTime == 0 || expirationTime == -1 || expirationTime == Long.MAX_VALUE) {
-            expirationTime = Long.MAX_VALUE;
-        } else {
-            this.expirationTime = System.currentTimeMillis() + (expirationTime * 1000);
-        }
-    }
-
-    public boolean isSetToExpire() {
-        return expirationTime != Long.MAX_VALUE;
-    }
-
-    @Override
-    public void onPostGsonProcess() {
-        validateExpirationTime();
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "Secret:  " + this.sessionSecret + "\n" + "Token: " + this.sessionToken + "\n" + "ExpirationTime: " + this.expirationTime;
+        return (this.sessionToken != null && this.sessionSecret != null);
     }
 
     //region Getters & Setters
