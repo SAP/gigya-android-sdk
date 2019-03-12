@@ -2,8 +2,13 @@ package com.gigya.android.sample.ui
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
@@ -20,6 +25,7 @@ import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -44,6 +50,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         initDrawer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager.getInstance(this).registerReceiver(sessionExpirationReceiver,
+                IntentFilter(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_EXPIRED))
+    }
+
+    override fun onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionExpirationReceiver)
+        super.onPause()
+    }
+
+    private val sessionExpirationReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Session expired.
+            viewModel?.flushAccountReferences()
+            if (!isDestroyed && !isFinishing) {
+                displayErrorAlert("Alert", "Your session has expired")
+                invalidateAccountData()
+                invalidateOptionsMenu()
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -412,9 +441,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 })
     }
 
-    override fun onRegisterWith(username: String, password: String) {
+    override fun onRegisterWith(username: String, password: String, exp: Int) {
         onLoading()
-        viewModel?.register(username, password,
+        viewModel?.register(username, password, exp,
                 success = { json -> onJsonResult(json) },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
@@ -499,6 +528,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             nav_subtitle.text = myAccount?.profile?.email
 
             nav_image.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
+
+            invalidateOptionsMenu()
         })
     }
 

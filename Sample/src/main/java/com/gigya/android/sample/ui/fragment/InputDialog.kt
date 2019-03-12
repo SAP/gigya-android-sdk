@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gigya.android.sample.R
+import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.Gigya
 import kotlinx.android.synthetic.main.input_anonymous.*
@@ -29,7 +30,7 @@ class InputDialog : DialogFragment() {
         fun onReInit()
         fun onAnonymousInput(input: String)
         fun onLoginWithProvider(provider: String)
-        fun onRegisterWith(username: String, password: String)
+        fun onRegisterWith(username: String, password: String, exp: Int)
         fun onLoginWith(username: String, password: String)
         fun onUpdateAccountWith(comment: String)
     }
@@ -161,6 +162,11 @@ class InputDialog : DialogFragment() {
             }
         }
 
+        if (type == MainInputType.REGISTER) {
+            login_register_session_exp_title.visible()
+            login_register_session_exp_input.visible()
+        }
+
         login_register_sheet_send_button.setOnClickListener {
             val username = login_register_sheet_username_edit.text.toString().trim()
             val password = login_register_sheet_password_edit.text.toString().trim()
@@ -168,7 +174,8 @@ class InputDialog : DialogFragment() {
                 if (type == MainInputType.LOGIN) {
                     resultCallback.onLoginWith(username, password)
                 } else if (type == MainInputType.REGISTER) {
-                    resultCallback.onRegisterWith(username, password)
+                    val sessionExp = login_register_session_exp_input_edit.text.toString().trim().toInt()
+                    resultCallback.onRegisterWith(username, password, sessionExp)
                 }
                 dismiss()
             }

@@ -168,7 +168,7 @@ public class SessionService {
                     final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
                     final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
                     final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
-                    _session = new SessionInfo(sessionSecret, sessionToken, expirationTime);
+                    _session = new SessionInfo(sessionSecret, sessionToken, expirationTime, false);
 
                     final String ucid = jsonObject.getString("ucid");
                     _config.setUcid(ucid);
@@ -191,7 +191,7 @@ public class SessionService {
         final String token = _persistenceService.getString("session.Token", null);
         final String secret = _persistenceService.getString("session.Secret", null);
         final long expiration = _persistenceService.getLong("session.ExpirationTime", 0L);
-        _session = new SessionInfo(secret, token, expiration);
+        _session = new SessionInfo(secret, token, expiration, false);
         final String ucid = _persistenceService.getString("ucid", null);
         _config.setUcid(ucid);
         final String gmid = _persistenceService.getString("gmid", null);

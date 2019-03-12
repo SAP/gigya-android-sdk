@@ -153,10 +153,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Register using loginID, password, policy.
      */
-    fun register(loginID: String, password: String,
+    fun register(loginID: String, password: String, exp: Int,
                  success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        gigya.register(loginID, password, object : GigyaLoginCallback<MyAccount>() {
+        gigya.register(loginID, password, mutableMapOf<String, Any>("sessionExpiration" to exp), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 account.value = obj
@@ -401,7 +401,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Nullify account holders.
      */
-    private fun flushAccountReferences() {
+    fun flushAccountReferences() {
         account.value = null
     }
 

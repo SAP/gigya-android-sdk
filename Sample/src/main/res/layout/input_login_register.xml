@@ -2,8 +2,8 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    app:layout_constrainedWidth="false"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layout_constrainedWidth="false">
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/login_register_sheet_title"
@@ -60,32 +60,60 @@
     </android.support.design.widget.TextInputLayout>
 
     <!--<RadioGroup-->
-        <!--android:id="@+id/register_policy_radio_group"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginStart="16dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--app:layout_constrainedHeight="true"-->
-        <!--app:layout_constrainedWidth="true"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input"-->
-        <!--app:layout_constraintVertical_bias="1">-->
+    <!--android:id="@+id/register_policy_radio_group"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginStart="16dp"-->
+    <!--android:layout_marginTop="8dp"-->
+    <!--android:layout_marginBottom="8dp"-->
+    <!--app:layout_constrainedHeight="true"-->
+    <!--app:layout_constrainedWidth="true"-->
+    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input"-->
+    <!--app:layout_constraintVertical_bias="1">-->
 
-        <!--<RadioButton-->
-            <!--android:id="@+id/policy_email"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:checked="true"-->
-            <!--android:text="Email" />-->
+    <!--<RadioButton-->
+    <!--android:id="@+id/policy_email"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:checked="true"-->
+    <!--android:text="Email" />-->
 
-        <!--<RadioButton-->
-            <!--android:id="@+id/policy_username"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Username" />-->
+    <!--<RadioButton-->
+    <!--android:id="@+id/policy_username"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Username" />-->
     <!--</RadioGroup>-->
+
+    <TextView
+        android:id="@+id/login_register_session_exp_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Session expiration:"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@id/login_register_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/login_register_session_exp_input"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintStart_toStartOf="@id/login_register_session_exp_title"
+        app:layout_constraintTop_toBottomOf="@id/login_register_session_exp_title">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/login_register_session_exp_input_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:textSize="14sp" />
+
+    </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/login_register_sheet_send_button"
@@ -104,7 +132,7 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input"
+        app:layout_constraintTop_toBottomOf="@id/login_register_session_exp_input"
         app:layout_constraintVertical_bias="1" />
 
 
