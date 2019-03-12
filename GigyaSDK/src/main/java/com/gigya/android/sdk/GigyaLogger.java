@@ -27,6 +27,12 @@ public class GigyaLogger {
         }
     }
 
+    public static void info(String tag, String message) {
+        if (DEBUG) {
+            Log.i(LOG_TAG, logMessage(tag, message));
+        }
+    }
+
     private static String logMessage(String classTAG, String message) {
         return "<< " + classTAG + " *** " + message + " >>";
     }

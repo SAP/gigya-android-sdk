@@ -1,7 +1,10 @@
 package com.gigya.android.sdk;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -89,6 +92,7 @@ public class Gigya<T extends GigyaAccount> {
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context appContext, @NonNull Class<V> accountClazz) {
         if (_sharedInstance == null) {
             _sharedInstance = new Gigya(appContext, accountClazz);
+            _sharedInstance.registerActivityLifecycleCallbacks();
         }
         return _sharedInstance;
     }
@@ -170,6 +174,67 @@ public class Gigya<T extends GigyaAccount> {
             }
         }
     }
+
+    //region Lifecycle callbacks
+
+    /**
+     * Attaching the SDK to the application lifecycle in order to distinguish foreground/background/resumed states.
+     */
+    private void registerActivityLifecycleCallbacks() {
+        if (!(_appContext instanceof Application)) {
+            GigyaLogger.error(LOG_TAG, "SDK initialized with the wrong context. Please make sure you have initialized the SDK using the applicationContext");
+            return;
+        }
+        ((Application) _appContext).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+
+            private int activityReferences = 0;
+            private boolean isActivityChangingConfigurations = false;
+
+            @Override
+            public void onActivityCreated(Activity activity, Bundle bundle) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                if (++activityReferences == 1 && !isActivityChangingConfigurations) {
+                    // App enters foreground
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                // Stub. Can track the current resumed activity.
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                isActivityChangingConfigurations = activity.isChangingConfigurations();
+                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                    // App enters background
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                // Stub.
+            }
+        });
+    }
+
+    //endregion
 
     //endregion
 
