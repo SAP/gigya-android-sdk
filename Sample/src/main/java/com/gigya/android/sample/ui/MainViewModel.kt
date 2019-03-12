@@ -61,7 +61,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     Using short version because SDK was initialized & account scheme was already set
     in the Application class.
      */
-    private val gigya = Gigya.getInstance()
+    private val gigya = Gigya.getInstance(application, MyAccount::class.java)
 
     //region TFA FLOW
 

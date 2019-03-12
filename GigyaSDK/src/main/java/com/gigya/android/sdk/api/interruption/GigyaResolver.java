@@ -19,18 +19,18 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
 
     ApiService<A> _apiService;
 
-    protected SoftReference<GigyaLoginCallback<? extends GigyaAccount>> _loginCallback;
+    protected SoftReference<GigyaLoginCallback<A>> _loginCallback;
 
     protected GigyaApiResponse _originalResponse;
 
     String _regToken;
 
-    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
         _apiService = apiService;
         _originalResponse = originalResponse;
         _regToken = originalResponse.getField("regToken", String.class);
         // TODO: 10/03/2019 If regToken in null throw an error.
-        _loginCallback = new SoftReference<GigyaLoginCallback<? extends GigyaAccount>>(loginCallback);
+        _loginCallback = new SoftReference<>(loginCallback);
     }
 
     /**

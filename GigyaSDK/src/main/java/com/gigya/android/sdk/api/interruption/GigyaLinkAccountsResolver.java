@@ -34,7 +34,7 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     }
 
     @Override
-    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
         super.init(apiService, originalResponse, loginCallback);
         // Get conflicting accounts.
         GigyaLogger.debug(LOG_TAG, "init: sending fetching conflicting accounts");

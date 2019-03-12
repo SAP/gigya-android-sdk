@@ -47,7 +47,7 @@ public class ApiService<A extends GigyaAccount> {
     /*
     Business login handler for interruption enabled Apis.
      */
-    private InterruptionHandler _interruptionHandler;
+    private InterruptionHandler<A> _interruptionHandler;
 
     public ApiService(Context appContext, SessionService sessionService, AccountService<A> accountService) {
         _sessionService = sessionService;
@@ -131,7 +131,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param params        Request parameters.
      * @param loginCallback Login response callback.
      */
-    public void login(Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
@@ -149,7 +149,7 @@ public class ApiService<A extends GigyaAccount> {
                 }
 
             }
-        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, (GigyaCallback<A>) loginCallback);
+        }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, loginCallback);
     }
 
     /**
@@ -159,14 +159,14 @@ public class ApiService<A extends GigyaAccount> {
      *
      * @param callback Response callback.
      */
-    public void getAccount(final GigyaCallback<? extends GigyaAccount> callback) {
+    public void getAccount(final GigyaCallback<A> callback) {
         if (!_sessionService.isValidSession()) {
             callback.onError(GigyaError.invalidSession());
             return;
         }
         if (_accountService.isCachedAccount()) {
             // Always return a deep copy.
-            ((GigyaCallback<A>) callback).onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
+            callback.onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
         } else {
             new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
 
@@ -179,7 +179,7 @@ public class ApiService<A extends GigyaAccount> {
                     }
                 }
             }.execute(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, NetworkAdapter.Method.POST,
-                    null, (GigyaCallback<A>) callback);
+                    null, callback);
         }
     }
 
@@ -189,7 +189,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param updatedAccount Updated account object.
      * @param callback       Response callback.
      */
-    public void setAccount(A updatedAccount, final GigyaCallback<? extends GigyaAccount> callback) {
+    public void setAccount(A updatedAccount, final GigyaCallback<A> callback) {
         if (!_sessionService.isValidSession()) {
             callback.onError(GigyaError.invalidSession());
             return;
@@ -202,10 +202,10 @@ public class ApiService<A extends GigyaAccount> {
                 getAccount(callback);
             }
         }.execute(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, NetworkAdapter.Method.POST,
-                _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), (GigyaCallback<A>) callback);
+                _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount), callback);
     }
 
-    public void notifyLogin(final String providerSessions, final GigyaLoginCallback<? extends GigyaAccount> loginCallback, Runnable completionHandler) {
+    public void notifyLogin(final String providerSessions, final GigyaLoginCallback<A> loginCallback, Runnable completionHandler) {
         Map<String, Object> params = new HashMap<>();
         params.put("providerSessions", providerSessions);
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
@@ -237,7 +237,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param params        Request parameters.
      * @param loginCallback Login response callback.
      */
-    public void register(final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void register(final Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
         new GigyaApi<GigyaApiResponse, A>(_adapter, _sessionService, _accountService, GigyaApiResponse.class) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
@@ -261,7 +261,7 @@ public class ApiService<A extends GigyaAccount> {
                             }
                         }
                     }
-                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) loginCallback);
+                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, loginCallback);
             }
 
             @Override
@@ -279,7 +279,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param UID      Account UID..
      * @param callback Response callback.
      */
-    public void verifyLogin(String UID, @Nullable GigyaCallback<? extends GigyaAccount> callback) {
+    public void verifyLogin(String UID, @Nullable GigyaCallback<A> callback) {
         Map<String, Object> params = new HashMap<>();
         params.put("UID", UID);
         params.put("include", "identities-all,loginIDs,profile,email,data");
@@ -290,7 +290,7 @@ public class ApiService<A extends GigyaAccount> {
                     callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
                 }
             }
-        }.execute(GigyaDefinitions.API.API_VERIFY_LOGIN, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) callback);
+        }.execute(GigyaDefinitions.API.API_VERIFY_LOGIN, NetworkAdapter.Method.POST, params, callback);
     }
 
     /**
@@ -342,7 +342,7 @@ public class ApiService<A extends GigyaAccount> {
      * @param regToken      Provided registration token.
      * @param loginCallback Login response callback.
      */
-    public void finalizeRegistration(String regToken, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void finalizeRegistration(String regToken, final GigyaLoginCallback<A> loginCallback) {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {

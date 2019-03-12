@@ -354,7 +354,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param password Login password.
      * @param callback Response listener callback.
      */
-    public void login(String loginId, String password, GigyaLoginCallback<? extends GigyaAccount> callback) {
+    public void login(String loginId, String password, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "login: with loginId = " + loginId);
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
@@ -369,7 +369,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param socialProvider Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
      * @param callback       Login response callback.
      */
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
         new GigyaLoginPresenter(_gigyaContext).login(_appContext, socialProvider, params, callback);
     }
@@ -379,7 +379,7 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param callback Response listener callback.
      */
-    public void getAccount(GigyaCallback<? extends GigyaAccount> callback) {
+    public void getAccount(GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: ");
         _gigyaContext.getApiService().getAccount(callback);
     }
@@ -391,7 +391,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback      Response listener callback.
      */
     @SuppressWarnings("unused")
-    public void getAccount(final boolean overrideCache, GigyaCallback<? extends GigyaAccount> callback) {
+    public void getAccount(final boolean overrideCache, GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + overrideCache);
         _gigyaContext.getAccountService().setAccountOverrideCache(overrideCache);
         getAccount(callback);
@@ -403,7 +403,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param account  Updated account object.
      * @param callback Response listener callback.
      */
-    public void setAccount(T account, GigyaCallback<? extends GigyaAccount> callback) {
+    public void setAccount(T account, GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
         _gigyaContext.getApiService().setAccount(account, callback);
     }
@@ -414,7 +414,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param UID      Account UID identifier.
      * @param callback Response listener callback.
      */
-    public void verifyLogin(String UID, GigyaCallback<? extends GigyaAccount> callback) {
+    public void verifyLogin(String UID, GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
         _gigyaContext.getApiService().verifyLogin(UID, callback);
     }
@@ -428,7 +428,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Additional parameters.
      * @param callback Response listener callback.
      */
-    public void register(String email, String password, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
+    public void register(String email, String password, Map<String, Object> params, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email + " and params: " + params.toString());
         params.put("email", email);
         params.put("password", password);
@@ -442,7 +442,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param password User password.
      * @param callback Response listener callback.
      */
-    public void register(String email, String password, GigyaLoginCallback<? extends GigyaAccount> callback) {
+    public void register(String email, String password, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email);
         Map<String, Object> params = new HashMap<>();
         register(email, password, params, callback);
@@ -471,7 +471,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param callback  Login response callback.
      */
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
-                                final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> callback) {
+                                final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
         new GigyaLoginPresenter(_gigyaContext).showNativeLoginProviders(_appContext, providers, params, callback);
     }
@@ -488,7 +488,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params     ScreensSet flow parameters.
      * @param callback   Plugin callback.
      */
-    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
+    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter(_gigyaContext)
@@ -502,7 +502,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Comments ScreenSet flow parameters.
      * @param callback Plugin callback.
      */
-    public void showComments(Map<String, Object> params, final GigyaPluginCallback<? extends GigyaAccount> callback) {
+    public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         new GigyaPluginPresenter(_gigyaContext)
                 .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);

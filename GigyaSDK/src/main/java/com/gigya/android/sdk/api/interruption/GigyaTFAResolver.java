@@ -69,7 +69,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      * for the continuation of the flow.
      */
     @Override
-    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public void init(ApiService<A> apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
         super.init(apiService, originalResponse, loginCallback);
         GigyaLogger.debug(LOG_TAG, "Resolver init - request providers");
         // Request providers. Populate active & inactive on response.

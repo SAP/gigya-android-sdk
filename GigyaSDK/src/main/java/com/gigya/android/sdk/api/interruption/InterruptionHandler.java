@@ -42,7 +42,7 @@ public class InterruptionHandler<A extends GigyaAccount> {
         _apiService = apiService;
     }
 
-    public boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    public boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback<A> loginCallback) {
         if (_apiService.isInterruptionsEnabled()) {
             final int errorCode = apiResponse.getErrorCode();
             GigyaLogger.debug(LOG_TAG, "evaluateInterruptionError: True with errorCode = " + errorCode);
@@ -100,7 +100,7 @@ public class InterruptionHandler<A extends GigyaAccount> {
      * @param apiResponse   Original error response.
      * @param loginCallback Login result callback.
      */
-    private void optionalResolveForConflictingAccounts(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    private void optionalResolveForConflictingAccounts(final GigyaApiResponse apiResponse, final GigyaLoginCallback<A> loginCallback) {
         GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.LINK_ACCOUNTS);
         if (resolver == null) {
             resolver = new GigyaLinkAccountsResolver<>();
@@ -116,7 +116,7 @@ public class InterruptionHandler<A extends GigyaAccount> {
      * @param apiResponse   Original error response.
      * @param loginCallback Login result callback.
      */
-    private void optionalResolveForTFARegistration(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    private void optionalResolveForTFARegistration(final GigyaApiResponse apiResponse, final GigyaLoginCallback<A> loginCallback) {
         GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA_REG);
         if (resolver == null) {
             resolver = new GigyaTFARegistrationResolver<>();
@@ -132,7 +132,7 @@ public class InterruptionHandler<A extends GigyaAccount> {
      * @param apiResponse   Original error response.
      * @param loginCallback Login result callback.
      */
-    private void optionalResolveForTFAVerification(final GigyaApiResponse apiResponse, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
+    private void optionalResolveForTFAVerification(final GigyaApiResponse apiResponse, final GigyaLoginCallback<A> loginCallback) {
         GigyaResolver<A> resolver = _resolvers.get(GigyaResolver.TFA_VER);
         if (resolver == null) {
             resolver = new GigyaTFAVerificationResolver<>();
