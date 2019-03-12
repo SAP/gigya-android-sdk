@@ -12,7 +12,8 @@ public class Like {
     private String name;
     @Nullable
     private String time;
-    private long timestamp;
+    @Nullable
+    private Long timestamp;
 
     @Nullable
     public String getCategory() {
@@ -50,11 +51,12 @@ public class Like {
         this.time = time;
     }
 
-    public long getTimestamp() {
+    @Nullable
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(@Nullable Long timestamp) {
         this.timestamp = timestamp;
     }
 }

@@ -64,7 +64,8 @@ dependencies {
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.6'
 
     // Implementations.
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    //noinspection GradleDependency
+    implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
 
     // Extra libraries included in packaged JAR file.
@@ -72,7 +73,7 @@ dependencies {
 
     // Compile only libraries. Not included in packaged JAR file.
     compileOnly files('libs/line-sdk-4.0.10.aar')
-    compileOnly 'com.facebook.android:facebook-android-sdk:4.39.0'
+    compileOnly 'com.facebook.android:facebook-android-sdk:4.41.0'
     compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
     compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.3.1'
     compileOnly 'com.android.volley:volley:1.1.1'

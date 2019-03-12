@@ -8,7 +8,8 @@ public class Skill {
     private String level;
     @Nullable
     private String skill;
-    private long years;
+    @Nullable
+    private Integer years;
 
     @Nullable
     public String getLevel() {
@@ -28,11 +29,12 @@ public class Skill {
         this.skill = skill;
     }
 
-    public long getYears() {
+    @Nullable
+    public Integer getYears() {
         return years;
     }
 
-    public void setYears(long years) {
+    public void setYears(@Nullable Integer years) {
         this.years = years;
     }
 }

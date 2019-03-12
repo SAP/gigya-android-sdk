@@ -1,83 +1,111 @@
 package com.gigya.android.sdk.model.account;
 
+import android.support.annotation.Nullable;
+
 import com.gigya.android.sdk.model.GigyaModel;
 import com.gigya.android.sdk.model.profile.Profile;
 
 public class GigyaAccount extends GigyaModel {
 
+    @Nullable
     private String UID;
+    @Nullable
     private String UIDSignature;
-    private int apiVersion;
+    @Nullable
+    private Integer apiVersion;
+    @Nullable
     private String created;
-    private long createdTimestamp;
+    @Nullable
+    private Long createdTimestamp;
+    @Nullable
     private Emails emails;
     private boolean isActive;
     private boolean isRegistered;
     private boolean isVerified;
+    @Nullable
     private String lastLogin;
-    private long lastLoginTimestamp;
+    @Nullable
+    private Long lastLoginTimestamp;
+    @Nullable
     private String lastUpdated;
-    private long lastUpdatedTimestamp;
+    @Nullable
+    private Long lastUpdatedTimestamp;
+    @Nullable
     private String loginProvider;
+    @Nullable
     private String oldestDataUpdated;
-    private long oldestDataUpdatedTimestamp;
+    @Nullable
+    private Long oldestDataUpdatedTimestamp;
+    @Nullable
     private Profile profile;
+    @Nullable
     private String registered;
-    private long registeredTimestamp;
+    @Nullable
+    private Long registeredTimestamp;
+    @Nullable
     private SessionInfo sessionInfo;
-    private long signatureTimestamp;
+    @Nullable
+    private Long signatureTimestamp;
+    @Nullable
     private String socialProviders;
+    @Nullable
     private String verified;
-    private long verifiedTimestamp;
+    @Nullable
+    private Long verifiedTimestamp;
+    @Nullable
     private String regToken;
 
-    //region Setters & Getters
-
+    @Nullable
     public String getUID() {
         return UID;
     }
 
-    public void setUID(String UID) {
+    public void setUID(@Nullable String UID) {
         this.UID = UID;
     }
 
+    @Nullable
     public String getUIDSignature() {
         return UIDSignature;
     }
 
-    public void setUIDSignature(String UIDSignature) {
+    public void setUIDSignature(@Nullable String UIDSignature) {
         this.UIDSignature = UIDSignature;
     }
 
-    public int getApiVersion() {
+    @Nullable
+    public Integer getApiVersion() {
         return apiVersion;
     }
 
-    public void setApiVersion(int apiVersion) {
+    public void setApiVersion(@Nullable Integer apiVersion) {
         this.apiVersion = apiVersion;
     }
 
+    @Nullable
     public String getCreated() {
         return created;
     }
 
-    public void setCreated(String created) {
+    public void setCreated(@Nullable String created) {
         this.created = created;
     }
 
-    public long getCreatedTimestamp() {
+    @Nullable
+    public Long getCreatedTimestamp() {
         return createdTimestamp;
     }
 
-    public void setCreatedTimestamp(long createdTimestamp) {
+    public void setCreatedTimestamp(@Nullable Long createdTimestamp) {
         this.createdTimestamp = createdTimestamp;
     }
 
+    @Nullable
     public Emails getEmails() {
         return emails;
     }
 
-    public void setEmails(Emails emails) {
+    public void setEmails(@Nullable Emails emails) {
         this.emails = emails;
     }
 
@@ -105,134 +133,147 @@ public class GigyaAccount extends GigyaModel {
         isVerified = verified;
     }
 
+    @Nullable
     public String getLastLogin() {
         return lastLogin;
     }
 
-    public void setLastLogin(String lastLogin) {
+    public void setLastLogin(@Nullable String lastLogin) {
         this.lastLogin = lastLogin;
     }
 
-    public long getLastLoginTimestamp() {
+    @Nullable
+    public Long getLastLoginTimestamp() {
         return lastLoginTimestamp;
     }
 
-    public void setLastLoginTimestamp(long lastLoginTimestamp) {
+    public void setLastLoginTimestamp(@Nullable Long lastLoginTimestamp) {
         this.lastLoginTimestamp = lastLoginTimestamp;
     }
 
+    @Nullable
     public String getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(String lastUpdated) {
+    public void setLastUpdated(@Nullable String lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
-    public long getLastUpdatedTimestamp() {
+    @Nullable
+    public Long getLastUpdatedTimestamp() {
         return lastUpdatedTimestamp;
     }
 
-    public void setLastUpdatedTimestamp(long lastUpdatedTimestamp) {
+    public void setLastUpdatedTimestamp(@Nullable Long lastUpdatedTimestamp) {
         this.lastUpdatedTimestamp = lastUpdatedTimestamp;
     }
 
+    @Nullable
     public String getLoginProvider() {
         return loginProvider;
     }
 
-    public void setLoginProvider(String loginProvider) {
+    public void setLoginProvider(@Nullable String loginProvider) {
         this.loginProvider = loginProvider;
     }
 
+    @Nullable
     public String getOldestDataUpdated() {
         return oldestDataUpdated;
     }
 
-    public void setOldestDataUpdated(String oldestDataUpdated) {
+    public void setOldestDataUpdated(@Nullable String oldestDataUpdated) {
         this.oldestDataUpdated = oldestDataUpdated;
     }
 
-    public long getOldestDataUpdatedTimestamp() {
+    @Nullable
+    public Long getOldestDataUpdatedTimestamp() {
         return oldestDataUpdatedTimestamp;
     }
 
-    public void setOldestDataUpdatedTimestamp(long oldestDataUpdatedTimestamp) {
+    public void setOldestDataUpdatedTimestamp(@Nullable Long oldestDataUpdatedTimestamp) {
         this.oldestDataUpdatedTimestamp = oldestDataUpdatedTimestamp;
     }
 
+    @Nullable
     public Profile getProfile() {
         return profile;
     }
 
-    public void setProfile(Profile profile) {
+    public void setProfile(@Nullable Profile profile) {
         this.profile = profile;
     }
 
+    @Nullable
     public String getRegistered() {
         return registered;
     }
 
-    public void setRegistered(String registered) {
+    public void setRegistered(@Nullable String registered) {
         this.registered = registered;
     }
 
-    public long getRegisteredTimestamp() {
+    @Nullable
+    public Long getRegisteredTimestamp() {
         return registeredTimestamp;
     }
 
-    public void setRegisteredTimestamp(long registeredTimestamp) {
+    public void setRegisteredTimestamp(@Nullable Long registeredTimestamp) {
         this.registeredTimestamp = registeredTimestamp;
     }
 
+    @Nullable
     public SessionInfo getSessionInfo() {
         return sessionInfo;
     }
 
-    public void setSessionInfo(SessionInfo sessionInfo) {
+    public void setSessionInfo(@Nullable SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
     }
 
-    public long getSignatureTimestamp() {
+    @Nullable
+    public Long getSignatureTimestamp() {
         return signatureTimestamp;
     }
 
-    public void setSignatureTimestamp(long signatureTimestamp) {
+    public void setSignatureTimestamp(@Nullable Long signatureTimestamp) {
         this.signatureTimestamp = signatureTimestamp;
     }
 
+    @Nullable
     public String getSocialProviders() {
         return socialProviders;
     }
 
-    public void setSocialProviders(String socialProviders) {
+    public void setSocialProviders(@Nullable String socialProviders) {
         this.socialProviders = socialProviders;
     }
 
+    @Nullable
     public String getVerified() {
         return verified;
     }
 
-    public void setVerified(String verified) {
+    public void setVerified(@Nullable String verified) {
         this.verified = verified;
     }
 
-    public long getVerifiedTimestamp() {
+    @Nullable
+    public Long getVerifiedTimestamp() {
         return verifiedTimestamp;
     }
 
-    public void setVerifiedTimestamp(long verifiedTimestamp) {
+    public void setVerifiedTimestamp(@Nullable Long verifiedTimestamp) {
         this.verifiedTimestamp = verifiedTimestamp;
     }
 
+    @Nullable
     public String getRegToken() {
         return regToken;
     }
 
-    public void setRegToken(String regToken) {
+    public void setRegToken(@Nullable String regToken) {
         this.regToken = regToken;
     }
-
-    //endregion
-
 }

@@ -8,7 +8,8 @@ public class Work {
     private String company;
     @Nullable
     private String companyID;
-    private long companySize;
+    @Nullable
+    private Long companySize;
     @Nullable
     private String description;
     @Nullable
@@ -41,11 +42,12 @@ public class Work {
         this.companyID = companyID;
     }
 
-    public long getCompanySize() {
+    @Nullable
+    public Long getCompanySize() {
         return companySize;
     }
 
-    public void setCompanySize(long companySize) {
+    public void setCompanySize(@Nullable Long companySize) {
         this.companySize = companySize;
     }
 

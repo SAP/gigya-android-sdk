@@ -1,23 +1,29 @@
 package com.gigya.android.sdk.model.profile;
 
+import android.support.annotation.Nullable;
+
 public class Coordinates {
 
-    private float lat;
-    private float lon;
+    @Nullable
+    private Float lat;
+    @Nullable
+    private Float lon;
 
-    public float getLat() {
+    @Nullable
+    public Float getLat() {
         return lat;
     }
 
-    public void setLat(float lat) {
+    public void setLat(@Nullable Float lat) {
         this.lat = lat;
     }
 
-    public float getLon() {
+    @Nullable
+    public Float getLon() {
         return lon;
     }
 
-    public void setLon(float lon) {
+    public void setLon(@Nullable Float lon) {
         this.lon = lon;
     }
 }

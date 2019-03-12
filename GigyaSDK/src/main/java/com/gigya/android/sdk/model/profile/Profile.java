@@ -10,12 +10,16 @@ public class Profile {
     private String activities;
     @Nullable
     private String address;
-    private long age;
+    @Nullable
+    private Integer age;
     @Nullable
     private String bio;
-    private long birthDay;
-    private long birthMonth;
-    private long birthYear;
+    @Nullable
+    private Integer birthDay;
+    @Nullable
+    private Integer birthMonth;
+    @Nullable
+    private Integer birthYear;
     @Nullable
     private List<Certification> certifications;
     @Nullable
@@ -32,8 +36,10 @@ public class Profile {
     private List<Favorites> favorites;
     @Nullable
     private String firstName;
-    private long followersCounts;
-    private long followingCount;
+    @Nullable
+    private Long followersCounts;
+    @Nullable
+    private Long followingCount;
     @Nullable
     private String gender;
     @Nullable
@@ -119,11 +125,12 @@ public class Profile {
         this.address = address;
     }
 
-    public long getAge() {
+    @Nullable
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(long age) {
+    public void setAge(@Nullable Integer age) {
         this.age = age;
     }
 
@@ -136,27 +143,30 @@ public class Profile {
         this.bio = bio;
     }
 
-    public long getBirthDay() {
+    @Nullable
+    public Integer getBirthDay() {
         return birthDay;
     }
 
-    public void setBirthDay(long birthDay) {
+    public void setBirthDay(@Nullable Integer birthDay) {
         this.birthDay = birthDay;
     }
 
-    public long getBirthMonth() {
+    @Nullable
+    public Integer getBirthMonth() {
         return birthMonth;
     }
 
-    public void setBirthMonth(long birthMonth) {
+    public void setBirthMonth(@Nullable Integer birthMonth) {
         this.birthMonth = birthMonth;
     }
 
-    public long getBirthYear() {
+    @Nullable
+    public Integer getBirthYear() {
         return birthYear;
     }
 
-    public void setBirthYear(long birthYear) {
+    public void setBirthYear(@Nullable Integer birthYear) {
         this.birthYear = birthYear;
     }
 
@@ -232,19 +242,21 @@ public class Profile {
         this.firstName = firstName;
     }
 
-    public long getFollowersCounts() {
+    @Nullable
+    public Long getFollowersCounts() {
         return followersCounts;
     }
 
-    public void setFollowersCounts(long followersCounts) {
+    public void setFollowersCounts(@Nullable Long followersCounts) {
         this.followersCounts = followersCounts;
     }
 
-    public long getFollowingCount() {
+    @Nullable
+    public Long getFollowingCount() {
         return followingCount;
     }
 
-    public void setFollowingCount(long followingCount) {
+    public void setFollowingCount(@Nullable Long followingCount) {
         this.followingCount = followingCount;
     }
 

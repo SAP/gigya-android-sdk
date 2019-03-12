@@ -29,7 +29,7 @@ public class Gigya<T extends GigyaAccount> {
 
     private static final String LOG_TAG = "Gigya";
 
-    public static final String VERSION = "android_4.0.0";
+    public static final String VERSION = "android_4.0.0_a1";
 
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
@@ -341,18 +341,31 @@ public class Gigya<T extends GigyaAccount> {
 
     /**
      * Register account using email & password combination.
+     * Additional parameters are included to allow additional parameters to be added such as profile.
+     *
+     * @param email    User email identifier.
+     * @param password User password.
+     * @param params   Additional parameters.
+     * @param callback Response listener callback.
+     */
+    public void register(String email, String password, Map<String, Object> params, GigyaLoginCallback<? extends GigyaAccount> callback) {
+        GigyaLogger.debug(LOG_TAG, "register: with email: " + email + " and params: " + params.toString());
+        params.put("email", email);
+        params.put("password", password);
+        _gigyaContext.getApiService().register(params, callback);
+    }
+
+    /**
+     * Register account using email & password combination.
      *
      * @param email    User email identifier.
      * @param password User password.
      * @param callback Response listener callback.
      */
-    @SuppressWarnings("unused")
     public void register(String email, String password, GigyaLoginCallback<? extends GigyaAccount> callback) {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email);
         Map<String, Object> params = new HashMap<>();
-        params.put("email", email);
-        params.put("password", password);
-        _gigyaContext.getApiService().register(params, callback);
+        register(email, password, params, callback);
     }
 
     /**

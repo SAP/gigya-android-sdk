@@ -109,7 +109,7 @@ public class SessionService {
      * Save session data to encrypted persistence store.
      */
     public void save() {
-        GigyaLogger.error(LOG_TAG, "save:");
+        GigyaLogger.debug(LOG_TAG, "save:");
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("sessionToken", _session != null ? _session.getSessionToken() : null);
