@@ -44,8 +44,8 @@ public class GigyaContext<A extends GigyaAccount> {
     }
 
     /*
-        Service for storing cached account data and handling any account related logic.
-         */
+    Service for storing cached account data and handling any account related logic.
+     */
     private AccountService<A> _accountService;
 
     public AccountService<A> getAccountService() {

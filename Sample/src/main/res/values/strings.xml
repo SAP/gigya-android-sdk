@@ -54,5 +54,6 @@
     <string name="disable_interruptions">Disable interruptions</string>
     <string name="enable_interruptions">Enable interruptions</string>
     <string name="reset_tfa">Reset TFA</string>
+    <string name="verifylogin">verifyLogin</string>
 
 </resources>

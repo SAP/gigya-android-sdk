@@ -160,6 +160,10 @@ public class ApiService<A extends GigyaAccount> {
      * @param callback Response callback.
      */
     public void getAccount(final GigyaCallback<? extends GigyaAccount> callback) {
+        if (!_sessionService.isValidSession()) {
+            callback.onError(GigyaError.invalidSession());
+            return;
+        }
         if (_accountService.isCachedAccount()) {
             // Always return a deep copy.
             ((GigyaCallback<A>) callback).onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
@@ -186,6 +190,10 @@ public class ApiService<A extends GigyaAccount> {
      * @param callback       Response callback.
      */
     public void setAccount(A updatedAccount, final GigyaCallback<? extends GigyaAccount> callback) {
+        if (!_sessionService.isValidSession()) {
+            callback.onError(GigyaError.invalidSession());
+            return;
+        }
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, GigyaCallback<A> callback) {
@@ -227,7 +235,7 @@ public class ApiService<A extends GigyaAccount> {
      * Request account registration.
      *
      * @param params        Request parameters.
-     * @param loginCallback Response callback.
+     * @param loginCallback Login response callback.
      */
     public void register(final Map<String, Object> params, final GigyaLoginCallback<? extends GigyaAccount> loginCallback) {
         new GigyaApi<GigyaApiResponse, A>(_adapter, _sessionService, _accountService, GigyaApiResponse.class) {
@@ -263,6 +271,26 @@ public class ApiService<A extends GigyaAccount> {
                 }
             }
         }.execute(GigyaDefinitions.API.API_INIT_REGISTRATION, NetworkAdapter.Method.POST, params, null);
+    }
+
+    /**
+     * Request login verification according to provided UID
+     *
+     * @param UID      Account UID..
+     * @param callback Response callback.
+     */
+    public void verifyLogin(String UID, @Nullable GigyaCallback<? extends GigyaAccount> callback) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("UID", UID);
+        params.put("include", "identities-all,loginIDs,profile,email,data");
+        new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
+            @Override
+            public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                if (callback != null) {
+                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                }
+            }
+        }.execute(GigyaDefinitions.API.API_VERIFY_LOGIN, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) callback);
     }
 
     /**
@@ -351,7 +379,7 @@ public class ApiService<A extends GigyaAccount> {
      *
      * @param apiResponse API response.
      */
-    public A onAccountBasedApiSuccess(GigyaApiResponse apiResponse) {
+    private A onAccountBasedApiSuccess(GigyaApiResponse apiResponse) {
         if (apiResponse.contains("sessionInfo")) {
             if (apiResponse.contains("sessionSecret")) {
                 final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);

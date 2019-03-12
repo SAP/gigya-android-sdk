@@ -227,6 +227,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Check login state via accounts.verifyLogin API.
+     */
+    fun verifyLogin(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.verifyLogin(account.value!!.uid, object : GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                account.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
+    /**
      * Send a reset password email to designated user.
      */
     fun forgotPassword(success: () -> Unit, error: (GigyaError?) -> Unit) {

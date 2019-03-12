@@ -200,6 +200,8 @@ public class Gigya<T extends GigyaAccount> {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
                     // App enters foreground
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
+                    // Will start session countdown timer if the current session contains an expiration time.
+                    _gigyaContext.getSessionService().startSessionCountdownTimerIfNeeded();
                 }
             }
 
@@ -219,6 +221,8 @@ public class Gigya<T extends GigyaAccount> {
                 if (--activityReferences == 0 && !isActivityChangingConfigurations) {
                     // App enters background
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
+                    // Make sure to cancel the session expiration countdown timer (if live).
+                    _gigyaContext.getSessionService().cancelSessionCountdownTimer();
                 }
             }
 
@@ -402,6 +406,17 @@ public class Gigya<T extends GigyaAccount> {
     public void setAccount(T account, GigyaCallback<? extends GigyaAccount> callback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
         _gigyaContext.getApiService().setAccount(account, callback);
+    }
+
+    /**
+     * Request verify login given account UID/
+     *
+     * @param UID      Account UID identifier.
+     * @param callback Response listener callback.
+     */
+    public void verifyLogin(String UID, GigyaCallback<? extends GigyaAccount> callback) {
+        GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
+        _gigyaContext.getApiService().verifyLogin(UID, callback);
     }
 
     /**

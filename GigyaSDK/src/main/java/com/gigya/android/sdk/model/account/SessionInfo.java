@@ -36,6 +36,10 @@ public class SessionInfo implements IPostGsonProcessable {
             expirationTime = Long.MAX_VALUE;
     }
 
+    public boolean isSetToExpire() {
+        return expirationTime != Long.MAX_VALUE;
+    }
+
     @Override
     public void onPostGsonProcess() {
         validateExpirationTime();

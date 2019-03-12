@@ -40,7 +40,13 @@ public class GigyaError extends GigyaModel {
     }
 
     public static GigyaError generalError() {
+        // TODO: 12/03/2019 Define error correctly,
         return new GigyaError(400, "", "");
+    }
+
+    public static GigyaError invalidSession() {
+        // TODO: 12/03/2019 Define error correctly,
+        return new GigyaError(200001, "Operation canceled", "");
     }
 
     public static GigyaError errorFrom(String message) {

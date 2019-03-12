@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.api_register -> onRegister()
             R.id.api_get_account_info -> onGetAccount()
             R.id.api_set_account_info -> onSetAccount()
+            R.id.api_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
             R.id.action_raas -> showRAAS()
             R.id.action_comments -> showComments()
@@ -258,6 +259,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val dialog = builder.create()
         dialog.show()
     }
+
+    private fun onVerifyLogin() {
+        if (Gigya.getInstance().isLoggedIn) {
+            viewModel?.verifyLogin(
+                    success = { json ->
+                        onJsonResult(json)
+                    },
+                    error = { possibleError ->
+                        possibleError?.let { error -> onError(error) }
+                    }
+            )
+        }
+    }
+
 
     /**
      * Forgot password requested from navigation menu.

@@ -10,6 +10,11 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class GigyaDefinitions {
 
+    public static class Broadcasts {
+
+        public static final String INTENT_FILTER_SESSION_EXPIRED = "intent_filter_session_expired";
+    }
+
     public static class API {
         // ACCOUNT
         public static final String API_GET_SDK_CONFIG = "socialize.getSDKConfig";
@@ -24,6 +29,7 @@ public class GigyaDefinitions {
         public static final String API_FINALIZE_REGISTRATION = "accounts.finalizeRegistration";
         public static final String API_GET_CONFLICTING_ACCOUNTS = "accounts.getConflictingAccount";
         public static final String API_NOTIFY_LOGIN = "accounts.notifyLogin";
+        public static final String API_VERIFY_LOGIN = "accounts.verifyLogin";
         // TFA
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";

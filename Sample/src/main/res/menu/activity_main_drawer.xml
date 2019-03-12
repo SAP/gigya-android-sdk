@@ -31,6 +31,10 @@
                     android:title="@string/set_account" />
 
                 <item
+                    android:id="@+id/api_verify_login"
+                    android:title="@string/verifylogin"/>
+
+                <item
                     android:id="@+id/api_forgot_password"
                     android:title="@string/forgot_password" />
 

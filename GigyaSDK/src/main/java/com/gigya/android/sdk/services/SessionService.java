@@ -1,10 +1,14 @@
 package com.gigya.android.sdk.services;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.IEncryptor;
@@ -12,6 +16,8 @@ import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import org.json.JSONObject;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
 
@@ -74,13 +80,13 @@ public class SessionService {
      * @param session New session reference.
      */
     public void setSession(@Nullable SessionInfo session) {
-        GigyaLogger.debug(LOG_TAG, "setSession : " + session == null ? "null session" : session.toString());
-        if (session != null) {
-            _session = session;
-            save();
-        } else {
+        if (session == null) {
             GigyaLogger.error(LOG_TAG, "Failed to parse _session info from response");
+            return;
         }
+        _session = session;
+        save();
+        GigyaLogger.debug(LOG_TAG, session.toString());
     }
 
     /**
@@ -92,7 +98,7 @@ public class SessionService {
         return (_session != null && _session.isValid());
     }
 
-    //region Session persistence
+    //region SESSION PERSISTENCE
 
 
     /**
@@ -199,7 +205,7 @@ public class SessionService {
 
     //endregion
 
-    //region Session encryption/decryption
+    //region SESSION ENCRYPTION/DECRYPTION
 
     /**
      * Encrypt session secret using generated encryptor keys.
@@ -235,6 +241,49 @@ public class SessionService {
             ex.printStackTrace();
             throw new EncryptionException("Session encryption exception", ex.getCause());
         }
+    }
+
+    //endregion
+
+    //region SESSION EXPIRATION TRACKING
+
+    private CountDownTimer sessionLifeCountdownTimer;
+
+    public void cancelSessionCountdownTimer() {
+        if (sessionLifeCountdownTimer != null) sessionLifeCountdownTimer.cancel();
+    }
+
+    public void startSessionCountdownTimerIfNeeded() {
+        if (_session == null) {
+            return;
+        }
+        if (_session.isValid() && _session.isSetToExpire()) {
+            // Session is set to expire.
+            final long timeUntilSessionExpires = _session.getExpirationTime() - System.currentTimeMillis();
+            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: " + timeUntilSessionExpires + " start countdown timer");
+            // Just in case.
+            if (timeUntilSessionExpires > 0) {
+                startSessionCountdown(timeUntilSessionExpires);
+            }
+        }
+    }
+
+    private void startSessionCountdown(long future) {
+        cancelSessionCountdownTimer();
+        sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
+                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
+            }
+
+            @Override
+            public void onFinish() {
+                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
+                // Send "session expired" local broadcast.
+                LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_EXPIRED));
+            }
+        }.start();
     }
 
     //endregion
