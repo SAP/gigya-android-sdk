@@ -3,6 +3,12 @@
     "firstName": "john",
     "lastName": "Doe"
   },
+  "data": {
+    "custom": {
+      "one": "String",
+      "two": 2
+    }
+  },
   "statusCode": 200,
   "errorCode": 0,
   "statusReason": "OK",

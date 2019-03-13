@@ -94,6 +94,10 @@ public class Gigya<T extends GigyaAccount> {
             _sharedInstance = new Gigya(appContext, accountClazz);
             _sharedInstance.registerActivityLifecycleCallbacks();
         }
+        final Class scheme = _sharedInstance._gigyaContext.getAccountService().getAccountScheme();
+        if (scheme != accountClazz) {
+            GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+        }
         return _sharedInstance;
     }
 

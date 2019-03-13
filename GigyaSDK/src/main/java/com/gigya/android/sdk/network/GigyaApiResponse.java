@@ -2,17 +2,11 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.gson.PostProcessableTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 
 
 /**
@@ -20,13 +14,11 @@ import java.util.Map;
  */
 public class GigyaApiResponse {
 
-    private static final String LOG_TAG = "GigyaApiResponse";
     public static final int INVALID_VALUE = -1;
     public static final int OK = 200;
 
     private String json;
-    private JSONObject jsonObject;
-    private Map<String, Object> values = new HashMap<>();
+    private LinkedTreeMap<String, Object> mapped;
 
     // GSON Support.
     private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostProcessableTypeAdapterFactory()).create();
@@ -37,29 +29,8 @@ public class GigyaApiResponse {
 
     public GigyaApiResponse(String json) {
         this.json = json;
-        try {
-            this.jsonObject = new JSONObject(json);
-            flatMap(jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            GigyaLogger.error(LOG_TAG, "Failed to flatMap json object from response");
-        }
-    }
-
-    /*
-    Flatten json object for faster object fetch.
-     */
-    private void flatMap(JSONObject object) throws JSONException {
-        Iterator<?> keys = object.keys();
-        while (keys.hasNext()) {
-            String key = keys.next().toString();
-            Object value = object.get(key);
-            values.put(key, value);
-            if (value.getClass().equals(JSONObject.class)) {
-                JSONObject nested = (JSONObject) value;
-                flatMap(nested);
-            }
-        }
+        mapped = gson.fromJson(json, new TypeToken<LinkedTreeMap<String, Object>>() {
+        }.getType());
     }
 
     public String asJson() {
@@ -76,29 +47,76 @@ public class GigyaApiResponse {
         return null;
     }
 
+    @SuppressWarnings("LoopStatementThatDoesntLoop")
     public boolean contains(String key) {
-        return values.containsKey(key);
+        return mapped.containsKey(key);
+    }
+
+    public boolean containsNestedKey(String key) {
+        String[] split = key.split("\\.");
+        if (split.length == 1) {
+            return mapped.containsKey(key);
+        } else {
+            LinkedTreeMap map = mapped;
+            for (int i = 0; i < split.length - 1; i++) {
+                Object obj = map.get(split[i]);
+                if (obj == null) {
+                    return false;
+                }
+                if (obj instanceof LinkedTreeMap) {
+                    map = (LinkedTreeMap) obj;
+                } else if (i < split.length - 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public <T> T getNestedField(String key, Class<T> clazz) {
+        String[] split = key.split("\\.");
+        if (split.length == 1) {
+            return gson.fromJson(mapped.get(key).toString(), clazz);
+        }
+        if (containsNestedKey(key)) {
+            LinkedTreeMap map = mapped;
+            Object obj = null;
+            for (int i = 0; i < split.length; i++) {
+                obj = map.get(split[i]);
+                if (i < split.length - 1) {
+                    map = (LinkedTreeMap) obj;
+                }
+            }
+            if (obj == null) {
+                return null;
+            }
+            if (obj.getClass() == clazz) {
+                return (T) obj;
+            }
+        } else {
+            return null;
+        }
+        return null;
     }
 
     @Nullable
     public Object getField(String key) {
-        if (!values.containsKey(key)) {
+        if (!mapped.containsKey(key)) {
             return null;
         }
-        return values.get(key);
+        return mapped.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Nullable
     public <T> T getField(String key, Class<T> clazz) {
         try {
-            if (!values.containsKey(key)) {
+            if (!mapped.containsKey(key)) {
                 return null;
             }
-            Object field = values.get(key);
-            if (field instanceof JSONObject) {
-                field = gson.fromJson(field.toString(), clazz);
-            }
+            Object field = mapped.get(key);
             return clazz.isInstance(field) ? clazz.cast(field) : null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,31 +127,43 @@ public class GigyaApiResponse {
     //region Root element getters
 
     public int getStatusCode() {
-        return jsonObject.optInt("statusCode", INVALID_VALUE);
+        try {
+            final Double val = (Double) mapped.get("statusCode");
+            return val.intValue();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return INVALID_VALUE;
+        }
     }
 
     public int getErrorCode() {
-        return jsonObject.optInt("errorCode", INVALID_VALUE);
+        try {
+            final Double val = (Double) mapped.get("errorCode");
+            return val.intValue();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return INVALID_VALUE;
+        }
     }
 
     @Nullable
     public String getErrorDetails() {
-        return jsonObject.optString("errorDetails");
+        return (String) mapped.get("errorDetails");
     }
 
     @Nullable
     public String getStatusReason() {
-        return jsonObject.optString("statusReason");
+        return (String) mapped.get("statusReason");
     }
 
     @Nullable
     public String getCallId() {
-        return jsonObject.optString("callId");
+        return (String) mapped.get("callId");
     }
 
     @Nullable
     public String getTime() {
-        return jsonObject.optString("time");
+        return (String) mapped.get("time");
     }
 
     //endregion

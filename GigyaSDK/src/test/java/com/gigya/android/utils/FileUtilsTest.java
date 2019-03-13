@@ -96,7 +96,7 @@ public class FileUtilsTest {
             }
         });
         // Act
-        final String output = FileUtils.loadConfigurationJSON(context);
+        final String output = FileUtils.loadConfigJSON(context);
         // Assert
         assertNotNull(output);
     }

@@ -3,18 +3,33 @@ package com.gigya.android.sdk.utils;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class FileUtils {
+
+    public static boolean containsConfigJSON(Context appContext) {
+        final AssetManager am = appContext.getAssets();
+        try {
+            final String[] list = am.list("");
+            if (list != null) {
+                return Arrays.asList(list).contains("gigyaSdkConfiguration.json");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 
     /*
     Load JSON configuration file from application Assets folder.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static String loadConfigurationJSON(Context appContext) throws IOException {
+    public static String loadConfigJSON(Context appContext) throws IOException {
         return assetJsonFileToString(appContext, "gigyaSdkConfiguration.json");
     }
 

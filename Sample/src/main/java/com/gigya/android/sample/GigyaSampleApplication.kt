@@ -39,6 +39,6 @@ class GigyaSampleApplication : Application() {
         /*
         Initialization with explicit api-key & account scheme.
          */
-        //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_session_expiration))
+       // Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_session_expiration))
     }
 }

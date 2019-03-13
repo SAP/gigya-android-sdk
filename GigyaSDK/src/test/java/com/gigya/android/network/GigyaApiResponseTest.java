@@ -69,21 +69,32 @@ public class GigyaApiResponseTest {
     }
 
     @Test
+    public void testContainsNestedKey() {
+        Assert.assertTrue(response.containsNestedKey("data"));
+        Assert.assertTrue(response.containsNestedKey("data.custom"));
+        Assert.assertTrue(response.containsNestedKey("data.custom.one"));
+        Assert.assertFalse(response.containsNestedKey("data.custom.one.two"));
+        Assert.assertFalse(response.containsNestedKey("data.custom.one.two.four"));
+        Assert.assertTrue(response.containsNestedKey("profile"));
+        Assert.assertTrue(response.containsNestedKey("profile.firstName"));
+        Assert.assertTrue(response.containsNestedKey("profile.lastName"));
+        Assert.assertFalse(response.containsNestedKey("profile.lastName.one"));
+    }
+
+    @Test
+    public void textGetNestedField() {
+        final String field = response.getNestedField("data.custom.one", String.class);
+        final Double intField = response.getNestedField("data.custom.two", Double.class);
+    }
+
+    @Test
     public void testGetFieldWithCorrectClassReference() {
         Assert.assertNotNull(response.getField("profile"));
-        Assert.assertTrue(response.getField("profile") instanceof JSONObject);
     }
 
     @Test
     public void testGetFieldWithCorrectJSONObjectChild() {
-        Assert.assertNotNull(response.getField("firstName"));
-        Assert.assertTrue(response.getField("firstName") instanceof String);
-    }
-
-    @Test
-    public void testGetFieldWithIncorrectClassReference() {
-        Assert.assertNotNull(response.getField("firstName"));
-        Assert.assertFalse(response.getField("firstName") instanceof Integer);
+        Assert.assertNotNull(response.getNestedField("profile.firstName", String.class));
     }
 
 }

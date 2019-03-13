@@ -28,12 +28,14 @@ public class Config {
 
     @Nullable
     public static Config loadFromJson(Context appContext) {
-        try {
-            String json = FileUtils.loadConfigurationJSON(appContext);
-            GigyaLogger.debug("Configuration", json);
-            return new Gson().fromJson(json, Config.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (FileUtils.containsConfigJSON(appContext)) {
+            try {
+                String json = FileUtils.loadConfigJSON(appContext);
+                GigyaLogger.debug("Configuration", json);
+                return new Gson().fromJson(json, Config.class);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         return null;
     }

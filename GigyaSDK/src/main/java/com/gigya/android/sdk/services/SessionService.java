@@ -88,6 +88,7 @@ public class SessionService {
         _session = session;
         if (_session.getExpirationTime() > 0) {
             _sessionWillExpireIn = System.currentTimeMillis() + (_session.getExpirationTime() * 1000);
+            startSessionCountdownTimerIfNeeded();
         }
         save();
         GigyaLogger.debug(LOG_TAG, session.toString());
@@ -99,7 +100,11 @@ public class SessionService {
      * @return True if session is valid.
      */
     public boolean isValidSession() {
-        return (_session != null && _session.isValid());
+        boolean valid = _session != null && _session.isValid();
+        if (_sessionWillExpireIn > 0) {
+            valid = System.currentTimeMillis() < _sessionWillExpireIn;
+        }
+        return valid;
     }
 
     //region SESSION PERSISTENCE
@@ -136,7 +141,7 @@ public class SessionService {
             _persistenceService.setSession(encryptedSession);
 
             // Persist session expiration if available.
-            if (_sessionWillExpireIn > 0) {
+            if (_sessionWillExpireIn > 0){
                 _persistenceService.setSessionExpiration(_sessionWillExpireIn);
             }
         } catch (Exception ex) {
@@ -188,6 +193,10 @@ public class SessionService {
 
                     // Get session expiration if exists.
                     _sessionWillExpireIn = _persistenceService.getSessionExpiration();
+                    // Check if already passed. Rest if so.
+                    if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
+                        _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
+                    }
 
                     GigyaLogger.debug(LOG_TAG, "Session load: " + _session.toString());
                 } catch (Exception ex) {
@@ -265,10 +274,16 @@ public class SessionService {
 
     private CountDownTimer _sessionLifeCountdownTimer;
 
+    /**
+     * Cancel running timer if reference is not null.
+     */
     public void cancelSessionCountdownTimer() {
         if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
     }
 
+    /**
+     * Check if session countdown is required. Initiate if needed.
+     */
     public void startSessionCountdownTimerIfNeeded() {
         if (_session == null) {
             return;
@@ -284,6 +299,12 @@ public class SessionService {
         }
     }
 
+    /**
+     * Initiate session expiration countdown.
+     * When finished. A local broadcast will be triggered.
+     *
+     * @param future Number of milliseconds to count down.
+     */
     private void startSessionCountdown(long future) {
         cancelSessionCountdownTimer();
         _sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
