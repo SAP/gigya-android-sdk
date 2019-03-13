@@ -52,7 +52,7 @@ public class GigyaApiResponse {
         return mapped.containsKey(key);
     }
 
-    public boolean containsNestedKey(String key) {
+    public boolean containsNested(String key) {
         String[] split = key.split("\\.");
         if (split.length == 1) {
             return mapped.containsKey(key);
@@ -75,12 +75,15 @@ public class GigyaApiResponse {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    public <T> T getNestedField(String key, Class<T> clazz) {
+    public <T> T getField(String key, Class<T> clazz) {
         String[] split = key.split("\\.");
         if (split.length == 1) {
-            return gson.fromJson(mapped.get(key).toString(), clazz);
+            if (mapped.containsKey(key)) {
+                final String json = gson.toJson(mapped.get(key));
+                return gson.fromJson(json, clazz);
+            }
         }
-        if (containsNestedKey(key)) {
+        if (containsNested(key)) {
             LinkedTreeMap map = mapped;
             Object obj = null;
             for (int i = 0; i < split.length; i++) {
@@ -100,30 +103,7 @@ public class GigyaApiResponse {
         }
         return null;
     }
-
-    @Nullable
-    public Object getField(String key) {
-        if (!mapped.containsKey(key)) {
-            return null;
-        }
-        return mapped.get(key);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public <T> T getField(String key, Class<T> clazz) {
-        try {
-            if (!mapped.containsKey(key)) {
-                return null;
-            }
-            Object field = mapped.get(key);
-            return clazz.isInstance(field) ? clazz.cast(field) : null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
+    
     //region Root element getters
 
     public int getStatusCode() {

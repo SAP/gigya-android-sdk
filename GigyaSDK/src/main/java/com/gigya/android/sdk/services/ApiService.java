@@ -242,7 +242,7 @@ public class ApiService<A extends GigyaAccount> {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
                 // Registration initialized. Can continue to actual registration API.
-                final String regToken = (String) apiResponse.getField("regToken");
+                final String regToken = apiResponse.getField("regToken", String.class);
                 if (regToken != null) {
                     params.put("regToken", regToken);
                     params.put("finalizeRegistration", true);
@@ -380,13 +380,12 @@ public class ApiService<A extends GigyaAccount> {
      * @param apiResponse API response.
      */
     private A onAccountBasedApiSuccess(GigyaApiResponse apiResponse) {
-        if (apiResponse.contains("sessionInfo")) {
-            if (apiResponse.contains("sessionSecret")) {
-                final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);
-                _sessionService.setSession(newSession);
-                _accountService.invalidateAccount();
-            }
+        if (apiResponse.containsNested("sessionInfo.sessionSecret")) {
+            final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);
+            _sessionService.setSession(newSession);
+            _accountService.invalidateAccount();
         }
+
         A parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _accountService.getAccountScheme());
         // Update account.
         _accountService.setAccount(ObjectUtils.deepCopy(apiResponse.getGson(), parsed, _accountService.getAccountScheme()));

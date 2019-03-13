@@ -65,36 +65,38 @@ public class GigyaApiResponseTest {
 
     @Test
     public void testGetFieldWithIncorrectFieldKey() {
-        Assert.assertNull(response.getField("nonExistent"));
+        Assert.assertNull(response.getField("nonExistent", Object.class));
     }
 
     @Test
     public void testContainsNestedKey() {
-        Assert.assertTrue(response.containsNestedKey("data"));
-        Assert.assertTrue(response.containsNestedKey("data.custom"));
-        Assert.assertTrue(response.containsNestedKey("data.custom.one"));
-        Assert.assertFalse(response.containsNestedKey("data.custom.one.two"));
-        Assert.assertFalse(response.containsNestedKey("data.custom.one.two.four"));
-        Assert.assertTrue(response.containsNestedKey("profile"));
-        Assert.assertTrue(response.containsNestedKey("profile.firstName"));
-        Assert.assertTrue(response.containsNestedKey("profile.lastName"));
-        Assert.assertFalse(response.containsNestedKey("profile.lastName.one"));
+        Assert.assertTrue(response.containsNested("data"));
+        Assert.assertTrue(response.containsNested("data.custom"));
+        Assert.assertTrue(response.containsNested("data.custom.one"));
+        Assert.assertFalse(response.containsNested("data.custom.one.two"));
+        Assert.assertFalse(response.containsNested("data.custom.one.two.four"));
+        Assert.assertTrue(response.containsNested("profile"));
+        Assert.assertTrue(response.containsNested("profile.firstName"));
+        Assert.assertTrue(response.containsNested("profile.lastName"));
+        Assert.assertFalse(response.containsNested("profile.lastName.one"));
     }
 
     @Test
     public void textGetNestedField() {
-        final String field = response.getNestedField("data.custom.one", String.class);
-        final Double intField = response.getNestedField("data.custom.two", Double.class);
+        final String field = response.getField("data.custom.one", String.class);
+        final Double doubleField = response.getField("data.custom.two", Double.class);
+        Assert.assertNotNull(field);
+        Assert.assertNotNull(doubleField);
     }
 
     @Test
     public void testGetFieldWithCorrectClassReference() {
-        Assert.assertNotNull(response.getField("profile"));
+        Assert.assertNotNull(response.getField("profile", Object.class));
     }
 
     @Test
     public void testGetFieldWithCorrectJSONObjectChild() {
-        Assert.assertNotNull(response.getNestedField("profile.firstName", String.class));
+        Assert.assertNotNull(response.getField("profile.firstName", String.class));
     }
 
 }
