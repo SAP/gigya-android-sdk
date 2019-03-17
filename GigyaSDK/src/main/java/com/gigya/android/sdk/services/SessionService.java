@@ -141,7 +141,7 @@ public class SessionService {
             _persistenceService.setSession(encryptedSession);
 
             // Persist session expiration if available.
-            if (_sessionWillExpireIn > 0){
+            if (_sessionWillExpireIn > 0) {
                 _persistenceService.setSessionExpiration(_sessionWillExpireIn);
             }
         } catch (Exception ex) {
@@ -291,7 +291,8 @@ public class SessionService {
         if (_session.isValid() && _sessionWillExpireIn > 0) {
             // Session is set to expire.
             final long timeUntilSessionExpires = _sessionWillExpireIn - System.currentTimeMillis();
-            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: " + (timeUntilSessionExpires / 1000) + " start countdown timer");
+            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: "
+                    + (timeUntilSessionExpires / 1000) + " start countdown timer");
             // Just in case.
             if (timeUntilSessionExpires > 0) {
                 startSessionCountdown(timeUntilSessionExpires);

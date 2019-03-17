@@ -44,7 +44,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> {
      * @return True if login callback reference is attached.
      */
     public boolean isAttached() {
-        if (_loginCallback.get() != null) {
+        if (_loginCallback != null && _loginCallback.get() != null) {
             return true;
         }
         GigyaLogger.error(LOG_TAG, "isAttached: GigyaLoginCallback reference is null -> resolver flow broken");

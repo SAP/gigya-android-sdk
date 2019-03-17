@@ -261,14 +261,14 @@ public class ApiService<A extends GigyaAccount> {
                             }
                         }
                     }
-                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, loginCallback);
-            }
 
-            @Override
-            public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
-                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
-                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
-                }
+                    @Override
+                    public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
+                        if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                            loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                        }
+                    }
+                }.execute(GigyaDefinitions.API.API_REGISTER, NetworkAdapter.Method.POST, params, loginCallback);
             }
         }.execute(GigyaDefinitions.API.API_INIT_REGISTRATION, NetworkAdapter.Method.POST, params, null);
     }

@@ -88,6 +88,7 @@ class TFAFragment : Fragment(), BackPressListener {
         val tfaProviders = arguments!!.getStringArrayList("providers")
         val tfaProviderAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, tfaProviders!!)
         tfa_providers_spinner.adapter = tfaProviderAdapter
+        // Set Provider spinner item selection listener.
         tfa_providers_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Stub.
@@ -102,10 +103,7 @@ class TFAFragment : Fragment(), BackPressListener {
                                 // Not available for Email TFA setup.
                             }
                             "verification" -> {
-                                tfa_get_code.text = "Verify Email"
-                                toggleViewsVisibility(tfa_emails_spinner, visibility = true)
-                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group, tfa_emails_spinner,
-                                        tfa_verification_code_input_edit_layout, visibility = false)
+                                updateUIForEmailVerification()
                                 // Start flow.
                                 viewModel?.tfaVerificationResolver?.startVerifyWithEmail()
                             }
@@ -115,14 +113,10 @@ class TFAFragment : Fragment(), BackPressListener {
                         tfa_get_code.text = "Get code"
                         when (mode) {
                             "registration" -> {
-                                toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_verification_code_input_edit_layout, qr_code_image_progress,
-                                        tfa_submit_code, tfa_get_code, visibility = false)
+                                updateUIForPhoneRegistration()
                             }
                             "verification" -> {
-                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
-                                toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group, tfa_get_code, visibility = false)
-
+                                updateUIForPhoneVerification()
                                 // Verify Phone -> Request valid phone numbers.
                                 viewModel?.tfaVerificationResolver?.startVerifyWithPhone()
                             }
@@ -132,17 +126,12 @@ class TFAFragment : Fragment(), BackPressListener {
                         tfa_get_code.text = "Get code"
                         when (mode) {
                             "registration" -> {
-                                toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress,
-                                        tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
-                                toggleViewsVisibility(tfa_phone_registration_group, tfa_get_code,
-                                        visibility = false)
-
+                                updateUIForTotpRegistration()
                                 // Register TOTP -> get QR code.
                                 viewModel?.tfaRegistrationResolver?.startRegistrationWithTotp()
                             }
                             "verification" -> {
-                                toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, tfa_get_code, visibility = false)
-                                toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+                                updateUIForTotpVerification()
                             }
                         }
                     }
@@ -164,9 +153,7 @@ class TFAFragment : Fragment(), BackPressListener {
                 else -> "sms"
             }
             // Update visibility.
-            toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
-            toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
-
+            updateUIOnPhoneNumberSubmit()
             // Submit register.
             viewModel?.tfaRegistrationResolver?.startRegistrationWithPhone(phoneNumber, phoneVerificationMethod)
         }
@@ -261,6 +248,7 @@ class TFAFragment : Fragment(), BackPressListener {
                 MainViewModel.UI_TRIGGER_SHOW_TFA_CODE_SENT -> activity?.toast("Verification code sent")
                 MainViewModel.UI_TRIGGER_SHOW_TFA_EMAILS_AVAILABLE ->
                     updateWithAvailableEmailAddressesForVerification(dataPair.second as MutableList<TFAEmail>)
+                MainViewModel.UI_TRIGGER_DISMISS_ON_ERROR -> dismiss()
             }
         })
     }
@@ -308,6 +296,45 @@ class TFAFragment : Fragment(), BackPressListener {
                 false -> view.gone()
             }
         }
+    }
+
+    //endregion
+
+    //region UI METHODS
+
+    private fun updateUIOnPhoneNumberSubmit() {
+        toggleViewsVisibility(tfa_phone_registration_group, visibility = false)
+        toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, tfa_get_code, visibility = true)
+    }
+
+    private fun updateUIForTotpVerification() {
+        toggleViewsVisibility(tfa_qr_image_group, tfa_phone_registration_group, tfa_get_code, visibility = false)
+        toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+    }
+
+    private fun updateUIForTotpRegistration() {
+        toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress,
+                tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+        toggleViewsVisibility(tfa_phone_registration_group, tfa_get_code,
+                visibility = false)
+    }
+
+    private fun updateUIForPhoneVerification() {
+        toggleViewsVisibility(tfa_verification_code_input_edit_layout, tfa_submit_code, visibility = true)
+        toggleViewsVisibility(tfa_phone_registration_group, tfa_qr_image_group, tfa_get_code, visibility = false)
+    }
+
+    private fun updateUIForPhoneRegistration() {
+        toggleViewsVisibility(tfa_phone_registration_group, visibility = true)
+        toggleViewsVisibility(tfa_qr_image_group, tfa_verification_code_input_edit_layout, qr_code_image_progress,
+                tfa_submit_code, tfa_get_code, visibility = false)
+    }
+
+    private fun updateUIForEmailVerification() {
+        tfa_get_code.text = getString(R.string.verify_email)
+        toggleViewsVisibility(tfa_emails_spinner, visibility = true)
+        toggleViewsVisibility(tfa_qr_image_group, qr_code_image_progress, tfa_phone_registration_group, tfa_emails_spinner,
+                tfa_verification_code_input_edit_layout, visibility = false)
     }
 
     //endregion

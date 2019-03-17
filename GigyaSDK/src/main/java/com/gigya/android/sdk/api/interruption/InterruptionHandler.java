@@ -42,6 +42,15 @@ public class InterruptionHandler<A extends GigyaAccount> {
         _apiService = apiService;
     }
 
+    /**
+     * Evaluate API error.
+     * If error is supported within the interruption flows. Method will evaluate as TRUE and begin to resolve the error
+     * using interruption callbacks.
+     *
+     * @param apiResponse   Original GigyaApiResponse reference.
+     * @param loginCallback Login response callback.
+     * @return True if interruption flow is supported.
+     */
     public boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback<A> loginCallback) {
         if (_apiService.isInterruptionsEnabled()) {
             final int errorCode = apiResponse.getErrorCode();
@@ -72,6 +81,10 @@ public class InterruptionHandler<A extends GigyaAccount> {
         return false;
     }
 
+    /**
+     * @param apiResponse Original Api response
+     * @return True if interruption flow is supported.
+     */
     public boolean evaluateInterruptionSuccess(GigyaApiResponse apiResponse) {
         final int errorCode = apiResponse.getErrorCode();
         if (errorCode == 0) {

@@ -38,6 +38,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         const val UI_TRIGGER_SHOW_TFA_EMAIL_SENT = 6
         const val UI_TRIGGER_SHOW_TFA_QR_CODE = 7
         const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 8
+        const val UI_TRIGGER_DISMISS_ON_ERROR = 9
     }
 
     override fun onCleared() {
@@ -114,6 +115,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(error: GigyaError?) {
+                // Sending a dismiss UI event -> will dismiss TFAFragment if shown.
+                uiTrigger.postValue(Pair(UI_TRIGGER_DISMISS_ON_ERROR, null))
                 error(error)
             }
 
@@ -164,6 +167,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(error: GigyaError?) {
+                // Sending a dismiss UI event -> will dismiss TFAFragment if shown.
+                uiTrigger.postValue(Pair(UI_TRIGGER_DISMISS_ON_ERROR, null))
                 error(error)
             }
 
@@ -172,21 +177,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_REGISTRATION, resolver.inactiveProviders))
             }
 
-            override fun onPendingTFAVerification(response: GigyaApiResponse, resolver: IGigyaTFAVerificationResolver) {
-                tfaVerificationResolver = resolver
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_VERIFICATION, resolver.activeProviders))
-            }
-
             override fun onRegisteredTFAPhoneNumbers(registeredPhoneList: MutableList<TFARegisteredPhone>) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PHONE_NUMBERS, registeredPhoneList))
             }
 
             override fun onPhoneTFAVerificationCodeSent() {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
-            }
-
-            override fun onTotpTFAQrCodeAvailable(qrCode: String) {
-                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_QR_CODE, qrCode))
             }
 
         })
@@ -274,13 +270,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 GigyaPresenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                Log.d("loginWithProvider", "Success")
                 account.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
             override fun onError(error: GigyaError?) {
-                Log.d("loginWithProvider", "onError")
                 error(error)
             }
 
