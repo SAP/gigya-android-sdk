@@ -2,11 +2,16 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.gson.PostProcessableTypeAdapterFactory;
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Map;
 
 
 /**
@@ -14,11 +19,13 @@ import com.google.gson.reflect.TypeToken;
  */
 public class GigyaApiResponse {
 
+    private static final String LOG_TAG = "GigyaApiResponse";
+
     public static final int INVALID_VALUE = -1;
     public static final int OK = 200;
 
     private String json;
-    private LinkedTreeMap<String, Object> mapped;
+    private Map<String, Object> mapped;
 
     // GSON Support.
     private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostProcessableTypeAdapterFactory()).create();
@@ -29,8 +36,13 @@ public class GigyaApiResponse {
 
     public GigyaApiResponse(String json) {
         this.json = json;
-        mapped = gson.fromJson(json, new TypeToken<LinkedTreeMap<String, Object>>() {
-        }.getType());
+        try {
+            JSONObject jo = new JSONObject(json);
+            mapped = ObjectUtils.toMap(jo);
+            GigyaLogger.debug(LOG_TAG, "json mapped!");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String asJson() {
@@ -57,14 +69,14 @@ public class GigyaApiResponse {
         if (split.length == 1) {
             return mapped.containsKey(key);
         } else {
-            LinkedTreeMap map = mapped;
+            Map map = mapped;
             for (int i = 0; i < split.length - 1; i++) {
                 Object obj = map.get(split[i]);
                 if (obj == null) {
                     return false;
                 }
-                if (obj instanceof LinkedTreeMap) {
-                    map = (LinkedTreeMap) obj;
+                if (obj instanceof Map) {
+                    map = (Map) obj;
                 } else if (i < split.length - 1) {
                     return false;
                 }
@@ -84,12 +96,12 @@ public class GigyaApiResponse {
             }
         }
         if (containsNested(key)) {
-            LinkedTreeMap map = mapped;
+            Map map = mapped;
             Object obj = null;
             for (int i = 0; i < split.length; i++) {
                 obj = map.get(split[i]);
                 if (i < split.length - 1) {
-                    map = (LinkedTreeMap) obj;
+                    map = (Map) obj;
                 }
             }
             if (obj == null) {
@@ -108,8 +120,7 @@ public class GigyaApiResponse {
 
     public int getStatusCode() {
         try {
-            final Double val = (Double) mapped.get("statusCode");
-            return val.intValue();
+            return (int) mapped.get("statusCode");
         } catch (Exception ex) {
             ex.printStackTrace();
             return INVALID_VALUE;
@@ -118,8 +129,7 @@ public class GigyaApiResponse {
 
     public int getErrorCode() {
         try {
-            final Double val = (Double) mapped.get("errorCode");
-            return val.intValue();
+            return (int) mapped.get("errorCode");
         } catch (Exception ex) {
             ex.printStackTrace();
             return INVALID_VALUE;
@@ -147,5 +157,4 @@ public class GigyaApiResponse {
     }
 
     //endregion
-
 }

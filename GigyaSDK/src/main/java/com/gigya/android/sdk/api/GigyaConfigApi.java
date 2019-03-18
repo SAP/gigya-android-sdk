@@ -42,8 +42,8 @@ public class GigyaConfigApi<A extends GigyaAccount> extends GigyaApi<GigyaApiRes
     public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, GigyaCallback<GigyaApiResponse> callback) {
         final Config currentSDKConfig = _sessionService.getConfig();
         if (!TextUtils.isEmpty(currentSDKConfig.getApiKey())) {  // Has apiKey.
-            final String gmid = apiResponse.getField("gmid", String.class);
-            final String ucid = apiResponse.getField("ucid", String.class);
+            final String gmid = apiResponse.getField("ids.gmid", String.class);
+            final String ucid = apiResponse.getField("ids.ucid", String.class);
             final JsonObject appIdsJson = apiResponse.getField("appIds", JsonObject.class);
             Type mapType = new TypeToken<Map<String, String>>() {}.getType();
             if (appIdsJson != null) {
