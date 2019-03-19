@@ -21,9 +21,9 @@ import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.BuildConfig;
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.services.SessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -55,8 +55,8 @@ public class FacebookLoginProvider extends LoginProvider {
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
     private AccessTokenTracker _tokenTracker;
 
-    public FacebookLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        super(gigyaContext, callback);
+    public FacebookLoginProvider(ApiService apiService, GigyaLoginCallback callback) {
+        super(apiService, callback);
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);
             FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
@@ -118,14 +118,15 @@ public class FacebookLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void login(final Context context, final Map<String, Object> loginParams) {
+    public void login(final Context context, final Map<String, Object> loginParams, String loginMode) {
+        _loginMode = loginMode;
         /* Get login permissions. */
         final List<String> readPermissions = getReadPermissions(loginParams);
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired() && permissionsGranted(readPermissions);
         if (isLoggedIn) {
-            _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
+            _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), _loginMode);
             return;
         }
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
@@ -145,7 +146,8 @@ public class FacebookLoginProvider extends LoginProvider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this, getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null));
+                        _loginCallbacks.onProviderLoginSuccess(FacebookLoginProvider.this,
+                                getProviderSessionsForRequest(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), _loginMode);
 
                         activity.finish();
                     }

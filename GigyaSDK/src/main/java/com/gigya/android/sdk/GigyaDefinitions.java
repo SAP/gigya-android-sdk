@@ -30,6 +30,7 @@ public class GigyaDefinitions {
         public static final String API_GET_CONFLICTING_ACCOUNTS = "accounts.getConflictingAccount";
         public static final String API_NOTIFY_LOGIN = "accounts.notifyLogin";
         public static final String API_VERIFY_LOGIN = "accounts.verifyLogin";
+        public static final String API_NOTIFY_SOCIAL_LOGIN = "accounts.notifySocialLogin";
         // TFA
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";

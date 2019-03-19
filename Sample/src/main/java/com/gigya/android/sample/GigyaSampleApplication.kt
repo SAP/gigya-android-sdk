@@ -37,8 +37,9 @@ class GigyaSampleApplication : Application() {
         //Gigya.getInstance(applicationContext)
 
         /*
-        Initialization with explicit api-key & account scheme.
+        Explicit initialization.
          */
         //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
+        //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_key_eu), "eu1-st1.gigya.com")
     }
 }

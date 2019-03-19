@@ -83,6 +83,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         linkAccountsResolver?.resolveForSite(loginID, password)
     }
 
+    fun onLinkAccountWithSocial(provider: String) {
+        linkAccountsResolver?.resolveForSocial(getApplication(), provider)
+    }
+
     //endregion
 
     //region APIS

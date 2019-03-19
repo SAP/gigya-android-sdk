@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -30,8 +30,8 @@ public class WeChatLoginProvider extends LoginProvider {
         return WECHAT;
     }
 
-    public WeChatLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        super(gigyaContext, callback);
+    public WeChatLoginProvider(ApiService apiService, GigyaLoginCallback callback) {
+        super(apiService, callback);
     }
 
     private IWXAPI _api;
@@ -48,7 +48,8 @@ public class WeChatLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void login(final Context context, Map<String, Object> loginParams) {
+    public void login(final Context context, Map<String, Object> loginParams, String loginMode) {
+        _loginMode = loginMode;
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -93,7 +94,7 @@ public class WeChatLoginProvider extends LoginProvider {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessionsForRequest(authCode, -1L, _appId);
-                    _loginCallbacks.onProviderLoginSuccess(this, providerSessions);
+                    _loginCallbacks.onProviderLoginSuccess(this, providerSessions, _loginMode);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

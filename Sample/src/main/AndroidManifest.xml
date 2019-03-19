@@ -57,7 +57,6 @@
             android:value="@string/facebook_app_id" />
 
         <!-- WeChat integration -->
-
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:exported="true"
@@ -74,9 +73,10 @@
             android:name="lineChannelID"
             android:value="@string/line_Channel_ID" />
 
-        <!--<meta-data-->
-        <!--android:name="googleClientId"-->
-        <!--android:value="@string/google_client_id"/>-->
+        <!-- Google integration -->
+        <meta-data
+            android:name="googleClientId"
+            android:value="@string/google_client_id" />
 
     </application>
 

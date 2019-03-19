@@ -279,7 +279,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
         final String provider = ObjectUtils.firstNonNull((String) params.get("provider"), "");
-        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _gigyaContext, provider,
+        final LoginProvider loginProvider = LoginProviderFactory.providerFor(_webViewRef.get().getContext(), _gigyaContext.getApiService(), provider,
                 new GigyaLoginCallback<T>() {
                     @Override
                     public void onSuccess(T obj) {
@@ -315,11 +315,11 @@ public class WebBridge<T extends GigyaAccount> {
         final Config config = _gigyaContext.getConfig();
         if (loginProvider instanceof WebViewLoginProvider && config.getGmid() == null) {
             // WebView Provider must have basic config fields.
-            loginProvider.configurationRequired(activity, params);
+            loginProvider.configurationRequired(activity, params, "standard");
             return;
         }
         if (loginProvider.clientIdRequired() && !config.isProviderSynced()) {
-            loginProvider.configurationRequired(activity, params);
+            loginProvider.configurationRequired(activity, params, "standard");
             return;
         }
 
@@ -335,7 +335,7 @@ public class WebBridge<T extends GigyaAccount> {
             activity.finish();
         }
 
-        loginProvider.login(_webViewRef.get().getContext(), params);
+        loginProvider.login(_webViewRef.get().getContext(), params, "standard");
     }
 
     private void onPluginEvent(Map<String, Object> params) {

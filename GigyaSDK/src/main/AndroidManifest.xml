@@ -6,7 +6,7 @@
 
     <permission
         android:protectionLevel="signature"
-        android:name="com.gigya.android.sdk.RESTRICT_ACCESS"/>
+        android:name="${applicationId}.RESTRICT_ACCESS"/>
 
 </manifest>
 

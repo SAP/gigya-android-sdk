@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.providers.LoginProviderFactory;
@@ -14,6 +13,8 @@ import com.gigya.android.sdk.providers.provider.GoogleLoginProvider;
 import com.gigya.android.sdk.providers.provider.LineLoginProvider;
 import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
 import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
+import com.gigya.android.sdk.services.ApiService;
+import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,10 @@ public class LoginProviderFactoryTest {
     private Context context;
 
     @Mock
-    private GigyaContext gigyaContext;
+    private ApiService apiService;
+
+    @Mock
+    SessionService sessionService;
 
     @Mock
     private ApplicationInfo applicationInfo;
@@ -58,6 +62,7 @@ public class LoginProviderFactoryTest {
         PowerMockito.mockStatic(FacebookLoginProvider.class, GoogleLoginProvider.class, LineLoginProvider.class, WeChatLoginProvider.class, Bundle.class);
         /// Android specific mocks.
         when(context.getPackageManager()).thenReturn(packageManager);
+        when(apiService.getSessionService()).thenReturn(sessionService);
         when(context.getPackageName()).thenReturn("");
         when(packageManager.getApplicationInfo(anyString(), anyInt())).thenReturn(applicationInfo);
         applicationInfo.metaData = bundle;
@@ -67,7 +72,7 @@ public class LoginProviderFactoryTest {
     @Test
     public void testProviderForWithInvalidProviderName() {
         // Act
-        LoginProvider webProvider = LoginProviderFactory.providerFor(context, gigyaContext, "nonExisting", callback);
+        LoginProvider webProvider = LoginProviderFactory.providerFor(context, apiService, "nonExisting", callback);
         // Assert
         assertNotNull(webProvider);
         assertTrue(webProvider instanceof WebViewLoginProvider);
@@ -78,7 +83,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(FacebookLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider facebookLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "facebook", callback);
+        LoginProvider facebookLoginProvider = LoginProviderFactory.providerFor(context, apiService, "facebook", callback);
         // Assert
         assertNotNull(facebookLoginProvider);
         assertTrue(facebookLoginProvider instanceof FacebookLoginProvider);
@@ -89,7 +94,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(GoogleLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider googleLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "googleplus", callback);
+        LoginProvider googleLoginProvider = LoginProviderFactory.providerFor(context, apiService, "googleplus", callback);
         // Assert
         assertNotNull(googleLoginProvider);
         assertTrue(googleLoginProvider instanceof GoogleLoginProvider);
@@ -100,7 +105,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(LineLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider lineLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "line", callback);
+        LoginProvider lineLoginProvider = LoginProviderFactory.providerFor(context,apiService, "line", callback);
         // Assert
         assertNotNull(lineLoginProvider);
         assertTrue(lineLoginProvider instanceof LineLoginProvider);
@@ -111,7 +116,7 @@ public class LoginProviderFactoryTest {
         // Arrange
         when(WeChatLoginProvider.isAvailable(context)).thenReturn(true);
         // Act
-        LoginProvider weChatLoginProvider = LoginProviderFactory.providerFor(context, gigyaContext, "wechat", callback);
+        LoginProvider weChatLoginProvider = LoginProviderFactory.providerFor(context, apiService, "wechat", callback);
         // Assert
         assertNotNull(weChatLoginProvider);
         assertTrue(weChatLoginProvider instanceof WeChatLoginProvider);

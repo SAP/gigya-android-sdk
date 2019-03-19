@@ -38,7 +38,16 @@ public class ApiService<A extends GigyaAccount> {
     Required services for API integrity and logic.
      */
     final private SessionService _sessionService;
+
+    public SessionService getSessionService() {
+        return _sessionService;
+    }
+
     final private AccountService<A> _accountService;
+
+    public AccountService<A> getAccountService() {
+        return _accountService;
+    }
 
     public boolean isInterruptionsEnabled() {
         return _sessionService.getConfig().isInterruptionsEnabled();
@@ -223,12 +232,28 @@ public class ApiService<A extends GigyaAccount> {
                 }
             }
         }
-                .execute(GigyaDefinitions.API.API_NOTIFY_LOGIN, NetworkAdapter.Method.POST, params, (GigyaCallback<A>) loginCallback);
+                .execute(GigyaDefinitions.API.API_NOTIFY_LOGIN, NetworkAdapter.Method.POST, params, loginCallback);
     }
 
-    // TODO: 05/03/2019 Waiting for endpoint implementation. 
-    public void nativeLogin() {
 
+    public void nativeSocialLogin(final Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
+        new GigyaApi<GigyaApiResponse, A>(_adapter, _sessionService, _accountService, GigyaApiResponse.class) {
+            @Override
+            public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
+                if (!_interruptionHandler.evaluateInterruptionSuccess(apiResponse)) {
+                    onAccountBasedApiSuccess(apiResponse);
+                    _accountService.invalidateAccount();
+                    getAccount(loginCallback);
+                }
+            }
+
+            @Override
+            public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<GigyaApiResponse> callback) {
+                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
+            }
+        }.execute(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, NetworkAdapter.Method.POST, params, null);
     }
 
     /**

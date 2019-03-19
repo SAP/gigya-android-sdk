@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -213,4 +214,42 @@ public class ObjectUtilsTest {
         assertFalse(ObjectUtils.safeEquals("anyString", null));
         assertFalse(ObjectUtils.safeEquals(null, "anyString"));
     }
+
+    @Test
+    public void testToMap() {
+        Map<String, Object> map = ObjectUtils.toMap(new JSONObject(mockJson));
+        assertNotNull(map.get("callId"));
+        assertNotNull(map.get("permissions"));
+        assertTrue(map.get("appIds") instanceof HashMap);
+        assertTrue(map.get("ids") instanceof HashMap);
+
+        Map<String, Object> permissionsMap = (Map<String, Object>) map.get("permissions");
+        assertTrue(permissionsMap.get("facebook") instanceof ArrayList);
+    }
+
+    private final String mockJson = "{\n" +
+            "  \"callId\": \"3539049072074feaaea97f57aabb4738\",\n" +
+            "  \"errorCode\": 0,\n" +
+            "  \"statusCode\": 200,\n" +
+            "  \"statusReason\": \"OK\",\n" +
+            "  \"time\": \"2019-03-18T10:28:35.836Z\",\n" +
+            "  \"errorReportRules\": [],\n" +
+            "  \"permissions\": {\n" +
+            "    \"facebook\": [\n" +
+            "      \"user_friends\"\n" +
+            "    ],\n" +
+            "    \"googleplus\": [\n" +
+            "      \"profile\",\n" +
+            "      \"email\",\n" +
+            "      \"openid\"\n" +
+            "    ]\n" +
+            "  },\n" +
+            "  \"appIds\": {\n" +
+            "    \"googleplus\": \"977811956095-t72doari7i8iuv9r6qf3kbhh2ns3u7cj.apps.googleusercontent.com\"\n" +
+            "  },\n" +
+            "  \"ids\": {\n" +
+            "    \"gmid\": \"csn4Co2jLCAvLA8t9z/1VAvKAxfoQsGstUcnOlAboPw=\",\n" +
+            "    \"ucid\": \"p1Rixf2TAyTZqBA/RhadDA==\"\n" +
+            "  }\n" +
+            "}";
 }

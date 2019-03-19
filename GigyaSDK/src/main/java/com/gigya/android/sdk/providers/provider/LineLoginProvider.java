@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.linecorp.linesdk.LineApiResponse;
@@ -36,8 +36,8 @@ public class LineLoginProvider extends LoginProvider {
 
     private static final int REQUEST_CODE = 1;
 
-    public LineLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        super(gigyaContext, callback);
+    public LineLoginProvider(ApiService apiService, GigyaLoginCallback callback) {
+        super(apiService, callback);
     }
 
     public static boolean isAvailable(Context context) {
@@ -75,7 +75,8 @@ public class LineLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void login(Context context, Map<String, Object> loginParams) {
+    public void login(Context context, Map<String, Object> loginParams, String loginMode) {
+        _loginMode = loginMode;
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -102,7 +103,7 @@ public class LineLoginProvider extends LoginProvider {
                                 return;
                             }
                             final String accessToken = result.getLineCredential().getAccessToken().getAccessToken();
-                            _loginCallbacks.onProviderLoginSuccess(LineLoginProvider.this, getProviderSessionsForRequest(accessToken, -1, null));
+                            _loginCallbacks.onProviderLoginSuccess(LineLoginProvider.this, getProviderSessionsForRequest(accessToken, -1, null), _loginMode);
                             break;
                         case CANCEL:
                             _loginCallbacks.onCanceled();

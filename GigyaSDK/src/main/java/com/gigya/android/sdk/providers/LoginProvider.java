@@ -4,7 +4,6 @@ package com.gigya.android.sdk.providers;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -27,19 +26,28 @@ public abstract class LoginProvider {
 
     public abstract String getName();
 
-    protected Config _config;
     private ApiService _apiService;
     private PersistenceService _persistenceService;
-    private SessionService _sessionService;
+    protected SessionService _sessionService;
     private AccountService _accountService;
 
-    public LoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        _config = gigyaContext.getConfig();
-        _apiService = gigyaContext.getApiService();
-        _persistenceService = gigyaContext.getPersistenceService();
-        _sessionService = gigyaContext.getSessionService();
-        _sessionService = gigyaContext.getSessionService();
+    protected String _loginMode = "standard";
+    protected String _regToken;
+
+    public void setRegToken(String regToken) {
+        _regToken = regToken;
+    }
+
+    public LoginProvider(ApiService apiService, GigyaLoginCallback callback) {
+        _apiService = apiService;
+        _sessionService = apiService.getSessionService();
+        _persistenceService = _sessionService.getPersistenceService();
+        _accountService = apiService.getAccountService();
         _callback = callback;
+    }
+
+    public String getProviderClientId() {
+        return providerClientId;
     }
 
     //region Callbacks
@@ -49,25 +57,26 @@ public abstract class LoginProvider {
      */
     protected LoginProvider.LoginProviderConfigCallback _configCallback = new LoginProvider.LoginProviderConfigCallback() {
         @Override
-        public void onConfigurationRequired(final Context appContext, final LoginProvider provider, final Map<String, Object> params) {
+        public void onConfigurationRequired(final Context appContext, final LoginProvider provider, final Map<String, Object> params, final String loginMethod) {
+            final Config config = _sessionService.getConfig();
             _apiService.loadConfig(new Runnable() {
                 @Override
                 public void run() {
-                    if (_config.isProviderSynced()) {
+                    if (config.isProviderSynced()) {
                         /* Update provider client id if available */
-                        final String providerClientId = _config.getAppIds().get(provider.getName());
+                        final String providerClientId = config.getAppIds().get(provider.getName());
                         if (providerClientId != null) {
                             provider.updateProviderClientId(providerClientId);
                         }
-                        provider.login(appContext, params);
+                        provider.login(appContext, params, loginMethod);
                     }
                 }
             });
         }
     };
 
-    public void configurationRequired(final Context context, final Map<String, Object> params) {
-        _configCallback.onConfigurationRequired(context, this, params);
+    public void configurationRequired(final Context context, final Map<String, Object> params, String loginMethod) {
+        _configCallback.onConfigurationRequired(context, this, params, loginMethod);
     }
 
     /*
@@ -92,11 +101,19 @@ public abstract class LoginProvider {
         }
 
         @Override
-        public void onProviderLoginSuccess(final LoginProvider provider, String providerSessions) {
+        public void onProviderLoginSuccess(final LoginProvider provider, String providerSessions, String loginMode) {
             GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
                     + provider + ", providerSessions = " + providerSessions);
             // Call intermediate load to give the client the option to trigger his own progress indicator.
             _callback.onIntermediateLoad();
+
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("providerSessions", providerSessions);
+//            params.put("loginMode", loginMode);
+//            if (loginMode.equals("link") && _regToken != null) {
+//                params.put("regToken", _regToken);
+//            }
+//            _apiService.nativeSocialLogin(params, _callback);
 
             // all notifyLogin to submit sign in process.
             _apiService.notifyLogin(providerSessions, _callback, new Runnable() {
@@ -134,7 +151,7 @@ public abstract class LoginProvider {
 
     //endregion
 
-    public abstract void login(Context context, Map<String, Object> loginParams);
+    public abstract void login(Context context, Map<String, Object> loginParams, String loginMethod);
 
     public abstract void logout(Context context);
 
@@ -159,14 +176,14 @@ public abstract class LoginProvider {
     //region Interfacing
 
     public interface LoginProviderConfigCallback {
-        void onConfigurationRequired(Context appContext, LoginProvider provider, Map<String, Object> params);
+        void onConfigurationRequired(Context appContext, LoginProvider provider, Map<String, Object> params, String loginMethod);
     }
 
     public interface LoginProviderCallbacks {
 
         void onCanceled();
 
-        void onProviderLoginSuccess(LoginProvider provider, String providerSessions);
+        void onProviderLoginSuccess(LoginProvider provider, String providerSessions, String loginMethod);
 
         void onProviderLoginFailed(String provider, String error);
 

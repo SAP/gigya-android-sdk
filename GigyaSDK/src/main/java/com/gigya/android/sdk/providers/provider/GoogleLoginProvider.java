@@ -11,10 +11,10 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -43,8 +43,8 @@ public class GoogleLoginProvider extends LoginProvider {
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
 
-    public GoogleLoginProvider(Context context, GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        super(gigyaContext, callback);
+    public GoogleLoginProvider(Context context, ApiService apiService, GigyaLoginCallback callback) {
+        super(apiService, callback);
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             providerClientId = (String) appInfo.metaData.get("googleClientId");
@@ -98,7 +98,8 @@ public class GoogleLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void login(Context context, Map<String, Object> loginParams) {
+    public void login(Context context, Map<String, Object> loginParams, String loginMode) {
+        _loginMode = loginMode;
         if (providerClientId == null) {
             _loginCallbacks.onProviderLoginFailed(getName(), "Missing server client id. Check manifest implementation");
             return;
@@ -112,7 +113,7 @@ public class GoogleLoginProvider extends LoginProvider {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             /* This option should not happen theoretically because we logout out explicitly. */
-            _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null));
+            _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null), _loginMode);
             finish(null);
             return;
         }
@@ -146,7 +147,7 @@ public class GoogleLoginProvider extends LoginProvider {
                 if (authCode == null) {
                     _loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
                 } else {
-                    _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null));
+                    _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null), _loginMode);
                 }
             }
             finish(activity);

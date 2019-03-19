@@ -84,6 +84,9 @@ class ConflictingAccountsDialog : DialogFragment() {
                     val pass = ca_password_edit.text.toString().trim()
                     viewModel?.onLinkAccountWithSite(loginID, pass)
                 }
+                else -> {
+                    viewModel?.onLinkAccountWithSocial(provider)
+                }
             }
             dismissAllowingStateLoss()
         }

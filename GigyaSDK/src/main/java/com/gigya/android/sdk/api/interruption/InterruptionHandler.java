@@ -93,9 +93,10 @@ public class InterruptionHandler<A extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "evaluateInterruptionSuccess: True with errorCode = " + errorCode);
         switch (errorCode) {
             case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
+                final String regToken = getRegToken(apiResponse);
                 final GigyaLinkAccountsResolver<A> linkAccountsResolver = (GigyaLinkAccountsResolver<A>) _resolvers.get(GigyaResolver.LINK_ACCOUNTS);
                 if (linkAccountsResolver != null) {
-                    linkAccountsResolver.finalizeFlow();
+                    linkAccountsResolver.finalizeFlow(regToken);
                 }
                 return true;
             default:

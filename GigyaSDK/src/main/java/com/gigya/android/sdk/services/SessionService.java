@@ -74,6 +74,14 @@ public class SessionService {
 
 
     /**
+     * Get reference to persistence service.
+     */
+    @NonNull
+    public PersistenceService getPersistenceService() {
+        return _persistenceService;
+    }
+
+    /**
      * Set a new session reference.
      * Referenced object will be set & session info will persist.
      * Make sure to call this method only when a brand new session data is available and not an existing reference!!

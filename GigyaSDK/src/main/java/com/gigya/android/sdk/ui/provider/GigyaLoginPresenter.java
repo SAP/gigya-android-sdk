@@ -57,14 +57,14 @@ public class GigyaLoginPresenter extends GigyaPresenter {
 
                     @Override
                     public void onWebViewResult(Map<String, Object> result) {
-                        /* Handle result. */
+                        // Handle result.
                         final String provider = (String) result.get("provider");
                         if (provider == null) {
-                            /* Internal check. Should not happen if SDK implementation is correct. */
+                            // Internal check. Should not happen if SDK implementation is correct.
                             return;
                         }
 
-                        /* Okay to release activity. */
+                        // Okay to release activity.
                         activity.finish();
 
                         login(context, provider, params, callback);
@@ -72,7 +72,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
 
                     @Override
                     public void onWebViewCancel() {
-                        /* User cancelled WebView. */
+                        // User cancelled WebView.
                         callback.onOperationCanceled();
                     }
                 });
@@ -83,41 +83,37 @@ public class GigyaLoginPresenter extends GigyaPresenter {
     public void login(Context context, final String provider,
                       final Map<String, Object> params, GigyaLoginCallback callback) {
         params.put("provider", provider);
-        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _gigyaContext,
+        LoginProvider loginProvider = LoginProviderFactory.providerFor(context, _gigyaContext.getApiService(),
                 provider, callback);
 
         if (loginProvider instanceof WebViewLoginProvider && _config.getGmid() == null) {
-            /* WebView Provider must have basic config fields. */
-            loginProvider.configurationRequired(context, params);
+            // WebView Provider must have basic config fields.
+            loginProvider.configurationRequired(context, params, "standard");
             return;
         }
         if (loginProvider.clientIdRequired() && !_config.isProviderSynced()) {
-            loginProvider.configurationRequired(context, params);
+            loginProvider.configurationRequired(context, params, "standard");
             return;
         }
-
-        /* Login provider selected. */
-        // TODO: 05/03/2019
-        // _accountService.updateLoginProvider(loginProvider);
 
         loginProvider.trackTokenChanges(_sessionService);
 
         if (_config.isProviderSynced()) {
-            /* Update provider client id if available */
+            // Update provider client id if available
             final String providerClientId = _config.getAppIds().get(provider);
             if (providerClientId != null) {
                 loginProvider.updateProviderClientId(providerClientId);
             }
         }
 
-        loginProvider.login(context, params);
+        loginProvider.login(context, params, "standard");
     }
 
     //region Utilities
 
     @SuppressWarnings("ConstantConditions")
     private static String getPresentationUrl(Config config, Map<String, Object> params, String requestType) {
-        /* Setup parameters. */
+        // Setup parameters.
         final Map<String, Object> urlParams = new HashMap<>();
         urlParams.put("apiKey", config.getApiKey());
         urlParams.put("requestType", requestType);

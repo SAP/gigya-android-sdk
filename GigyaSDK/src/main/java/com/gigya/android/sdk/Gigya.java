@@ -32,7 +32,7 @@ public class Gigya<T extends GigyaAccount> {
 
     private static final String LOG_TAG = "Gigya";
 
-    public static final String VERSION = "android_4.0.0_a1";
+    public static final String VERSION = "android_4.0.0_a2";
 
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
@@ -160,7 +160,7 @@ public class Gigya<T extends GigyaAccount> {
         final Set<String> usedSocialProviders = _gigyaContext.getPersistenceService().getSocialProviders();
         if (usedSocialProviders != null) {
             for (String identifier : usedSocialProviders) {
-                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext, identifier, null);
+                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext.getApiService(), identifier, null);
                 _usedLoginProviders.put(identifier, provider);
                 if (provider.clientIdRequired()) {
                     // Must call sdk config to fetch related client ids for login provider.
@@ -368,9 +368,22 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Login with given parameters.
+     *
+     * @param params   parameters map.
+     * @param callback gin response callback.
+     */
+    public void login(Map<String, Object> params, GigyaLoginCallback<T> callback) {
+        GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
+        params.put("include", "profile,data,subscriptions,preferences");
+        _gigyaContext.getApiService().login(params, callback);
+    }
+
+    /**
      * Login given a specific 3rd party provider.
      *
      * @param socialProvider Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param params         Parameters map.
      * @param callback       Login response callback.
      */
     public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> callback) {

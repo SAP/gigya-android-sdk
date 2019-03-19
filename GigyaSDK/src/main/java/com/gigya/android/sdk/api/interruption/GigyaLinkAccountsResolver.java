@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.api.interruption;
 
+import android.content.Context;
 import android.support.v4.util.Pair;
 
 import com.gigya.android.sdk.GigyaCallback;
@@ -10,11 +11,16 @@ import com.gigya.android.sdk.model.account.ConflictingAccounts;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.services.ApiService;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaResolver<A> {
 
@@ -30,7 +36,9 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     public void clear() {
         _regToken = null;
         this.conflictingAccounts = null;
-        _loginCallback.clear();
+        if (isAttached()) {
+            _loginCallback.clear();
+        }
     }
 
     @Override
@@ -72,10 +80,34 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         }
     }
 
-
-    void finalizeFlow() {
+    public void resolveForSocial(final Context context, String provider) {
         if (isAttached()) {
-            _apiService.finalizeRegistration(_regToken, _loginCallback.get());
+            LoginProvider loginProvider = LoginProviderFactory.providerFor(
+                    context, _apiService, provider, _loginCallback.get());
+            loginProvider.setRegToken(_regToken);
+            if (loginProvider.getProviderClientId() == null) {
+                final Config config = _apiService.getSessionService().getConfig();
+                final Map<String, String> appIds = config.getAppIds();
+                if (appIds != null && !appIds.isEmpty()) {
+                    for (Map.Entry<String, String> entry : appIds.entrySet()) {
+                        final String appProvider = entry.getKey();
+                        if (ObjectUtils.safeEquals(appProvider, provider)) {
+                            final String appClientId = entry.getValue();
+                            loginProvider.updateProviderClientId(appClientId);
+                        }
+                    }
+                }
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("provider", provider);
+            loginProvider.login(context, params, "link");
+        }
+    }
+
+
+    void finalizeFlow(String regToken) {
+        if (isAttached()) {
+            _apiService.finalizeRegistration(regToken, _loginCallback.get());
         }
     }
 }

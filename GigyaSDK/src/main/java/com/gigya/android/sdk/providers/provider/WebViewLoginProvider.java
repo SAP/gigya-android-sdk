@@ -8,11 +8,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.services.ApiService;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
@@ -25,8 +26,8 @@ public class WebViewLoginProvider extends LoginProvider {
 
     private static final String TAG = "WebViewLoginProvider";
 
-    public WebViewLoginProvider(GigyaContext gigyaContext, GigyaLoginCallback callback) {
-        super(gigyaContext, callback);
+    public WebViewLoginProvider(ApiService apiService, GigyaLoginCallback callback) {
+        super(apiService, callback);
     }
 
     @Override
@@ -35,7 +36,8 @@ public class WebViewLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void login(Context context, final Map<String, Object> loginParams) {
+    public void login(Context context, final Map<String, Object> loginParams, String loginMode) {
+        _loginMode = loginMode;
         final Pair<String, String> postRequest = getPostRequest(loginParams);
         final String provider = (String) loginParams.get("provider");
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
@@ -93,14 +95,15 @@ public class WebViewLoginProvider extends LoginProvider {
     private Pair<String, String> getPostRequest(Map<String, Object> loginParams) {
         /* Remove if added. */
         loginParams.remove(FacebookLoginProvider.LOGIN_BEHAVIOUR);
+        final Config config = _sessionService.getConfig();
 
-        final String url = "https://socialize." + _config.getApiDomain() + "/socialize.login";
+        final String url = "https://socialize." + config.getApiDomain() + "/socialize.login";
         final TreeMap<String, Object> urlParams = new TreeMap<>();
         urlParams.put("redirect_uri", "gsapi://login_result");
         urlParams.put("response_type", "token");
-        urlParams.put("client_id", _config.getApiKey());
-        urlParams.put("gmid", _config.getGmid());
-        urlParams.put("ucid", _config.getUcid());
+        urlParams.put("client_id", config.getApiKey());
+        urlParams.put("gmid", config.getGmid());
+        urlParams.put("ucid", config.getUcid());
 
         /* x_params additions. */
         for (Map.Entry entry : loginParams.entrySet()) {
