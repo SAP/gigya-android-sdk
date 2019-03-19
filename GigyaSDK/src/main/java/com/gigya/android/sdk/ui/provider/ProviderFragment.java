@@ -183,7 +183,7 @@ public class ProviderFragment extends WebViewFragment {
         });
     }
 
-    //region Result handling
+    //region RESULT HANDLING
 
     private void handleResult(@NonNull Map<String, Object> resultObject) {
         GigyaLogger.debug(LOG_TAG, "handleResult: " + resultObject.toString());

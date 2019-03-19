@@ -25,7 +25,7 @@ public class Config {
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
 
-    //region Load
+    //region LOAD
 
     @Nullable
     public static Config loadFromJson(Context appContext) {
@@ -60,7 +60,7 @@ public class Config {
 
     //endregion
 
-    //region Update
+    //region UPDATE
 
     public Config updateWith(String apiKey, String apiDomain) {
         this.apiKey = apiKey;
@@ -96,7 +96,7 @@ public class Config {
         return appIds != null;
     }
 
-    //region Getters & Setters
+    //region GETTERS & SETTERS
 
     public String getApiKey() {
         return apiKey;

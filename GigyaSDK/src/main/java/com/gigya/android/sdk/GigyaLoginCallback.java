@@ -23,7 +23,7 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
         forwardError(response);
     }
 
-    //region Link accounts
+    //region LINK ACCOUNTS
 
     public void onConflictingAccounts(@NonNull GigyaApiResponse response, @NonNull GigyaLinkAccountsResolver resolver) {
         forwardError(response);
@@ -31,7 +31,7 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
 
     //endregion
 
-    //region Password change
+    //region PASSWORD CHANGE
 
     public void onPendingPasswordChange(@NonNull GigyaApiResponse response) {
         forwardError(response);

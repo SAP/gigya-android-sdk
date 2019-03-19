@@ -25,7 +25,7 @@ public abstract class GigyaPresenter {
         _accountService = gigyaContext.getAccountService();
     }
 
-    //region HostActivity lifecycle callbacks tracking
+    //region HOSTACTIVITY LIFECYCLE CALLBACKS TRACKING
 
     // TODO: 03/01/2019 When dropping support for <17 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
 

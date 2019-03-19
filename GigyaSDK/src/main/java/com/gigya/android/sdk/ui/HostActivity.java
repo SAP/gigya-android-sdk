@@ -101,7 +101,7 @@ public class HostActivity extends AppCompatActivity {
         _mainFrame.addView(_progressBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
-    //region OnKey handling
+    //region ONKEY HANDLING
 
     public interface OnBackPressListener {
         boolean onBackPressed();
@@ -131,7 +131,7 @@ public class HostActivity extends AppCompatActivity {
 
     //endregion
 
-    //region UI bindings
+    //region UI BINDINGS
 
     public void showProgress() {
         if (_progressBar.getVisibility() == View.GONE) {

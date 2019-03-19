@@ -78,7 +78,7 @@ public class Gigya<T extends GigyaAccount> {
         return Gigya.getInstance(appContext, GigyaAccount.class);
     }
 
-    //region Initialize
+    //region INITIALIZE
 
     /**
      * Gigya default api domain.
@@ -182,7 +182,9 @@ public class Gigya<T extends GigyaAccount> {
         }
     }
 
-    //region Lifecycle callbacks
+    //endregion
+
+    //region LIFECYCLE CALLBACKS
 
     /**
      * Attaching the SDK to the application lifecycle in order to distinguish foreground/background/resumed states.
@@ -252,8 +254,6 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //endregion
-
     /**
      * Update interruption handling.
      * By default, the Gigya SDK will handle various API interruptions to allow simple resolving of certain common errors.
@@ -279,7 +279,8 @@ public class Gigya<T extends GigyaAccount> {
         return null;
     }
 
-    //region Business APis
+    //region CONFIG & ANONYMOUS APIS
+
     /*
    Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
     */
@@ -315,7 +316,7 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region GigyaAccount & Session
+    //region GIGYA ACCOUNT & SESSION
 
     /**
      * Get current session.
@@ -357,7 +358,7 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region Business Apis
+    //region BUSINESS APIS
 
     /**
      * Login with provided id & password.
@@ -486,7 +487,7 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region Native login
+    //region NATIVE LOGIN
 
     /**
      * Present social login selection list.
@@ -503,7 +504,7 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    //region Plugins
+    //region PLUGINS
 
     /**
      * Show Gigya ScreenSets flow using the PluginFragment.

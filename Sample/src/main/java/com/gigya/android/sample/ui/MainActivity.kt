@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onBackPressed()
     }
 
-    //region Drawer setup
+    //region DRAWER SETUP
 
     private fun initDrawer() {
         val toggle = ActionBarDrawerToggle(
@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sheet.show(supportFragmentManager, "sheet")
     }
 
-    //region APIs
+    //region APIS
 
     /**
      * Show input dialog for registration
@@ -329,7 +329,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region UI presentation
+    //region UI PRESENTATION
 
     /**
      * Native login requested from navigation menu.
@@ -410,7 +410,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region ViewModel interfacing
+    //region VIEWMODEL INTERFACING
 
     /**
      * SDK re-initialized. force logout/clear session.
@@ -474,7 +474,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region UI helpers
+    //region UI HELPERS
 
     /**
      * Populate JSON result.
@@ -528,7 +528,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region Account info binding
+    //region ACCOUNT INFO BINDING
 
     private fun observeAccountUpdates() {
         viewModel?.account?.observe(this, Observer { myAccount ->

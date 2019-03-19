@@ -109,7 +109,7 @@ public class GigyaLoginPresenter extends GigyaPresenter {
         loginProvider.login(context, params, "standard");
     }
 
-    //region Utilities
+    //region UTILITIES
 
     @SuppressWarnings("ConstantConditions")
     private static String getPresentationUrl(Config config, Map<String, Object> params, String requestType) {

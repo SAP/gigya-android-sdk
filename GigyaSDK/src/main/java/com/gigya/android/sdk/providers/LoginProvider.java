@@ -50,7 +50,7 @@ public abstract class LoginProvider {
         return providerClientId;
     }
 
-    //region Callbacks
+    //region CALLBACKS
 
     /*
      Determine if we need to fetch SDK configuration.
@@ -165,7 +165,7 @@ public abstract class LoginProvider {
         return false;
     }
 
-    //region Track token changes
+    //region TRACK TOKEN CHANGES
 
     public void trackTokenChanges(@NonNull SessionService sessionService) {
         // Stub. Override only if provider tracks token changes.
@@ -173,7 +173,7 @@ public abstract class LoginProvider {
 
     //endregion
 
-    //region Interfacing
+    //region INTERFACING
 
     public interface LoginProviderConfigCallback {
         void onConfigurationRequired(Context appContext, LoginProvider provider, Map<String, Object> params, String loginMethod);

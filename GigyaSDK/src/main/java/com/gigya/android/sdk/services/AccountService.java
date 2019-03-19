@@ -46,7 +46,7 @@ public class AccountService<A extends GigyaAccount> {
 
     //endregion
 
-    //region Account caching logic.
+    //region ACCOUNT CACHING LOGIC
 
     /*
     Invalidation timestamp for cached account.

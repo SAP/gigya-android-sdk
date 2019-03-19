@@ -73,7 +73,7 @@ public class ApiService<A extends GigyaAccount> {
         _interruptionHandler = new InterruptionHandler<>(this);
     }
 
-    //region Available APIs
+    //region AVAILABLE APIS
 
     /**
      * Request SDK configuration. Crucial Endpoint because of the "gmid", appIds dependencies.
@@ -234,8 +234,7 @@ public class ApiService<A extends GigyaAccount> {
                     loginCallback.onError(GigyaError.fromResponse(apiResponse));
                 }
             }
-        }
-                .execute(GigyaDefinitions.API.API_NOTIFY_LOGIN, NetworkAdapter.Method.POST, params, loginCallback);
+        }.execute(GigyaDefinitions.API.API_NOTIFY_LOGIN, NetworkAdapter.Method.POST, params, loginCallback);
     }
 
 
@@ -304,9 +303,9 @@ public class ApiService<A extends GigyaAccount> {
     /**
      * Request login verification according to provided UID
      *
-     * @param UID      Account UID. Field is optional. If Session is valid there is no need to add the UID.
+     * @param UID           Account UID. Field is optional. If Session is valid there is no need to add the UID.
      * @param ignoreSession Ignore session data. If TRUE will not update current session & account data.
-     * @param callback Response callback.
+     * @param callback      Response callback.
      */
     public void verifyLogin(@Nullable String UID, final boolean ignoreSession, @Nullable GigyaCallback<A> callback) {
         Map<String, Object> params = new HashMap<>();
@@ -401,12 +400,12 @@ public class ApiService<A extends GigyaAccount> {
                         new Pair<String, Object>("regToken", regToken),
                         new Pair<String, Object>("include", "profile,data,emails,subscriptions,preferences"),
                         new Pair<String, Object>("includeUserInfo", "true"))),
-                (GigyaCallback<A>) loginCallback);
+                loginCallback);
     }
 
     //endregion
 
-    //region Utilities
+    //region UTILITIES
 
     /**
      * Generic success logic for Account based APIs.

@@ -106,7 +106,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
         }
     }
 
-    //region Volley specific implementation.
+    //region VOLLEY SPECIFIC IMPLEMENTATION
 
     /*
     Generate a new Volley request.

@@ -155,7 +155,7 @@ public class WebBridge<T extends GigyaAccount> {
         return false;
     }
 
-    //region Actions
+    //region ACTIONS
 
     private boolean invoke(String actionString, String api, String queryStringParams) {
         if (actionString == null) {
@@ -354,7 +354,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     //endregion
 
-    //region Obfuscation
+    //region OBFUSCATION
 
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String obfuscate(String string, boolean quote) {

@@ -20,7 +20,7 @@ public class GigyaApiRequestBuilder {
     private String api;
     final private SessionService sessionService;
 
-    //region Builder pattern
+    //region BUILDER PATTERN
 
     public GigyaApiRequestBuilder(SessionService sessionService) {
         this.sessionService = sessionService;

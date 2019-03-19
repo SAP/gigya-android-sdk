@@ -116,7 +116,7 @@ public class GigyaApiResponse {
         return null;
     }
     
-    //region Root element getters
+    //region ROOT ELEMENT GETTERS
 
     public int getStatusCode() {
         try {

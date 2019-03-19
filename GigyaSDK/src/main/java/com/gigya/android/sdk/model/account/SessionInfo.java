@@ -23,7 +23,7 @@ public class SessionInfo{
         return (this.sessionToken != null && this.sessionSecret != null);
     }
 
-    //region Getters & Setters
+    //region GETTERS & SETTERS
 
     public String getSessionToken() {
         return sessionToken;

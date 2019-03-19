@@ -114,7 +114,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
         return !_fullScreen;
     }
 
-    //region lifecycle
+    //region LIFECYCLE
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -243,7 +243,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region WebView setup
+    //region WEBVIEW SETUP
 
     @Override
     protected void setUpWebView() {
@@ -319,7 +319,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region WebBridge & interfacing
+    //region WEBBRIDGE & INTERFACING
 
     private void setupWebBridge() {
         _webBridge = new WebBridge<>(_gigyaContext, _obfuscate, new WebBridge.WebBridgeInteractions<T>() {
@@ -430,7 +430,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region File chooser
+    //region FILE CHOOSER
 
     private static final int PERMISSION_REQUEST_CODE = 14;
     private static final int FILE_CHOOSER_MEDIA_REQUEST_CODE = 15;
@@ -512,7 +512,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region HTML & parameters
+    //region HTML & PARAMETERS
 
     private String getHTML() {
         organizeParameters();

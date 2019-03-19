@@ -151,7 +151,7 @@ public abstract class WebViewFragment extends DialogFragment {
         setupProgressView(dip16);
     }
 
-    //region UI blocks
+    //region UI BLOCKS
 
     private void setupMainFrames(Context context, Pair<Integer, Integer> screenSize) {
         _contentView = new FrameLayout(context);
@@ -227,7 +227,7 @@ public abstract class WebViewFragment extends DialogFragment {
 
     //endregion
 
-    //region UI Customization
+    //region UI CUSTOMIZATION
 
     private Drawable getRoundedCornerBackground() {
         GradientDrawable gradientDrawable = new GradientDrawable();
