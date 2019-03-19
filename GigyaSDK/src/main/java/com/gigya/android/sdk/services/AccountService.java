@@ -85,7 +85,7 @@ public class AccountService<A extends GigyaAccount> {
      * update he next cached account invalidation timestamp.
      */
     public void nextAccountInvalidationTimestamp() {
-        if (!_accountOverrideCache) {
+        if (!_accountOverrideCache && _accountCacheTime > 0) {
             _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_accountCacheTime);
         }
     }

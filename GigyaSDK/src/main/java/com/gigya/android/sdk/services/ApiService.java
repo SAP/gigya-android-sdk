@@ -174,9 +174,11 @@ public class ApiService<A extends GigyaAccount> {
             return;
         }
         if (_accountService.isCachedAccount()) {
+            GigyaLogger.debug(LOG_TAG, "getAccount: returning cached account");
             // Always return a deep copy.
             callback.onSuccess(ObjectUtils.deepCopy(new Gson(), _accountService.getAccount(), _accountService.getAccountScheme()));
         } else {
+            GigyaLogger.debug(LOG_TAG, "getAccount: dispatching new get account request");
             new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
 
                 @Override
@@ -186,6 +188,7 @@ public class ApiService<A extends GigyaAccount> {
                     if (callback != null) {
                         callback.onSuccess(parsed);
                     }
+                    _accountService.nextAccountInvalidationTimestamp();
                 }
             }.execute(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, NetworkAdapter.Method.POST,
                     null, callback);
