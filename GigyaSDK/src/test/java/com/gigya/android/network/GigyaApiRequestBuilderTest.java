@@ -2,6 +2,7 @@ package com.gigya.android.network;
 
 import android.util.Base64;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiRequestBuilder;
@@ -99,7 +100,7 @@ public class GigyaApiRequestBuilderTest {
         GigyaApiRequest request = builder.build();
         // Assert
         assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig?apiKey=dummyApiKey&format=json&httpStatusCodes=false&include=permissions%2C%20ids&nonce=1545905337000_1&oauth_token=mockToken&" +
-                        "sdk=android_4.0.0&sig=DfljJQXRGfeIQAJ4lQuw5nEGrtU%3D&targetEnv=mobile&timestamp=1545905337",
+                        "sdk=" + Gigya.VERSION + "&sig=SkcIBWXSj111AR14RSzGIqVm89Q%3D&targetEnv=mobile&timestamp=1545905337",
                 request.getUrl());
         assertNull(request.getEncodedParams());
         assertEquals(NetworkAdapter.Method.GET, request.getMethod());
@@ -122,7 +123,7 @@ public class GigyaApiRequestBuilderTest {
         assertEquals("https://socialize.us1.gigya.com/socialize.getSDkConfig", request.getUrl());
         assertNotNull(request.getEncodedParams());
         assertEquals("apiKey=dummyApiKey&format=json&httpStatusCodes=false&include=permissions%2C%20ids&" +
-                        "nonce=1545905337000_1&oauth_token=mockToken&sdk=android_4.0.0&sig=ZIt303EWT4EbTkLKCfbvKdeXiuc%3D&targetEnv=mobile&timestamp=1545905337",
+                        "nonce=1545905337000_1&oauth_token=mockToken&sdk=" + Gigya.VERSION + "&sig=%2FVQl0LEBDv45HVzupSWHGp0imeE%3D&targetEnv=mobile&timestamp=1545905337",
                 request.getEncodedParams());
         assertEquals(NetworkAdapter.Method.POST, request.getMethod());
         assertEquals("socialize.getSDkConfig", request.getTag());

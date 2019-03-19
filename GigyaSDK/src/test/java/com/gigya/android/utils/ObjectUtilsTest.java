@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -216,7 +217,7 @@ public class ObjectUtilsTest {
     }
 
     @Test
-    public void testToMap() {
+    public void testToMap() throws JSONException {
         Map<String, Object> map = ObjectUtils.toMap(new JSONObject(mockJson));
         assertNotNull(map.get("callId"));
         assertNotNull(map.get("permissions"));

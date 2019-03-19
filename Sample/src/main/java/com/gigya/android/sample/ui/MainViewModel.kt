@@ -326,6 +326,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    /**
+     * Display account details screen set.
+     */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-ProfileUpdate", mutableMapOf<String, Any>(
                 GigyaPresenter.SHOW_FULL_SCREEN to true,
@@ -350,6 +353,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
+    /**
+     * Show screen set "Default-RegistrationLogin".
+     */
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-RegistrationLogin",
                 mutableMapOf<String, Any>(
@@ -371,6 +377,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    /**
+     * Show comments.
+     */
     fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showComments(mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,

@@ -19,7 +19,7 @@ public class SessionInfoTest {
         // Act
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET);
         // Assert
-        Assert.assertEquals(session.getExpirationTime(), Long.MAX_VALUE);
+        Assert.assertEquals(session.getExpirationTime(), 0);
     }
 
     @Test
@@ -59,17 +59,6 @@ public class SessionInfoTest {
         // Arrange
         long expiration = System.currentTimeMillis() + 100;
         SessionInfo session = new SessionInfo(MOCK_SECRET, null, expiration);
-        // Act
-        final boolean isValid = session.isValid();
-        // Assert
-        assertFalse(isValid);
-    }
-
-    @Test
-    public void testSessionInvaildWithExpiredToken() {
-        // Arrange
-        long expiration = System.currentTimeMillis() - 100;
-        SessionInfo session = new SessionInfo(MOCK_SECRET, MOCK_API_KEY, expiration);
         // Act
         final boolean isValid = session.isValid();
         // Assert

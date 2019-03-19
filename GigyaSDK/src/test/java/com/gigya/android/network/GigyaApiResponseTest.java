@@ -84,9 +84,9 @@ public class GigyaApiResponseTest {
     @Test
     public void textGetNestedField() {
         final String field = response.getField("data.custom.one", String.class);
-        final Double doubleField = response.getField("data.custom.two", Double.class);
+        final Integer intField = response.getField("data.custom.two", Integer.class);
         Assert.assertNotNull(field);
-        Assert.assertNotNull(doubleField);
+        Assert.assertNotNull(intField);
     }
 
     @Test

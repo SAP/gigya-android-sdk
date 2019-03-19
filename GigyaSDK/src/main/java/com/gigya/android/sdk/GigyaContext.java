@@ -91,17 +91,16 @@ public class GigyaContext<A extends GigyaAccount> {
         _persistenceService = new PersistenceService(appContext);
         _accountService = new AccountService<>();
         _encryptor = newEncryptor();
-
         Runnable newSessionRunnable = new Runnable() {
             @Override
             public void run() {
                 if (_sessionVerificationService != null) {
+                    // A new session has been updated. IF needed, start verification service.
                     _sessionVerificationService.start();
                 }
             }
         };
         _sessionService = new SessionService(appContext, _config, _persistenceService, _encryptor, newSessionRunnable);
-
         _apiService = new ApiService<>(appContext, _sessionService, _accountService);
         _sessionVerificationService = new SessionVerificationService(appContext, _apiService);
     }

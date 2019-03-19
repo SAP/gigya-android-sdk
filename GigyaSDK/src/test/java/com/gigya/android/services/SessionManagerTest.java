@@ -1,6 +1,7 @@
 package com.gigya.android.services;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
@@ -30,14 +31,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
+import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SessionService.class, TextUtils.class})
+@PrepareForTest({SessionService.class, TextUtils.class, PersistenceService.class})
 @PowerMockIgnore("javax.crypto.*")
 public class SessionManagerTest {
 
@@ -57,6 +60,12 @@ public class SessionManagerTest {
     private IEncryptor encryptor;
 
     private SecretKey secretKey = new SecretKeySpec(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}, "AES");
+
+    @Mock
+    private Runnable newSessionRunnable;
+
+    @Mock
+    SharedPreferences sharedPreferences;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Before
@@ -83,7 +92,7 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
         // Assert
         assertNull(sessionService.getSession());
     }
@@ -91,7 +100,7 @@ public class SessionManagerTest {
     @Test
     public void testIsValidSession() { // Also tests setSession.
         // Arrange
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionService.setSession(sessionInfo);
         // Act
@@ -103,7 +112,7 @@ public class SessionManagerTest {
     @Test
     public void testClear() {
         // Arrange
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionService.setSession(sessionInfo);
         // Act
@@ -113,14 +122,19 @@ public class SessionManagerTest {
     }
 
     @Test
-    public void testNewInstanceWithEncryptedSession() {
+    public void testNewInstanceWithEncryptedSession() throws Exception {
         // Arrange
+        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
+        when(sharedPreferences.contains(anyString())).thenReturn(true);
+        final PersistenceService ps = spy(new PersistenceService(context));
+        doReturn(true).when(ps, "contains", anyString());
+        when(encryptor.getKey(context, ps)).thenReturn(secretKey);
+        when(ps, "hasSession").thenReturn(true);
         final String encryptedSession = "94jlrvylz9th5cv35vjcfap1ip295dqws1u430je3n8ctzoctagh6vdukiyz83qoog6bk2lq8m520q1y9livgt2ae1zomh0xvlls3rtg7" +
                 "d6b71d4kk9jets8bv3pv79238tzgqmzhlzabev3z9q1p8xy1f5s8gmeq01xpw4lczdz90uoqnqua6js44yxqn3a8o64vddaw1ix319plvc234zldjyxtncu2tqi7r7lqqiqonjke1cp2add";
-        when(persistenceService.contains("GS_PREFS")).thenReturn(true);
-        when(persistenceService.getString(eq("GS_PREFS"), (String) eq(null))).thenReturn(encryptedSession);
+        when(ps.getSession()).thenReturn(encryptedSession);
         // Act
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
+        SessionService sessionService = new SessionService(context, config, ps, encryptor, newSessionRunnable);
         // Assert
         assertNotNull(sessionService.getSession());
         assertEquals("mockSessionSecret", sessionService.getSession().getSessionSecret());
@@ -137,7 +151,7 @@ public class SessionManagerTest {
         when(persistenceService.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
         when(persistenceService.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
         // Act
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
         // Assert
         assertNotNull(sessionService.getSession());
         assertEquals("mockLegacySessionSecret", sessionService.getSession().getSessionSecret());

@@ -3,6 +3,7 @@ package com.gigya.android.sdk.network;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.adapter.NetworkAdapter;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.SessionService;
@@ -13,6 +14,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class GigyaApiRequestBuilder {
+
+    private static final String LOG_TAG = "GigyaApiRequestBuilder";
 
     @Nullable
     private Map<String, Object> params;
@@ -78,6 +81,8 @@ public class GigyaApiRequestBuilder {
         } else {
             urlParams.put("ApiKey", config.getApiKey());
         }
+
+        GigyaLogger.debug(LOG_TAG, "Request parameters:\n" + urlParams.toString());
 
         // Encode url & generate encoded parameters.
         final String encodedParams = UrlUtils.buildEncodedQuery(urlParams);

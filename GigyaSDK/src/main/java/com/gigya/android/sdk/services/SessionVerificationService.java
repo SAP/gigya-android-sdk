@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.gigya.android.sdk.BuildConfig;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -60,11 +59,6 @@ public class SessionVerificationService {
         GigyaLogger.debug(LOG_TAG, "start: Verification interval is " + TimeUnit.MILLISECONDS.toMinutes(_verificationInterval) + " minutes");
         if (_timer == null) {
             _timer = new Timer();
-        } else try {
-            _timer.cancel();
-        } catch (Exception ex) {
-            if (BuildConfig.DEBUG)
-                ex.printStackTrace();
         }
         _timer.scheduleAtFixedRate(new TimerTask() {
             @SuppressWarnings("unchecked") // Generic reference is irrelevant.
@@ -116,7 +110,7 @@ public class SessionVerificationService {
         _apiService.getAccountService().invalidateAccount();
         // Send "session invalid" local broadcast & flush the timer.
         LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));
-        flush();
+        stop();
     }
 
     /**
@@ -124,16 +118,6 @@ public class SessionVerificationService {
      */
     public void stop() {
         GigyaLogger.debug(LOG_TAG, "stop: ");
-        if (_timer != null) {
-            _timer.cancel();
-        }
-    }
-
-    /**
-     * Stop periodic verification. Cancel, purge & nullify timer.
-     */
-    public void flush() {
-        GigyaLogger.debug(LOG_TAG, "flush: ");
         if (_timer != null) {
             _timer.cancel();
             _timer.purge();

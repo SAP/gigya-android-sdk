@@ -28,8 +28,8 @@ public abstract class LoginProvider {
 
     private ApiService _apiService;
     private PersistenceService _persistenceService;
-    protected SessionService _sessionService;
     private AccountService _accountService;
+    protected SessionService _sessionService;
 
     protected String _loginMode = "standard";
     protected String _regToken;
