@@ -54,23 +54,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(sessionExpirationReceiver,
-                IntentFilter(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_EXPIRED))
+        val filter = IntentFilter()
+        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
+        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
+        LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
+                IntentFilter(filter))
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionExpirationReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
         super.onPause()
     }
 
-    private val sessionExpirationReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val sessionLifecycleReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            // Session expired.
-            viewModel?.flushAccountReferences()
-            if (!isDestroyed && !isFinishing) {
-                displayErrorAlert("Alert", "Your session has expired")
-                invalidateAccountData()
-                invalidateOptionsMenu()
+            val action = intent?.action
+            action?.let { intent_action ->
+                viewModel?.flushAccountReferences()
+                if (!isDestroyed && !isFinishing) {
+                    invalidateAccountData()
+                    invalidateOptionsMenu()
+                    val message: String = when (intent_action) {
+                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED -> "Your session has expired"
+                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> "Your session is invalid"
+                        else -> ""
+                    }
+                    displayErrorAlert("Alert", message)
+                }
             }
         }
     }

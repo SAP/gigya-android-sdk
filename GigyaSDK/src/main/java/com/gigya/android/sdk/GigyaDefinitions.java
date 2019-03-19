@@ -11,9 +11,8 @@ import java.lang.annotation.RetentionPolicy;
 public class GigyaDefinitions {
 
     public static class Broadcasts {
-
-        public static final String INTENT_FILTER_SESSION_EXPIRED = "intent_filter_session_expired";
-        public static final String INTENT_FILTER_SESSION_INVALID = "intent_filter_session_invalid";
+        public static final String INTENT_ACTION_SESSION_EXPIRED = "intent_action_session_expired";
+        public static final String INTENT_ACTION_SESSION_INVALID = "intent_action_session_invalid";
     }
 
     public static class API {

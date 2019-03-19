@@ -335,7 +335,7 @@ public class SessionService {
                 GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
                 _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
                 // Send "session expired" local broadcast.
-                LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_EXPIRED));
+                LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
             }
         }.start();
     }

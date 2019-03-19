@@ -31,6 +31,11 @@ public class SessionVerificationService {
         _apiService = apiService;
     }
 
+    /**
+     * get the initial timer delay.
+     *
+     * @return Initial timer task delay in milliseconds.
+     */
     private long getInitialDelay() {
         if (_lastRequestTimestamp == 0) {
             return _verificationInterval;
@@ -38,17 +43,21 @@ public class SessionVerificationService {
         final long interval = _verificationInterval;
         final long delta = System.currentTimeMillis() - _lastRequestTimestamp;
         final long initialDelay = delta > interval ? 0 : interval - delta;
-        GigyaLogger.debug(LOG_TAG, "getInitialDelay: " + initialDelay / 1000L + " minutes");
+        GigyaLogger.debug(LOG_TAG, "getInitialDelay: " + TimeUnit.MILLISECONDS.toSeconds(initialDelay) + " seconds");
         return initialDelay;
     }
 
+    /**
+     * Start session verification timer.
+     * Periodic timer task will only start if session interval (set in configuration instance) is not 0.
+     */
     public void start() {
-        _verificationInterval = TimeUnit.SECONDS.toMillis(_apiService.getSessionService().getConfig().getSessionVerificationInterval());
+        _verificationInterval = TimeUnit.MINUTES.toMillis(_apiService.getSessionService().getConfig().getSessionVerificationInterval());
         if (_verificationInterval == 0) {
             GigyaLogger.debug(LOG_TAG, "start: Verification interval is 0. Verification flow irrelevant");
             return;
         }
-        GigyaLogger.debug(LOG_TAG, "start: Verification interval is " + _verificationInterval / 1000L + " minutes");
+        GigyaLogger.debug(LOG_TAG, "start: Verification interval is " + TimeUnit.MILLISECONDS.toMinutes(_verificationInterval) + " minutes");
         if (_timer == null) {
             _timer = new Timer();
         } else try {
@@ -80,6 +89,12 @@ public class SessionVerificationService {
         }, getInitialDelay(), _verificationInterval);
     }
 
+    /**
+     * Evaluate notifyLogin endpoint error.
+     * Will ignore network error.
+     *
+     * @param error GigyaError received.
+     */
     private void evaluateVerifyLoginError(GigyaError error) {
         final int errorCode = error.getErrorCode();
         if (errorCode == GigyaError.Codes.ERROR_NETWORK) {
@@ -89,24 +104,34 @@ public class SessionVerificationService {
         notifyInvalidSession();
     }
 
+    /**
+     * Session no longer valid.
+     * 1. Clear saved session & invalidate cached account.
+     * 2. Broadcast a local event to notify that the session is invalid.
+     */
     private void notifyInvalidSession() {
         GigyaLogger.debug(LOG_TAG, "notifyInvalidSession: Invalidating session and cached account. Trigger local broadcast");
         // Clear current session & cached account.
         _apiService.getSessionService().clear();
         _apiService.getAccountService().invalidateAccount();
         // Send "session invalid" local broadcast & flush the timer.
-        LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_FILTER_SESSION_INVALID));
+        LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));
         flush();
     }
 
+    /**
+     * Stop periodic verification. Cancel timer.
+     */
     public void stop() {
         GigyaLogger.debug(LOG_TAG, "stop: ");
         if (_timer != null) {
             _timer.cancel();
         }
-        System.gc();
     }
 
+    /**
+     * Stop periodic verification. Cancel, purge & nullify timer.
+     */
     public void flush() {
         GigyaLogger.debug(LOG_TAG, "flush: ");
         if (_timer != null) {
