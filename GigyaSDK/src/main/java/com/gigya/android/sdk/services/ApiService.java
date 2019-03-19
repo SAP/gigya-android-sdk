@@ -301,18 +301,26 @@ public class ApiService<A extends GigyaAccount> {
     /**
      * Request login verification according to provided UID
      *
-     * @param UID      Account UID..
+     * @param UID      Account UID. Field is optional. If Session is valid there is no need to add the UID.
+     * @param ignoreSession Ignore session data. If TRUE will not update current session & account data.
      * @param callback Response callback.
      */
-    public void verifyLogin(String UID, @Nullable GigyaCallback<A> callback) {
+    public void verifyLogin(@Nullable String UID, final boolean ignoreSession, @Nullable GigyaCallback<A> callback) {
         Map<String, Object> params = new HashMap<>();
-        params.put("UID", UID);
+        if (UID != null) {
+            params.put("UID", UID);
+        }
         params.put("include", "identities-all,loginIDs,profile,email,data");
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
                 if (callback != null) {
-                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                    if (ignoreSession) {
+                        A parsed = apiResponse.getGson().fromJson(apiResponse.asJson(), _accountService.getAccountScheme());
+                        callback.onSuccess(parsed);
+                    } else {
+                        callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                    }
                 }
             }
         }.execute(GigyaDefinitions.API.API_VERIFY_LOGIN, NetworkAdapter.Method.POST, params, callback);

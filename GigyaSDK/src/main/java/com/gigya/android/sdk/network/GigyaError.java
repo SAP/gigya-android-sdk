@@ -17,6 +17,7 @@ public class GigyaError extends GigyaModel {
         public static final int ERROR_LOGIN_IDENTIFIER_EXISTS = 403043;
         public static final int ERROR_PENDING_TWO_FACTOR_REGISTRATION = 403102;
         public static final int ERROR_PENDING_TWO_FACTOR_VERIFICATION = 403101;
+        public static final int ERROR_NETWORK = 500026;
 
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
     }

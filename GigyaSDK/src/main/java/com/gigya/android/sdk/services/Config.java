@@ -23,6 +23,7 @@ public class Config {
     private int accountCacheTime;
     private Map<String, String> appIds;
     private boolean interruptionsEnabled = true;
+    private int sessionVerificationInterval = 0;
 
     //region Load
 
@@ -49,7 +50,8 @@ public class Config {
             final String apiKey = bundle.getString("apiKey", null);
             final String domain = bundle.getString("apiDomain", "us1.gigya.com");
             final int accountCacheTime = bundle.getInt("accountCacheTime", 5);
-            return new Config().updateWith(apiKey, domain, accountCacheTime);
+            final int sessionVerificationIInterval = bundle.getInt("sessionVerificationInterval", 0);
+            return new Config().updateWith(apiKey, domain, accountCacheTime, sessionVerificationIInterval);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -66,15 +68,16 @@ public class Config {
         return this;
     }
 
-    public Config updateWith(String apiKey, String apiDomain, int accountCacheTime) {
+    public Config updateWith(String apiKey, String apiDomain, int accountCacheTime, int sessionVerificationInterval) {
         this.apiKey = apiKey;
         this.apiDomain = apiDomain;
         this.accountCacheTime = accountCacheTime;
+        this.sessionVerificationInterval = sessionVerificationInterval;
         return this;
     }
 
     public Config updateWith(Config config) {
-        updateWith(config.getApiKey(), config.getApiDomain(), config.getAccountCacheTime());
+        updateWith(config.getApiKey(), config.getApiDomain(), config.getAccountCacheTime(), config.getSessionVerificationInterval());
         if (config.getGmid() != null) {
             this.gmid = config.getGmid();
         }
@@ -149,6 +152,14 @@ public class Config {
 
     public void setInterruptionsEnabled(boolean interruptionsEnabled) {
         this.interruptionsEnabled = interruptionsEnabled;
+    }
+
+    public int getSessionVerificationInterval() {
+        return sessionVerificationInterval;
+    }
+
+    public void setSessionVerificationInterval(int sessionVerificationInterval) {
+        this.sessionVerificationInterval = sessionVerificationInterval;
     }
 
     //endregion

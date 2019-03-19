@@ -162,6 +162,9 @@ public class Gigya<T extends GigyaAccount> {
             for (String identifier : usedSocialProviders) {
                 final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext.getApiService(), identifier, null);
                 _usedLoginProviders.put(identifier, provider);
+
+                // TODO: 19/03/2019 Consider removing this part. Not really aligned with SDK design pattern.
+
                 if (provider.clientIdRequired()) {
                     // Must call sdk config to fetch related client ids for login provider.
                     loadSDKConfig(new Runnable() {
@@ -206,6 +209,10 @@ public class Gigya<T extends GigyaAccount> {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
                     // Will start session countdown timer if the current session contains an expiration time.
                     _gigyaContext.getSessionService().startSessionCountdownTimerIfNeeded();
+                    if (isLoggedIn()) {
+                        // Session verification is only relevant when user is logged in.
+                        _gigyaContext.getSessionVerificationService().start();
+                    }
                 }
             }
 
@@ -227,6 +234,7 @@ public class Gigya<T extends GigyaAccount> {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
                     // Make sure to cancel the session expiration countdown timer (if live).
                     _gigyaContext.getSessionService().cancelSessionCountdownTimer();
+                    _gigyaContext.getSessionVerificationService().stop();
                 }
             }
 
@@ -433,7 +441,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void verifyLogin(String UID, GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-        _gigyaContext.getApiService().verifyLogin(UID, callback);
+        _gigyaContext.getApiService().verifyLogin(UID, false,  callback);
     }
 
     /**

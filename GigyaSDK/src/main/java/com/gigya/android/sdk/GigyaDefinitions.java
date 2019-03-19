@@ -13,6 +13,7 @@ public class GigyaDefinitions {
     public static class Broadcasts {
 
         public static final String INTENT_FILTER_SESSION_EXPIRED = "intent_filter_session_expired";
+        public static final String INTENT_FILTER_SESSION_INVALID = "intent_filter_session_invalid";
     }
 
     public static class API {

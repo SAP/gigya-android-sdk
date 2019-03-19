@@ -44,6 +44,10 @@
         <!--android:name="accountCacheTime"-->
         <!--android:value="1"/>-->
 
+        <!--<meta-data-->
+        <!--android:name="sessionVerificationInterval"-->
+        <!--android:value="5" />-->
+
         <!-- Facebook integration -->
         <activity
             android:name="com.facebook.FacebookActivity"

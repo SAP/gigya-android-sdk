@@ -13,6 +13,7 @@ import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.PersistenceService;
 import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.services.SessionVerificationService;
 
 /**
  * Gigya context specific service dependency holder/initiator.
@@ -76,13 +77,33 @@ public class GigyaContext<A extends GigyaAccount> {
         return _apiService;
     }
 
-    public GigyaContext(Context appContext) {
+    /*
+    Session verification service. Used for periodic verifications of the current session.
+     */
+    private SessionVerificationService _sessionVerificationService;
+
+    public SessionVerificationService getSessionVerificationService() {
+        return _sessionVerificationService;
+    }
+
+    GigyaContext(Context appContext) {
         // Initialize all services.
         _persistenceService = new PersistenceService(appContext);
         _accountService = new AccountService<>();
         _encryptor = newEncryptor();
-        _sessionService = new SessionService(appContext, _config, _persistenceService, _encryptor);
+
+        Runnable newSessionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (_sessionVerificationService != null) {
+                    _sessionVerificationService.start();
+                }
+            }
+        };
+        _sessionService = new SessionService(appContext, _config, _persistenceService, _encryptor, newSessionRunnable);
+
         _apiService = new ApiService<>(appContext, _sessionService, _accountService);
+        _sessionVerificationService = new SessionVerificationService(appContext, _apiService);
     }
 
     /**

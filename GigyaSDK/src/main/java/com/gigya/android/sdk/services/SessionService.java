@@ -52,12 +52,16 @@ public class SessionService {
     @NonNull
     final private Context _appContext;
 
+    @NonNull
+    final private Runnable _newSessionRunnable;
+
     public SessionService(@NonNull Context appContext, @NonNull Config config,
-                          @NonNull PersistenceService persistenceService, IEncryptor encryptor) {
+                          @NonNull PersistenceService persistenceService, IEncryptor encryptor, @NonNull Runnable newSessionRunnable) {
         _appContext = appContext;
         _config = config;
         _encryptor = encryptor;
         _persistenceService = persistenceService;
+        _newSessionRunnable = newSessionRunnable;
         // Get reference to SDK shared preference file.
         load();
     }
@@ -100,6 +104,9 @@ public class SessionService {
         }
         save();
         GigyaLogger.debug(LOG_TAG, session.toString());
+
+        // Run new session task. Will trigger session verification interval if needed.
+        _newSessionRunnable.run();
     }
 
     /**
