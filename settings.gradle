@@ -1,1 +1,1 @@
-include ':Sample', ':GigyaSDK'
+include ':Sample', ':GigyaSDK', ':GigyaBiometric'

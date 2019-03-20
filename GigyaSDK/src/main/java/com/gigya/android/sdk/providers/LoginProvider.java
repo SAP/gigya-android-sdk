@@ -14,6 +14,7 @@ import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.PersistenceService;
 import com.gigya.android.sdk.services.SessionService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,24 +108,24 @@ public abstract class LoginProvider {
             // Call intermediate load to give the client the option to trigger his own progress indicator.
             _callback.onIntermediateLoad();
 
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("providerSessions", providerSessions);
-//            params.put("loginMode", loginMode);
-//            if (loginMode.equals("link") && _regToken != null) {
-//                params.put("regToken", _regToken);
-//            }
-//            _apiService.nativeSocialLogin(params, _callback);
+            Map<String, Object> params = new HashMap<>();
+            params.put("providerSessions", providerSessions);
+            params.put("loginMode", loginMode);
+            if (loginMode.equals("link") && _regToken != null) {
+                params.put("regToken", _regToken);
+            }
+            _apiService.nativeSocialLogin(params, _callback);
 
             // all notifyLogin to submit sign in process.
-            _apiService.notifyLogin(providerSessions, _callback, new Runnable() {
-                @Override
-                public void run() {
-                    //Safe to say this is the current selected provider.
-                    GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: notifyLogin completion handler");
-                    _persistenceService.addSocialProvider(provider.getName());
-                    provider.trackTokenChanges(_sessionService);
-                }
-            });
+//            _apiService.notifyLogin(providerSessions, _callback, new Runnable() {
+//                @Override
+//                public void run() {
+//                    //Safe to say this is the current selected provider.
+//                    GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: notifyLogin completion handler");
+//                    _persistenceService.addSocialProvider(provider.getName());
+//                    provider.trackTokenChanges(_sessionService);
+//                }
+//            });
         }
 
         /* Login process via Web has generated a new session. */

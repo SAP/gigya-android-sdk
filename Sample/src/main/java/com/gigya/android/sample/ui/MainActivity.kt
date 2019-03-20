@@ -26,6 +26,7 @@ import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
+import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -50,6 +51,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         initDrawer()
+
+        initLockButton()
+    }
+
+    private fun initLockButton() {
+        finger_print_lock_button.setOnClickListener {
+            val biometric = GigyaBiometric(this).optIn(this)
+        }
     }
 
     override fun onResume() {
