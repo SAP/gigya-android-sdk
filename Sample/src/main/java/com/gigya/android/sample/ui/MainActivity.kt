@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
@@ -27,6 +28,7 @@ import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.biometric.GigyaBiometric
+import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -57,7 +59,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun initLockButton() {
         finger_print_lock_button.setOnClickListener {
-            val biometric = GigyaBiometric(this).optIn(this)
+            val biometric = GigyaBiometric.Builder().build()
+            biometric.optIn(this, object: IGigyaBiometricCallback() {
+                override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onAuthenticationFailed() {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
+
+                }
+            })
         }
     }
 

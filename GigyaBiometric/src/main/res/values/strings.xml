@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">GigyaBiometric</string>
+
+    <string name="touch_sensor">Touch the fingerprint sensor</string>
+    <string name="not_recognized">Not recognized</string>
+    <string name="cancel">Cancel</string>
 </resources>

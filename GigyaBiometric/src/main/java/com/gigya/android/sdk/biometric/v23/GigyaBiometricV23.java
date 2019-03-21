@@ -1,15 +1,17 @@
 package com.gigya.android.sdk.biometric.v23;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.biometric.IBiometricHalder;
+import com.gigya.android.sdk.biometric.GigyaBiometric;
+import com.gigya.android.sdk.biometric.IBiometricActions;
+import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 
 import java.security.KeyStore;
 import java.util.Enumeration;
@@ -18,26 +20,37 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-public class GigyaBiometricV23 implements IBiometricHalder {
+public class GigyaBiometricV23 extends GigyaBiometric implements IBiometricActions {
 
     private static final String LOG_TAG = "GigyaBiometricV23";
 
-    private static final String FINGERPRINT_KEY_NAME = "fingerprint";
+
+    public GigyaBiometricV23(@Nullable String title, @Nullable String subtitle, @Nullable String description) {
+        super(title, subtitle, description);
+    }
+
+    @Override
+    public void optIn(Context context, IGigyaBiometricCallback callback) {
+
+    }
+
+    @Override
+    protected void displayBiometricDialog() {
+
+    }
 
     private Cipher _cipher;
     private KeyStore _keyStore;
-    private FingerprintManagerCompat.CryptoObject _cryptoObject;
 
-    @SuppressLint("MissingPermission")
     @Override
-    public void showPrompt(Context context) {
+    public void showPrompt(Context context, @NonNull IGigyaBiometricCallback callback) {
         SecretKey key = getKey();
         if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
             return;
         }
         if (initializeCipher()) {
-            _cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
+            final FingerprintManagerCompat.CryptoObject _cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
             final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(context);
             fingerprintManagerCompat.authenticate(_cryptoObject, 0, new CancellationSignal(), new FingerprintManagerCompat.AuthenticationCallback() {
                 @Override
@@ -61,7 +74,7 @@ public class GigyaBiometricV23 implements IBiometricHalder {
                 }
             }, null);
             // Show biometric dialog.
-            displayDialog();
+            displayDialog(context, callback);
         }
     }
 
@@ -70,8 +83,9 @@ public class GigyaBiometricV23 implements IBiometricHalder {
 
     }
 
-    private void displayDialog() {
-
+    private void displayDialog(Context context, IGigyaBiometricCallback callback) {
+        BiometricPromptV23 dialog = new BiometricPromptV23(context, callback);
+        dialog.show();
     }
 
     @Nullable
