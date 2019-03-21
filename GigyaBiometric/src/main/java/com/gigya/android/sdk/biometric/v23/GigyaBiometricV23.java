@@ -10,8 +10,8 @@ import android.support.v4.os.CancellationSignal;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
-import com.gigya.android.sdk.biometric.IBiometricActions;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
+import com.gigya.android.sdk.biometric.R;
 
 import java.security.KeyStore;
 import java.util.Enumeration;
@@ -20,72 +20,63 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-public class GigyaBiometricV23 extends GigyaBiometric implements IBiometricActions {
+public class GigyaBiometricV23 extends GigyaBiometric {
 
     private static final String LOG_TAG = "GigyaBiometricV23";
 
+    private Cipher _cipher;
+    private KeyStore _keyStore;
 
     public GigyaBiometricV23(@Nullable String title, @Nullable String subtitle, @Nullable String description) {
         super(title, subtitle, description);
     }
 
     @Override
-    public void optIn(Context context, IGigyaBiometricCallback callback) {
-
-    }
-
-    @Override
-    protected void displayBiometricDialog() {
-
-    }
-
-    private Cipher _cipher;
-    private KeyStore _keyStore;
-
-    @Override
-    public void showPrompt(Context context, @NonNull IGigyaBiometricCallback callback) {
+    public void showPrompt(Context context, @NonNull IGigyaBiometricCallback callback, @NonNull final Runnable onAuthenticated) {
         SecretKey key = getKey();
         if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
-            return;
+            //return;
         }
         if (initializeCipher()) {
+            // Init crypto.
             final FingerprintManagerCompat.CryptoObject _cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
             final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(context);
+            // Initialize prompt dialog.
+            final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(context, callback);
+            dialog.setTitle(title != null ? title : context.getString(R.string.prompt_default_title));
+            dialog.setSubtitle(subtitle != null ? subtitle : context.getString(R.string.prompt_default_subtitle));
+            dialog.setDescription(description != null ? description : context.getString(R.string.prompt_default_description));
+            // Authenticate.
             fingerprintManagerCompat.authenticate(_cryptoObject, 0, new CancellationSignal(), new FingerprintManagerCompat.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errMsgId, CharSequence errString) {
                     GigyaLogger.error(LOG_TAG, "onAuthenticationError: " + errString);
+                    dialog.onAuthenticationError(errString.toString());
                 }
 
                 @Override
                 public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                     GigyaLogger.debug(LOG_TAG, "onAuthenticationHelp: " + helpString);
+                    dialog.onAuthenticationHelp(helpString.toString());
                 }
 
                 @Override
                 public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
                     GigyaLogger.debug(LOG_TAG, "onAuthenticationSucceeded: ");
+                    onAuthenticated.run();
+                    dialog.dismiss();
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
                     GigyaLogger.debug(LOG_TAG, "onAuthenticationFailed: ");
+                    // TODO: 21/03/2019 Hmmmm.
                 }
             }, null);
             // Show biometric dialog.
-            displayDialog(context, callback);
+            dialog.show();
         }
-    }
-
-    @Override
-    public void dismiss() {
-
-    }
-
-    private void displayDialog(Context context, IGigyaBiometricCallback callback) {
-        BiometricPromptV23 dialog = new BiometricPromptV23(context, callback);
-        dialog.show();
     }
 
     @Nullable
@@ -115,19 +106,20 @@ public class GigyaBiometricV23 extends GigyaBiometric implements IBiometricActio
     }
 
     private boolean initializeCipher() {
-        try {
-            _cipher = Cipher.getInstance(
-                    KeyProperties.KEY_ALGORITHM_AES + "/"
-                            + KeyProperties.BLOCK_MODE_CBC + "/"
-                            + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            _keyStore.load(null);
-            final SecretKey key = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME,
-                    null);
-            _cipher.init(Cipher.ENCRYPT_MODE, key);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return true;
+//        try {
+//            _cipher = Cipher.getInstance(
+//                    KeyProperties.KEY_ALGORITHM_AES + "/"
+//                            + KeyProperties.BLOCK_MODE_CBC + "/"
+//                            + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+//            _keyStore.load(null);
+//            final SecretKey key = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME,
+//                    null);
+//            _cipher.init(Cipher.ENCRYPT_MODE, key);
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
     }
 }

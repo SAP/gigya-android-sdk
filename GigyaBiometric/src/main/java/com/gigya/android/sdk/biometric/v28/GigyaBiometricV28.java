@@ -10,11 +10,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.biometric.GigyaBiometric;
-import com.gigya.android.sdk.biometric.IBiometricActions;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
+import com.gigya.android.sdk.biometric.R;
 
 @TargetApi(Build.VERSION_CODES.P)
-public class GigyaBiometricV28 extends GigyaBiometric implements IBiometricActions {
+public class GigyaBiometricV28 extends GigyaBiometric {
 
     private static final String LOG_TAG = "GigyaBiometricV28";
 
@@ -23,21 +23,11 @@ public class GigyaBiometricV28 extends GigyaBiometric implements IBiometricActio
     }
 
     @Override
-    public void optIn(Context context, IGigyaBiometricCallback callback) {
-
-    }
-
-    @Override
-    protected void displayBiometricDialog() {
-
-    }
-
-    @Override
-    public void showPrompt(Context context, @NonNull IGigyaBiometricCallback callback) {
+    public void showPrompt(Context context, final @NonNull IGigyaBiometricCallback callback, @NonNull final Runnable onAuthenticated) {
         BiometricPrompt prompt = new BiometricPrompt.Builder(context)
-                .setTitle(title != null ? title : "")
-                .setSubtitle(subtitle != null ? subtitle : "")
-                .setDescription(description != null ? description : "")
+                .setTitle(title != null ? title : context.getString(R.string.prompt_default_title))
+                .setSubtitle(subtitle != null ? subtitle : context.getString(R.string.prompt_default_subtitle))
+                .setDescription(description != null ? description : context.getString(R.string.prompt_default_description))
                 .setNegativeButton("Cancel", context.getMainExecutor(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -59,6 +49,7 @@ public class GigyaBiometricV28 extends GigyaBiometric implements IBiometricActio
             @Override
             public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
+                onAuthenticated.run();
             }
 
             @Override
@@ -67,9 +58,5 @@ public class GigyaBiometricV28 extends GigyaBiometric implements IBiometricActio
             }
         });
     }
-    
-    @Override
-    public void dismiss() {
 
-    }
 }

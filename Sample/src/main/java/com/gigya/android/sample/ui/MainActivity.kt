@@ -10,6 +10,7 @@ import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
@@ -54,26 +55,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initDrawer()
 
-        initLockButton()
+        initFingerprintLock()
     }
 
-    private fun initLockButton() {
+    private fun initFingerprintLock() {
         finger_print_lock_button.setOnClickListener {
             val biometric = GigyaBiometric.Builder().build()
             biometric.optIn(this, object: IGigyaBiometricCallback() {
                 override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                 }
 
                 override fun onAuthenticationFailed() {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                 }
 
                 override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence?) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
+
+                }
+
+                override fun onAuthenticationSucceeded(result: FingerprintManagerCompat.AuthenticationResult?) {
 
                 }
             })

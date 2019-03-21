@@ -8,6 +8,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,14 +19,14 @@ import com.gigya.android.sdk.biometric.R;
 
 import java.util.concurrent.TimeUnit;
 
-public class BiometricPromptV23 extends BottomSheetDialog implements View.OnClickListener {
+public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.OnClickListener {
 
     private TextView _title, _subtitle, _description, _indicatorText;
     private ImageView _indicatorImage;
 
     private IGigyaBiometricCallback _callback;
 
-    public BiometricPromptV23(@NonNull Context context, IGigyaBiometricCallback callback) {
+    GigyaBiometricPromptV23(@NonNull Context context, IGigyaBiometricCallback callback) {
         super(context);
         _callback = callback;
         bindView();
@@ -33,7 +34,7 @@ public class BiometricPromptV23 extends BottomSheetDialog implements View.OnClic
     }
 
     private void bindView() {
-        @SuppressLint("InflateParams") View bottomSheetView = getLayoutInflater().inflate(R.layout.dialog_biometric_v23, null);
+        @SuppressLint("InflateParams") View bottomSheetView = getLayoutInflater().inflate(R.layout.dialog_gigya_biometric_prompt, null);
         setContentView(bottomSheetView);
     }
 
@@ -52,19 +53,19 @@ public class BiometricPromptV23 extends BottomSheetDialog implements View.OnClic
 
     //region TEXT INJECTIONS
 
-    public void setTitle(@NonNull String title) {
+    void setTitle(@NonNull String title) {
         if (_title != null) {
             _title.setText(title);
         }
     }
 
-    public void setSubtitle(@NonNull String subtitle) {
+    void setSubtitle(@NonNull String subtitle) {
         if (_subtitle != null) {
             _subtitle.setText(subtitle);
         }
     }
 
-    public void setDescription(String description) {
+    void setDescription(String description) {
         if (_description != null) {
             _description.setText(description);
         }
@@ -80,9 +81,16 @@ public class BiometricPromptV23 extends BottomSheetDialog implements View.OnClic
 
     //region STATE MACHINE
 
-    public void onAuthenticationError() {
+    void onAuthenticationHelp(String helpString) {
         vibrate();
-        errorState();
+        helpState(helpString);
+
+    }
+
+    public void onAuthenticationError(String errorString) {
+        vibrate();
+        errorState(errorString);
+
         // Update indicator image & text. Wait for 4 seconds and reset
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -100,11 +108,39 @@ public class BiometricPromptV23 extends BottomSheetDialog implements View.OnClic
     }
 
     private void resetState() {
-
+        if (_indicatorText != null) {
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
+            _indicatorText.setText(getContext().getString(R.string.touch_sensor));
+        }
+        // TODO: 21/03/2019 Animate image.
+        if (_indicatorImage != null) {
+            _indicatorImage.setImageResource(R.drawable.ic_fingerprint);
+        }
     }
 
-    private void errorState() {
+    private void errorState(String errorString) {
+        if (_indicatorText != null) {
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.error));
+            if (errorString == null) {
+                errorString = getContext().getString(R.string.not_recognized);
+            }
+            _indicatorText.setText(errorString);
+        }
+        // TODO: 21/03/2019 Animate image.
+        if (_indicatorImage != null) {
+            _indicatorImage.setImageResource(R.drawable.ic_info_outline);
+        }
+    }
 
+    private void helpState(String helpString) {
+        if (_indicatorText != null) {
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
+            _indicatorText.setText(helpString);
+        }
+        // TODO: 21/03/2019 Animate image.
+        if (_indicatorImage != null) {
+            _indicatorImage.setImageResource(R.drawable.ic_info_outline);
+        }
     }
 
     private void vibrate() {

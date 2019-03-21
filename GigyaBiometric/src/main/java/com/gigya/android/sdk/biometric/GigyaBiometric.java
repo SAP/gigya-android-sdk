@@ -1,18 +1,20 @@
 package com.gigya.android.sdk.biometric;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.biometric.utils.BiomerticUtils;
+import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.biometric.utils.GigyaBiometricUtils;
 import com.gigya.android.sdk.biometric.v23.GigyaBiometricV23;
 import com.gigya.android.sdk.biometric.v28.GigyaBiometricV28;
 
 
-public abstract class GigyaBiometric {
+public abstract class GigyaBiometric implements IGigyaBiometricActions {
+
+    private static final String LOG_TAG = "GigyaBiometric";
 
     protected static final String FINGERPRINT_KEY_NAME = "fingerprint";
-
-    protected IGigyaBiometricCallback _callback;
 
     @Nullable
     protected String title;
@@ -51,17 +53,53 @@ public abstract class GigyaBiometric {
             return this;
         }
 
+        @NonNull
         public GigyaBiometric build() {
-            if (BiomerticUtils.isPromptEnabled()) {
-                new GigyaBiometricV28(title, subtitle, description);
+            if (GigyaBiometricUtils.isPromptEnabled()) {
+                return new GigyaBiometricV28(title, subtitle, description);
             } else {
-                new GigyaBiometricV23(title, subtitle, description);
+                return new GigyaBiometricV23(title, subtitle, description);
             }
-            return null;
         }
     }
 
-    public abstract void optIn(Context context, IGigyaBiometricCallback callback);
+    public void optIn(Context context, IGigyaBiometricCallback callback) {
+        GigyaLogger.debug(LOG_TAG, "optIn: ");
+        showPrompt(context, callback, new Runnable() {
+            @Override
+            public void run() {
+                // Stub.
+            }
+        });
+    }
 
-    protected abstract void displayBiometricDialog();
+    public void optOut(Context context, IGigyaBiometricCallback callback) {
+        GigyaLogger.debug(LOG_TAG, "optOut: ");
+        showPrompt(context, callback, new Runnable() {
+            @Override
+            public void run() {
+                // Stub.
+            }
+        });
+    }
+
+    public void lock(Context context, IGigyaBiometricCallback callback) {
+        GigyaLogger.debug(LOG_TAG, "lock: ");
+        showPrompt(context, callback, new Runnable() {
+            @Override
+            public void run() {
+                // Lock the session.
+            }
+        });
+    }
+
+    public void unlock(Context context, IGigyaBiometricCallback callback) {
+        GigyaLogger.debug(LOG_TAG, "unlock: ");
+        showPrompt(context, callback, new Runnable() {
+            @Override
+            public void run() {
+                // Unlock the session.
+            }
+        });
+    }
 }
