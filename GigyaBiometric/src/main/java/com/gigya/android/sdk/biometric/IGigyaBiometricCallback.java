@@ -4,7 +4,7 @@ public interface IGigyaBiometricCallback {
 
     void onBiometricOperationSuccess();
 
-    void onBiometricOperationFailed();
+    void onBiometricOperationFailed(String reason);
 
     void onBiometricOperationCanceled();
 }

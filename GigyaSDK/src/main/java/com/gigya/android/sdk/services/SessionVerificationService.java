@@ -106,7 +106,7 @@ public class SessionVerificationService {
     private void notifyInvalidSession() {
         GigyaLogger.debug(LOG_TAG, "notifyInvalidSession: Invalidating session and cached account. Trigger local broadcast");
         // Clear current session & cached account.
-        _apiService.getSessionService().clear();
+        _apiService.getSessionService().clear(true);
         _apiService.getAccountService().invalidateAccount();
         // Send "session invalid" local broadcast & flush the timer.
         LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));

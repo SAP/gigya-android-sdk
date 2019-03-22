@@ -4,21 +4,23 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
     <path
         android:fillAlpha="0"
         android:fillType="evenOdd"
-        android:pathData="M 12 3 C 16.9705627485 3 21 7.02943725152 21 12 C 21 16.9705627485 16.9705627485 21 12 21 C 7.02943725152 21 3 16.9705627485 3 12 C 3 7.02943725152 7.02943725152 3 12 3 Z"
+        android:pathData="@string/error_outline_path1"
         android:strokeWidth="2"
-        android:strokeColor="@color/error" />
+        android:strokeColor="@color/color_error" />
+
     <path
-        android:fillColor="@color/error"
+        android:fillColor="@color/color_error"
         android:fillType="evenOdd"
-        android:pathData="M 13 17 L 11 17 L 11 15 L 13 15 Z"
+        android:pathData="@string/error_outline_path2"
         android:strokeWidth="1" />
 
     <path
-        android:fillColor="@color/error"
+        android:fillColor="@color/color_error"
         android:fillType="evenOdd"
-        android:pathData="M11.9023438,7.4921875 C12.4523438,7.4921875 12.9023438,7.9421875 12.9023438,8.4921875 L12.9023438,12.4921875 C12.9023438,13.0421875 12.4523438,13.4921875 11.9023438,13.4921875 C11.3523437,13.4921875 10.9023438,13.0421875 10.9023438,12.4921875 L10.9023438,8.4921875 C10.9023438,7.9421875 11.3523437,7.4921875 11.9023438,7.4921875 Z"
+        android:pathData="@string/error_outline_path3"
         android:strokeWidth="1" />
 </vector>

@@ -35,6 +35,11 @@ public class PersistenceService {
      */
     private static final String PREFS_KEY_SESSION_EXPIRE_TIMESTAMP = "GS_SESSION_EXPIRE_TIMESTAMP";
 
+    /*
+    Value key for session encryption type. Value is taken from legacy version 3 to allow upgrading from older SDK versions.
+     */
+    private static final String PREFS_KEY_SESSION_ENCRYPTION_TYPE = "sessionProtectionType";
+
     @NonNull
     private SharedPreferences _prefs;
 
@@ -132,12 +137,21 @@ public class PersistenceService {
         return contains(PREFS_KEY_SESSION);
     }
 
-    public void setSessionExpiration(long expiration) {
+    void setSessionExpiration(long expiration) {
         add(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, expiration);
     }
 
-    public long getSessionExpiration() {
+    long getSessionExpiration() {
         return getLong(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
+    }
+
+    public void updateSessionEncryption(@SessionService.SessionEncryption String type) {
+        add(PREFS_KEY_SESSION_ENCRYPTION_TYPE, type);
+    }
+
+    public @SessionService.SessionEncryption
+    String getSessionEncryption() {
+        return _prefs.getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, SessionService.DEFAULT);
     }
 
     //endregion

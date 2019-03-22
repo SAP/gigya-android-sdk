@@ -51,4 +51,5 @@ public class CipherUtils {
             throw new EncryptionException("Session encryption exception", ex.getCause());
         }
     }
+
 }

@@ -5,13 +5,14 @@ import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,18 +31,16 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
     private TextView _title, _subtitle, _description, _indicatorText;
     private ImageView _indicatorImage;
 
-    private IGigyaBiometricCallback _callback;
+    private IGigyaBiometricCallback _biometricCallback;
     private CancellationSignal _cancellationSignal;
 
     void setCancellationSignal(CancellationSignal signal) {
         _cancellationSignal = signal;
     }
 
-    private Handler _handler = new Handler(Looper.getMainLooper());
-
     GigyaBiometricPromptV23(@NonNull Context context, IGigyaBiometricCallback callback) {
         super(context);
-        _callback = callback;
+        _biometricCallback = callback;
         bindView();
         referenceViews();
     }
@@ -64,6 +63,14 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         }
     }
 
+    @Override
+    public void dismiss() {
+        if (_cancellationSignal != null && !_cancellationSignal.isCanceled()) {
+            _cancellationSignal.cancel();
+        }
+        super.dismiss();
+    }
+
     //region TEXT INJECTIONS
 
     void setTitle(@NonNull String title) {
@@ -78,24 +85,20 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         }
     }
 
-    void setDescription(String description) {
+    void setDescription(@Nullable String description) {
         if (_description != null) {
+            if (TextUtils.isEmpty(description)) {
+                _description.setVisibility(View.GONE);
+                return;
+            }
             _description.setText(description);
         }
     }
 
     @Override
     public void onClick(View v) {
-        _callback.onBiometricOperationCanceled();
+        _biometricCallback.onBiometricOperationCanceled();
         dismiss();
-    }
-
-    @Override
-    public void dismiss() {
-        if (_cancellationSignal != null && !_cancellationSignal.isCanceled()) {
-            _cancellationSignal.cancel();
-        }
-        super.dismiss();
     }
 
     //endregion
@@ -107,17 +110,17 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         helpState(helpString);
     }
 
-    public void onAuthenticationFailed() {
+    void onAuthenticationFailed() {
         onAuthenticationError(-1, null);
     }
 
-    public void onAuthenticationError(int errMsgId, String errorString) {
+    void onAuthenticationError(int errMsgId, final String errorString) {
         vibrate();
         errorState(errorString);
         switch (errMsgId) {
             case FingerprintManager.FINGERPRINT_ERROR_LOCKOUT:
             case FingerprintManager.FINGERPRINT_ERROR_LOCKOUT_PERMANENT:
-                GigyaLogger.error(LOG_TAG, "Fingerprint authentication error lockout");
+                GigyaLogger.error(LOG_TAG, "Fingerprint authentication lockout error");
                 break;
             default:
                 // Update indicator image & text. Wait for 4 seconds and reset
@@ -140,7 +143,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     private void resetState() {
         if (_indicatorText != null) {
-            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_text_secondary));
             _indicatorText.setText(getContext().getString(R.string.touch_sensor));
         }
         if (_indicatorImage != null) {
@@ -150,7 +153,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     private void errorState(String errorString) {
         if (_indicatorText != null) {
-            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.error));
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_error));
             if (errorString == null) {
                 errorString = getContext().getString(R.string.not_recognized);
             }
@@ -163,10 +166,9 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     private void helpState(String helpString) {
         if (_indicatorText != null) {
-            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
+            _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_text_secondary));
             _indicatorText.setText(helpString);
         }
-        // TODO: 21/03/2019 Animate image.
         if (_indicatorImage != null) {
             _indicatorImage.setImageResource(R.drawable.ic_error_outline);
         }

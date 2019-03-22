@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blue">#3700b3</color>
-    <color name="error">#B00020</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#616161</color>
+    <color name="color_fingerprint">#3700b3</color>
+    <color name="color_blue">#3700b3</color>
+    <color name="color_error">#B00020</color>
+    <color name="color_text_primary">#212121</color>
+    <color name="color_text_secondary">#616161</color>
 </resources>

@@ -5,18 +5,21 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.utils.CipherUtils;
+import com.gigya.android.sdk.utils.ObjectUtils;
 
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
@@ -129,10 +132,12 @@ public class SessionService {
      * Clear current session.
      * Will nullify current reference & remove any records from encrypted persistence.
      */
-    public void clear() {
+    public void clear(boolean clearStorage) {
         GigyaLogger.debug(LOG_TAG, "clear: ");
-        _persistenceService.clearSession();
         this._session = null;
+        if (clearStorage) {
+            _persistenceService.clearSession();
+        }
     }
 
     /**
@@ -152,10 +157,11 @@ public class SessionService {
             final String sessionJSON = jsonObject.toString();
 
             final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-            final String encryptedSession = encrypt(sessionJSON, secretKey);
+            final String encryptedSession = CipherUtils.encrypt(sessionJSON, ENCRYPTION_ALGORITHM, secretKey);
 
             // Save to preferences.
             _persistenceService.setSession(encryptedSession);
+            _persistenceService.updateSessionEncryption(SessionService.DEFAULT);
 
             // Persist session expiration if available.
             if (_sessionWillExpireIn > 0) {
@@ -194,9 +200,16 @@ public class SessionService {
             String encryptedSession = _persistenceService.getSession();
             if (!TextUtils.isEmpty(encryptedSession)) {
 
+                // Check encryption type.
+                final String encryptionType = _persistenceService.getSessionEncryption();
+                if (ObjectUtils.safeEquals(encryptionType, FINGERPRINT)) {
+                    GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
+                    return;
+                }
+
                 // Decrypt _session string.
                 final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-                final String sessionJson = decrypt(encryptedSession, secretKey);
+                final String sessionJson = CipherUtils.decrypt(encryptedSession, ENCRYPTION_ALGORITHM, secretKey);
 
                 try {
                     JSONObject jsonObject = new JSONObject(sessionJson);
@@ -210,12 +223,7 @@ public class SessionService {
                     final String gmid = jsonObject.getString("gmid");
                     _config.setGmid(gmid);
 
-                    // Get session expiration if exists.
-                    _sessionWillExpireIn = _persistenceService.getSessionExpiration();
-                    // Check if already passed. Rest if so.
-                    if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
-                        _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
-                    }
+                    updateSessionExpirationIfExists();
 
                     GigyaLogger.debug(LOG_TAG, "Session load: " + _session.toString());
                 } catch (Exception ex) {
@@ -223,6 +231,15 @@ public class SessionService {
                     GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion from" + ex.getMessage());
                 }
             }
+        }
+    }
+
+    public void updateSessionExpirationIfExists() {
+        // Get session expiration if exists.
+        _sessionWillExpireIn = _persistenceService.getSessionExpiration();
+        // Check if already passed. Reset if so.
+        if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
+            _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
         }
     }
 
@@ -243,44 +260,6 @@ public class SessionService {
                 "session.Secret", "tsOffset", "session.ExpirationTime");
         /* Save session in current construct. */
         save();
-    }
-
-    //endregion
-
-    //region SESSION ENCRYPTION/DECRYPTION
-
-    /**
-     * Encrypt session secret using generated encryptor keys.
-     *
-     * @param plain Plain secret key.
-     * @return Encrypted secret String.
-     * @throws EncryptionException Multiple exception may throw.
-     */
-    private String encrypt(String plain, SecretKey key) throws EncryptionException {
-        GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
-        try {
-            return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, key);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new EncryptionException("Session encryption exception", ex.getCause());
-        }
-    }
-
-    /**
-     * Decrypt session secret using generated encryptor keys.
-     *
-     * @param encrypted Encrypted value.
-     * @return Decrypted String secret.
-     * @throws EncryptionException Multiple exception may throw.
-     */
-    private String decrypt(String encrypted, SecretKey key) throws EncryptionException {
-        GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
-        try {
-            return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, key);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new EncryptionException("Session encryption exception", ex.getCause());
-        }
     }
 
     //endregion
@@ -343,4 +322,12 @@ public class SessionService {
     }
 
     //endregion
+
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({DEFAULT, FINGERPRINT})
+    public @interface SessionEncryption {
+    }
+
+    public static final String DEFAULT = "DEFAULT";
+    public static final String FINGERPRINT = "FINGERPRINT";
 }

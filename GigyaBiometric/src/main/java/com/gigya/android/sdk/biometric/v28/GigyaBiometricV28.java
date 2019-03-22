@@ -35,7 +35,8 @@ public class GigyaBiometricV28 extends GigyaBiometric {
                     }
                 })
                 .build();
-        prompt.authenticate(new CancellationSignal(), context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
+        final BiometricPrompt.CryptoObject _cryptoObject = new BiometricPrompt.CryptoObject(_cipher);
+        prompt.authenticate(_cryptoObject, new CancellationSignal(), context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
