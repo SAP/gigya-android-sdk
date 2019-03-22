@@ -1,9 +1,10 @@
-<manifest package="com.gigya.android.sdk.biometric"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gigya.android.sdk.biometric">
 
-    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <application android:label="@string/app_name" />
 
 </manifest>

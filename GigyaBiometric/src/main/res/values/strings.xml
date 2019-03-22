@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">GigyaBiometric</string>
+    <string name="app_name">gigya_sdk_biometric</string>
+
+    <!-- GENERAL STRINGS -->
     <string name="touch_sensor">Touch the fingerprint sensor</string>
     <string name="not_recognized">Not recognized</string>
     <string name="cancel">Cancel</string>
@@ -7,4 +9,6 @@
     <string name="prompt_default_subtitle">Default subtitle</string>
     <string name="prompt_default_description">Default description</string>
     <string name="fingerprint_indicator_image">Fingerprint indicator image</string>
+
+    <!-- VECTOR PATHS -->
 </resources>

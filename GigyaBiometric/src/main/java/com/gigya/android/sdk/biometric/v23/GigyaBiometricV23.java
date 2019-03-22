@@ -36,7 +36,7 @@ public class GigyaBiometricV23 extends GigyaBiometric {
         SecretKey key = getKey();
         if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
-            //return;
+            return;
         }
         if (initializeCipher()) {
             // Init crypto.
@@ -47,12 +47,14 @@ public class GigyaBiometricV23 extends GigyaBiometric {
             dialog.setTitle(title != null ? title : context.getString(R.string.prompt_default_title));
             dialog.setSubtitle(subtitle != null ? subtitle : context.getString(R.string.prompt_default_subtitle));
             dialog.setDescription(description != null ? description : context.getString(R.string.prompt_default_description));
+            CancellationSignal signal = new CancellationSignal();
+            dialog.setCancellationSignal(signal);
             // Authenticate.
-            fingerprintManagerCompat.authenticate(_cryptoObject, 0, new CancellationSignal(), new FingerprintManagerCompat.AuthenticationCallback() {
+            fingerprintManagerCompat.authenticate(_cryptoObject, 0, signal, new FingerprintManagerCompat.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errMsgId, CharSequence errString) {
                     GigyaLogger.error(LOG_TAG, "onAuthenticationError: " + errString);
-                    dialog.onAuthenticationError(errString.toString());
+                    dialog.onAuthenticationError(errMsgId, errString.toString());
                 }
 
                 @Override
@@ -71,7 +73,7 @@ public class GigyaBiometricV23 extends GigyaBiometric {
                 @Override
                 public void onAuthenticationFailed() {
                     GigyaLogger.debug(LOG_TAG, "onAuthenticationFailed: ");
-                    // TODO: 21/03/2019 Hmmmm.
+                    dialog.onAuthenticationFailed();
                 }
             }, null);
             // Show biometric dialog.
@@ -106,20 +108,19 @@ public class GigyaBiometricV23 extends GigyaBiometric {
     }
 
     private boolean initializeCipher() {
-        return true;
-//        try {
-//            _cipher = Cipher.getInstance(
-//                    KeyProperties.KEY_ALGORITHM_AES + "/"
-//                            + KeyProperties.BLOCK_MODE_CBC + "/"
-//                            + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-//            _keyStore.load(null);
-//            final SecretKey key = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME,
-//                    null);
-//            _cipher.init(Cipher.ENCRYPT_MODE, key);
-//            return true;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
+        try {
+            _cipher = Cipher.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES + "/"
+                            + KeyProperties.BLOCK_MODE_CBC + "/"
+                            + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            _keyStore.load(null);
+            final SecretKey key = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME,
+                    null);
+            _cipher.init(Cipher.ENCRYPT_MODE, key);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

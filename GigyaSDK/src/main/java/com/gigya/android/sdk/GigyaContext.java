@@ -3,6 +3,7 @@ package com.gigya.android.sdk;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
@@ -112,6 +113,21 @@ public class GigyaContext<A extends GigyaAccount> {
      */
     private IEncryptor newEncryptor() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? new KeyStoreEncryptor() : new LegacyEncryptor();
+    }
+
+    @Nullable
+    <V> V getComponent(Class<V> type) {
+        if (type == SessionService.class) {
+            return type.cast(_sessionService);
+        } else if (type == ApiService.class) {
+            return type.cast(_apiService);
+        } else if (type == PersistenceService.class) {
+            return type.cast(_persistenceService);
+        } else if (type == AccountService.class) {
+            return type.cast(_accountService);
+        } else {
+            return null;
+        }
     }
 
 }

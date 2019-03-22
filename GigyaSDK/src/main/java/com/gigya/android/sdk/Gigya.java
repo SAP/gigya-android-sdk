@@ -52,7 +52,8 @@ public class Gigya<T extends GigyaAccount> {
     private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
         _appContext = appContext;
         _gigyaContext = new GigyaContext<>(appContext);
-        _gigyaContext.getAccountService().updateAccountScheme(accountScheme);
+        //noinspection unchecked
+        _gigyaContext.getComponent(AccountService.class).updateAccountScheme(accountScheme);
         init();
     }
 
@@ -254,6 +255,8 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+    //region PUBLIC INTERFACING
+
     /**
      * Update interruption handling.
      * By default, the Gigya SDK will handle various API interruptions to allow simple resolving of certain common errors.
@@ -278,6 +281,14 @@ public class Gigya<T extends GigyaAccount> {
         }
         return null;
     }
+
+    // Non documented public accessor.
+    @Nullable
+    public <V> V getGigyaComponent(Class<V> type) {
+        return _gigyaContext.getComponent(type);
+    }
+
+    //endregion
 
     //region CONFIG & ANONYMOUS APIS
 
@@ -442,7 +453,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void verifyLogin(String UID, GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-        _gigyaContext.getApiService().verifyLogin(UID, false,  callback);
+        _gigyaContext.getApiService().verifyLogin(UID, false, callback);
     }
 
     /**

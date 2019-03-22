@@ -150,7 +150,9 @@ public class SessionService {
 
             // Encrypt _session.
             final String sessionJSON = jsonObject.toString();
-            final String encryptedSession = encrypt(sessionJSON);
+
+            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
+            final String encryptedSession = encrypt(sessionJSON, secretKey);
 
             // Save to preferences.
             _persistenceService.setSession(encryptedSession);
@@ -181,18 +183,20 @@ public class SessionService {
      * load and migrate them to updated session structure & encryption.
      */
     private void load() {
-        /* Check & load legacy session if available. */
+        // Check & load legacy session if available.
         if (isLegacySession()) {
             GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
             loadLegacySession();
             return;
         }
-        /* Load from preferences. */
+        // Load from preferences.
         if (_persistenceService.hasSession()) {
             String encryptedSession = _persistenceService.getSession();
             if (!TextUtils.isEmpty(encryptedSession)) {
-                /* Decrypt _session string. */
-                final String sessionJson = decrypt(encryptedSession);
+
+                // Decrypt _session string.
+                final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
+                final String sessionJson = decrypt(encryptedSession, secretKey);
 
                 try {
                     JSONObject jsonObject = new JSONObject(sessionJson);
@@ -252,11 +256,10 @@ public class SessionService {
      * @return Encrypted secret String.
      * @throws EncryptionException Multiple exception may throw.
      */
-    private String encrypt(String plain) throws EncryptionException {
+    private String encrypt(String plain, SecretKey key) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " encrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-            return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, secretKey);
+            return CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, key);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new EncryptionException("Session encryption exception", ex.getCause());
@@ -270,11 +273,10 @@ public class SessionService {
      * @return Decrypted String secret.
      * @throws EncryptionException Multiple exception may throw.
      */
-    private String decrypt(String encrypted) throws EncryptionException {
+    private String decrypt(String encrypted, SecretKey key) throws EncryptionException {
         GigyaLogger.debug(LOG_TAG, ENCRYPTION_ALGORITHM + " decrypt: ");
         try {
-            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-            return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, secretKey);
+            return CipherUtils.decrypt(encrypted, ENCRYPTION_ALGORITHM, key);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new EncryptionException("Session encryption exception", ex.getCause());

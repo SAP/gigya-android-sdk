@@ -55,6 +55,7 @@ public class GigyaBiometricV28 extends GigyaBiometric {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
+                callback.onBiometricOperationCanceled();
             }
         });
     }

@@ -1,24 +1,10 @@
 package com.gigya.android.sdk.biometric;
 
-import android.annotation.TargetApi;
-import android.hardware.biometrics.BiometricPrompt;
-import android.os.Build;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
+public interface IGigyaBiometricCallback {
 
-public abstract class IGigyaBiometricCallback {
+    void onBiometricOperationSuccess();
 
-    public abstract void onAuthenticationFailed();
+    void onBiometricOperationFailed();
 
-    public abstract void onAuthenticationError(int errMsgId, CharSequence errString);
-
-    public abstract void onAuthenticationHelp(int helpCode, CharSequence helpString);
-
-    public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
-        // Stub.
-    }
-
-    @TargetApi(Build.VERSION_CODES.P)
-    public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-        // Stub.
-    }
+    void onBiometricOperationCanceled();
 }

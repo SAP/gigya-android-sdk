@@ -6,11 +6,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
@@ -61,26 +59,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun initFingerprintLock() {
         finger_print_lock_button.setOnClickListener {
             val biometric = GigyaBiometric.Builder().build()
-            biometric.optIn(this, object: IGigyaBiometricCallback() {
-                override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
+            biometric.optIn(this, object: IGigyaBiometricCallback {
 
+                override fun onBiometricOperationFailed() {
                 }
 
-                override fun onAuthenticationFailed() {
-
+                override fun onBiometricOperationCanceled() {
                 }
 
-                override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence?) {
-
+                override fun onBiometricOperationSuccess() {
                 }
 
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
-
-                }
-
-                override fun onAuthenticationSucceeded(result: FingerprintManagerCompat.AuthenticationResult?) {
-
-                }
             })
         }
     }

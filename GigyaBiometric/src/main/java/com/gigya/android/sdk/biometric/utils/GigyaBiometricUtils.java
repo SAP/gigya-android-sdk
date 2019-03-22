@@ -11,14 +11,6 @@ import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 public class GigyaBiometricUtils {
 
     /**
-     * Fingerprint authentication is available from Android 6.0.
-     * Use this condition check if your application minSdkVersion is lower than 23.
-     */
-    public boolean isEnabled() {
-        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
-    }
-
-    /**
      * Check if fingerprint permission is available.
      */
     public static boolean isPermissionGranted(Context context) {

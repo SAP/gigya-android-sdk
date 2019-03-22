@@ -8,6 +8,8 @@
         android:protectionLevel="signature"
         android:name="${applicationId}.RESTRICT_ACCESS"/>
 
+    <application android:label="@string/app_name"/>
+
 </manifest>
 
 
