@@ -60,16 +60,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         finger_print_lock_button.setOnClickListener {
             val biometric = GigyaBiometric.Builder().build()
             biometric.optIn(this, object: IGigyaBiometricCallback {
+                override fun onBiometricOperationSuccess() {
+                }
 
-                override fun onBiometricOperationFailed() {
+                override fun onBiometricOperationFailed(reason: String?) {
                 }
 
                 override fun onBiometricOperationCanceled() {
                 }
-
-                override fun onBiometricOperationSuccess() {
-                }
-
             })
         }
     }

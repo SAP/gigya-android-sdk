@@ -137,6 +137,7 @@ public class SessionService {
         this._session = null;
         if (clearStorage) {
             _persistenceService.clearSession();
+            _persistenceService.updateSessionEncryption(DEFAULT);
         }
     }
 

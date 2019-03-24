@@ -7,20 +7,17 @@
 
     <path
         android:fillAlpha="0"
-        android:fillType="evenOdd"
         android:pathData="@string/error_outline_path1"
         android:strokeWidth="2"
         android:strokeColor="@color/color_error" />
 
     <path
         android:fillColor="@color/color_error"
-        android:fillType="evenOdd"
         android:pathData="@string/error_outline_path2"
         android:strokeWidth="1" />
 
     <path
         android:fillColor="@color/color_error"
-        android:fillType="evenOdd"
         android:pathData="@string/error_outline_path3"
         android:strokeWidth="1" />
 </vector>

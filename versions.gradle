@@ -1,0 +1,63 @@
+/**
+ * Shared file between builds so that they can all use the same dependencies and
+ * maven repositories.
+ **/
+ext.deps = [:]
+def versions = [:]
+versions.support = "28.0.0"
+versions.volley = "1.1.1"
+versions.facebook = "4.41.0"
+versions.google_auth = "16.0.1"
+versions.wechat = "5.3.1"
+versions.gson = "2.8.5"
+versions.junit = "4.12"
+versions.json = "20141113"
+versions.mockito = "2.8.9"
+versions.power_mock = "1.7.4"
+versions.androidx = "1.1.0"
+
+def libs = [:]
+libs.volley = "com.android.volley:volley:$versions.volley"
+libs.facebook = "com.facebook.android:facebook-android-sdk:$versions.facebook"
+libs.google_auth = "com.google.android.gms:play-services-auth:$versions.google_auth"
+libs.wechat = "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:$versions.wechat"
+libs.gson = "com.google.code.gson:gson:$versions.gson"
+deps.libs = libs
+
+def android_support = [:]
+android_support.appcompt = "com.android.support:appcompat-v7:$versions.support"
+android_support.design = "com.android.support:design:$versions.support"
+deps.android_support = android_support
+
+def androidx = [:]
+androidx.test_core = "androidx.test:core:$versions.androidx"
+deps.androidx = androidx
+
+def test = [:]
+test.junit = "junit:junit:$versions.junit"
+test.json = "org.json:json:$versions.json"
+deps.test = test
+
+def mockito = [:]
+mockito.core = "org.mockito:mockito-core:$versions.mockito"
+deps.mockito = mockito
+
+def power_mock = [:]
+power_mock.junit4 = "org.powermock:powermock-module-junit4:$versions.power_mock"
+power_mock.mockito2 = "org.powermock:powermock-api-mockito2:$versions.power_mock"
+deps.power_mock = power_mock
+
+def apache = [:]
+apache.http_components = "org.apache.httpcomponents:httpcore:4.4.10"
+apache.http_client = "org.apache.httpcomponents:httpclient:4.5.6"
+deps.apache = apache
+
+def build_versions = [:]
+build_versions.compile_sdk = 28
+build_versions.target_sdk = 28
+build_versions.min_sdk_core = 14
+build_versions.min_sdk_biometric = 23
+build_versions.build_tools = "28.0.3"
+ext.build_versions = build_versions
+
+ext.deps = deps

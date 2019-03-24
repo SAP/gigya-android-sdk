@@ -353,7 +353,7 @@ public class Gigya<T extends GigyaAccount> {
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         _gigyaContext.getApiService().logout();
-        _gigyaContext.getSessionService().clear(); // Will clear preferences as well.
+        _gigyaContext.getSessionService().clear(true); // Will clear preferences as well.
         GigyaLoginPresenter.flush();
 
         // Clearing cached cookies.

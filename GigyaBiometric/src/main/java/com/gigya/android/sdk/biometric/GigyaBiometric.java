@@ -25,7 +25,9 @@ public abstract class GigyaBiometric implements IGigyaBiometricActions {
 
     private static final String LOG_TAG = "GigyaBiometric";
 
-    protected static final String FINGERPRINT_KEY_NAME = "fingerprint";
+    public static final String VERSION = "android_1.0.0";
+
+    private static final String FINGERPRINT_KEY_NAME = "fingerprint";
 
     @Nullable
     protected String title, subtitle, description;
