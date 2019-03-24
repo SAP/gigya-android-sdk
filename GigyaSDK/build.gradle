@@ -114,15 +114,24 @@ android.libraryVariants.all { variant ->
             }
         }
 
-        task createAndroidJavadoc(type: Javadoc, dependsOn: variant.javaCompileProvider) {
-            source = variant.javaCompileProvider.get().source
+        task createAndroidJavadoc(type: Javadoc) {
+            source = project.android.sourceSets.main.java.srcDirs
+            options.linkSource true
+            configurations.implementation.setCanBeResolved(true)
+            configurations.compileOnly.setCanBeResolved(true)
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+            classpath += configurations.implementation
+            classpath += configurations.compileOnly
             destinationDir = new File("${outDir}/${androidDocName}")
             include(
                     'com/gigya/android/sdk/Gigya.java',
                     'com/gigya/android/sdk/GigyaCallback.java',
                     'com/gigya/android/sdk/GigyaLoginCallback.java',
-                    'com/gigya/android/sdk/GigyaPluginCallback.java'
+                    'com/gigya/android/sdk/GigyaPluginCallback.java',
+                    'com/gigya/android/sdk/model/*.java',
+                    'com/gigya/android/sdk/model/account/*.java',
+                    'com/gigya/android/sdk/model/profile/*.java',
+                    'com/gigya/android/sdk/model/tfa/*.java',
             )
             failOnError = false
         }

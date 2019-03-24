@@ -3,7 +3,6 @@ package com.gigya.android.sdk.network;
 import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.gson.PostProcessableTypeAdapterFactory;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +27,7 @@ public class GigyaApiResponse {
     private Map<String, Object> mapped;
 
     // GSON Support.
-    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostProcessableTypeAdapterFactory()).create();
+    private Gson gson = new GsonBuilder().create();
 
     public Gson getGson() {
         return gson;

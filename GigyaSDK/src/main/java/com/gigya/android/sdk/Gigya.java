@@ -28,11 +28,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+/**
+ * Gigya SDK main interface.
+ * Provides access to the Gigya services.
+ *
+ * @param <T> Generic account scheme. Extended from base GigyaAccount model.
+ */
 public class Gigya<T extends GigyaAccount> {
 
     private static final String LOG_TAG = "Gigya";
 
-    public static final String VERSION = "android_4.0.0_a2";
+    public static final String VERSION = "android_4.0.0";
 
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
