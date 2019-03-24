@@ -87,7 +87,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
             persistenceService.updateSessionEncryption(SessionService.FINGERPRINT);
 
             // Callback.
-            biometricCallback.onBiometricOperationSuccess();
+            biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_IN);
         } catch (Exception ex) {
             ex.printStackTrace();
             // Callback.
@@ -116,7 +116,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         deleteKey();
 
         // Callback.
-        biometricCallback.onBiometricOperationSuccess();
+        biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_OUT);
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         // Locking means clearing the SessionInfo from the heap but keeping the persistence.
         _sessionService.clear(false);
         // Callback.
-        biometricCallback.onBiometricOperationSuccess();
+        biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.LOCK);
     }
 
     /**
@@ -162,7 +162,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
             _sessionService.setSession(sessionInfo);
             _sessionService.updateSessionExpirationIfExists();
             // Callback.
-            biometricCallback.onBiometricOperationSuccess();
+            biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.UNLOCK);
         } catch (Exception ex) {
             ex.printStackTrace();
             biometricCallback.onBiometricOperationFailed("Fingerprint unlock: " + ex.getMessage());

@@ -11,8 +11,6 @@ import com.gigya.android.sdk.biometric.v23.GigyaBiometricImplV23;
 import com.gigya.android.sdk.biometric.v28.GigyaBiometricImplV28;
 import com.gigya.android.sdk.services.SessionService;
 
-import java.security.KeyStore;
-
 import javax.crypto.Cipher;
 
 public class GigyaBiometric {
@@ -31,15 +29,6 @@ public class GigyaBiometric {
 
     public boolean isAvailable() {
         return _isAvailable;
-    }
-
-    public void deleteKey() {
-        try {
-            KeyStore ks = KeyStore.getInstance(null);
-            ks.deleteEntry("fingerprint");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     private GigyaBiometric() {
@@ -109,7 +98,7 @@ public class GigyaBiometric {
     public void optIn(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optIn: ");
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(context, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback, new Runnable() {
+            _impl.showPrompt(context, Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback, new Runnable() {
                 @Override
                 public void run() {
                     _impl.optIn(biometricCallback);
@@ -130,7 +119,7 @@ public class GigyaBiometric {
     public void optOut(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optOut: ");
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(context, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback, new Runnable() {
+            _impl.showPrompt(context, Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback, new Runnable() {
                 @Override
                 public void run() {
                     _impl.optOut(biometricCallback);
@@ -153,7 +142,7 @@ public class GigyaBiometric {
     public void lock(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "lock: ");
         if (_impl.isOptIn()) {
-            _impl.showPrompt(context, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback, new Runnable() {
+            _impl.showPrompt(context, Action.LOCK, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback, new Runnable() {
                 @Override
                 public void run() {
                     // Lock the session.
@@ -177,7 +166,7 @@ public class GigyaBiometric {
     public void unlock(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "unlock: ");
         if (_impl.isOptIn()) {
-            _impl.showPrompt(context, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback, new Runnable() {
+            _impl.showPrompt(context, Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback, new Runnable() {
                 @Override
                 public void run() {
                     // Unlock the session.
@@ -190,5 +179,9 @@ public class GigyaBiometric {
     }
 
     //endregion
+
+    public enum Action {
+        OPT_IN, OPT_OUT, LOCK, UNLOCK
+    }
 
 }

@@ -23,14 +23,33 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fingerprint_fab"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="@dimen/fab_margin"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:srcCompat="@drawable/ic_fingerprint" />
+        android:layout_gravity="bottom|center_horizontal">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fingerprint_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="@dimen/fab_margin"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_fingerprint"
+            tools:visibility="visible" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fingerprint_lock_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="24dp"
+            android:layout_toEndOf="@id/fingerprint_fab"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_lock_open"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

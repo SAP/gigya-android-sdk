@@ -9,6 +9,7 @@ import android.os.CancellationSignal;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.biometric.GigyaBiometric;
 import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
@@ -25,7 +26,7 @@ public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
     }
 
     @Override
-    public void showPrompt(Context context, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, final @NonNull IGigyaBiometricCallback callback,
+    public void showPrompt(Context context, GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, final @NonNull IGigyaBiometricCallback callback,
                            @NonNull final Runnable onAuthenticated) {
         getKey();
         if (_secretKey == null) {

@@ -49,10 +49,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         title = "Gigya SDK sample"
-
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
-
         initDrawer()
     }
 
@@ -63,13 +61,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
         LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 IntentFilter(filter))
-
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
-
         // Register for account info updates.
         registerAccountUpdates()
-
         /* If we are already logged in - get account info and update relevant account UI (drawer header). */
         if (Gigya.getInstance().isLoggedIn) {
             onGetAccount()
@@ -131,9 +126,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 showAccountDetails()
             }
         }
-
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
-
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationFragment(dataPair.second as ArrayList<TFAProvider>)
@@ -153,11 +146,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val isLoggedIn = Gigya.getInstance().isLoggedIn
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
-
         if (isLoggedIn) {
             fingerprint_fab.visible()
         }
-
         return true
     }
 
@@ -196,9 +187,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //region FINGERPRINT EVALUATION
 
     private val gigyaBiometricCallback = object : IGigyaBiometricCallback {
-        override fun onBiometricOperationSuccess() {
+        override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
             toast("Biometric authentication success")
             invalidateOptionsMenu()
+            when (action) {
+                GigyaBiometric.Action.OPT_IN -> {
+                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+                    fingerprint_lock_fab.show()
+                }
+                GigyaBiometric.Action.OPT_OUT -> {
+                    fingerprint_lock_fab.hide()
+                }
+                GigyaBiometric.Action.LOCK -> {
+                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_outline)
+                }
+                GigyaBiometric.Action.UNLOCK -> {
+                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+                }
+            }
         }
 
         override fun onBiometricOperationFailed(reason: String?) {
@@ -217,12 +223,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun evaluateFingerprintSession() {
         val biometric = GigyaBiometric.getInstance()
         if (Gigya.getInstance().isLoggedIn) {
-            fingerprint_fab.visible()
+            fingerprint_fab.show()
         }
         if (biometric.isLocked) {
-            fingerprint_fab.visible()
+            fingerprint_fab.show()
             toast("Current session is locked!")
-            biometric.unlock(this, GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
+            biometric.unlock(this,
+                    GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
                     gigyaBiometricCallback)
         }
         fingerprint_fab.setOnClickListener {
@@ -230,12 +237,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 when {
                     biometric.isLocked -> {
                         toast("Trying to unlock")
-                        biometric.unlock(this, GigyaPromptInfo("Session locked", "Unlock session to continue", ""),
+                        biometric.unlock(this,
+                                GigyaPromptInfo("Session locked", "Unlock session to continue", ""),
                                 gigyaBiometricCallback)
                     }
                     biometric.isOptIn -> {// Opt-in but not locked.
                         toast("Trying to opt in")
-                        biometric.unlock(this, GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
+                        biometric.unlock(this,
+                                GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
                                 gigyaBiometricCallback)
                     }
                     else -> {
@@ -245,6 +254,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } else {
                 toast("Biometric is not supported. Inspect logs for reason")
+            }
+        }
+        fingerprint_lock_fab.setOnClickListener {
+            when (biometric.isLocked) {
+                true -> {
+                    biometric.unlock(this,
+                            GigyaPromptInfo("Fingerprint unlock requested", "Place finger on sensor to continue", ""),
+                            gigyaBiometricCallback)
+                }
+                false -> {
+                    biometric.lock(this,
+                            GigyaPromptInfo("Fingerprint lock requested", "Place finger on sensor to continue", ""),
+                            gigyaBiometricCallback)
+                }
             }
         }
     }
@@ -259,7 +282,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.logout()
         invalidateAccountData()
         response_text_view.snackbar(getString(R.string.logged_out))
-        fingerprint_fab.gone()
+        fingerprint_fab.hide()
+        fingerprint_lock_fab.hide()
     }
 
     /**
@@ -606,11 +630,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val accountObserver: Observer<MyAccount> = Observer { myAccount ->
         val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
         nav_title?.text = fullName
-
         nav_subtitle?.text = myAccount?.profile?.email
-
         nav_image?.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
-
         invalidateOptionsMenu()
     }
 

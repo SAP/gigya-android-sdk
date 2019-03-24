@@ -6,6 +6,7 @@ import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.biometric.GigyaBiometric;
 import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
@@ -22,7 +23,7 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
     }
 
     @Override
-    public void showPrompt(Context context, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, @NonNull IGigyaBiometricCallback callback,
+    public void showPrompt(Context context, GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, @NonNull IGigyaBiometricCallback callback,
                            @NonNull final Runnable onAuthenticated) {
         getKey();
         if (_secretKey == null) {
