@@ -39,7 +39,7 @@ dependencies {
     testImplementation deps.power_mock.junit4
     testImplementation deps.power_mock.mockito2
 
-    implementation deps.android_support.appcompt
+    implementation deps.android_support.appcompat
     implementation deps.android_support.design
 
     compileOnly project(path: ':GigyaSDK')

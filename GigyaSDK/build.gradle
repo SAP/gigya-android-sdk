@@ -70,7 +70,7 @@ dependencies {
 
     // Implementations.
     //noinspection GradleDependency
-    implementation deps.android_support.appcompt
+    implementation deps.android_support.appcompat
     implementation deps.libs.gson
 
     // Extra libraries included in fat JAR file.

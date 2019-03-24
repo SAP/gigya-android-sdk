@@ -15,6 +15,9 @@ versions.json = "20141113"
 versions.mockito = "2.8.9"
 versions.power_mock = "1.7.4"
 versions.androidx = "1.1.0"
+versions.anko = "0.10.8"
+versions.glide = "4.8.0"
+versions.arch = "1.1.1"
 
 def libs = [:]
 libs.volley = "com.android.volley:volley:$versions.volley"
@@ -25,12 +28,20 @@ libs.gson = "com.google.code.gson:gson:$versions.gson"
 deps.libs = libs
 
 def android_support = [:]
-android_support.appcompt = "com.android.support:appcompat-v7:$versions.support"
+android_support.appcompat = "com.android.support:appcompat-v7:$versions.support"
 android_support.design = "com.android.support:design:$versions.support"
+android_support.constraint = "com.android.support.constraint:constraint-layout:1.1.3"
 deps.android_support = android_support
+
+def android_arch = [:]
+android_arch.lifecycle_extensions = "android.arch.lifecycle:extensions:$versions.arch"
+android_arch.lifecycle_compiler = "android.arch.lifecycle:compiler:$versions.arch"
+deps.android_arch = android_arch
 
 def androidx = [:]
 androidx.test_core = "androidx.test:core:$versions.androidx"
+androidx.junit = "androidx.test.ext:junit:$versions.androidx"
+androidx.rules = "androidx.test:rules:$versions.androidx"
 deps.androidx = androidx
 
 def test = [:]
@@ -51,6 +62,16 @@ def apache = [:]
 apache.http_components = "org.apache.httpcomponents:httpcore:4.4.10"
 apache.http_client = "org.apache.httpcomponents:httpclient:4.5.6"
 deps.apache = apache
+
+def anko = [:]
+anko.commons = "org.jetbrains.anko:anko-commons:$versions.anko"
+anko.design = "org.jetbrains.anko:anko-design:$versions.anko"
+deps.anko = anko
+
+def glide = [:]
+glide.main = "com.github.bumptech.glide:glide:$versions.glide"
+glide.compiler = "com.github.bumptech.glide:compiler:$versions.glide"
+deps.glide = glide
 
 def build_versions = [:]
 build_versions.compile_sdk = 28
