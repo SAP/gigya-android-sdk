@@ -2,46 +2,47 @@ package com.gigya.android.sdk.biometric.v23;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.biometric.GigyaBiometric;
+import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
+import com.gigya.android.sdk.biometric.model.GigyaPromptInfo;
+import com.gigya.android.sdk.services.SessionService;
 
-import javax.crypto.SecretKey;
+public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
 
-public class GigyaBiometricV23 extends GigyaBiometric {
-
-    private static final String LOG_TAG = "GigyaBiometricV23";
+    private static final String LOG_TAG = "GigyaBiometricImplV23";
 
 
-    public GigyaBiometricV23(@Nullable String title, @Nullable String subtitle, @Nullable String description) {
-        super(title, subtitle, description);
+    public GigyaBiometricImplV23(SessionService sessionService) {
+        super(sessionService);
     }
 
     @Override
-    public void showPrompt(Context context, @NonNull IGigyaBiometricCallback callback, @NonNull final Runnable onAuthenticated) {
-        final SecretKey key = getKey();
-        if (key == null) {
+    public void showPrompt(Context context, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, @NonNull IGigyaBiometricCallback callback,
+                           @NonNull final Runnable onAuthenticated) {
+        getKey();
+        if (_secretKey == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
             return;
         }
-        if (initializeCipher()) {
+        createCipherFor(encryptionMode);
+        if (_cipher != null) {
             // Init crypto.
-            final FingerprintManagerCompat.CryptoObject _cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
+            final FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
             final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(context);
             // Initialize prompt dialog.
             final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(context, callback);
-            dialog.setTitle(title != null ? title : context.getString(R.string.prompt_default_title));
-            dialog.setSubtitle(subtitle != null ? subtitle : context.getString(R.string.prompt_default_subtitle));
-            dialog.setDescription(description != null ? description : context.getString(R.string.prompt_default_description));
+            dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : context.getString(R.string.prompt_default_title));
+            dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : context.getString(R.string.prompt_default_subtitle));
+            dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : context.getString(R.string.prompt_default_description));
             CancellationSignal signal = new CancellationSignal();
             dialog.setCancellationSignal(signal);
             // Authenticate.
-            fingerprintManagerCompat.authenticate(_cryptoObject, 0, signal, new FingerprintManagerCompat.AuthenticationCallback() {
+            fingerprintManagerCompat.authenticate(cryptoObject, 0, signal, new FingerprintManagerCompat.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errMsgId, CharSequence errString) {
                     GigyaLogger.error(LOG_TAG, "onAuthenticationError: " + errString);
@@ -69,6 +70,8 @@ public class GigyaBiometricV23 extends GigyaBiometric {
             }, null);
             // Show biometric dialog.
             dialog.show();
+        } else {
+            //Error
         }
     }
 }

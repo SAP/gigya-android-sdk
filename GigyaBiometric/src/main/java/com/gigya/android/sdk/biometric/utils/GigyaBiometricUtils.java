@@ -13,7 +13,7 @@ public class GigyaBiometricUtils {
     /**
      * Check if fingerprint permission is available.
      */
-    public static boolean isPermissionGranted(Context context) {
+    private static boolean isPermissionGranted(Context context) {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) ==
                 PackageManager.PERMISSION_GRANTED;
     }
@@ -24,6 +24,9 @@ public class GigyaBiometricUtils {
      */
     @SuppressLint("MissingPermission")
     public static boolean isSupported(Context context) {
+        if (!isPermissionGranted(context)) {
+            return false;
+        }
         FingerprintManagerCompat fingerprintManager = FingerprintManagerCompat.from(context);
         return fingerprintManager.isHardwareDetected();
     }
@@ -33,6 +36,9 @@ public class GigyaBiometricUtils {
      */
     @SuppressLint("MissingPermission")
     public static boolean hasEnrolledFingerprints(Context context) {
+        if (!isPermissionGranted(context)) {
+            return false;
+        }
         FingerprintManagerCompat fingerprintManager = FingerprintManagerCompat.from(context);
         return fingerprintManager.hasEnrolledFingerprints();
     }

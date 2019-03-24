@@ -20,6 +20,7 @@ import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
+import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.fragment.BackPressListener
 import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.fragment.InputDialog
@@ -28,6 +29,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
+import com.gigya.android.sdk.biometric.model.GigyaPromptInfo
 import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -52,24 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         initDrawer()
-
-        initFingerprintLock()
-    }
-
-    private fun initFingerprintLock() {
-        finger_print_lock_button.setOnClickListener {
-            val biometric = GigyaBiometric.Builder().build()
-            biometric.optIn(this, object: IGigyaBiometricCallback {
-                override fun onBiometricOperationSuccess() {
-                }
-
-                override fun onBiometricOperationFailed(reason: String?) {
-                }
-
-                override fun onBiometricOperationCanceled() {
-                }
-            })
-        }
     }
 
     override fun onResume() {
@@ -79,10 +63,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
         LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 IntentFilter(filter))
+
+        // Evaluate fingerprint session.
+        evaluateFingerprintSession()
+
+        // Register for account info updates.
+        registerAccountUpdates()
+
+        /* If we are already logged in - get account info and update relevant account UI (drawer header). */
+        if (Gigya.getInstance().isLoggedIn) {
+            onGetAccount()
+        }
     }
 
     override fun onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
+        unregisterAccountUpdates()
         super.onPause()
     }
 
@@ -136,11 +132,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        /* If we are already logged in - get account info and update relevant account UI (drawer header). */
-        if (Gigya.getInstance().isLoggedIn) {
-            onGetAccount()
-        }
-
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
 
             @Suppress("UNCHECKED_CAST")
@@ -151,8 +142,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as ConflictingAccounts)
             }
         })
-
-        observeAccountUpdates()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -164,6 +153,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val isLoggedIn = Gigya.getInstance().isLoggedIn
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
+
+        if (isLoggedIn) {
+            fingerprint_fab.visible()
+        }
+
         return true
     }
 
@@ -199,6 +193,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
+    //region FINGERPRINT EVALUATION
+
+    private val gigyaBiometricCallback = object : IGigyaBiometricCallback {
+        override fun onBiometricOperationSuccess() {
+            toast("Biometric authentication success")
+            invalidateOptionsMenu()
+        }
+
+        override fun onBiometricOperationFailed(reason: String?) {
+            toast("Biometric authentication error: $reason")
+        }
+
+        override fun onBiometricOperationCanceled() {
+            toast("Biometric operation canceled")
+        }
+
+    }
+
+    /**
+     * Evaluate if current session state (if available) is handled using GigyaBiometric fingerprint authentication.
+     */
+    private fun evaluateFingerprintSession() {
+        val biometric = GigyaBiometric.getInstance()
+        if (Gigya.getInstance().isLoggedIn) {
+            fingerprint_fab.visible()
+        }
+        if (biometric.isLocked) {
+            fingerprint_fab.visible()
+            toast("Current session is locked!")
+            biometric.unlock(this, GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
+                    gigyaBiometricCallback)
+        }
+        fingerprint_fab.setOnClickListener {
+            if (biometric.isAvailable) {
+                when {
+                    biometric.isLocked -> {
+                        toast("Trying to unlock")
+                        biometric.unlock(this, GigyaPromptInfo("Session locked", "Unlock session to continue", ""),
+                                gigyaBiometricCallback)
+                    }
+                    biometric.isOptIn -> {// Opt-in but not locked.
+                        toast("Trying to opt in")
+                        biometric.unlock(this, GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
+                                gigyaBiometricCallback)
+                    }
+                    else -> {
+                        biometric.optIn(this, GigyaPromptInfo("Fingerprint Opt-In", "Opt-In to allow fingerprint authentication", ""),
+                                gigyaBiometricCallback)
+                    }
+                }
+            } else {
+                toast("Biometric is not supported. Inspect logs for reason")
+            }
+        }
+    }
+
+    //endregion
+
     /**
      * Log the user out of the system.
      */
@@ -207,6 +259,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.logout()
         invalidateAccountData()
         response_text_view.snackbar(getString(R.string.logged_out))
+        fingerprint_fab.gone()
     }
 
     /**
@@ -550,26 +603,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region ACCOUNT INFO BINDING
 
-    private fun observeAccountUpdates() {
-        viewModel?.account?.observe(this, Observer { myAccount ->
-            val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
-            nav_title.text = fullName
+    private val accountObserver: Observer<MyAccount> = Observer { myAccount ->
+        val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
+        nav_title?.text = fullName
 
-            nav_subtitle.text = myAccount?.profile?.email
+        nav_subtitle?.text = myAccount?.profile?.email
 
-            nav_image.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
+        nav_image?.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
 
-            invalidateOptionsMenu()
-        })
+        invalidateOptionsMenu()
+    }
+
+    private fun registerAccountUpdates() {
+        viewModel?.account?.observe(this, accountObserver)
+    }
+
+    private fun unregisterAccountUpdates() {
+        viewModel?.account?.removeObserver(accountObserver)
     }
 
     /**
      * Invalidate navigation header views.
      */
     private fun invalidateAccountData() {
-        nav_title.text = getString(R.string.nav_header_title)
-        nav_subtitle.text = getString(R.string.nav_header_subtitle)
-        nav_image.setImageResource(R.mipmap.ic_launcher_round)
+        nav_title?.text = getString(R.string.nav_header_title)
+        nav_subtitle?.text = getString(R.string.nav_header_subtitle)
+        nav_image?.setImageResource(R.mipmap.ic_launcher_round)
     }
 
     //endregion

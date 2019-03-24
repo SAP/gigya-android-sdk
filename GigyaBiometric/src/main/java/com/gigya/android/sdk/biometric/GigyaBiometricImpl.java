@@ -1,6 +1,9 @@
 package com.gigya.android.sdk.biometric;
 
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
+import android.util.Base64;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -11,20 +14,25 @@ import com.gigya.android.sdk.utils.ObjectUtils;
 
 import org.json.JSONObject;
 
-import javax.crypto.SecretKey;
+import java.security.KeyStore;
+import java.util.Enumeration;
 
-class BiometricSessionHandler {
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
+
+public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
+
+    private static final String LOG_TAG = "GigyaBiometricImpl";
+
+    private static final String FINGERPRINT_KEY_NAME = "fingerprint";
 
     final private SessionService _sessionService;
 
-    private static final String LOG_TAG = "SessionService";
-
-    /*
-    Session info encryption algorithm.
-     */
-    private static final String ENCRYPTION_ALGORITHM = "AES";
-
-    BiometricSessionHandler(SessionService sessionService) {
+    public GigyaBiometricImpl(SessionService sessionService) {
+        // Reference session service.
         _sessionService = sessionService;
     }
 
@@ -39,14 +47,17 @@ class BiometricSessionHandler {
         return optIn;
     }
 
+    boolean isLocked() {
+        return !_sessionService.isValidSession() && isOptIn();
+    }
+
     /**
      * Opt-In operation.
      * Encrypt the current persistent session with the fingerprint key.
      *
-     * @param key               SecretKey.
      * @param biometricCallback Status callback.
      */
-    void optIn(final SecretKey key, @NonNull final IGigyaBiometricCallback biometricCallback) {
+    void optIn(@NonNull final IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptionType = persistenceService.getSessionEncryption();
         if (encryptionType.equals(SessionService.FINGERPRINT)) {
@@ -65,11 +76,16 @@ class BiometricSessionHandler {
             jsonObject.put("expirationTime", sessionInfo.getExpirationTime());
             jsonObject.put("ucid", _sessionService.getConfig().getUcid());
             jsonObject.put("gmid", _sessionService.getConfig().getGmid());
-
             final String plain = jsonObject.toString();
-            final String encrypted = CipherUtils.encrypt(plain, ENCRYPTION_ALGORITHM, key);
+
+            // Encrypt.
+            final byte[] encryptedBytes = _cipher.doFinal(plain.getBytes());
+            final String encrypted = CipherUtils.bytesToString(encryptedBytes);
+
+            // Set session.
             persistenceService.setSession(encrypted);
             persistenceService.updateSessionEncryption(SessionService.FINGERPRINT);
+
             // Callback.
             biometricCallback.onBiometricOperationSuccess();
         } catch (Exception ex) {
@@ -95,6 +111,10 @@ class BiometricSessionHandler {
         final SessionInfo sessionInfo = _sessionService.getSession();
         // Set the session (DEFAULT encryption).
         _sessionService.setSession(sessionInfo);
+
+        // Delete KeyStore.
+        deleteKey();
+
         // Callback.
         biometricCallback.onBiometricOperationSuccess();
     }
@@ -116,16 +136,19 @@ class BiometricSessionHandler {
      * Unlock operation.
      * Decrypt fingerprint session and save as default.
      *
-     * @param key               SecretKey.
      * @param biometricCallback Status callback.
      */
-    void unlock(SecretKey key, IGigyaBiometricCallback biometricCallback) {
+    void unlock(IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptedSession = persistenceService.getSession();
         // Decrypt the session.
         try {
             // Decrypt & set the session.
-            final String plain = CipherUtils.decrypt(encryptedSession, ENCRYPTION_ALGORITHM, key);
+            byte[] encPLBytes = CipherUtils.stringToBytes(encryptedSession);
+            byte[] bytePlainText = _cipher.doFinal(encPLBytes);
+            final String plain = new String(bytePlainText);
+
+            // Set session.
             JSONObject jsonObject = new JSONObject(plain);
             final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
             final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
@@ -144,7 +167,74 @@ class BiometricSessionHandler {
             ex.printStackTrace();
             biometricCallback.onBiometricOperationFailed("Fingerprint unlock: " + ex.getMessage());
         }
-
     }
 
+    //region KEYSTORE
+
+    private KeyStore _keyStore;
+    protected Cipher _cipher;
+    protected SecretKey _secretKey;
+
+    private void deleteKey() {
+        try {
+            _keyStore.deleteEntry(FINGERPRINT_KEY_NAME);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    protected void getKey() {
+        try {
+            _keyStore = KeyStore.getInstance("AndroidKeyStore");
+            _keyStore.load(null);
+
+            final Enumeration<String> aliases = _keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                if (FINGERPRINT_KEY_NAME.equals(aliases.nextElement())) {
+                    try {
+                        _secretKey = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME, null);
+                        return;
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        deleteKey();
+                    }
+                }
+            }
+            final KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            keyGenerator.init(new
+                    KeyGenParameterSpec.Builder(FINGERPRINT_KEY_NAME, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .setUserAuthenticationRequired(true)
+                    .setKeySize(256)
+                    .build());
+            _secretKey =  keyGenerator.generateKey();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    protected void createCipherFor(final int encryptionMode) {
+        try {
+            _cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+            final PersistenceService persistenceService = _sessionService.getPersistenceService();
+            if (encryptionMode == Cipher.ENCRYPT_MODE) {
+                _cipher.init(encryptionMode, _secretKey);
+                final byte[] ivBytes = _cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
+                persistenceService.updateIVSpec(Base64.encodeToString(ivBytes, Base64.DEFAULT));
+            } else {
+                final String ivSpec = persistenceService.getIVSpec();
+                if (ivSpec != null) {
+                    final IvParameterSpec spec = new IvParameterSpec(Base64.decode(ivSpec, Base64.DEFAULT));
+                    _cipher.init(Cipher.DECRYPT_MODE, _secretKey, spec);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            _cipher = null;
+        }
+    }
+
+    //endregion
 }

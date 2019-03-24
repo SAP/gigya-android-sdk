@@ -40,6 +40,8 @@ public class PersistenceService {
      */
     private static final String PREFS_KEY_SESSION_ENCRYPTION_TYPE = "sessionProtectionType";
 
+    private static final String PREFS_KEY_IV_SPEC = "IV_fingerprint";
+
     @NonNull
     private SharedPreferences _prefs;
 
@@ -152,6 +154,14 @@ public class PersistenceService {
     public @SessionService.SessionEncryption
     String getSessionEncryption() {
         return _prefs.getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, SessionService.DEFAULT);
+    }
+
+    public void updateIVSpec(String spec) {
+        add(PREFS_KEY_IV_SPEC, spec);
+    }
+
+    public String getIVSpec() {
+        return _prefs.getString(PREFS_KEY_IV_SPEC, null);
     }
 
     //endregion

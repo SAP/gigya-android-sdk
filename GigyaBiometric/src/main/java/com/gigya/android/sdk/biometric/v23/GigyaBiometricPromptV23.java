@@ -147,7 +147,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
             _indicatorText.setText(getContext().getString(R.string.touch_sensor));
         }
         if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_fingerprint);
+            _indicatorImage.setImageResource(R.drawable.ic_bio_fingerprint);
         }
     }
 
@@ -160,7 +160,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
             _indicatorText.setText(errorString);
         }
         if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_error_outline);
+            _indicatorImage.setImageResource(R.drawable.ic_bio_error_outline);
         }
     }
 
@@ -170,7 +170,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
             _indicatorText.setText(helpString);
         }
         if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_error_outline);
+            _indicatorImage.setImageResource(R.drawable.ic_bio_error_outline);
         }
     }
 
