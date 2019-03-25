@@ -162,7 +162,6 @@ public class SessionService {
 
             // Save to preferences.
             _persistenceService.setSession(encryptedSession);
-            _persistenceService.updateSessionEncryption(SessionService.DEFAULT);
 
             // Persist session expiration if available.
             if (_sessionWillExpireIn > 0) {

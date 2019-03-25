@@ -28,8 +28,8 @@ import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.biometric.GigyaBiometric
+import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
-import com.gigya.android.sdk.biometric.model.GigyaPromptInfo
 import com.gigya.android.sdk.model.account.ConflictingAccounts
 import com.gigya.android.sdk.model.tfa.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
@@ -193,9 +193,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             when (action) {
                 GigyaBiometric.Action.OPT_IN -> {
                     fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+                    fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
                     fingerprint_lock_fab.show()
                 }
                 GigyaBiometric.Action.OPT_OUT -> {
+                    fingerprint_fab.setImageResource(R.drawable.ic_fingerprint)
                     fingerprint_lock_fab.hide()
                 }
                 GigyaBiometric.Action.LOCK -> {
@@ -225,47 +227,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (Gigya.getInstance().isLoggedIn) {
             fingerprint_fab.show()
         }
+        if (biometric.isOptIn) {
+            fingerprint_fab.show()
+            fingerprint_lock_fab.show()
+            fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
+        }
         if (biometric.isLocked) {
             fingerprint_fab.show()
-            toast("Current session is locked!")
             biometric.unlock(this,
-                    GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
+                    GigyaPromptInfo("Unlock session", "Place finger on sensor to continue", ""),
                     gigyaBiometricCallback)
         }
+        // Opt-in/out action.
         fingerprint_fab.setOnClickListener {
-            if (biometric.isAvailable) {
-                when {
-                    biometric.isLocked -> {
-                        toast("Trying to unlock")
-                        biometric.unlock(this,
-                                GigyaPromptInfo("Session locked", "Unlock session to continue", ""),
-                                gigyaBiometricCallback)
-                    }
-                    biometric.isOptIn -> {// Opt-in but not locked.
-                        toast("Trying to opt in")
-                        biometric.unlock(this,
-                                GigyaPromptInfo("Fingerprint authentication needed", "Unlock session to continue", ""),
-                                gigyaBiometricCallback)
-                    }
-                    else -> {
-                        biometric.optIn(this, GigyaPromptInfo("Fingerprint Opt-In", "Opt-In to allow fingerprint authentication", ""),
-                                gigyaBiometricCallback)
-                    }
+            if (biometric.isAvailable && !biometric.isLocked) {
+                if (biometric.isOptIn) {
+                    biometric.optOut(this,
+                            GigyaPromptInfo("Opt-Out requested", "Place finger on sensor to continue", ""),
+                            gigyaBiometricCallback)
+                } else {
+                    biometric.optIn(this,
+                            GigyaPromptInfo("Opt-In requested", "Place finger on sensor to continue", ""),
+                            gigyaBiometricCallback)
                 }
             } else {
                 toast("Biometric is not supported. Inspect logs for reason")
             }
         }
+        // Lock/Unlock button.
         fingerprint_lock_fab.setOnClickListener {
             when (biometric.isLocked) {
                 true -> {
                     biometric.unlock(this,
-                            GigyaPromptInfo("Fingerprint unlock requested", "Place finger on sensor to continue", ""),
+                            GigyaPromptInfo("Unlock session", "Place finger on sensor to continue", ""),
                             gigyaBiometricCallback)
                 }
                 false -> {
                     biometric.lock(this,
-                            GigyaPromptInfo("Fingerprint lock requested", "Place finger on sensor to continue", ""),
+                            GigyaPromptInfo("Lock requested", "Place finger on sensor to continue", ""),
                             gigyaBiometricCallback)
                 }
             }

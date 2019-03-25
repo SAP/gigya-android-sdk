@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.biometric.model;
+package com.gigya.android.sdk.biometric;
 
 public class GigyaPromptInfo {
 

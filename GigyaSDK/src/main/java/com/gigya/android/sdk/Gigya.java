@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -356,6 +357,8 @@ public class Gigya<T extends GigyaAccount> {
      * Logout of Gigya services.
      * This will clean all session related data persistence.
      */
+    @SuppressWarnings("deprecation")
+    @SuppressLint("ObsoleteSdkInt")
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         _gigyaContext.getApiService().logout();
@@ -363,9 +366,12 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLoginPresenter.flush();
 
         // Clearing cached cookies.
-        CookieSyncManager.createInstance(_appContext);
         CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookie();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            CookieSyncManager.createInstance(_appContext);
+            cookieManager.removeAllCookie();
+        }
+        cookieManager.flush();
 
         // Logout of any available social provider.
         for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {

@@ -1,5 +1,6 @@
 package com.gigya.android.sample
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.os.Build
@@ -12,6 +13,7 @@ import com.gigya.android.sdk.GigyaLogger
 @Suppress("unused") // Referenced in manifest.
 class GigyaSampleApplication : Application() {
 
+    @SuppressLint("ObsoleteSdkInt")
     override fun onCreate() {
         super.onCreate()
 

@@ -11,9 +11,9 @@ import android.support.annotation.NonNull;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
 import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
+import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
-import com.gigya.android.sdk.biometric.model.GigyaPromptInfo;
 import com.gigya.android.sdk.services.SessionService;
 
 @TargetApi(Build.VERSION_CODES.P)
@@ -26,8 +26,7 @@ public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
     }
 
     @Override
-    public void showPrompt(Context context, GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, final @NonNull IGigyaBiometricCallback callback,
-                           @NonNull final Runnable onAuthenticated) {
+    synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, final @NonNull IGigyaBiometricCallback callback) {
         getKey();
         if (_secretKey == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
@@ -61,7 +60,7 @@ public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
                 @Override
                 public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
                     super.onAuthenticationSucceeded(result);
-                    onAuthenticated.run();
+                    onSuccessfulAuthentication(action, callback);
                 }
 
                 @Override

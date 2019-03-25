@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.biometric.utils;
+package com.gigya.android.sdk.biometric;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -8,11 +8,12 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 
-public class GigyaBiometricUtils {
+class GigyaBiometricUtils {
 
     /**
      * Check if fingerprint permission is available.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean isPermissionGranted(Context context) {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) ==
                 PackageManager.PERMISSION_GRANTED;
@@ -23,7 +24,7 @@ public class GigyaBiometricUtils {
      * If your application includes android.hardware.fingerprint required="true" this check is not needed.
      */
     @SuppressLint("MissingPermission")
-    public static boolean isSupported(Context context) {
+    static boolean isSupported(Context context) {
         if (!isPermissionGranted(context)) {
             return false;
         }
@@ -35,7 +36,7 @@ public class GigyaBiometricUtils {
      * Check if user has enrolled fingerprints on his device.
      */
     @SuppressLint("MissingPermission")
-    public static boolean hasEnrolledFingerprints(Context context) {
+    static boolean hasEnrolledFingerprints(Context context) {
         if (!isPermissionGranted(context)) {
             return false;
         }
@@ -44,9 +45,9 @@ public class GigyaBiometricUtils {
     }
 
     /**
-     * Check for BiometricPrompt API availability (Android Pie and above).
+     * Check for BiometricPrompt API availability (Android >= Pie).
      */
-    public static boolean isPromptEnabled() {
+    static boolean isPromptEnabled() {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
     }
 
