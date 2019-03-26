@@ -60,7 +60,7 @@ public class Gigya<T extends GigyaAccount> {
         _appContext = appContext;
         _gigyaContext = new GigyaContext<>(appContext);
         //noinspection unchecked
-        _gigyaContext.getComponent(AccountService.class).updateAccountScheme(accountScheme);
+        _gigyaContext.getAccountService().updateAccountScheme(accountScheme);
         init();
     }
 
