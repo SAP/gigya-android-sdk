@@ -116,7 +116,7 @@ public class SessionManagerTest {
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionService.setSession(sessionInfo);
         // Act
-        sessionService.clear();
+        sessionService.clear(false);
         // Assert
         assertNull(sessionService.getSession());
     }

@@ -57,7 +57,8 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      * @param action            Desired action.
      * @param biometricCallback Status callback.
      */
-    synchronized protected void onSuccessfulAuthentication(final GigyaBiometric.Action action, @NonNull final IGigyaBiometricCallback biometricCallback) {
+    synchronized protected void onSuccessfulAuthentication(final GigyaBiometric.Action action,
+                                                           @NonNull final IGigyaBiometricCallback biometricCallback) {
         switch (action) {
             case OPT_IN:
                 optIn(biometricCallback);
@@ -82,7 +83,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    private void optIn(@NonNull final IGigyaBiometricCallback biometricCallback) {
+     void optIn(@NonNull final IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptionType = persistenceService.getSessionEncryption();
         if (encryptionType.equals(SessionService.FINGERPRINT)) {
@@ -127,7 +128,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    private void optOut(IGigyaBiometricCallback biometricCallback) {
+    void optOut(IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptionType = persistenceService.getSessionEncryption();
         if (encryptionType.equals(SessionService.DEFAULT)) {
@@ -151,7 +152,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    private void lock(IGigyaBiometricCallback biometricCallback) {
+    void lock(IGigyaBiometricCallback biometricCallback) {
         // Locking means clearing the SessionInfo from the heap but keeping the persistence.
         _sessionService.clear(false);
         // Callback.
@@ -164,7 +165,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    private void unlock(IGigyaBiometricCallback biometricCallback) {
+    void unlock(IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptedSession = persistenceService.getSession();
         // Decrypt the session.

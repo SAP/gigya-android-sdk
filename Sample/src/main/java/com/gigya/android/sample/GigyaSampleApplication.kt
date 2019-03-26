@@ -36,7 +36,7 @@ class GigyaSampleApplication : Application() {
         Initialization with implicit configuration & without a custom account scheme.
         Will use the default GigyaAccount scheme.
         */
-        //Gigya.getInstance(applicationContext)
+       // Gigya.getInstance(applicationContext)
 
         /*
         Explicit initialization.

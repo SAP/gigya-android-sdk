@@ -33,11 +33,14 @@ android {
 }
 
 dependencies {
+    // Test implementations.
     testImplementation deps.test.junit
+    testImplementation deps.test.json
     testImplementation deps.androidx.test_core
     testImplementation deps.mockito.core
     testImplementation deps.power_mock.junit4
     testImplementation deps.power_mock.mockito2
+    testImplementation project(path: ':GigyaSDK')
 
     implementation deps.android_support.appcompat
     implementation deps.android_support.design

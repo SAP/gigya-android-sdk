@@ -29,25 +29,21 @@ public class CipherUtils {
     }
 
     public static byte[] toBytes(char[] chars) {
-        CharBuffer charBuffer = CharBuffer.wrap(chars);
-        ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
-        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-
+        final CharBuffer charBuffer = CharBuffer.wrap(chars);
+        final ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+        final byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
         Arrays.fill(charBuffer.array(), '\u0000'); // clear the cleartext
-        Arrays.fill(byteBuffer.array(), (byte) 0); // clear the ciphertext
-
+        Arrays.fill(byteBuffer.array(), (byte) 0); // clear the cipher text
         return bytes;
     }
 
     public static char[] toChars(byte[] bytes) {
-        Charset charset = Charset.forName("UTF-8");
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        CharBuffer charBuffer = charset.decode(byteBuffer);
-        char[] chars = Arrays.copyOf(charBuffer.array(), charBuffer.limit());
-
+        final Charset charset = Charset.forName("UTF-8");
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        final CharBuffer charBuffer = charset.decode(byteBuffer);
+        final char[] chars = Arrays.copyOf(charBuffer.array(), charBuffer.limit());
         Arrays.fill(charBuffer.array(), '\u0000'); // clear the cleartext
-        Arrays.fill(byteBuffer.array(), (byte) 0); // clear the ciphertext
-
+        Arrays.fill(byteBuffer.array(), (byte) 0); // clear the cipher text
         return chars;
     }
 
