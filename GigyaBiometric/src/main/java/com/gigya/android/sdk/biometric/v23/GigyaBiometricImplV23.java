@@ -13,6 +13,9 @@ import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
 import com.gigya.android.sdk.services.SessionService;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+
 public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
 
     private static final String LOG_TAG = "GigyaBiometricImplV23";
@@ -23,16 +26,17 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
     }
 
     @Override
-    synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo, int encryptionMode, @NonNull final IGigyaBiometricCallback callback) {
-        getKey();
-        if (_secretKey == null) {
+    synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
+                                        int encryptionMode, @NonNull final IGigyaBiometricCallback callback) {
+        final SecretKey key = getKey();
+        if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
             return;
         }
-        createCipherFor(encryptionMode);
-        if (_cipher != null) {
+        final Cipher cipher = createCipherFor(key, encryptionMode);
+        if (cipher != null) {
             // Init crypto.
-            final FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(_cipher);
+            final FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
             final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(context);
             // Initialize prompt dialog.
             final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(context, callback);
@@ -58,7 +62,7 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
                 @Override
                 public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
                     GigyaLogger.debug(LOG_TAG, "onAuthenticationSucceeded: ");
-                    onSuccessfulAuthentication(action, callback);
+                    onSuccessfulAuthentication(cipher, action, callback);
                     dialog.dismiss();
                 }
 

@@ -8,10 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.IEncryptor;
+import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -55,16 +57,18 @@ public class SessionService {
     @NonNull
     final private Context _appContext;
 
-    @NonNull
-    final private Runnable _newSessionRunnable;
+    private ArrayMap<String, GigyaInterceptor> _interceptors = new ArrayMap<>();
+
+    public void addInterceptor(GigyaInterceptor interceptor) {
+        _interceptors.put(interceptor.getName(), interceptor);
+    }
 
     public SessionService(@NonNull Context appContext, @NonNull Config config,
-                          @NonNull PersistenceService persistenceService, IEncryptor encryptor, @NonNull Runnable newSessionRunnable) {
+                          @NonNull PersistenceService persistenceService, IEncryptor encryptor) {
         _appContext = appContext;
         _config = config;
         _encryptor = encryptor;
         _persistenceService = persistenceService;
-        _newSessionRunnable = newSessionRunnable;
         // Get reference to SDK shared preference file.
         load();
     }
@@ -105,11 +109,22 @@ public class SessionService {
             _sessionWillExpireIn = System.currentTimeMillis() + (_session.getExpirationTime() * 1000);
             startSessionCountdownTimerIfNeeded();
         }
-        save();
         GigyaLogger.debug(LOG_TAG, session.toString());
 
-        // Run new session task. Will trigger session verification interval if needed.
-        _newSessionRunnable.run();
+        // Encrypt & save the session. Check if biometric support is enabled first to allow
+        // biometric save interception.
+        final GigyaInterceptor biometricInterceptor = _interceptors.get("BIOMETRIC");
+        final String sessionEncryption = _persistenceService.getSessionEncryption();
+        if (biometricInterceptor != null && ObjectUtils.safeEquals(sessionEncryption, FINGERPRINT)) {
+            biometricInterceptor.intercept();
+        } else {
+            save();
+        }
+
+        final GigyaInterceptor sessionVerificationInterceptor = _interceptors.get("SESSION_VERIFICATION");
+        if (sessionVerificationInterceptor != null) {
+            sessionVerificationInterceptor.intercept();
+        }
     }
 
     /**
@@ -321,7 +336,7 @@ public class SessionService {
         }.start();
     }
 
-    //endregion
+//endregion
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({DEFAULT, FINGERPRINT})

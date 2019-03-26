@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.encryption.IEncryptor;
 import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
 import com.gigya.android.sdk.encryption.LegacyEncryptor;
+import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.ApiService;
@@ -92,18 +93,19 @@ public class GigyaContext<A extends GigyaAccount> {
         _persistenceService = new PersistenceService(appContext);
         _accountService = new AccountService<>();
         _encryptor = newEncryptor();
-        Runnable newSessionRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (_sessionVerificationService != null) {
+        _sessionService = new SessionService(appContext, _config, _persistenceService, _encryptor);
+        _apiService = new ApiService<>(appContext, _sessionService, _accountService);
+
+        _sessionVerificationService = new SessionVerificationService(appContext, _apiService);
+        if (_config.getSessionVerificationInterval() > 0) {
+            _sessionService.addInterceptor(new GigyaInterceptor("SESSION_VERIFICATION") {
+                @Override
+                public void intercept() {
                     // A new session has been updated. IF needed, start verification service.
                     _sessionVerificationService.start();
                 }
-            }
-        };
-        _sessionService = new SessionService(appContext, _config, _persistenceService, _encryptor, newSessionRunnable);
-        _apiService = new ApiService<>(appContext, _sessionService, _accountService);
-        _sessionVerificationService = new SessionVerificationService(appContext, _apiService);
+            });
+        }
     }
 
     /**

@@ -36,6 +36,10 @@ dependencies {
     implementation project(path: ':GigyaSDK')
     implementation project(path: ':GigyaBiometric')
 
+    //implementation files('libs/Gigya-android-sdk-4.0.0_a1-debug.aar')
+    // Optional.
+    //implementation files('libs/Gigya-android-biometric-1.0.0-debug.aar')
+
     implementation deps.android_support.appcompat
     implementation deps.android_support.design
     implementation deps.android_support.constraint

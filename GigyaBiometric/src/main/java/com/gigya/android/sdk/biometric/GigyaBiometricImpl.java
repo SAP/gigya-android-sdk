@@ -3,9 +3,12 @@ package com.gigya.android.sdk.biometric;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.util.Base64;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.services.PersistenceService;
 import com.gigya.android.sdk.services.SessionService;
@@ -34,6 +37,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
     public GigyaBiometricImpl(SessionService sessionService) {
         // Reference session service.
         _sessionService = sessionService;
+        addSessionInterception();
     }
 
     boolean okayToOptInOut() {
@@ -51,30 +55,72 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         return !_sessionService.isValidSession() && isOptIn();
     }
 
+    private void addSessionInterception() {
+        _sessionService.addInterceptor(new GigyaInterceptor("BIOMETRIC") {
+            @Override
+            public void intercept() {
+                final SessionInfo sessionInfo = _sessionService.getSession();
+                if (sessionInfo == null) {
+                    GigyaLogger.error(LOG_TAG, "Session is null cannot set the session");
+                    return;
+                }
+                try {
+                    setSession(null, _sessionService.getSession());
+                } catch (Exception e) {
+                    GigyaLogger.error(LOG_TAG, "Error setting biometric session");
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
     /**
      * Perform relevant success logic on successful biometric authentication.
      *
+     * @param cipher            The current operation cipher instance.
      * @param action            Desired action.
      * @param biometricCallback Status callback.
      */
-    synchronized protected void onSuccessfulAuthentication(final GigyaBiometric.Action action,
-                                                           @NonNull final IGigyaBiometricCallback biometricCallback) {
+    synchronized protected void onSuccessfulAuthentication(
+            final Cipher cipher,
+            final GigyaBiometric.Action action,
+            @NonNull final IGigyaBiometricCallback biometricCallback) {
         switch (action) {
             case OPT_IN:
-                optIn(biometricCallback);
+                optIn(cipher, biometricCallback);
                 break;
             case OPT_OUT:
-                optOut(biometricCallback);
+                optOut(cipher, biometricCallback);
                 break;
             case LOCK:
                 lock(biometricCallback);
                 break;
             case UNLOCK:
-                unlock(biometricCallback);
+                unlock(cipher, biometricCallback);
                 break;
             default:
                 break;
         }
+    }
+
+    private void setSession(@Nullable Cipher cipher, @NonNull SessionInfo sessionInfo) throws Exception {
+        final PersistenceService persistenceService = _sessionService.getPersistenceService();
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("sessionToken", sessionInfo.getSessionToken());
+        jsonObject.put("sessionSecret", sessionInfo.getSessionSecret());
+        jsonObject.put("expirationTime", sessionInfo.getExpirationTime());
+        jsonObject.put("ucid", _sessionService.getConfig().getUcid());
+        jsonObject.put("gmid", _sessionService.getConfig().getGmid());
+        final String plain = jsonObject.toString();
+        // Encrypt.
+        if (cipher == null) {
+            cipher = createCipherFor(getKey(), Cipher.ENCRYPT_MODE);
+        }
+        Pair<String, String> encodedPair = encryptBiometricString(cipher, plain);
+        // Persist.
+        persistenceService.setSession(encodedPair.first);
+        persistenceService.updateIVSpec(encodedPair.second);
+        persistenceService.updateSessionEncryption(SessionService.FINGERPRINT);
     }
 
     /**
@@ -83,7 +129,7 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-     void optIn(@NonNull final IGigyaBiometricCallback biometricCallback) {
+    private void optIn(@NonNull Cipher cipher, @NonNull final IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptionType = persistenceService.getSessionEncryption();
         if (encryptionType.equals(SessionService.FINGERPRINT)) {
@@ -95,29 +141,11 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
             GigyaLogger.error(LOG_TAG, "Session is null Opt-In failed");
             return;
         }
-        final JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("sessionToken", sessionInfo.getSessionToken());
-            jsonObject.put("sessionSecret", sessionInfo.getSessionSecret());
-            jsonObject.put("expirationTime", sessionInfo.getExpirationTime());
-            jsonObject.put("ucid", _sessionService.getConfig().getUcid());
-            jsonObject.put("gmid", _sessionService.getConfig().getGmid());
-            final String plain = jsonObject.toString();
-
-            // Encrypt.
-            final byte[] encryptedBytes = _cipher.doFinal(CipherUtils.toBytes(plain.toCharArray()));
-            final byte[] ivBytes = _cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
-
-            // Update preferences.
-            persistenceService.setSession(Base64.encodeToString(encryptedBytes, Base64.DEFAULT));
-            persistenceService.updateIVSpec(Base64.encodeToString(ivBytes, Base64.DEFAULT));
-            persistenceService.updateSessionEncryption(SessionService.FINGERPRINT);
-
-            // Callback.
+            setSession(cipher, sessionInfo);
             biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_IN);
         } catch (Exception ex) {
             ex.printStackTrace();
-            // Callback.
             biometricCallback.onBiometricOperationFailed("Fingerprint optIn: " + ex.getMessage());
         }
     }
@@ -128,22 +156,25 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    void optOut(IGigyaBiometricCallback biometricCallback) {
+    private void optOut(@NonNull Cipher cipher, IGigyaBiometricCallback biometricCallback) {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptionType = persistenceService.getSessionEncryption();
         if (encryptionType.equals(SessionService.DEFAULT)) {
             GigyaLogger.error(LOG_TAG, "Fingerprint already opt-out");
             return;
         }
-        final SessionInfo sessionInfo = _sessionService.getSession();
-        // Set the session (heap/save).
-        _sessionService.setSession(sessionInfo);
-        // Reset session encryption to DEFAULT.
-        _sessionService.getPersistenceService().updateSessionEncryption(SessionService.DEFAULT);
-        // Delete KeyStore.
-        deleteKey();
-        // Callback.
-        biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_OUT);
+        try {
+            final SessionInfo sessionInfo = decryptBiometricSession(cipher);
+            // Reset session encryption to DEFAULT.
+            _sessionService.getPersistenceService().updateSessionEncryption(SessionService.DEFAULT);
+            _sessionService.setSession(sessionInfo);
+            // Delete KeyStore.
+            deleteKey();
+            biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_OUT);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            biometricCallback.onBiometricOperationFailed("Fingerprint optOut: " + ex.getMessage());
+        }
     }
 
     /**
@@ -152,10 +183,9 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    void lock(IGigyaBiometricCallback biometricCallback) {
+    private void lock(IGigyaBiometricCallback biometricCallback) {
         // Locking means clearing the SessionInfo from the heap but keeping the persistence.
         _sessionService.clear(false);
-        // Callback.
         biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.LOCK);
     }
 
@@ -165,31 +195,12 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param biometricCallback Status callback.
      */
-    void unlock(IGigyaBiometricCallback biometricCallback) {
-        final PersistenceService persistenceService = _sessionService.getPersistenceService();
-        final String encryptedSession = persistenceService.getSession();
-        // Decrypt the session.
+    private void unlock(@NonNull Cipher cipher, IGigyaBiometricCallback biometricCallback) {
         try {
-            // Decrypt & set the session.
-            byte[] encPLBytes = Base64.decode(encryptedSession, Base64.DEFAULT);
-            byte[] bytePlainText = _cipher.doFinal(encPLBytes);
-            final String plain = new String(CipherUtils.toChars(bytePlainText));
-
-            // Set session.
-            JSONObject jsonObject = new JSONObject(plain);
-            final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
-            final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
-            final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
-            final SessionInfo sessionInfo = new SessionInfo(sessionSecret, sessionToken, expirationTime);
-            final String ucid = jsonObject.getString("ucid");
-            _sessionService.getConfig().setUcid(ucid);
-            final String gmid = jsonObject.getString("gmid");
-            _sessionService.getConfig().setGmid(gmid);
-
-            // Set the session (DEFAULT encryption).
+            // Decrypt the session.
+            final SessionInfo sessionInfo = decryptBiometricSession(cipher);
             _sessionService.setSession(sessionInfo);
             _sessionService.updateSessionExpirationIfExists();
-            // Callback.
             biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.UNLOCK);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -197,15 +208,40 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         }
     }
 
-    //region KEYSTORE
+    private Pair<String, String> encryptBiometricString(Cipher cipher, String plain) throws Exception {
+        final byte[] encryptedBytes = cipher.doFinal(CipherUtils.toBytes(plain.toCharArray()));
+        final byte[] ivBytes = cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
+        final String encodedSession = Base64.encodeToString(encryptedBytes, Base64.DEFAULT);
+        final String encodedIVSpec = Base64.encodeToString(ivBytes, Base64.DEFAULT);
+        return new Pair<>(encodedSession, encodedIVSpec);
+    }
 
-    private KeyStore _keyStore;
-    protected Cipher _cipher;
-    protected SecretKey _secretKey;
+    private SessionInfo decryptBiometricSession(Cipher cipher) throws Exception {
+        final PersistenceService persistenceService = _sessionService.getPersistenceService();
+        final String encryptedSession = persistenceService.getSession();
+        // Decrypt & set the session.
+        byte[] encPLBytes = Base64.decode(encryptedSession, Base64.DEFAULT);
+        byte[] bytePlainText = cipher.doFinal(encPLBytes);
+        final String plain = new String(CipherUtils.toChars(bytePlainText));
+        JSONObject jsonObject = new JSONObject(plain);
+        final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
+        final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
+        final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
+        // Updating CMID/UCID.
+        final String ucid = jsonObject.getString("ucid");
+        _sessionService.getConfig().setUcid(ucid);
+        final String gmid = jsonObject.getString("gmid");
+        _sessionService.getConfig().setGmid(gmid);
+        // Return.
+        return new SessionInfo(sessionSecret, sessionToken, expirationTime);
+    }
+
+    //region KEYSTORE
 
     private void deleteKey() {
         try {
-            _keyStore.deleteEntry(FINGERPRINT_KEY_NAME);
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.deleteEntry(FINGERPRINT_KEY_NAME);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -214,17 +250,17 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
     /**
      * Get or generate new SecretKey.
      */
-    protected void getKey() {
+    @Nullable
+    protected SecretKey getKey() {
         try {
-            _keyStore = KeyStore.getInstance("AndroidKeyStore");
-            _keyStore.load(null);
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
 
-            final Enumeration<String> aliases = _keyStore.aliases();
+            final Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 if (FINGERPRINT_KEY_NAME.equals(aliases.nextElement())) {
                     try {
-                        _secretKey = (SecretKey) _keyStore.getKey(FINGERPRINT_KEY_NAME, null);
-                        return;
+                        return (SecretKey) keyStore.getKey(FINGERPRINT_KEY_NAME, null);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         deleteKey();
@@ -240,10 +276,11 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
                     .setUserAuthenticationRequired(true)
                     .setKeySize(256)
                     .build());
-            _secretKey = keyGenerator.generateKey();
+            return keyGenerator.generateKey();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -251,26 +288,26 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param encryptionMode Cipher encryption mode (Cipher.ENCRYPT_MODE/Cipher.DECRYPT_MODE).
      */
-    protected void createCipherFor(final int encryptionMode) {
+    protected Cipher createCipherFor(final SecretKey key, final int encryptionMode) {
         try {
-            _cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
             final PersistenceService persistenceService = _sessionService.getPersistenceService();
             if (encryptionMode == Cipher.ENCRYPT_MODE) {
-                _cipher.init(encryptionMode, _secretKey);
+                cipher.init(encryptionMode, key);
             } else if (encryptionMode == Cipher.DECRYPT_MODE) {
                 final String ivSpec = persistenceService.getIVSpec();
                 if (ivSpec != null) {
                     final IvParameterSpec spec = new IvParameterSpec(Base64.decode(ivSpec, Base64.DEFAULT));
-                    _cipher.init(Cipher.DECRYPT_MODE, _secretKey, spec);
+                    cipher.init(Cipher.DECRYPT_MODE, key, spec);
                 } else {
                     GigyaLogger.error(LOG_TAG, "createCipherFor: getIVSpec null");
-                    _cipher = null;
+                    return null;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            _cipher = null;
         }
+        return null;
     }
 
     //endregion

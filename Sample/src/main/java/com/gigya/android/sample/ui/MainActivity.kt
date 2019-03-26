@@ -190,21 +190,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
             toast("Biometric authentication success")
             invalidateOptionsMenu()
-            when (action) {
-                GigyaBiometric.Action.OPT_IN -> {
-                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
-                    fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
-                    fingerprint_lock_fab.show()
-                }
-                GigyaBiometric.Action.OPT_OUT -> {
-                    fingerprint_fab.setImageResource(R.drawable.ic_fingerprint)
-                    fingerprint_lock_fab.hide()
-                }
-                GigyaBiometric.Action.LOCK -> {
-                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_outline)
-                }
-                GigyaBiometric.Action.UNLOCK -> {
-                    fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+            runOnUiThread {
+                when (action) {
+                    GigyaBiometric.Action.OPT_IN -> {
+                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+                        fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
+                        fingerprint_lock_fab.show()
+                    }
+                    GigyaBiometric.Action.OPT_OUT -> {
+                        fingerprint_fab.setImageResource(R.drawable.ic_fingerprint)
+                        fingerprint_lock_fab.hide()
+                    }
+                    GigyaBiometric.Action.LOCK -> {
+                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_outline)
+                    }
+                    GigyaBiometric.Action.UNLOCK -> {
+                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+                    }
                 }
             }
         }
@@ -224,6 +226,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      */
     private fun evaluateFingerprintSession() {
         val biometric = GigyaBiometric.getInstance()
+        if (!biometric.isAvailable) {
+            // Don't show fingerprint fab is biometric is not supported on device.
+            return
+        }
+
         if (Gigya.getInstance().isLoggedIn) {
             fingerprint_fab.show()
         }

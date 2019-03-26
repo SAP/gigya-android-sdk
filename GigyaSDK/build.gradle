@@ -25,7 +25,7 @@ android {
         minSdkVersion build_versions.min_sdk_biometric
         targetSdkVersion build_versions.target_sdk
 
-        archivesBaseName = "gigya-android-sdk-${androidVersion}"
+        archivesBaseName = "Gigya-android-sdk-${androidVersion}"
     }
 
     compileOptions {
