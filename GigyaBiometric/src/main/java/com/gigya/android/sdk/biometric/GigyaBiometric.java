@@ -106,7 +106,9 @@ public class GigyaBiometric {
         if (_impl.okayToOptInOut()) {
             _impl.showPrompt(context, Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
         } else {
-            GigyaLogger.error(LOG_TAG, "Session is invalid. Opt in operation is unavailable");
+            final String failedMessage = "Session is invalid. Opt in operation is unavailable";
+            GigyaLogger.error(LOG_TAG, failedMessage);
+            biometricCallback.onBiometricOperationFailed(failedMessage);
         }
     }
 
@@ -148,7 +150,9 @@ public class GigyaBiometric {
         if (_impl.isOptIn()) {
             _impl.showPrompt(context, Action.LOCK, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
         } else {
-            GigyaLogger.error(LOG_TAG, "Not Opt-in");
+            final String failedMessage = "Not Opt-In";
+            GigyaLogger.error(LOG_TAG, failedMessage);
+            biometricCallback.onBiometricOperationFailed(failedMessage);
         }
     }
 
@@ -166,7 +170,9 @@ public class GigyaBiometric {
         if (_impl.isOptIn()) {
             _impl.showPrompt(context, Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
-            GigyaLogger.error(LOG_TAG, "Not Opt-in");
+            final String failedMessage = "Not Opt-In";
+            GigyaLogger.error(LOG_TAG, failedMessage);
+            biometricCallback.onBiometricOperationFailed(failedMessage);
         }
     }
 
