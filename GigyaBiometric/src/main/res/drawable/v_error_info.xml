@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="error_info"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:name="error_info_circle_group"
+        android:rotation="10"
+        android:translateX="12"
+        android:translateY="12">
+        <group android:name="circle">
+            <path
+                android:name="error_info_path1"
+                android:pathData="@string/er_path1"
+                android:strokeWidth="2"
+                android:strokeColor="@color/color_error"
+                android:strokeLineCap="round" />
+        </group>
+    </group>
+    <group
+        android:name="error_info_exclamation_mark_group"
+        android:translateX="12"
+        android:translateY="12">
+        <group
+            android:name="error_info_exclamation_mark_circle_group"
+            android:translateY="4">
+            <path
+                android:name="error_info_exclamation_mark_circle_path"
+                android:fillColor="@color/color_error"
+                android:pathData="@string/er_path2" />
+        </group>
+        <group
+            android:name="error_info_exclamation_mark_line_group"
+            android:translateY="-2">
+            <path
+                android:name="error_info_exclamation_mark_line_path"
+                android:fillColor="@color/color_error"
+                android:pathData="@string/er_path3" />
+        </group>
+    </group>
+</vector>

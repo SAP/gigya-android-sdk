@@ -20,9 +20,14 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
 
     private static final String LOG_TAG = "GigyaBiometricImplV23";
 
-
     public GigyaBiometricImplV23(SessionService sessionService) {
         super(sessionService);
+    }
+
+    private boolean _animate = true;
+
+    public void updateAnimationState(boolean animate) {
+        _animate = animate;
     }
 
     @Override
@@ -43,6 +48,7 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
             dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : context.getString(R.string.prompt_default_title));
             dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : context.getString(R.string.prompt_default_subtitle));
             dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : context.getString(R.string.prompt_default_description));
+            dialog.setAnimate(_animate);
             CancellationSignal signal = new CancellationSignal();
             dialog.setCancellationSignal(signal);
             // Authenticate.

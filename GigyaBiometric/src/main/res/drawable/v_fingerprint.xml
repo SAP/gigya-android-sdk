@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleX="0.738"
+        android:scaleY="0.738"
+        android:translateX="12"
+        android:translateY="12.4">
+        <group
+            android:translateX="33"
+            android:translateY="34">
+            <path
+                android:pathData="@string/fp_path1"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="@string/fp_path2"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="@string/fp_path3"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="@string/fp_path4"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round" />
+            <group
+                android:translateX="-97.5"
+                android:translateY="-142.5">
+                <path
+                    android:pathData="@string/fp_path5"
+                    android:strokeWidth="1.45"
+                    android:strokeAlpha="1"
+                    android:strokeColor="@color/color_fingerprint"
+                    android:strokeLineCap="round" />
+            </group>
+        </group>
+    </group>
+</vector>

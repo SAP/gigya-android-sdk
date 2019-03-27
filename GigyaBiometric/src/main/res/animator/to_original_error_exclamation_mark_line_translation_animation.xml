@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:duration="450"
+        android:interpolator="@anim/to_original_interpolator_4"
+        android:pathData="M 0.0,-2.0 c 0.0,0.33333 0.0,1.66667 0.0,2.0"
+        android:propertyXName="translateX"
+        android:propertyYName="translateY" />
+</set>

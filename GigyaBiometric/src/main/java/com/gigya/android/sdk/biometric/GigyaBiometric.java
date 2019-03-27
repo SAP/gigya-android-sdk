@@ -32,6 +32,18 @@ public class GigyaBiometric {
         return _isAvailable;
     }
 
+    /**
+     * Optional animation state setter.
+     * This is relevant only for devices running Android below Pie.
+     *
+     * @param animate Animation state.
+     */
+    public void setAnimationForPrePieDevices(boolean animate) {
+        if (!GigyaBiometricUtils.isPromptEnabled()) {
+            ((GigyaBiometricImplV23) _impl).updateAnimationState(animate);
+        }
+    }
+
     private GigyaBiometric() {
         Gigya gigya = Gigya.getInstance();
         if (gigya == null) {
@@ -55,7 +67,7 @@ public class GigyaBiometric {
      * Verify that all needed conditions are available to use biometric operation.
      */
     private boolean verifyBiometricSupport(Context context) {
-        if (!GigyaBiometricUtils.isSupported(context)){
+        if (!GigyaBiometricUtils.isSupported(context)) {
             GigyaLogger.error(LOG_TAG, "Fingerprint is not supported on this device. No sensor hardware was detected");
             return false;
         }

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="ic_error_to_fingerprint"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Original layer group -->
+    <group
+        android:name="fp_original_layer_group"
+        android:rotation="180"
+        android:scaleX="0.738"
+        android:scaleY="0.738"
+        android:translateX="12"
+        android:translateY="12.4">
+        <group
+            android:name="fp_original_layer_pivot"
+            android:translateX="33"
+            android:translateY="34">
+            <path
+                android:name="fp_original_path1"
+                android:pathData="@string/fp_path1"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+            <path
+                android:name="fp_original_path2"
+                android:pathData="@string/fp_path2"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+            <path
+                android:name="fp_original_path3"
+                android:pathData="@string/fp_path3"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round"
+                android:trimPathStart="1" />
+            <path
+                android:name="fp_original_path4"
+                android:pathData="@string/fp_path4"
+                android:strokeWidth="1.45"
+                android:strokeAlpha="1"
+                android:strokeColor="@color/color_fingerprint"
+                android:strokeLineCap="round"
+                android:trimPathStart="1" />
+            <group
+                android:name="fp_original_path5_group"
+                android:translateX="-97.5"
+                android:translateY="-142.5">
+                <path
+                    android:name="fp_original_path5"
+                    android:pathData="@string/fp_path5"
+                    android:strokeWidth="1.45"
+                    android:strokeAlpha="1"
+                    android:strokeColor="@color/color_fingerprint"
+                    android:strokeLineCap="round"
+                    android:trimPathEnd="0" />
+            </group>
+        </group>
+    </group>
+    <group
+        android:name="error_circle_group"
+        android:rotation="10"
+        android:translateX="12"
+        android:translateY="12">
+        <group android:name="circle">
+            <path
+                android:name="error_circle_path_1"
+                android:pathData="M 0.0,-9.0 c 4.9705627482,0.0 9.0,4.0294372518 9.0,9.0 c 0.0,4.9705627482 -4.0294372518,9.0 -9.0,9.0 c -4.9705627482,0.0 -9.0,-4.0294372518 -9.0,-9.0 c 0.0,-4.9705627482 4.0294372518,-9.0 9.0,-9.0 Z"
+                android:strokeWidth="2"
+                android:strokeColor="@color/color_error"
+                android:strokeLineCap="round" />
+        </group>
+    </group>
+    <group
+        android:name="error_exclamation_mark_group"
+        android:translateX="12"
+        android:translateY="12">
+        <group
+            android:name="error_exclamation_mark_circle_group"
+            android:translateY="4">
+            <path
+                android:name="error_exclamation_mark_circle_path"
+                android:fillColor="@color/color_error"
+                android:pathData="M 0.0,-1.1 l 0.0,0.0 c 0.60751322478,0.0 1.1,0.49248677522 1.1,1.1 l 0.0,0.0 c 0.0,0.60751322478 -0.49248677522,1.1 -1.1,1.1 l 0.0,0.0 c -0.60751322478,0.0 -1.1,-0.49248677522 -1.1,-1.1 l 0.0,0.0 c 0.0,-0.60751322478 0.49248677522,-1.1 1.1,-1.1 Z" />
+        </group>
+        <group
+            android:name="error_exclamation_mark_line_group"
+            android:translateY="-2">
+            <path
+                android:name="error_exclamation_mark_line_path"
+                android:fillColor="@color/color_error"
+                android:pathData="M 0.0,-3.0 l 0.0,0.0 c 0.5522847498,0.0 1.0,0.4477152502 1.0,1.0 l 0.0,4.0 c 0.0,0.5522847498 -0.4477152502,1.0 -1.0,1.0 l 0.0,0.0 c -0.5522847498,0.0 -1.0,-0.4477152502 -1.0,-1.0 l 0.0,-4.0 c 0.0,-0.5522847498 0.4477152502,-1.0 1.0,-1.0 Z" />
+        </group>
+    </group>
+</vector>

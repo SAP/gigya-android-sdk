@@ -2,6 +2,7 @@ package com.gigya.android.sdk.biometric.v23;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.text.TextUtils;
@@ -33,6 +35,8 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     private IGigyaBiometricCallback _biometricCallback;
     private CancellationSignal _cancellationSignal;
+
+    private boolean _animate = true;
 
     void setCancellationSignal(CancellationSignal signal) {
         _cancellationSignal = signal;
@@ -73,6 +77,10 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     //region TEXT INJECTIONS
 
+    void setAnimate(boolean animate) {
+        _animate = animate;
+    }
+
     void setTitle(@NonNull String title) {
         if (_title != null) {
             _title.setText(title);
@@ -105,15 +113,29 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
 
     //region STATE MACHINE
 
+    /**
+     * Do on authentication help.
+     *
+     * @param helpString Provided help string from fingerprint manager authenticator.
+     */
     void onAuthenticationHelp(String helpString) {
         vibrate();
         helpState(helpString);
     }
 
+    /**
+     * Do on authentication failure.
+     */
     void onAuthenticationFailed() {
         onAuthenticationError(-1, null);
     }
 
+    /**
+     * Do on authentication error.
+     *
+     * @param errMsgId    Error message id provided from fingerprint manager authenticator.
+     * @param errorString Error message string provided from fingerprint manager authenticator.
+     */
     void onAuthenticationError(int errMsgId, final String errorString) {
         vibrate();
         errorState(errorString);
@@ -141,16 +163,29 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         }
     }
 
+    /**
+     * Reset to original state.
+     */
     private void resetState() {
         if (_indicatorText != null) {
             _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_text_secondary));
             _indicatorText.setText(getContext().getString(R.string.touch_sensor));
         }
-        if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_bio_fingerprint);
+        if (_indicatorImage == null) {
+            return;
+        }
+        if (_animate) {
+            animateBackFromError();
+        } else {
+            _indicatorImage.setImageResource(R.drawable.v_fingerprint);
         }
     }
 
+    /**
+     * Switch to error state.
+     *
+     * @param errorString Provided error string from fingerprint manager authenticator.
+     */
     private void errorState(String errorString) {
         if (_indicatorText != null) {
             _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_error));
@@ -159,21 +194,40 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
             }
             _indicatorText.setText(errorString);
         }
-        if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_bio_error_outline);
+        // Animate Error state.
+        if (_indicatorImage == null) {
+            return;
+        }
+        if (_animate) {
+            animateToError();
+        } else {
+            _indicatorImage.setImageResource(R.drawable.v_error_info);
         }
     }
 
+    /**
+     * Switch to help state.
+     *
+     * @param helpString Provided help string from fingerprint manager authenticator.
+     */
     private void helpState(String helpString) {
         if (_indicatorText != null) {
             _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_text_secondary));
             _indicatorText.setText(helpString);
         }
-        if (_indicatorImage != null) {
-            _indicatorImage.setImageResource(R.drawable.ic_bio_error_outline);
+        if (_indicatorImage == null) {
+            return;
+        }
+        if (_animate) {
+            animateToError();
+        } else {
+            _indicatorImage.setImageResource(R.drawable.v_error_info);
         }
     }
 
+    /**
+     * Vibrate on actions (minor).
+     */
     private void vibrate() {
         final Vibrator v = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -185,6 +239,34 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         } else {
             //deprecated in API 26.
             v.vibrate(20);
+        }
+    }
+
+    //endregion
+
+    //region ANIMATIONS
+
+    /**
+     * Animate fingerprint state to error state (vectors).
+     */
+    private void animateToError() {
+        final int resId = R.drawable.av_fingerprint_to_error;
+        AnimatedVectorDrawableCompat av = AnimatedVectorDrawableCompat.create(getContext(), resId);
+        _indicatorImage.setImageDrawable(av);
+        if (av != null) {
+            ((Animatable) av).start();
+        }
+    }
+
+    /**
+     * Animate error stat to fingerprint state (vectors).
+     */
+    private void animateBackFromError() {
+        final int resId = R.drawable.av_error_to_fingerprint;
+        AnimatedVectorDrawableCompat av = AnimatedVectorDrawableCompat.create(getContext(), resId);
+        _indicatorImage.setImageDrawable(av);
+        if (av != null) {
+            ((Animatable) av).start();
         }
     }
 

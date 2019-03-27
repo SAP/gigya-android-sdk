@@ -44,7 +44,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="48dp"
         android:contentDescription="@string/fingerprint_indicator_image"
-        android:src="@drawable/ic_bio_fingerprint" />
+        android:src="@drawable/v_fingerprint" />
 
     <TextView
         android:id="@+id/ind_text"

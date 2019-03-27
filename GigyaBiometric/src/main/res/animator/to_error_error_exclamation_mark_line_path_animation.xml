@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:duration="200"
+            android:interpolator="@android:interpolator/linear"
+            android:propertyName="pathData"
+            android:valueFrom="M -1.0,0.0 l 2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"
+            android:valueTo="M -1.0,0.0 l 2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"
+            android:valueType="pathType" />
+        <objectAnimator
+            android:duration="499"
+            android:interpolator="@anim/to_error_interpulator_5"
+            android:propertyName="pathData"
+            android:valueFrom="M -1.0,0.0 l 2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"
+            android:valueTo="M 0.0,-3.0 l 0.0,0.0 c 0.5522847498,0.0 1.0,0.4477152502 1.0,1.0 l 0.0,4.0 c 0.0,0.5522847498 -0.4477152502,1.0 -1.0,1.0 l 0.0,0.0 c -0.5522847498,0.0 -1.0,-0.4477152502 -1.0,-1.0 l 0.0,-4.0 c 0.0,-0.5522847498 0.4477152502,-1.0 1.0,-1.0 Z"
+            android:valueType="pathType" />
+    </set>
+</set>

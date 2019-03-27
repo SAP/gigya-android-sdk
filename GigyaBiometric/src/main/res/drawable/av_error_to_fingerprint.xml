@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/v_error_to_fingerprint">
+    <target
+        android:name="fp_original_layer_group"
+        android:animation="@animator/to_original_original_rotation_animation" />
+    <target
+        android:name="fp_original_path1"
+        android:animation="@animator/to_original_original_trim_path_1_animation" />
+    <target
+        android:name="fp_original_path2"
+        android:animation="@animator/to_original_original_trim_path_2_animation" />
+    <target
+        android:name="fp_original_path3"
+        android:animation="@animator/to_original_original_trim_path_3_animation" />
+    <target
+        android:name="fp_original_path4"
+        android:animation="@animator/to_original_original_trim_path_4_animation" />
+    <target
+        android:name="fp_original_path5"
+        android:animation="@animator/to_original_original_trim_path_5_animation" />
+    <!-- Error circle layer animations -->
+    <target
+        android:name="error_circle_group"
+        android:animation="@animator/to_original_error_circle_rotation_animation" />
+    <target
+        android:name="error_circle_path_1"
+        android:animation="@animator/to_original_error_circle_trim_path_1_animation" />
+    <!-- Error exclamation mark animations -->
+    <target
+        android:name="error_exclamation_mark_group"
+        android:animation="@animator/to_original_error_exclamation_mark_rotation_animation" />
+    <target
+        android:name="error_exclamation_mark_circle_group"
+        android:animation="@animator/to_original_error_exclamation_mark_circle_translation_animation" />
+    <target
+        android:name="error_exclamation_mark_circle_path"
+        android:animation="@animator/to_original_error_exclamation_mark_circle_path_animation" />
+    <target
+        android:name="error_exclamation_mark_line_group"
+        android:animation="@animator/to_original_error_exclamation_mark_line_translation_animation" />
+    <target
+        android:name="error_exclamation_mark_line_path"
+        android:animation="@animator/to_original_error_exclamation_mark_line_path_animation" />
+</animated-vector>
