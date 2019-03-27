@@ -30,6 +30,9 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
 
     private static final String LOG_TAG = "GigyaBiometricImpl";
 
+    /**
+     * Keystore fingerprint Alias.
+     */
     private static final String FINGERPRINT_KEY_NAME = "fingerprint";
 
     final private SessionService _sessionService;
@@ -42,6 +45,12 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
 
     //region SET SESSION & SESSION INTERCEPTION
 
+    /**
+     * Add session interceptor.
+     * Interception will trigger on SessionService setSession method.
+     *
+     * @see SessionService#setSession(SessionInfo)
+     */
     private void addSessionInterception() {
         _sessionService.addInterceptor(new GigyaInterceptor("BIOMETRIC") {
             @Override
@@ -61,6 +70,14 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         });
     }
 
+    /**
+     * Biometric setSession implementation.
+     * Differs from original by using the biometric cipher instead.
+     *
+     * @param cipher      Cipher instance according to current encryption type.
+     * @param sessionInfo Session data
+     * @throws Exception Multiple crypto optional exception may occur..
+     */
     private void setSession(@Nullable Cipher cipher, @NonNull SessionInfo sessionInfo) throws Exception {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final JSONObject jsonObject = new JSONObject();
@@ -85,10 +102,16 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
 
     //region CONDITIONS
 
+    /**
+     * Check conditions for Opt-In/Out
+     */
     boolean okayToOptInOut() {
         return (_sessionService != null && _sessionService.isValidSession());
     }
 
+    /**
+     * Check Opt-In state.
+     */
     boolean isOptIn() {
         final String encryptionType = _sessionService.getPersistenceService().getSessionEncryption();
         final boolean optIn = ObjectUtils.safeEquals(encryptionType, SessionService.FINGERPRINT);
@@ -96,6 +119,9 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         return optIn;
     }
 
+    /**
+     * Check locked state.
+     */
     boolean isLocked() {
         return !_sessionService.isValidSession() && isOptIn();
     }
@@ -222,6 +248,14 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
 
     //region ENCRYPTION DECRYPTION
 
+    /**
+     * Encrypt biometric session JSON string given a cipher.
+     *
+     * @param cipher Encryption state cipher.
+     * @param plain  Plain JSON string session.
+     * @return Pair of encrypted session & ivSpec.
+     * @throws Exception Various crypto optional exceptions.
+     */
     private Pair<String, String> encryptBiometricString(Cipher cipher, String plain) throws Exception {
         final byte[] encryptedBytes = cipher.doFinal(CipherUtils.toBytes(plain.toCharArray()));
         final byte[] ivBytes = cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
@@ -230,6 +264,13 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         return new Pair<>(encodedSession, encodedIVSpec);
     }
 
+    /**
+     * Decrypt biometric session from storage.
+     *
+     * @param cipher Decryption state cipher.
+     * @return SessionInfo instance of decrypted session.
+     * @throws Exception Various crypto optional exceptions.
+     */
     private SessionInfo decryptBiometricSession(Cipher cipher) throws Exception {
         final PersistenceService persistenceService = _sessionService.getPersistenceService();
         final String encryptedSession = persistenceService.getSession();
@@ -237,11 +278,12 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
         byte[] encPLBytes = Base64.decode(encryptedSession, Base64.DEFAULT);
         byte[] bytePlainText = cipher.doFinal(encPLBytes);
         final String plain = new String(CipherUtils.toChars(bytePlainText));
+        // Create JSON from plain String and fetch fields.
         JSONObject jsonObject = new JSONObject(plain);
         final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
         final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
         final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
-        // Updating CMID/UCID.
+        // Updating config.
         final String ucid = jsonObject.getString("ucid");
         _sessionService.getConfig().setUcid(ucid);
         final String gmid = jsonObject.getString("gmid");
@@ -254,6 +296,9 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
 
     //region KEYSTORE
 
+    /**
+     * Delete fingerprint KeyStore if exists.
+     */
     private void deleteKey() {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -304,7 +349,8 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
      *
      * @param encryptionMode Cipher encryption mode (Cipher.ENCRYPT_MODE/Cipher.DECRYPT_MODE).
      */
-    protected Cipher createCipherFor(final SecretKey key, final int encryptionMode) {
+    @Nullable
+    protected Cipher createCipherFor(@NonNull final SecretKey key, final int encryptionMode) {
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
             final PersistenceService persistenceService = _sessionService.getPersistenceService();
@@ -320,7 +366,9 @@ public abstract class GigyaBiometricImpl implements IGigyaBiometricActions {
                     return null;
                 }
             }
+            return cipher;
         } catch (Exception e) {
+            GigyaLogger.error(LOG_TAG, "createCipherFor: Failed to instantiate crypto cipher");
             e.printStackTrace();
         }
         return null;

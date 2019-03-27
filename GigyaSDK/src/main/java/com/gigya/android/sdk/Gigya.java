@@ -71,7 +71,6 @@ public class Gigya<T extends GigyaAccount> {
     public static synchronized Gigya<GigyaAccount> getInstance() {
         if (_sharedInstance == null) {
             // Log error.
-            // TODO: 10/12/2018 Error logs will need pronunciation review from product
             GigyaLogger.error(LOG_TAG, "Gigya instance not initialized properly!" +
                     " Make sure to call Gigya getInstance(Context appContext) at least once before trying to reference The Gigya instance");
             return null;

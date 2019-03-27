@@ -92,7 +92,7 @@ public class SessionManagerTest {
     @Test
     public void testNewInstance() {
         // Act
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         // Assert
         assertNull(sessionService.getSession());
     }
@@ -100,7 +100,7 @@ public class SessionManagerTest {
     @Test
     public void testIsValidSession() { // Also tests setSession.
         // Arrange
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionService.setSession(sessionInfo);
         // Act
@@ -112,7 +112,7 @@ public class SessionManagerTest {
     @Test
     public void testClear() {
         // Arrange
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         SessionInfo sessionInfo = new SessionInfo("mockSessionSecret", "mockSessionToken", 0);
         sessionService.setSession(sessionInfo);
         // Act
@@ -134,7 +134,7 @@ public class SessionManagerTest {
                 "d6b71d4kk9jets8bv3pv79238tzgqmzhlzabev3z9q1p8xy1f5s8gmeq01xpw4lczdz90uoqnqua6js44yxqn3a8o64vddaw1ix319plvc234zldjyxtncu2tqi7r7lqqiqonjke1cp2add";
         when(ps.getSession()).thenReturn(encryptedSession);
         // Act
-        SessionService sessionService = new SessionService(context, config, ps, encryptor, newSessionRunnable);
+        SessionService sessionService = new SessionService(context, config, ps, encryptor);
         // Assert
         assertNotNull(sessionService.getSession());
         assertEquals("mockSessionSecret", sessionService.getSession().getSessionSecret());
@@ -151,7 +151,7 @@ public class SessionManagerTest {
         when(persistenceService.getString(eq("ucid"), (String) eq(null))).thenReturn("mockUcid");
         when(persistenceService.getString(eq("gmid"), (String) eq(null))).thenReturn("mockGmid");
         // Act
-        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor, newSessionRunnable);
+        SessionService sessionService = new SessionService(context, config, persistenceService, encryptor);
         // Assert
         assertNotNull(sessionService.getSession());
         assertEquals("mockLegacySessionSecret", sessionService.getSession().getSessionSecret());
