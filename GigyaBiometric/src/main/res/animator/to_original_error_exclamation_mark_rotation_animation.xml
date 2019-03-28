@@ -10,7 +10,7 @@
             android:valueType="floatType" />
         <objectAnimator
             android:duration="416"
-            android:interpolator="@anim/to_original_interpolator_6"
+            android:interpolator="@anim/swirl_fingerprint_tofp_animation_interpolator_5"
             android:propertyName="rotation"
             android:valueFrom="0.0"
             android:valueTo="-180.0"

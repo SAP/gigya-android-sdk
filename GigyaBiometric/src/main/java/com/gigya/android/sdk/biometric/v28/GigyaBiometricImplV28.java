@@ -54,6 +54,7 @@ public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
                 @Override
                 public void onAuthenticationError(int errorCode, CharSequence errString) {
                     super.onAuthenticationError(errorCode, errString);
+                    callback.onBiometricOperationFailed(errString.toString());
                 }
 
                 @Override
@@ -75,6 +76,7 @@ public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
             });
         } else {
             //Error.
+            GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
         }
     }
 }

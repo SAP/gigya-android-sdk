@@ -336,7 +336,7 @@ public class SessionService {
         }.start();
     }
 
-//endregion
+    //endregion
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({DEFAULT, FINGERPRINT})

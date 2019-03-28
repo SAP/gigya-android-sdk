@@ -82,6 +82,7 @@ public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
             dialog.show();
         } else {
             //Error
+            GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
         }
     }
 }

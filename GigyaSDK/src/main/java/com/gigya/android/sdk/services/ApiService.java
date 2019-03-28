@@ -156,7 +156,6 @@ public class ApiService<A extends GigyaAccount> {
                 if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
                     loginCallback.onError(GigyaError.fromResponse(apiResponse));
                 }
-
             }
         }.execute(GigyaDefinitions.API.API_LOGIN, NetworkAdapter.Method.GET, params, loginCallback);
     }
@@ -381,19 +380,23 @@ public class ApiService<A extends GigyaAccount> {
         new GigyaApi<A, A>(_adapter, _sessionService, _accountService, _accountService.getAccountScheme()) {
             @Override
             public void onRequestSuccess(@NonNull String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                if (callback != null) {
-                    callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
-                }
                 // Finalizing the registration is the final step when suing any interruption resolver. Therefore
                 // We will always clear all resolvers on completion or on errors.
                 _interruptionHandler.clearAll();
+                if (!_interruptionHandler.evaluateInterruptionSuccess(apiResponse)) {
+                    if (callback != null) {
+                        callback.onSuccess(onAccountBasedApiSuccess(apiResponse));
+                    }
+                }
             }
 
             @Override
             public void onRequestError(String api, GigyaApiResponse apiResponse, @Nullable GigyaCallback<A> callback) {
-                super.onRequestError(api, apiResponse, callback);
                 // Clearing all resolvers on error.
                 _interruptionHandler.clearAll();
+                if (!_interruptionHandler.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
             }
         }.execute(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, NetworkAdapter.Method.POST,
                 ObjectUtils.mapOf(Arrays.asList(

@@ -216,9 +216,9 @@ public class Gigya<T extends GigyaAccount> {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
                     // App enters foreground
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
-                    // Will start session countdown timer if the current session contains an expiration time.
-                    _gigyaContext.getSessionService().startSessionCountdownTimerIfNeeded();
                     if (isLoggedIn()) {
+                        // Will start session countdown timer if the current session contains an expiration time.
+                        _gigyaContext.getSessionService().startSessionCountdownTimerIfNeeded();
                         // Session verification is only relevant when user is logged in.
                         _gigyaContext.getSessionVerificationService().start();
                     }
