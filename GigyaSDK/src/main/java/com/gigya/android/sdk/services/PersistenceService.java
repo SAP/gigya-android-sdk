@@ -135,7 +135,7 @@ public class PersistenceService {
         remove(PREFS_KEY_SESSION);
     }
 
-    boolean hasSession() {
+    public boolean hasSession() {
         return contains(PREFS_KEY_SESSION);
     }
 

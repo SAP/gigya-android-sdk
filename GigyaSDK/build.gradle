@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         //noinspection MinSdkTooLow
-        minSdkVersion build_versions.min_sdk_biometric
+        minSdkVersion build_versions.min_sdk_core
         targetSdkVersion build_versions.target_sdk
 
         archivesBaseName = "Gigya-android-sdk-${androidVersion}"

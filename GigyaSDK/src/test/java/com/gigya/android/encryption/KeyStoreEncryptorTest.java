@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 /**
  * Incomplete -> Problems mocking KeyStore object.
  */
+@Deprecated
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({KeyStore.class, KeyStoreEncryptor.class, LoadStoreParameter.class, KeyPairGenerator.class})
 public class KeyStoreEncryptorTest {

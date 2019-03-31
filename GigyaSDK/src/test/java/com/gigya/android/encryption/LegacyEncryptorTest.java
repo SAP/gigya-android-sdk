@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+@Deprecated
 public class LegacyEncryptorTest {
 
     private static final String encryptedSecret = "secret123";
