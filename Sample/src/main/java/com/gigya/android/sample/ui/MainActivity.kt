@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 IntentFilter(filter))
         // Evaluate fingerprint session.
-        evaluateFingerprintSession()
+        //evaluateFingerprintSession()
         // Register for account info updates.
         registerAccountUpdates()
         /* If we are already logged in - get account info and update relevant account UI (drawer header). */

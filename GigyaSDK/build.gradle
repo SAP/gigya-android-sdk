@@ -67,6 +67,7 @@ dependencies {
     testImplementation deps.power_mock.mockito2
     testImplementation deps.apache.http_components
     testImplementation deps.apache.http_client
+    testImplementation deps.libs.volley
 
     // Implementations.
     //noinspection GradleDependency

@@ -13,4 +13,10 @@ public interface ISessionService {
     void save(SessionInfo sessionInfo);
 
     SessionInfo load();
+
+    SessionInfo getSession();
+
+    void setSession(SessionInfo sessionInfo);
+
+    boolean isValid();
 }

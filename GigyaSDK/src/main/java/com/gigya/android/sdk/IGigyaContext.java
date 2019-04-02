@@ -10,6 +10,6 @@ public interface IGigyaContext {
 
     Config getConfig();
 
-    void updateConfig(Config newConfig);
+    void setConfig(Config newConfig);
 
 }

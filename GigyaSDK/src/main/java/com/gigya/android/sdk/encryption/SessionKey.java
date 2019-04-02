@@ -7,7 +7,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.RequiresApi;
 
-import com.gigya.android.sdk.services.PersistenceService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import java.math.BigInteger;
@@ -15,10 +15,12 @@ import java.security.Key;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
@@ -29,11 +31,13 @@ public class SessionKey implements ISecureKey {
     private String TYPE = "AndroidKeyStore";
 
     private final Context _context;
-    private final PersistenceService _pService;
+    private final IPersistenceService _psService;
 
-    public SessionKey(Context context, PersistenceService pService) {
+    final static String SECRET_PREFERENCE_KEY = "GS_PREFA";
+
+    public SessionKey(Context context, IPersistenceService psService) {
         _context = context;
-        _pService = pService;
+        _psService = psService;
     }
 
     @Override
@@ -79,7 +83,17 @@ public class SessionKey implements ISecureKey {
             if (!keyStore.containsAlias(getAlias())) { // Keystore not available.
                 // Generate certificate for this new alias.
                 generateCertificateForAlias();
-                return (SecretKey) keyStore.getKey(getAlias(), null);
+                final PublicKey publicKey = keyStore.getCertificate(getAlias()).getPublicKey();
+                // Generate AES secret key
+                final KeyGenerator generator = KeyGenerator.getInstance("AES");
+                generator.init(128);
+                final SecretKey secretKey = generator.generateKey();
+                // Encrypt secret key and save it.
+                final Cipher cipher = getEncryptionCipher(publicKey);
+                byte[] encryptedAES = cipher.doFinal(secretKey.getEncoded());
+                final String newEncryptedSecret = CipherUtils.bytesToString(encryptedAES);
+                _psService.add(SECRET_PREFERENCE_KEY, newEncryptedSecret);
+                return secretKey;
             } else if (!keyStore.entryInstanceOf(getAlias(), KeyStore.PrivateKeyEntry.class)) {
                 // Determines if the keystore for the specified entry is an instance or subclass of the alias specified.
                 // If not delete the entry and create a new one.
@@ -87,8 +101,8 @@ public class SessionKey implements ISecureKey {
                 return getKey(); // Recursive.
             } else {
                 // Keystore instance exist. Get private key from KeyStore instance and decrypt & generate the secret key.
-                final String SECRET_PREFERENCE_KEY = "GS_PREFA";
-                final String aesKey = _pService.getString(SECRET_PREFERENCE_KEY, null);
+
+                final String aesKey = _psService.getString(SECRET_PREFERENCE_KEY, null);
                 if (aesKey != null && keyStore.containsAlias(getAlias()) && keyStore.entryInstanceOf(getAlias(), KeyStore.PrivateKeyEntry.class)) {
                     // In (v3) secret key is ciphered and saved in the shared preferences.
                     final PrivateKey privateKey = (PrivateKey) keyStore.getKey(getAlias(), null);
@@ -96,10 +110,8 @@ public class SessionKey implements ISecureKey {
                     byte[] decrypted = cipher.doFinal(CipherUtils.stringToBytes(aesKey));
                     final String ALGORITHM_KEY = "AES";
                     return new SecretKeySpec(decrypted, 0, decrypted.length, ALGORITHM_KEY);
-                } else {
-                    // In (v4) will will not use the same method of creating an addition secret key and storing it in the shared preferences.
-                    return (SecretKey) keyStore.getKey(getAlias(), null);
                 }
+                return null;
             }
         } catch (Exception ex) {
             ex.printStackTrace();

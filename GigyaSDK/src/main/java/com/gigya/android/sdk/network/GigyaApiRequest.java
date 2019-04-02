@@ -3,17 +3,15 @@ package com.gigya.android.sdk.network;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.network.adapter.NetworkAdapter;
-
 public class GigyaApiRequest {
 
     @NonNull
     private String url, api;
     @Nullable
     private String encodedParams;
-    private NetworkAdapter.Method method;
+    private int method;
 
-    GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, NetworkAdapter.Method method, @NonNull String api) {
+    public GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, int method, @NonNull String api) {
         this.url = url;
         this.encodedParams = encodedParams;
         this.method = method;
@@ -30,7 +28,7 @@ public class GigyaApiRequest {
         return encodedParams;
     }
 
-    public NetworkAdapter.Method getMethod() {
+    public int getMethod() {
         return method;
     }
 

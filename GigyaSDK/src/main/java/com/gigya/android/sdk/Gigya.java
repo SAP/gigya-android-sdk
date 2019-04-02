@@ -12,11 +12,28 @@ import android.support.v4.util.ArrayMap;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.gigya.android.sdk.encryption.ISecureKey;
+import com.gigya.android.sdk.encryption.SessionKey;
+import com.gigya.android.sdk.encryption.SessionKeyLegacy;
+import com.gigya.android.sdk.managers.ApiService;
+import com.gigya.android.sdk.managers.IAccountService;
+import com.gigya.android.sdk.managers.IApiService;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.managers.SessionService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.network.adapter.IRestAdapter;
+import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.persistence.PersistenceService;
+import com.gigya.android.sdk.plugin_view.IPluginFragmentFactory;
+import com.gigya.android.sdk.plugin_view.IPresenter;
+import com.gigya.android.sdk.plugin_view.IWebBridgeFactory;
+import com.gigya.android.sdk.plugin_view.PluginFragmentFactory;
+import com.gigya.android.sdk.plugin_view.Presenter;
+import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
 import com.gigya.android.sdk.providers.LoginProvider;
-import com.gigya.android.sdk.providers.LoginProviderFactory;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
@@ -26,7 +43,6 @@ import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -44,24 +60,39 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
 
-    @NonNull
-    final private Context _appContext;
+    private Context _appContext;
 
-    private final GigyaContext<T> _gigyaContext;
+    private GigyaContext<T> _gigyaContext;
 
     private ArrayMap<String, LoginProvider> _usedLoginProviders = new ArrayMap<>();
+
+    /**
+     * SDK main configuration structure.
+     */
+    private Config _config = new Config();
 
     @NonNull
     public Context getContext() {
         return _appContext;
     }
 
+    @SuppressWarnings("unchecked")
     private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
-        _appContext = appContext;
-        _gigyaContext = new GigyaContext<>(appContext);
-        //noinspection unchecked
-        _gigyaContext.getAccountService().updateAccountScheme(accountScheme);
+        // Initialize secureKey
+        setupIoC(appContext);
+        // Update account manager with scheme.
+        final IAccountService<T> accountService = (IAccountService<T>) getComponent(IAccountService.class);
+        if (accountService != null) {
+            accountService.setAccountScheme(accountScheme);
+        }
+        final ISessionService sessionService = getComponent(ISessionService.class);
+        if (sessionService != null) {
+            sessionService.load();
+        }
         init();
+
+        // TODO: 02/04/2019 THIS IS A TEST BLOCK.
+        testBlock();
     }
 
     /*
@@ -101,12 +132,17 @@ public class Gigya<T extends GigyaAccount> {
             _sharedInstance = new Gigya(appContext, accountClazz);
             _sharedInstance.registerActivityLifecycleCallbacks();
         }
-        final Class scheme = _sharedInstance._gigyaContext.getAccountService().getAccountScheme();
-        if (scheme != accountClazz) {
-            GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+        // Check scheme. If already set log an error.
+        final IAccountService<V> accountService = (IAccountService<V>) _sharedInstance.getComponent(AccountService.class);
+        if (accountService != null) {
+            final Class scheme = accountService.getAccountScheme();
+            if (scheme != accountClazz) {
+                GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+            }
         }
         return _sharedInstance;
     }
+
 
     /**
      * Explicitly initialize the SDK.
@@ -129,8 +165,7 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("WeakerAccess")
     public void init(String apiKey, String apiDomain) {
         // Override existing configuration when applied explicitly.
-        Config config = _gigyaContext.getConfig();
-        config.updateWith(apiKey, apiDomain);
+        _config.updateWith(apiKey, apiDomain);
         init();
     }
 
@@ -142,50 +177,26 @@ public class Gigya<T extends GigyaAccount> {
      * For explicit setting see {@link #init(String, String)} method.
      */
     private void init() {
-        Config config = _gigyaContext.getConfig();
-        if (config.getApiKey() == null) {
-            // Try to from assets JSON file,
-            config = Config.loadFromJson(_appContext);
-            if (config == null) {
-                // Try to load fom manifest meta data.
-                config = Config.loadFromManifest(_appContext);
+        try {
+            // Will load configuration fields only if none have yet to be set.
+            final Context context = ioCContainer.get(Context.class);
+            if (_config.getApiKey() == null && context != null) {
+                // Try to from assets JSON file,
+                Config dynamicConfig = Config.loadFromJson(context);
+                if (dynamicConfig == null) {
+                    dynamicConfig = Config.loadFromManifest(context);
+                }
+                _config.updateWith(dynamicConfig);
             }
-            if (config != null) {
-                // Update with new configuration.
-                _gigyaContext.setConfig(config);
-            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         // Set next account invalidation timestamp if available.
-        if (config != null && config.getAccountCacheTime() != 0) {
-            final AccountService<T> accountService = _gigyaContext.getAccountService();
-            accountService.setAccountCacheTime(config.getAccountCacheTime());
-            accountService.nextAccountInvalidationTimestamp();
-        }
-
-        // Check if any social providers are used. If so. Instantiate them and check for server available client ids.
-        final Set<String> usedSocialProviders = _gigyaContext.getPersistenceService().getSocialProviders();
-        if (usedSocialProviders != null) {
-            for (String identifier : usedSocialProviders) {
-                final LoginProvider provider = LoginProviderFactory.providerFor(_appContext, _gigyaContext.getApiService(), identifier, null);
-                _usedLoginProviders.put(identifier, provider);
-
-                // TODO: 19/03/2019 Consider removing this part. Not really aligned with SDK design pattern.
-
-                if (provider.clientIdRequired()) {
-                    // Must call sdk config to fetch related client ids for login provider.
-                    loadSDKConfig(new Runnable() {
-                        @Override
-                        public void run() {
-                            final Map<String, String> appIds = _gigyaContext.getConfig().getAppIds();
-                            if (appIds.containsKey(provider.getName())) {
-                                final String providerClientId = appIds.get(provider.getName());
-                                provider.updateProviderClientId(providerClientId);
-                            }
-                        }
-                    });
-                }
-            }
+        if (_config != null && _config.getAccountCacheTime() != 0) {
+//            final AccountService<T> accountService = _gigyaContext.getAccountService();
+//            accountService.setAccountCacheTime(_config.getAccountCacheTime());
+//            accountService.nextAccountInvalidationTimestamp();
         }
     }
 
@@ -349,7 +360,13 @@ public class Gigya<T extends GigyaAccount> {
      * Check if we currently have a valid session.
      */
     public boolean isLoggedIn() {
-        return _gigyaContext.getSessionService().isValidSession();
+        try {
+            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            return sessionService.isValid();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -366,12 +383,12 @@ public class Gigya<T extends GigyaAccount> {
 
         // Clearing cached cookies.
         CookieManager cookieManager = CookieManager.getInstance();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.flush();
+        } else {
             CookieSyncManager.createInstance(_appContext);
             cookieManager.removeAllCookie();
         }
-        cookieManager.flush();
-
         // Logout of any available social provider.
         for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {
             entry.getValue().logout(_appContext);
@@ -557,4 +574,45 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     //endregion
+
+    //region IOC
+
+    private GigyaIoCContainer ioCContainer = new GigyaIoCContainer();
+
+    private void setupIoC(Context context) {
+        ioCContainer.bind(Context.class, context);
+        ioCContainer.bind(Config.class, _config);
+        ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
+        ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
+                : SessionKeyLegacy.class, true);
+        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, true);
+        ioCContainer.bind(ISessionService.class, SessionService.class, true);
+        ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
+        ioCContainer.bind(IApiService.class, ApiService.class, true);
+        ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
+        ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
+        ioCContainer.bind(IPresenter.class, Presenter.class, false);
+    }
+
+    public <C> C getComponent(Class<C> type) {
+        try {
+            return ioCContainer.get(type);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    //endregion
+
+    // TODO: 02/04/2019 THIS IS A TEST BLOCK.
+
+    void testBlock() {
+        try {
+            IApiService apiService = ioCContainer.get(IApiService.class);
+            apiService.getConfig(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

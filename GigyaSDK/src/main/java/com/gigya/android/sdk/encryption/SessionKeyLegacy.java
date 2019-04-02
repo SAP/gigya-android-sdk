@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.encryption;
 
-import com.gigya.android.sdk.services.PersistenceService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import java.security.Key;
@@ -12,10 +12,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class SessionKeyLegacy implements ISecureKey {
 
-    private final PersistenceService _pService;
+    private final IPersistenceService _psService;
 
-    public SessionKeyLegacy(PersistenceService pService) {
-        _pService = pService;
+    public SessionKeyLegacy(IPersistenceService psService) {
+        _psService = psService;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SessionKeyLegacy implements ISecureKey {
             final String SECRET_PREFERENCE_KEY = "GS_PREFA";
             final String ALGORITHM_KEY = "AES";
 
-            final String encryptedSecret = _pService.getString(SECRET_PREFERENCE_KEY, null);
+            final String encryptedSecret = _psService.getString(SECRET_PREFERENCE_KEY, null);
             if (encryptedSecret != null) {
                 // Secret key is saved in the shared preferences as a byte array.
                 final byte[] decryptedAES = CipherUtils.stringToBytes(encryptedSecret);
@@ -55,7 +55,7 @@ public class SessionKeyLegacy implements ISecureKey {
             generator.init(128); // The AES key size in number of bits
             final SecretKey secretKey = generator.generateKey();
             final String newEncryptedSecret = CipherUtils.bytesToString(secretKey.getEncoded());
-            _pService.add(SECRET_PREFERENCE_KEY, newEncryptedSecret);
+            _psService.add(SECRET_PREFERENCE_KEY, newEncryptedSecret);
             return secretKey;
         } catch (Exception ex) {
             throw new EncryptionException("Session encryption exception", ex.getCause());

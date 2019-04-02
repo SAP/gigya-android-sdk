@@ -121,8 +121,9 @@ class HttpNetworkProvider extends NetworkProvider {
                     connection.setConnectTimeout(10000);
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("connection", "close");
-                    connection.setRequestMethod(request.getMethod().name());
-                    if (request.getMethod().equals(NetworkAdapter.Method.POST)) {
+                    // TODO: 02/04/2019 ENUM!!!!!
+                    connection.setRequestMethod(request.getMethod() == 0 ? "GET" : "POST");
+                    if (request.getMethod() == 1) {
                         connection.setDoOutput(true);
                         outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
                         outputStreamWriter.write(request.getEncodedParams());

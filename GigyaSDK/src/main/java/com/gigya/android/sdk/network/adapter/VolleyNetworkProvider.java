@@ -112,7 +112,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
     Generate a new Volley request.
      */
     private VolleyNetworkRequest newRequest(final GigyaApiRequest request, final INetworkCallbacks networkCallbacks) {
-        return new VolleyNetworkRequest(request.getMethod().getValue(), request.getUrl(),
+        return new VolleyNetworkRequest(request.getMethod(), request.getUrl(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

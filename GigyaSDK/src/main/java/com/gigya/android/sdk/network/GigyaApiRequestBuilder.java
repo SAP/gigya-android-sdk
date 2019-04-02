@@ -89,6 +89,6 @@ public class GigyaApiRequestBuilder {
         final String url = UrlUtils.getBaseUrl(api, config.getApiDomain()) + (httpMethod.equals(NetworkAdapter.Method.GET) ? "?" + encodedParams : "");
 
         // Generate new GigyaApiRequest entity.
-        return new GigyaApiRequest(url, httpMethod == NetworkAdapter.Method.POST ? encodedParams : null, httpMethod, api);
+        return new GigyaApiRequest(url, httpMethod == NetworkAdapter.Method.POST ? encodedParams : null, 1, api);
     }
 }

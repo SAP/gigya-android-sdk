@@ -61,7 +61,8 @@ public class WebBridge<T extends GigyaAccount> {
     @NonNull
     private WebBridgeInteractions<T> _interactions;
 
-    public WebBridge(GigyaContext gigyaContext, boolean shouldObfuscate, @NonNull WebBridgeInteractions<T> interactions) {
+    public WebBridge(GigyaContext gigyaContext,
+                     boolean shouldObfuscate, @NonNull WebBridgeInteractions<T> interactions) {
         _gigyaContext = gigyaContext;
         _shouldObfuscate = shouldObfuscate;
         _interactions = interactions;
