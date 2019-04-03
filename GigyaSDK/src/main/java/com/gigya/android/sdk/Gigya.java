@@ -34,6 +34,7 @@ import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.plugin_view.IPluginFragmentFactory;
 import com.gigya.android.sdk.plugin_view.IPresenter;
 import com.gigya.android.sdk.plugin_view.IWebBridgeFactory;
+import com.gigya.android.sdk.plugin_view.PluginFragment;
 import com.gigya.android.sdk.plugin_view.PluginFragmentFactory;
 import com.gigya.android.sdk.plugin_view.Presenter;
 import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
@@ -42,8 +43,6 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
-import com.gigya.android.sdk.ui.plugin.PluginFragment;
-import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,21 +63,16 @@ public class Gigya<T extends GigyaAccount> {
     public static final String VERSION = "android_4.0.0";
 
     @SuppressLint("StaticFieldLeak")
-    private static Gigya _sharedInstance;
+    private static Gigya INSTANCE;
 
     /**
      * SDK main configuration structure.
      */
     private Config _config = new Config();
 
-    @NonNull
-    public Context getContext() {
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
     private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
-        // Initialize secureKey
+        // Setup dependencies.
         setupIoC(appContext);
         // Update account manager with scheme.
         try {
@@ -97,13 +91,13 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unchecked")
     public static synchronized Gigya<GigyaAccount> getInstance() {
-        if (_sharedInstance == null) {
+        if (INSTANCE == null) {
             // Log error.
             GigyaLogger.error(LOG_TAG, "Gigya instance not initialized properly!" +
                     " Make sure to call Gigya getInstance(Context appContext) at least once before trying to reference The Gigya instance");
             return null;
         }
-        return _sharedInstance;
+        return INSTANCE;
     }
 
     /*
@@ -111,6 +105,15 @@ public class Gigya<T extends GigyaAccount> {
      */
     public static synchronized Gigya<GigyaAccount> getInstance(Context appContext) {
         return Gigya.getInstance(appContext, GigyaAccount.class);
+    }
+
+    public Context getContext() {
+        try {
+            return ioCContainer.get(Context.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     //region INITIALIZE
@@ -125,19 +128,19 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unchecked")
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context context, @NonNull Class<V> accountClazz) {
-        if (_sharedInstance == null) {
-            _sharedInstance = new Gigya(context, accountClazz);
-            _sharedInstance.registerActivityLifecycleCallbacks(context);
+        if (INSTANCE == null) {
+            INSTANCE = new Gigya(context, accountClazz);
+            INSTANCE.registerActivityLifecycleCallbacks(context);
         }
         // Check scheme. If already set log an error.
-        final IAccountService<V> accountService = (IAccountService<V>) _sharedInstance.getComponent(AccountService.class);
+        final IAccountService<V> accountService = (IAccountService<V>) INSTANCE.getComponent(AccountService.class);
         if (accountService != null) {
             final Class scheme = accountService.getAccountScheme();
             if (scheme != accountClazz) {
                 GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
             }
         }
-        return _sharedInstance;
+        return INSTANCE;
     }
 
 
@@ -416,8 +419,6 @@ public class Gigya<T extends GigyaAccount> {
             ex.printStackTrace();
         }
 
-        GigyaLoginPresenter.flush();
-
         try {
             // Clearing cached cookies.
             final Context context = ioCContainer.get(Context.class);
@@ -628,14 +629,19 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Present social login selection list.
      *
-     * @param providers List of selected social providers {@link GigyaDefinitions.Providers.SocialProvider}.
-     * @param params    Request parameters.
-     * @param callback  Login response callback.
+     * @param providers          List of selected social providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param params             Request parameters.
+     * @param gigyaLoginCallback Login response callback.
      */
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
-                                final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
+                                final Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
-        //new GigyaLoginPresenter(_gigyaContext).showNativeLoginProviders(_appContext, providers, params, callback);
+        try {
+            IPresenter presenter = ioCContainer.get(IPresenter.class);
+            presenter.showNativeLoginProviders(providers, params, gigyaLoginCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     //endregion
@@ -646,33 +652,40 @@ public class Gigya<T extends GigyaAccount> {
      * Show Gigya ScreenSets flow using the PluginFragment.
      * UI will be presented via WebView.
      *
-     * @param screensSet Main ScreensSet group identifier
-     * @param params     ScreensSet flow parameters.
-     * @param callback   Plugin callback.
+     * @param screensSet          Main ScreensSet group identifier
+     * @param params              ScreensSet flow parameters.
+     * @param gigyaPluginCallback Plugin callback.
      */
-    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<T> callback) {
+    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
-        //new GigyaPluginPresenter(_gigyaContext)
-        // .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
-
+        try {
+            IPresenter presenter = ioCContainer.get(IPresenter.class);
+            presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, params, gigyaPluginCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Show Comments ScreenSets.
      *
-     * @param params   Comments ScreenSet flow parameters.
-     * @param callback Plugin callback.
+     * @param params              Comments ScreenSet flow parameters.
+     * @param gigyaPluginCallback Plugin callback.
      */
-    public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
+    public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        //new GigyaPluginPresenter(_gigyaContext)
-        //  .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
+        try {
+            IPresenter presenter = ioCContainer.get(IPresenter.class);
+            presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, params, gigyaPluginCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     //endregion
 
-    //region IOC
+    //region DEPENDENCY INJECTION
 
     private IoCContainer ioCContainer = new IoCContainer();
 
