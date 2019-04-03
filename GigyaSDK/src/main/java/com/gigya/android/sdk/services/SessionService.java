@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
 
+@Deprecated
 public class SessionService {
 
     private static final String LOG_TAG = "SessionService";

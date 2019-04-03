@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class SessionVerificationService {
 
     private static final String LOG_TAG = "SessionVerificationService";

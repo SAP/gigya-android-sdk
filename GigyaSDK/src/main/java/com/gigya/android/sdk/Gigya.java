@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebView;
 
 import com.gigya.android.sdk.api.interruption.IInterruptionsResolver;
 import com.gigya.android.sdk.api.interruption.InterruptionsResolver;
@@ -63,8 +64,6 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
 
-    private Context _appContext;
-
     private ArrayMap<String, LoginProvider> _usedLoginProviders = new ArrayMap<>();
 
     /**
@@ -74,7 +73,7 @@ public class Gigya<T extends GigyaAccount> {
 
     @NonNull
     public Context getContext() {
-        return _appContext;
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -82,18 +81,15 @@ public class Gigya<T extends GigyaAccount> {
         // Initialize secureKey
         setupIoC(appContext);
         // Update account manager with scheme.
-        final IAccountService<T> accountService = (IAccountService<T>) getComponent(IAccountService.class);
-        if (accountService != null) {
+        try {
+            final IAccountService<T> accountService = ioCContainer.get(IAccountService.class);
             accountService.setAccountScheme(accountScheme);
-        }
-        final ISessionService sessionService = getComponent(ISessionService.class);
-        if (sessionService != null) {
+            final ISessionService sessionService = ioCContainer.get(ISessionService.class);
             sessionService.load();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         init();
-
-        // TODO: 02/04/2019 THIS IS A TEST BLOCK.
-        testBlock();
     }
 
     /*
@@ -128,10 +124,10 @@ public class Gigya<T extends GigyaAccount> {
     Generic account type instance getter.
      */
     @SuppressWarnings("unchecked")
-    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context appContext, @NonNull Class<V> accountClazz) {
+    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context context, @NonNull Class<V> accountClazz) {
         if (_sharedInstance == null) {
-            _sharedInstance = new Gigya(appContext, accountClazz);
-            _sharedInstance.registerActivityLifecycleCallbacks();
+            _sharedInstance = new Gigya(context, accountClazz);
+            _sharedInstance.registerActivityLifecycleCallbacks(context);
         }
         // Check scheme. If already set log an error.
         final IAccountService<V> accountService = (IAccountService<V>) _sharedInstance.getComponent(AccountService.class);
@@ -211,12 +207,12 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Attaching the SDK to the application lifecycle in order to distinguish foreground/background/resumed states.
      */
-    private void registerActivityLifecycleCallbacks() {
-        if (!(_appContext instanceof Application)) {
+    private void registerActivityLifecycleCallbacks(Context context) {
+        if (!(context instanceof Application)) {
             GigyaLogger.error(LOG_TAG, "SDK initialized with the wrong context. Please make sure you have initialized the SDK using the applicationContext");
             return;
         }
-        ((Application) _appContext).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+        ((Application) context).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 
             private int activityReferences = 0;
             private boolean isActivityChangingConfigurations = false;
@@ -433,19 +429,33 @@ public class Gigya<T extends GigyaAccount> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
         GigyaLoginPresenter.flush();
 
-        // Clearing cached cookies.
-        CookieManager cookieManager = CookieManager.getInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.flush();
-        } else {
-            CookieSyncManager.createInstance(_appContext);
-            cookieManager.removeAllCookie();
-        }
-        // Logout of any available social provider.
-        for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {
-            entry.getValue().logout(_appContext);
+        try {
+            // Clearing cached cookies.
+            final Context context = ioCContainer.get(Context.class);
+            CookieManager cookieManager = CookieManager.getInstance();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.flush();
+            } else {
+                CookieSyncManager.createInstance(context);
+                cookieManager.removeAllCookie();
+            }
+
+            // TODO: 03/04/2019 Evaluating option.
+            // Creating dummy WebView in order to force cache clearing.
+            WebView dummyWebView = new WebView(context);
+            // Clears the resource cache. Note that the cache is per-application, so this will clear the cache for all WebViews used.
+            dummyWebView.clearCache(true);
+            dummyWebView.clearHistory();
+
+            // Logout of any available social provider.
+            for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {
+                entry.getValue().logout(context);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -645,7 +655,7 @@ public class Gigya<T extends GigyaAccount> {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         //new GigyaPluginPresenter(_gigyaContext)
-               // .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
+        // .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
 
     }
 
@@ -658,7 +668,7 @@ public class Gigya<T extends GigyaAccount> {
     public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         //new GigyaPluginPresenter(_gigyaContext)
-              //  .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
+        //  .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
     }
 
     //endregion
@@ -694,14 +704,4 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     //endregion
-
-    // TODO: 02/04/2019 THIS IS A TEST BLOCK.
-
-    void testBlock() {
-        try {
-            IApiService apiService = ioCContainer.get(IApiService.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

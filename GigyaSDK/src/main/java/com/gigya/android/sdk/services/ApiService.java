@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class ApiService<A extends GigyaAccount> {
 
     private static final String LOG_TAG = "ApiService";

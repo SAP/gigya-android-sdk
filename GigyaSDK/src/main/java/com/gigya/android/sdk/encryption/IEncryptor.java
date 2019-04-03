@@ -6,6 +6,7 @@ import com.gigya.android.sdk.services.PersistenceService;
 
 import javax.crypto.SecretKey;
 
+@Deprecated
 public interface IEncryptor {
 
     SecretKey getKey(Context appContext, PersistenceService persistenceManager) throws EncryptionException;

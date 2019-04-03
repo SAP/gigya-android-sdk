@@ -29,6 +29,7 @@ import javax.security.auth.x500.X500Principal;
 /*
 Session encryptor for Android devices with API >=18 which support KeyStore encrypted storage.
  */
+@Deprecated
 public class KeyStoreEncryptor implements IEncryptor {
 
     private static final String LOG_TAG = "KeyStoreEncryptor";

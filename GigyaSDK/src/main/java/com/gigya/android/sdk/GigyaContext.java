@@ -20,6 +20,7 @@ import com.gigya.android.sdk.services.SessionVerificationService;
 /**
  * Gigya context specific service dependency holder/initiator.
  */
+@Deprecated
 public class GigyaContext<A extends GigyaAccount> {
 
     /*

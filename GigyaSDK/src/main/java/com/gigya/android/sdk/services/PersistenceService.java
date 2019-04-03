@@ -13,6 +13,7 @@ import java.util.Set;
 /**
  * Service for accessing Gigya context specific shared preference persistence.
  */
+@Deprecated
 public class PersistenceService {
 
     /*

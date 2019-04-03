@@ -13,6 +13,7 @@ import com.gigya.android.sdk.utils.UrlUtils;
 import java.util.Map;
 import java.util.TreeMap;
 
+@Deprecated
 public class GigyaApiRequestBuilder {
 
     private static final String LOG_TAG = "GigyaApiRequestBuilder";

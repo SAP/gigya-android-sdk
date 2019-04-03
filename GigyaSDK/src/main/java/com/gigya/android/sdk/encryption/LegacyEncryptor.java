@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 /*
 Session encryptor for Legacy Android devices spanning from API <=17.
  */
+@Deprecated
 public class LegacyEncryptor implements IEncryptor {
 
     private static final String LOG_TAG = "LegacyEncryptor";
