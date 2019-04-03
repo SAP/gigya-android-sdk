@@ -16,7 +16,7 @@ import com.gigya.android.sdk.services.SessionService;
 
 import java.util.List;
 import java.util.Map;
-
+@Deprecated
 public abstract class LoginProvider {
 
     private static final String LOG_TAG = "LoginProvider";

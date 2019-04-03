@@ -3,6 +3,7 @@ package com.gigya.android.sdk.managers;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 
 import java.util.Map;
 
@@ -32,5 +33,7 @@ public interface IApiService<R> {
 
     void notifyLogin(final String providerSessions, final GigyaLoginCallback<R> loginCallback);
 
-    void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback);
+    void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback, Runnable optionalCompletionHandler);
+
+    void refreshNativeProviderSession(String providerSession, final IProviderPermissionsCallback providerPermissionsCallback);
 }

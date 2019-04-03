@@ -1,18 +1,24 @@
 package com.gigya.android.sdk.persistence;
 
+import com.gigya.android.sdk.GigyaDefinitions;
+
 import java.util.Set;
 
 public interface IPersistenceService {
 
     boolean contains(String key);
 
-    public String getString(String key, String defValue);
+    String getString(String key, String defValue);
 
-    public Long getLong(String key, Long defValue);
+    Long getLong(String key, Long defValue);
 
-    public void add(String key, Object element);
+    void add(String key, Object element);
 
-    public void remove(String... keys);
+    void remove(String... keys);
 
     Set<String> getSet(String key, Set<String> defValue);
+
+    Set<String> getSocialProviders();
+
+    void addSocialProvider(@GigyaDefinitions.Providers.SocialProvider String provider);
 }

@@ -38,6 +38,7 @@ import java.util.Set;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 
+@Deprecated
 public class FacebookLoginProvider extends LoginProvider {
 
     @Override

@@ -35,20 +35,16 @@ import com.gigya.android.sdk.GigyaContext;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.model.account.GigyaAccount;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebBridge;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UiUtils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -314,42 +310,42 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
         });
 
         setUpFileChooserInteraction();
-        setupWebBridge();
+        //setupWebBridge();
     }
 
     //endregion
 
     //region WEBBRIDGE & INTERFACING
 
-    private void setupWebBridge() {
-        _webBridge = new WebBridge<>(_gigyaContext, _obfuscate, new WebBridge.WebBridgeInteractions<T>() {
-            @Override
-            public void onPluginEvent(GigyaPluginEvent event, String containerID) {
-                if (containerID.equals(CONTAINER_ID)) {
-                    throttleEvents(event);
-                }
-            }
-
-            @Override
-            public void onAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
-                throttleAuthEvents(authEvent, obj);
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                Type mapType = new TypeToken<Map<String, Object>>() {
-                }.getType();
-                final Map<String, Object> eventMap = new Gson().fromJson(error.getData(), mapType);
-                _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
-            }
-        });
-        _webBridge.attach(_webView);
-    }
+//    private void setupWebBridge() {
+//        _webBridge = new WebBridge<>(_gigyaContext, _obfuscate, new WebBridge.WebBridgeInteractions<T>() {
+//            @Override
+//            public void onPluginEvent(GigyaPluginEvent event, String containerID) {
+//                if (containerID.equals(CONTAINER_ID)) {
+//                    throttleEvents(event);
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthEvent(WebBridge.AuthEvent authEvent, T obj) {
+//                throttleAuthEvents(authEvent, obj);
+//            }
+//
+//            @Override
+//            public void onCancel() {
+//
+//            }
+//
+//            @Override
+//            public void onError(GigyaError error) {
+//                Type mapType = new TypeToken<Map<String, Object>>() {
+//                }.getType();
+//                final Map<String, Object> eventMap = new Gson().fromJson(error.getData(), mapType);
+//                _pluginCallbacks.onError(new GigyaPluginEvent(eventMap));
+//            }
+//        });
+//        _webBridge.attach(_webView);
+//    }
 
     private void throttleEvents(final GigyaPluginEvent event) {
         final @PluginDefinitions.PluginEvent String eventName = event.getEvent();

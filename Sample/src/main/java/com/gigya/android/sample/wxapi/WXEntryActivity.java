@@ -5,41 +5,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.GigyaDefinitions;
-import com.gigya.android.sdk.providers.LoginProvider;
-import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
+import com.gigya.android.sdk.providers.WeChatProvider;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
-    private void handleWXIntent() {
-        final WeChatLoginProvider loginProvider = getLoginProvider();
-        if (loginProvider != null) {
-            loginProvider.handleIntent(getIntent(), this);
-        }
-    }
-
-    private void handleWXResponse(BaseResp baseResp) {
-        final WeChatLoginProvider loginProvider = getLoginProvider();
-        if (loginProvider != null) {
-            loginProvider.handleResponse(baseResp);
-        }
-        finish();
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handleWXIntent();
+        WeChatProvider.handleIntent(this, getIntent(), this);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleWXIntent();
+        WeChatProvider.handleIntent(this, getIntent(), this);
     }
 
     @Override
@@ -49,25 +31,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @Override
     public void onResp(BaseResp baseResp) {
-        handleWXResponse(baseResp);
-    }
-
-    @Nullable
-    private WeChatLoginProvider getLoginProvider() {
-        // Be sure to create initialize the Gigya instance.
-        final LoginProvider loginProvider = Gigya.getInstance(getApplicationContext()).getSocialProvider(GigyaDefinitions.Providers.WECHAT);
-        if (loginProvider != null) {
-            return (WeChatLoginProvider) loginProvider;
-        }
-        return null;
+        WeChatProvider.onResponse(baseResp);
     }
 
     @Override
     public void finish() {
         super.finish();
-        /*
-        Disable exit animation.
-         */
+        // Disable exit animation.
         overridePendingTransition(0, 0);
     }
 }

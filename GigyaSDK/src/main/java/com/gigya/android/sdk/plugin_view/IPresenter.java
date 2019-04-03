@@ -5,4 +5,6 @@ import android.content.Context;
 public interface IPresenter {
 
     void showPluginActivity(Context context, final boolean obfuscate);
+
+
 }

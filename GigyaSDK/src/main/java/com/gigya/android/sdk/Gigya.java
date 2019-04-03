@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.util.ArrayMap;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
@@ -38,7 +37,9 @@ import com.gigya.android.sdk.plugin_view.IWebBridgeFactory;
 import com.gigya.android.sdk.plugin_view.PluginFragmentFactory;
 import com.gigya.android.sdk.plugin_view.Presenter;
 import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
-import com.gigya.android.sdk.providers.LoginProvider;
+import com.gigya.android.sdk.providers.IProvider;
+import com.gigya.android.sdk.providers.IProviderFactory;
+import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
@@ -47,6 +48,7 @@ import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -63,8 +65,6 @@ public class Gigya<T extends GigyaAccount> {
 
     @SuppressLint("StaticFieldLeak")
     private static Gigya _sharedInstance;
-
-    private ArrayMap<String, LoginProvider> _usedLoginProviders = new ArrayMap<>();
 
     /**
      * SDK main configuration structure.
@@ -302,20 +302,6 @@ public class Gigya<T extends GigyaAccount> {
         }
     }
 
-    /**
-     * Get reference to used social login provider (if exists) given an identifier.
-     *
-     * @param provider Provider name identifier {@link GigyaDefinitions.Providers.SocialProvider}.
-     * @return LoginProvider instance.
-     */
-    @Nullable
-    public LoginProvider getSocialProvider(@GigyaDefinitions.Providers.SocialProvider String provider) {
-        if (_usedLoginProviders.containsKey(provider)) {
-            return _usedLoginProviders.get(provider);
-        }
-        return null;
-    }
-
     // Non documented public accessor.
     @Nullable
     public <V> V getGigyaComponent(Class<V> type) {
@@ -450,9 +436,16 @@ public class Gigya<T extends GigyaAccount> {
             dummyWebView.clearCache(true);
             dummyWebView.clearHistory();
 
-            // Logout of any available social provider.
-            for (Map.Entry<String, LoginProvider> entry : _usedLoginProviders.entrySet()) {
-                entry.getValue().logout(context);
+            // Logout of social providers...
+            IPersistenceService psService = ioCContainer.get(IPersistenceService.class);
+            IProviderFactory providerFactory = ioCContainer.get(IProviderFactory.class);
+            Set<String> usedProviders = psService.getSocialProviders();
+            if (!usedProviders.isEmpty()) {
+                for (String name : usedProviders) {
+                    IProvider provider = providerFactory.providerFor(name, null);
+                    provider.logout(context);
+                }
+                psService.remove(PersistenceService.PREFS_KEY_PROVIDER_SET);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -499,13 +492,20 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login given a specific 3rd party provider.
      *
-     * @param socialProvider Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
-     * @param params         Parameters map.
-     * @param gigyaCallback  Login response callback.
+     * @param socialProvider     Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param params             Parameters map.
+     * @param gigyaLoginCallback Login response callback.
      */
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
-        //new GigyaLoginPresenter(_gigyaContext).login(_appContext, socialProvider, params, gigyaCallback);
+        try {
+            IProviderFactory providerFactory = ioCContainer.get(IProviderFactory.class);
+            IProvider provider = providerFactory.providerFor(socialProvider, gigyaLoginCallback);
+            final Context context = ioCContainer.get(Context.class);
+            provider.login(context, params, "standard");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -619,7 +619,6 @@ public class Gigya<T extends GigyaAccount> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        //_gigyaContext.getApiService().forgotPassword(loginId, gigyaCallback);
     }
 
     //endregion
@@ -692,6 +691,7 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
         ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
         ioCContainer.bind(IPresenter.class, Presenter.class, false);
+        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
     }
 
     public <C> C getComponent(Class<C> type) {

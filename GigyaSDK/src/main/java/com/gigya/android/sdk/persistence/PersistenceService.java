@@ -3,6 +3,7 @@ package com.gigya.android.sdk.persistence;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class PersistenceService implements IPersistenceService {
@@ -61,6 +62,21 @@ public class PersistenceService implements IPersistenceService {
     @Override
     public Set<String> getSet(String key, Set<String> defValue) {
         return getPrefs().getStringSet(key, defValue);
+    }
+
+    @Override
+    public Set<String> getSocialProviders() {
+        return _prefs.getStringSet(PREFS_KEY_PROVIDER_SET, null);
+    }
+
+    @Override
+    public void addSocialProvider(String provider) {
+        Set<String> providerSet = getSocialProviders();
+        if (providerSet == null) {
+            providerSet = new HashSet<>();
+        }
+        providerSet.add(provider);
+        _prefs.edit().putStringSet(PREFS_KEY_PROVIDER_SET, providerSet).apply();
     }
 
     //region KEYS

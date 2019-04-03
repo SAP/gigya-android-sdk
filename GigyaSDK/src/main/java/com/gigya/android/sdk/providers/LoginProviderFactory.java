@@ -11,6 +11,7 @@ import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
 import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
 import com.gigya.android.sdk.services.ApiService;
 
+@Deprecated
 public class LoginProviderFactory {
 
     public static LoginProvider providerFor(Context context, ApiService apiService,

@@ -17,6 +17,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -366,7 +367,7 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
     }
 
     @Override
-    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback) {
+    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback, final Runnable optionalCompletionHandler) {
         final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
             @Override
@@ -374,6 +375,9 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
                 if (!_interruptionsResolver.evaluateInterruptionSuccess(apiResponse)) {
                     updateWithNewSession(apiResponse);
                     updateCachedAccount(apiResponse);
+                    if (optionalCompletionHandler != null) {
+                        optionalCompletionHandler.run();
+                    }
                     loginCallback.onSuccess(response);
                 }
             }
@@ -388,6 +392,32 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
             @Override
             public void onApiAdapterNetworkError(GigyaError error) {
                 loginCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void refreshNativeProviderSession(String providerSession, final IProviderPermissionsCallback providerPermissionsCallback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("providerSession", providerSession);
+        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, GigyaApiResponse.class, new IApiAdapterResponse<GigyaApiResponse>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, GigyaApiResponse response) {
+                providerPermissionsCallback.granted();
+                // Next get account should fetch new data.
+                _accountService.invalidateAccount();
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                final GigyaError error = GigyaError.fromResponse(apiResponse);
+                providerPermissionsCallback.failed(error.getLocalizedMessage());
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                providerPermissionsCallback.failed(error.getLocalizedMessage());
             }
         });
     }

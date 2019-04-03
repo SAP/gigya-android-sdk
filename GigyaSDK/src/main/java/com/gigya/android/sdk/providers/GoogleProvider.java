@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.providers.provider;
+package com.gigya.android.sdk.providers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,13 +8,15 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.providers.LoginProvider;
-import com.gigya.android.sdk.services.ApiService;
+import com.gigya.android.sdk.managers.IAccountService;
+import com.gigya.android.sdk.managers.IApiService;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -33,33 +35,22 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
 
-@Deprecated
-public class GoogleLoginProvider extends LoginProvider {
+public class GoogleProvider extends Provider {
+
+    private static final int RC_SIGN_IN = 0;
+    private GoogleSignInClient _googleClient;
+    private String _clientId;
+
+    public GoogleProvider(Config config, ISessionService sessionService, IAccountService accountService,
+                          IApiService apiService, IPersistenceService persistenceService, GigyaLoginCallback gigyaLoginCallback) {
+        super(config, sessionService, accountService, apiService, persistenceService, gigyaLoginCallback);
+    }
 
     @Override
     public String getName() {
         return GOOGLE;
     }
 
-    private static final int RC_SIGN_IN = 0;
-    private GoogleSignInClient _googleClient;
-
-    public GoogleLoginProvider(Context context, ApiService apiService, GigyaLoginCallback callback) {
-        super(apiService, callback);
-        try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            providerClientId = (String) appInfo.metaData.get("googleClientId");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean clientIdRequired() {
-        return true;
-    }
-
-    @UiThread
     public static boolean isAvailable(Context context) {
         try {
             Class.forName("com.google.android.gms.auth.api.signin.GoogleSignInClient");
@@ -70,51 +61,28 @@ public class GoogleLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void logout(Context context) {
-        if (_googleClient == null) {
-            if (providerClientId == null) {
-                GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");
-                return;
-            }
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestServerAuthCode(providerClientId)
-                    .requestEmail()
-                    .build();
-            _googleClient = GoogleSignIn.getClient(context, gso);
-        }
-        _googleClient.signOut();
-    }
-
-    @Override
-    public String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid) {
-        /* code is relevant */
+    public void login(Context context, Map<String, Object> loginParams, final String loginMode) {
+        _loginMode = loginMode;
         try {
-            return new JSONObject()
-                    .put(getName(), new JSONObject()
-                            .put("code", tokenOrCode)).toString();
+            final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            _clientId = (String) appInfo.metaData.get("googleClientId");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
-    }
-
-    @Override
-    public void login(Context context, Map<String, Object> loginParams, String loginMode) {
-        _loginMode = loginMode;
-        if (providerClientId == null) {
-            _loginCallbacks.onProviderLoginFailed(getName(), "Missing server client id. Check manifest implementation");
+        if (_clientId == null) {
+            onLoginFailed("Missing server client id. Check manifest implementation");
             return;
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode(providerClientId)
+                .requestServerAuthCode(_clientId)
                 .requestEmail()
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
-            /* This option should not happen theoretically because we logout out explicitly. */
-            _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(account.getServerAuthCode(), -1L, null), _loginMode);
+            // This option should not happen theoretically because we logout out explicitly.
+            onLoginSuccess(getProviderSessions(account.getServerAuthCode(), -1L, null), loginMode);
             finish(null);
             return;
         }
@@ -141,14 +109,14 @@ public class GoogleLoginProvider extends LoginProvider {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account == null) {
-                _loginCallbacks.onProviderLoginFailed(getName(), "Account unavailable");
+                onLoginFailed("Account unavailable");
             } else {
                 /* Fetch server auth code */
                 final String authCode = account.getServerAuthCode();
                 if (authCode == null) {
-                    _loginCallbacks.onProviderLoginFailed(getName(), "Id token no available");
+                    onLoginFailed("Id token no available");
                 } else {
-                    _loginCallbacks.onProviderLoginSuccess(this, getProviderSessionsForRequest(authCode, -1L, null), _loginMode);
+                    onLoginSuccess(getProviderSessions(authCode, -1L, null), _loginMode);
                 }
             }
             finish(activity);
@@ -156,15 +124,54 @@ public class GoogleLoginProvider extends LoginProvider {
             final int exceptionStatusCode = e.getStatusCode();
             switch (exceptionStatusCode) {
                 case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                    _loginCallbacks.onCanceled();
+                    onCanceled();
                     break;
                 case GoogleSignInStatusCodes.SIGN_IN_FAILED:
                 default:
-                    _loginCallbacks.onProviderLoginFailed(getName(), GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
+                    onLoginFailed(GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
                     break;
             }
             finish(activity);
         }
+    }
+
+    @Override
+    public void logout(Context context) {
+        if (_googleClient == null) {
+            if (_clientId == null) {
+                GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");
+                return;
+            }
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestServerAuthCode(_clientId)
+                    .requestEmail()
+                    .build();
+            _googleClient = GoogleSignIn.getClient(context, gso);
+        }
+        _googleClient.signOut();
+    }
+
+    @Override
+    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+        // code is relevant.
+        try {
+            return new JSONObject()
+                    .put(getName(), new JSONObject()
+                            .put("code", tokenOrCode)).toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean supportsTokenTracking() {
+        return false;
+    }
+
+    @Override
+    public void trackTokenChange() {
+        // Stub.
     }
 
     private void finish(final Activity activity) {

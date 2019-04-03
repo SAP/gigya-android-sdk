@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.providers.provider;
+package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.providers.LoginProvider;
-import com.gigya.android.sdk.services.ApiService;
+import com.gigya.android.sdk.managers.IAccountService;
+import com.gigya.android.sdk.managers.IApiService;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.linecorp.linesdk.LineApiResponse;
@@ -25,20 +28,20 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
 
-@Deprecated
-public class LineLoginProvider extends LoginProvider {
+public class LineProvider extends Provider {
 
     private static final String LOG_TAG = "LineLoginProvider";
+
+    private static final int REQUEST_CODE = 1;
+
+    public LineProvider(Config config, ISessionService sessionService, IAccountService accountService,
+                        IApiService apiService, IPersistenceService persistenceService, GigyaLoginCallback gigyaLoginCallback) {
+        super(config, sessionService, accountService, apiService, persistenceService, gigyaLoginCallback);
+    }
 
     @Override
     public String getName() {
         return LINE;
-    }
-
-    private static final int REQUEST_CODE = 1;
-
-    public LineLoginProvider(ApiService apiService, GigyaLoginCallback callback) {
-        super(apiService, callback);
     }
 
     public static boolean isAvailable(Context context) {
@@ -52,40 +55,16 @@ public class LineLoginProvider extends LoginProvider {
     }
 
     @Override
-    public void logout(Context context) {
-        final String lineChannelID = FileUtils.stringFromMetaData(context, "lineChannelID");
-        if (lineChannelID == null) {
-            return;
-        }
-        LineApiClientBuilder builder = new LineApiClientBuilder(context, lineChannelID);
-        LineApiClient client = builder.build();
-        new LineLoginProvider.LogoutTask(client).execute();
-    }
-
-    @Override
-    public String getProviderSessionsForRequest(String tokenOrCode, long expiration, String uid) {
-        /* Only token is relevant */
-        try {
-            return new JSONObject()
-                    .put(getName(), new JSONObject()
-                            .put("authToken", tokenOrCode)).toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public void login(Context context, Map<String, Object> loginParams, String loginMode) {
+    public void login(Context context, Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                /* Fetch channel Id from meta-data. */
+                // Fetch channel Id from meta-data.
                 final String lineChannelID = FileUtils.stringFromMetaData(activity, "lineChannelID");
                 if (lineChannelID == null) {
-                    /* Fail login. */
-                    _loginCallbacks.onProviderLoginFailed(getName(), "Channel Id not available");
+                    // Fail login.
+                    onLoginFailed("Channel Id not available");
                     activity.finish();
                     return;
                 }
@@ -100,25 +79,58 @@ public class LineLoginProvider extends LoginProvider {
                     switch (result.getResponseCode()) {
                         case SUCCESS:
                             if (result.getLineCredential() == null) {
-                                /* Fail login. */
+                                // Fail login.
                                 return;
                             }
                             final String accessToken = result.getLineCredential().getAccessToken().getAccessToken();
-                            _loginCallbacks.onProviderLoginSuccess(LineLoginProvider.this, getProviderSessionsForRequest(accessToken, -1, null), _loginMode);
+                            onLoginSuccess(getProviderSessions(accessToken, -1, null), loginMode);
                             break;
                         case CANCEL:
-                            _loginCallbacks.onCanceled();
+                            onCanceled();
                             break;
                         default:
-                            /* Any other is an error. */
-                            _loginCallbacks.onProviderLoginFailed(getName(), result.getErrorData().getMessage());
+                            // Any other is an error.
+                            onLoginFailed(result.getErrorData().getMessage());
                             break;
                     }
-
                     activity.finish();
                 }
             }
         });
+    }
+
+    @Override
+    public void logout(Context context) {
+        final String lineChannelID = FileUtils.stringFromMetaData(context, "lineChannelID");
+        if (lineChannelID == null) {
+            return;
+        }
+        LineApiClientBuilder builder = new LineApiClientBuilder(context, lineChannelID);
+        LineApiClient client = builder.build();
+        new LogoutTask(client).execute();
+    }
+
+    @Override
+    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
+        // Only token is relevant.
+        try {
+            return new JSONObject()
+                    .put(getName(), new JSONObject()
+                            .put("authToken", tokenOrCode)).toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean supportsTokenTracking() {
+        return false;
+    }
+
+    @Override
+    public void trackTokenChange() {
+        // Stub.
     }
 
     private static class LogoutTask extends AsyncTask<Void, Void, LineApiResponse> {
