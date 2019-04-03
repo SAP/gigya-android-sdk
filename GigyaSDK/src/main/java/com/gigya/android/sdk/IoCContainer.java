@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.MissingResourceException;
 
 @SuppressWarnings("unchecked")
-public class GigyaIoCContainer {
+public class IoCContainer {
 
-    private static final String LOG_TAG = "GigyaIoCContainer";
+    private static final String LOG_TAG = "IoCContainer";
 
     public static class BindInfo<T> {
         public Class<T> concrete;

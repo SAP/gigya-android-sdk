@@ -18,5 +18,19 @@ public interface IApiService<R> {
 
     void login(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback);
 
+    void register(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback);
+
     void getAccount(final GigyaCallback<R> gigyaCallback);
+
+    void setAccount(R updatedAccount, final GigyaCallback<R> gigyaCallback);
+
+    void verifyLogin(String UID, final boolean ignoreSession, final GigyaCallback<R> gigyaCallback);
+
+    void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback);
+
+    void finalizeRegistration(String regToken, final GigyaLoginCallback<R> loginCallback);
+
+    void notifyLogin(final String providerSessions, final GigyaLoginCallback<R> loginCallback);
+
+    void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback);
 }

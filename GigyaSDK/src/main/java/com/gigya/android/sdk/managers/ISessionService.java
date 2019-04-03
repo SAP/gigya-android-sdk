@@ -19,4 +19,10 @@ public interface ISessionService {
     void setSession(SessionInfo sessionInfo);
 
     boolean isValid();
+
+    void clear(boolean clearStorage);
+
+    void startSessionCountdownTimerIfNeeded();
+
+    void cancelSessionCountdownTimer();
 }

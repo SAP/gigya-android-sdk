@@ -1,10 +1,15 @@
 package com.gigya.android.sdk.managers;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.ISecureKey;
@@ -21,6 +26,7 @@ import org.json.JSONObject;
 
 import java.security.Key;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -30,6 +36,7 @@ public class SessionService implements ISessionService {
     private static final String LOG_TAG = "SessionService";
 
     // Final fields.
+    final private Context _context;
     final private Config _config;
     final private IPersistenceService _psService;
     final private ISecureKey _secureKey;
@@ -40,7 +47,8 @@ public class SessionService implements ISessionService {
     // Injected field - session logic interceptors.
     private ArrayMap<String, GigyaInterceptor> _sessionInterceptors = new ArrayMap<>();
 
-    public SessionService(Config config, IPersistenceService psService, ISecureKey secureKey) {
+    public SessionService(Context context, Config config, IPersistenceService psService, ISecureKey secureKey) {
+        _context = context;
         _psService = psService;
         _config = config;
         _secureKey = secureKey;
@@ -165,6 +173,17 @@ public class SessionService implements ISessionService {
         return valid;
     }
 
+    @Override
+    public void clear(boolean clearStorage) {
+        GigyaLogger.debug(LOG_TAG, "clear: ");
+        _sessionInfo = null;
+        if (clearStorage) {
+            // Remove session data. Update encryption to DEFAULT.
+            _psService.remove(PersistenceService.PREFS_KEY_SESSION);
+            _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+        }
+    }
+
     private void applyInterceptions() {
         if (_sessionInterceptors.isEmpty()) {
             return;
@@ -208,6 +227,61 @@ public class SessionService implements ISessionService {
     //region SESSION EXPIRATION
 
     private long _sessionWillExpireIn = 0;
+
+    private CountDownTimer _sessionLifeCountdownTimer;
+
+    /**
+     * Cancel running timer if reference is not null.
+     */
+    @Override
+    public void cancelSessionCountdownTimer() {
+        if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
+    }
+
+    /**
+     * Check if session countdown is required. Initiate if needed.
+     */
+    @Override
+    public void startSessionCountdownTimerIfNeeded() {
+        if (_sessionInfo == null) {
+            return;
+        }
+        if (_sessionInfo.isValid() && _sessionWillExpireIn > 0) {
+            // Session is set to expire.
+            final long timeUntilSessionExpires = _sessionWillExpireIn - System.currentTimeMillis();
+            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: "
+                    + (timeUntilSessionExpires / 1000) + " start countdown timer");
+            // Just in case.
+            if (timeUntilSessionExpires > 0) {
+                startSessionCountdown(timeUntilSessionExpires);
+            }
+        }
+    }
+
+    /**
+     * Initiate session expiration countdown.
+     * When finished. A local broadcast will be triggered.
+     *
+     * @param future Number of milliseconds to count down.
+     */
+    private void startSessionCountdown(long future) {
+        cancelSessionCountdownTimer();
+        _sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
+                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
+            }
+
+            @Override
+            public void onFinish() {
+                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
+                _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, _sessionWillExpireIn = 0);
+                // Send "session expired" local broadcast.
+                LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
+            }
+        }.start();
+    }
 
     //endregion
 }

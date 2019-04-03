@@ -1,6 +1,9 @@
 package com.gigya.android.sdk.managers;
 
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.google.gson.Gson;
+
+import java.util.Map;
 
 public interface IAccountService<A extends GigyaAccount> {
 
@@ -22,4 +25,5 @@ public interface IAccountService<A extends GigyaAccount> {
 
     void setAccountOverrideCache(boolean accountOverrideCache);
 
+    Map<String, Object> calculateDiff(Gson gson, A cachedAccount, A updatedAccount);
 }

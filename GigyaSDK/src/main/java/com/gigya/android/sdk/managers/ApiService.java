@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.managers;
 
+import android.support.v4.util.Pair;
+
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -17,9 +19,11 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.utils.AuthUtils;
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -68,7 +72,7 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
         });
     }
 
-    //region APIS
+    //region ONE LINERS APIS
 
     @Override
     public void getConfig(final String nextApiTag, final GigyaCallback<R> gigyaCallback) {
@@ -153,6 +157,61 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
     }
 
     @Override
+    public void register(final Map<String, Object> params, final GigyaLoginCallback<R> loginCallback) {
+        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, loginCallback);
+        // #1 Chain init registration.
+        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, GigyaApiResponse.class, new IApiAdapterResponse<GigyaApiResponse>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, GigyaApiResponse response) {
+                final String regToken = apiResponse.getField("regToken", String.class);
+                if (regToken != null) {
+                    params.put("regToken", regToken);
+                    params.put("finalizeRegistration", true);
+                } else {
+                    GigyaLogger.error(LOG_TAG, "register: Init registration produced null regToken");
+                    loginCallback.onError(GigyaError.generalError());
+                    return;
+                }
+                // #2 Chain login.
+                GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_REGISTER, params, RestAdapter.POST);
+                adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+                    @Override
+                    public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                        if (!_interruptionsResolver.evaluateInterruptionSuccess(apiResponse)) {
+                            updateWithNewSession(apiResponse);
+                            updateCachedAccount(apiResponse);
+                            loginCallback.onSuccess(response);
+                        }
+                    }
+
+                    @Override
+                    public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                        if (!_interruptionsResolver.evaluateInterruptionError(apiResponse, loginCallback)) {
+                            loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                        }
+                    }
+
+                    @Override
+                    public void onApiAdapterNetworkError(GigyaError error) {
+                        loginCallback.onError(error);
+                    }
+                });
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                loginCallback.onError(GigyaError.fromResponse(apiResponse));
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                loginCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
     public void getAccount(final GigyaCallback<R> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, gigyaCallback);
         if (_accountService.isCachedAccount()) {
@@ -175,6 +234,160 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
             @Override
             public void onApiAdapterNetworkError(GigyaError error) {
                 gigyaCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void setAccount(R updatedAccount, final GigyaCallback<R> gigyaCallback) {
+        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
+        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                _accountService.invalidateAccount();
+                getAccount(gigyaCallback);
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                gigyaCallback.onError(GigyaError.fromResponse(apiResponse));
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                gigyaCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void verifyLogin(String UID, final boolean ignoreSession, final GigyaCallback<R> gigyaCallback) {
+        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        final Map<String, Object> params = new HashMap<>();
+        if (UID != null) {
+            params.put("UID", UID);
+        }
+        params.put("include", "identities-all,loginIDs,profile,email,data");
+        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                if (!ignoreSession) {
+                    updateWithNewSession(apiResponse);
+                    updateCachedAccount(apiResponse);
+                }
+                gigyaCallback.onSuccess(response);
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                gigyaCallback.onError(GigyaError.fromResponse(apiResponse));
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                gigyaCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> callback) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginId);
+        send(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST, callback);
+    }
+
+    @Override
+    public void finalizeRegistration(String regToken, final GigyaLoginCallback<R> loginCallback) {
+        final Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
+                new Pair<String, Object>("regToken", regToken),
+                new Pair<String, Object>("include", "profile,data,emails,subscriptions,preferences"),
+                new Pair<String, Object>("includeUserInfo", "true")));
+        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                // Finalizing the registration is the final step when suing any interruption resolver. Therefore
+                // We will always clear all resolvers on completion or on errors.
+                _interruptionsResolver.clearAll();
+                if (!_interruptionsResolver.evaluateInterruptionSuccess(apiResponse)) {
+                    updateWithNewSession(apiResponse);
+                    updateCachedAccount(apiResponse);
+                    loginCallback.onSuccess(response);
+                }
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                // Clearing all resolvers on error.
+                _interruptionsResolver.clearAll();
+                if (!_interruptionsResolver.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                loginCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void notifyLogin(String providerSessions, final GigyaLoginCallback<R> loginCallback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("providerSessions", providerSessions);
+        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_LOGIN, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                if (!_interruptionsResolver.evaluateInterruptionSuccess(apiResponse)) {
+                    updateWithNewSession(apiResponse);
+                    updateCachedAccount(apiResponse);
+                    loginCallback.onSuccess(response);
+                }
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                if (!_interruptionsResolver.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                loginCallback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback) {
+        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
+        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
+            @Override
+            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
+                if (!_interruptionsResolver.evaluateInterruptionSuccess(apiResponse)) {
+                    updateWithNewSession(apiResponse);
+                    updateCachedAccount(apiResponse);
+                    loginCallback.onSuccess(response);
+                }
+            }
+
+            @Override
+            public void onApiAdapterError(GigyaApiResponse apiResponse) {
+                if (!_interruptionsResolver.evaluateInterruptionError(apiResponse, loginCallback)) {
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                }
+            }
+
+            @Override
+            public void onApiAdapterNetworkError(GigyaError error) {
+                loginCallback.onError(error);
             }
         });
     }

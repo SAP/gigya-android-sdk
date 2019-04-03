@@ -21,7 +21,9 @@ import com.gigya.android.sdk.managers.ApiService;
 import com.gigya.android.sdk.managers.IAccountService;
 import com.gigya.android.sdk.managers.IApiService;
 import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.managers.ISessionVerificationService;
 import com.gigya.android.sdk.managers.SessionService;
+import com.gigya.android.sdk.managers.SessionVerificationService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -38,7 +40,6 @@ import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
 import com.gigya.android.sdk.providers.LoginProvider;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
-import com.gigya.android.sdk.ui.plugin.GigyaPluginPresenter;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
 
@@ -63,8 +64,6 @@ public class Gigya<T extends GigyaAccount> {
     private static Gigya _sharedInstance;
 
     private Context _appContext;
-
-    private GigyaContext<T> _gigyaContext;
 
     private ArrayMap<String, LoginProvider> _usedLoginProviders = new ArrayMap<>();
 
@@ -196,9 +195,12 @@ public class Gigya<T extends GigyaAccount> {
 
         // Set next account invalidation timestamp if available.
         if (_config != null && _config.getAccountCacheTime() != 0) {
-//            final AccountService<T> accountService = _gigyaContext.getAccountService();
-//            accountService.setAccountCacheTime(_config.getAccountCacheTime());
-//            accountService.nextAccountInvalidationTimestamp();
+            try {
+                IAccountService accountService = ioCContainer.get(IAccountService.class);
+                accountService.nextAccountInvalidationTimestamp();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -231,9 +233,15 @@ public class Gigya<T extends GigyaAccount> {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
                     if (isLoggedIn()) {
                         // Will start session countdown timer if the current session contains an expiration time.
-                        _gigyaContext.getSessionService().startSessionCountdownTimerIfNeeded();
-                        // Session verification is only relevant when user is logged in.
-                        _gigyaContext.getSessionVerificationService().start();
+                        try {
+                            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+                            sessionService.startSessionCountdownTimerIfNeeded();
+                            // Session verification is only relevant when user is logged in.
+                            ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
+                            sessionVerificationService.start();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }
@@ -255,8 +263,14 @@ public class Gigya<T extends GigyaAccount> {
                     // App enters background
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
                     // Make sure to cancel the session expiration countdown timer (if live).
-                    _gigyaContext.getSessionService().cancelSessionCountdownTimer();
-                    _gigyaContext.getSessionVerificationService().stop();
+                    try {
+                        ISessionService sessionService = ioCContainer.get(ISessionService.class);
+                        sessionService.cancelSessionCountdownTimer();
+                        ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
+                        sessionVerificationService.stop();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
@@ -284,7 +298,12 @@ public class Gigya<T extends GigyaAccount> {
      * @param sdkHandles False if manually handling all errors.
      */
     public void handleInterruptions(boolean sdkHandles) {
-        _gigyaContext.getConfig().setInterruptionsEnabled(sdkHandles);
+        try {
+            IInterruptionsResolver interruptionsResolver = ioCContainer.get(IInterruptionsResolver.class);
+            interruptionsResolver.setEnabled(sdkHandles);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -304,44 +323,65 @@ public class Gigya<T extends GigyaAccount> {
     // Non documented public accessor.
     @Nullable
     public <V> V getGigyaComponent(Class<V> type) {
-        return _gigyaContext.getComponent(type);
+        return null;
     }
 
     //endregion
 
-    //region CONFIG & ANONYMOUS APIS
+    //region ANONYMOUS APIS
 
-    /*
-   Request SDK configuration. Crucial -> fetches GMID fields needed for all requests.
-    */
-    private void loadSDKConfig(final Runnable completionHandler) {
-        GigyaLogger.debug(LOG_TAG, "api: socialize.getSDKConfig queued execute");
-        _gigyaContext.getApiService().loadConfig(completionHandler);
+    /**
+     * Send request to Gigya servers.
+     *
+     * @param api           Request method identifier.
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    @SuppressWarnings("unchecked")
+    public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Send request to Gigya servers.
      *
-     * @param api      Request method identifier.
-     * @param params   Additional parameters.
-     * @param callback Response listener callback.
+     * @param api           Request method identifier.
+     * @param params        Additional parameters.
+     * @param requestMethod Request method (GET, POST).
+     * @param clazz         Response class scheme.
+     * @param gigyaCallback Response listener callback.
      */
     @SuppressWarnings("unchecked")
-    public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> callback) {
-        _gigyaContext.getApiService().send(api, params, callback);
+    public <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.send(api, params, requestMethod, clazz, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
-     * Send request to Gigya servers.
+     * Send POST request to Gigya servers.
      *
-     * @param api      Request method identifier.
-     * @param params   Additional parameters.
-     * @param clazz    Response class scheme.
-     * @param callback Response listener callback.
+     * @param api           Request method identifier.
+     * @param params        Additional parameters.
+     * @param clazz         Response class scheme.
+     * @param gigyaCallback Response listener callback.
      */
     @SuppressWarnings("unchecked")
-    public <V> void send(String api, Map<String, Object> params, Class<V> clazz, GigyaCallback<V> callback) {
-        _gigyaContext.getApiService().send(api, params, clazz, callback);
+    public <V> void send(String api, Map<String, Object> params, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.send(api, params, RestAdapter.POST, clazz, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     //endregion
@@ -355,7 +395,13 @@ public class Gigya<T extends GigyaAccount> {
      */
     @Nullable
     public SessionInfo getSession() {
-        return _gigyaContext.getSessionService().getSession();
+        try {
+            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            return sessionService.getSession();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -379,8 +425,14 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressLint("ObsoleteSdkInt")
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
-        _gigyaContext.getApiService().logout();
-        _gigyaContext.getSessionService().clear(true); // Will clear preferences as well.
+        try {
+            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            sessionService.clear(true);
+            IApiService apiService = ioCContainer.get(IApiService.class);
+            apiService.logout();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         GigyaLoginPresenter.flush();
 
         // Clearing cached cookies.
@@ -404,34 +456,34 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login with provided id & password.
      *
-     * @param loginId  LoginID.
-     * @param password Login password.
-     * @param callback Response listener callback.
+     * @param loginId       LoginID.
+     * @param password      Login password.
+     * @param gigyaCallback Response listener callback.
      */
-    public void login(String loginId, String password, GigyaLoginCallback<T> callback) {
+    public void login(String loginId, String password, GigyaLoginCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with loginId = " + loginId);
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
         params.put("password", password);
         params.put("include", "profile,data,subscriptions,preferences");
-        try {
-            IApiService<T> apiService = ioCContainer.get(IApiService.class);
-            apiService.login(params, callback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        login(params, gigyaCallback);
     }
 
     /**
      * Login with given parameters.
      *
-     * @param params   parameters map.
-     * @param callback gin response callback.
+     * @param params        parameters map.
+     * @param gigyaCallback gin response callback.
      */
-    public void login(Map<String, Object> params, GigyaLoginCallback<T> callback) {
+    public void login(Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
         params.put("include", "profile,data,subscriptions,preferences");
-        _gigyaContext.getApiService().login(params, callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.login(params, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -439,61 +491,74 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param socialProvider Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
      * @param params         Parameters map.
-     * @param callback       Login response callback.
+     * @param gigyaCallback  Login response callback.
      */
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> callback) {
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
-        new GigyaLoginPresenter(_gigyaContext).login(_appContext, socialProvider, params, callback);
+        //new GigyaLoginPresenter(_gigyaContext).login(_appContext, socialProvider, params, gigyaCallback);
     }
 
     /**
      * Request account info.
      *
-     * @param callback Response listener callback.
+     * @param gigyaCallback Response listener callback.
      */
-    public void getAccount(GigyaCallback<T> callback) {
+    public void getAccount(GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: ");
-        try {
-            IApiService<T> apiService = ioCContainer.get(IApiService.class);
-            apiService.getAccount(callback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        getAccount(false, gigyaCallback);
     }
 
     /**
      * Request account info.
      *
      * @param overrideCache Should override the account caching option. When set to true, the SDK will not cache the account object.
-     * @param callback      Response listener callback.
+     * @param gigyaCallback Response listener callback.
      */
     @SuppressWarnings("unused")
-    public void getAccount(final boolean overrideCache, GigyaCallback<T> callback) {
+    public void getAccount(final boolean overrideCache, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + overrideCache);
-        _gigyaContext.getAccountService().setAccountOverrideCache(overrideCache);
-        getAccount(callback);
+        try {
+            if (overrideCache) {
+                IAccountService accountService = ioCContainer.get(IAccountService.class);
+                accountService.setAccountOverrideCache(overrideCache);
+            }
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.getAccount(gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Set account info
      *
-     * @param account  Updated account object.
-     * @param callback Response listener callback.
+     * @param account       Updated account object.
+     * @param gigyaCallback Response listener callback.
      */
-    public void setAccount(T account, GigyaCallback<T> callback) {
+    public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
-        _gigyaContext.getApiService().setAccount(account, callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.setAccount(account, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Request verify login given account UID/
      *
-     * @param UID      Account UID identifier.
-     * @param callback Response listener callback.
+     * @param UID           Account UID identifier.
+     * @param gigyaCallback Response listener callback.
      */
-    public void verifyLogin(String UID, GigyaCallback<T> callback) {
+    public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-        _gigyaContext.getApiService().verifyLogin(UID, false, callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.verifyLogin(UID, false, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -509,7 +574,12 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email + " and params: " + params.toString());
         params.put("email", email);
         params.put("password", password);
-        _gigyaContext.getApiService().register(params, callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.register(params, callback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -528,12 +598,18 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Send a reset email password to verified email attached to the users loginId.
      *
-     * @param loginId  User login id.
-     * @param callback Response listener callback.
+     * @param loginId       User login id.
+     * @param gigyaCallback Response listener callback.
      */
-    public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> callback) {
+    public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
-        _gigyaContext.getApiService().forgotPassword(loginId, callback);
+        try {
+            IApiService apiService = ioCContainer.get(IApiService.class);
+            apiService.forgotPassword(loginId, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        //_gigyaContext.getApiService().forgotPassword(loginId, gigyaCallback);
     }
 
     //endregion
@@ -550,7 +626,7 @@ public class Gigya<T extends GigyaAccount> {
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
                                 final Map<String, Object> params, final GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
-        new GigyaLoginPresenter(_gigyaContext).showNativeLoginProviders(_appContext, providers, params, callback);
+        //new GigyaLoginPresenter(_gigyaContext).showNativeLoginProviders(_appContext, providers, params, callback);
     }
 
     //endregion
@@ -568,8 +644,8 @@ public class Gigya<T extends GigyaAccount> {
     public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
-        new GigyaPluginPresenter(_gigyaContext)
-                .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
+        //new GigyaPluginPresenter(_gigyaContext)
+               // .showPlugin(_appContext, false, PluginFragment.PLUGIN_SCREENSETS, params, callback);
 
     }
 
@@ -581,15 +657,15 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        new GigyaPluginPresenter(_gigyaContext)
-                .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
+        //new GigyaPluginPresenter(_gigyaContext)
+              //  .showPlugin(_appContext, false, PluginFragment.PLUGIN_COMMENTS, params, callback);
     }
 
     //endregion
 
     //region IOC
 
-    private GigyaIoCContainer ioCContainer = new GigyaIoCContainer();
+    private IoCContainer ioCContainer = new IoCContainer();
 
     private void setupIoC(Context context) {
         ioCContainer.bind(Context.class, context);
@@ -601,6 +677,7 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(ISessionService.class, SessionService.class, true);
         ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
         ioCContainer.bind(IApiService.class, ApiService.class, false);
+        ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
         ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
         ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
         ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);

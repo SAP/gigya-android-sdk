@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.GigyaIoCContainer;
+import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.managers.SessionService;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -73,7 +73,7 @@ public class SessionServiceTest {
     @Before
     public void setup() throws NoSuchAlgorithmException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        GigyaIoCContainer c = new GigyaIoCContainer();
+        IoCContainer c = new IoCContainer();
         c.bind(Context.class, mContext);
         c.bind(IPersistenceService.class, PersistenceService.class, true);
 
