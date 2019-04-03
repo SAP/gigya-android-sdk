@@ -12,6 +12,8 @@ import android.support.v4.util.ArrayMap;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.gigya.android.sdk.api.interruption.IInterruptionsResolver;
+import com.gigya.android.sdk.api.interruption.InterruptionsResolver;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
@@ -412,7 +414,12 @@ public class Gigya<T extends GigyaAccount> {
         params.put("loginID", loginId);
         params.put("password", password);
         params.put("include", "profile,data,subscriptions,preferences");
-        _gigyaContext.getApiService().login(params, callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.login(params, callback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -446,7 +453,12 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void getAccount(GigyaCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: ");
-        _gigyaContext.getApiService().getAccount(callback);
+        try {
+            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            apiService.getAccount(callback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -585,10 +597,11 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
         ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                 : SessionKeyLegacy.class, true);
-        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, true);
+        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
         ioCContainer.bind(ISessionService.class, SessionService.class, true);
         ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
-        ioCContainer.bind(IApiService.class, ApiService.class, true);
+        ioCContainer.bind(IApiService.class, ApiService.class, false);
+        ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
         ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
         ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
         ioCContainer.bind(IPresenter.class, Presenter.class, false);
@@ -610,7 +623,6 @@ public class Gigya<T extends GigyaAccount> {
     void testBlock() {
         try {
             IApiService apiService = ioCContainer.get(IApiService.class);
-            apiService.getConfig(null);
         } catch (Exception e) {
             e.printStackTrace();
         }

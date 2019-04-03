@@ -2,10 +2,17 @@ package com.gigya.android.sdk.managers;
 
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.services.Config;
+import com.google.gson.Gson;
 
 import java.util.concurrent.TimeUnit;
 
 public class AccountService<A extends GigyaAccount> implements IAccountService<A> {
+
+    final private Config _config;
+
+    public AccountService(Config config) {
+        _config = config;
+    }
 
     /*
     Cached generic account object.
@@ -25,15 +32,6 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
      */
     private boolean _accountOverrideCache = false;
 
-    /*
-    Account caching time parameter in minutes.
-     */
-    private int _accountCacheTime;
-
-    public AccountService(Config config) {
-        _accountCacheTime = config.getAccountCacheTime();
-    }
-
     @Override
     public void setAccountScheme(Class<A> scheme) {
         _accountScheme = scheme;
@@ -45,9 +43,14 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
     }
 
     @Override
-    public void setAccount(A account) {
-        _cachedAccount = account;
+    public void setAccount(String json) {
+        _cachedAccount = new Gson().fromJson(json, _accountScheme);
         nextAccountInvalidationTimestamp();
+    }
+
+    @Override
+    public void invalidateAccount() {
+        _cachedAccount = null;
     }
 
     @Override
@@ -65,8 +68,9 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
         if (_cachedAccount == null) {
             return;
         }
-        if (!_accountOverrideCache && _accountCacheTime > 0) {
-            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_accountCacheTime);
+        final int accountCacheTime = _config.getAccountCacheTime();
+        if (!_accountOverrideCache && accountCacheTime > 0) {
+            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(accountCacheTime);
         }
     }
 

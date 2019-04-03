@@ -30,6 +30,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -211,5 +212,15 @@ public class SessionServiceTest {
         cSessionService.setSession(mSessionInfo);
     }
 
+    @Test
+    public void testIsValid() {
+        // Arrange
+        when(mSharedPreferences.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT")).thenReturn("DEFAULT");
+        when(mEditor.putString(anyString(), anyString())).thenReturn(mEditor);
+        // Act
+        cSessionService.setSession(mSessionInfo);
+        // Assert
+        assertTrue(cSessionService.isValid());
+    }
 
 }

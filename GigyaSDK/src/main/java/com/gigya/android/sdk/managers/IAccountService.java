@@ -8,7 +8,9 @@ public interface IAccountService<A extends GigyaAccount> {
 
     Class<A> getAccountScheme();
 
-    void setAccount(A account);
+    void setAccount(String json);
+
+    void invalidateAccount();
 
     A getAccount();
 
@@ -19,6 +21,5 @@ public interface IAccountService<A extends GigyaAccount> {
     long getNextInvalidationTimestamp();
 
     void setAccountOverrideCache(boolean accountOverrideCache);
-
 
 }
