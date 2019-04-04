@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -58,6 +59,7 @@ public class Presenter implements IPresenter {
 
     @Override
     public void showNativeLoginProviders(List<String> providers, final Map<String, Object> params, final GigyaLoginCallback gigyaLoginCallback) {
+        params.put("enabledProviders", TextUtils.join(",", providers));
         final String url = getPresentationUrl(params, "login");
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override

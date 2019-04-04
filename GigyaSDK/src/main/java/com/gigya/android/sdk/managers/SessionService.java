@@ -116,13 +116,12 @@ public class SessionService implements ISessionService {
         }
     }
 
-    @Nullable
     @Override
-    public SessionInfo load() {
+    public void load() {
         // Check & load legacy session if available.
         if (isLegacySession()) {
             GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
-            return loadLegacySession();
+            _sessionInfo = loadLegacySession();
         }
         if (_psService.contains(PersistenceService.PREFS_KEY_SESSION)) {
             String encryptedSession = _psService.getString(PersistenceService.PREFS_KEY_SESSION, null);
@@ -130,7 +129,6 @@ public class SessionService implements ISessionService {
                 final String encryptionType = _psService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
                 if (ObjectUtils.safeEquals(encryptionType, "FINGERPRINT")) {
                     GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
-                    return null;
                 }
                 try {
                     final SecretKey key = _secureKey.getKey();
@@ -141,14 +139,12 @@ public class SessionService implements ISessionService {
                     // Parse config fields. & update main SDK config instance.
                     final Config dynamicConfig = gson.fromJson(decryptedSession, Config.class);
                     _config.updateWith(dynamicConfig);
-                    return sessionInfo;
+                    _sessionInfo = sessionInfo;
                 } catch (Exception eex) {
                     eex.printStackTrace();
-                    return null;
                 }
             }
         }
-        return null;
     }
 
     @Override

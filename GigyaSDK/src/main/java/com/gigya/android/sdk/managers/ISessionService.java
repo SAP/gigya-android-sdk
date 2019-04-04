@@ -12,7 +12,7 @@ public interface ISessionService {
 
     void save(SessionInfo sessionInfo);
 
-    SessionInfo load();
+    void load();
 
     SessionInfo getSession();
 

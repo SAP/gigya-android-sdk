@@ -3,6 +3,7 @@ package com.gigya.android.sdk.plugin_view;
 import com.gigya.android.sdk.managers.IApiService;
 import com.gigya.android.sdk.managers.ISessionService;
 import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.ui.IWebBridge;
 import com.gigya.android.sdk.ui.WebBridge;
 
 public class WebBridgeFactory implements IWebBridgeFactory {
@@ -18,7 +19,7 @@ public class WebBridgeFactory implements IWebBridgeFactory {
     }
 
     @Override
-    public WebBridge create(boolean obfuscate, WebBridge.WebBridgeInteractions wbInteractions) {
+    public WebBridge create(boolean obfuscate, IWebBridge wbInteractions) {
         return new WebBridge(_config, _sessionService, _apiService, obfuscate, wbInteractions);
     }
 }

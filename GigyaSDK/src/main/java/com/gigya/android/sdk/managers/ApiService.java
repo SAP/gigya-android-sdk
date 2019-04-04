@@ -368,6 +368,12 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
 
     @Override
     public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback, final Runnable optionalCompletionHandler) {
+        if (params.containsKey("loginMode")) {
+            final String linkMode = (String) params.get("loginMode");
+            if (ObjectUtils.safeEquals(linkMode,"link")) {
+                requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
+            }
+        }
         final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
             @Override

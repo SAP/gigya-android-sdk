@@ -39,27 +39,16 @@ public class WebBridge<T extends GigyaAccount> {
 
     private static final String CALLBACK_JS_PATH = "gigya._.apiAdapters.mobile.mobileCallbacks";
 
-    // Specific interaction interface between the WebBridge & the PluginFragment.
-    public interface WebBridgeInteractions<T extends GigyaAccount> {
-        void onPluginEvent(GigyaPluginEvent event, String containerID);
-
-        void onAuthEvent(AuthEvent authEvent, T obj);
-
-        void onCancel();
-
-        void onError(GigyaError error);
-    }
-
     private WeakReference<WebView> _webViewRef;
 
     final private Config _config;
     final private boolean _shouldObfuscate;
     final private ISessionService _sessionService;
     final private IApiService _apiService;
-    final private WebBridgeInteractions<T> _interactions;
+    final private IWebBridge<T> _interactions;
 
     public WebBridge(Config config, ISessionService sessionService, IApiService apiService,
-                     boolean shouldObfuscate, WebBridgeInteractions<T> interactions) {
+                     boolean shouldObfuscate, IWebBridge<T> interactions) {
         _config = config;
         _sessionService = sessionService;
         _apiService = apiService;

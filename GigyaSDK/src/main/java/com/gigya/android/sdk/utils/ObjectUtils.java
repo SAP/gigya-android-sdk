@@ -97,7 +97,6 @@ public class ObjectUtils {
                 if (updated.get(key) != null && original.get(key) != null) {
                     Map<String, Object> childResult = objectDifference((Map<String, Object>) original.get(key), (Map<String, Object>) updated.get(key));
                     result.put(key, childResult);
-
                 }
             }
         }

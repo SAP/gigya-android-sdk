@@ -6,6 +6,7 @@ public class GigyaLogger {
 
     private static final String LOG_TAG = "GigyaSDK";
     private static boolean DEBUG = false;
+    private static boolean IOC = false;
 
     public static void setDebugMode(boolean debugModeEnabled) {
         DEBUG = debugModeEnabled;
@@ -30,6 +31,12 @@ public class GigyaLogger {
     public static void info(String tag, String message) {
         if (DEBUG) {
             Log.i(LOG_TAG, logMessage(tag, message));
+        }
+    }
+
+    public static void ioc(String tag, String message) {
+        if (DEBUG && IOC) {
+            Log.d(LOG_TAG, logMessage(tag, message));
         }
     }
 
