@@ -33,12 +33,17 @@ public class BiometricImplV28 extends BiometricImpl {
     @Override
     synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, final @NonNull IGigyaBiometricCallback callback) {
-        final SecretKey key = getKey();
+        final SecretKey key = _biometricKey.getKey();
         if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
             return;
         }
-        final Cipher cipher = createCipherFor(key, encryptionMode);
+        final Cipher cipher;
+        if (encryptionMode == Cipher.DECRYPT_MODE) {
+            cipher = _biometricKey.getDecryptionCipher(key);
+        } else {
+            cipher = _biometricKey.getEncryptionCipher(key);
+        }
         if (cipher != null) {
             BiometricPrompt prompt = new BiometricPrompt.Builder(context)
                     .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : context.getString(R.string.prompt_default_title))

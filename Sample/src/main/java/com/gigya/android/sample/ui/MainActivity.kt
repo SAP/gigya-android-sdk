@@ -270,9 +270,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             gigyaBiometricCallback)
                 }
                 false -> {
-                    biometric.lock(this,
-                            GigyaPromptInfo("Lock requested", "Place finger on sensor to continue", ""),
-                            gigyaBiometricCallback)
+                    biometric.lock(gigyaBiometricCallback)
                 }
             }
         }
