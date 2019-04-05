@@ -91,12 +91,12 @@ public class PersistenceService implements IPersistenceService {
      */
     public static final String PREFS_KEY_SESSION = "GS_PREFS";
 
-    /**
+    /*
      * Value key for last used social providers.
      */
     public static final String PREFS_KEY_PROVIDER_SET = "GS_PROVIDER_SET";
 
-    /**
+    /*
      * Value key for session expiration timestamp.
      */
     public static final String PREFS_KEY_SESSION_EXPIRE_TIMESTAMP = "GS_SESSION_EXPIRE_TIMESTAMP";
@@ -105,6 +105,11 @@ public class PersistenceService implements IPersistenceService {
    Value key for session encryption type. Value is taken from legacy version 3 to allow upgrading from older SDK versions.
     */
     public static final String PREFS_KEY_SESSION_ENCRYPTION_TYPE = "sessionProtectionType";
+
+    /*
+     * Value key for biometric cipher iv spec.
+     */
+    public static final String PREFS_KEY_IV_SPEC = "IV_fingerprint";
 
     //endregion
 }

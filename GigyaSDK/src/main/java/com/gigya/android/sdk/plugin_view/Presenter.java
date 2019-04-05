@@ -9,8 +9,6 @@ import android.text.TextUtils;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
-import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.providers.Provider;
 import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.WebViewFragment;
@@ -25,16 +23,14 @@ public class Presenter implements IPresenter {
 
     final private Context _context;
     final private Config _config;
-    final private IPluginFragmentFactory _pfgFactory;
-    final private IProviderFactory _providerFactory;
+    final private IWebViewFragmentFactory _pfgFactory;
 
     private static final String REDIRECT_URI = "gsapi://result/";
 
-    public Presenter(Context context, Config config, IPluginFragmentFactory pfgFactory, IProviderFactory providerFactory) {
+    public Presenter(Context context, Config config, IWebViewFragmentFactory pfgFactory) {
         _context = context;
         _config = config;
         _pfgFactory = pfgFactory;
-        _providerFactory = providerFactory;
     }
 
     @Override
@@ -52,7 +48,7 @@ public class Presenter implements IPresenter {
                 args.putBoolean(PluginFragment.ARG_OBFUSCATE, obfuscate);
                 args.putString(PluginFragment.ARG_PLUGIN, plugin);
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                _pfgFactory.showFragment(activity, args, gigyaPluginCallback);
+                _pfgFactory.showPluginFragment(activity, args, gigyaPluginCallback);
             }
         });
     }
@@ -69,30 +65,7 @@ public class Presenter implements IPresenter {
                 args.putString(ProviderFragment.ARG_URL, url);
                 args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
-
-                    @Override
-                    public void onWebViewResult(Map<String, Object> result) {
-                        // Handle result.
-                        final String providerName = (String) result.get("provider");
-                        if (providerName == null) {
-                            // Internal check. Should not happen if SDK implementation is correct.
-                            return;
-                        }
-
-                        // Okay to release activity.
-                        activity.finish();
-
-                        Provider provider = _providerFactory.providerFor(providerName, gigyaLoginCallback);
-                        provider.login(_context, params, "standard");
-                    }
-
-                    @Override
-                    public void onWebViewCancel() {
-                        // User cancelled WebView.
-                        gigyaLoginCallback.onOperationCanceled();
-                    }
-                });
+                _pfgFactory.showProviderFragment(activity, params, args, gigyaLoginCallback);
             }
         });
     }
@@ -104,16 +77,24 @@ public class Presenter implements IPresenter {
         urlParams.put("apiKey", _config.getApiKey());
         urlParams.put("requestType", requestType);
         if (params.containsKey("enabledProviders")) {
-            urlParams.put("enabledProviders", params.get("enabledProviders"));
+            final String enabledProviders = (String) params.get("enabledProviders");
+            if (enabledProviders != null)
+                urlParams.put("enabledProviders", enabledProviders);
         }
         if (params.containsKey("disabledProviders")) {
-            urlParams.put("disabledProviders", params.get("disabledProviders"));
+            final String disabledProviders = (String) params.get("disabledProviders");
+            if (disabledProviders != null)
+                urlParams.put("disabledProviders", disabledProviders);
         }
         if (params.containsKey("lang")) {
-            urlParams.put("lang", params.get("lang"));
+            final String lang = (String) params.get("lang");
+            if (lang != null)
+                urlParams.put("lang", lang);
         }
         if (params.containsKey("cid")) {
-            urlParams.put("cid", params.get("cid"));
+            final String cid = (String) params.get("cid");
+            if (cid != null)
+                urlParams.put("cid", cid);
         }
         urlParams.put("sdk", Gigya.VERSION);
         urlParams.put("redirect_uri", REDIRECT_URI);

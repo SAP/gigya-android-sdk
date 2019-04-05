@@ -9,12 +9,9 @@ import java.util.Map;
 
 public interface IPresenter {
 
-    void showPlugin(boolean obfuscate, final String plugin,
-                    final Map<String, Object> params,
-                    final GigyaPluginCallback callback);
+    void showPlugin(boolean obfuscate, final String plugin, final Map<String, Object> params, final GigyaPluginCallback callback);
 
-    void showNativeLoginProviders(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
-                                  Map<String, Object> params, GigyaLoginCallback gigyaLoginCallback);
+    void showNativeLoginProviders(@GigyaDefinitions.Providers.SocialProvider List<String> providers, Map<String, Object> params, GigyaLoginCallback gigyaLoginCallback);
 
     String getPresentationUrl(Map<String, Object> params, String requestType);
 

@@ -9,23 +9,25 @@ import android.os.CancellationSignal;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.biometric.BiometricImpl;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
-import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
 import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
-import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.services.Config;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 @TargetApi(Build.VERSION_CODES.P)
-public class GigyaBiometricImplV28 extends GigyaBiometricImpl {
+public class BiometricImplV28 extends BiometricImpl {
 
-    private static final String LOG_TAG = "GigyaBiometricImplV28";
+    private static final String LOG_TAG = "BiometricImplV28";
 
-    public GigyaBiometricImplV28(SessionService sessionService) {
-        super(sessionService);
+    public BiometricImplV28(Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+        super(config, sessionService, persistenceService);
     }
 
     @Override

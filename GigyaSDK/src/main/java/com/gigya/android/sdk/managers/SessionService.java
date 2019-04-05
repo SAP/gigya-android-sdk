@@ -54,10 +54,6 @@ public class SessionService implements ISessionService {
         _secureKey = secureKey;
     }
 
-    public void addInterceptor(GigyaInterceptor interceptor) {
-        _sessionInterceptors.put(interceptor.getName(), interceptor);
-    }
-
     @SuppressLint("GetInstance")
     @Nullable
     @Override
@@ -232,6 +228,11 @@ public class SessionService implements ISessionService {
     @Override
     public void cancelSessionCountdownTimer() {
         if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
+    }
+
+    @Override
+    public void addInterceptor(GigyaInterceptor interceptor) {
+        _sessionInterceptors.put(interceptor.getName(), interceptor);
     }
 
     /**

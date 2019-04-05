@@ -4,9 +4,11 @@ import android.content.Context;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.biometric.v23.GigyaBiometricImplV23;
-import com.gigya.android.sdk.biometric.v28.GigyaBiometricImplV28;
-import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
+import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.services.Config;
 
 import javax.crypto.Cipher;
 
@@ -24,7 +26,7 @@ public class GigyaBiometric {
         OPT_IN, OPT_OUT, LOCK, UNLOCK
     }
 
-    private GigyaBiometricImpl _impl;
+    private BiometricImpl _impl;
 
     private boolean _isAvailable;
 
@@ -40,7 +42,7 @@ public class GigyaBiometric {
      */
     public void setAnimationForPrePieDevices(boolean animate) {
         if (!GigyaBiometricUtils.isPromptEnabled()) {
-            ((GigyaBiometricImplV23) _impl).updateAnimationState(animate);
+            ((BiometricImplV23) _impl).updateAnimationState(animate);
         }
     }
 
@@ -58,9 +60,17 @@ public class GigyaBiometric {
             return;
         }
         // Reference session service.
-        final SessionService sessionService = (SessionService) gigya.getGigyaComponent(SessionService.class);
-        // Instantiate the relevant biometric implementation according to Android API level.
-        _impl = GigyaBiometricUtils.isPromptEnabled() ? new GigyaBiometricImplV28(sessionService) : new GigyaBiometricImplV23(sessionService);
+        try {
+            Config config = (Config) gigya.getComponent(Config.class);
+            ISessionService sessionService = (ISessionService) gigya.getComponent(ISessionService.class);
+            IPersistenceService persistenceService = (IPersistenceService) gigya.getComponent(IPersistenceService.class);
+            // Instantiate the relevant biometric implementation according to Android API level.
+            _impl = GigyaBiometricUtils.isPromptEnabled() ?
+                    new BiometricImplV28(config, sessionService, persistenceService) :
+                    new BiometricImplV23(config, sessionService, persistenceService);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -141,14 +151,12 @@ public class GigyaBiometric {
      * No authenticated actions can be done while the session is locked.
      * Invokes the onError callback if the session is not opt-in.
      *
-     * @param context           Available context.
-     * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void lock(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void lock(final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "lock: ");
         if (_impl.isOptIn()) {
-            _impl.showPrompt(context, Action.LOCK, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
+            _impl.lock(biometricCallback);
         } else {
             final String failedMessage = "Not Opt-In";
             GigyaLogger.error(LOG_TAG, failedMessage);

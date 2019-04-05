@@ -31,13 +31,13 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
-import com.gigya.android.sdk.plugin_view.IPluginFragmentFactory;
 import com.gigya.android.sdk.plugin_view.IPresenter;
 import com.gigya.android.sdk.plugin_view.IWebBridgeFactory;
+import com.gigya.android.sdk.plugin_view.IWebViewFragmentFactory;
 import com.gigya.android.sdk.plugin_view.PluginFragment;
-import com.gigya.android.sdk.plugin_view.PluginFragmentFactory;
 import com.gigya.android.sdk.plugin_view.Presenter;
 import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
+import com.gigya.android.sdk.plugin_view.WebViewFragmentFactory;
 import com.gigya.android.sdk.providers.IProvider;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
@@ -75,8 +75,8 @@ public class Gigya<T extends GigyaAccount> {
     private IoCContainer ioCContainer = new IoCContainer();
 
     private void setupIoC(Context context) {
-        ioCContainer.bind(Context.class, context);
-        ioCContainer.bind(Config.class, _config);
+        ioCContainer.bind(Context.class, context); // Concrete.
+        ioCContainer.bind(Config.class, _config); // Concrete.
         ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
         ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                 : SessionKeyLegacy.class, true);
@@ -87,7 +87,7 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
         ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
         ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
-        ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
+        ioCContainer.bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false);
         ioCContainer.bind(IPresenter.class, Presenter.class, false);
         ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
     }

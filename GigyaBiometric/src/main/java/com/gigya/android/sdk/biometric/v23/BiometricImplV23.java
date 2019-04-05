@@ -6,22 +6,24 @@ import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.biometric.BiometricImpl;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
-import com.gigya.android.sdk.biometric.GigyaBiometricImpl;
 import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
-import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.managers.ISessionService;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.services.Config;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
-public class GigyaBiometricImplV23 extends GigyaBiometricImpl {
+public class BiometricImplV23 extends BiometricImpl {
 
-    private static final String LOG_TAG = "GigyaBiometricImplV23";
+    private static final String LOG_TAG = "BiometricImplV23";
 
-    public GigyaBiometricImplV23(SessionService sessionService) {
-        super(sessionService);
+    public BiometricImplV23(Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+        super(config, sessionService, persistenceService);
     }
 
     private boolean _animate = true;

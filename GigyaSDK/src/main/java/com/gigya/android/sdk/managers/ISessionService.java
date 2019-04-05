@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.managers;
 
+import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
 
 import java.security.Key;
@@ -25,4 +26,6 @@ public interface ISessionService {
     void startSessionCountdownTimerIfNeeded();
 
     void cancelSessionCountdownTimer();
+
+    void addInterceptor(GigyaInterceptor interceptor);
 }
