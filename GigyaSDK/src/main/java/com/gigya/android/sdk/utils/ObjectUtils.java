@@ -78,11 +78,22 @@ public class ObjectUtils {
         return map;
     }
 
+    public static <K, V> Map<K, V> mapDifference(Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
+        Map<K, V> difference = new HashMap<>();
+        difference.putAll(left);
+        difference.putAll(right);
+        difference.entrySet().removeAll(right.entrySet());
+        return difference;
+    }
+
     public static Map<String, Object> objectDifference(Map<String, Object> original, Map<String, Object> updated) {
         Map<String, Object> result = new HashMap<>();
         if (original == null || updated == null) {
             return result;
         }
+
+        // Check removed items.
+
         Set<Map.Entry<String, Object>> filter = original.entrySet();
         for (Map.Entry<String, Object> entry : updated.entrySet()) {
             if (!filter.contains(entry)) {

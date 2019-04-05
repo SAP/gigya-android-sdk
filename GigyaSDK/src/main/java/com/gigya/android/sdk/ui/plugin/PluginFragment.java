@@ -63,6 +63,7 @@ import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.HIDE;
 import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.LOAD;
 import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.SUBMIT;
 
+@Deprecated
 public class PluginFragment<T extends GigyaAccount> extends WebViewFragment implements HostActivity.OnBackPressListener {
 
     private static final String LOG_TAG = "PluginFragment";

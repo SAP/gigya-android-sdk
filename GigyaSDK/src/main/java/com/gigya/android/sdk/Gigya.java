@@ -70,6 +70,41 @@ public class Gigya<T extends GigyaAccount> {
      */
     private Config _config = new Config();
 
+    //region DEPENDENCY INJECTION
+
+    private IoCContainer ioCContainer = new IoCContainer();
+
+    private void setupIoC(Context context) {
+        ioCContainer.bind(Context.class, context);
+        ioCContainer.bind(Config.class, _config);
+        ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
+        ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
+                : SessionKeyLegacy.class, true);
+        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
+        ioCContainer.bind(ISessionService.class, SessionService.class, true);
+        ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
+        ioCContainer.bind(IApiService.class, ApiService.class, false);
+        ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
+        ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
+        ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
+        ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
+        ioCContainer.bind(IPresenter.class, Presenter.class, false);
+        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
+    }
+
+    // Undocumented public accessor.
+    @Nullable
+    public <C> C getComponent(Class<C> type) {
+        try {
+            return ioCContainer.get(type);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    //endregion
+
     @SuppressWarnings("unchecked")
     private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
         // Setup dependencies.
@@ -142,7 +177,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         return INSTANCE;
     }
-
 
     /**
      * Explicitly initialize the SDK.
@@ -681,39 +715,6 @@ public class Gigya<T extends GigyaAccount> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    //endregion
-
-    //region DEPENDENCY INJECTION
-
-    private IoCContainer ioCContainer = new IoCContainer();
-
-    private void setupIoC(Context context) {
-        ioCContainer.bind(Context.class, context);
-        ioCContainer.bind(Config.class, _config);
-        ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
-        ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
-                : SessionKeyLegacy.class, true);
-        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
-        ioCContainer.bind(ISessionService.class, SessionService.class, true);
-        ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
-        ioCContainer.bind(IApiService.class, ApiService.class, false);
-        ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
-        ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
-        ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
-        ioCContainer.bind(IPluginFragmentFactory.class, PluginFragmentFactory.class, false);
-        ioCContainer.bind(IPresenter.class, Presenter.class, false);
-        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
-    }
-
-    public <C> C getComponent(Class<C> type) {
-        try {
-            return ioCContainer.get(type);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
     }
 
     //endregion

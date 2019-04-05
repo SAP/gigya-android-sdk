@@ -123,6 +123,9 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
             _obfuscate = args.getBoolean(ARG_OBFUSCATE);
             _plugin = args.getString(ARG_PLUGIN);
             _params = (HashMap<String, Object>) args.getSerializable(ARG_PARAMS);
+        } else {
+            GigyaLogger.error(LOG_TAG, "Missing arguments. Dismiss fragment");
+            dismiss();
         }
     }
 

@@ -6,7 +6,7 @@ public class GigyaLogger {
 
     private static final String LOG_TAG = "GigyaSDK";
     private static boolean DEBUG = false;
-    private static boolean IOC = false;
+    public static boolean IOC = false;
 
     public static void setDebugMode(boolean debugModeEnabled) {
         DEBUG = debugModeEnabled;

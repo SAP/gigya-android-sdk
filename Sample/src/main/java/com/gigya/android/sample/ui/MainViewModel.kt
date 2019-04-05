@@ -213,7 +213,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun setAccount(dummyData: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         /* Updating a custom data field. */
-        account.value?.profile?.email = null
+        when(dummyData.isEmpty()) {
+            true ->  account.value?.profile?.email = null
+            false ->  account.value?.profile?.email = dummyData
+        }
         gigya.setAccount(account.value, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 account.value = obj
