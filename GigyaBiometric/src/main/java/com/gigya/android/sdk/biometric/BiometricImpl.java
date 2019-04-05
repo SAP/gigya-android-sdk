@@ -212,7 +212,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
 
     /**
      * Lock operation.
-     * Clear current heap session.
+     * Clear current heap session. Does not require biometric authentication.
      *
      * @param biometricCallback Status callback.
      */
@@ -233,7 +233,8 @@ public abstract class BiometricImpl implements IBiometricImpl {
             // Decrypt the session.
             final SessionInfo sessionInfo = decryptBiometricSession(cipher);
             _sessionService.setSession(sessionInfo);
-            // TODO: 05/04/2019 Do something with session expiration!!!
+            // Refresh expiration. If any.
+            _sessionService.refreshSessionExpiration();
             biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.UNLOCK);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -278,7 +279,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
         JSONObject jsonObject = new JSONObject(plain);
         final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
         final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
-        final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
+        final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : 0L;
         // Updating config.
         final String ucid = jsonObject.getString("ucid");
         _config.setUcid(ucid);

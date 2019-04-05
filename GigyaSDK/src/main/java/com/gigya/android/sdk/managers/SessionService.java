@@ -136,6 +136,8 @@ public class SessionService implements ISessionService {
                     final Config dynamicConfig = gson.fromJson(decryptedSession, Config.class);
                     _config.updateWith(dynamicConfig);
                     _sessionInfo = sessionInfo;
+                    // Refresh expiration. If any.
+                    refreshSessionExpiration();
                 } catch (Exception eex) {
                     eex.printStackTrace();
                 }
@@ -154,6 +156,12 @@ public class SessionService implements ISessionService {
         save(sessionInfo); // Will only work for "DEFAULT" encryption.
         // Apply interceptions
         applyInterceptions();
+
+        // Check session expiration.
+        if (_sessionInfo.getExpirationTime() > 0) {
+            _sessionWillExpireIn = System.currentTimeMillis() + (_sessionInfo.getExpirationTime() * 1000);
+            startSessionCountdownTimerIfNeeded();
+        }
     }
 
     @Override
@@ -233,6 +241,16 @@ public class SessionService implements ISessionService {
     @Override
     public void addInterceptor(GigyaInterceptor interceptor) {
         _sessionInterceptors.put(interceptor.getName(), interceptor);
+    }
+
+    @Override
+    public void refreshSessionExpiration() {
+        // Get session expiration if exists.
+        _sessionWillExpireIn = _psService.getLong(PersistenceService.PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
+        // Check if already passed. Reset if so.
+        if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
+            _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, _sessionWillExpireIn = 0);
+        }
     }
 
     /**

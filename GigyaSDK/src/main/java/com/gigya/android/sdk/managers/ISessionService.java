@@ -28,4 +28,6 @@ public interface ISessionService {
     void cancelSessionCountdownTimer();
 
     void addInterceptor(GigyaInterceptor interceptor);
+
+    void refreshSessionExpiration();
 }
