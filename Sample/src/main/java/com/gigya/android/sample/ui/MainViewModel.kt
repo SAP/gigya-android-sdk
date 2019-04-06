@@ -13,14 +13,14 @@ import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.api.interruption.GigyaLinkAccountsResolver
-import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFARegistrationResolver
-import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFAVerificationResolver
+import com.gigya.android.sdk.interruption.GigyaLinkAccountsResolver
+import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver
+import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.ui.GigyaPresenter
+import com.gigya.android.sdk.ui.Presenter
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
 
@@ -273,8 +273,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.login(provider, mapOf<String, Any>(
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
+                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                Presenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 account.value = obj
@@ -305,8 +305,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
         gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE, WECHAT, YAHOO), mutableMapOf<String, Any>(
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 24f
+                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                Presenter.CORNER_RADIUS to 24f
         ), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("socialLoginWith", "Success")
@@ -334,8 +334,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-ProfileUpdate", mutableMapOf<String, Any>(
-                GigyaPresenter.SHOW_FULL_SCREEN to true,
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
+                Presenter.SHOW_FULL_SCREEN to true,
+                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {
@@ -362,8 +362,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-RegistrationLogin",
                 mutableMapOf<String, Any>(
-                        GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                        GigyaPresenter.CORNER_RADIUS to 24f
+                        Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                        Presenter.CORNER_RADIUS to 24f
                         //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
                         //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
                 )
@@ -386,8 +386,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showComments(mutableMapOf<String, Any>(
                 "categoryID" to "Support", "streamID" to 1,
-                GigyaPresenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                GigyaPresenter.CORNER_RADIUS to 8f),
+                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
+                Presenter.CORNER_RADIUS to 8f),
                 object : GigyaPluginCallback<MyAccount>() {
 
                     override fun onLogin(accountObj: MyAccount) {

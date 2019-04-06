@@ -9,45 +9,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Deprecated
-public class AccountService<A extends GigyaAccount> {
+public class AccountService<A extends GigyaAccount> implements IAccountService<A> {
+
+    final private Config _config;
+
+    public AccountService(Config config) {
+        _config = config;
+    }
 
     /*
     Cached generic account object.
      */
     private A _cachedAccount;
 
-    public A getAccount() {
-        return _cachedAccount;
-    }
-
-    public void setAccount(A  account) {
-        _cachedAccount = account;
-    }
-
-    /*
-     * Flush account data (nullify).
-     */
-    public void invalidateAccount() {
-        _cachedAccount = null;
-    }
-
-    // Account scheme.
-
     @SuppressWarnings("unchecked")
     private Class<A> _accountScheme = (Class<A>) GigyaAccount.class;
-
-    public Class<A> getAccountScheme() {
-        return _accountScheme;
-    }
-
-    public void updateAccountScheme(Class<A> accountScheme) {
-        _accountScheme = accountScheme;
-    }
-
-    //endregion
-
-    //region ACCOUNT CACHING LOGIC
 
     /*
     Invalidation timestamp for cached account.
@@ -59,44 +35,65 @@ public class AccountService<A extends GigyaAccount> {
      */
     private boolean _accountOverrideCache = false;
 
-    /*
-    Account caching time parameter in minutes.
-     */
-    private int _accountCacheTime = 0;
-
-    public void setAccountCacheTime(int accountCacheTime) {
-        _accountCacheTime = accountCacheTime;
+    @Override
+    public void setAccountScheme(Class<A> scheme) {
+        _accountScheme = scheme;
     }
 
-    public void setAccountOverrideCache(boolean accountOverrideCache) {
-        _accountOverrideCache = accountOverrideCache;
+    @Override
+    public Class<A> getAccountScheme() {
+        return _accountScheme;
     }
 
-    /**
-     * Validate if the account is currently cached.
-     * Caching of the account is only valid when caching policy is not overridden and the caching timestamp is valid.
-     *
-     * @return True if available cached account.
-     */
+    @Override
+    public void setAccount(String json) {
+        _cachedAccount = new Gson().fromJson(json, _accountScheme);
+        nextAccountInvalidationTimestamp();
+    }
+
+    @Override
+    public void invalidateAccount() {
+        _cachedAccount = null;
+    }
+
+    @Override
+    public A getAccount() {
+        return _cachedAccount;
+    }
+
+    @Override
     public boolean isCachedAccount() {
         return !_accountOverrideCache && _cachedAccount != null && System.currentTimeMillis() < _accountInvalidationTimestamp;
     }
 
-    /**
-     * update he next cached account invalidation timestamp.
-     */
+    @Override
     public void nextAccountInvalidationTimestamp() {
-        if (!_accountOverrideCache && _accountCacheTime > 0) {
-            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(_accountCacheTime);
+        if (_cachedAccount == null) {
+            return;
+        }
+        final int accountCacheTime = _config.getAccountCacheTime();
+        if (!_accountOverrideCache && accountCacheTime > 0) {
+            _accountInvalidationTimestamp = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(accountCacheTime);
         }
     }
 
-    //endregion
+    @Override
+    public long getNextInvalidationTimestamp() {
+        return _accountInvalidationTimestamp;
+    }
+
+    @Override
+    public void setAccountOverrideCache(boolean accountOverrideCache) {
+        _accountOverrideCache = accountOverrideCache;
+    }
+
+    //region ACCOUNT SPECIFIC LOGIC
 
     /**
      * Get account object objectDifference.
      */
     @SuppressWarnings({"ConstantConditions"})
+    @Override
     public Map<String, Object> calculateDiff(Gson gson, A cachedAccount, A updatedAccount) {
         /* Map updated account object to JSON -> Map. */
         final String updatedJson = gson.toJson(updatedAccount);
@@ -131,4 +128,6 @@ public class AccountService<A extends GigyaAccount> {
             }
         }
     }
+
+    //endregion
 }

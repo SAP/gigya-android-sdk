@@ -1,7 +1,7 @@
 package com.gigya.android;
 
-import com.gigya.android.sdk.managers.AccountService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.Config;
 
 import org.junit.Before;

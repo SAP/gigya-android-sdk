@@ -12,18 +12,13 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 
-import com.gigya.android.sdk.api.interruption.IInterruptionsResolver;
-import com.gigya.android.sdk.api.interruption.InterruptionsResolver;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
-import com.gigya.android.sdk.managers.ApiService;
-import com.gigya.android.sdk.managers.IAccountService;
-import com.gigya.android.sdk.managers.IApiService;
-import com.gigya.android.sdk.managers.ISessionService;
-import com.gigya.android.sdk.managers.ISessionVerificationService;
-import com.gigya.android.sdk.managers.SessionService;
-import com.gigya.android.sdk.managers.SessionVerificationService;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
+import com.gigya.android.sdk.interruption.IInterruptionsResolver;
+import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
+import com.gigya.android.sdk.interruption.InterruptionsResolver;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -31,18 +26,25 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
-import com.gigya.android.sdk.plugin_view.IPresenter;
-import com.gigya.android.sdk.plugin_view.IWebBridgeFactory;
-import com.gigya.android.sdk.plugin_view.IWebViewFragmentFactory;
-import com.gigya.android.sdk.plugin_view.PluginFragment;
-import com.gigya.android.sdk.plugin_view.Presenter;
-import com.gigya.android.sdk.plugin_view.WebBridgeFactory;
-import com.gigya.android.sdk.plugin_view.WebViewFragmentFactory;
-import com.gigya.android.sdk.providers.IProvider;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
+import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.services.AccountService;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.IAccountService;
+import com.gigya.android.sdk.services.IApiService;
+import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.services.ISessionVerificationService;
+import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.services.SessionVerificationService;
+import com.gigya.android.sdk.ui.IPresenter;
+import com.gigya.android.sdk.ui.Presenter;
+import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
+import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
+import com.gigya.android.sdk.ui.plugin.PluginFragment;
+import com.gigya.android.sdk.ui.plugin.WebBridgeFactory;
+import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -82,7 +84,7 @@ public class Gigya<T extends GigyaAccount> {
                 : SessionKeyLegacy.class, true);
         ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
         ioCContainer.bind(ISessionService.class, SessionService.class, true);
-        ioCContainer.bind(IAccountService.class, com.gigya.android.sdk.managers.AccountService.class, true);
+        ioCContainer.bind(IAccountService.class, AccountService.class, true);
         ioCContainer.bind(IApiService.class, ApiService.class, false);
         ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
         ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
@@ -90,6 +92,7 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false);
         ioCContainer.bind(IPresenter.class, Presenter.class, false);
         ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
+        ioCContainer.bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, false);
     }
 
     // Undocumented public accessor.

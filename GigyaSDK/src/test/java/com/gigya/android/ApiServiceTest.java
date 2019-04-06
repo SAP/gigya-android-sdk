@@ -2,13 +2,13 @@ package com.gigya.android;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.managers.ApiService;
-import com.gigya.android.sdk.managers.IAccountService;
-import com.gigya.android.sdk.managers.ISessionService;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
+import com.gigya.android.sdk.services.ApiService;
 import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.IAccountService;
+import com.gigya.android.sdk.services.ISessionService;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -3,9 +3,9 @@ package com.gigya.android.sdk;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.api.interruption.GigyaLinkAccountsResolver;
-import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFARegistrationResolver;
-import com.gigya.android.sdk.api.interruption.tfa.IGigyaTFAVerificationResolver;
+import com.gigya.android.sdk.interruption.GigyaLinkAccountsResolver;
+import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver;
+import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver;
 import com.gigya.android.sdk.model.tfa.TFAEmail;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;

@@ -1,286 +1,229 @@
 package com.gigya.android.sdk.services;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.encryption.IEncryptor;
+import com.gigya.android.sdk.encryption.EncryptionException;
+import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.security.Key;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
-@Deprecated
-public class SessionService {
+public class SessionService implements ISessionService {
 
     private static final String LOG_TAG = "SessionService";
 
-    /*
-    Session info encryption algorithm.
-     */
-    private static final String ENCRYPTION_ALGORITHM = "AES";
-
-    /*
-    Main Gigya session reference.
-     */
-    @Nullable
-    private SessionInfo _session;
-
-    @Nullable
-    public SessionInfo getSession() {
-        return _session;
-    }
-
-    private IEncryptor _encryptor;
-
-    @NonNull
-    final private PersistenceService _persistenceService;
-
-    @NonNull
+    // Final fields.
+    final private Context _context;
     final private Config _config;
+    final private IPersistenceService _psService;
+    final private ISecureKey _secureKey;
 
-    @NonNull
-    final private Context _appContext;
+    // Dynamic field - session heap.
+    private SessionInfo _sessionInfo;
 
-    private ArrayMap<String, GigyaInterceptor> _interceptors = new ArrayMap<>();
+    // Injected field - session logic interceptors.
+    private ArrayMap<String, GigyaInterceptor> _sessionInterceptors = new ArrayMap<>();
 
-    public void addInterceptor(GigyaInterceptor interceptor) {
-        _interceptors.put(interceptor.getName(), interceptor);
-    }
-
-    public SessionService(@NonNull Context appContext, @NonNull Config config,
-                          @NonNull PersistenceService persistenceService, IEncryptor encryptor) {
-        _appContext = appContext;
+    public SessionService(Context context, Config config, IPersistenceService psService, ISecureKey secureKey) {
+        _context = context;
+        _psService = psService;
         _config = config;
-        _encryptor = encryptor;
-        _persistenceService = persistenceService;
-        // Get reference to SDK shared preference file.
-        load();
+        _secureKey = secureKey;
     }
 
-    /**
-     * Get reference to current SDK configuration.
-     * Only one configuration object is live during any SDK session.
-     *
-     * @return SDK Config reference.
-     */
-    public Config getConfig() {
-        return _config;
+    @SuppressLint("GetInstance")
+    @Nullable
+    @Override
+    public String encryptSession(String plain, Key key) throws EncryptionException {
+        try {
+            final String ENCRYPTION_ALGORITHM = "AES";
+            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] byteCipherText = cipher.doFinal(plain.getBytes());
+            return CipherUtils.bytesToString(byteCipherText);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new EncryptionException("encryptSession: exception" + ex.getMessage(), ex.getCause());
+        }
     }
 
-
-    /**
-     * Get reference to persistence service.
-     */
-    @NonNull
-    public PersistenceService getPersistenceService() {
-        return _persistenceService;
+    @SuppressLint("GetInstance")
+    @Nullable
+    @Override
+    public String decryptSession(String encrypted, Key key) throws EncryptionException {
+        try {
+            final String ENCRYPTION_ALGORITHM = "AES";
+            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] encPLBytes = CipherUtils.stringToBytes(encrypted);
+            byte[] bytePlainText = cipher.doFinal(encPLBytes);
+            return new String(bytePlainText);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new EncryptionException("decryptSession: exception" + ex.getMessage(), ex.getCause());
+        }
     }
 
-    /**
-     * Set a new session reference.
-     * Referenced object will be set & session info will persist.
-     * Make sure to call this method only when a brand new session data is available and not an existing reference!!
-     *
-     * @param session New session reference.
-     */
-    public void setSession(@Nullable SessionInfo session) {
-        if (session == null) {
-            GigyaLogger.error(LOG_TAG, "Failed to parse _session info from response");
+    @Override
+    public void save(SessionInfo sessionInfo) {
+        final String encryptionType = _psService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+        if (!encryptionType.equals("DEFAULT")) {
+            // Saving & encrypting the session via this service is only viable for "default" session encryption.
             return;
         }
-        _session = session;
-        if (_session.getExpirationTime() > 0) {
-            _sessionWillExpireIn = System.currentTimeMillis() + (_session.getExpirationTime() * 1000);
-            startSessionCountdownTimerIfNeeded();
-        }
-        GigyaLogger.debug(LOG_TAG, session.toString());
-
-        // Encrypt & save the session. Check if biometric support is enabled first to allow
-        // biometric save interception.
-        final GigyaInterceptor biometricInterceptor = _interceptors.get("BIOMETRIC");
-        final String sessionEncryption = _persistenceService.getSessionEncryption();
-        if (biometricInterceptor != null && ObjectUtils.safeEquals(sessionEncryption, FINGERPRINT)) {
-            biometricInterceptor.intercept();
-        } else {
-            save();
-        }
-
-        final GigyaInterceptor sessionVerificationInterceptor = _interceptors.get("SESSION_VERIFICATION");
-        if (sessionVerificationInterceptor != null) {
-            sessionVerificationInterceptor.intercept();
+        try {
+            // Update persistence.
+            final JSONObject jsonObject = new JSONObject()
+                    .put("sessionToken", sessionInfo == null ? null : sessionInfo.getSessionToken())
+                    .put("sessionSecret", sessionInfo == null ? null : sessionInfo.getSessionSecret())
+                    .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime())
+                    .put("ucid", _config.getUcid())
+                    .put("gmid", _config.getGmid());
+            final String json = jsonObject.toString();
+            final SecretKey key = _secureKey.getKey();
+            final String encryptedSession = encryptSession(json, key);
+            // Save session.
+            _psService.add(PersistenceService.PREFS_KEY_SESSION, encryptedSession);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    /**
-     * Checks weather the current referenced session is valid or not.
-     *
-     * @return True if session is valid.
-     */
-    public boolean isValidSession() {
-        boolean valid = _session != null && _session.isValid();
+    @Override
+    public void load() {
+        // Check & load legacy session if available.
+        if (isLegacySession()) {
+            GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
+            _sessionInfo = loadLegacySession();
+        }
+        if (_psService.contains(PersistenceService.PREFS_KEY_SESSION)) {
+            String encryptedSession = _psService.getString(PersistenceService.PREFS_KEY_SESSION, null);
+            if (!TextUtils.isEmpty(encryptedSession)) {
+                final String encryptionType = _psService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+                if (ObjectUtils.safeEquals(encryptionType, "FINGERPRINT")) {
+                    GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
+                }
+                try {
+                    final SecretKey key = _secureKey.getKey();
+                    final String decryptedSession = decryptSession(encryptedSession, key);
+                    Gson gson = new Gson();
+                    // Parse session info.
+                    final SessionInfo sessionInfo = gson.fromJson(decryptedSession, SessionInfo.class);
+                    // Parse config fields. & update main SDK config instance.
+                    final Config dynamicConfig = gson.fromJson(decryptedSession, Config.class);
+                    _config.updateWith(dynamicConfig);
+                    _sessionInfo = sessionInfo;
+                    // Refresh expiration. If any.
+                    refreshSessionExpiration();
+                } catch (Exception eex) {
+                    eex.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public SessionInfo getSession() {
+        return _sessionInfo;
+    }
+
+    @Override
+    public void setSession(SessionInfo sessionInfo) {
+        _sessionInfo = sessionInfo;
+        save(sessionInfo); // Will only work for "DEFAULT" encryption.
+        // Apply interceptions
+        applyInterceptions();
+
+        // Check session expiration.
+        if (_sessionInfo.getExpirationTime() > 0) {
+            _sessionWillExpireIn = System.currentTimeMillis() + (_sessionInfo.getExpirationTime() * 1000);
+            startSessionCountdownTimerIfNeeded();
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        boolean valid = _sessionInfo != null && _sessionInfo.isValid();
         if (_sessionWillExpireIn > 0) {
             valid = System.currentTimeMillis() < _sessionWillExpireIn;
         }
         return valid;
     }
 
-    //region SESSION PERSISTENCE
-
-
-    /**
-     * Clear current session.
-     * Will nullify current reference & remove any records from encrypted persistence.
-     */
+    @Override
     public void clear(boolean clearStorage) {
         GigyaLogger.debug(LOG_TAG, "clear: ");
-        this._session = null;
+        _sessionInfo = null;
         if (clearStorage) {
-            _persistenceService.clearSession();
-            _persistenceService.updateSessionEncryption(DEFAULT);
+            // Remove session data. Update encryption to DEFAULT.
+            _psService.remove(PersistenceService.PREFS_KEY_SESSION);
+            _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
         }
     }
 
-    /**
-     * Save session data to encrypted persistence store.
-     */
-    public void save() {
-        GigyaLogger.debug(LOG_TAG, "save:");
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("sessionToken", _session != null ? _session.getSessionToken() : null);
-            jsonObject.put("sessionSecret", _session != null ? _session.getSessionSecret() : null);
-            jsonObject.put("expirationTime", _session != null ? _session.getExpirationTime() : null);
-            jsonObject.put("ucid", _config.getUcid());
-            jsonObject.put("gmid", _config.getGmid());
-
-            // Encrypt _session.
-            final String sessionJSON = jsonObject.toString();
-
-            final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-            final String encryptedSession = CipherUtils.encrypt(sessionJSON, ENCRYPTION_ALGORITHM, secretKey);
-
-            // Save to preferences.
-            _persistenceService.setSession(encryptedSession);
-
-            // Persist session expiration if available.
-            if (_sessionWillExpireIn > 0) {
-                _persistenceService.setSessionExpiration(_sessionWillExpireIn);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion to " + ex.getMessage());
-        }
-    }
-
-    /**
-     * Check current persistent session is of Legacy type.
-     * Legacy sessions are relevant only to SDK versions <=3.3.14.
-     *
-     * @return True if Application shared preferences contain a Legacy session entry.
-     */
-    private boolean isLegacySession() {
-        return (!TextUtils.isEmpty(_persistenceService.getString("session.Token", null)));
-    }
-
-    /**
-     * Load session reference.
-     * Will check first if the current persist session is of Legacy type (SDK versions <= 3.3.14). If so will
-     * load and migrate them to updated session structure & encryption.
-     */
-    private void load() {
-        // Check & load legacy session if available.
-        if (isLegacySession()) {
-            GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
-            loadLegacySession();
+    private void applyInterceptions() {
+        if (_sessionInterceptors.isEmpty()) {
             return;
         }
-        // Load from preferences.
-        if (_persistenceService.hasSession()) {
-            String encryptedSession = _persistenceService.getSession();
-            if (!TextUtils.isEmpty(encryptedSession)) {
-
-                // Check encryption type.
-                final String encryptionType = _persistenceService.getSessionEncryption();
-                if (ObjectUtils.safeEquals(encryptionType, FINGERPRINT)) {
-                    GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
-                    return;
-                }
-
-                // Decrypt _session string.
-                final SecretKey secretKey = _encryptor.getKey(_appContext, _persistenceService);
-                final String sessionJson = CipherUtils.decrypt(encryptedSession, ENCRYPTION_ALGORITHM, secretKey);
-
-                try {
-                    JSONObject jsonObject = new JSONObject(sessionJson);
-                    final String sessionToken = jsonObject.has("sessionToken") ? jsonObject.getString("sessionToken") : null;
-                    final String sessionSecret = jsonObject.has("sessionSecret") ? jsonObject.getString("sessionSecret") : null;
-                    final long expirationTime = jsonObject.has("expirationTime") ? jsonObject.getLong("expirationTime") : -1;
-                    _session = new SessionInfo(sessionSecret, sessionToken, expirationTime);
-
-                    final String ucid = jsonObject.getString("ucid");
-                    _config.setUcid(ucid);
-                    final String gmid = jsonObject.getString("gmid");
-                    _config.setGmid(gmid);
-
-                    updateSessionExpirationIfExists();
-
-                    GigyaLogger.debug(LOG_TAG, "Session load: " + _session.toString());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    GigyaLogger.error(LOG_TAG, "sessionToJson: Error in conversion from" + ex.getMessage());
-                }
-            }
+        for (Map.Entry<String, GigyaInterceptor> entry : _sessionInterceptors.entrySet()) {
+            final GigyaInterceptor interceptor = entry.getValue();
+            GigyaLogger.debug(LOG_TAG, "Apply interception for: " + interceptor.getName());
+            interceptor.intercept();
         }
     }
 
-    public void updateSessionExpirationIfExists() {
-        // Get session expiration if exists.
-        _sessionWillExpireIn = _persistenceService.getSessionExpiration();
-        // Check if already passed. Reset if so.
-        if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
-            _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
-        }
+    //region LEGACY SESSION
+
+    private boolean isLegacySession() {
+        final String legacyTokenKey = "session.Token";
+        return (!TextUtils.isEmpty(_psService.getString(legacyTokenKey, null)));
     }
 
-    /**
-     * Load legacy session entries and populate SessionInfo reference & ucid/gmid entries in the config reference.
-     */
-    private void loadLegacySession() {
-        final String token = _persistenceService.getString("session.Token", null);
-        final String secret = _persistenceService.getString("session.Secret", null);
-        final long expiration = _persistenceService.getLong("session.ExpirationTime", 0L);
-        _session = new SessionInfo(secret, token, expiration);
-        final String ucid = _persistenceService.getString("ucid", null);
-        _config.setUcid(ucid);
-        final String gmid = _persistenceService.getString("gmid", null);
-        _config.setGmid(gmid);
-        /* Clear all legacy session entries. */
-        _persistenceService.remove("ucid", "gmid", "lastLoginProvider", "session.Token",
+    private SessionInfo loadLegacySession() {
+        final String token = _psService.getString("session.Token", null);
+        final String secret = _psService.getString("session.Secret", null);
+        final long expiration = _psService.getLong("session.ExpirationTime", 0L);
+        final SessionInfo sessionInfo = new SessionInfo(secret, token, expiration);
+        // Update configuration fields.
+        final String ucid = _psService.getString("ucid", null);
+        final String gmid = _psService.getString("gmid", null);
+        final Config dynamicConfig = new Config();
+        dynamicConfig.setUcid(ucid);
+        dynamicConfig.setGmid(gmid);
+        _config.updateWith(dynamicConfig);
+        // Clear all legacy session entries.
+        _psService.remove("ucid", "gmid", "lastLoginProvider", "session.Token",
                 "session.Secret", "tsOffset", "session.ExpirationTime");
-        /* Save session in current construct. */
-        save();
+        // Save session in current construct.
+        save(sessionInfo);
+        return sessionInfo;
     }
 
     //endregion
 
-    //region SESSION EXPIRATION TRACKING
+    //region SESSION EXPIRATION
 
     private long _sessionWillExpireIn = 0;
 
@@ -289,18 +232,35 @@ public class SessionService {
     /**
      * Cancel running timer if reference is not null.
      */
+    @Override
     public void cancelSessionCountdownTimer() {
         if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
+    }
+
+    @Override
+    public void addInterceptor(GigyaInterceptor interceptor) {
+        _sessionInterceptors.put(interceptor.getName(), interceptor);
+    }
+
+    @Override
+    public void refreshSessionExpiration() {
+        // Get session expiration if exists.
+        _sessionWillExpireIn = _psService.getLong(PersistenceService.PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
+        // Check if already passed. Reset if so.
+        if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
+            _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, _sessionWillExpireIn = 0);
+        }
     }
 
     /**
      * Check if session countdown is required. Initiate if needed.
      */
+    @Override
     public void startSessionCountdownTimerIfNeeded() {
-        if (_session == null) {
+        if (_sessionInfo == null) {
             return;
         }
-        if (_session.isValid() && _sessionWillExpireIn > 0) {
+        if (_sessionInfo.isValid() && _sessionWillExpireIn > 0) {
             // Session is set to expire.
             final long timeUntilSessionExpires = _sessionWillExpireIn - System.currentTimeMillis();
             GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: "
@@ -330,20 +290,12 @@ public class SessionService {
             @Override
             public void onFinish() {
                 GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
-                _persistenceService.setSessionExpiration(_sessionWillExpireIn = 0);
+                _psService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, _sessionWillExpireIn = 0);
                 // Send "session expired" local broadcast.
-                LocalBroadcastManager.getInstance(_appContext).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
+                LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
             }
         }.start();
     }
 
     //endregion
-
-    @Retention(RetentionPolicy.SOURCE)
-    @StringDef({DEFAULT, FINGERPRINT})
-    public @interface SessionEncryption {
-    }
-
-    public static final String DEFAULT = "DEFAULT";
-    public static final String FINGERPRINT = "FINGERPRINT";
 }

@@ -6,15 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.providers.LoginProvider;
-import com.gigya.android.sdk.providers.LoginProviderFactory;
-import com.gigya.android.sdk.providers.provider.FacebookLoginProvider;
-import com.gigya.android.sdk.providers.provider.GoogleLoginProvider;
-import com.gigya.android.sdk.providers.provider.LineLoginProvider;
-import com.gigya.android.sdk.providers.provider.WeChatLoginProvider;
-import com.gigya.android.sdk.providers.provider.WebViewLoginProvider;
-import com.gigya.android.sdk.services.ApiService;
-import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +16,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;

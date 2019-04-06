@@ -6,11 +6,11 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.managers.SessionService;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.services.Config;
+import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;

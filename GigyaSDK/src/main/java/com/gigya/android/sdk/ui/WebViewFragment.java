@@ -90,11 +90,11 @@ public abstract class WebViewFragment extends DialogFragment {
 
     private void parseStyleParameters() {
         if (_params != null) {
-            _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.SHOW_FULL_SCREEN), false);
-            _progressColorStyle = (int) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.PROGRESS_COLOR), Color.BLACK);
-            _cornerRadiusStyle = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.CORNER_RADIUS), 16f);
-            _maxWidth = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.DIALOG_MAX_WIDTH), 0f);
-            _maxHeight = (float) ObjectUtils.firstNonNull(_params.get(GigyaPresenter.DIALOG_MAX_HEIGHT), 0f);
+            _fullScreen = (boolean) ObjectUtils.firstNonNull(_params.get(Presenter.SHOW_FULL_SCREEN), false);
+            _progressColorStyle = (int) ObjectUtils.firstNonNull(_params.get(Presenter.PROGRESS_COLOR), Color.BLACK);
+            _cornerRadiusStyle = (float) ObjectUtils.firstNonNull(_params.get(Presenter.CORNER_RADIUS), 16f);
+            _maxWidth = (float) ObjectUtils.firstNonNull(_params.get(Presenter.DIALOG_MAX_WIDTH), 0f);
+            _maxHeight = (float) ObjectUtils.firstNonNull(_params.get(Presenter.DIALOG_MAX_HEIGHT), 0f);
         }
     }
 

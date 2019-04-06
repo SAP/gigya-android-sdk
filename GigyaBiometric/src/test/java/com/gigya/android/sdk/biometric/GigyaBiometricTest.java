@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.model.account.GigyaAccount;
-import com.gigya.android.sdk.services.PersistenceService;
-import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;

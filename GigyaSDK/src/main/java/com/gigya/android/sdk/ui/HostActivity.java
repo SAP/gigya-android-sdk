@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.gigya.android.sdk.ui.provider.GigyaLoginPresenter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class HostActivity extends AppCompatActivity {
 
     public static void present(Context context, HostActivityLifecycleCallbacks lifecycleCallbacks) {
         Intent intent = new Intent(context, HostActivity.class);
-        intent.putExtra(EXTRA_LIFECYCLE_CALLBACKS_ID, GigyaLoginPresenter.addLifecycleCallbacks(lifecycleCallbacks));
+        intent.putExtra(EXTRA_LIFECYCLE_CALLBACKS_ID, Presenter.addLifecycleCallbacks(lifecycleCallbacks));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
         context.startActivity(intent);
     }
@@ -52,7 +50,7 @@ public class HostActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-            _lifecycleCallbacks = GigyaPresenter.getCallbacks(_lifecycleCallbacksId);
+            _lifecycleCallbacks = Presenter.getCallbacks(_lifecycleCallbacksId);
         }
 
         if (_lifecycleCallbacks != null) {
@@ -86,7 +84,7 @@ public class HostActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        GigyaPresenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
+        Presenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
         super.finish();
         /*
         Disable exit animation.

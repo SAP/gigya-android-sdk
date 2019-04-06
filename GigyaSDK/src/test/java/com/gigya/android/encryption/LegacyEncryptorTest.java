@@ -2,9 +2,6 @@ package com.gigya.android.encryption;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.encryption.LegacyEncryptor;
-import com.gigya.android.sdk.services.PersistenceService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,7 +16,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @Deprecated
 public class LegacyEncryptorTest {

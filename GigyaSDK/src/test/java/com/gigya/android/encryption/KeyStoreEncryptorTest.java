@@ -3,8 +3,6 @@ package com.gigya.android.encryption;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.gigya.android.sdk.encryption.KeyStoreEncryptor;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
