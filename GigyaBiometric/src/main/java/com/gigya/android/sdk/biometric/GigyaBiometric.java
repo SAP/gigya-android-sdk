@@ -2,12 +2,12 @@ package com.gigya.android.sdk.biometric;
 
 import android.content.Context;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
 import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.ISessionService;
 
 import javax.crypto.Cipher;

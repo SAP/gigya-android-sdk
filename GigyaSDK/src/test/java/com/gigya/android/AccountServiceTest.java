@@ -1,8 +1,8 @@
 package com.gigya.android;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.services.AccountService;
-import com.gigya.android.sdk.services.Config;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +21,6 @@ public class AccountServiceTest {
     @Mock
     private Config mConfig;
 
-    @Mock
-    private GigyaAccount mAccount;
-
     private AccountService cAccountService;
 
     @Before
@@ -36,7 +33,7 @@ public class AccountServiceTest {
     @Test
     public void testSetAccount() {
         // Act
-        cAccountService.setAccount(mAccount);
+        cAccountService.setAccount("");
         // Assert
         assertNotNull(cAccountService.getAccount());
         assertTrue(System.currentTimeMillis() < cAccountService.getNextInvalidationTimestamp());
@@ -46,7 +43,7 @@ public class AccountServiceTest {
     @Test
     public void testGetAccount() {
         // Arrange
-        cAccountService.setAccount(mAccount);
+        cAccountService.setAccount("");
         // Act
         final GigyaAccount cachedAccount = cAccountService.getAccount();
         // Assert
@@ -57,7 +54,7 @@ public class AccountServiceTest {
     @Test
     public void testIsCachedAccount() {
         // Arrange
-        cAccountService.setAccount(mAccount);
+        cAccountService.setAccount("");
         // Act
         boolean isCachedAccount = cAccountService.isCachedAccount();
         // Assert
@@ -68,7 +65,7 @@ public class AccountServiceTest {
     @Test
     public void testIsCachedAccountAfterOverride() {
         // Arrange
-        cAccountService.setAccount(mAccount);
+        cAccountService.setAccount("");
         cAccountService.setAccountOverrideCache(true);
         // Act
         boolean isCachedAccount = cAccountService.isCachedAccount();

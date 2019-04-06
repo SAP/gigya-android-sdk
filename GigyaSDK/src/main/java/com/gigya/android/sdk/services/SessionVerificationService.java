@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -24,7 +25,8 @@ public class SessionVerificationService implements ISessionVerificationService {
     final private IAccountService _accountService;
     final private IApiService _apiService;
 
-    public SessionVerificationService(Context context, Config config, ISessionService sessionService, IAccountService accountService, IApiService apiService) {
+    public SessionVerificationService(Context context, Config config, ISessionService sessionService,
+                                      IAccountService accountService, IApiService apiService) {
         _context = context;
         _config = config;
         _sessionService = sessionService;

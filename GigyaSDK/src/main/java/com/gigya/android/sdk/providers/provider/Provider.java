@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.providers.provider;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -7,7 +8,6 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.IProviderTokenTrackerListener;
-import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.IAccountService;
 import com.gigya.android.sdk.services.IApiService;
 import com.gigya.android.sdk.services.ISessionService;

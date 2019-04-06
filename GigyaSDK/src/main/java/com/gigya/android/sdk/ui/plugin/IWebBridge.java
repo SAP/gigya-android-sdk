@@ -1,8 +1,7 @@
-package com.gigya.android.sdk.ui;
+package com.gigya.android.sdk.ui.plugin;
 
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 
 public interface IWebBridge<T extends GigyaAccount> {
 

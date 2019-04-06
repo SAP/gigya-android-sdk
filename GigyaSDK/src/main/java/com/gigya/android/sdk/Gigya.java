@@ -31,7 +31,6 @@ import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.services.AccountService;
 import com.gigya.android.sdk.services.ApiService;
-import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.IAccountService;
 import com.gigya.android.sdk.services.IApiService;
 import com.gigya.android.sdk.services.ISessionService;

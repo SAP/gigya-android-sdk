@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
-import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.SessionService;
 
 import org.junit.Before;
@@ -113,7 +113,7 @@ public class SessionServiceTest {
         final SecretKey secretKey = generator.generateKey();
         when(mSecureKey.getKey()).thenReturn(secretKey);
 
-        cSessionService = new SessionService(mConfig, mPsService, mSecureKey);
+        cSessionService = new SessionService(mContext,mConfig, mPsService, mSecureKey);
     }
 
     @Test
@@ -160,7 +160,8 @@ public class SessionServiceTest {
         when(mSharedPreferences.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT")).thenReturn("DEFAULT");
         when(mSharedPreferences.getString("GS_PREFA", null)).thenReturn(null);
         // Act
-        SessionInfo sessionInfo = cSessionService.load();
+        cSessionService.load();
+        SessionInfo sessionInfo = cSessionService.getSession();
         // Assert
         assertNotNull(sessionInfo);
         assertEquals("mSessionToken", sessionInfo.getSessionToken());
@@ -188,7 +189,8 @@ public class SessionServiceTest {
             }
         });
         // Act
-        SessionInfo sessionInfo = cSessionService.load();
+        cSessionService.load();
+        SessionInfo sessionInfo = cSessionService.getSession();
         // Assert
         assertNotNull(sessionInfo);
         assertEquals("mSessionToken", sessionInfo.getSessionToken());

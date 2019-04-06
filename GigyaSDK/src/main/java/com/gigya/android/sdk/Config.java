@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -8,11 +8,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
-
-import java.util.Map;
 
 public class Config {
 
@@ -21,7 +18,6 @@ public class Config {
     private String gmid;
     private String ucid;
     private int accountCacheTime;
-    private Map<String, String> appIds;
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
 
@@ -77,24 +73,22 @@ public class Config {
     }
 
     public Config updateWith(Config config) {
-        updateWith(config.getApiKey(), config.getApiDomain(), config.getAccountCacheTime(), config.getSessionVerificationInterval());
+        updateWith(
+                config.getApiKey(),
+                config.getApiDomain(),
+                config.getAccountCacheTime(),
+                config.getSessionVerificationInterval()
+        );
         if (config.getGmid() != null) {
             this.gmid = config.getGmid();
         }
         if (config.getUcid() != null) {
             this.ucid = config.getUcid();
         }
-        if (config.getAppIds() != null) {
-            this.appIds = config.getAppIds();
-        }
         return this;
     }
 
     //endregion
-
-    public boolean isProviderSynced() {
-        return appIds != null;
-    }
 
     //region GETTERS & SETTERS
 
@@ -136,14 +130,6 @@ public class Config {
 
     public void setAccountCacheTime(int accountCacheTime) {
         this.accountCacheTime = accountCacheTime;
-    }
-
-    public Map<String, String> getAppIds() {
-        return appIds;
-    }
-
-    public void setAppIds(Map<String, String> appIds) {
-        this.appIds = appIds;
     }
 
     public boolean isInterruptionsEnabled() {

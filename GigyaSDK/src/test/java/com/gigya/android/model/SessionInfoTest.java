@@ -25,7 +25,7 @@ public class SessionInfoTest {
     @Test
     public void testLongConstructor() {
         // Arrange
-        long expiration = System.currentTimeMillis() + 100;
+        long expiration = 5;
         // Act
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET, expiration);
         // Assert
@@ -35,7 +35,7 @@ public class SessionInfoTest {
     @Test
     public void testSessionIsValid() {
         // Arrange
-        long expiration = System.currentTimeMillis() + 100;
+        long expiration = 5;
         SessionInfo session = new SessionInfo(MOCK_API_KEY, MOCK_SECRET, expiration);
         // Act
         final boolean isValid = session.isValid();
@@ -46,7 +46,7 @@ public class SessionInfoTest {
     @Test
     public void testSessionInvalidWithNullSecret() {
         // Arrange
-        long expiration = System.currentTimeMillis() + 100;
+        long expiration = 5;
         SessionInfo session = new SessionInfo(null, MOCK_SECRET, expiration);
         // Act
         final boolean isValid = session.isValid();
@@ -57,7 +57,7 @@ public class SessionInfoTest {
     @Test
     public void testSessionInvalidWithNullApiKey() {
         // Arrange
-        long expiration = System.currentTimeMillis() + 100;
+        long expiration = 5;
         SessionInfo session = new SessionInfo(MOCK_SECRET, null, expiration);
         // Act
         final boolean isValid = session.isValid();

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.BiometricImpl;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
@@ -12,7 +13,6 @@ import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.services.Config;
 import com.gigya.android.sdk.services.ISessionService;
 
 import javax.crypto.Cipher;

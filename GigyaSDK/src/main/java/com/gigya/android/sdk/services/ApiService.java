@@ -2,6 +2,7 @@ package com.gigya.android.sdk.services;
 
 import android.support.v4.util.Pair;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
