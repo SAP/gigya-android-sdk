@@ -41,27 +41,29 @@ public class ProviderFactory implements IProviderFactory {
 
     @Override
     public Provider providerFor(String name, GigyaLoginCallback gigyaLoginCallback) {
-        switch (name.toLowerCase()) {
-            case FACEBOOK:
-                if (FacebookProvider.isAvailable(_context)) {
-                    return new FacebookProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
-                }
-                break;
-            case GOOGLE:
-                if (GoogleProvider.isAvailable(_context)) {
-                    return new GoogleProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
-                }
-                break;
-            case LINE:
-                if (LineProvider.isAvailable(_context)) {
-                    return new LineProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
-                }
-                break;
-            case WECHAT:
-                if (WeChatProvider.isAvailable(_context)) {
-                    return new WeChatProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
-                }
-                break;
+        if (name != null) {
+            switch (name) {
+                case FACEBOOK:
+                    if (FacebookProvider.isAvailable(_context)) {
+                        return new FacebookProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                    }
+                    break;
+                case GOOGLE:
+                    if (GoogleProvider.isAvailable(_context)) {
+                        return new GoogleProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                    }
+                    break;
+                case LINE:
+                    if (LineProvider.isAvailable(_context)) {
+                        return new LineProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                    }
+                    break;
+                case WECHAT:
+                    if (WeChatProvider.isAvailable(_context)) {
+                        return new WeChatProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                    }
+                    break;
+            }
         }
         return new WebViewProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
     }

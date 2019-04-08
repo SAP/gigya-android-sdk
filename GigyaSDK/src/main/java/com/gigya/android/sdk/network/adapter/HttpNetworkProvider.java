@@ -17,12 +17,12 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.GZIPInputStream;
 
-class HttpNetworkProvider extends NetworkProvider {
+public class HttpNetworkProvider extends NetworkProvider {
 
     private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
     @Override
-    void addToQueue(GigyaApiRequest request, INetworkCallbacks networkCallbacks) {
+    void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         if (_blocked) {
             _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
@@ -32,7 +32,7 @@ class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void sendBlocking(GigyaApiRequest request, INetworkCallbacks networkCallbacks) {
+    void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
         _blocked = true;
     }
@@ -100,9 +100,9 @@ class HttpNetworkProvider extends NetworkProvider {
 
     private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiRequest, Void, AsyncResult> {
 
-        private INetworkCallbacks networkCallbacks;
+        private IRestAdapterCallback networkCallbacks;
 
-        GigyaNetworkAsyncTask(INetworkCallbacks networkCallbacks) {
+        GigyaNetworkAsyncTask(IRestAdapterCallback networkCallbacks) {
             this.networkCallbacks = networkCallbacks;
         }
 

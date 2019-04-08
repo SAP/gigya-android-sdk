@@ -49,6 +49,8 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         return inactiveProviders;
     }
 
+    private RestAdapter _restAdapter;
+
     private String gigyaAssertion;
 
     @Override
@@ -112,6 +114,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     private void initTFA(final String provider, final String mode, final Map<String, String> arguments) {
         GigyaLogger.debug(LOG_TAG, "initTFA: provider = " + provider + " mode = " + mode);
+
         _apiService.send(GigyaDefinitions.API.API_TFA_INIT,
                 ObjectUtils.mapOf(Arrays.asList(
                         new Pair<String, Object>("regToken", _regToken),

@@ -15,8 +15,8 @@ import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
+import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.utils.AuthUtils;
@@ -473,7 +473,7 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
     //region ADAPTER SEND
 
     private <V> void adapterSend(GigyaApiRequest apiRequest, boolean blocking, final Class<V> scheme, final IApiAdapterResponse<V> responseListener) {
-        _restAdapter.send(apiRequest, blocking, new INetworkCallbacks() {
+        _restAdapter.send(apiRequest, blocking, new IRestAdapterCallback() {
             @Override
             public void onResponse(String jsonResponse) {
                 try {

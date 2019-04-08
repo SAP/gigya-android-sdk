@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 IntentFilter(filter))
         // Evaluate fingerprint session.
-        //evaluateFingerprintSession()
+        evaluateFingerprintSession()
         // Register for account info updates.
         registerAccountUpdates()
         /* If we are already logged in - get account info and update relevant account UI (drawer header). */
@@ -158,10 +158,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_clear -> onClear()
             R.id.action_reinit -> reInit()
             R.id.action_logout -> logout()
-            R.id.disable_interruptions -> Gigya.getInstance().handleInterruptions(false)
-            R.id.enable_interruptions -> Gigya.getInstance().handleInterruptions(true)
+            R.id.toggle_interruptions -> toggleInterruptions()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun toggleInterruptions() {
+        val gigya = Gigya.getInstance()
+        gigya.handleInterruptions(!gigya.interruptionsEnabled())
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

@@ -7,12 +7,12 @@ import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.services.IApiService;
 
-public class InterruptionResolverFactory implements IInterruptionResolverFactory {
+public class ResolverFactory implements IResolverFactory {
 
     final private IApiService _apiService;
     final private IProviderFactory _providerFactory;
 
-    public InterruptionResolverFactory(IApiService apiService, IProviderFactory providerFactory) {
+    public ResolverFactory(IApiService apiService, IProviderFactory providerFactory) {
         _apiService = apiService;
         _providerFactory = providerFactory;
     }

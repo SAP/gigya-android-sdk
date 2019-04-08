@@ -15,10 +15,9 @@ import android.webkit.WebView;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
-import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.IInterruptionsResolver;
-import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
-import com.gigya.android.sdk.interruption.InterruptionsResolver;
+import com.gigya.android.sdk.interruption.IResolverFactory;
+import com.gigya.android.sdk.interruption.ResolverFactory;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -84,14 +83,13 @@ public class Gigya<T extends GigyaAccount> {
         ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
         ioCContainer.bind(ISessionService.class, SessionService.class, true);
         ioCContainer.bind(IAccountService.class, AccountService.class, true);
-        ioCContainer.bind(IApiService.class, ApiService.class, false);
         ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
-        ioCContainer.bind(IInterruptionsResolver.class, InterruptionsResolver.class, true);
+        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
+        ioCContainer.bind(IResolverFactory.class, ResolverFactory.class, false);
+        ioCContainer.bind(IApiService.class, ApiService.class, true);
         ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
         ioCContainer.bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false);
         ioCContainer.bind(IPresenter.class, Presenter.class, false);
-        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
-        ioCContainer.bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, false);
     }
 
     // Undocumented public accessor.
@@ -127,7 +125,7 @@ public class Gigya<T extends GigyaAccount> {
     Simplified instance getter for use only after calling getInstance(Context context) at least once.
      */
     @SuppressWarnings("unchecked")
-    public static synchronized Gigya<GigyaAccount> getInstance() {
+    public static synchronized Gigya<? extends GigyaAccount> getInstance() {
         if (INSTANCE == null) {
             // Log error.
             GigyaLogger.error(LOG_TAG, "Gigya instance not initialized properly!" +
@@ -339,6 +337,19 @@ public class Gigya<T extends GigyaAccount> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Return SDK interruptions state.
+     */
+    public boolean interruptionsEnabled() {
+        try {
+            IInterruptionsResolver interruptionsResolver = ioCContainer.get(IInterruptionsResolver.class);
+            interruptionsResolver.isEnabled();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return true;
     }
 
     // Non documented public accessor.
@@ -571,6 +582,7 @@ public class Gigya<T extends GigyaAccount> {
             }
             IApiService<T> apiService = ioCContainer.get(IApiService.class);
             apiService.getAccount(gigyaCallback);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

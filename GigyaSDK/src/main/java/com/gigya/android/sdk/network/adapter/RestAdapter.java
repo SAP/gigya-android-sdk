@@ -20,7 +20,7 @@ public class RestAdapter implements IRestAdapter {
     }
 
     @Override
-    public void send(GigyaApiRequest apiRequest, boolean blocking, INetworkCallbacks requestCallbacks) {
+    public void send(GigyaApiRequest apiRequest, boolean blocking, IRestAdapterCallback requestCallbacks) {
         if (blocking) {
             sendBlocking(apiRequest, requestCallbacks);
             return;
@@ -29,7 +29,7 @@ public class RestAdapter implements IRestAdapter {
     }
 
     @Override
-    public void sendBlocking(GigyaApiRequest apiRequest, INetworkCallbacks requestCallbacks) {
+    public void sendBlocking(GigyaApiRequest apiRequest, IRestAdapterCallback requestCallbacks) {
         _networkProvider.sendBlocking(apiRequest, requestCallbacks);
     }
 

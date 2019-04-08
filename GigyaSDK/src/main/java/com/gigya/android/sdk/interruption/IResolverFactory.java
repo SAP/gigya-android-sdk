@@ -5,7 +5,7 @@ import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 
-public interface IInterruptionResolverFactory {
+public interface IResolverFactory {
 
     GigyaLinkAccountsResolver createLinkAccountsResolver(GigyaApiResponse originalResponse, GigyaLoginCallback loginCallback);
 

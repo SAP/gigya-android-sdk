@@ -7,6 +7,8 @@ public interface IInterruptionsResolver {
 
     void setEnabled(boolean enabled);
 
+    boolean isEnabled();
+
     void clearAll();
 
     boolean evaluateInterruptionError(GigyaApiResponse apiResponse, final GigyaLoginCallback loginCallback);

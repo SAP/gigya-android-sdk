@@ -2,7 +2,7 @@ package com.gigya.android.sdk.network.adapter;
 
 import com.gigya.android.sdk.network.GigyaError;
 
-public abstract class INetworkCallbacks {
+public abstract class IRestAdapterCallback {
 
     public abstract void onResponse(String jsonResponse);
 

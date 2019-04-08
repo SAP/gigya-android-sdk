@@ -13,9 +13,9 @@ public class InterruptionsResolver implements IInterruptionsResolver {
 
     public static final String LOG_TAG = "InterruptionsResolver";
 
-    final private IInterruptionResolverFactory _interruptionsFactory;
+    final private IResolverFactory _interruptionsFactory;
 
-    public InterruptionsResolver(IInterruptionResolverFactory interruptionsFactory) {
+    public InterruptionsResolver(IResolverFactory interruptionsFactory) {
         _interruptionsFactory = interruptionsFactory;
     }
 
@@ -26,6 +26,11 @@ public class InterruptionsResolver implements IInterruptionsResolver {
     @Override
     public void setEnabled(boolean enabled) {
         _enabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return _enabled;
     }
 
     @Override

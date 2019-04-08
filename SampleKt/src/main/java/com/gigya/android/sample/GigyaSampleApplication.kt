@@ -25,6 +25,7 @@ class GigyaSampleApplication : Application() {
         }
 
         GigyaLogger.setDebugMode(true)
+        GigyaLogger.IOC = true;
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         /*

@@ -4,9 +4,9 @@ import com.gigya.android.sdk.network.GigyaApiRequest;
 
 public interface IRestAdapter {
 
-    void send(GigyaApiRequest apiRequest, boolean blocking, INetworkCallbacks requestCallbacks);
+    void send(GigyaApiRequest apiRequest, boolean blocking, IRestAdapterCallback requestCallbacks);
 
-    void sendBlocking(GigyaApiRequest apiRequest, INetworkCallbacks restRequestCallback);
+    void sendBlocking(GigyaApiRequest apiRequest, IRestAdapterCallback restRequestCallback);
 
     void block();
 
