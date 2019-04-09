@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.account;
 
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.google.gson.Gson;

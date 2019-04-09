@@ -380,30 +380,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    /**
-     * Show comments.
-     */
-    fun showComments(onLogin: (String) -> Unit, onLogout: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showComments(mutableMapOf<String, Any>(
-                "categoryID" to "Support", "streamID" to 1,
-                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                Presenter.CORNER_RADIUS to 8f),
-                object : GigyaPluginCallback<MyAccount>() {
-
-                    override fun onLogin(accountObj: MyAccount) {
-                        account.value = accountObj
-                        onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
-
-                        //TODO This might be wrong - we need to test how to retain the comments activity.
-                        showComments(onLogin, onLogout, onError)
-                    }
-
-                    override fun onLogout() {
-                        onLogout()
-                    }
-                })
-    }
-
     //endregion
 
     //region UTILITY

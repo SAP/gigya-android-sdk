@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.session;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

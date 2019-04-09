@@ -51,9 +51,6 @@
                     android:id="@+id/action_raas"
                     android:title="@string/raas" />
 
-                <item
-                    android:id="@+id/action_comments"
-                    android:title="@string/comments" />
             </menu>
         </item>
 

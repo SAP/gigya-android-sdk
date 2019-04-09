@@ -4,10 +4,10 @@ import android.support.annotation.StringDef;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.services.IApiService;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

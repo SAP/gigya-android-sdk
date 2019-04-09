@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.session;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.Date;

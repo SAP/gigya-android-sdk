@@ -12,11 +12,18 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 
+import com.gigya.android.sdk.account.AccountService;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.ApiService;
+import com.gigya.android.sdk.api.GigyaRequestObservable;
+import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IGigyaRequestObservable;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.interruption.IInterruptionsResolver;
 import com.gigya.android.sdk.interruption.IResolverFactory;
+import com.gigya.android.sdk.interruption.InterruptionsResolver;
 import com.gigya.android.sdk.interruption.ResolverFactory;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
@@ -28,14 +35,10 @@ import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.providers.provider.IProvider;
-import com.gigya.android.sdk.services.AccountService;
-import com.gigya.android.sdk.services.ApiService;
-import com.gigya.android.sdk.services.IAccountService;
-import com.gigya.android.sdk.services.IApiService;
-import com.gigya.android.sdk.services.ISessionService;
-import com.gigya.android.sdk.services.ISessionVerificationService;
-import com.gigya.android.sdk.services.SessionService;
-import com.gigya.android.sdk.services.SessionVerificationService;
+import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.ISessionVerificationService;
+import com.gigya.android.sdk.session.SessionService;
+import com.gigya.android.sdk.session.SessionVerificationService;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
@@ -72,24 +75,29 @@ public class Gigya<T extends GigyaAccount> {
 
     //region DEPENDENCY INJECTION
 
-    private IoCContainer ioCContainer = new IoCContainer();
+    private IoCContainer ioCContainer;
 
-    private void setupIoC(Context context) {
-        ioCContainer.bind(Context.class, context); // Concrete.
-        ioCContainer.bind(Config.class, _config); // Concrete.
-        ioCContainer.bind(IRestAdapter.class, RestAdapter.class, true);
-        ioCContainer.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
+    private static IoCContainer registerDependencies(Context context) {
+        IoCContainer container = new IoCContainer();
+        container.bind(Context.class, context); // Concrete.
+        container.bind(Config.class, Config.class, true); // Concrete.
+        container.bind(IoCContainer.class, container);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        container.bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                 : SessionKeyLegacy.class, true);
-        ioCContainer.bind(IPersistenceService.class, PersistenceService.class, false);
-        ioCContainer.bind(ISessionService.class, SessionService.class, true);
-        ioCContainer.bind(IAccountService.class, AccountService.class, true);
-        ioCContainer.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
-        ioCContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
-        ioCContainer.bind(IResolverFactory.class, ResolverFactory.class, false);
-        ioCContainer.bind(IApiService.class, ApiService.class, true);
-        ioCContainer.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
-        ioCContainer.bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false);
-        ioCContainer.bind(IPresenter.class, Presenter.class, false);
+        container.bind(IPersistenceService.class, PersistenceService.class, false);
+        container.bind(ISessionService.class, SessionService.class, true);
+        container.bind(IAccountService.class, AccountService.class, true);
+        container.bind(ISessionVerificationService.class, SessionVerificationService.class, true);
+        container.bind(IProviderFactory.class, ProviderFactory.class, false);
+        container.bind(IResolverFactory.class, ResolverFactory.class, false);
+        container.bind(IApiService.class, ApiService.class, false);
+        container.bind(IGigyaRequestObservable.class, GigyaRequestObservable.class, true);
+        container.bind(IWebBridgeFactory.class, WebBridgeFactory.class, false);
+        container.bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false);
+        container.bind(IPresenter.class, Presenter.class, false);
+        container.bind(IInterruptionsResolver.class, InterruptionsResolver.class, false);
+        return container;
     }
 
     // Undocumented public accessor.
@@ -106,11 +114,13 @@ public class Gigya<T extends GigyaAccount> {
     //endregion
 
     @SuppressWarnings("unchecked")
-    private Gigya(@NonNull Context appContext, Class<T> accountScheme) {
+    protected Gigya(@NonNull Context context, Class<T> accountScheme, IoCContainer container) {
         // Setup dependencies.
-        setupIoC(appContext);
+        ioCContainer = container;
+        registerActivityLifecycleCallbacks(context);
         // Update account manager with scheme.
         try {
+            _config = container.get(Config.class);
             final IAccountService<T> accountService = ioCContainer.get(IAccountService.class);
             accountService.setAccountScheme(accountScheme);
             final ISessionService sessionService = ioCContainer.get(ISessionService.class);
@@ -164,8 +174,9 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context context, @NonNull Class<V> accountClazz) {
         if (INSTANCE == null) {
-            INSTANCE = new Gigya(context, accountClazz);
-            INSTANCE.registerActivityLifecycleCallbacks(context);
+            // create container and register here.
+            IoCContainer container = registerDependencies(context);
+            INSTANCE = new Gigya(context, accountClazz, container);
         }
         // Check scheme. If already set log an error.
         final IAccountService<V> accountService = (IAccountService<V>) INSTANCE.getComponent(AccountService.class);
@@ -526,11 +537,11 @@ public class Gigya<T extends GigyaAccount> {
      * @param params        parameters map.
      * @param gigyaCallback gin response callback.
      */
-    public void login(Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
+    public void login(Map<String, Object> params, final GigyaLoginCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
         params.put("include", "profile,data,subscriptions,preferences");
         try {
-            IApiService<T> apiService = ioCContainer.get(IApiService.class);
+            final IApiService<T> apiService = ioCContainer.get(IApiService.class);
             apiService.login(params, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();

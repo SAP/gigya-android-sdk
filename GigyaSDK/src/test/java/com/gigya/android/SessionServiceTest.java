@@ -10,7 +10,7 @@ import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
-import com.gigya.android.sdk.services.SessionService;
+import com.gigya.android.sdk.session.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;

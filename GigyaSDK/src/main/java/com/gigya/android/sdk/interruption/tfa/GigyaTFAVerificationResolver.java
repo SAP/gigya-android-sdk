@@ -2,12 +2,12 @@ package com.gigya.android.sdk.interruption.tfa;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.interruption.GigyaTFAResolver;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFAEmail;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
-import com.gigya.android.sdk.services.IApiService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.TFA.EMAIL;
 import static com.gigya.android.sdk.GigyaDefinitions.TFA.PHONE;

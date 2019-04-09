@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
@@ -11,9 +13,7 @@ import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebViewProvider;
-import com.gigya.android.sdk.services.IAccountService;
-import com.gigya.android.sdk.services.IApiService;
-import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.session.ISessionService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;

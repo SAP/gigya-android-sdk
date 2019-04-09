@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.session;
 
 import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;

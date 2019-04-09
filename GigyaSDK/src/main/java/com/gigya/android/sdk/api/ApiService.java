@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.api;
 
 import android.support.v4.util.Pair;
 
@@ -8,6 +8,7 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.interruption.IInterruptionsResolver;
 import com.gigya.android.sdk.model.GigyaConfigModel;
 import com.gigya.android.sdk.model.account.GigyaAccount;
@@ -19,6 +20,7 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
+import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -27,9 +29,11 @@ import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.TreeMap;
 
-public class ApiService<R extends GigyaAccount> implements IApiService<R> {
+public class ApiService<R extends GigyaAccount> implements IApiService<R>, Observer {
 
     private static final String LOG_TAG = "ApiService";
 
@@ -370,7 +374,7 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
     public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback, final Runnable optionalCompletionHandler) {
         if (params.containsKey("loginMode")) {
             final String linkMode = (String) params.get("loginMode");
-            if (ObjectUtils.safeEquals(linkMode,"link")) {
+            if (ObjectUtils.safeEquals(linkMode, "link")) {
                 requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
             }
         }
@@ -467,6 +471,16 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
         requestRequiresGMID(tag, gigyaCallback);
     }
 
+    //endregion
+
+    //region OBSERVER
+
+    @Override
+    public void update(Observable observable, Object arg) {
+        if (arg instanceof GigyaApiRequest) {
+            // Send the request.
+        }
+    }
 
     //endregion
 
@@ -495,6 +509,7 @@ public class ApiService<R extends GigyaAccount> implements IApiService<R> {
             }
         });
     }
+
 
     private interface IApiAdapterResponse<V> {
 

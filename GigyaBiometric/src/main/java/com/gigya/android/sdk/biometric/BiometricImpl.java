@@ -12,7 +12,7 @@ import com.gigya.android.sdk.model.GigyaInterceptor;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
-import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 

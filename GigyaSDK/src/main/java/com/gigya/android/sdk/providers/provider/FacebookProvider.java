@@ -18,10 +18,10 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.services.IAccountService;
-import com.gigya.android.sdk.services.IApiService;
-import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.ObjectUtils;
 

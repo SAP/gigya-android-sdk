@@ -7,6 +7,7 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.ConflictingAccounts;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
@@ -14,7 +15,6 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
-import com.gigya.android.sdk.services.IApiService;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.Arrays;

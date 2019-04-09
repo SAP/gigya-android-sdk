@@ -1,10 +1,10 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.services.IAccountService;
-import com.gigya.android.sdk.services.IApiService;
-import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.session.ISessionService;
 
 public class WebBridgeFactory implements IWebBridgeFactory {
 

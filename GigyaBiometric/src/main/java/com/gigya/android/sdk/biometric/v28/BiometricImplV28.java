@@ -16,7 +16,7 @@ import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.services.ISessionService;
+import com.gigya.android.sdk.session.ISessionService;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

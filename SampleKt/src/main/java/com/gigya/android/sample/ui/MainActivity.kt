@@ -179,7 +179,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.api_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
             R.id.action_raas -> showRAAS()
-            R.id.action_comments -> showComments()
             R.id.api_forgot_password -> onForgotPassword()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -462,26 +461,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.registrationAsAService(
                 onLogin = { json ->
                     onJsonResult(json)
-                },
-                onError = { possibleError ->
-                    possibleError?.let {
-                        // We cant display an alert on top of an alert.
-                    }
-                }
-        )
-    }
-
-    /**
-     * Comments requested from navigation menu.
-     */
-    private fun showComments() {
-        viewModel?.showComments(
-                onLogin = { json ->
-                    onJsonResult(json)
-                },
-                onLogout = {
-                    onClear()
-                    response_text_view.snackbar(getString(R.string.logged_out))
                 },
                 onError = { possibleError ->
                     possibleError?.let {

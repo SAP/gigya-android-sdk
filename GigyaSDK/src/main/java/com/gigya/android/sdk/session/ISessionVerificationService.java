@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.services;
+package com.gigya.android.sdk.session;
 
 public interface ISessionVerificationService {
 

@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion build_versions.target_sdk
+    buildToolsVersion build_versions.build_tools
+
+    defaultConfig {
+        applicationId "com.gigya.android.sample"
+        minSdkVersion build_versions.min_sdk_biometric
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation project(path: ':GigyaSDK')
+    implementation project(path: ':GigyaBiometric')
+
+    implementation deps.android_support.appcompat
+    implementation deps.android_support.design
+    implementation deps.android_support.constraint
+
+    implementation deps.android_arch.lifecycle_extensions
+    annotationProcessor deps.android_arch.lifecycle_compiler
+
+    implementation deps.glide.main
+    annotationProcessor deps.glide.compiler
+
+    implementation deps.libs.gson
+    implementation deps.libs.volley
+
+    // Social libs
+    implementation deps.libs.facebook
+    implementation deps.libs.google_auth
+    implementation deps.libs.wechat
+    implementation files('libs/line-sdk-4.0.10.aar')
+}

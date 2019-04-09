@@ -1,11 +1,11 @@
 package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.services.IApiService;
 
 public class ResolverFactory implements IResolverFactory {
 
