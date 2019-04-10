@@ -2,7 +2,7 @@ package com.gigya.android.sdk.interruption;
 
 public interface IGigyaResolver {
 
-    void init();
+    void start();
 
     void clear();
 

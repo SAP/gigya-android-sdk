@@ -5,7 +5,7 @@ import android.content.Context;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
@@ -26,45 +26,43 @@ public class ProviderFactory implements IProviderFactory {
     final private Config _config;
     final private ISessionService _sessionService;
     final private IAccountService _accountService;
-    final private IApiService _apiService;
     final private IPersistenceService _psService;
 
     public ProviderFactory(Context context, Config config, ISessionService sessionService, IAccountService accountService,
-                           IApiService apiService, IPersistenceService persistenceService) {
+                           IPersistenceService persistenceService) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
-        _apiService = apiService;
         _psService = persistenceService;
     }
 
     @Override
-    public Provider providerFor(String name, GigyaLoginCallback gigyaLoginCallback) {
+    public Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
         if (name != null) {
             switch (name) {
                 case FACEBOOK:
                     if (FacebookProvider.isAvailable(_context)) {
-                        return new FacebookProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                        return new FacebookProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
                     }
                     break;
                 case GOOGLE:
                     if (GoogleProvider.isAvailable(_context)) {
-                        return new GoogleProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                        return new GoogleProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
                     }
                     break;
                 case LINE:
                     if (LineProvider.isAvailable(_context)) {
-                        return new LineProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                        return new LineProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
                     }
                     break;
                 case WECHAT:
                     if (WeChatProvider.isAvailable(_context)) {
-                        return new WeChatProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+                        return new WeChatProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
                     }
                     break;
             }
         }
-        return new WebViewProvider(_config, _sessionService, _accountService, _apiService, _psService, gigyaLoginCallback);
+        return new WebViewProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
     }
 }

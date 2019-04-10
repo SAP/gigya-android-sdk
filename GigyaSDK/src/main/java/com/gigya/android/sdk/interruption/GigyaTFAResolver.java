@@ -1,12 +1,13 @@
 package com.gigya.android.sdk.interruption;
 
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
 
-import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.ApiService;
+import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
@@ -18,13 +19,12 @@ import com.gigya.android.sdk.model.tfa.TFAProvider;
 import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
 import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
 import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
+import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.utils.ObjectUtils;
+import com.gigya.android.sdk.session.ISessionService;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +33,9 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
 
     private static final String LOG_TAG = "GigyaTFAResolver";
 
-    public GigyaTFAResolver(IApiService apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
-        super(apiService, originalResponse, loginCallback);
+    public GigyaTFAResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
+                            GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+        super(config, sessionService, apiService, observable, originalResponse, loginCallback);
     }
 
     private List<TFAProvider> activeProviders;
@@ -48,8 +49,6 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     public List<TFAProvider> getInactiveProviders() {
         return inactiveProviders;
     }
-
-    private RestAdapter _restAdapter;
 
     private String gigyaAssertion;
 
@@ -71,37 +70,46 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     }
 
     /**
+     * Forward first interruption to end user after providers are available (active & inactive).
+     */
+    protected abstract void forwardInitialInterruption();
+
+    /**
      * Initializing the TFA resolver.
      * Will initiate a "accounts.tfa.getProviders" request to validate which providers are available for us
      * for the continuation of the flow.
      */
     @Override
-    public void init() {
+    public void start() {
         GigyaLogger.debug(LOG_TAG, "Resolver init - request providers");
         // Request providers. Populate active & inactive on response.
-        _apiService.send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS,
-                ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("regToken", _regToken))),
-                RestAdapter.POST,
-                TFAProvidersModel.class, new GigyaCallback<TFAProvidersModel>() {
-                    @Override
-                    public void onSuccess(TFAProvidersModel obj) {
-                        // Populate providers.
-                        GigyaTFAResolver.this.activeProviders = obj.getActiveProviders();
-                        GigyaTFAResolver.this.inactiveProviders = obj.getInactiveProviders();
-                        forwardInitialInterruption();
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", _regToken);
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAProvidersModel parsed = response.parseTo(TFAProvidersModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
+                    GigyaTFAResolver.this.activeProviders = parsed.getActiveProviders();
+                    GigyaTFAResolver.this.inactiveProviders = parsed.getInactiveProviders();
+                    forwardInitialInterruption();
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        forwardError(error);
-                    }
-                });
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
-
-    /**
-     * Forward first interruption to end user after providers are available (active & inactive).
-     */
-    protected abstract void forwardInitialInterruption();
 
     //region GENERAL
 
@@ -114,25 +122,34 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     private void initTFA(final String provider, final String mode, final Map<String, String> arguments) {
         GigyaLogger.debug(LOG_TAG, "initTFA: provider = " + provider + " mode = " + mode);
-
-        _apiService.send(GigyaDefinitions.API.API_TFA_INIT,
-                ObjectUtils.mapOf(Arrays.asList(
-                        new Pair<String, Object>("regToken", _regToken),
-                        new Pair<String, Object>("provider", provider),
-                        new Pair<String, Object>("mode", mode))),
-                RestAdapter.POST,
-                TFAInitModel.class, new GigyaCallback<TFAInitModel>() {
-                    @Override
-                    public void onSuccess(TFAInitModel obj) {
-                        GigyaTFAResolver.this.gigyaAssertion = obj.getGigyaAssertion();
-                        onInit(provider, mode, arguments);
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", _regToken);
+        params.put("provider", provider);
+        params.put("mode", mode);
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_INIT, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAInitModel parsed = response.parseTo(TFAInitModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
+                    GigyaTFAResolver.this.gigyaAssertion = parsed.getGigyaAssertion();
+                    onInit(provider, mode, arguments);
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        forwardError(error);
-                    }
-                });
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -163,16 +180,29 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      * @param api    Request API.
      * @param params Request parameters.
      */
-    private void completeVerification(String api, Map<String, Object> params) {
-        _apiService.send(api, params, RestAdapter.POST, TFACompleteVerificationModel.class, new GigyaCallback<TFACompleteVerificationModel>() {
+    private void completeVerification(String api, final Map<String, Object> params) {
+        GigyaLogger.debug(LOG_TAG, "completeVerification: with api = " + api);
+        // Generate & send request
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, api, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
-            public void onSuccess(TFACompleteVerificationModel obj) {
-                finalizeTFA(obj.getProviderAssertion());
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFACompleteVerificationModel parsed = response.parseTo(TFACompleteVerificationModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
+                    }
+                    finalizeTFA(parsed.getProviderAssertion());
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
             }
 
             @Override
-            public void onError(GigyaError error) {
-                forwardError(error);
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
             }
         });
     }
@@ -184,25 +214,23 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     private void finalizeTFA(String providerAssertion) {
         GigyaLogger.debug(LOG_TAG, "finalizeTFA: finalize with pa = " + providerAssertion);
-        _apiService.send(GigyaDefinitions.API.API_TFA_FINALIZE,
-                ObjectUtils.mapOf(Arrays.asList(
-                        new Pair<String, Object>("regToken", _regToken),
-                        new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                        new Pair<String, Object>("providerAssertion", providerAssertion))),
-                RestAdapter.POST,
-                GigyaApiResponse.class,
-                new GigyaCallback<GigyaApiResponse>() {
-                    @Override
-                    public void onSuccess(GigyaApiResponse obj) {
-                        finalizeRegistration();
-                    }
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", _regToken);
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put("providerAssertion", providerAssertion);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                finalizeRegistration();
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        forwardError(error);
-                    }
-                }
-        );
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -211,10 +239,17 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     private void finalizeRegistration() {
         if (isAttached()) {
             GigyaLogger.debug(LOG_TAG, "finalizeRegistration: ");
-            _apiService.finalizeRegistration(_regToken, _loginCallback.get());
+            // Params.
+            final Map<String, Object> params = new HashMap<>();
+            params.put("regToken", _regToken);
+            params.put("include", "profile,data,emails,subscriptions,preferences");
+            params.put("includeUserInfo", "true");
+            // Api.
+            final String api = GigyaDefinitions.API.API_FINALIZE_REGISTRATION;
+            // Notify observer.
+            _observable.send(api, params, _loginCallback.get());
         }
     }
-
 
     //endregion
 
@@ -264,25 +299,35 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      * Request "accounts.tfa.totp.register" that will result in the QR generation needed for the authenticator application.
      */
     private void getTotpQRCode() {
-        _apiService.send(GigyaDefinitions.API.API_TFA_TOTP_REGISTER,
-                ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion))),
-                RestAdapter.POST,
-                TFATotpRegisterModel.class, new GigyaCallback<TFATotpRegisterModel>() {
-                    @Override
-                    public void onSuccess(TFATotpRegisterModel obj) {
-                        GigyaTFAResolver.this.sctToken = obj.getSctToken();
-                        if (isAttached()) {
-                            _loginCallback.get().onTotpTFAQrCodeAvailable(obj.getQrCode());
-                        }
+        GigyaLogger.debug(LOG_TAG, "getTotpQRCode: ");
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_TOTP_REGISTER, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFATotpRegisterModel parsed = response.parseTo(TFATotpRegisterModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
+                    GigyaTFAResolver.this.sctToken = parsed.getSctToken();
+                    if (isAttached()) {
+                        _loginCallback.get().onTotpTFAQrCodeAvailable(parsed.getQrCode());
+                    }
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        if (isAttached()) {
-                            _loginCallback.get().onError(error);
-                        }
-                    }
-                });
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -292,9 +337,9 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     protected void submitTotpCode(String code) {
         GigyaLogger.debug(LOG_TAG, "submitTotpCode: with code = " + code);
-        Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
-                new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                new Pair<String, Object>("code", code)));
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put("code", code);
         if (this.sctToken != null) {
             params.put("sctToken", sctToken);
         }
@@ -345,58 +390,75 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
 
     private void getRegisteredPhoneNumbers() {
         GigyaLogger.debug(LOG_TAG, "getRegisteredPhoneNumbers: ");
-        _apiService.send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS,
-                ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion))),
-                RestAdapter.POST,
-                TFAGetRegisteredPhoneNumbersModel.class, new GigyaCallback<TFAGetRegisteredPhoneNumbersModel>() {
-                    @Override
-                    public void onSuccess(TFAGetRegisteredPhoneNumbersModel obj) {
-                        if (isAttached()) {
-                            _loginCallback.get().onRegisteredTFAPhoneNumbers(obj.getPhones());
-                        }
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAGetRegisteredPhoneNumbersModel parsed = response.parseTo(TFAGetRegisteredPhoneNumbersModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
+                    if (isAttached()) {
+                        _loginCallback.get().onRegisteredTFAPhoneNumbers(parsed.getPhones());
+                    }
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        if (isAttached()) {
-                            _loginCallback.get().onError(error);
-                        }
-                    }
-                });
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
      * Trigger verification code to be sent to target phone number or phone ID (for verify state).
      *
-     * @param numberOfId Phone number of phone ID.
+     * @param numberOrId Phone number of phone ID.
      * @param method     Verification code receive method (sms/voice).
      * @param isVerify   is "verify" mode?
      */
-    protected void sendPhoneVerificationCode(final String numberOfId, final String method, final boolean isVerify) {
-        _apiService.send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE,
-                ObjectUtils.mapOf(Arrays.asList(
-                        new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                        new Pair<String, Object>(isVerify ? "phoneID" : "phone", numberOfId),
-                        new Pair<String, Object>("method", method),
-                        new Pair<String, Object>("lang", "eng"))),
-                RestAdapter.POST,
-                TFAVerificationCodeModel.class, new GigyaCallback<TFAVerificationCodeModel>() {
-
-                    @Override
-                    public void onSuccess(TFAVerificationCodeModel obj) {
-                        GigyaTFAResolver.this.phvToken = obj.getPhvToken();
-                        if (isAttached()) {
-                            _loginCallback.get().onPhoneTFAVerificationCodeSent();
-                        }
+    protected void sendPhoneVerificationCode(final String numberOrId, final String method, final boolean isVerify) {
+        GigyaLogger.debug(LOG_TAG, "sendPhoneVerificationCode: method = " + method + " isVerify = " + String.valueOf(isVerify));
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put(isVerify ? "phoneID" : "phone", numberOrId);
+        params.put("method", method);
+        params.put("lang", "eng");
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAVerificationCodeModel parsed = response.parseTo(TFAVerificationCodeModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
-
-                    @Override
-                    public void onError(GigyaError error) {
-                        if (isAttached()) {
-                            _loginCallback.get().onError(error);
-                        }
+                    GigyaTFAResolver.this.phvToken = parsed.getPhvToken();
+                    if (isAttached()) {
+                        _loginCallback.get().onPhoneTFAVerificationCodeSent();
                     }
-                });
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -406,10 +468,10 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     protected void submitPhoneCode(String code) {
         GigyaLogger.debug(LOG_TAG, "submitPhoneCode: with code = " + code);
-        Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
-                new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                new Pair<String, Object>("code", code),
-                new Pair<String, Object>("phvToken", phvToken)));
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put("code", code);
+        params.put("phvToken", phvToken);
         completeVerification(GigyaDefinitions.API.API_TFA_PHONE_COMPLETE_VERIFICATION, params);
     }
 
@@ -433,29 +495,40 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      * Request Email TFA registered email addresses.
      */
     private void getVerifiedEmails() {
-        GigyaLogger.debug(LOG_TAG, "getVerifiedEmails ");
-        _apiService.send(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS,
-                ObjectUtils.mapOf(Collections.singletonList(new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion))),
-                RestAdapter.POST,
-                TFAGetEmailsModel.class, new GigyaCallback<TFAGetEmailsModel>() {
-                    @Override
-                    public void onSuccess(TFAGetEmailsModel obj) {
-                        final List<TFAEmail> emails = obj.getEmails();
-                        if (emails.isEmpty()) {
-                            forwardError(GigyaError.generalError());
-                            return;
-                        }
-                        // Forward emails.
-                        if (isAttached()) {
-                            _loginCallback.get().onEmailTFAAddressesAvailable(emails);
-                        }
+        GigyaLogger.debug(LOG_TAG, "getVerifiedEmails: ");
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAGetEmailsModel parsed = response.parseTo(TFAGetEmailsModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
+                    final List<TFAEmail> emails = parsed.getEmails();
+                    if (emails.isEmpty()) {
+                        forwardError(GigyaError.generalError());
+                        return;
+                    }
+                    // Forward emails.
+                    if (isAttached()) {
+                        _loginCallback.get().onEmailTFAAddressesAvailable(emails);
+                    }
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
+                }
+            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        forwardError(error);
-                    }
-                });
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -467,27 +540,36 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     protected void verifyWithEmail(TFAEmail tfaEmail) {
         GigyaLogger.debug(LOG_TAG, "verifyWithEmail: " + tfaEmail.getObfuscated() + " with id = " + tfaEmail.getId());
-        _apiService.send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE,
-                ObjectUtils.mapOf(Arrays.asList(
-                        new Pair<String, Object>("emailID", tfaEmail.getId()),
-                        new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                        new Pair<String, Object>("lang", "eng"))),
-                RestAdapter.POST,
-                TFAVerificationCodeModel.class, new GigyaCallback<TFAVerificationCodeModel>() {
-                    @Override
-                    public void onSuccess(TFAVerificationCodeModel obj) {
-                        GigyaTFAResolver.this.phvToken = obj.getPhvToken();
-                        if (isAttached()) {
-                            _loginCallback.get().onEmailTFAVerificationEmailSent();
-                        }
+        // Generate & send request
+        final Map<String, Object> params = new HashMap<>();
+        params.put("emailID", tfaEmail.getId());
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put("lang", "eng");
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final TFAVerificationCodeModel parsed = response.parseTo(TFAVerificationCodeModel.class);
+                    if (parsed == null) {
+                        // Parsing error.
+                        forwardError(GigyaError.fromResponse(response));
+                        return;
                     }
-
-                    @Override
-                    public void onError(GigyaError error) {
-                        forwardError(error);
+                    GigyaTFAResolver.this.phvToken = parsed.getPhvToken();
+                    if (isAttached()) {
+                        _loginCallback.get().onEmailTFAVerificationEmailSent();
                     }
+                } else {
+                    forwardError(GigyaError.fromResponse(response));
                 }
-        );
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                forwardError(gigyaError);
+            }
+        });
     }
 
     /**
@@ -497,10 +579,10 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
      */
     protected void submitEmailCode(String code) {
         GigyaLogger.debug(LOG_TAG, "sendEmailVerificationCode: with code = " + code);
-        Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
-                new Pair<String, Object>("gigyaAssertion", this.gigyaAssertion),
-                new Pair<String, Object>("code", code),
-                new Pair<String, Object>("phvToken", phvToken)));
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", this.gigyaAssertion);
+        params.put("code", code);
+        params.put("phvToken", phvToken);
         completeVerification(GigyaDefinitions.API.API_TFA_EMAIL_COMPLETE_VERIFICATION, params);
     }
 

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.api.ApiService;
+import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.adapter.INetworkCallbacks;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
@@ -49,7 +49,7 @@ public class ApiServiceTest {
     IAccountService mAccountService;
 
     @InjectMocks
-    ApiService cApiService;
+    BusinessApiService cApiService;
 
     @Before
     public void setup() {

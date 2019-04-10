@@ -113,7 +113,7 @@ class InputDialog : DialogFragment() {
 
             val apiKeyString: String = api_key_sheet_edit.text.toString().trim()
             if (apiKeyString.isEmpty()) {
-                api_key_sheet_edit.snackbar("Must enter new Api-Key for re-initialization")
+                api_key_sheet_edit.snackbar("Must enter new ApiService-Key for re-initialization")
             }
 
             var newDomainString: String = apiDomainString
@@ -168,8 +168,10 @@ class InputDialog : DialogFragment() {
         }
 
         login_register_sheet_send_button.setOnClickListener {
-            val username = login_register_sheet_username_edit.text.toString().trim()
-            val password = login_register_sheet_password_edit.text.toString().trim()
+//            val username = login_register_sheet_username_edit.text.toString().trim()
+//            val password = login_register_sheet_password_edit.text.toString().trim()
+            val username = "toolmarmel.alt1+1@gmail.com"
+            val password = "123123"
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                 if (type == MainInputType.LOGIN) {
                     resultCallback.onLoginWith(username, password)

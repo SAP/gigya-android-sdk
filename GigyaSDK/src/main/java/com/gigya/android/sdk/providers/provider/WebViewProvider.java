@@ -11,7 +11,7 @@ import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -27,9 +27,9 @@ public class WebViewProvider extends Provider {
 
     private static final String LOG_TAG = "WebViewProvider";
 
-    public WebViewProvider(Config config, ISessionService sessionService, IAccountService accountService,
-                           IApiService apiService, IPersistenceService persistenceService, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, apiService, persistenceService, gigyaLoginCallback);
+    public WebViewProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+                           IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     @Override

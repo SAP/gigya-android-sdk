@@ -21,7 +21,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
     /*
     Cached generic account object.
      */
-    private A _cachedAccount;
+    private String _cachedAccount;
 
     @SuppressWarnings("unchecked")
     private Class<A> _accountScheme = (Class<A>) GigyaAccount.class;
@@ -48,7 +48,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
 
     @Override
     public void setAccount(String json) {
-        _cachedAccount = new Gson().fromJson(json, _accountScheme);
+        _cachedAccount = json;
         nextAccountInvalidationTimestamp();
     }
 
@@ -59,7 +59,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
 
     @Override
     public A getAccount() {
-        return _cachedAccount;
+        return new Gson().fromJson(_cachedAccount, _accountScheme);
     }
 
     @Override

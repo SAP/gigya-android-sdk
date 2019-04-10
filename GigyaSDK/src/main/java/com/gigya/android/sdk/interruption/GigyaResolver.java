@@ -1,34 +1,44 @@
 package com.gigya.android.sdk.interruption;
 
-import android.support.annotation.StringDef;
-
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.session.ISessionService;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.SoftReference;
 
 public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaResolver {
 
     private static final String LOG_TAG = "GigyaResolver";
 
-    protected SoftReference<GigyaLoginCallback<A>> _loginCallback;
-
-    protected GigyaApiResponse _originalResponse;
-
+    // Dependencies.
+    protected Config _config;
+    protected ISessionService _sessionService;
     protected IApiService _apiService;
+
+    // Resolver specific.
+    protected SoftReference<GigyaLoginCallback<A>> _loginCallback;
+    protected GigyaApiResponse _originalResponse;
+    protected IApiObservable _observable;
 
     String _regToken;
 
-    public GigyaResolver(IApiService apiService, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+    GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
+                  GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+        // Dependencies.
+        _config = config;
+        _sessionService = sessionService;
         _apiService = apiService;
-        _regToken = originalResponse.getField("regToken", String.class);
+        _observable = observable;
+        _originalResponse = originalResponse;
+        // Handlers.
         _loginCallback = new SoftReference<>(loginCallback);
+        _regToken = originalResponse.getField("regToken", String.class);
     }
 
     /**
@@ -45,6 +55,11 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
         return false;
     }
 
+    @Override
+    public void clear() {
+        _observable.dispose();
+    }
+
     void forwardError(GigyaError error) {
         if (isAttached()) {
             _loginCallback.get().onError(error);
@@ -53,14 +68,4 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
             clear();
         }
     }
-
-    @Retention(RetentionPolicy.SOURCE)
-    @StringDef({TFA_REG, TFA_VER, LINK_ACCOUNTS})
-    public @interface ResolverType {
-
-    }
-
-    public static final String TFA_REG = "tfa_registration_resolver";
-    public static final String TFA_VER = "tfa_verification_resolver";
-    public static final String LINK_ACCOUNTS = "link_accounts_resolver";
 }

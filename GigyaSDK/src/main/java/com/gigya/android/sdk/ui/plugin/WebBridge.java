@@ -9,21 +9,15 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
-import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -233,21 +227,21 @@ public class WebBridge<T extends GigyaAccount> {
             params.remove("regToken");
         }
 
-        _apiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
-            @Override
-            public void onSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with result:\n" + response.asJson());
-                // TODO: 03/04/2019 Refactor!!!!!
-                handleAuthRequests(api, response);
-                invokeCallback(callbackId, response.asJson());
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "onError for api = " + api + " with error:\n" + error.toString());
-                invokeCallback(callbackId, error.getData());
-            }
-        });
+//        _apiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
+//            @Override
+//            public void onSuccess(GigyaApiResponse response) {
+//                GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with result:\n" + response.asJson());
+//                // TODO: 03/04/2019 Refactor!!!!!
+//                handleAuthRequests(api, response);
+//                invokeCallback(callbackId, response.asJson());
+//            }
+//
+//            @Override
+//            public void onError(GigyaError error) {
+//                GigyaLogger.error(LOG_TAG, "onError for api = " + api + " with error:\n" + error.toString());
+//                invokeCallback(callbackId, error.getData());
+//            }
+//        });
     }
 
     // TODO: 24/02/2019 Connection apis are not yet verified. Redesign might use different apis for these flows!!!
@@ -276,42 +270,42 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
         final String providerName = ObjectUtils.firstNonNull((String) params.get("provider"), "");
-        final Provider provider = _providerFactory.providerFor(providerName, new GigyaLoginCallback<T>() {
-            @Override
-            public void onSuccess(T obj) {
-                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
-                String invocation = null;
-                try {
-                    invocation = new JSONObject().put("errorCode", obj.getErrorCode()).put("userInfo", new Gson().toJson(obj)).toString();
-                } catch (Exception ex) {
-                    GigyaLogger.error(LOG_TAG, "Error in sendOauthRequest bridge -> invocation creation -> " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-                invokeCallback(callbackId, invocation);
-                _interactions.onAuthEvent(AuthEvent.LOGIN, obj);
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
-                invokeCallback(callbackId, error.getData());
-                _interactions.onError(error);
-            }
-
-            @Override
-            public void onOperationCanceled() {
-                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onOperationCanceled");
-                invokeCallback(callbackId, GigyaError.cancelledOperation().getData());
-                _interactions.onCancel();
-            }
-        });
+//        final Provider provider = _providerFactory.providerFor(providerName, new GigyaLoginCallback<T>() {
+//            @Override
+//            public void onSuccess(T obj) {
+//                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());
+//                String invocation = null;
+//                try {
+//                    invocation = new JSONObject().put("errorCode", obj.getErrorCode()).put("userInfo", new Gson().toJson(obj)).toString();
+//                } catch (Exception ex) {
+//                    GigyaLogger.error(LOG_TAG, "Error in sendOauthRequest bridge -> invocation creation -> " + ex.getMessage());
+//                    ex.printStackTrace();
+//                }
+//                invokeCallback(callbackId, invocation);
+//                _interactions.onAuthEvent(AuthEvent.LOGIN, obj);
+//            }
+//
+//            @Override
+//            public void onError(GigyaError error) {
+//                GigyaLogger.error(LOG_TAG, "sendOAuthRequest: onError with:\n" + error.getLocalizedMessage());
+//                invokeCallback(callbackId, error.getData());
+//                _interactions.onError(error);
+//            }
+//
+//            @Override
+//            public void onOperationCanceled() {
+//                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onOperationCanceled");
+//                invokeCallback(callbackId, GigyaError.cancelledOperation().getData());
+//                _interactions.onCancel();
+//            }
+//        });
 
         final Activity activity = (Activity) _webViewRef.get().getContext();
         if (activity != null) {
             activity.finish();
         }
 
-        provider.login(_webViewRef.get().getContext(), params, "standard");
+//        provider.login(_webViewRef.get().getContext(), params, "standard");
     }
 
     private void onPluginEvent(Map<String, Object> params) {

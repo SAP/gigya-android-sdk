@@ -116,7 +116,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        GigyaLogger.debug("GigyaApiResponse", "Api: " + request.getUrl() + "\n" + response);
+                        GigyaLogger.debug("GigyaApiResponse", "ApiService: " + request.getUrl() + "\n" + response);
                         if (networkCallbacks != null) {
                             networkCallbacks.onResponse(response);
                         }
@@ -132,7 +132,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
                         final String localizedMessage = error.getLocalizedMessage() == null ? "" : error.getLocalizedMessage();
                         final GigyaError gigyaError = new GigyaError(errorCode, localizedMessage, null);
                         GigyaLogger.debug("GigyaApiResponse", "GigyaApiResponse: Error " +
-                                "Api: " + request.getUrl() + "\n" +
+                                "ApiService: " + request.getUrl() + "\n" +
                                 gigyaError.toString());
                         if (networkCallbacks != null) {
                             networkCallbacks.onError(gigyaError);

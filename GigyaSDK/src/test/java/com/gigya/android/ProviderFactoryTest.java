@@ -7,7 +7,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.api.ApiService;
+import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
@@ -62,7 +62,7 @@ public class ProviderFactoryTest {
     AccountService mAccountService;
 
     @Mock
-    ApiService mApiService;
+    BusinessApiService mApiService;
 
     @Mock
     PersistenceService mPersistenceService;

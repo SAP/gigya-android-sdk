@@ -9,7 +9,6 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
 
@@ -50,8 +49,8 @@ public class WebViewFragmentFactory implements IWebViewFragmentFactory {
                 // Okay to release activity.
                 activity.finish();
 
-                Provider provider = _providerFactory.providerFor(providerName, gigyaLoginCallback);
-                provider.login(_context, params, "standard");
+//                Provider provider = _providerFactory.providerFor(providerName, gigyaLoginCallback);
+//                provider.login(_context, params, "standard");
             }
 
             @Override
