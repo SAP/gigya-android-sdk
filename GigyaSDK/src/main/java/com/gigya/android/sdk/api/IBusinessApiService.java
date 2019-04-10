@@ -12,6 +12,8 @@ import java.util.Map;
 
 public interface IBusinessApiService<A> {
 
+    <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback);
+
     void getSDKConfig(final String nextApiTag, final GigyaCallback<A> gigyaCallback);
 
     void logout();

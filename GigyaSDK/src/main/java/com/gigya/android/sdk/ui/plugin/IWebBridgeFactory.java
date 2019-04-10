@@ -1,6 +1,8 @@
 package com.gigya.android.sdk.ui.plugin;
 
-public interface IWebBridgeFactory {
+import com.gigya.android.sdk.model.account.GigyaAccount;
 
-    WebBridge create(boolean obfuscate, IWebBridge wbInteractions);
+public interface IWebBridgeFactory<T extends GigyaAccount> {
+
+    WebBridge create(boolean obfuscate, IWebBridge<T> wbInteractions);
 }

@@ -380,15 +380,15 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         try {
-//            IApiService<T> apiService = ioCContainer.get(IApiService.class);
-//            apiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
+            IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
+            service.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     /**
-     * Send request to Gigya servers.
+     * Send a generic type request to Gigya servers.
      *
      * @param api           Request method identifier.
      * @param params        Additional parameters.
@@ -399,8 +399,8 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
         try {
-//            IApiService<T> apiService = ioCContainer.get(IApiService.class);
-//            apiService.send(api, params, requestMethod, clazz, gigyaCallback);
+            IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
+            service.send(api, params, requestMethod, clazz, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -2,8 +2,6 @@ package com.gigya.android.sample
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.os.Build
 import android.util.Log
 import android.webkit.WebView
 import com.gigya.android.sample.model.MyAccount
@@ -18,25 +16,19 @@ class GigyaSampleApplication : Application() {
         super.onCreate()
 
         // Allow WebViews debugging.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
-                WebView.setWebContentsDebuggingEnabled(true)
-            }
-        }
-
+        WebView.setWebContentsDebuggingEnabled(true)
+        // Gigya logs.
         GigyaLogger.setDebugMode(true)
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
-        /*
-        Initialization with implicit configuration & account scheme.
-         */
+        // Initialization with implicit configuration & account scheme.
         Gigya.getInstance(applicationContext, MyAccount::class.java)
 
         /*
         Initialization with implicit configuration & without a custom account scheme.
         Will use the default GigyaAccount scheme.
         */
-       // Gigya.getInstance(applicationContext)
+        // Gigya.getInstance(applicationContext)
 
         /*
         Explicit initialization.

@@ -8,7 +8,7 @@ import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.BusinessApiService;
-import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
@@ -76,7 +76,7 @@ public class ProviderFactoryTest {
         mContainer.bind(Config.class, mConfig);
         mContainer.bind(ISessionService.class, mSessionService);
         mContainer.bind(IAccountService.class, mAccountService);
-        mContainer.bind(IApiService.class, mApiService);
+        mContainer.bind(IBusinessApiService.class, mApiService);
         mContainer.bind(IPersistenceService.class, mPersistenceService);
         mContainer.bind(IProviderFactory.class, ProviderFactory.class, false);
 
@@ -89,7 +89,7 @@ public class ProviderFactoryTest {
         when(GoogleProvider.isAvailable((Context) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        Provider provider = factory.providerFor(GOOGLE, mCallback);
+        Provider provider = factory.providerFor(GOOGLE, null,mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof GoogleProvider);
@@ -101,7 +101,7 @@ public class ProviderFactoryTest {
         when(FacebookProvider.isAvailable((Context) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(FACEBOOK, mCallback);
+        IProvider provider = factory.providerFor(FACEBOOK, null,mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof FacebookProvider);
@@ -114,7 +114,7 @@ public class ProviderFactoryTest {
         when(LineProvider.isAvailable((Context) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(LINE, mCallback);
+        IProvider provider = factory.providerFor(LINE, null,mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof LineProvider);
@@ -126,7 +126,7 @@ public class ProviderFactoryTest {
         when(WeChatProvider.isAvailable((Context) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(WECHAT, mCallback);
+        IProvider provider = factory.providerFor(WECHAT,null, mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WeChatProvider);
@@ -136,7 +136,7 @@ public class ProviderFactoryTest {
     public void testWeb() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(AMAZON, mCallback); // Not available as native.
+        IProvider provider = factory.providerFor(AMAZON, null, mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WebViewProvider);
@@ -146,7 +146,7 @@ public class ProviderFactoryTest {
     public void testNullName() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(null, mCallback); // Not available as native.
+        IProvider provider = factory.providerFor(null, null,mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WebViewProvider);

@@ -111,6 +111,35 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //endregion
 
+    //region ANONYMOUS
+
+    @Override
+    public <V> void send(String api, Map<String, Object> params, int requestMethod, final Class<V> clazz, final GigyaCallback<V> gigyaCallback) {
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, api, params, requestMethod);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    if (clazz == GigyaApiRequest.class) {
+                        gigyaCallback.onSuccess((V) response);
+                    } else {
+                        V parsed = response.parseTo(clazz);
+                        gigyaCallback.onSuccess(parsed);
+                    }
+                } else {
+                    gigyaCallback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
+    //endregion
+
     //region CONFIG
 
     @Override
