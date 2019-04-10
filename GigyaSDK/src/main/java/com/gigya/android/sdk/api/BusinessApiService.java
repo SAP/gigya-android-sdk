@@ -200,6 +200,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             case GigyaDefinitions.API.API_GET_ACCOUNT_INFO:
                 getAccount(data.getLoginCallback());
                 break;
+            case GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION:
+                refreshNativeProviderSession(data.getParams(), data.getPermissionsCallback());
+                break;
         }
     }
 
@@ -306,6 +309,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    //endregion
+
     //region REGISTER
 
     @Override
@@ -325,13 +330,60 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     @Override
+    public void register(final Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
+        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, loginCallback);
+        // #1 Chain init registration.
+        GigyaApiRequest initRequest = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
+        _apiService.send(initRequest, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    final String regToken = response.getField("regToken", String.class);
+                    if (regToken != null) {
+                        params.put("regToken", regToken);
+                        params.put("finalizeRegistration", true);
+                    } else {
+                        GigyaLogger.error(LOG_TAG, "register: Init registration produced null regToken");
+                        loginCallback.onError(GigyaError.generalError());
+                        return;
+                    }
+                    // #2 Chain login.
+                    GigyaApiRequest regRequest = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REGISTER, params, RestAdapter.POST);
+                    _apiService.send(regRequest, false, new ApiService.IApiServiceResponse() {
+                        @Override
+                        public void onApiSuccess(GigyaApiResponse response) {
+                            handleAccountApiResponse(response, loginCallback, null);
+                        }
+
+                        @Override
+                        public void onApiError(GigyaError gigyaError) {
+                            loginCallback.onError(gigyaError);
+                        }
+                    });
+                } else {
+                    loginCallback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                loginCallback.onError(gigyaError);
+            }
+        });
+    }
+
+    //endregion
+
+    //region ACCOUNT
+
+    @Override
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, gigyaCallback);
         if (_accountService.isCachedAccount()) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config,_sessionService, GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -373,6 +425,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    //endregion
+
+    //region MISC
+
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
@@ -395,397 +451,28 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
-    //endregion
+    @Override
+    public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginId);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    callback.onSuccess(response);
+                } else {
+                    callback.onError(GigyaError.fromResponse(response));
+                }
+            }
 
-
-//    @Override
-//    public void notifyLogin(String providerSessions, final GigyaLoginCallback<R> loginCallback) {
-//        final Map<String, Object> params = new HashMap<>();
-//        params.put("providerSessions", providerSessions);
-//        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_LOGIN, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    updateWithNewSession(apiResponse);
-//                    updateCachedAccount(apiResponse);
-//                    loginCallback.onSuccess(response);
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                loginCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<R> loginCallback, final Runnable optionalCompletionHandler) {
-//        if (params.containsKey("loginMode")) {
-//            final String linkMode = (String) params.get("loginMode");
-//            if (ObjectUtils.safeEquals(linkMode, "link")) {
-//                requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
-//            }
-//        }
-//        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    updateWithNewSession(apiResponse);
-//                    updateCachedAccount(apiResponse);
-//                    if (optionalCompletionHandler != null) {
-//                        optionalCompletionHandler.run();
-//                    }
-//                    loginCallback.onSuccess(response);
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                loginCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    //endregion
-//
-//    //region REGISTER
-//
-//    @Override
-//    public void register(final Map<String, Object> params, final GigyaLoginCallback<R> loginCallback) {
-//        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, loginCallback);
-//        // #1 Chain init registration.
-//        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, GigyaApiResponse.class, new IApiAdapterResponse<GigyaApiResponse>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, GigyaApiResponse response) {
-//                final String regToken = apiResponse.getField("regToken", String.class);
-//                if (regToken != null) {
-//                    params.put("regToken", regToken);
-//                    params.put("finalizeRegistration", true);
-//                } else {
-//                    GigyaLogger.error(LOG_TAG, "register: Init registration produced null regToken");
-//                    loginCallback.onError(GigyaError.generalError());
-//                    return;
-//                }
-//                // #2 Chain login.
-//                GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_REGISTER, params, RestAdapter.POST);
-//                adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//                    @Override
-//                    public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                        if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                            _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                        } else {
-//                            updateWithNewSession(apiResponse);
-//                            updateCachedAccount(apiResponse);
-//                            loginCallback.onSuccess(response);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                        if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                            _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                        } else {
-//                            loginCallback.onError(GigyaError.fromResponse(apiResponse));
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onApiAdapterNetworkError(GigyaError error) {
-//                        loginCallback.onError(error);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                loginCallback.onError(GigyaError.fromResponse(apiResponse));
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                loginCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void finalizeRegistration(String regToken, final GigyaLoginCallback<R> loginCallback) {
-//        final Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
-//                new Pair<String, Object>("regToken", regToken),
-//                new Pair<String, Object>("include", "profile,data,emails,subscriptions,preferences"),
-//                new Pair<String, Object>("includeUserInfo", "true")));
-//        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    updateWithNewSession(apiResponse);
-//                    updateCachedAccount(apiResponse);
-//                    loginCallback.onSuccess(response);
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                if (isSupportedInterruption(apiResponse.getErrorCode())) {
-//                    _interruptionsHandler.resolve(apiResponse, loginCallback);
-//                } else {
-//                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
-//                }
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                loginCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    //endregion
-//
-//    //region ACCOUNT
-//
-//    @Override
-//    public void getAccount(final GigyaCallback<R> gigyaCallback) {
-//        requestRequiresValidSession(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, gigyaCallback);
-//        if (_accountService.isCachedAccount()) {
-//            gigyaCallback.onSuccess((R) _accountService.getAccount());
-//            return;
-//        }
-//        GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
-//        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                updateCachedAccount(apiResponse);
-//                gigyaCallback.onSuccess(response);
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                gigyaCallback.onError(GigyaError.fromResponse(apiResponse));
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                gigyaCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void setAccount(R updatedAccount, final GigyaCallback<R> gigyaCallback) {
-//        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
-//        final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
-//        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, _accountService.getAccountScheme(), new IApiAdapterResponse<R>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, R response) {
-//                _accountService.invalidateAccount();
-//                getAccount(gigyaCallback);
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                gigyaCallback.onError(GigyaError.fromResponse(apiResponse));
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                gigyaCallback.onError(error);
-//            }
-//        });
-//    }
-//
-//    //endregion
-//
-//    //region MISC
-//
-//    @Override
-//    public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> callback) {
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("loginID", loginId);
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                callback.onError(gigyaError);
+            }
+        });
 //        send(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST, callback);
-//    }
-//
-//    @Override
-//    public void refreshNativeProviderSession(String providerSession, final IProviderPermissionsCallback providerPermissionsCallback) {
-//        final Map<String, Object> params = new HashMap<>();
-//        params.put("providerSession", providerSession);
-//        final GigyaApiRequest apiRequest = generateRequest(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
-//        adapterSend(apiRequest, false, GigyaApiResponse.class, new IApiAdapterResponse<GigyaApiResponse>() {
-//            @Override
-//            public void onApiAdapterSuccess(GigyaApiResponse apiResponse, GigyaApiResponse response) {
-//                providerPermissionsCallback.granted();
-//                // Next get account should fetch new data.
-//                _accountService.invalidateAccount();
-//            }
-//
-//            @Override
-//            public void onApiAdapterError(GigyaApiResponse apiResponse) {
-//                final GigyaError error = GigyaError.fromResponse(apiResponse);
-//                providerPermissionsCallback.failed(error.getLocalizedMessage());
-//            }
-//
-//            @Override
-//            public void onApiAdapterNetworkError(GigyaError error) {
-//                providerPermissionsCallback.failed(error.getLocalizedMessage());
-//            }
-//        });
-//    }
-//
-//    //endregion
-//
-//    //region CONDITIONALS & GENERAL RESPONSE HANDLING
-//
+    }
 
-//
-//    //endregion
-//
-//    //region OBSERVER
-//
-//    @Override
-//    public void update(Observable observable, Object arg) {
-//        if (arg instanceof ApiObservable.ObservableApi) {
-//            // Send the request.
-//            final String api = ((ApiObservable.ObservableApi) arg).getApi();
-//            final Map<String, Object> params = ((ApiObservable.ObservableApi) arg).getParams();
-//            final GigyaCallback gigyaCallback = ((ApiObservable.ObservableApi) arg).getGigyaCallback();
-//            switch (api) {
-//                case GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN:
-//
-//                    break;
-//            }
-//
-//            observable.deleteObservers();
-//        }
-//    }
-//
-//    //endregion
-//
-//    //region ADAPTER SEND
-//
-//    private <V> void adapterSend(GigyaApiRequest apiRequest, boolean blocking, final Class<V> scheme, final IApiAdapterResponse<V> responseListener) {
-//        _restAdapter.send(apiRequest, blocking, new IRestAdapterCallback() {
-//            @Override
-//            public void onResponse(String jsonResponse) {
-//                try {
-//                    final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
-//                    final int statusCode = apiResponse.getStatusCode();
-//                    if (statusCode == GigyaApiResponse.OK) {
-//                        responseListener.onApiAdapterSuccess(apiResponse, handleApiResponse(apiResponse, scheme));
-//                    } else {
-//                        responseListener.onApiAdapterError(apiResponse);
-//                    }
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//
-//            @Override
-//            public void onError(GigyaError gigyaError) {
-//                responseListener.onApiAdapterNetworkError(gigyaError);
-//            }
-//        });
-//    }
-//
-//
-//    private interface IApiAdapterResponse<V> {
-//
-//        void onApiAdapterSuccess(GigyaApiResponse apiResponse, V response);
-//
-//        void onApiAdapterError(GigyaApiResponse apiResponse);
-//
-//        void onApiAdapterNetworkError(GigyaError error);
-//    }
-//
-//    private <V> V handleApiResponse(GigyaApiResponse apiResponse, Class<V> scheme) {
-//        try {
-//            if (scheme == null) {
-//                return (V) apiResponse;
-//            } else {
-//                return new Gson().fromJson(apiResponse.asJson(), scheme);
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    //endregion
-//
-//    //region REQUEST GENERATION
-//
-//    private GigyaApiRequest generateRequest(String api, Map<String, Object> params, int requestMethod) {
-//        TreeMap<String, Object> urlParams = new TreeMap<>();
-//        if (params != null) {
-//            urlParams.putAll(params);
-//        }
-//
-//        // Add general parameters.
-//        urlParams.put("sdk", Gigya.VERSION);
-//        urlParams.put("targetEnv", "mobile");
-//        urlParams.put("httpStatusCodes", false);
-//        urlParams.put("format", "json");
-//
-//        // Add configuration parameters
-//        final String gmid = _config.getGmid();
-//        if (gmid != null) {
-//            urlParams.put("gmid", gmid);
-//        }
-//        final String ucid = _config.getUcid();
-//        if (ucid != null) {
-//            urlParams.put("ucid", ucid);
-//        }
-//        // Add authentication parameters.
-//        if (_sessionService.isValid()) {
-//            @SuppressWarnings("ConstantConditions") final String sessionToken = _sessionService.getSession().getSessionToken();
-//            urlParams.put("oauth_token", sessionToken);
-//            final String sessionSecret = _sessionService.getSession().getSessionSecret();
-//            AuthUtils.addAuthenticationParameters(sessionSecret,
-//                    requestMethod,
-//                    UrlUtils.getBaseUrl(api, _config.getApiDomain()),
-//                    urlParams);
-//        } else {
-//            urlParams.put("ApiKey", _config.getApiKey());
-//        }
-//
-//        GigyaLogger.debug(LOG_TAG, "Request parameters:\n" + urlParams.toString());
-//
-//        // Encode url & generate encoded parameters.
-//        final String encodedParams = UrlUtils.buildEncodedQuery(urlParams);
-//        final String url = UrlUtils.getBaseUrl(api, _config.getApiDomain()) + (requestMethod == RestAdapter.GET ? "?" + encodedParams : "");
-//
-//        // Generate new GigyaApiRequest entity.
-//        return new GigyaApiRequest(url, requestMethod == RestAdapter.POST ? encodedParams : null, requestMethod, api);
-//    }
-//
-//    //endregion
+    //endregion
 }

@@ -451,8 +451,8 @@ public class Gigya<T extends GigyaAccount> {
         try {
             ISessionService sessionService = ioCContainer.get(ISessionService.class);
             sessionService.clear(true);
-//            IApiService apiService = ioCContainer.get(IApiService.class);
-//            apiService.logout();
+            IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
+            baService.logout();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -626,8 +626,8 @@ public class Gigya<T extends GigyaAccount> {
         params.put("email", email);
         params.put("password", password);
         try {
-//            IApiService<T> apiService = ioCContainer.get(IApiService.class);
-//            apiService.register(params, callback);
+            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            service.register(params, callback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -655,8 +655,8 @@ public class Gigya<T extends GigyaAccount> {
     public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
         try {
-//            IApiService apiService = ioCContainer.get(IApiService.class);
-//            apiService.forgotPassword(loginId, gigyaCallback);
+            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            service.forgotPassword(loginId, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
