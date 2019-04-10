@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.interruption;
+package com.gigya.android.sdk.interruption.tfa;
 
 import android.support.annotation.Nullable;
 
@@ -9,6 +9,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
 import com.gigya.android.sdk.model.tfa.TFAEmail;

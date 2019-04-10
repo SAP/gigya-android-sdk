@@ -1,15 +1,21 @@
 package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class InterruptionHandler implements IInterruptionsHandler {
 
@@ -19,13 +25,15 @@ public class InterruptionHandler implements IInterruptionsHandler {
     final private Config _config;
     final private ISessionService _sessionService;
     final private IApiService _apiService;
+    final private IProviderFactory _providerFactory;
 
     private boolean _enabled = true;
 
-    public InterruptionHandler(Config config, ISessionService sessionService, IApiService apiService) {
+    public InterruptionHandler(Config config, ISessionService sessionService, IApiService apiService, IProviderFactory providerFactory) {
         _config = config;
         _sessionService = sessionService;
         _apiService = apiService;
+        _providerFactory = providerFactory;
     }
 
     @Override
@@ -54,7 +62,10 @@ public class InterruptionHandler implements IInterruptionsHandler {
                     loginCallback.onPendingPasswordChange(apiResponse);
                     break;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    // TODO: 10/04/2019  
+                    @SuppressWarnings("unchecked")
+                    GigyaLinkAccountsResolver linkAccountsResolver = new GigyaLinkAccountsResolver(_config, _sessionService, _providerFactory, _apiService,
+                            observable, apiResponse, loginCallback);
+                    linkAccountsResolver.start();
                     break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
                     @SuppressWarnings("unchecked")
@@ -69,7 +80,7 @@ public class InterruptionHandler implements IInterruptionsHandler {
                     verificationResolver.start();
                     break;
                 case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
-                    // TODO: 10/04/2019 Resolve.
+                    finalizeRegistration(apiResponse, observable, loginCallback);
                     break;
                 default:
                     break;
@@ -79,5 +90,16 @@ public class InterruptionHandler implements IInterruptionsHandler {
 
     private String getRegToken(GigyaApiResponse apiResponse) {
         return apiResponse.getField("regToken", String.class);
+    }
+
+    private void finalizeRegistration(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", getRegToken(apiResponse));
+        params.put("include", "profile,data,emails,subscriptions,preferences");
+        params.put("includeUserInfo", "true");
+        // Api.
+        final String api = GigyaDefinitions.API.API_FINALIZE_REGISTRATION;
+        // Notify observer.
+        observable.send(api, params, loginCallback);
     }
 }

@@ -13,7 +13,7 @@ import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.interruption.GigyaLinkAccountsResolver
+import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail

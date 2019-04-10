@@ -26,9 +26,9 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
     protected GigyaApiResponse _originalResponse;
     protected IApiObservable _observable;
 
-    String _regToken;
+    protected String _regToken;
 
-    GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
+    public GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
                   GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
         // Dependencies.
         _config = config;
@@ -60,7 +60,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
         _observable.dispose();
     }
 
-    void forwardError(GigyaError error) {
+    public void forwardError(GigyaError error) {
         if (isAttached()) {
             _loginCallback.get().onError(error);
             // Forwarding an error must result in clearing the login callback reference.
