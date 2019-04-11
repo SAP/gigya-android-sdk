@@ -16,7 +16,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-public class AccountServiceTest {
+public class AccountServiceTest extends BaseGigyaTest {
 
     @Mock
     private Config mConfig;
@@ -33,7 +33,7 @@ public class AccountServiceTest {
     @Test
     public void testSetAccount() {
         // Act
-        cAccountService.setAccount("");
+        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
         // Assert
         assertNotNull(cAccountService.getAccount());
         assertTrue(System.currentTimeMillis() < cAccountService.getNextInvalidationTimestamp());
@@ -43,7 +43,7 @@ public class AccountServiceTest {
     @Test
     public void testGetAccount() {
         // Arrange
-        cAccountService.setAccount("");
+        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
         // Act
         final GigyaAccount cachedAccount = cAccountService.getAccount();
         // Assert

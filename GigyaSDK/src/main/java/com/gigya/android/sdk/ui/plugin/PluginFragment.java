@@ -38,14 +38,11 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UiUtils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -448,11 +445,12 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     @Override
     public void onError(GigyaError error) {
-        Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> eventMap = new Gson().fromJson(error.getData(), mapType);
-        _gigyaPluginCallback.onError(new GigyaPluginEvent(eventMap));
-
+        try {
+            final Map<String, Object> eventMap = ObjectUtils.toMap(new JSONObject(error.getData()));
+            _gigyaPluginCallback.onError(new GigyaPluginEvent(eventMap));
+        } catch (Exception ex) {
+            GigyaLogger.error(LOG_TAG, "failed to parse error");
+        }
     }
 
     private void throttleEvents(final GigyaPluginEvent event) {

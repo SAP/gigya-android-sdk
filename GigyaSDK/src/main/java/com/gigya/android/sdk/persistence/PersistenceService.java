@@ -23,9 +23,79 @@ public class PersistenceService implements IPersistenceService {
         return _prefs;
     }
 
+    //region HELPERS
 
     @Override
-    public boolean contains(String key) {
+    public boolean isSessionAvailable() {
+        return contains(PREFS_KEY_SESSION);
+    }
+
+    @Override
+    public void setSession(String encryptedSession) {
+        add(PREFS_KEY_SESSION, encryptedSession);
+    }
+
+    @Override
+    public String getSession() {
+        return getString(PREFS_KEY_SESSION, null);
+    }
+
+    @Override
+    public void setSessionExpiration(long expiration) {
+        add(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, expiration);
+    }
+
+    @Override
+    public long getSessionExpiration() {
+        return getLong(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
+    }
+
+    @Override
+    public void removeSession() {
+        remove(PREFS_KEY_SESSION);
+    }
+
+    @Override
+    public void removeLegacySession() {
+        remove("ucid", "gmid", "lastLoginProvider", "session.Token",
+                "session.Secret", "tsOffset", "session.ExpirationTime");
+    }
+
+    @Override
+    public void setSessionEncryptionType(String encryptionType) {
+        add(PREFS_KEY_SESSION_ENCRYPTION_TYPE, encryptionType);
+    }
+
+    @Override
+    public String getSessionEncryptionType() {
+        return getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+    }
+
+    @Override
+    public Set<String> getSocialProviders() {
+        return getPrefs().getStringSet(PREFS_KEY_PROVIDER_SET, null);
+    }
+
+    @Override
+    public void addSocialProvider(String provider) {
+        Set<String> providerSet = getSocialProviders();
+        if (providerSet == null) {
+            providerSet = new HashSet<>();
+        }
+        providerSet.add(provider);
+        getPrefs().edit().putStringSet(PREFS_KEY_PROVIDER_SET, providerSet).apply();
+    }
+
+    @Override
+    public void removeSocialProviders() {
+        remove(PREFS_KEY_PROVIDER_SET);
+    }
+
+    //endregion
+
+    //region PRIVATE HELPERS
+
+    private boolean contains(String key) {
         return _prefs.contains(key);
     }
 
@@ -50,8 +120,7 @@ public class PersistenceService implements IPersistenceService {
         editor.apply();
     }
 
-    @Override
-    public void remove(String... keys) {
+    private void remove(String... keys) {
         final SharedPreferences.Editor editor = getPrefs().edit();
         for (String key : keys) {
             editor.remove(key);
@@ -59,25 +128,11 @@ public class PersistenceService implements IPersistenceService {
         editor.apply();
     }
 
-    @Override
-    public Set<String> getSet(String key, Set<String> defValue) {
+    private Set<String> getSet(String key, Set<String> defValue) {
         return getPrefs().getStringSet(key, defValue);
     }
 
-    @Override
-    public Set<String> getSocialProviders() {
-        return _prefs.getStringSet(PREFS_KEY_PROVIDER_SET, null);
-    }
-
-    @Override
-    public void addSocialProvider(String provider) {
-        Set<String> providerSet = getSocialProviders();
-        if (providerSet == null) {
-            providerSet = new HashSet<>();
-        }
-        providerSet.add(provider);
-        _prefs.edit().putStringSet(PREFS_KEY_PROVIDER_SET, providerSet).apply();
-    }
+    //endregion
 
     //region KEYS
 

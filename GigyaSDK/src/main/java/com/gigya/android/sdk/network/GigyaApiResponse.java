@@ -114,7 +114,7 @@ public class GigyaApiResponse {
         }
         return null;
     }
-    
+
     //region ROOT ELEMENT GETTERS
 
     public int getStatusCode() {
@@ -137,22 +137,34 @@ public class GigyaApiResponse {
 
     @Nullable
     public String getErrorDetails() {
-        return (String) mapped.get("errorDetails");
+        if (mapped.containsKey("errorDetails")) {
+            return (String) mapped.get("errorDetails");
+        }
+        return null;
     }
 
     @Nullable
     public String getStatusReason() {
-        return (String) mapped.get("statusReason");
+        if (mapped.containsKey("statusReason")) {
+            return (String) mapped.get("statusReason");
+        }
+        return null;
     }
 
     @Nullable
     public String getCallId() {
-        return (String) mapped.get("callId");
+        if (mapped.containsKey("callId")) {
+            return (String) mapped.get("callId");
+        }
+        return null;
     }
 
     @Nullable
     public String getTime() {
-        return (String) mapped.get("time");
+        if (mapped.containsKey("time")) {
+            return (String) mapped.get("time");
+        }
+        return null;
     }
 
     //endregion

@@ -1,23 +1,24 @@
 package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-public class ApiObservable extends Observable implements IApiObservable {
+public class ApiObservable<A extends GigyaAccount> extends Observable implements IApiObservable<A> {
 
     @Override
-    public synchronized void send(String api, Map<String, Object> params, GigyaLoginCallback callback) {
-        final ApiObservableData data = new ApiObservableData(api, params, callback, null);
+    public synchronized void send(String api, Map<String, Object> params, GigyaLoginCallback<A> callback) {
+        final ApiObservableData data = new ApiObservableData<>(api, params, callback, null);
         notifyObservers(data);
     }
 
     @Override
-    public synchronized void send(String api, Map<String, Object> params, GigyaLoginCallback callback, Runnable completionHandler) {
-        final ApiObservableData data = new ApiObservableData(api, params, callback, completionHandler);
+    public synchronized void send(String api, Map<String, Object> params, GigyaLoginCallback<A> callback, Runnable completionHandler) {
+        final ApiObservableData data = new ApiObservableData<>(api, params, callback, completionHandler);
         notifyObservers(data);
     }
 
@@ -46,16 +47,16 @@ public class ApiObservable extends Observable implements IApiObservable {
 
     //region DATA
 
-    public static class ApiObservableData {
+    public static class ApiObservableData<A extends GigyaAccount> {
 
         final private String api;
         final private Map<String, Object> params;
         final private Runnable completionHandler;
 
-        private GigyaLoginCallback loginCallback;
+        private GigyaLoginCallback<A> loginCallback;
         private IProviderPermissionsCallback permissionsCallback;
 
-        ApiObservableData(String api, Map<String, Object> params, GigyaLoginCallback loginCallback, Runnable completionHandler) {
+        ApiObservableData(String api, Map<String, Object> params, GigyaLoginCallback<A> loginCallback, Runnable completionHandler) {
             this.api = api;
             this.params = params;
             this.loginCallback = loginCallback;
@@ -77,7 +78,7 @@ public class ApiObservable extends Observable implements IApiObservable {
             return params;
         }
 
-        public GigyaLoginCallback getLoginCallback() {
+        public GigyaLoginCallback<A> getLoginCallback() {
             return loginCallback;
         }
 

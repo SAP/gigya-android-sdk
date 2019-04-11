@@ -120,7 +120,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
-                    if (clazz == GigyaApiRequest.class) {
+                    if (clazz == GigyaApiResponse.class) {
                         gigyaCallback.onSuccess((V) response);
                     } else {
                         V parsed = response.parseTo(clazz);
@@ -417,7 +417,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
+                    // Parse response & update account service.
+                    A parsed = response.parseTo(_accountService.getAccountScheme());
                     updateCachedAccount(response);
+                    gigyaCallback.onSuccess(parsed);
                 } else {
                     gigyaCallback.onError(GigyaError.fromResponse(response));
                 }
@@ -500,7 +503,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 callback.onError(gigyaError);
             }
         });
-//        send(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST, callback);
     }
 
     //endregion

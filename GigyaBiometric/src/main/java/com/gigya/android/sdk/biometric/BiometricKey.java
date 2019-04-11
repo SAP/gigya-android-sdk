@@ -25,7 +25,7 @@ public class BiometricKey implements ISecureKey {
 
     private final IPersistenceService _psService;
 
-    public BiometricKey(IPersistenceService pService) {
+    BiometricKey(IPersistenceService pService) {
         _psService = pService;
     }
 

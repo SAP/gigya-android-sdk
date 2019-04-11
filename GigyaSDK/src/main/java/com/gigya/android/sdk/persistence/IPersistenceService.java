@@ -6,19 +6,33 @@ import java.util.Set;
 
 public interface IPersistenceService {
 
-    boolean contains(String key);
+    boolean isSessionAvailable();
 
-    String getString(String key, String defValue);
+    void setSession(String encryptedSession);
 
-    Long getLong(String key, Long defValue);
+    String getSession();
 
-    void add(String key, Object element);
+    void setSessionExpiration(long expiration);
 
-    void remove(String... keys);
+    long getSessionExpiration();
 
-    Set<String> getSet(String key, Set<String> defValue);
+    void removeSession();
+
+    void removeLegacySession();
+
+    void setSessionEncryptionType(String encryptionType);
+
+    String getSessionEncryptionType();
 
     Set<String> getSocialProviders();
 
     void addSocialProvider(@GigyaDefinitions.Providers.SocialProvider String provider);
+
+    void removeSocialProviders();
+
+    String getString(String key, String defValue);
+
+    void add(String key, Object element);
+
+    Long getLong(String key, Long defValue);
 }

@@ -6,11 +6,11 @@ import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import java.util.Map;
 import java.util.Observer;
 
-public interface IApiObservable {
+public interface IApiObservable<A> {
 
-    void send(String api, Map<String, Object> params, GigyaLoginCallback callback);
+    void send(String api, Map<String, Object> params, GigyaLoginCallback<A> callback);
 
-    void send(String api, Map<String, Object> params, GigyaLoginCallback callback, Runnable completionHandler);
+    void send(String api, Map<String, Object> params, GigyaLoginCallback<A> callback, Runnable completionHandler);
 
     void send(String api , Map<String, Object> params, IProviderPermissionsCallback permissionsCallback);
 

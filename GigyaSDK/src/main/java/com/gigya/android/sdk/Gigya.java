@@ -360,12 +360,6 @@ public class Gigya<T extends GigyaAccount> {
         return true;
     }
 
-    // Non documented public accessor.
-    @Nullable
-    public <V> V getGigyaComponent(Class<V> type) {
-        return null;
-    }
-
     //endregion
 
     //region ANONYMOUS APIS
@@ -487,7 +481,7 @@ public class Gigya<T extends GigyaAccount> {
                         provider.logout(context);
                     }
                 }
-                psService.remove(PersistenceService.PREFS_KEY_PROVIDER_SET);
+                psService.removeSocialProviders();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
