@@ -35,7 +35,7 @@ public class Presenter implements IPresenter {
     }
 
     @Override
-    public void showPlugin(final boolean obfuscate, final String plugin, final Map<String, Object> params, final GigyaPluginCallback gigyaPluginCallback) {
+    public void showPlugin(final boolean obfuscate, final String plugin, final boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback gigyaPluginCallback) {
         if (!params.containsKey("lang")) {
             params.put("lang", "en");
         }
@@ -49,6 +49,9 @@ public class Presenter implements IPresenter {
                 args.putBoolean(PluginFragment.ARG_OBFUSCATE, obfuscate);
                 args.putString(PluginFragment.ARG_PLUGIN, plugin);
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
+                if (fullScreen) {
+                    args.putBoolean(Presenter.SHOW_FULL_SCREEN, true);
+                }
                 _pfgFactory.showPluginFragment(activity, args, gigyaPluginCallback);
             }
         });
@@ -109,10 +112,6 @@ public class Presenter implements IPresenter {
     }
 
     public static final String SHOW_FULL_SCREEN = "style_show_full_screen";
-    public static final String PROGRESS_COLOR = "style_progress_color";
-    public static final String CORNER_RADIUS = "style_corner_radius";
-    public static final String DIALOG_MAX_WIDTH = "dialog_max_width";
-    public static final String DIALOG_MAX_HEIGHT = "dialog_max_height";
 
     //region HOST ACTIVITY LIFECYCLE CALLBACKS TRACKING
 

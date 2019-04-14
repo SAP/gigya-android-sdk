@@ -51,7 +51,6 @@ public class ProviderFragment extends WebViewFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setUpWebView();
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +70,8 @@ public class ProviderFragment extends WebViewFragment {
     @SuppressWarnings("CharsetObjectCanBeUsed") // <- Only from API 19.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpWebView();
         if (_url != null) {
             if (_body != null) {
                 _webView.postUrl(_url, _body.getBytes());

@@ -3,7 +3,6 @@ package com.gigya.android.sample.ui
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
@@ -20,7 +19,6 @@ import com.gigya.android.sdk.model.tfa.TFAEmail
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
 import com.gigya.android.sdk.network.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.ui.Presenter
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
 
@@ -213,9 +211,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun setAccount(dummyData: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         /* Updating a custom data field. */
-        when(dummyData.isEmpty()) {
-            true ->  account.value?.profile?.email = null
-            false ->  account.value?.profile?.email = dummyData
+        when (dummyData.isEmpty()) {
+            true -> account.value?.profile?.email = null
+            false -> account.value?.profile?.email = dummyData
         }
         gigya.setAccount(account.value, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
@@ -302,10 +300,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Present SDK native login pre defined UI.
      */
     fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE, WECHAT, YAHOO), mutableMapOf<String, Any>(
-                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                Presenter.CORNER_RADIUS to 24f
-        ), object : GigyaLoginCallback<MyAccount>() {
+        gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE, WECHAT, YAHOO), mutableMapOf()
+                , object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("socialLoginWith", "Success")
                 account.value = obj
@@ -331,9 +327,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Display account details screen set.
      */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets("Default-ProfileUpdate", mutableMapOf<String, Any>(
-                Presenter.SHOW_FULL_SCREEN to true,
-                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent)),
+        gigya.showScreenSets("Default-ProfileUpdate", true, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {
@@ -358,24 +352,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Show screen set "Default-RegistrationLogin".
      */
     fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets("Default-RegistrationLogin",
-                mutableMapOf<String, Any>(
-                        Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                        Presenter.CORNER_RADIUS to 24f
-                        //, GigyaPresenter.DIALOG_MAX_HEIGHT to 0.8F,
-                        //GigyaPresenter.DIALOG_MAX_WIDTH to 0.8F
-                )
-                , object : GigyaPluginCallback<MyAccount>() {
-            override fun onLogin(accountObj: MyAccount) {
-                account.value = accountObj
-                onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
-            }
+        gigya.showScreenSets("Default-RegistrationLogin", false, mutableMapOf(),
+                object : GigyaPluginCallback<MyAccount>() {
+                    override fun onLogin(accountObj: MyAccount) {
+                        account.value = accountObj
+                        onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
+                    }
 
-            override fun onError(event: GigyaPluginEvent) {
-                onError(GigyaError.errorFrom(event.eventMap))
-            }
+                    override fun onError(event: GigyaPluginEvent) {
+                        onError(GigyaError.errorFrom(event.eventMap))
+                    }
 
-        })
+                })
     }
 
     //endregion

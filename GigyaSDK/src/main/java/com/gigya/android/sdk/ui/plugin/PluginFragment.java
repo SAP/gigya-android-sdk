@@ -97,12 +97,6 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    @Override
-    protected boolean wrapContent() {
-        return !_fullScreen;
-    }
-
-
     public void inject(Config config, IWebBridgeFactory wbFactory, GigyaPluginCallback gigyaPluginCallback) {
         _config = config;
         _wbFactory = wbFactory;
@@ -143,6 +137,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         view.post(new Runnable() {
             @Override
             public void run() {

@@ -687,15 +687,16 @@ public class Gigya<T extends GigyaAccount> {
      * UI will be presented via WebView.
      *
      * @param screensSet          Main ScreensSet group identifier
+     * @param fullScreen          Show in fullscreen mode.
      * @param params              ScreensSet flow parameters.
      * @param gigyaPluginCallback Plugin callback.
      */
-    public void showScreenSets(final String screensSet, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
+    public void showScreenSets(final String screensSet, boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         try {
             IPresenter presenter = ioCContainer.get(IPresenter.class);
-            presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, params, gigyaPluginCallback);
+            presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -705,13 +706,14 @@ public class Gigya<T extends GigyaAccount> {
      * Show Comments ScreenSets.
      *
      * @param params              Comments ScreenSet flow parameters.
+     * @param fullScreen          Show in fullscreen mode.
      * @param gigyaPluginCallback Plugin callback.
      */
-    public void showComments(Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
+    public void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         try {
             IPresenter presenter = ioCContainer.get(IPresenter.class);
-            presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, params, gigyaPluginCallback);
+            presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
