@@ -15,7 +15,7 @@
     <!-- IDs -->
     <string name="facebook_app_id">113512789545198</string>
     <!--<string name="facebook_app_id">418678161654216</string>-->
-    <string name="google_client_id">977811956095-3h65r3llr61v5icpoe3e7jnjq9avjj9e.apps.googleusercontent.com</string>
+    <string name="google_client_id">977811956095-t72doari7i8iuv9r6qf3kbhh2ns3u7cj.apps.googleusercontent.com</string>
     <string name="wechatAppID">wx222c4ccaa989aa00</string>
     <string name="line_Channel_ID">1618046855</string>
 

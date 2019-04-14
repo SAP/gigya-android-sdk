@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.interruption.link;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -20,9 +19,7 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
-import com.gigya.android.sdk.utils.ObjectUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,11 +82,11 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
 
     public void resolveForSite(String loginID, String password) {
         if (isAttached()) {
-            final Map<String, Object> params = ObjectUtils.mapOf(Arrays.asList(
-                    new Pair<String, Object>("loginID", loginID),
-                    new Pair<String, Object>("password", password),
-                    new Pair<String, Object>("loginMode", "link"),
-                    new Pair<String, Object>("regToken", _regToken)));
+            final Map<String, Object> params = new HashMap<>();
+            params.put("loginID", loginID);
+            params.put("password", password);
+            params.put("loginMode", "link");
+            params.put("regToken", _regToken);
             final String api = GigyaDefinitions.API.API_LOGIN;
             _observable.send(api, params, _loginCallback.get());
         }

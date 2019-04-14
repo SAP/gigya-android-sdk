@@ -2,12 +2,43 @@ package com.gigya.android;
 
 public class StaticMockFactory {
 
+    public static final String API_KEY = "3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag";
+    public static final String API_DOMAIN = "us1-gigya.com";
+    public static final String UCID = "qweqweasd123456123";
+    public static final String GMID = "asdqwezxc123asd123";
+    public static final String TOKEN = "st2.sfoajsf923rqn1fasijasd213sddajaASDFajkag34fQEGAJSFG09g09jgasdg";
+    public static final String SECRET = "fajosdsas3431ASFasfkt32";
+
     public static String getMockSecret() {
-        return "fajosdsas3431ASFasfkt32";
+        return SECRET;
     }
 
     public static String getMockToken() {
-        return "st2.sfoajsf923rqn1fasijasd213sddajaASDFajkag34fQEGAJSFG09g09jgasdg";
+        return TOKEN;
+    }
+
+    public static String getSessionMock() {
+        return "{\n" +
+                "  \"sessionToken\": \"" + TOKEN + "\",\n" +
+                "  \"sessionSecret\": \"" + SECRET + "\",\n" +
+                "  \"expirationTime\": 0\n" +
+                "}";
+    }
+
+    public static String getSessionMockWithFiveMinutesExpiration() {
+        return "{\n" +
+                "  \"sessionToken\": \"" + TOKEN + "\",\n" +
+                "  \"sessionSecret\": \"" + SECRET + "\",\n" +
+                "  \"expirationTime\": 5\n" +
+                "}";
+    }
+
+    public static String getLegacySessionMock() {
+        return "{\n" +
+                "  \"session.Token\": \"" + TOKEN + "\",\n" +
+                "  \"session.Secret\": \"" + SECRET + "\",\n" +
+                "  \"session.ExpirationTime\": 0\n" +
+                "}";
     }
 
     public static String getMockAccountJson() {

@@ -117,6 +117,7 @@ public class SessionService implements ISessionService {
         if (isLegacySession()) {
             GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
             _sessionInfo = loadLegacySession();
+            return;
         }
         if (_psService.isSessionAvailable()) {
             String encryptedSession = _psService.getSession();

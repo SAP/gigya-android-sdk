@@ -49,4 +49,20 @@ public class CipherUtilsTest {
         // Assert
         assertEquals(decrypted, "toEncrypt");
     }
+
+    @Test
+    public void testToBytes() {
+        // Act
+        final byte[] bytes = CipherUtils.toBytes(new char[]{ 't', 'e', 's', 't'});
+        // Assert
+        assertArrayEquals(new byte[]{116, 101, 115, 116}, bytes);
+    }
+
+    @Test
+    public void testToChars() {
+        // Act
+        final char[] chars = CipherUtils.toChars(new byte[]{116, 101, 115, 116});
+        // Assert
+        assertArrayEquals(new char[]{'t', 'e', 's', 't'}, chars);
+    }
 }

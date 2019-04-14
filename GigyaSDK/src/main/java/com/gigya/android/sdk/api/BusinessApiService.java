@@ -90,7 +90,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _accountService.setAccount(apiResponse.asJson());
     }
 
-    private void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback, Runnable completionHandler) {
+    private void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback) {
         final int errorCode = response.getErrorCode();
         if (errorCode == 0) {
             // Parse & success.
@@ -98,9 +98,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             updateWithNewSession(response);
             updateCachedAccount(response);
             loginCallback.onSuccess(parsed);
-            if (completionHandler != null) {
-                completionHandler.run();
-            }
         } else if (isSupportedInterruption(errorCode)) {
             resolveInterruption(response, loginCallback);
         } else {
@@ -268,7 +265,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, loginCallback, null);
+                handleAccountApiResponse(response, loginCallback);
             }
 
             @Override
@@ -324,11 +321,19 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
             }
         }
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, loginCallback, optionalCompletionHandler);
+                if (response.getErrorCode() == 0) {
+                    updateWithNewSession(response); // Update with new session.
+                    getAccount(loginCallback); // Request account details. Will need to change when the endpoint will be completed.
+                    if (optionalCompletionHandler != null) {
+                        optionalCompletionHandler.run();
+                    }
+                } else {
+                    handleAccountApiResponse(response, loginCallback);
+                }
             }
 
             @Override
@@ -348,7 +353,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, loginCallback, null);
+                handleAccountApiResponse(response, loginCallback);
             }
 
             @Override
@@ -381,7 +386,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                     _apiService.send(regRequest, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {
-                            handleAccountApiResponse(response, loginCallback, null);
+                            handleAccountApiResponse(response, loginCallback);
                         }
 
                         @Override

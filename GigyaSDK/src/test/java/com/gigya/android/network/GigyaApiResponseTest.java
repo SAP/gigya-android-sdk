@@ -1,35 +1,28 @@
 package com.gigya.android.network;
 
+import com.gigya.android.StaticMockFactory;
+import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
-import com.gigya.android.sdk.utils.FileUtils;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 public class GigyaApiResponseTest {
 
-    private String mockJson() throws IOException, JSONException {
-        InputStream in = Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("gigyaResponseMock.json");
-        String json = FileUtils.streamToString(in);
-        return new JSONObject(json).toString();
-    }
-
-    private GigyaApiResponse mockResponse() throws IOException, JSONException {
-        return new GigyaApiResponse(mockJson());
+    private GigyaApiResponse mockResponse() throws JSONException {
+        return new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
     }
 
     private GigyaApiResponse response;
 
     @Before
-    public void setup() throws IOException, JSONException {
+    public void setup() throws JSONException {
         response = mockResponse();
     }
 
@@ -50,6 +43,7 @@ public class GigyaApiResponseTest {
 
     @Test
     public void testErrorDetails() {
+
         Assert.assertNotEquals(response.getErrorDetails(), "");
     }
 
@@ -60,43 +54,57 @@ public class GigyaApiResponseTest {
 
     @Test
     public void testTime() {
+
         Assert.assertNotEquals(response.getTime(), "");
     }
 
     @Test
     public void testGetFieldWithIncorrectFieldKey() {
-        Assert.assertNull(response.getField("nonExistent", Object.class));
+        // Assert
+        assertNull(response.getField("nonExistent", Object.class));
     }
 
     @Test
     public void testContainsNestedKey() {
-        Assert.assertTrue(response.containsNested("data"));
-        Assert.assertTrue(response.containsNested("data.custom"));
-        Assert.assertTrue(response.containsNested("data.custom.one"));
-        Assert.assertFalse(response.containsNested("data.custom.one.two"));
-        Assert.assertFalse(response.containsNested("data.custom.one.two.four"));
+        // Assert
         Assert.assertTrue(response.containsNested("profile"));
         Assert.assertTrue(response.containsNested("profile.firstName"));
         Assert.assertTrue(response.containsNested("profile.lastName"));
-        Assert.assertFalse(response.containsNested("profile.lastName.one"));
     }
 
     @Test
     public void textGetNestedField() {
-        final String field = response.getField("data.custom.one", String.class);
-        final Integer intField = response.getField("data.custom.two", Integer.class);
+        // Act
+        final String field = response.getField("profile.firstName", String.class);
+        // Assert
         Assert.assertNotNull(field);
-        Assert.assertNotNull(intField);
     }
 
     @Test
     public void testGetFieldWithCorrectClassReference() {
+        // Assert
         Assert.assertNotNull(response.getField("profile", Object.class));
     }
 
     @Test
     public void testGetFieldWithCorrectJSONObjectChild() {
+        // Assert
         Assert.assertNotNull(response.getField("profile.firstName", String.class));
     }
 
+    @Test
+    public void testParseTo() {
+        // Act
+        GigyaAccount ga = response.parseTo(GigyaAccount.class);
+        // Assert
+        assertNotNull(ga);
+    }
+
+    @Test
+    public void testParseToWithNullClazz() {
+        // Act
+        GigyaAccount ga = response.parseTo(null);
+        // Assert
+        assertNull(ga);
+    }
 }

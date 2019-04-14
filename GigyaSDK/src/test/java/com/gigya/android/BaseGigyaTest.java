@@ -1,7 +1,9 @@
 package com.gigya.android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
@@ -17,7 +19,14 @@ import com.gigya.android.sdk.session.SessionService;
 
 import org.junit.Before;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class BaseGigyaTest {
@@ -39,18 +48,24 @@ public class BaseGigyaTest {
 
     protected IoCContainer container;
 
+    //region SHARED PREFERENCES
+
+    @Mock
+    protected SharedPreferences mSharedPreferences;
+
+    @Mock
+    protected SharedPreferences.Editor mEditor;
+
+    //endregion
+
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         container = new IoCContainer();
         container.bind(Context.class, mContext);
         container.bind(Config.class, mConfig);
         container.bind(ISessionService.class, mSessionService);
         container.bind(IAccountService.class, mAccountService);
         container.bind(IPersistenceService.class, mPersistenceService);
-    }
-
-    protected void mockApiKey(String apiKey) {
-        when(mConfig.getApiKey()).thenReturn(apiKey);
     }
 
     protected void mockApiDomain(String domain) {
@@ -71,8 +86,9 @@ public class BaseGigyaTest {
 
     }
 
-    protected static class TestAccount extends GigyaAccount {
-    }
+    //region HELPER CLASSES
+
+    protected static class TestAccount extends GigyaAccount { }
 
     protected static class TestGigya extends Gigya<TestAccount> {
 
@@ -80,4 +96,46 @@ public class BaseGigyaTest {
             super(context, accountScheme, container);
         }
     }
+
+    //endregion
+
+    //region MOCK CONFIG
+
+    void mockConfig() {
+        when(mConfig.getApiKey()).thenReturn(StaticMockFactory.API_KEY);
+        when(mConfig.getApiDomain()).thenReturn(StaticMockFactory.API_DOMAIN);
+        when(mConfig.getGmid()).thenReturn(StaticMockFactory.GMID);
+        when(mConfig.getUcid()).thenReturn(StaticMockFactory.UCID);
+        // Mock update.
+        when(mConfig.updateWith((Config) any())).thenReturn(mConfig);
+    }
+
+    //endregion
+
+    //region MOCK SHARED PREFERENCES
+
+    void mockSharedPreferences() {
+        when(mContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mSharedPreferences);
+        when(mSharedPreferences.edit()).thenReturn(mEditor);
+        when(mEditor.putString(anyString(), anyString())).thenReturn(mEditor);
+        when(mEditor.remove(anyString())).thenReturn(mEditor);
+        doNothing().when(mEditor).apply();
+    }
+
+    //endregion
+
+    //region STATIC MOCKS
+
+    void mockAndroidTextUtils() {
+        mockStatic(TextUtils.class);
+        when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(InvocationOnMock invocation) {
+                String s = (String) invocation.getArguments()[0];
+                return s == null || s.length() == 0;
+            }
+        });
+    }
+
+    //endregion
 }
