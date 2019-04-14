@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
@@ -34,7 +35,8 @@ public class WebViewFragmentFactory implements IWebViewFragmentFactory {
     }
 
     @Override
-    public void showProviderFragment(final AppCompatActivity activity, final Map<String, Object> params, Bundle args, final GigyaLoginCallback gigyaLoginCallback) {
+    public void showProviderFragment(final AppCompatActivity activity, final IBusinessApiService businessApiService, final Map<String, Object> params, Bundle args,
+                                     final GigyaLoginCallback gigyaLoginCallback) {
         ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
             @Override
@@ -49,12 +51,12 @@ public class WebViewFragmentFactory implements IWebViewFragmentFactory {
                 // Okay to release activity.
                 activity.finish();
 
-//                Provider provider = _providerFactory.providerFor(providerName, gigyaLoginCallback);
-//                provider.login(_context, params, "standard");
+                businessApiService.login(_context, providerName, params, gigyaLoginCallback);
             }
 
             @Override
             public void onWebViewCancel() {
+
                 // User cancelled WebView.
                 gigyaLoginCallback.onOperationCanceled();
             }

@@ -11,6 +11,7 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
@@ -58,7 +59,7 @@ public class Presenter implements IPresenter {
     }
 
     @Override
-    public void showNativeLoginProviders(List<String> providers, final Map<String, Object> params, final GigyaLoginCallback gigyaLoginCallback) {
+    public void showNativeLoginProviders(List<String> providers, final IBusinessApiService businessApiService, final Map<String, Object> params, final GigyaLoginCallback gigyaLoginCallback) {
         params.put("enabledProviders", TextUtils.join(",", providers));
         final String url = getPresentationUrl(params, "login");
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
@@ -69,7 +70,7 @@ public class Presenter implements IPresenter {
                 args.putString(ProviderFragment.ARG_URL, url);
                 args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                _pfgFactory.showProviderFragment(activity, params, args, gigyaLoginCallback);
+                _pfgFactory.showProviderFragment(activity, businessApiService, params, args, gigyaLoginCallback);
             }
         });
     }

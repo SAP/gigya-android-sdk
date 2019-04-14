@@ -495,7 +495,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
-    //region VIEWMODEL INTERFACING
+    //region VIEW MODEL INTERFACING
 
     /**
      * SDK re-initialized. force logout/clear session.

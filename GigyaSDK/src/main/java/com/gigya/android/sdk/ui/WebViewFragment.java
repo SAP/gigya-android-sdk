@@ -82,6 +82,7 @@ public abstract class WebViewFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Reference views.
         _webView = view.findViewById(R.id.web_frag_web_view);
         _progressBar = view.findViewById(R.id.web_frag_progress_bar);
         // Title text view.
@@ -113,6 +114,7 @@ public abstract class WebViewFragment extends DialogFragment {
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 final Bundle args = getArguments();
                 if (args != null) {
+                    // Check fullscreen mode request.
                     final boolean fullScreen = args.getBoolean(Presenter.SHOW_FULL_SCREEN, false);
                     if (fullScreen) {
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

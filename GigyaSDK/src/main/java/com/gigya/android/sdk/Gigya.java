@@ -672,7 +672,8 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
         try {
             IPresenter presenter = ioCContainer.get(IPresenter.class);
-            presenter.showNativeLoginProviders(providers, params, gigyaLoginCallback);
+            IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
+            presenter.showNativeLoginProviders(providers, baService, params, gigyaLoginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

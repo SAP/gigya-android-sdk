@@ -5,4 +5,6 @@ public interface ISessionVerificationService {
     void start();
 
     void stop();
+
+    long getInitialDelay();
 }

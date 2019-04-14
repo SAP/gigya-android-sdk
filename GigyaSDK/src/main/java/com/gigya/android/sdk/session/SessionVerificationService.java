@@ -39,6 +39,9 @@ public class SessionVerificationService implements ISessionVerificationService {
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
+
+        // Set verification interval.
+        _verificationInterval = TimeUnit.MINUTES.toMillis(_config.getSessionVerificationInterval());
     }
 
     private long _verificationInterval;
@@ -47,7 +50,6 @@ public class SessionVerificationService implements ISessionVerificationService {
 
     @Override
     public void start() {
-        _verificationInterval = TimeUnit.MINUTES.toMillis(_config.getSessionVerificationInterval());
         if (_verificationInterval == 0) {
             GigyaLogger.debug(LOG_TAG, "start: Verification interval is 0. Verification flow irrelevant");
             return;
@@ -102,7 +104,8 @@ public class SessionVerificationService implements ISessionVerificationService {
      *
      * @return Initial timer task delay in milliseconds.
      */
-    private long getInitialDelay() {
+    @Override
+    public long getInitialDelay() {
         if (_lastRequestTimestamp == 0) {
             return _verificationInterval;
         }

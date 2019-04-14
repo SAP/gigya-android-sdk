@@ -10,14 +10,19 @@ import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.IoCContainer;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.ApiService;
+import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
+import com.gigya.android.sdk.session.SessionVerificationService;
+import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
+import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
 
-import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -46,6 +51,15 @@ public class BaseGigyaTest {
     @Mock
     PersistenceService mPersistenceService;
 
+    @Mock
+    ApiService mApiService;
+
+    @Mock
+    SessionVerificationService mSessionVerificationService;
+
+    @Mock
+    WebViewFragmentFactory mWebViewFragmentFactory;
+
     protected IoCContainer container;
 
     //region SHARED PREFERENCES
@@ -58,7 +72,6 @@ public class BaseGigyaTest {
 
     //endregion
 
-    @Before
     public void setup() throws Exception {
         container = new IoCContainer();
         container.bind(Context.class, mContext);
@@ -66,6 +79,9 @@ public class BaseGigyaTest {
         container.bind(ISessionService.class, mSessionService);
         container.bind(IAccountService.class, mAccountService);
         container.bind(IPersistenceService.class, mPersistenceService);
+        container.bind(IApiService.class, mApiService);
+        container.bind(ISessionVerificationService.class, mSessionVerificationService);
+        container.bind(IWebViewFragmentFactory.class, mWebViewFragmentFactory);
     }
 
     protected void mockApiDomain(String domain) {
@@ -88,7 +104,8 @@ public class BaseGigyaTest {
 
     //region HELPER CLASSES
 
-    protected static class TestAccount extends GigyaAccount { }
+    protected static class TestAccount extends GigyaAccount {
+    }
 
     protected static class TestGigya extends Gigya<TestAccount> {
 
@@ -108,6 +125,8 @@ public class BaseGigyaTest {
         when(mConfig.getUcid()).thenReturn(StaticMockFactory.UCID);
         // Mock update.
         when(mConfig.updateWith((Config) any())).thenReturn(mConfig);
+        when(mConfig.getAccountCacheTime()).thenReturn(1);
+        when(mConfig.getSessionVerificationInterval()).thenReturn(5);
     }
 
     //endregion
