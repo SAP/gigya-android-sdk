@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         evaluateFingerprintSession()
         // Register for account info updates.
         registerAccountUpdates()
+
         /* If we are already logged in - get account info and update relevant account UI (drawer header). */
         if (Gigya.getInstance().isLoggedIn) {
             onGetAccount()

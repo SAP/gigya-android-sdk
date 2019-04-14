@@ -16,12 +16,14 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         WeChatProvider.handleIntent(this, getIntent(), this);
+        finish();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         WeChatProvider.handleIntent(this, getIntent(), this);
+        finish();
     }
 
     @Override

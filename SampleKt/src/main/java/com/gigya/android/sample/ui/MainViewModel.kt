@@ -272,9 +272,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Login with specific supported social provider.
      */
     fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.login(provider, mapOf<String, Any>(
-                Presenter.PROGRESS_COLOR to ContextCompat.getColor(getApplication(), com.gigya.android.sample.R.color.colorAccent),
-                Presenter.CORNER_RADIUS to 24f), object : GigyaLoginCallback<MyAccount>() {
+        gigya.login(provider, mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 account.value = obj

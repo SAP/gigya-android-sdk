@@ -278,6 +278,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public void login(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
         IApiObservable observable = new ApiObservable().register(this);
+        params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, observable, gigyaLoginCallback);
         provider.login(context, params, "standard");
     }

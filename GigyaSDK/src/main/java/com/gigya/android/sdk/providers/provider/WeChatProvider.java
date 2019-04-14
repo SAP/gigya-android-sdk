@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.providers.provider;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -73,15 +74,12 @@ public class WeChatProvider extends Provider {
                 req.scope = "snsapi_userinfo";
                 req.state = "";
                 _api.sendReq(req);
-
-                // Finish the activity.
-                activity.finish();
             }
 
             @Override
             public void onResume(AppCompatActivity activity) {
                 if (resp != null) {
-                    handleResponse(resp);
+                    handleResponse(resp, activity);
                 }
             }
 
@@ -107,7 +105,7 @@ public class WeChatProvider extends Provider {
         WeChatProvider.resp = resp;
     }
 
-    private void handleResponse(BaseResp baseResp) {
+    private void handleResponse(BaseResp baseResp, Activity activity) {
         switch (baseResp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 try {
@@ -125,6 +123,9 @@ public class WeChatProvider extends Provider {
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
                 onLoginFailed("authentication_denied");
                 break;
+        }
+        if (activity != null) {
+            activity.finish();
         }
     }
 

@@ -238,7 +238,6 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                     eventMap.put("dismiss", true);
                     _gigyaPluginCallback.onError(new GigyaPluginEvent(eventMap));
                 }
-                dismissAndFinish();
             }
 
             private void overrideUrlLoad(Uri uri) {
