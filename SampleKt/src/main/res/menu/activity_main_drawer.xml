@@ -19,6 +19,15 @@
                     android:title="Login with provider" />
 
                 <item
+                    android:id="@+id/api_add_connection"
+                    android:title="addConnection"
+                    />
+                <item
+                    android:id="@+id/api_remove_connection"
+                    android:title="removeConnection"
+                    />
+
+                <item
                     android:id="@+id/api_register"
                     android:title="@string/register" />
 

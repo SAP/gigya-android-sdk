@@ -23,7 +23,7 @@ class InputDialog : DialogFragment() {
     private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, LOGIN_WITH_PROVIDER
+        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, LOGIN_WITH_PROVIDER, ADD_CONNECTION, REMOVE_CONNECTION
     }
 
     interface IApiResultCallback {
@@ -33,6 +33,8 @@ class InputDialog : DialogFragment() {
         fun onRegisterWith(username: String, password: String, exp: Int)
         fun onLoginWith(username: String, password: String)
         fun onUpdateAccountWith(comment: String)
+        fun onAddConnection(provider: String)
+        fun onRemoveConnection(provider: String)
     }
 
     private var type: MainInputType? = null
@@ -72,7 +74,7 @@ class InputDialog : DialogFragment() {
             MainInputType.ANONYMOUS -> R.layout.input_anonymous
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.input_login_register
             MainInputType.SET_ACCOUNT_INFO -> R.layout.input_set_account
-            MainInputType.LOGIN_WITH_PROVIDER -> R.layout.input_login_with_provider
+            MainInputType.LOGIN_WITH_PROVIDER, MainInputType.ADD_CONNECTION, MainInputType.REMOVE_CONNECTION -> R.layout.input_login_with_provider
             else -> 0
         }
         return inflater.inflate(layout, container, false)
@@ -85,6 +87,7 @@ class InputDialog : DialogFragment() {
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
             MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
             MainInputType.LOGIN_WITH_PROVIDER -> setupForLoginWithProvider()
+            MainInputType.ADD_CONNECTION, MainInputType.REMOVE_CONNECTION -> setupForAddOrRemoveConnection(type!!)
         }
     }
 
@@ -168,10 +171,8 @@ class InputDialog : DialogFragment() {
         }
 
         login_register_sheet_send_button.setOnClickListener {
-//            val username = login_register_sheet_username_edit.text.toString().trim()
-//            val password = login_register_sheet_password_edit.text.toString().trim()
-            val username = "toolmarmel.alt1+1@gmail.com"
-            val password = "123123"
+            val username = login_register_sheet_username_edit.text.toString().trim()
+            val password = login_register_sheet_password_edit.text.toString().trim()
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                 if (type == MainInputType.LOGIN) {
                     resultCallback.onLoginWith(username, password)
@@ -194,6 +195,19 @@ class InputDialog : DialogFragment() {
         set_account_sheet_send_button.setOnClickListener {
             val comment = set_account_sheet_edit.text.toString().trim()
             resultCallback.onUpdateAccountWith(comment)
+            dismiss()
+        }
+    }
+
+    private fun setupForAddOrRemoveConnection(type: MainInputType) {
+        login_with_provider_sheet_title.text = "Select connection to social provider"
+        login_with_provider_sheet_send_button.setOnClickListener {
+            val provider = login_with_provider_sheet_edit.text.toString().trim()
+            when (type) {
+                MainInputType.REMOVE_CONNECTION -> resultCallback.onRemoveConnection(provider)
+                MainInputType.ADD_CONNECTION -> resultCallback.onAddConnection(provider)
+                else -> dismiss()
+            }
             dismiss()
         }
     }

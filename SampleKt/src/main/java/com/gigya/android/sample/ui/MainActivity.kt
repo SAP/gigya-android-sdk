@@ -174,6 +174,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.api_anonymous -> onSendAnonymousRequest()
             R.id.api_login -> onLogin()
             R.id.api_login_with_provider -> onLoginWithProvider()
+            R.id.api_add_connection -> onAddConnection()
+            R.id.api_remove_connection -> onRemoveConnection()
             R.id.api_register -> onRegister()
             R.id.api_get_account_info -> onGetAccount()
             R.id.api_set_account_info -> onSetAccount()
@@ -326,6 +328,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun onLoginWithProvider() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.LOGIN_WITH_PROVIDER, this)
         dialog.show(supportFragmentManager, "onLoginWithProvider")
+    }
+
+    /**
+     * Show input dialog for add connection.
+     */
+    private fun onAddConnection() {
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.ADD_CONNECTION, this)
+        dialog.show(supportFragmentManager, "onAddConnection")
+    }
+
+    /**
+     * Show input dialog for add remove connection.
+     */
+    private fun onRemoveConnection() {
+        val dialog = InputDialog.newInstance(InputDialog.MainInputType.REMOVE_CONNECTION, this)
+        dialog.show(supportFragmentManager, "onRemoveConnection")
     }
 
     /**
@@ -525,6 +543,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 cancel = {
                     onCancel()
                 })
+    }
+
+    override fun onAddConnection(provider: String) {
+        onLoading()
+        viewModel?.addConnection(provider,
+                success = { json -> onJsonResult(json) },
+                onIntermediateLoad = {
+                    onLoading()
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                },
+                cancel = {
+                    onCancel()
+                })
+    }
+
+    override fun onRemoveConnection(provider: String) {
+        onLoading()
+        viewModel?.removeConnection(provider,
+                success = { json ->
+                    onJsonResult(json)
+                    response_text_view.snackbar("Connection removed")
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
     }
 
     override fun onLoginWith(username: String, password: String) {

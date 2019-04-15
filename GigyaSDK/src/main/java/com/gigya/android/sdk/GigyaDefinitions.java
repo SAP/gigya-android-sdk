@@ -32,6 +32,7 @@ public class GigyaDefinitions {
         public static final String API_NOTIFY_LOGIN = "accounts.notifyLogin";
         public static final String API_VERIFY_LOGIN = "accounts.verifyLogin";
         public static final String API_NOTIFY_SOCIAL_LOGIN = "accounts.notifySocialLogin";
+        public static final String API_REMOVE_CONNECTION = "socialize.removeConnection";
         // TFA
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";

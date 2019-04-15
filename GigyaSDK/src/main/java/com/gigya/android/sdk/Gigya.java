@@ -656,6 +656,39 @@ public class Gigya<T extends GigyaAccount> {
         }
     }
 
+    /**
+     * Add a social connection to existing account.
+     *
+     * @param socialProvider Social provider identifier.
+     * @param loginCallback  Response listener callback.
+     */
+    public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
+        GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
+        try {
+            final Context context = ioCContainer.get(Context.class);
+            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            service.addConnection(context, socialProvider, loginCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Remove a social connection from an existing account.
+     *
+     * @param socialProvider Social provider identifier.
+     * @param gigyaCallback  Response listener callback.
+     */
+    public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
+        try {
+            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            service.removeConnection(socialProvider, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     //endregion
 
     //region NATIVE LOGIN

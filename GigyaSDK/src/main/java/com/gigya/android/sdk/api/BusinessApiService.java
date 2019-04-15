@@ -63,14 +63,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         return true;
     }
 
-    private void requestRequiresGMID(String tag, GigyaCallback<A> gigyaCallback) {
+    private <V> void requestRequiresGMID(String tag, GigyaCallback<V> gigyaCallback) {
         if (_config.getGmid() == null) {
             GigyaLogger.debug(LOG_TAG, tag + " requestRequiresGMID - get lazy");
             getSDKConfig(tag, gigyaCallback);
         }
     }
 
-    private void requestRequiresValidSession(String tag, GigyaCallback<A> gigyaCallback) {
+    private <V> void requestRequiresValidSession(String tag, GigyaCallback<V> gigyaCallback) {
         if (!_sessionService.isValid()) {
             gigyaCallback.onError(GigyaError.invalidSession());
             return;
@@ -140,7 +140,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     //region CONFIG
 
     @Override
-    public void getSDKConfig(final String nextApiTag, final GigyaCallback<A> gigyaCallback) {
+    public <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback) {
         if (requestRequiresApiKey("getConfig")) {
             // Generate request.
             final Map<String, Object> params = new HashMap<>();
@@ -507,6 +507,45 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             @Override
             public void onApiError(GigyaError gigyaError) {
                 callback.onError(gigyaError);
+            }
+        });
+    }
+
+    @Override
+    public void addConnection(Context context, String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
+        requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
+        IApiObservable observable = new ApiObservable().register(this);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("provider", socialProvider);  // Needed for non native providers.
+        IProvider provider = _providerFactory.providerFor(socialProvider, observable, gigyaLoginCallback);
+        provider.login(context, params, "connect");
+    }
+
+    @Override
+    public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        requestRequiresValidSession(GigyaDefinitions.API.API_REMOVE_CONNECTION, gigyaCallback);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("provider", socialProvider);
+        final String UID = _accountService.getAccount().getUID();
+        if (UID == null) {
+            GigyaLogger.error(LOG_TAG, "removeConnection: UID null. UID field is required to remove connection");
+            return;
+        }
+        params.put("UID", UID);
+        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REMOVE_CONNECTION, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    gigyaCallback.onSuccess(response);
+                } else {
+                    gigyaCallback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
             }
         });
     }

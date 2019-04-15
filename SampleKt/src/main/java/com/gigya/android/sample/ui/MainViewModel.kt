@@ -323,6 +323,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    fun addConnection(provider: String, success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
+        gigya.addConnection(provider, object : GigyaLoginCallback<MyAccount>() {
+
+            override fun onSuccess(obj: MyAccount?) {
+                account.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+
+            override fun onIntermediateLoad() {
+                onIntermediateLoad()
+            }
+
+            override fun onOperationCanceled() {
+                cancel()
+            }
+        })
+    }
+
+    fun removeConnection(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.removeConnection(provider, object : GigyaCallback<GigyaApiResponse>() {
+
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+
+        })
+    }
+
     /**
      * Display account details screen set.
      */
