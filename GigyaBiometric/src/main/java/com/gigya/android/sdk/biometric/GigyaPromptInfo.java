@@ -1,5 +1,9 @@
 package com.gigya.android.sdk.biometric;
 
+/**
+ * Biometric prompt helper class.
+ * Used to encapsulate required prompt texts.
+ */
 public class GigyaPromptInfo {
 
     private String title;

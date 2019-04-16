@@ -236,7 +236,7 @@ public class Gigya<T extends GigyaAccount> {
         // Set next account invalidation timestamp if available.
         if (_config != null && _config.getAccountCacheTime() != 0) {
             try {
-                IAccountService accountService = ioCContainer.get(IAccountService.class);
+                final IAccountService accountService = ioCContainer.get(IAccountService.class);
                 accountService.nextAccountInvalidationTimestamp();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -274,10 +274,10 @@ public class Gigya<T extends GigyaAccount> {
                     if (isLoggedIn()) {
                         // Will start session countdown timer if the current session contains an expiration time.
                         try {
-                            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+                            final ISessionService sessionService = ioCContainer.get(ISessionService.class);
                             sessionService.startSessionCountdownTimerIfNeeded();
                             // Session verification is only relevant when user is logged in.
-                            ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
+                            final ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
                             sessionVerificationService.start();
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -304,9 +304,9 @@ public class Gigya<T extends GigyaAccount> {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
                     // Make sure to cancel the session expiration countdown timer (if live).
                     try {
-                        ISessionService sessionService = ioCContainer.get(ISessionService.class);
+                        final ISessionService sessionService = ioCContainer.get(ISessionService.class);
                         sessionService.cancelSessionCountdownTimer();
-                        ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
+                        final ISessionVerificationService sessionVerificationService = ioCContainer.get(ISessionVerificationService.class);
                         sessionVerificationService.stop();
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -342,7 +342,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void handleInterruptions(boolean sdkHandles) {
         try {
-            IInterruptionsHandler interruptionsResolver = ioCContainer.get(IInterruptionsHandler.class);
+            final IInterruptionsHandler interruptionsResolver = ioCContainer.get(IInterruptionsHandler.class);
             interruptionsResolver.setEnabled(sdkHandles);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -355,7 +355,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public boolean interruptionsEnabled() {
         try {
-            IInterruptionsHandler interruptionsResolver = ioCContainer.get(IInterruptionsHandler.class);
+            final IInterruptionsHandler interruptionsResolver = ioCContainer.get(IInterruptionsHandler.class);
             interruptionsResolver.isEnabled();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -377,7 +377,7 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         try {
-            IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
             service.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -396,7 +396,7 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
         try {
-            IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService service = ioCContainer.get(IBusinessApiService.class);
             service.send(api, params, requestMethod, clazz, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -416,7 +416,7 @@ public class Gigya<T extends GigyaAccount> {
     @Nullable
     public SessionInfo getSession() {
         try {
-            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            final ISessionService sessionService = ioCContainer.get(ISessionService.class);
             return sessionService.getSession();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -429,7 +429,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public boolean isLoggedIn() {
         try {
-            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            final ISessionService sessionService = ioCContainer.get(ISessionService.class);
             return sessionService.isValid();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -446,9 +446,9 @@ public class Gigya<T extends GigyaAccount> {
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         try {
-            IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
             baService.logout();
-            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            final ISessionService sessionService = ioCContainer.get(ISessionService.class);
             sessionService.clear(true);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -466,12 +466,12 @@ public class Gigya<T extends GigyaAccount> {
             }
 
             // Logout of social providers...
-            IPersistenceService psService = ioCContainer.get(IPersistenceService.class);
-            IProviderFactory providerFactory = ioCContainer.get(IProviderFactory.class);
-            Set<String> usedProviders = psService.getSocialProviders();
+            final IPersistenceService psService = ioCContainer.get(IPersistenceService.class);
+            final IProviderFactory providerFactory = ioCContainer.get(IProviderFactory.class);
+            final Set<String> usedProviders = psService.getSocialProviders();
             if (!usedProviders.isEmpty()) {
                 for (String name : usedProviders) {
-                    IProvider provider = providerFactory.providerFor(name, null, null);
+                    final IProvider provider = providerFactory.providerFor(name, null, null);
                     if (provider.getName().equals(name)) {
                         // Make sure were not getting the web view provider.
                         provider.logout(context);
@@ -560,10 +560,10 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + overrideCache);
         try {
             if (overrideCache) {
-                IAccountService accountService = ioCContainer.get(IAccountService.class);
+                final IAccountService accountService = ioCContainer.get(IAccountService.class);
                 accountService.setAccountOverrideCache(overrideCache);
             }
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.getAccount(gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -579,7 +579,7 @@ public class Gigya<T extends GigyaAccount> {
     public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
         try {
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.setAccount(account, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -595,7 +595,7 @@ public class Gigya<T extends GigyaAccount> {
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
         try {
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.verifyLogin(UID, false, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -616,7 +616,7 @@ public class Gigya<T extends GigyaAccount> {
         params.put("email", email);
         params.put("password", password);
         try {
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.register(params, callback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -632,7 +632,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void register(String email, String password, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email);
-        Map<String, Object> params = new HashMap<>();
+        final Map<String, Object> params = new HashMap<>();
         register(email, password, params, callback);
     }
 
@@ -645,7 +645,7 @@ public class Gigya<T extends GigyaAccount> {
     public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
         try {
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.forgotPassword(loginId, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -662,7 +662,7 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
         try {
             final Context context = ioCContainer.get(Context.class);
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.addConnection(context, socialProvider, loginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -678,7 +678,7 @@ public class Gigya<T extends GigyaAccount> {
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
         try {
-            IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
             service.removeConnection(socialProvider, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -700,8 +700,8 @@ public class Gigya<T extends GigyaAccount> {
                                 final Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
         try {
-            IPresenter presenter = ioCContainer.get(IPresenter.class);
-            IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
+            final IPresenter presenter = ioCContainer.get(IPresenter.class);
+            final IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
             presenter.showNativeLoginProviders(providers, baService, params, gigyaLoginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -725,7 +725,7 @@ public class Gigya<T extends GigyaAccount> {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         try {
-            IPresenter presenter = ioCContainer.get(IPresenter.class);
+            final IPresenter presenter = ioCContainer.get(IPresenter.class);
             presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -739,10 +739,11 @@ public class Gigya<T extends GigyaAccount> {
      * @param fullScreen          Show in fullscreen mode.
      * @param gigyaPluginCallback Plugin callback.
      */
-    public void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
+    // TODO: 16/04/2019 Not available in beta.
+    private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         try {
-            IPresenter presenter = ioCContainer.get(IPresenter.class);
+            final IPresenter presenter = ioCContainer.get(IPresenter.class);
             presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
         } catch (Exception ex) {
             ex.printStackTrace();

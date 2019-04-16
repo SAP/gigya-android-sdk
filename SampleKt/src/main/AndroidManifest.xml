@@ -49,22 +49,22 @@
                 <!-- Accepts URIs that begin with "gigya://gsapi.applicationId/login_result” -->
                 <data
                     android:host="gsapi"
-                    android:pathPrefix="/com.gigya.android.sample/login_result"
+                    android:pathPrefix="/${applicationId}/login_result"
                     android:scheme="gigya" />
             </intent-filter>
         </activity>
 
         <!--<meta-data-->
-        <!--android:name="apiKey"-->
-        <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
+            <!--android:name="apiKey"-->
+            <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
 
         <!--<meta-data-->
-        <!--android:name="accountCacheTime"-->
-        <!--android:value="1"/>-->
+            <!--android:name="accountCacheTime"-->
+            <!--android:value="1" />-->
 
         <!--<meta-data-->
-        <!--android:name="sessionVerificationInterval"-->
-        <!--android:value="5" />-->
+            <!--android:name="sessionVerificationInterval"-->
+            <!--android:value="5" />-->
 
         <!-- Facebook integration -->
         <activity

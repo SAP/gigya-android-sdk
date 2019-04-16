@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="none">
+        <item android:title="Api list">
+            <menu>
+                <item
+                    android:id="@+id/api_anonymous"
+                    android:title="Anonymous" />
+
+                <item
+                    android:id="@+id/api_login"
+                    android:title="Login" />
+
+                <item
+                    android:id="@+id/api_login_with_provider"
+                    android:title="Login with provider" />
+
+                <item
+                    android:id="@+id/api_add_connection"
+                    android:title="addConnection"
+                    />
+                <item
+                    android:id="@+id/api_remove_connection"
+                    android:title="removeConnection"
+                    />
+
+                <item
+                    android:id="@+id/api_register"
+                    android:title="register" />
+
+                <item
+                    android:id="@+id/api_get_account_info"
+                    android:title="getAccount" />
+
+                <item
+                    android:id="@+id/api_set_account_info"
+                    android:title="setAccount" />
+
+                <item
+                    android:id="@+id/api_verify_login"
+                    android:title="verifyLogin"/>
+
+                <item
+                    android:id="@+id/api_forgot_password"
+                    android:title="forgotPassword" />
+
+            </menu>
+        </item>
+
+        <item android:title="User interface">
+            <menu>
+                <item
+                    android:id="@+id/action_native_login"
+                    android:title="Native login" />
+
+                <item
+                    android:id="@+id/action_raas"
+                    android:title="raas" />
+
+            </menu>
+        </item>
+
+    </group>
+
+</menu>

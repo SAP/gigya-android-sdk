@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_clear"
+        android:orderInCategory="100"
+        android:title="Clear"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_reinit"
+        android:orderInCategory="100"
+        android:title="Re-init"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/toggle_interruptions"
+        android:orderInCategory="100"
+        android:title="Toggle interruptions"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:orderInCategory="100"
+        android:title="Logout"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_account"
+        android:icon="@drawable/ic_person_24dp"
+        android:orderInCategory="100"
+        android:title="Logged in"
+        android:visible="false"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+</menu>

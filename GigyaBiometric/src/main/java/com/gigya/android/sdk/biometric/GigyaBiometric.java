@@ -30,6 +30,11 @@ public class GigyaBiometric {
 
     private boolean _isAvailable;
 
+    /**
+     * Service availability evaluator.
+     *
+     * @return TRUE if biometric service is available for use.
+     */
     public boolean isAvailable() {
         return _isAvailable;
     }

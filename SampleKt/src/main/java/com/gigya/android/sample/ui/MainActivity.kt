@@ -432,6 +432,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         possibleError?.let { error -> onError(error) }
                     }
             )
+        } else {
+            response_text_view.snackbar("Please login to test api")
         }
     }
 
@@ -440,14 +442,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Forgot password requested from navigation menu.
      */
     private fun onForgotPassword() {
-        viewModel?.forgotPassword(
-                success = {
-                    response_text_view.snackbar("Reset password email sent.")
-                },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
-                }
-        )
+        if (Gigya.getInstance().isLoggedIn) {
+            viewModel?.forgotPassword(
+                    success = {
+                        response_text_view.snackbar("Reset password email sent.")
+                    },
+                    error = { possibleError ->
+                        possibleError?.let { error -> onError(error) }
+                    }
+            )
+        } else {
+            response_text_view.snackbar("Please login to test api. Current view model setup is dependent on a live account (can be changed)")
+        }
     }
 
     //endregion
