@@ -24,7 +24,7 @@ public abstract class Provider implements IProvider {
     final protected ISessionService _sessionService;
     private final IAccountService _accountService;
     final private IPersistenceService _psService;
-    final private GigyaLoginCallback _gigyaLoginCallback;
+    private final GigyaLoginCallback _gigyaLoginCallback;
     final private IApiObservable _observable;
 
     // Dynamic

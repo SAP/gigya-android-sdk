@@ -12,7 +12,7 @@ import com.gigya.android.sdk.providers.provider.GoogleProvider;
 import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
-import com.gigya.android.sdk.providers.provider.WebViewProvider;
+import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.session.ISessionService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
@@ -63,6 +63,6 @@ public class ProviderFactory implements IProviderFactory {
                     break;
             }
         }
-        return new WebViewProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
+        return new WebLoginProvider(_config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
     }
 }

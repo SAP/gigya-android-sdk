@@ -36,6 +36,24 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
+        <activity
+            android:name="com.gigya.android.sdk.ui.WebLoginActivity"
+            android:allowTaskReparenting="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Translucent">
+            <intent-filter android:label="web_login_redirect">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "gigya://gsapi.applicationId/login_result” -->
+                <data
+                    android:host="gsapi"
+                    android:pathPrefix="/com.gigya.android.sample/login_result"
+                    android:scheme="gigya" />
+            </intent-filter>
+        </activity>
+
         <!--<meta-data-->
         <!--android:name="apiKey"-->
         <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->

@@ -19,7 +19,7 @@ import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
-import com.gigya.android.sdk.providers.provider.WebViewProvider;
+import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionService;
 
@@ -139,7 +139,7 @@ public class ProviderFactoryTest {
         IProvider provider = factory.providerFor(AMAZON, null, mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
-        assertTrue(provider instanceof WebViewProvider);
+        assertTrue(provider instanceof WebLoginProvider);
     }
 
     @Test
@@ -149,6 +149,6 @@ public class ProviderFactoryTest {
         IProvider provider = factory.providerFor(null, null,mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
-        assertTrue(provider instanceof WebViewProvider);
+        assertTrue(provider instanceof WebLoginProvider);
     }
 }

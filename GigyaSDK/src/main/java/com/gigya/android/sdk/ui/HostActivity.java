@@ -83,6 +83,14 @@ public class HostActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (_lifecycleCallbacks != null) {
+            _lifecycleCallbacks.onNewIntent(this, intent);
+        }
+    }
+
+    @Override
     public void finish() {
         Presenter.flushLifecycleCallbacks(_lifecycleCallbacksId);
         super.finish();
@@ -156,6 +164,10 @@ public class HostActivity extends AppCompatActivity {
         }
 
         public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
+            // Stub.
+        }
+
+        public void onNewIntent(AppCompatActivity activity, Intent intent) {
             // Stub.
         }
     }

@@ -119,6 +119,7 @@ public class Presenter implements IPresenter {
     // TODO: 03/01/2019 When dropping support for <17 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
 
     private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
+    private static SparseArray<WebLoginActivity.WebLoginActivityCallback> webLoginLifecycleSparse = new SparseArray<>();
 
     public static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
         int id = callbacks.hashCode();
@@ -126,16 +127,29 @@ public class Presenter implements IPresenter {
         return id;
     }
 
+    public static int addWebLoginLifecycleCallback(WebLoginActivity.WebLoginActivityCallback callback) {
+        int id = callback.hashCode();
+        webLoginLifecycleSparse.append(id, callback);
+        return id;
+    }
+
     public static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
         return lifecycleSparse.get(id);
+    }
+
+    public static WebLoginActivity.WebLoginActivityCallback getWebLoginCallback(int id) {
+        return webLoginLifecycleSparse.get(id);
     }
 
     public static void flushLifecycleCallbacks(int id) {
         lifecycleSparse.remove(id);
     }
 
+    public static void flushWebLoginLifecycleCallback(int id) { webLoginLifecycleSparse.remove(id);}
+
     public static void flush() {
         lifecycleSparse.clear();
+        webLoginLifecycleSparse.clear();
         System.gc();
     }
 
