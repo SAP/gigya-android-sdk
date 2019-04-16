@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebView;
 
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
@@ -447,10 +446,10 @@ public class Gigya<T extends GigyaAccount> {
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         try {
-            ISessionService sessionService = ioCContainer.get(ISessionService.class);
-            sessionService.clear(true);
             IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
             baService.logout();
+            ISessionService sessionService = ioCContainer.get(ISessionService.class);
+            sessionService.clear(true);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -465,13 +464,6 @@ public class Gigya<T extends GigyaAccount> {
                 CookieSyncManager.createInstance(context);
                 cookieManager.removeAllCookie();
             }
-
-            // TODO: 03/04/2019 Evaluating option.
-            // Creating dummy WebView in order to force cache clearing.
-            WebView dummyWebView = new WebView(context);
-            // Clears the resource cache. Note that the cache is per-application, so this will clear the cache for all WebViews used.
-            dummyWebView.clearCache(true);
-            dummyWebView.clearHistory();
 
             // Logout of social providers...
             IPersistenceService psService = ioCContainer.get(IPersistenceService.class);

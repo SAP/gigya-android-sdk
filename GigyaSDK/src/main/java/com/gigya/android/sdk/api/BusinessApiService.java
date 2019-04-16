@@ -151,14 +151,18 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
                 @Override
                 public void onApiSuccess(GigyaApiResponse response) {
-                    final GigyaConfigModel parsed = response.parseTo(GigyaConfigModel.class);
-                    if (parsed == null) {
-                        // Parsing error.
+                    if (response.getErrorCode() == 0) {
+                        final GigyaConfigModel parsed = response.parseTo(GigyaConfigModel.class);
+                        if (parsed == null) {
+                            // Parsing error.
+                            gigyaCallback.onError(GigyaError.fromResponse(response));
+                            onConfigError(nextApiTag);
+                            return;
+                        }
+                        onConfigResponse(parsed);
+                    } else {
                         gigyaCallback.onError(GigyaError.fromResponse(response));
-                        onConfigError(nextApiTag);
-                        return;
                     }
-                    onConfigResponse(parsed);
                 }
 
                 @Override

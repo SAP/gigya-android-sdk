@@ -97,32 +97,32 @@ public class GigyaDefinitions {
         public @interface SocialProvider {
         }
 
-        public static final String AMAZON = "Amazon";
-        public static final String BLOGGER = "Blogger";
-        public static final String FACEBOOK = "Facebook";
-        public static final String FOURSQUARE = "FourSquare";
+        public static final String AMAZON = "amazon";
+        public static final String BLOGGER = "blogger";
+        public static final String FACEBOOK = "facebook";
+        public static final String FOURSQUARE = "foursquare";
         public static final String GOOGLE = "googleplus";
         public static final String INSTAGRAM = "Instagram";
-        public static final String KAKAO = "Kakao";
-        public static final String LINE = "LINE";
-        public static final String LINKEDIN = "LinkedIn";
-        public static final String LIVEDOOR = "Livedoor";
-        public static final String MESSENGER = "Messenger";
+        public static final String KAKAO = "kakao";
+        public static final String LINE = "line";
+        public static final String LINKEDIN = "linkedin";
+        public static final String LIVEDOOR = "livedoor";
+        public static final String MESSENGER = "messenger";
         public static final String MIXI = "mixi";
-        public static final String NAVER = "Naver";
-        public static final String NETLOG = "Netlog";
-        public static final String ODNOKLASSNIKI = "Odnoklassniki";
-        public static final String ORANGE_FRANCE = "Orange France";
-        public static final String PAYPALOAUTH = "PayPalOAuth";
-        public static final String TENCENT_QQ = "Tencent QQ";
-        public static final String RENREN = "Renren";
-        public static final String SINA_WEIBO = "Sina Weibo";
-        public static final String SPICEWORKS = "Spiceworks";
+        public static final String NAVER = "naver";
+        public static final String NETLOG = "netlog";
+        public static final String ODNOKLASSNIKI = "odnoklassniki";
+        public static final String ORANGE_FRANCE = "orange france";
+        public static final String PAYPALOAUTH = "paypaloauth";
+        public static final String TENCENT_QQ = "tencent qq";
+        public static final String RENREN = "renren";
+        public static final String SINA_WEIBO = "sina weibo";
+        public static final String SPICEWORKS = "spiceworks";
         public static final String TWITTER = "twitter";
-        public static final String VKONTAKTE = "VKontakte";
+        public static final String VKONTAKTE = "vkontakte";
         public static final String WECHAT = "wechat";
-        public static final String WORDPRESS = "WordPress";
-        public static final String XING = "Xing";
+        public static final String WORDPRESS = "wordpress";
+        public static final String XING = "xing";
         public static final String YAHOO = "yahoo";
         public static final String YAHOO_JAPAN = "Yahoo Japan";
     }

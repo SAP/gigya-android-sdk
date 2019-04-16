@@ -91,6 +91,7 @@ public class WebLoginActivity extends Activity {
             if (_webLoginLifecycleCallbacks != null) {
                 _webLoginLifecycleCallbacks.onResult(this, parsed);
             }
+            finish();
         } else {
             finish();
         }

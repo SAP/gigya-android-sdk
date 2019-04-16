@@ -56,7 +56,7 @@ dependencies {
 
     // Social libs
     implementation deps.libs.facebook
-    implementation deps.libs.google_auth
+    //implementation deps.libs.google_auth
     implementation deps.libs.wechat
     implementation files('libs/line-sdk-4.0.10.aar')
 }
