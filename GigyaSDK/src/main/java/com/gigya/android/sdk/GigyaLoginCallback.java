@@ -13,6 +13,12 @@ import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.List;
 
+/**
+ * Gigya login response abstract callback.
+ * Non abstract function are used for optional interruption handling.
+ *
+ * @param <A> Custom account type provided int the Gigya interface initialization. If non specified will use basic GigyaAccount type.
+ */
 public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
 
     public void onPendingVerification(@NonNull GigyaApiResponse response, @Nullable String regToken) {

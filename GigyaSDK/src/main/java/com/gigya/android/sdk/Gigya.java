@@ -322,7 +322,10 @@ public class Gigya<T extends GigyaAccount> {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                // Stub.
+                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                    // Flush the Presenter statics just in case. When all activities have been destroyed.
+                    Presenter.flush();
+                }
             }
         });
     }
@@ -349,6 +352,7 @@ public class Gigya<T extends GigyaAccount> {
 
     /**
      * Return SDK interruptions state.
+     * if TRUE, interruption handling will be optional via the GigyaLoginCallback.
      */
     public boolean interruptionsEnabled() {
         try {

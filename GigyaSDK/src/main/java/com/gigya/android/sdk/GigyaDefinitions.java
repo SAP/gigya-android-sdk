@@ -7,15 +7,22 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * SDK global definitions.
+ * Contains SDK relevant global & specific constants.
  */
 public class GigyaDefinitions {
 
+    /**
+     * Local broadcast specific constants.
+     */
     public static class Broadcasts {
         // ACTIONS
         public static final String INTENT_ACTION_SESSION_EXPIRED = "intent_action_session_expired";
         public static final String INTENT_ACTION_SESSION_INVALID = "intent_action_session_invalid";
     }
 
+    /**
+     * Api related specific constants.
+     */
     public static class API {
         // ACCOUNT
         public static final String API_GET_SDK_CONFIG = "socialize.getSDKConfig";
@@ -47,6 +54,9 @@ public class GigyaDefinitions {
         public static final String API_TFA_TOTP_VERIFY = "accounts.tfa.totp.verify";
     }
 
+    /**
+     * TFA related specific constants.
+     */
     public static class TFA {
 
         @Retention(RetentionPolicy.SOURCE)
@@ -60,6 +70,9 @@ public class GigyaDefinitions {
         public static final String TOTP = "gigyaTotp";
     }
 
+    /**
+     * Plugin view specific constants.
+     */
     public static class Plugin {
 
         @Retention(RetentionPolicy.SOURCE)
@@ -72,6 +85,9 @@ public class GigyaDefinitions {
         public static final String CANCELED = "canceled";
     }
 
+    /**
+     * Supported login providers specific constants.
+     */
     public static class Providers {
 
         @Retention(RetentionPolicy.SOURCE)

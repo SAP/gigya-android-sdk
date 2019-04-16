@@ -8,6 +8,9 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+/**
+ * Main Gigya error representation class.
+ */
 public class GigyaError extends GigyaModel {
 
     public static class Codes {
@@ -41,17 +44,15 @@ public class GigyaError extends GigyaModel {
     }
 
     public static GigyaError generalError() {
-        // TODO: 12/03/2019 Define error correctly,
-        return new GigyaError(400, "", "");
-    }
-
-    public static GigyaError invalidSession() {
-        // TODO: 12/03/2019 Define error correctly,
-        return new GigyaError(200001, "Operation canceled", "");
+        return new GigyaError(400, "General error", "");
     }
 
     public static GigyaError errorFrom(String message) {
         return new GigyaError(400, message, "");
+    }
+
+    public static GigyaError invalidSession() {
+        return new GigyaError(200001, "Invalid session", "");
     }
 
     public static GigyaError cancelledOperation() {

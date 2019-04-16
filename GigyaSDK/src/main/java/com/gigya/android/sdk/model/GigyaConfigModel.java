@@ -1,5 +1,8 @@
 package com.gigya.android.sdk.model;
 
+/**
+ * Gigya SDK main configuration model.
+ */
 public class GigyaConfigModel extends GigyaModel {
 
     private Ids ids;

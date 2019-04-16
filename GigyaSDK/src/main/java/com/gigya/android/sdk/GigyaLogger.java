@@ -2,6 +2,10 @@ package com.gigya.android.sdk;
 
 import android.util.Log;
 
+/**
+ * Gigya custom Android logger class.
+ * Logs are issued only when DEBUG is set to TRUE.
+ */
 public class GigyaLogger {
 
     private static final String LOG_TAG = "GigyaSDK";

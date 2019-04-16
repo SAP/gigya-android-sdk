@@ -51,6 +51,7 @@ public class WebLoginActivity extends Activity {
                 finish();
                 return;
             }
+            // Reference the callback using static getter from the Presenter. Same as the HostActivity.
             _webLoginLifecycleCallbacks = Presenter.getWebLoginCallback(_webLoginLifecycleCallbacksId);
         }
 
@@ -82,7 +83,7 @@ public class WebLoginActivity extends Activity {
             finish();
             return;
         }
-
+        // Evaluate intent-filter params,
         if (scheme.equals("gigya") && host.equals("gsapi") && pathPrefix.equalsIgnoreCase("/" + packageName + "/login_result")) {
             final String encodedFragment = data.getEncodedFragment();
             final Map<String, Object> parsed = new HashMap<>();

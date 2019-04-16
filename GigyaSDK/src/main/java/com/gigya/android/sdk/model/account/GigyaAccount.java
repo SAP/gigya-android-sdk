@@ -5,6 +5,10 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.model.GigyaModel;
 import com.gigya.android.sdk.model.profile.Profile;
 
+/**
+ * Gigya main account model.
+ * Model is an inline representation of the base scheme available in the client site.
+ */
 public class GigyaAccount extends GigyaModel {
 
     @Nullable

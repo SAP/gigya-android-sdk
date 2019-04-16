@@ -4,6 +4,11 @@ import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 
+/**
+ * Plugin specific event callback.
+ *
+ * @param <A> Custom account type provided int the Gigya interface initialization. If non specified will use basic GigyaAccount type.
+ */
 public abstract class GigyaPluginCallback<A> {
 
     /* Called when an error occurs. */
