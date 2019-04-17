@@ -289,7 +289,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     @Override
     public void verifyLogin(String UID, final boolean ignoreSession, final GigyaCallback<A> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        requestRequiresValidSession(GigyaDefinitions.API.API_VERIFY_LOGIN, gigyaCallback);
         final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
             params.put("UID", UID);

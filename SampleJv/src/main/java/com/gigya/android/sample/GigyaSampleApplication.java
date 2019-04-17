@@ -4,7 +4,7 @@ import android.app.Application;
 import android.util.Log;
 import android.webkit.WebView;
 
-import com.gigya.android.sample.model.MyAccout;
+import com.gigya.android.sample.model.MyAccount;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 
@@ -21,6 +21,6 @@ public class GigyaSampleApplication extends Application {
         Log.d("GigyaSampleApplication", Gigya.VERSION);
 
         // Initialization with implicit configuration & account scheme.
-        Gigya.getInstance(getApplicationContext(), MyAccout.class);
+        Gigya.getInstance(getApplicationContext(), MyAccount.class);
     }
 }

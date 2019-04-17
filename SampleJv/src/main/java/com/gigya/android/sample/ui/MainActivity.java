@@ -9,7 +9,7 @@ import com.gigya.android.sample.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MainViewModel _viewModel;
+    private MainViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setTitle("Gigya SDK sample");
-        _viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
     }
+
 }

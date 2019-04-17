@@ -697,7 +697,10 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaLoginCallback Login response callback.
      */
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
-                                final Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
+                                Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
         try {
             final IPresenter presenter = ioCContainer.get(IPresenter.class);

@@ -78,7 +78,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onPause()
     }
 
-    private val sessionLifecycleReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private
+    val sessionLifecycleReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             action?.let { intent_action ->
@@ -192,7 +193,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region FINGERPRINT EVALUATION
 
-    private val gigyaBiometricCallback = object : IGigyaBiometricCallback {
+    private
+    val gigyaBiometricCallback = object : IGigyaBiometricCallback {
         override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
             toast("Biometric authentication success")
             invalidateOptionsMenu()
@@ -667,7 +669,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //region ACCOUNT INFO BINDING
 
-    private val accountObserver: Observer<MyAccount> = Observer { myAccount ->
+    private
+    val accountObserver: Observer<MyAccount> = Observer { myAccount ->
         val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
         nav_title?.text = fullName
         nav_subtitle?.text = myAccount?.profile?.email

@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.gigya.android.sample"
-        minSdkVersion build_versions.min_sdk_biometric
+        minSdkVersion build_versions.min_sdk_app
         targetSdkVersion build_versions.target_sdk
         versionCode 1
         versionName "1.0"
