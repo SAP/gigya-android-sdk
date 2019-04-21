@@ -1,14 +1,6 @@
 <resources>
     <string name="app_name">SampleJv</string>
 
-    <!-- Navigation -->
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">User name unavailable</string>
-    <string name="nav_header_subtitle">User email unavailable</string>
-    <string name="nav_header_desc">Navigation header</string>
-
-
     <string name="gigya_api_key">3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC</string>
 
     <string name="facebook_app_id">113512789545198</string>
