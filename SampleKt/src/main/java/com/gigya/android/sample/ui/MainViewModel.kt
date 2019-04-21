@@ -62,6 +62,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     private val gigya = Gigya.getInstance(application, MyAccount::class.java)
 
+    fun isLoggedIn() : Boolean = gigya.isLoggedIn
+
     //region TFA FLOW
 
     var tfaRegistrationResolver: IGigyaTFARegistrationResolver? = null

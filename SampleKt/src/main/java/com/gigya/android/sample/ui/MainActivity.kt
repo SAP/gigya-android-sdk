@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         registerAccountUpdates()
 
         /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
-        if (Gigya.getInstance().isLoggedIn) {
+        if (viewModel!!.isLoggedIn()) {
             onGetAccount()
         }
     }
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         /* Setup drawer navigation header click listener. */
         nav_view.getHeaderView(0)?.setOnClickListener {
-            if (Gigya.getInstance().isLoggedIn) {
+            if (viewModel!!.isLoggedIn()) {
                 showAccountDetails()
             }
         }
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Reference dynamic item views in order to apply visibility logic.
         val accountItem = menu.findItem(R.id.action_account)
         val logoutItem = menu.findItem(R.id.action_logout)
-        val isLoggedIn = Gigya.getInstance().isLoggedIn
+        val isLoggedIn = viewModel!!.isLoggedIn()
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
         if (isLoggedIn) {
@@ -239,7 +239,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
         }
 
-        if (Gigya.getInstance().isLoggedIn) {
+        if (viewModel!!.isLoggedIn()) {
             fingerprint_fab.show()
         }
         if (biometric.isOptIn) {
@@ -386,7 +386,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Request myAccountLiveData instance update.
      */
     private fun onGetAccount() {
-        if (!Gigya.getInstance().isLoggedIn) {
+        if (!viewModel!!.isLoggedIn()) {
             response_text_view.snackbar(getString(R.string.not_logged_in))
             return
         }
@@ -425,7 +425,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun onVerifyLogin() {
-        if (Gigya.getInstance().isLoggedIn) {
+        if (viewModel!!.isLoggedIn()) {
             viewModel?.verifyLogin(
                     success = { json ->
                         onJsonResult(json)
@@ -444,7 +444,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Forgot password requested from navigation menu.
      */
     private fun onForgotPassword() {
-        if (Gigya.getInstance().isLoggedIn) {
+        if (viewModel!!.isLoggedIn()) {
             viewModel?.forgotPassword(
                     success = {
                         response_text_view.snackbar("Reset password email sent.")
