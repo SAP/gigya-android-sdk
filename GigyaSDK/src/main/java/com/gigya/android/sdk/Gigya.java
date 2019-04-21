@@ -587,6 +587,22 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Set account info given update parameters.
+     *
+     * @param params        Updated account parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void setAccount(Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "setAccount: with params");
+        try {
+            final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
+            service.setAccount(params, gigyaCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
      * Request verify login given account UID/
      *
      * @param UID           Account UID identifier.

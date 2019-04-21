@@ -34,6 +34,8 @@ public interface IBusinessApiService<A> {
 
     void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback);
 
+    void setAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback);
+
     void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback);
 
     void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback);

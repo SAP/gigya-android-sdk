@@ -191,7 +191,7 @@ class InputDialog : DialogFragment() {
      * Implement according to application requirements.
      */
     private fun setupForSetAccountInfo() {
-        set_account_sheet_title.text = "Set account info custom (updating \"comment\" custom data field)"
+        set_account_sheet_title.text = "Set myAccountLiveData info custom (updating \"comment\" custom data field)"
         set_account_sheet_send_button.setOnClickListener {
             val comment = set_account_sheet_edit.text.toString().trim()
             resultCallback.onUpdateAccountWith(comment)

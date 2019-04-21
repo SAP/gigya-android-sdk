@@ -52,12 +52,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val uiTrigger = MutableLiveData<Pair<Int, Any?>>()
 
     /*
-    LiveData fo the custom account scheme model.
+    LiveData fo the custom myAccountLiveData scheme model.
      */
-    val account = MutableLiveData<MyAccount>()
+    val myAccountLiveData = MutableLiveData<MyAccount>()
 
     /*
-    Using short version because SDK was initialized & account scheme was already set
+    Using short version because SDK was initialized & myAccountLiveData scheme was already set
     in the Application class.
      */
     private val gigya = Gigya.getInstance(application, MyAccount::class.java)
@@ -112,7 +112,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(loginID, password, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -164,7 +164,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.register(loginID, password, mutableMapOf<String, Any>("sessionExpiration" to exp), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -191,12 +191,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Get account information.
+     * Get myAccountLiveData information.
      */
     fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         gigya.getAccount(object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -207,17 +207,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Set account information.
+     * Set myAccountLiveData information.
      */
     fun setAccount(dummyData: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         /* Updating a custom data field. */
         when (dummyData.isEmpty()) {
-            true -> account.value?.profile?.email = null
-            false -> account.value?.profile?.email = dummyData
+            true -> myAccountLiveData.value?.profile?.email = null
+            false -> myAccountLiveData.value?.profile?.email = dummyData
         }
-        gigya.setAccount(account.value, object : GigyaCallback<MyAccount>() {
+        gigya.setAccount(myAccountLiveData.value, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -231,9 +231,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Check login state via accounts.verifyLogin API.
      */
     fun verifyLogin(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.verifyLogin(account.value!!.uid, object : GigyaCallback<MyAccount>() {
+        gigya.verifyLogin(myAccountLiveData.value!!.uid, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -247,7 +247,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Send a reset password email to designated user.
      */
     fun forgotPassword(success: () -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.forgotPassword(account.value!!.profile?.email, object : GigyaCallback<GigyaApiResponse>() {
+        gigya.forgotPassword(myAccountLiveData.value!!.profile?.email, object : GigyaCallback<GigyaApiResponse>() {
             override fun onSuccess(obj: GigyaApiResponse?) {
                 success()
             }
@@ -273,7 +273,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.login(provider, mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -304,7 +304,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 , object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("socialLoginWith", "Success")
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -327,7 +327,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.addConnection(provider, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
-                account.value = obj
+                myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
             }
 
@@ -360,7 +360,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Display account details screen set.
+     * Display myAccountLiveData details screen set.
      */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-ProfileUpdate", true, mutableMapOf(),
@@ -391,7 +391,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gigya.showScreenSets("Default-RegistrationLogin", false, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onLogin(accountObj: MyAccount) {
-                        account.value = accountObj
+                        myAccountLiveData.value = accountObj
                         onLogin(GsonBuilder().setPrettyPrinting().create().toJson(accountObj))
                     }
 
@@ -407,20 +407,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //region UTILITY
 
     /**
-     * Nullify account holders.
+     * Nullify myAccountLiveData holders.
      */
     fun flushAccountReferences() {
-        account.value = null
+        myAccountLiveData.value = null
     }
 
     /**
      * Helper method only.
-     * setAccount request is available only when an instance of the account is available (For this tester application only).
+     * setAccount request is available only when an instance of the myAccountLiveData is available (For this tester application only).
      */
     fun okayToRequestSetAccount(): Boolean {
-        if (account.value == null) return false
+        if (myAccountLiveData.value == null) return false
         return true
     }
 
     //endregion
+
+    fun test() {
+
+    }
+
 }

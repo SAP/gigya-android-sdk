@@ -33,7 +33,7 @@
 
                 <item
                     android:id="@+id/api_get_account_info"
-                    android:title="getAccount" />
+                    android:title="getMyAccountLiveData" />
 
                 <item
                     android:id="@+id/api_set_account_info"

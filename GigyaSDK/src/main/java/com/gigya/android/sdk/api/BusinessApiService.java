@@ -467,6 +467,29 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    @Override
+    public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
+        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    // Invalidate cached account and call getAccount API.
+                    _accountService.invalidateAccount();
+                    getAccount(gigyaCallback);
+                } else {
+                    gigyaCallback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
     //endregion
 
     //region MISC

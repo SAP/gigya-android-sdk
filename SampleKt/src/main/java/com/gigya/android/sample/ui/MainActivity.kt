@@ -60,13 +60,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
         LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
-                IntentFilter(filter))
+                filter)
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
-        // Register for account info updates.
+        // Register for myAccountLiveData info updates.
         registerAccountUpdates()
 
-        /* If we are already logged in - get account info and update relevant account UI (drawer header). */
+        /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
         if (Gigya.getInstance().isLoggedIn) {
             onGetAccount()
         }
@@ -383,7 +383,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     /**
-     * Request account instance update.
+     * Request myAccountLiveData instance update.
      */
     private fun onGetAccount() {
         if (!Gigya.getInstance().isLoggedIn) {
@@ -402,7 +402,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     /**
-     * Set account requested from navigation menu.
+     * Set myAccountLiveData requested from navigation menu.
      * Will show dialog to remind client to make sure all fields he is requesting to update are marked as "clientModify".
      */
     private fun onSetAccount() {
@@ -454,7 +454,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
             )
         } else {
-            response_text_view.snackbar("Please login to test api. Current view model setup is dependent on a live account (can be changed)")
+            response_text_view.snackbar("Please login to test api. Current view model setup is dependent on a live myAccountLiveData (can be changed)")
         }
     }
 
@@ -498,7 +498,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     /**
-     * Show account details. Will use ScreenSet.
+     * Show myAccountLiveData details. Will use ScreenSet.
      */
     private fun showAccountDetails() {
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -600,7 +600,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     /**
-     * Trigger a set account call using the string provided.
+     * Trigger a set myAccountLiveData call using the string provided.
      */
     override fun onUpdateAccountWith(comment: String) {
         onLoading()
@@ -679,11 +679,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun registerAccountUpdates() {
-        viewModel?.account?.observe(this, accountObserver)
+        viewModel?.myAccountLiveData?.observe(this, accountObserver)
     }
 
     private fun unregisterAccountUpdates() {
-        viewModel?.account?.removeObserver(accountObserver)
+        viewModel?.myAccountLiveData?.removeObserver(accountObserver)
     }
 
     /**
@@ -696,4 +696,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //endregion
+
 }

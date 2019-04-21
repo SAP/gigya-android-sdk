@@ -21,11 +21,11 @@ class GigyaSampleApplication : Application() {
         GigyaLogger.setDebugMode(true)
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
-        // Initialization with implicit configuration & account scheme.
+        // Initialization with implicit configuration & myAccountLiveData scheme.
         Gigya.getInstance(applicationContext, MyAccount::class.java)
 
         /*
-        Initialization with implicit configuration & without a custom account scheme.
+        Initialization with implicit configuration & without a custom myAccountLiveData scheme.
         Will use the default GigyaAccount scheme.
         */
         // Gigya.getInstance(applicationContext)

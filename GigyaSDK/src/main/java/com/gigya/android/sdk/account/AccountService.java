@@ -122,7 +122,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
      * Object represented field values must be set as JSON Objects. So we are reverting each one to
      * its JSON String representation.
      */
-    private void serializeObjectFields(Gson gson, Map<String, Object> map) {
+    public static void serializeObjectFields(Gson gson, Map<String, Object> map) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() instanceof Map) {
                 map.put(entry.getKey(), gson.toJson(entry.getValue()));
