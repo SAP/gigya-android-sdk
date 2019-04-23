@@ -146,11 +146,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val accountItem = menu.findItem(R.id.action_account)
         val logoutItem = menu.findItem(R.id.action_logout)
         val isLoggedIn = viewModel!!.isLoggedIn()
+
         accountItem.isVisible = isLoggedIn
         logoutItem.isVisible = isLoggedIn
-        if (isLoggedIn) {
+
+        // Show fingerprint FAB if logged in & support is available.
+        if (isLoggedIn && GigyaBiometric.getInstance().isAvailable) {
             fingerprint_fab.visible()
         }
+
         return true
     }
 
@@ -160,7 +164,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_clear -> onClear()
             R.id.action_reinit -> reInit()
             R.id.action_logout -> logout()
-            R.id.toggle_interruptions -> toggleInterruptions()
+            R.id.action_toggle_interruptions -> toggleInterruptions()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -172,18 +176,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.api_anonymous -> onSendAnonymousRequest()
-            R.id.api_login -> onLogin()
-            R.id.api_login_with_provider -> onLoginWithProvider()
-            R.id.api_add_connection -> onAddConnection()
-            R.id.api_remove_connection -> onRemoveConnection()
-            R.id.api_register -> onRegister()
-            R.id.api_get_account_info -> onGetAccount()
-            R.id.api_set_account_info -> onSetAccount()
-            R.id.api_verify_login -> onVerifyLogin()
+            R.id.action_send_request -> onSendAnonymousRequest()
+            R.id.action_login -> onLogin()
+            R.id.action_login_with_provider -> onLoginWithProvider()
+            R.id.action_add_connection -> onAddConnection()
+            R.id.action_remove_connection -> onRemoveConnection()
+            R.id.action_register -> onRegister()
+            R.id.action_get_account_info -> onGetAccount()
+            R.id.action_set_account_info -> onSetAccount()
+            R.id.action_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
-            R.id.action_raas -> showRAAS()
-            R.id.api_forgot_password -> onForgotPassword()
+            R.id.action_show_screen_sets -> showRAAS()
+            R.id.action_forgot_password -> onForgotPassword()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -428,6 +432,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.verifyLogin(
                     success = { json ->
+                        response_text_view.snackbar("Login verified")
                         onJsonResult(json)
                     },
                     error = { possibleError ->
@@ -485,7 +490,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Registration as a service requested from navigation menu.
      */
     private fun showRAAS() {
-        viewModel?.registrationAsAService(
+        viewModel?.showScreenSets(
                 onLogin = { json ->
                     onJsonResult(json)
                 },

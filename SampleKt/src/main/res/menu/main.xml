@@ -15,7 +15,7 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/toggle_interruptions"
+        android:id="@+id/action_toggle_interruptions"
         android:orderInCategory="100"
         android:title="@string/toggle_interruptions"
         app:showAsAction="never" />

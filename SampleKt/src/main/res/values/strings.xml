@@ -3,57 +3,44 @@
 
     <!-- General -->
     <string name="rest_error_title">Request error</string>
-    <string name="send_request">Send request</string>
-    <string name="response_json">Response JSON:</string>
-    <string name="response_text_placeholder">Nothing yet…</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="empty_input">Empty input. Check it out!</string>
-    <string name="account">Account</string>
-    <string name="session">Session</string>
     <string name="logout">Logout</string>
-    <string name="send_anonymous">Send an anonymous request</string>
-    <string name="anonymous_request_hint">Requested API</string>
-    <string name="anonymous_placeholder">socialize.getAvailableProviders</string>
-    <string name="login_with_user_pass">Login with username &amp; password</string>
-    <string name="register_with_user_pass">Register with username &amp; password</string>
-    <string name="check_available_id">Check available Id</string>
-    <string name="switch_to_generic">Switch to generic</string>
-    <string name="get_account_info">Get account info</string>
-    <string name="update_account_custom">Update account custom field</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="not_logged_in">Not logged in.\nPlease log in or register a new account</string>
+    <string name="logged_out">Logged out of your account</string>
+    <string name="account_updated">Account updated</string>
+    <string name="account_not_available">Account info not available.\nCall "getAccount" first</string>
+    <string name="choose_action">Choose an action from\nthe drawer menu</string>
+    <string name="re_init">Re-init</string>
+    <string name="clear">Clear</string>
+    <string name="logged_in">Logged in</string>
+    <string name="toggle_interruptions">Toggle interruptions</string>
+    <string name="verify_email">Verify Email</string>
+
+    <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">User name unavailable</string>
     <string name="nav_header_subtitle">User email unavailable</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-    <string name="not_logged_in">Not logged in.\nPlease log in or register a new account</string>
-    <string name="logged_out">Logged out of your account</string>
-    <string name="account_updated">Account updated</string>
-    <string name="account_not_available">Account info not available.\nCall "getAccount" first</string>
-    <string name="anonymous">anonymous</string>
-    <string name="login">login</string>
-    <string name="register">register</string>
-    <string name="get_account">getAccount</string>
-    <string name="set_account">setAccount</string>
-    <string name="user_interface">User Interface</string>
-    <string name="native_login">Native Login</string>
-    <string name="choose_action">Choose an action from\nthe drawer menu</string>
-    <string name="show_plugin">Show plugin</string>
-    <string name="default_screensets">Default ScreenSets</string>
-    <string name="raas">Registration as a service</string>
-    <string name="comments">Comments</string>
-    <string name="api_list">Api List</string>
-    <string name="re_init">Re-init</string>
-    <string name="clear">Clear</string>
-    <string name="logged_in">Logged in</string>
-    <string name="facebook_update_permissions">Facebook update permissions</string>
-    <string name="finalizeRegistration">finalizeRegistration</string>
-    <string name="forgot_password">forgotPassword</string>
-    <string name="toggle_interruptions">Toggle interruptions</string>
-    <string name="reset_tfa">Reset TFA</string>
-    <string name="verifylogin">verifyLogin</string>
-    <string name="verify_email">Verify Email</string>
+    <string name="nav_api_reference">Api reference</string>
+    <string name="nav_native_login">Show native login options</string>
+    <string name="nav_show_screen_sets">Show screen sets</string>
+    <string name="nav_forgot_password">Forgot password</string>
+    <string name="nav_verify_login">Verify Login</string>
+    <string name="nav_set_account_info">Set Account</string>
+    <string name="nav_get_account_info">Get Account</string>
+    <string name="nav_register">Register</string>
+    <string name="nav_add_connection">Add connection</string>
+    <string name="nav_remove_connection">Remove connection</string>
+    <string name="nav_login_with_provider">Login with provider</string>
+    <string name="nav_login">Login </string>
+    <string name="nav_send_request">Send request</string>
+    <string name="nav_ui_reference">UI reference</string>
+
+    <!-- Helper Strings -->
+    <string name="send_request_test_no_parameters">socialize.getAvailableProviders</string>
+
+
+
+
 
 </resources>

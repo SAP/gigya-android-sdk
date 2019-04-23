@@ -389,7 +389,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Show screen set "Default-RegistrationLogin".
      */
-    fun registrationAsAService(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
+    fun showScreenSets(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSets("Default-RegistrationLogin", false, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onLogin(accountObj: MyAccount) {
