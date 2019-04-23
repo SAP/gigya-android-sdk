@@ -14,6 +14,8 @@ import javax.crypto.Cipher;
 
 public class GigyaBiometric {
 
+    public static final String VERSION = "android_1.0.0_beta_1";
+
     private static final String LOG_TAG = "GigyaBiometric";
 
     private static final GigyaBiometric _sharedInstance = new GigyaBiometric();

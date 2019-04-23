@@ -25,7 +25,7 @@ android {
         minSdkVersion build_versions.min_sdk_core
         targetSdkVersion build_versions.target_sdk
 
-        archivesBaseName = "Gigya-android-sdk-${androidVersion}"
+        archivesBaseName = "gigya-android-sdk-${androidVersion}"
     }
 
     compileOptions {

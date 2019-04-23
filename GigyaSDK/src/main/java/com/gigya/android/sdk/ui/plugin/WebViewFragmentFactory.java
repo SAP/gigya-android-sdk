@@ -22,7 +22,7 @@ public class WebViewFragmentFactory implements IWebViewFragmentFactory {
     final private IProviderFactory _providerFactory;
     final private Config _config;
 
-    WebViewFragmentFactory(Context context, Config config, IWebBridgeFactory wbFactory, IProviderFactory providerFactory) {
+    public WebViewFragmentFactory(Context context, Config config, IWebBridgeFactory wbFactory, IProviderFactory providerFactory) {
         _context = context;
         _config = config;
         _wbFactory = wbFactory;

@@ -60,7 +60,7 @@ public class Gigya<T extends GigyaAccount> {
 
     private static final String LOG_TAG = "Gigya";
 
-    public static final String VERSION = "android_4.0.0";
+    public static final String VERSION = "android_4.0.0_beta_1";
 
     @SuppressLint("StaticFieldLeak")
     private static Gigya INSTANCE;
