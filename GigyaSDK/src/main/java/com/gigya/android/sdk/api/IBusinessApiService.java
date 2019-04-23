@@ -22,7 +22,7 @@ public interface IBusinessApiService<A> {
 
     void login(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback);
 
-    void verifyLogin(String UID, final boolean ignoreSession, final GigyaCallback<A> gigyaCallback);
+    void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback);
 
     void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback, final Runnable optionalCompletionHandler);
 

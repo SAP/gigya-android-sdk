@@ -10,6 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Account handling service responsible for holding a cached copy of the current account instance.
+ *
+ * @param <A> Typed account instance (extends GigyaAccount).
+ */
 public class AccountService<A extends GigyaAccount> implements IAccountService<A> {
 
     final private Config _config;

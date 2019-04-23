@@ -1,5 +1,6 @@
 package com.gigya.android;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.ui.Presenter;
 
 import org.junit.Before;
@@ -35,7 +36,7 @@ public class PresenterTest extends BaseGigyaTest {
         String url = cPreserner.getPresentationUrl(params, "login");
         // Assert
         assertNotNull(url);
-        assertEquals("https://socialize.us1-gigya.com/gs/mobile/loginui.aspx?apiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&requestType=login&sdk=android_4.0.0&redirect_uri=gsapi%3A%2F%2Fresult%2F", url);
+        assertEquals("https://socialize.us1-gigya.com/gs/mobile/loginui.aspx?apiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&requestType=login&sdk=" + Gigya.VERSION + "&redirect_uri=gsapi%3A%2F%2Fresult%2F", url);
     }
 
     @Test
@@ -51,6 +52,6 @@ public class PresenterTest extends BaseGigyaTest {
         String url = cPreserner.getPresentationUrl(params, "login");
         // Assert
         assertNotNull(url);
-        assertEquals("https://socialize.us1-gigya.com/gs/mobile/loginui.aspx?enabledProviders=facebook&apiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&requestType=login&disabledProviders=googleplus&sdk=android_4.0.0&redirect_uri=gsapi%3A%2F%2Fresult%2F&lang=eng&cid=123123", url);
+        assertEquals("https://socialize.us1-gigya.com/gs/mobile/loginui.aspx?enabledProviders=facebook&apiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&requestType=login&disabledProviders=googleplus&sdk=" + Gigya.VERSION + "&redirect_uri=gsapi%3A%2F%2Fresult%2F&lang=eng&cid=123123", url);
     }
 }

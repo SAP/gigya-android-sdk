@@ -30,6 +30,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+/**
+ * Service responsible for sending & processing pre-defined API requests
+ *
+ * @param <A> Typed account instance (extends GigyaAccount).
+ */
 public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiService<A>, Observer {
 
     private static final String LOG_TAG = "BusinessApiService";
@@ -43,7 +48,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IInterruptionsHandler _interruptionsHandler;
 
     public BusinessApiService(Config config, ISessionService sessionService, IAccountService<A> accountService, IApiService apiService, IProviderFactory providerFactory,
-                       IInterruptionsHandler interruptionsHandler) {
+                              IInterruptionsHandler interruptionsHandler) {
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -108,8 +113,18 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //endregion
 
-    //region ANONYMOUS
+    //region SEND REQUEST
 
+    /**
+     * Base API send request initiator.
+     *
+     * @param api           Requested API.
+     * @param params        Requested parameters map.
+     * @param requestMethod HTTP request method {@link RestAdapter}
+     * @param clazz         Requested Typed response class.
+     * @param gigyaCallback Response callback.
+     * @param <V>           Typed response class.
+     */
     @Override
     public <V> void send(String api, Map<String, Object> params, int requestMethod, final Class<V> clazz, final GigyaCallback<V> gigyaCallback) {
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, api, params, requestMethod);
@@ -139,6 +154,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region CONFIG
 
+    /**
+     * Request SDK configuration.
+     * Configuration request contains the base values required for continuous communication with the Gigya server.
+     *
+     * @param nextApiTag    The API tag which initiated the call.
+     * @param gigyaCallback Response callback.
+     * @param <V>           Typed response class.
+     */
     @Override
     public <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback) {
         if (requestRequiresApiKey("getConfig")) {
@@ -241,6 +264,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region LOGOUT
 
+    /**
+     * Request to log out of the current active session.
+     *
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.logout+REST</a>
+     */
     @Override
     public void logout() {
         requestRequiresValidSession(GigyaDefinitions.API.API_LOGOUT, null);
@@ -263,23 +291,41 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region LOGIN
 
+    /**
+     * Request login given map of parameters.
+     *
+     * @param params             Parameter map
+     * @param gigyaLoginCallback Login response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.login+REST</a>
+     */
     @Override
-    public void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
-        requestRequiresGMID(GigyaDefinitions.API.API_LOGIN, loginCallback);
+    public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
+        requestRequiresGMID(GigyaDefinitions.API.API_LOGIN, gigyaLoginCallback);
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, loginCallback);
+                handleAccountApiResponse(response, gigyaLoginCallback);
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                loginCallback.onError(gigyaError);
+                gigyaLoginCallback.onError(gigyaError);
             }
         });
     }
 
+    /**
+     * Request login to specific social provider.
+     * Will begin a login flow comprised of two steps.
+     * 1. Social login with provider.
+     * 2. Login with the Gigya server.
+     *
+     * @param context            Current active context.
+     * @param socialProvider     Requested social provider   {@link GigyaDefinitions.Providers}
+     * @param params             Request parameters.
+     * @param gigyaLoginCallback Login response callback.
+     */
     @Override
     public void login(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
         IApiObservable observable = new ApiObservable().register(this);
@@ -288,8 +334,15 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         provider.login(context, params, "standard");
     }
 
+    /**
+     * Request to verify the current session state.
+     *
+     * @param UID           Current user UID.
+     * @param gigyaCallback Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST</a>
+     */
     @Override
-    public void verifyLogin(String UID, final boolean ignoreSession, final GigyaCallback<A> gigyaCallback) {
+    public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_VERIFY_LOGIN, gigyaCallback);
         final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
@@ -318,13 +371,20 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Login to with social provider when the provider session is available (obtained via specific provider login process).
+     *
+     * @param params                    Request parameters/
+     * @param gigyaLoginCallback        Login response callback.
+     * @param optionalCompletionHandler additional completion handler Runnable.
+     */
     @Override
-    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback, final Runnable optionalCompletionHandler) {
-        requestRequiresGMID(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
+    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback, final Runnable optionalCompletionHandler) {
+        requestRequiresGMID(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
         if (params.containsKey("loginMode")) {
             final String linkMode = (String) params.get("loginMode");
             if (ObjectUtils.safeEquals(linkMode, "link")) {
-                requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, loginCallback);
+                requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
             }
         }
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
@@ -333,18 +393,18 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     updateWithNewSession(response); // Update with new session.
-                    getAccount(loginCallback); // Request account details. Will need to change when the endpoint will be completed.
+                    getAccount(gigyaLoginCallback); // Request account details. Will need to change when the endpoint will be completed.
                     if (optionalCompletionHandler != null) {
                         optionalCompletionHandler.run();
                     }
                 } else {
-                    handleAccountApiResponse(response, loginCallback);
+                    handleAccountApiResponse(response, gigyaLoginCallback);
                 }
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                loginCallback.onError(gigyaError);
+                gigyaLoginCallback.onError(gigyaError);
             }
         });
     }
@@ -353,25 +413,44 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region REGISTER
 
+    /**
+     * Finalize current registration process.
+     *
+     * @param params             Request parameters.
+     * @param gigyaLoginCallback Login response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.finalizeRegistration+REST</a>
+     */
     @Override
-    public void finalizeRegistration(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
+    public void finalizeRegistration(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_FINALIZE_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, loginCallback);
+                handleAccountApiResponse(response, gigyaLoginCallback);
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                loginCallback.onError(gigyaError);
+                gigyaLoginCallback.onError(gigyaError);
             }
         });
     }
 
+    /**
+     * Register request given map of parameters.
+     * Login flow is composed of two stages:
+     * 1. Request to initialize the registration process.
+     * 2. Actual registration process using the registration token obtained from previous request.
+     * NOTE: registration set to finalize by default thus not requiring a call to finalize the registration.
+     *
+     * @param params             Request parameters.
+     * @param gigyaLoginCallback Login response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.initRegistration+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.register+REST</a>
+     */
     @Override
-    public void register(final Map<String, Object> params, final GigyaLoginCallback<A> loginCallback) {
-        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, loginCallback);
+    public void register(final Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
+        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, gigyaLoginCallback);
         // #1 Chain init registration.
         GigyaApiRequest initRequest = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(initRequest, false, new ApiService.IApiServiceResponse() {
@@ -384,7 +463,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         params.put("finalizeRegistration", true);
                     } else {
                         GigyaLogger.error(LOG_TAG, "register: Init registration produced null regToken");
-                        loginCallback.onError(GigyaError.generalError());
+                        gigyaLoginCallback.onError(GigyaError.generalError());
                         return;
                     }
                     // #2 Chain login.
@@ -392,22 +471,22 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                     _apiService.send(regRequest, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {
-                            handleAccountApiResponse(response, loginCallback);
+                            handleAccountApiResponse(response, gigyaLoginCallback);
                         }
 
                         @Override
                         public void onApiError(GigyaError gigyaError) {
-                            loginCallback.onError(gigyaError);
+                            gigyaLoginCallback.onError(gigyaError);
                         }
                     });
                 } else {
-                    loginCallback.onError(GigyaError.fromResponse(response));
+                    gigyaLoginCallback.onError(GigyaError.fromResponse(response));
                 }
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                loginCallback.onError(gigyaError);
+                gigyaLoginCallback.onError(gigyaError);
             }
         });
     }
@@ -416,6 +495,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region ACCOUNT
 
+    /**
+     * Request account info for current active session.
+     *
+     * @param gigyaCallback Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.getAccountInfo+REST</a>
+     */
     @Override
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, gigyaCallback);
@@ -444,6 +529,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Request account update for current active session.
+     *
+     * @param updatedAccount Updated account instance.
+     * @param gigyaCallback  Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST</a>
+     */
     @Override
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
@@ -468,6 +560,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Request account update for current active session.
+     *
+     * @param params        Updated parameters.
+     * @param gigyaCallback Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST</a>
+     */
     @Override
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
@@ -495,6 +594,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region MISC
 
+    // Non documented.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
         final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
@@ -517,6 +617,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Issue a reset password request.
+     *
+     * @param loginId  Current login ID.
+     * @param callback Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST</a>
+     */
     @Override
     public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
@@ -539,6 +646,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Request to add a social network connection to existing account.
+     * Completion of this request will result in an updated login session.
+     *
+     * @param context            Active context.
+     * @param socialProvider     Requested social provider.
+     * @param gigyaLoginCallback Login response callback.
+     */
     @Override
     public void addConnection(Context context, String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
@@ -549,6 +664,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         provider.login(context, params, "connect");
     }
 
+    /**
+     * Request to remove a social network connection from existing account.
+     *
+     * @param socialProvider Requested social provider.
+     * @param gigyaCallback  Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/socialize.removeConnection+REST</a>
+     */
     @Override
     public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_REMOVE_CONNECTION, gigyaCallback);

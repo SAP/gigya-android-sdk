@@ -612,7 +612,7 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
         try {
             final IBusinessApiService<T> service = ioCContainer.get(IBusinessApiService.class);
-            service.verifyLogin(UID, false, gigyaCallback);
+            service.verifyLogin(UID, gigyaCallback);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
