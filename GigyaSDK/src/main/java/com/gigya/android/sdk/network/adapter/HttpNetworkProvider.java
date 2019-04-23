@@ -39,6 +39,7 @@ public class HttpNetworkProvider extends NetworkProvider {
 
     @Override
     void release() {
+        super.release();
         if (_queue.isEmpty()) {
             return;
         }

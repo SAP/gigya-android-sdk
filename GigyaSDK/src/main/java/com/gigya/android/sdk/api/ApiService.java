@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.api;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -16,6 +17,7 @@ public class ApiService implements IApiService {
 
     @Override
     public void send(GigyaApiRequest request, boolean blocking, final IApiServiceResponse apiCallback) {
+        GigyaLogger.debug("ApiService", "sending: " + request.getApi() + "\n" + request.getEncodedParams());
         _adapter.send(request, blocking, new IRestAdapterCallback() {
             @Override
             public void onResponse(String jsonResponse) {

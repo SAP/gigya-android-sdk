@@ -42,7 +42,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IProviderFactory _providerFactory;
     final private IInterruptionsHandler _interruptionsHandler;
 
-    BusinessApiService(Config config, ISessionService sessionService, IAccountService<A> accountService, IApiService apiService, IProviderFactory providerFactory,
+    public BusinessApiService(Config config, ISessionService sessionService, IAccountService<A> accountService, IApiService apiService, IProviderFactory providerFactory,
                        IInterruptionsHandler interruptionsHandler) {
         _config = config;
         _sessionService = sessionService;
@@ -162,6 +162,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         onConfigResponse(parsed);
                     } else {
                         gigyaCallback.onError(GigyaError.fromResponse(response));
+                        onConfigError(nextApiTag);
                     }
                 }
 
