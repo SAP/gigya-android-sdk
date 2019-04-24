@@ -31,7 +31,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Service responsible for sending & processing pre-defined API requests
+ * Service responsible for sending and processing pre-defined API requests
  *
  * @param <A> Typed account instance (extends GigyaAccount).
  */
@@ -267,7 +267,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     /**
      * Request to log out of the current active session.
      *
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.logout+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.logout+REST">accounts.logout REST</a>
      */
     @Override
     public void logout() {
@@ -296,7 +296,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param params             Parameter map
      * @param gigyaLoginCallback Login response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.login+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.login+REST">accounts.login REST</a>
      */
     @Override
     public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
@@ -339,7 +339,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param UID           Current user UID.
      * @param gigyaCallback Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST">accounts.verifyLogin REST</a>
      */
     @Override
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
@@ -418,7 +418,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param params             Request parameters.
      * @param gigyaLoginCallback Login response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.finalizeRegistration+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.finalizeRegistration+REST">accounts.finalizeRegistration REST</a>
      */
     @Override
     public void finalizeRegistration(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
@@ -445,8 +445,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param params             Request parameters.
      * @param gigyaLoginCallback Login response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.initRegistration+REST</a>
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.register+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.initRegistration+REST">accounts.initRegistration REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.register+REST">accounts.register REST</a>
      */
     @Override
     public void register(final Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
@@ -499,7 +499,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * Request account info for current active session.
      *
      * @param gigyaCallback Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.getAccountInfo+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.getAccountInfo+REST">accounts.getAccountInfo REST</a>
      */
     @Override
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
@@ -534,7 +534,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param updatedAccount Updated account instance.
      * @param gigyaCallback  Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
@@ -565,7 +565,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param params        Updated parameters.
      * @param gigyaCallback Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
@@ -622,7 +622,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param loginId  Current login ID.
      * @param callback Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST">accounts.resetPassword REST</a>
      */
     @Override
     public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
@@ -669,7 +669,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      *
      * @param socialProvider Requested social provider.
      * @param gigyaCallback  Response callback.
-     * @see <a href="https://developers.gigya.com/display/GD/socialize.removeConnection+REST</a>
+     * @see <a href="https://developers.gigya.com/display/GD/socialize.removeConnection+REST">socialize.removeConnection REST</a>
      */
     @Override
     public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {

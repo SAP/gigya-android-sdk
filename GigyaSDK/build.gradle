@@ -50,7 +50,7 @@ android {
     packagingOptions {
         exclude 'META-INF/proguard/androidx-annotations.pro'
     }
-    
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -90,6 +90,8 @@ dependencies {
     compileOnly deps.libs.volley
 }
 
+
+
 // Task for building release Jar/sources/JavaDocs.
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
@@ -123,21 +125,30 @@ android.libraryVariants.all { variant ->
         task createAndroidJavadoc(type: Javadoc) {
             source = project.android.sourceSets.main.java.srcDirs
             options.linkSource true
-            configurations.implementation.setCanBeResolved(true)
-            configurations.compileOnly.setCanBeResolved(true)
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-            classpath += configurations.implementation
-            classpath += configurations.compileOnly
             destinationDir = new File("${outDir}/${androidDocName}")
             include(
-                    'com/gigya/android/sdk/Gigya.java',
-                    'com/gigya/android/sdk/GigyaCallback.java',
-                    'com/gigya/android/sdk/GigyaLoginCallback.java',
-                    'com/gigya/android/sdk/GigyaPluginCallback.java',
+                    'com/gigya/android/sdk/*.java',
+                    'com/gigya/android/sdk/account/*.java',
+                    'com/gigya/android/sdk/api/*.java',
+                    'com/gigya/android/sdk/encryption/*.java',
+                    'com/gigya/android/sdk/interruption/*.java',
+                    'com/gigya/android/sdk/interruption/link/*.java',
+                    'com/gigya/android/sdk/interruption/tfa/*.java',
                     'com/gigya/android/sdk/model/*.java',
                     'com/gigya/android/sdk/model/account/*.java',
                     'com/gigya/android/sdk/model/profile/*.java',
                     'com/gigya/android/sdk/model/tfa/*.java',
+                    'com/gigya/android/sdk/network/*.java',
+                    'com/gigya/android/sdk/network/adapter/*.java',
+                    'com/gigya/android/sdk/persistence/*.java',
+                    'com/gigya/android/sdk/providers/*.java',
+                    'com/gigya/android/sdk/providers/provider/*.java',
+                    'com/gigya/android/sdk/session/*.java',
+                    'com/gigya/android/sdk/ui/*.java',
+                    'com/gigya/android/sdk/ui/plugin/*.java',
+                    'com/gigya/android/sdk/ui/provider/*.java',
+                    'com/gigya/android/sdk/utils/*.java'
             )
             failOnError = false
         }
@@ -162,3 +173,4 @@ android.libraryVariants.all { variant ->
         }
     }
 }
+

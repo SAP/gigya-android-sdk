@@ -114,7 +114,7 @@ public class GigyaApiResponse {
      *
      * @param key   Requested parameter key.
      * @param clazz Required  parsed object type.
-     * @return Parsed hard copy class according to provided key & type.
+     * @return Parsed hard copy class according to provided key and type.
      */
     @SuppressWarnings("unchecked")
     @Nullable

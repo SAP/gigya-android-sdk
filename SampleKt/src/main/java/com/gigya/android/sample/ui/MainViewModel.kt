@@ -12,7 +12,7 @@ import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver
+import com.gigya.android.sdk.interruption.link.IGigyaLinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver
 import com.gigya.android.sdk.model.tfa.TFAEmail
@@ -77,14 +77,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /*
     Keeping reference to the LINK_ACCOUNTS resolver to allow flow continuation.
      */
-    private var linkAccountsResolver: GigyaLinkAccountsResolver<*>? = null
+    private var linkAccountsResolver: IGigyaLinkAccountsResolver? = null
 
     fun onLinkAccountWithSite(loginID: String, password: String) {
-        linkAccountsResolver?.resolveForSite(loginID, password)
+        linkAccountsResolver?.linkToSite(loginID, password)
     }
 
     fun onLinkAccountWithSocial(provider: String) {
-        linkAccountsResolver?.resolveForSocial(getApplication(), provider)
+        linkAccountsResolver?.linkToSocial(getApplication(), provider)
     }
 
     //endregion
@@ -287,7 +287,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 cancel()
             }
 
-            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: GigyaLinkAccountsResolver<*>) {
+            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: IGigyaLinkAccountsResolver) {
                 linkAccountsResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
             }

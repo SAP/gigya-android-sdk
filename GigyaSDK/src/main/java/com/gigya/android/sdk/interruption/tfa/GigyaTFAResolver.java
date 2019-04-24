@@ -71,7 +71,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     }
 
     /**
-     * Forward first interruption to end user after providers are available (active & inactive).
+     * Forward first interruption to end user after providers are available (active and inactive).
      */
     protected abstract void forwardInitialInterruption();
 

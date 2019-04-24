@@ -26,7 +26,7 @@ public class UiUtils {
      * Get device screen size in pixels.
      *
      * @param context Activity context.
-     * @return A pair of width & height pixel dimensions.
+     * @return A pair of width and height pixel dimensions.
      */
     public static Pair<Integer, Integer> getScreenSize(Activity context) {
         DisplayMetrics displayMetrics = new DisplayMetrics();

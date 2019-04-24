@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * SDK global definitions.
- * Contains SDK relevant global & specific constants.
+ * Contains SDK relevant global and specific constants.
  */
 public class GigyaDefinitions {
 

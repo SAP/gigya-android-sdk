@@ -23,7 +23,7 @@ import com.gigya.android.sdk.session.ISessionService;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaResolver<A> {
+public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaResolver<A> implements IGigyaLinkAccountsResolver {
 
     private static final String LOG_TAG = "GigyaLinkAccountsResolver";
 
@@ -36,6 +36,7 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         _providerFactory = providerFactory;
     }
 
+    @Override
     public ConflictingAccounts getConflictingAccounts() {
         return conflictingAccounts;
     }
@@ -80,7 +81,8 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         }
     }
 
-    public void resolveForSite(String loginID, String password) {
+    @Override
+    public void linkToSite(String loginID, String password) {
         if (isAttached()) {
             final Map<String, Object> params = new HashMap<>();
             params.put("loginID", loginID);
@@ -92,7 +94,8 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         }
     }
 
-    public void resolveForSocial(final Context context, String providerName) {
+    @Override
+    public void linkToSocial(Context context, String providerName) {
         if (isAttached()) {
             IProvider provider = _providerFactory.providerFor(providerName, _observable, _loginCallback.get());
             provider.setRegToken(_regToken);

@@ -25,57 +25,106 @@ public class PersistenceService implements IPersistenceService {
 
     //region HELPERS
 
+    /**
+     * Check if session persistence is available.
+     */
     @Override
     public boolean isSessionAvailable() {
         return contains(PREFS_KEY_SESSION);
     }
 
+    /**
+     * Persist a new encrypted session.
+     *
+     * @param encryptedSession Encrypted session String.
+     */
     @Override
     public void setSession(String encryptedSession) {
         add(PREFS_KEY_SESSION, encryptedSession);
     }
 
+    /**
+     * Get persistent session.
+     *
+     * @return Encrypted session String or null if session persistence exists.
+     */
     @Override
     public String getSession() {
         return getString(PREFS_KEY_SESSION, null);
     }
 
+    /**
+     * Set session expiration timestamp.
+     *
+     * @param expiration Expiration timestamp (Long).
+     */
     @Override
     public void setSessionExpiration(long expiration) {
         add(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, expiration);
     }
 
+    /**
+     * Get session expiration timestamp.
+     *
+     * @return Persistent session expiration or 0 if timestamp does not exist.
+     */
     @Override
     public long getSessionExpiration() {
         return getLong(PREFS_KEY_SESSION_EXPIRE_TIMESTAMP, 0L);
     }
 
+    /**
+     * Remove session from persistence store.
+     */
     @Override
     public void removeSession() {
         remove(PREFS_KEY_SESSION);
     }
 
+    /**
+     * Remove legacy session data if from persistence store.
+     */
     @Override
     public void removeLegacySession() {
         remove("ucid", "gmid", "lastLoginProvider", "session.Token",
                 "session.Secret", "tsOffset", "session.ExpirationTime");
     }
 
+    /**
+     * Update session encryption type.
+     *
+     * @param encryptionType Encryption type String identifier.
+     */
     @Override
     public void setSessionEncryptionType(String encryptionType) {
         add(PREFS_KEY_SESSION_ENCRYPTION_TYPE, encryptionType);
     }
 
+    /**
+     * Get session encryption type.
+     *
+     * @return Encryption type String identifier or "DEFAULT" if does not exist.
+     */
     @Override
     public String getSessionEncryptionType() {
         return getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
     }
 
+    /**
+     * Get social providers identifiers what were used.
+     *
+     * @return Set of provider identifiers or null if none exist.
+     */
     @Override
     public Set<String> getSocialProviders() {
         return getPrefs().getStringSet(PREFS_KEY_PROVIDER_SET, null);
     }
 
+    /**
+     * Add a used social provider identifier.
+     *
+     * @param provider Provider identifier name {@link com.gigya.android.sdk.GigyaDefinitions.Providers}
+     */
     @Override
     public void addSocialProvider(String provider) {
         Set<String> providerSet = getSocialProviders();
@@ -86,6 +135,10 @@ public class PersistenceService implements IPersistenceService {
         getPrefs().edit().putStringSet(PREFS_KEY_PROVIDER_SET, providerSet).apply();
     }
 
+    /**
+     * Remove all saved social provider identifiers.
+     * Will be called after logout.
+     */
     @Override
     public void removeSocialProviders() {
         remove(PREFS_KEY_PROVIDER_SET);

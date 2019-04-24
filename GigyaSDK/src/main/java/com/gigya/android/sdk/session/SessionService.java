@@ -86,6 +86,11 @@ public class SessionService implements ISessionService {
         }
     }
 
+    /**
+     * Persist session info using current encryption algorithm.
+     *
+     * @param sessionInfo Provided session.
+     */
     @Override
     public void save(SessionInfo sessionInfo) {
         final String encryptionType = _psService.getSessionEncryptionType();
@@ -111,6 +116,9 @@ public class SessionService implements ISessionService {
         }
     }
 
+    /**
+     * Load current persistent session.
+     */
     @Override
     public void load() {
         // Check & load legacy session if available.
@@ -145,11 +153,23 @@ public class SessionService implements ISessionService {
         }
     }
 
+    /**
+     * Get current available session.
+     *
+     * @return Current session or null If none exist.
+     */
     @Override
     public SessionInfo getSession() {
         return _sessionInfo;
     }
 
+    /**
+     * External session setter interface.
+     * Will override the current session with given session info.
+     * Session will be also persist.
+     *
+     * @param sessionInfo Provided session.
+     */
     @Override
     public void setSession(SessionInfo sessionInfo) {
         _sessionInfo = sessionInfo;
@@ -164,6 +184,15 @@ public class SessionService implements ISessionService {
         }
     }
 
+    /**
+     * Check id current session validity.
+     * Validity is evaluated via theses constraints:
+     * #1 - Session object reference is not null.
+     * #2 - Session contains token and secret.
+     * #3 - If session contains expiration, check if not yet expired.
+     *
+     * @return True if session is valid.
+     */
     @Override
     public boolean isValid() {
         boolean valid = _sessionInfo != null && _sessionInfo.isValid();
@@ -173,6 +202,11 @@ public class SessionService implements ISessionService {
         return valid;
     }
 
+    /**
+     * Clear session from memory.
+     *
+     * @param clearStorage Set True if session should be cleared from persistence as well.
+     */
     @Override
     public void clear(boolean clearStorage) {
         GigyaLogger.debug(LOG_TAG, "clear: ");
@@ -237,11 +271,21 @@ public class SessionService implements ISessionService {
         if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
     }
 
+    /**
+     * Add custom session interception.
+     * Interception will apply when you set a new session using setSession {@link #setSession}
+     *
+     * @param interceptor Provided interceptor implementation.
+     */
     @Override
     public void addInterceptor(GigyaInterceptor interceptor) {
         _sessionInterceptors.put(interceptor.getName(), interceptor);
     }
 
+    /**
+     * Refresh the current session expiration timestamp.
+     * For internal use.
+     */
     @Override
     public void refreshSessionExpiration() {
         // Get session expiration if exists.

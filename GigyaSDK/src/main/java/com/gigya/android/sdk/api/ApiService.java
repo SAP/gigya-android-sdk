@@ -8,7 +8,7 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 
 /**
- * Service responsible for mediating & executing HTTP based api requests.
+ * Service responsible for mediating and executing HTTP based api requests.
  */
 public class ApiService implements IApiService {
 

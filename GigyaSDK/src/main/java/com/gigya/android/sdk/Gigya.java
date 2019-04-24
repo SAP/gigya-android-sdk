@@ -489,7 +489,7 @@ public class Gigya<T extends GigyaAccount> {
     //region BUSINESS APIS
 
     /**
-     * Login with provided id & password.
+     * Login with provided id and password.
      *
      * @param loginId       LoginID.
      * @param password      Login password.
@@ -619,7 +619,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
-     * Register account using email & password combination.
+     * Register account using email and password combination.
      * Additional parameters are included to allow additional parameters to be added such as profile.
      *
      * @param email    User email identifier.
@@ -640,7 +640,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
-     * Register account using email & password combination.
+     * Register account using email and password combination.
      *
      * @param email    User email identifier.
      * @param password User password.
