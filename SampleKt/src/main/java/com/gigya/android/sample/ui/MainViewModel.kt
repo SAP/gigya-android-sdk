@@ -365,7 +365,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Display myAccountLiveData details screen set.
      */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets("Default-ProfileUpdate", true, mutableMapOf(),
+        gigya.showScreenSet("Default-ProfileUpdate", true, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {
@@ -390,7 +390,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Show screen set "Default-RegistrationLogin".
      */
     fun showScreenSets(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSets("Default-RegistrationLogin", false, mutableMapOf(),
+        gigya.showScreenSet("Default-RegistrationLogin", false, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onLogin(accountObj: MyAccount) {
                         myAccountLiveData.value = accountObj
