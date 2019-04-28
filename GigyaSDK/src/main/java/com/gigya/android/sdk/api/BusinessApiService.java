@@ -270,19 +270,26 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.logout+REST">accounts.logout REST</a>
      */
     @Override
-    public void logout() {
+    public void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_LOGOUT, null);
         GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.error(LOG_TAG, "logOut: Success API");
+                GigyaLogger.error(LOG_TAG, "logOut: Success");
+                if (gigyaCallback != null) {
+                    gigyaCallback.onSuccess(response);
+                }
+
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                GigyaLogger.error(LOG_TAG, "logOut: Failed API");
+                GigyaLogger.error(LOG_TAG, "logOut: Failed");
+                if (gigyaCallback != null) {
+                    gigyaCallback.onError(gigyaError);
+                }
             }
         });
     }

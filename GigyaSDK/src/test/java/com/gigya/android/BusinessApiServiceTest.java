@@ -88,6 +88,6 @@ public class BusinessApiServiceTest {
             }
         }).when(mApiService).send((GigyaApiRequest) any(), anyBoolean(), (ApiService.IApiServiceResponse) any());
 
-        cBusinessApiService.logout();
+        cBusinessApiService.logout(null);
     }
 }

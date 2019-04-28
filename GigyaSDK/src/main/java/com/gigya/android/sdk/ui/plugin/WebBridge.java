@@ -16,12 +16,13 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.ObjectUtils;
+import com.gigya.android.sdk.utils.UiUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
 
@@ -54,17 +55,15 @@ public class WebBridge<T extends GigyaAccount> {
     final private ISessionService _sessionService;
     final private IAccountService _accountService;
     final private IBusinessApiService<T> _bApiService;
-    final private IProviderFactory _providerFactory;
 
 
     public WebBridge(Context context, Config config, ISessionService sessionService, IAccountService accountService, IBusinessApiService<T> bApiService,
-                     IProviderFactory providerFactory, boolean shouldObfuscate, IWebBridge<T> interactions) {
+                     boolean shouldObfuscate, IWebBridge<T> interactions) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _bApiService = bApiService;
-        _providerFactory = providerFactory;
         _shouldObfuscate = shouldObfuscate;
         _interactions = interactions;
     }
@@ -224,20 +223,24 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void isSessionValid(String callbackId) {
         final boolean isValid = _sessionService.isValid();
-        GigyaLogger.debug(LOG_TAG, "isSessionValid: " + String.valueOf(isValid));
+        GigyaLogger.debug(LOG_TAG, "isSessionValid: " + isValid);
         invokeCallback(callbackId, String.valueOf(isValid));
     }
 
     private void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings) {
+        GigyaLogger.debug(LOG_TAG, "sendRequest with api: " + api + " and params:\n" + params.toString());
 
+        // Pre api related tasks.
         final boolean isValid = _sessionService.isValid();
         if (api.equals("accounts.getAccountInfo") && isValid) {
             params.remove("regToken");
         }
 
-        _bApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
+        // Define a general purpose response callback.
+        final GigyaCallback<GigyaApiResponse> responseCallback = new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api + " with data:\n" + response.asJson());
                 if (response.getErrorCode() == 0) {
                     handleAuthRequests(api, response);
                     invokeCallback(callbackId, response.asJson());
@@ -251,10 +254,44 @@ public class WebBridge<T extends GigyaAccount> {
                 GigyaLogger.error(LOG_TAG, "onError for api = " + api + " with error:\n" + error.toString());
                 invokeCallback(callbackId, error.getData());
             }
-        });
-    }
+        };
 
-    // TODO: 24/02/2019 Connection apis are not yet verified. Redesign might use different apis for these flows!!!
+        // Map known apis.
+        switch (api) {
+            case "socialize.logout":
+            case "accounts.logout":
+                _bApiService.logout(responseCallback);
+                break;
+            case "socialize.addConnection":
+            case "accounts.addConnection":
+                String providerToAdd = (String) params.get("provider");
+                // Add connection requires a login callback.
+                GigyaLogger.debug(LOG_TAG, "Add Connection to provider: " + providerToAdd);
+                _bApiService.addConnection(_context, providerToAdd, new GigyaLoginCallback<T>() {
+                    @Override
+                    public void onSuccess(T response) {
+                        GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api);
+                        _interactions.onAuthEvent(AuthEvent.ADD_CONNECTION, response);
+                        invokeCallback(callbackId, new Gson().toJson(response));
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        // Direct to general response callback error method.
+                        responseCallback.onError(error);
+                    }
+                });
+                break;
+            case "socialize.removeConnection":
+                final String providerToRemove = (String) params.get("provider");
+                GigyaLogger.debug(LOG_TAG, "Remove Connection to provider: " + providerToRemove);
+                _bApiService.removeConnection(providerToRemove, responseCallback);
+                break;
+            default:
+                _bApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, responseCallback);
+                break;
+        }
+    }
 
     private void handleAuthRequests(String api, GigyaApiResponse response) {
         switch (api) {
@@ -262,16 +299,16 @@ public class WebBridge<T extends GigyaAccount> {
             case "accounts.logout":
                 _interactions.onAuthEvent(AuthEvent.LOGOUT, null);
                 break;
-            case "socialize.addConnection":
-            case "accounts.addConnection":
-                _interactions.onAuthEvent(AuthEvent.ADD_CONNECTION, null);
-                break;
             case "socialize.removeConnection":
                 _interactions.onAuthEvent(AuthEvent.REMOVE_CONNECTION, null);
                 break;
             case "accounts.register":
             case "accounts.login":
-                _interactions.onAuthEvent(AuthEvent.LOGIN, (T) response.parseTo(_accountService.getAccountScheme()));
+                T parsed = (T) response.parseTo(_accountService.getAccountScheme());
+                final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
+                _sessionService.setSession(newSession);
+                _accountService.setAccount(response.asJson());
+                _interactions.onAuthEvent(AuthEvent.LOGIN, parsed);
                 break;
             default:
                 break;
@@ -310,8 +347,8 @@ public class WebBridge<T extends GigyaAccount> {
             }
         });
 
-        final Activity activity = (Activity) _webViewRef.get().getContext();
-        if (activity != null) {
+        final Activity activity = UiUtils.findActivity(_webViewRef.get().getContext());
+        if (activity != null && !activity.isFinishing()) {
             activity.finish();
         }
     }

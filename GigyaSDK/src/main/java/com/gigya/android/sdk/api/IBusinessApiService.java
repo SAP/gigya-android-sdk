@@ -16,7 +16,7 @@ public interface IBusinessApiService<A> {
 
     <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback);
 
-    void logout();
+    void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback);
 
     void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);
 

@@ -447,7 +447,7 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         try {
             final IBusinessApiService baService = ioCContainer.get(IBusinessApiService.class);
-            baService.logout();
+            baService.logout(null);
             final ISessionService sessionService = ioCContainer.get(ISessionService.class);
             sessionService.clear(true);
         } catch (Exception ex) {
