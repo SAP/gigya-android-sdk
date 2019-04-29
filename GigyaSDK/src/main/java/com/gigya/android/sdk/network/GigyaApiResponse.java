@@ -92,7 +92,7 @@ public class GigyaApiResponse {
             return mapped.containsKey(key);
         } else {
             Map map = mapped;
-            for (int i = 0; i < split.length - 1; i++) {
+            for (int i = 0; i < split.length; i++) {
                 Object obj = map.get(split[i]);
                 if (obj == null) {
                     return false;
