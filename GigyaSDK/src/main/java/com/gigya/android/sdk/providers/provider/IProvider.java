@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.providers.provider;
 
-import android.content.Context;
-
 import com.gigya.android.sdk.model.account.SessionInfo;
 
 import java.util.Map;
@@ -10,9 +8,9 @@ public interface IProvider {
 
     String getName();
 
-    void login(Context context, Map<String, Object> loginParams, String loginMode);
+    void login(Map<String, Object> loginParams, String loginMode);
 
-    void logout(Context context);
+    void logout();
 
     String getProviderSessions(String tokenOrCode, long expiration, String uid);
 

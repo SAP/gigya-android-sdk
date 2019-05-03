@@ -36,9 +36,9 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 
 public class FacebookProvider extends Provider {
 
-    public FacebookProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public FacebookProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                             IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};
@@ -63,7 +63,7 @@ public class FacebookProvider extends Provider {
     }
 
     @Override
-    public void login(Context context, final Map<String, Object> loginParams, final String loginMode) {
+    public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
         // Get login permissions.
         final List<String> readPermissions = getReadPermissions(loginParams);
@@ -76,7 +76,7 @@ public class FacebookProvider extends Provider {
             return;
         }
         // Start new login flow.
-        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
+        HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 final LoginManager loginManager = LoginManager.getInstance();
@@ -123,7 +123,7 @@ public class FacebookProvider extends Provider {
     }
 
     @Override
-    public void logout(Context context) {
+    public void logout() {
         if (_tokenTracker != null) {
             _tokenTracker.stopTracking();
         }

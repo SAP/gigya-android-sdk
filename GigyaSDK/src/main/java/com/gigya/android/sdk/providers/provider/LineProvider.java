@@ -34,9 +34,9 @@ public class LineProvider extends Provider {
 
     private static final int REQUEST_CODE = 1;
 
-    public LineProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public LineProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                         IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     @Override
@@ -55,9 +55,9 @@ public class LineProvider extends Provider {
     }
 
     @Override
-    public void login(Context context, Map<String, Object> loginParams, final String loginMode) {
+    public void login(Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
-        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
+        HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 // Fetch channel Id from meta-data.
@@ -100,12 +100,12 @@ public class LineProvider extends Provider {
     }
 
     @Override
-    public void logout(Context context) {
-        final String lineChannelID = FileUtils.stringFromMetaData(context, "lineChannelID");
+    public void logout() {
+        final String lineChannelID = FileUtils.stringFromMetaData(_context, "lineChannelID");
         if (lineChannelID == null) {
             return;
         }
-        LineApiClientBuilder builder = new LineApiClientBuilder(context, lineChannelID);
+        LineApiClientBuilder builder = new LineApiClientBuilder(_context, lineChannelID);
         LineApiClient client = builder.build();
         new LogoutTask(client).execute();
     }

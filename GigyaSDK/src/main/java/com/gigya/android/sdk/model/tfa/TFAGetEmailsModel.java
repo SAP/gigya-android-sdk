@@ -1,11 +1,11 @@
 package com.gigya.android.sdk.model.tfa;
 
-import com.gigya.android.sdk.model.GigyaModel;
+import com.gigya.android.sdk.model.GigyaResponseModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TFAGetEmailsModel extends GigyaModel {
+public class TFAGetEmailsModel extends GigyaResponseModel {
 
     private List<TFAEmail> emails = new ArrayList<>();
 

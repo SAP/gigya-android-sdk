@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.IoCContainer;
+import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.BusinessApiService;

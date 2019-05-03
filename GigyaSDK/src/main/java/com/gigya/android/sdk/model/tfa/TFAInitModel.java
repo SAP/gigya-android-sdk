@@ -1,8 +1,8 @@
 package com.gigya.android.sdk.model.tfa;
 
-import com.gigya.android.sdk.model.GigyaModel;
+import com.gigya.android.sdk.model.GigyaResponseModel;
 
-public class TFAInitModel extends GigyaModel {
+public class TFAInitModel extends GigyaResponseModel {
 
     private String gigyaAssertion;
 

@@ -253,7 +253,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         if (biometric.isLocked) {
             fingerprint_fab.show()
-            biometric.unlock(this,
+            biometric.unlock(
                     GigyaPromptInfo("Unlock session", "Place finger on sensor to continue", ""),
                     gigyaBiometricCallback)
         }
@@ -261,11 +261,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fingerprint_fab.setOnClickListener {
             if (biometric.isAvailable && !biometric.isLocked) {
                 if (biometric.isOptIn) {
-                    biometric.optOut(this,
+                    biometric.optOut(
                             GigyaPromptInfo("Opt-Out requested", "Place finger on sensor to continue", ""),
                             gigyaBiometricCallback)
                 } else {
-                    biometric.optIn(this,
+                    biometric.optIn(
                             GigyaPromptInfo("Opt-In requested", "Place finger on sensor to continue", ""),
                             gigyaBiometricCallback)
                 }
@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fingerprint_lock_fab.setOnClickListener {
             when (biometric.isLocked) {
                 true -> {
-                    biometric.unlock(this,
+                    biometric.unlock(
                             GigyaPromptInfo("Unlock session", "Place finger on sensor to continue", ""),
                             gigyaBiometricCallback)
                 }

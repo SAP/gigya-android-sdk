@@ -17,13 +17,11 @@ import java.util.Map;
 
 public class WebViewFragmentFactory implements IWebViewFragmentFactory {
 
-    final private Context _context;
     final private IWebBridgeFactory _wbFactory;
     final private IProviderFactory _providerFactory;
     final private Config _config;
 
-    public WebViewFragmentFactory(Context context, Config config, IWebBridgeFactory wbFactory, IProviderFactory providerFactory) {
-        _context = context;
+    public WebViewFragmentFactory(Config config, IWebBridgeFactory wbFactory, IProviderFactory providerFactory) {
         _config = config;
         _wbFactory = wbFactory;
         _providerFactory = providerFactory;
@@ -51,7 +49,7 @@ public class WebViewFragmentFactory implements IWebViewFragmentFactory {
                 // Okay to release activity.
                 activity.finish();
 
-                businessApiService.login(_context, providerName, params, gigyaLoginCallback);
+                businessApiService.login(providerName, params, gigyaLoginCallback);
             }
 
             @Override

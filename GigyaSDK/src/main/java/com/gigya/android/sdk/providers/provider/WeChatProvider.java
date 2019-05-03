@@ -31,9 +31,9 @@ public class WeChatProvider extends Provider {
 
     public static final String LOG_TAG = "WeChatProvider";
 
-    public WeChatProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public WeChatProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                           IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     private IWXAPI _api;
@@ -56,18 +56,18 @@ public class WeChatProvider extends Provider {
     }
 
     @Override
-    public void login(final Context context, Map<String, Object> loginParams, String loginMode) {
+    public void login(Map<String, Object> loginParams, String loginMode) {
         _loginMode = loginMode;
-        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
+        HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                _appId = FileUtils.stringFromMetaData(context, "wechatAppID");
+                _appId = FileUtils.stringFromMetaData(_context, "wechatAppID");
                 if (_appId == null) {
                     onLoginFailed("Failed to fetch application id");
                     activity.finish();
                 }
 
-                _api = WXAPIFactory.createWXAPI(context, _appId, true);
+                _api = WXAPIFactory.createWXAPI(_context, _appId, true);
                 _api.registerApp(_appId);
 
                 final SendAuth.Req req = new SendAuth.Req();
@@ -87,7 +87,7 @@ public class WeChatProvider extends Provider {
     }
 
     @Override
-    public void logout(Context context) {
+    public void logout() {
         if (_api != null) {
             _api.detach();
         }

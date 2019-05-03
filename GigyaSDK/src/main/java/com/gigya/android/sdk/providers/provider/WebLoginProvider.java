@@ -25,9 +25,9 @@ public class WebLoginProvider extends Provider {
 
     private static final String LOG_TAG = "WebLoginProvider";
 
-    public WebLoginProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public WebLoginProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                             IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     @Override
@@ -36,10 +36,10 @@ public class WebLoginProvider extends Provider {
     }
 
     @Override
-    public void login(Context context, Map<String, Object> loginParams, String loginMode) {
+    public void login(Map<String, Object> loginParams, String loginMode) {
         _loginMode = loginMode;
-        final String loginUrl = getRequest(context, loginParams);
-        WebLoginActivity.present(context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
+        final String loginUrl = getRequest(_context, loginParams);
+        WebLoginActivity.present(_context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
 
             @Override
             public void onResult(Activity activity, Map<String, Object> parsed) {
@@ -61,7 +61,7 @@ public class WebLoginProvider extends Provider {
     }
 
     @Override
-    public void logout(Context context) {
+    public void logout() {
         // Stub.
     }
 

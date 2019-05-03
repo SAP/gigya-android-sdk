@@ -84,7 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onLinkAccountWithSocial(provider: String) {
-        linkAccountsResolver?.linkToSocial(getApplication(), provider)
+        linkAccountsResolver?.linkToSocial(provider)
     }
 
     //endregion

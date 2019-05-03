@@ -95,13 +95,13 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     }
 
     @Override
-    public void linkToSocial(Context context, String providerName) {
+    public void linkToSocial(String providerName) {
         if (isAttached()) {
             IProvider provider = _providerFactory.providerFor(providerName, _observable, _loginCallback.get());
             provider.setRegToken(_regToken);
             Map<String, Object> params = new HashMap<>();
             params.put("provider", provider);
-            provider.login(context, params, "link");
+            provider.login(params, "link");
         }
     }
 }

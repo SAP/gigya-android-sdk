@@ -1,4 +1,6 @@
-package com.gigya.android.sdk;
+package com.gigya.android.sdk.containers;
+
+import com.gigya.android.sdk.GigyaLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +49,7 @@ public class IoCContainer {
     public <T> T get(Class<T> contractClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         GigyaLogger.ioc(LOG_TAG, "Trying to get: " + contractClazz.getCanonicalName());
 
-        if (!_bindings.containsKey(contractClazz)) {
+        if (!isBound(contractClazz)) {
             GigyaLogger.ioc(LOG_TAG, "Contract was not registered");
             return null;
         }
@@ -101,5 +103,9 @@ public class IoCContainer {
         }
 
         throw new MissingResourceException("Concrete class missing dependencies", concreteClazz.getName(), "iocContainer");
+    }
+
+    public boolean isBound(Class contractClazz) {
+        return _bindings.containsKey(contractClazz);
     }
 }

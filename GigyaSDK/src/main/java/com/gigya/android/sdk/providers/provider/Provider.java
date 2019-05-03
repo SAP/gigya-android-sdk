@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.providers.provider;
 
+import android.content.Context;
+
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -20,6 +22,7 @@ public abstract class Provider implements IProvider {
 
     private static final String LOG_TAG = "Provider";
 
+    final protected Context _context;
     final protected Config _config;
     final protected ISessionService _sessionService;
     private final IAccountService _accountService;
@@ -32,8 +35,9 @@ public abstract class Provider implements IProvider {
     private String _regToken;
     IProviderTokenTrackerListener _tokenTrackingListener;
 
-    public Provider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public Provider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                     IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+        _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;

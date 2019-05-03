@@ -22,8 +22,8 @@ public class BiometricImplV23 extends BiometricImpl {
 
     private static final String LOG_TAG = "BiometricImplV23";
 
-    public BiometricImplV23(Config config, ISessionService sessionService, IPersistenceService persistenceService) {
-        super(config, sessionService, persistenceService);
+    public BiometricImplV23(Context context, Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+        super(context, config, sessionService, persistenceService);
     }
 
     private boolean _animate = true;
@@ -33,7 +33,7 @@ public class BiometricImplV23 extends BiometricImpl {
     }
 
     @Override
-    synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
+    synchronized public void showPrompt(final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, @NonNull final IGigyaBiometricCallback callback) {
         final SecretKey key = _biometricKey.getKey();
         if (key == null) {
@@ -49,12 +49,12 @@ public class BiometricImplV23 extends BiometricImpl {
         if (cipher != null) {
             // Init crypto.
             final FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
-            final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(context);
+            final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(_context);
             // Initialize prompt dialog.
-            final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(context, callback);
-            dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : context.getString(R.string.prompt_default_title));
-            dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : context.getString(R.string.prompt_default_subtitle));
-            dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : context.getString(R.string.prompt_default_description));
+            final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(_context, callback);
+            dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.prompt_default_title));
+            dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.prompt_default_subtitle));
+            dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.prompt_default_description));
             dialog.setAnimate(_animate);
             CancellationSignal signal = new CancellationSignal();
             dialog.setCancellationSignal(signal);

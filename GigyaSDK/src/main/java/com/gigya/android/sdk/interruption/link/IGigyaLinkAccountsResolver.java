@@ -10,7 +10,7 @@ public interface IGigyaLinkAccountsResolver {
 
     void linkToSite(String loginID, String password);
 
-    void linkToSocial(final Context context, String providerName);
+    void linkToSocial(String providerName);
 
     void clear();
 }

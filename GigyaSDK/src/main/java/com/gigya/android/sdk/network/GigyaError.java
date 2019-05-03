@@ -2,7 +2,7 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.model.GigyaModel;
+import com.gigya.android.sdk.model.GigyaResponseModel;
 
 import org.json.JSONObject;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Main Gigya error representation class.
  */
-public class GigyaError extends GigyaModel {
+public class GigyaError extends GigyaResponseModel {
 
     public static class Codes {
         public static final int ERROR_ACCOUNT_PENDING_REGISTRATION = 206001;

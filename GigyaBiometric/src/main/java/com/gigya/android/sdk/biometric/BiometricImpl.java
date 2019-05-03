@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.biometric;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
@@ -32,12 +33,14 @@ public abstract class BiometricImpl implements IBiometricImpl {
      */
     private static final String FINGERPRINT_KEY_NAME = "fingerprint";
 
+    final protected Context _context;
     final private Config _config;
     final private ISessionService _sessionService;
     final private IPersistenceService _persistenceService;
     final protected ISecureKey _biometricKey;
 
-    public BiometricImpl(Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+    public BiometricImpl(Context context, Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+        _context = context;
         _config = config;
         _sessionService = sessionService;
         _persistenceService = persistenceService;

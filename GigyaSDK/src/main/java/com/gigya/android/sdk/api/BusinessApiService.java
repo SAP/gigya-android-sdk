@@ -40,6 +40,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     private static final String LOG_TAG = "BusinessApiService";
 
     // Dependencies.
+    final private Context _context;
     final private Config _config;
     final private ISessionService _sessionService;
     final private IAccountService<A> _accountService;
@@ -47,8 +48,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IProviderFactory _providerFactory;
     final private IInterruptionsHandler _interruptionsHandler;
 
-    public BusinessApiService(Config config, ISessionService sessionService, IAccountService<A> accountService, IApiService apiService, IProviderFactory providerFactory,
+    public BusinessApiService(Context context,
+                              Config config,
+                              ISessionService sessionService,
+                              IAccountService<A> accountService,
+                              IApiService apiService,
+                              IProviderFactory providerFactory,
                               IInterruptionsHandler interruptionsHandler) {
+        _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -99,7 +106,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final int errorCode = response.getErrorCode();
         if (errorCode == 0) {
             // Parse & success.
-            A parsed = response.parseTo(_accountService.getAccountScheme());
+            A parsed = response.parseTo(_accountService.getAccountSchema());
             updateWithNewSession(response);
             updateCachedAccount(response);
             loginCallback.onSuccess(parsed);
@@ -328,17 +335,16 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * 1. Social login with provider.
      * 2. Login with the Gigya server.
      *
-     * @param context            Current active context.
      * @param socialProvider     Requested social provider   {@link GigyaDefinitions.Providers}
      * @param params             Request parameters.
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    public void login(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
         IApiObservable observable = new ApiObservable().register(this);
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, observable, gigyaLoginCallback);
-        provider.login(context, params, "standard");
+        provider.login(params, "standard");
     }
 
     /**
@@ -362,7 +368,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     // No interruption support.
-                    A parsed = response.parseTo(_accountService.getAccountScheme());
+                    A parsed = response.parseTo(_accountService.getAccountSchema());
                     updateWithNewSession(response);
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
@@ -521,7 +527,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     // Parse response & update account service.
-                    A parsed = response.parseTo(_accountService.getAccountScheme());
+                    A parsed = response.parseTo(_accountService.getAccountSchema());
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
                 } else {
@@ -657,18 +663,17 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * Request to add a social network connection to existing account.
      * Completion of this request will result in an updated login session.
      *
-     * @param context            Active context.
      * @param socialProvider     Requested social provider.
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    public void addConnection(Context context, String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
+    public void addConnection(String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
         IApiObservable observable = new ApiObservable().register(this);
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, observable, gigyaLoginCallback);
-        provider.login(context, params, "connect");
+        provider.login(params, "connect");
     }
 
     /**

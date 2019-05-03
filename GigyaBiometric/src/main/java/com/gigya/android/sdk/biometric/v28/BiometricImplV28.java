@@ -26,12 +26,12 @@ public class BiometricImplV28 extends BiometricImpl {
 
     private static final String LOG_TAG = "BiometricImplV28";
 
-    public BiometricImplV28(Config config, ISessionService sessionService, IPersistenceService persistenceService) {
-        super(config, sessionService, persistenceService);
+    public BiometricImplV28(Context context, Config config, ISessionService sessionService, IPersistenceService persistenceService) {
+        super(context, config, sessionService, persistenceService);
     }
 
     @Override
-    synchronized public void showPrompt(Context context, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
+    synchronized public void showPrompt(final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, final @NonNull IGigyaBiometricCallback callback) {
         final SecretKey key = _biometricKey.getKey();
         if (key == null) {
@@ -45,11 +45,11 @@ public class BiometricImplV28 extends BiometricImpl {
             cipher = _biometricKey.getEncryptionCipher(key);
         }
         if (cipher != null) {
-            BiometricPrompt prompt = new BiometricPrompt.Builder(context)
-                    .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : context.getString(R.string.prompt_default_title))
-                    .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : context.getString(R.string.prompt_default_subtitle))
-                    .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : context.getString(R.string.prompt_default_description))
-                    .setNegativeButton("Cancel", context.getMainExecutor(), new DialogInterface.OnClickListener() {
+            BiometricPrompt prompt = new BiometricPrompt.Builder(_context)
+                    .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.prompt_default_title))
+                    .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.prompt_default_subtitle))
+                    .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.prompt_default_description))
+                    .setNegativeButton("Cancel", _context.getMainExecutor(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             callback.onBiometricOperationCanceled();
@@ -57,7 +57,7 @@ public class BiometricImplV28 extends BiometricImpl {
                     })
                     .build();
             final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(cipher);
-            prompt.authenticate(cryptoObject, new CancellationSignal(), context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
+            prompt.authenticate(cryptoObject, new CancellationSignal(), _context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errorCode, CharSequence errString) {
                     super.onAuthenticationError(errorCode, errString);

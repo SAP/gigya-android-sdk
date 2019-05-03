@@ -2,35 +2,63 @@ package com.gigya.android.sdk.biometric;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
 import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
-import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.containers.IoCContainer;
 
 import javax.crypto.Cipher;
 
 public class GigyaBiometric {
+    //region static
+    public enum Action {
+        OPT_IN, OPT_OUT, LOCK, UNLOCK
+    }
 
     public static final String VERSION = "android_1.0.0_beta_1";
 
     private static final String LOG_TAG = "GigyaBiometric";
 
-    private static final GigyaBiometric _sharedInstance = new GigyaBiometric();
+    private static GigyaBiometric _sharedInstance;
 
     public static synchronized GigyaBiometric getInstance() {
+        if (_sharedInstance == null) {
+            IoCContainer container = Gigya.getContainer();
+            if (!container.isBound(Context.class)) {
+                // TODO: #baryo throw error about using biometrics before Gigya
+                return null;
+            }
+
+            container.bind(GigyaBiometric.class, GigyaBiometric.class, true);
+
+            // Set the relevant biometric implementation according to Android API level.
+            container.bind(BiometricImpl.class,
+                    GigyaBiometricUtils.isPromptEnabled() ? BiometricImplV28.class : BiometricImplV23.class,
+                    true);
+            try {
+                _sharedInstance = container.get(GigyaBiometric.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                // TODO: #baryo how do we log programmatical errors? (this should never happen)
+                return null;
+            }
+        }
         return _sharedInstance;
     }
-
-    public enum Action {
-        OPT_IN, OPT_OUT, LOCK, UNLOCK
-    }
+    // endregion
 
     private BiometricImpl _impl;
-
     private boolean _isAvailable;
+
+    protected GigyaBiometric(Context context, BiometricImpl impl) {
+        // Verify conditions for using biometric authentication.
+        _isAvailable = verifyBiometricSupport(context);
+        if (!_isAvailable) {
+            return;
+        }
+        _impl = impl;
+    }
 
     /**
      * Service availability evaluator.
@@ -50,33 +78,6 @@ public class GigyaBiometric {
     public void setAnimationForPrePieDevices(boolean animate) {
         if (!GigyaBiometricUtils.isPromptEnabled()) {
             ((BiometricImplV23) _impl).updateAnimationState(animate);
-        }
-    }
-
-    private GigyaBiometric() {
-        Gigya gigya = Gigya.getInstance();
-        if (gigya == null) {
-            GigyaLogger.error(LOG_TAG, "Gigya interface null. Please make sure" +
-                    " to correctly instantiate the Gigya SDK within your main application class");
-            _isAvailable = false;
-            return;
-        }
-        // Verify conditions for using biometric authentication.
-        _isAvailable = verifyBiometricSupport(gigya.getContext());
-        if (!_isAvailable) {
-            return;
-        }
-        // Reference session service.
-        try {
-            Config config = (Config) gigya.getComponent(Config.class);
-            ISessionService sessionService = (ISessionService) gigya.getComponent(ISessionService.class);
-            IPersistenceService persistenceService = (IPersistenceService) gigya.getComponent(IPersistenceService.class);
-            // Instantiate the relevant biometric implementation according to Android API level.
-            _impl = GigyaBiometricUtils.isPromptEnabled() ?
-                    new BiometricImplV28(config, sessionService, persistenceService) :
-                    new BiometricImplV23(config, sessionService, persistenceService);
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -114,14 +115,13 @@ public class GigyaBiometric {
     /**
      * Opts-in the existing session to use fingerprint authentication.
      *
-     * @param context           Available context.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optIn(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optIn(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optIn: ");
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(context, Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
+            _impl.showPrompt(Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
         } else {
             final String failedMessage = "Session is invalid. Opt in operation is unavailable";
             GigyaLogger.error(LOG_TAG, failedMessage);
@@ -132,11 +132,10 @@ public class GigyaBiometric {
     /**
      * Opts-out the existing session from using fingerprint authentication.
      *
-     * @param context           Available context.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optOut(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optOut(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optOut: ");
         if (_impl.isLocked()) {
             GigyaLogger.error(LOG_TAG, "optOut: Need to unlock first before trying Opt-out operation");
@@ -145,7 +144,7 @@ public class GigyaBiometric {
             return;
         }
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(context, Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
+            _impl.showPrompt(Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
             GigyaLogger.error(LOG_TAG, "optOut: Session is invalid. Opt in operation is unavailable");
             final String failedMessage = "Invalid session. Unable to perform biometric operation";
@@ -176,14 +175,13 @@ public class GigyaBiometric {
      * Unlocks the session so the user can continue to make authenticated actions.
      * Invokes the onError callback if the session is not opt-in.
      *
-     * @param context           Available context.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void unlock(Context context, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void unlock(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "unlock: ");
         if (_impl.isOptIn()) {
-            _impl.showPrompt(context, Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
+            _impl.showPrompt(Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
             final String failedMessage = "Not Opt-In";
             GigyaLogger.error(LOG_TAG, failedMessage);

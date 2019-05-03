@@ -20,7 +20,7 @@ public interface IBusinessApiService<A> {
 
     void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);
 
-    void login(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback);
+    void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback);
 
     void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback);
 
@@ -40,7 +40,7 @@ public interface IBusinessApiService<A> {
 
     void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback);
 
-    void addConnection(Context context, @GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
+    void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
 
     void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback);
 }

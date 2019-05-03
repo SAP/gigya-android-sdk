@@ -267,7 +267,7 @@ public class WebBridge<T extends GigyaAccount> {
                 String providerToAdd = (String) params.get("provider");
                 // Add connection requires a login callback.
                 GigyaLogger.debug(LOG_TAG, "Add Connection to provider: " + providerToAdd);
-                _bApiService.addConnection(_context, providerToAdd, new GigyaLoginCallback<T>() {
+                _bApiService.addConnection(providerToAdd, new GigyaLoginCallback<T>() {
                     @Override
                     public void onSuccess(T response) {
                         GigyaLogger.debug(LOG_TAG, "onSuccess for api = " + api);
@@ -304,7 +304,7 @@ public class WebBridge<T extends GigyaAccount> {
                 break;
             case "accounts.register":
             case "accounts.login":
-                T parsed = (T) response.parseTo(_accountService.getAccountScheme());
+                T parsed = (T) response.parseTo(_accountService.getAccountSchema());
                 final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
                 _sessionService.setSession(newSession);
                 _accountService.setAccount(response.asJson());
@@ -317,7 +317,7 @@ public class WebBridge<T extends GigyaAccount> {
 
     private void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
         final String providerName = ObjectUtils.firstNonNull((String) params.get("provider"), "");
-        _bApiService.login(_context, providerName, params, new GigyaLoginCallback<T>() {
+        _bApiService.login(providerName, params, new GigyaLoginCallback<T>() {
             @Override
             public void onSuccess(T obj) {
                 GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + obj.toString());

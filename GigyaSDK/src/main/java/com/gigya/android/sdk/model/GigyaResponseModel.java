@@ -3,7 +3,7 @@ package com.gigya.android.sdk.model;
 /**
  * Gigya main REST model.
  */
-public abstract class GigyaModel {
+public abstract class GigyaResponseModel {
 
     protected int statusCode;
     protected int errorCode;

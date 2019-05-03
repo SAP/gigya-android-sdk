@@ -6,20 +6,25 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.IoCContainer;
+import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
+import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
 import com.gigya.android.sdk.session.SessionVerificationService;
+import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
 
@@ -109,8 +114,26 @@ public class BaseGigyaTest {
 
     protected static class TestGigya extends Gigya<TestAccount> {
 
-        TestGigya(@NonNull Context context, Class<TestAccount> accountScheme, IoCContainer container) {
-            super(context, accountScheme, container);
+        TestGigya(@NonNull Context context,
+                  Config config,
+                  ConfigFactory configFactory,
+                  ISessionService sessionService,
+                  IAccountService<TestAccount> accountService,
+                  IBusinessApiService<TestAccount> businessApiService,
+                  ISessionVerificationService sessionVerificationService,
+                  IInterruptionsHandler interruptionsHandler,
+                  IPresenter presenter,
+                  IProviderFactory providerFactory) {
+            super(context,
+                    config,
+                    configFactory,
+                    sessionService,
+                    accountService,
+                    businessApiService,
+                    sessionVerificationService,
+                    interruptionsHandler,
+                    presenter,
+                    providerFactory);
         }
     }
 

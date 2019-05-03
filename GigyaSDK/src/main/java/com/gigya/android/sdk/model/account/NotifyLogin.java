@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.model.account;
 
-import com.gigya.android.sdk.model.GigyaModel;
+import com.gigya.android.sdk.model.GigyaResponseModel;
 
-public class NotifyLogin extends GigyaModel {
+public class NotifyLogin extends GigyaResponseModel {
 }

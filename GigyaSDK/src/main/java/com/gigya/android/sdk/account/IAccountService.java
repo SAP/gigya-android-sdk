@@ -9,7 +9,7 @@ public interface IAccountService<A extends GigyaAccount> {
 
     void setAccountScheme(Class<A> scheme);
 
-    Class<A> getAccountScheme();
+    Class<A> getAccountSchema();
 
     void setAccount(String json);
 

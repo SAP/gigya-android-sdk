@@ -3,6 +3,7 @@ package com.gigya.android;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccountClass;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
@@ -34,7 +35,7 @@ public class AccountServiceTest extends BaseGigyaTest {
     @Before
     public void setup() {
         when(mConfig.getAccountCacheTime()).thenReturn(5);
-        cAccountService = new AccountService(mConfig);
+        cAccountService = new AccountService(mConfig, GigyaAccountClass.Default);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +85,7 @@ public class AccountServiceTest extends BaseGigyaTest {
     @Test
     public void testGetAccountScheme() {
         // Assert
-        assertEquals(GigyaAccount.class, cAccountService.getAccountScheme());
+        assertEquals(GigyaAccount.class, cAccountService.getAccountSchema());
     }
 
     @Test
@@ -92,7 +93,7 @@ public class AccountServiceTest extends BaseGigyaTest {
         // Act
         cAccountService.setAccountScheme(TestAccount.class);
         // Assert
-        assertEquals(TestAccount.class, cAccountService.getAccountScheme());
+        assertEquals(TestAccount.class, cAccountService.getAccountSchema());
 
     }
 

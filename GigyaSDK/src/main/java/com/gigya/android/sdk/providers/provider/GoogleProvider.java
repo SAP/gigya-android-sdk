@@ -41,9 +41,9 @@ public class GoogleProvider extends Provider {
     private GoogleSignInClient _googleClient;
     private String _clientId;
 
-    public GoogleProvider(Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public GoogleProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
                           IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     @Override
@@ -61,10 +61,10 @@ public class GoogleProvider extends Provider {
     }
 
     @Override
-    public void login(Context context, Map<String, Object> loginParams, final String loginMode) {
+    public void login(Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
         try {
-            final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            final ApplicationInfo appInfo = _context.getPackageManager().getApplicationInfo(_context.getPackageName(), PackageManager.GET_META_DATA);
             _clientId = (String) appInfo.metaData.get("googleClientId");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -77,9 +77,9 @@ public class GoogleProvider extends Provider {
                 .requestServerAuthCode(_clientId)
                 .requestEmail()
                 .build();
-        _googleClient = GoogleSignIn.getClient(context, gso);
+        _googleClient = GoogleSignIn.getClient(_context, gso);
 
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(_context);
         if (account != null) {
             // This option should not happen theoretically because we logout out explicitly.
             onLoginSuccess(getProviderSessions(account.getServerAuthCode(), -1L, null), loginMode);
@@ -87,7 +87,7 @@ public class GoogleProvider extends Provider {
             return;
         }
 
-        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
+        HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
 
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -136,7 +136,7 @@ public class GoogleProvider extends Provider {
     }
 
     @Override
-    public void logout(Context context) {
+    public void logout() {
         if (_googleClient == null) {
             if (_clientId == null) {
                 GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");
@@ -146,7 +146,7 @@ public class GoogleProvider extends Provider {
                     .requestServerAuthCode(_clientId)
                     .requestEmail()
                     .build();
-            _googleClient = GoogleSignIn.getClient(context, gso);
+            _googleClient = GoogleSignIn.getClient(_context, gso);
         }
         _googleClient.signOut();
     }

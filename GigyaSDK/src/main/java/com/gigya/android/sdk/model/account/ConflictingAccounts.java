@@ -1,10 +1,10 @@
 package com.gigya.android.sdk.model.account;
 
-import com.gigya.android.sdk.model.GigyaModel;
+import com.gigya.android.sdk.model.GigyaResponseModel;
 
 import java.util.ArrayList;
 
-public class ConflictingAccounts extends GigyaModel {
+public class ConflictingAccounts extends GigyaResponseModel {
 
     private ArrayList<String> loginProviders = new ArrayList<>();
     private String loginID;

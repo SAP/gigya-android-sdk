@@ -2,6 +2,7 @@ package com.gigya.android.sdk.account;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.model.account.GigyaAccountClass;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,17 +20,13 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
 
     final private Config _config;
 
-    public AccountService(Config config) {
-        _config = config;
-    }
-
     /*
     Cached generic account object.
      */
     private String _cachedAccount;
 
     @SuppressWarnings("unchecked")
-    private Class<A> _accountScheme = (Class<A>) GigyaAccount.class;
+    private Class<A> _accountScheme;
 
     /*
     Invalidation timestamp for cached account.
@@ -40,6 +37,10 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
     every time the user will request "getAccount" from the SDK.
      */
     private boolean _accountOverrideCache = false;
+    public AccountService(Config config, GigyaAccountClass<A> accountClazz) {
+        _config = config;
+        _accountScheme = accountClazz.getAccountClass();
+    }
 
     @Override
     public void setAccountScheme(Class<A> scheme) {
@@ -47,7 +48,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
     }
 
     @Override
-    public Class<A> getAccountScheme() {
+    public Class<A> getAccountSchema() {
         return _accountScheme;
     }
 
