@@ -8,6 +8,5 @@ import com.gigya.android.sdk.providers.provider.Provider;
 public interface IProviderFactory {
 
     Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback);
-    IProvider[] getUsedSocialProviders();
-    void removeUsedSocialProviders();
+    void logoutFromUsedSocialProviders();
 }

@@ -71,7 +71,18 @@ public class ProviderFactory implements IProviderFactory {
     }
 
     @Override
-    public IProvider[] getUsedSocialProviders() {
+    public void logoutFromUsedSocialProviders() {
+        final IProvider[] usedProviders = getUsedSocialProviders();
+        if (usedProviders.length > 0) {
+            for (IProvider provider : usedProviders) {
+                provider.logout();
+            }
+
+            _psService.removeSocialProviders();
+        }
+    }
+
+    private IProvider[] getUsedSocialProviders() {
         final Set<IProvider> usedProviders = new HashSet<>();
         final Set<String> usedProvidersNames = _psService.getSocialProviders();
         for (String name : usedProvidersNames) {
@@ -84,10 +95,5 @@ public class ProviderFactory implements IProviderFactory {
         }
 
         return (IProvider[])usedProviders.toArray();
-    }
-
-    @Override
-    public void removeUsedSocialProviders() {
-        _psService.removeSocialProviders();
     }
 }

@@ -83,7 +83,7 @@ public class Gigya<T extends GigyaAccount> {
     /*
     Simplified instance getter.
      */
-    public static synchronized Gigya<GigyaAccount> getInstance(Context appContext) {
+    public static synchronized Gigya<GigyaAccount> getInstance(Application appContext) {
         return Gigya.getInstance(appContext, GigyaAccount.class);
     }
 
@@ -91,9 +91,10 @@ public class Gigya<T extends GigyaAccount> {
     Generic account type instance getter.
     */
     @SuppressWarnings("unchecked")
-    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Context context, @NonNull Class<V> accountClazz) {
+    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Application context, @NonNull Class<V> accountClazz) {
         if (INSTANCE == null) {
             IoCContainer container = getContainer();
+            container.bind(Application.class, context);
             container.bind(Context.class, context);
             container.bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
 
@@ -115,7 +116,7 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
-    final private Context _context;
+    final private Application _context;
     /**
      * SDK main configuration structure.
      */
@@ -130,7 +131,7 @@ public class Gigya<T extends GigyaAccount> {
     final private IProviderFactory _providerFactory;
 
     @SuppressWarnings("unchecked")
-    protected Gigya(@NonNull Context context,
+    protected Gigya(@NonNull Application context,
                     Config config,
                     ConfigFactory configFactory,
                     ISessionService sessionService,
@@ -153,12 +154,8 @@ public class Gigya<T extends GigyaAccount> {
         _providerFactory = providerFactory;
 
         registerActivityLifecycleCallbacks();
+        _sessionService.load();
 
-        try {
-            _sessionService.load();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
         init();
     }
 
@@ -197,24 +194,16 @@ public class Gigya<T extends GigyaAccount> {
      * For explicit setting see {@link #init(String, String)} method.
      */
     private void init() {
-        try {
-            // Will load configuration fields only if none have yet to be set.
-            if (_config.getApiKey() == null && _context != null) {
-                // Try to from assets JSON file,
-                Config dynamicConfig = _configFactory.load();
-                _config.updateWith(dynamicConfig);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        // Will load configuration fields only if none have yet to be set.
+        if (_config.getApiKey() == null) {
+            // Try to from assets JSON file,
+            Config dynamicConfig = _configFactory.load();
+            _config.updateWith(dynamicConfig);
         }
 
         // Set next account invalidation timestamp if available.
-        if (_config != null && _config.getAccountCacheTime() != 0) {
-            try {
-                _accountService.nextAccountInvalidationTimestamp();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        if (_config.getAccountCacheTime() != 0) {
+            _accountService.nextAccountInvalidationTimestamp();
         }
     }
 
@@ -227,11 +216,7 @@ public class Gigya<T extends GigyaAccount> {
      * Attaching the SDK to the application lifecycle in order to distinguish foreground/background/resumed states.
      */
     private void registerActivityLifecycleCallbacks() {
-        if (!(_context instanceof Application)) {
-            GigyaLogger.error(LOG_TAG, "SDK initialized with the wrong context. Please make sure you have initialized the SDK using the applicationContext");
-            return;
-        }
-        ((Application) _context).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+        _context.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 
             private int activityReferences = 0;
             private boolean isActivityChangingConfigurations = false;
@@ -248,13 +233,9 @@ public class Gigya<T extends GigyaAccount> {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
                     if (isLoggedIn()) {
                         // Will start session countdown timer if the current session contains an expiration time.
-                        try {
-                            _sessionService.startSessionCountdownTimerIfNeeded();
-                            // Session verification is only relevant when user is logged in.
-                            _sessionVerificationService.start(); // TODO: #baryo maybe this should be inside sessionService?
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        _sessionService.startSessionCountdownTimerIfNeeded();
+                        // Session verification is only relevant when user is logged in.
+                        _sessionVerificationService.start(); // TODO: #baryo maybe this should be inside sessionService?
                     }
                 }
             }
@@ -276,12 +257,8 @@ public class Gigya<T extends GigyaAccount> {
                     // App enters background
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
                     // Make sure to cancel the session expiration countdown timer (if live).
-                    try {
-                        _sessionService.cancelSessionCountdownTimer();
-                        _sessionVerificationService.stop(); // TODO: #baryo maybe this should be inside sessionService?
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                    _sessionService.cancelSessionCountdownTimer();
+                    _sessionVerificationService.stop(); // TODO: #baryo maybe this should be inside sessionService?
                 }
             }
 
@@ -320,11 +297,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param sdkHandles False if manually handling all errors.
      */
     public void handleInterruptions(boolean sdkHandles) {
-        try {
-            _interruptionsHandler.setEnabled(sdkHandles);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _interruptionsHandler.setEnabled(sdkHandles);
     }
 
     /**
@@ -332,12 +305,7 @@ public class Gigya<T extends GigyaAccount> {
      * if TRUE, interruption handling will be optional via the GigyaLoginCallback.
      */
     public boolean interruptionsEnabled() {
-        try {
-            _interruptionsHandler.isEnabled();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return true;
+        return _interruptionsHandler.isEnabled();
     }
 
     //endregion
@@ -353,11 +321,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unchecked")
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        try {
-            _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
     }
 
     /**
@@ -371,13 +335,8 @@ public class Gigya<T extends GigyaAccount> {
      */
     @SuppressWarnings("unchecked")
     public <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
-        try {
-            _businessApiService.send(api, params, requestMethod, clazz, gigyaCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _businessApiService.send(api, params, requestMethod, clazz, gigyaCallback);
     }
-
 
     //endregion
 
@@ -408,34 +367,20 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressLint("ObsoleteSdkInt")
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
-        try {
-            _businessApiService.logout(null);
-            _sessionService.clear(true);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        _businessApiService.logout(null);
+        _sessionService.clear(true);
+
+        // TODO: #baryo move to the class responsible for screensets - Presenter?
+        // Clearing cached cookies.
+        CookieManager cookieManager = CookieManager.getInstance();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.flush();
+        } else {
+            CookieSyncManager.createInstance(_context);
+            cookieManager.removeAllCookie();
         }
 
-        try {
-            // Clearing cached cookies.
-            CookieManager cookieManager = CookieManager.getInstance();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cookieManager.flush();
-            } else {
-                CookieSyncManager.createInstance(_context);
-                cookieManager.removeAllCookie();
-            }
-
-            // Logout of social providers...
-            final IProvider[] usedProviders = _providerFactory.getUsedSocialProviders();
-            if (usedProviders.length > 0) {
-                for (IProvider provider : usedProviders) {
-                        provider.logout();
-                }
-                _providerFactory.removeUsedSocialProviders();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _providerFactory.logoutFromUsedSocialProviders();
     }
 
     //endregion
@@ -467,11 +412,7 @@ public class Gigya<T extends GigyaAccount> {
     public void login(Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
         params.put("include", "profile,data,subscriptions,preferences");
-        try {
-            _businessApiService.login(params, gigyaLoginCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _businessApiService.login(params, gigyaLoginCallback);
     }
 
     /**
@@ -483,11 +424,7 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
-        try {
-            _businessApiService.login(socialProvider, params, gigyaLoginCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _businessApiService.login(socialProvider, params, gigyaLoginCallback);
     }
 
     /**
@@ -629,11 +566,7 @@ public class Gigya<T extends GigyaAccount> {
             params = new HashMap<>();
         }
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
-        try {
-            _presenter.showNativeLoginProviders(providers, _businessApiService, params, gigyaLoginCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _presenter.showNativeLoginProviders(providers, _businessApiService, params, gigyaLoginCallback);
     }
 
     //endregion
@@ -652,11 +585,7 @@ public class Gigya<T extends GigyaAccount> {
     public void showScreenSet(final String screensSet, boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
-        try {
-            _presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
     }
 
     /**
@@ -669,11 +598,7 @@ public class Gigya<T extends GigyaAccount> {
     // TODO: 16/04/2019 Not available in beta.
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        try {
-            _presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        _presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
     }
 
     //endregion
