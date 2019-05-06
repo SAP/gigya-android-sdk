@@ -34,16 +34,16 @@ public class IoCContainer {
 
     private Map<Class<?>, BindInfo> _bindings = new HashMap<>();
 
-    public <I, C extends I> void bind(Class<I> contractClazz, final Class<C> concreteClazz, final boolean asSingleton) {
+    public <I, C extends I> IoCContainer bind(Class<I> contractClazz, final Class<C> concreteClazz, final boolean asSingleton) {
         GigyaLogger.ioc(LOG_TAG, "Binding " + contractClazz.getCanonicalName() + " to " + concreteClazz.getCanonicalName() + " as " + (asSingleton ? "singleton" : "factory"));
         _bindings.put(contractClazz, new BindInfo<>(concreteClazz, asSingleton));
+        return this;
     }
 
-    public <I, C extends I> void bind(Class<I> contractClazz, C concreteInstance) {
-        //bind(contractClazz, (Class<C>)concreteInstance.getClass(), true);
+    public <I, C extends I> IoCContainer bind(Class<I> contractClazz, C concreteInstance) {
         GigyaLogger.ioc(LOG_TAG, "binding " + contractClazz.getCanonicalName() + " to instance (of type " + concreteInstance.getClass().getCanonicalName() + ")");
-        //_instances.put(contractClazz, concreteInstance);
         _bindings.put(contractClazz, new BindInfo<>(concreteInstance));
+        return this;
     }
 
     public <T> T get(Class<T> contractClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -70,7 +70,7 @@ public class IoCContainer {
         return instance;
     }
 
-    private <T> T createInstance(Class<T> concreteClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public <T> T createInstance(Class<T> concreteClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         GigyaLogger.ioc(LOG_TAG, "Trying to create new instance for: " + concreteClazz.getCanonicalName());
         Constructor<?>[] constructors = concreteClazz.getConstructors();
         if (constructors.length == 0) {
@@ -107,5 +107,16 @@ public class IoCContainer {
 
     public boolean isBound(Class contractClazz) {
         return _bindings.containsKey(contractClazz);
+    }
+
+    public IoCContainer clone() {
+        IoCContainer clone = new IoCContainer();
+        clone._bindings = new HashMap<>(this._bindings);
+        return clone;
+    }
+
+    public void dispose() {
+        _bindings.clear();
+        _bindings = null;
     }
 }

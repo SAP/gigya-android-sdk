@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
@@ -11,13 +12,18 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 public class FileUtils {
+    private Context _context;
 
-    public static boolean containsConfigJSON(Context appContext) {
-        final AssetManager am = appContext.getAssets();
+    public FileUtils(Context context) {
+        _context = context;
+    }
+
+    public boolean containsFile(String fileName) {
+        final AssetManager am = _context.getAssets();
         try {
             final String[] list = am.list("");
             if (list != null) {
-                return Arrays.asList(list).contains("gigyaSdkConfiguration.json");
+                return Arrays.asList(list).contains(fileName);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -29,8 +35,29 @@ public class FileUtils {
     Load JSON configuration file from application Assets folder.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static String loadConfigJSON(Context appContext) throws IOException {
-        return assetJsonFileToString(appContext, "gigyaSdkConfiguration.json");
+    public String loadFile(String fileName) throws IOException {
+        return assetJsonFileToString(_context, fileName);
+    }
+
+    public Bundle getMetaData() {
+        try {
+            ApplicationInfo appInfo = _context.getPackageManager().getApplicationInfo(_context.getPackageName(), PackageManager.GET_META_DATA);
+            return appInfo.metaData;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Nullable
+    public String stringFromMetaData(String fieldName) {
+        Bundle metaData = getMetaData();
+        if (metaData == null) {
+            return null;
+        }
+        else {
+            return (String) metaData.get(fieldName);
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -46,17 +73,5 @@ public class FileUtils {
         is.read(buffer);
         is.close();
         return new String(buffer, "UTF-8");
-    }
-
-    @Nullable
-    public static String stringFromMetaData(Context context, String fieldName) {
-        String field = null;
-        try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            field = (String) appInfo.metaData.get(fieldName);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return field;
     }
 }

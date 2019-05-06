@@ -2,10 +2,9 @@ package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
@@ -14,7 +13,7 @@ import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
-import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.utils.FileUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,48 +25,66 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
 
 public class ProviderFactory implements IProviderFactory {
 
+    final private IoCContainer _container;
     final private Context _context;
-    final private Config _config;
-    final private ISessionService _sessionService;
-    final private IAccountService _accountService;
+    final private FileUtils _fileUtils;
     final private IPersistenceService _psService;
 
-    public ProviderFactory(Context context, Config config, ISessionService sessionService, IAccountService accountService,
+    public ProviderFactory(IoCContainer container,
+                           Context context,
+                           FileUtils fileUtils,
                            IPersistenceService persistenceService) {
+        _container = container;
         _context = context;
-        _config = config;
-        _sessionService = sessionService;
-        _accountService = accountService;
+        _fileUtils = fileUtils;
         _psService = persistenceService;
     }
 
     @Override
     public Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        if (name != null) {
-            switch (name) {
-                case FACEBOOK:
-                    if (FacebookProvider.isAvailable(_context)) {
-                        return new FacebookProvider(_context, _config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
-                    }
-                    break;
-                case GOOGLE:
-                    if (GoogleProvider.isAvailable(_context)) {
-                        return new GoogleProvider(_context, _config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
-                    }
-                    break;
-                case LINE:
-                    if (LineProvider.isAvailable(_context)) {
-                        return new LineProvider(_context, _config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
-                    }
-                    break;
-                case WECHAT:
-                    if (WeChatProvider.isAvailable(_context)) {
-                        return new WeChatProvider(_context, _config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
-                    }
-                    break;
-            }
+        final Class<Provider> providerClazz = getProviderClass(name);
+
+        final IoCContainer tempContainer =
+                _container.clone()
+                        .bind(IApiObservable.class, observable)
+                        .bind(GigyaLoginCallback.class, gigyaLoginCallback);
+
+        try {
+            return tempContainer.createInstance(providerClazz);
         }
-        return new WebLoginProvider(_context, _config, _sessionService, _accountService, _psService, observable, gigyaLoginCallback);
+        catch (Exception e) {
+            // TODO: #baryo need to think what to do
+            return null;
+        }
+        finally {
+            tempContainer.dispose();
+        }
+    }
+
+    private Class getProviderClass(String providerName) {
+        switch (providerName) {
+            case FACEBOOK:
+                if (FacebookProvider.isAvailable(_fileUtils)) {
+                    return FacebookProvider.class;
+                }
+                break;
+            case GOOGLE:
+                if (GoogleProvider.isAvailable(_context)) {
+                    return GoogleProvider.class;
+                }
+                break;
+            case LINE:
+                if (LineProvider.isAvailable(_fileUtils)) {
+                    return LineProvider.class;
+                }
+                break;
+            case WECHAT:
+                if (WeChatProvider.isAvailable(_context, _fileUtils)) {
+                    return WeChatProvider.class;
+                }
+                break;
+        }
+        return WebLoginProvider.class;
     }
 
     @Override
@@ -94,6 +111,6 @@ public class ProviderFactory implements IProviderFactory {
             }
         }
 
-        return (IProvider[])usedProviders.toArray();
+        return (IProvider[]) usedProviders.toArray();
     }
 }

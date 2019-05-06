@@ -31,13 +31,19 @@ public class WeChatProvider extends Provider {
 
     public static final String LOG_TAG = "WeChatProvider";
 
-    public WeChatProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                          IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+    public WeChatProvider(Context context,
+                          Config config,
+                          ISessionService sessionService,
+                          IAccountService accountService,
+                          IPersistenceService persistenceService,
+                          IApiObservable observable,
+                          GigyaLoginCallback gigyaLoginCallback) {
         super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
     }
 
     private IWXAPI _api;
-    private String _appId;
+
+    private static String _appId;
     private static BaseResp resp;
 
     @Override
@@ -45,11 +51,11 @@ public class WeChatProvider extends Provider {
         return WECHAT;
     }
 
-    public static boolean isAvailable(Context context) {
+    public static boolean isAvailable(Context context, FileUtils fileUtils) {
         try {
-            String appId = FileUtils.stringFromMetaData(context, "wechatAppID");
-            IWXAPI api = WXAPIFactory.createWXAPI(context, appId, false);
-            return (appId != null && api.isWXAppInstalled());
+            _appId = fileUtils.stringFromMetaData("wechatAppID");
+            IWXAPI api = WXAPIFactory.createWXAPI(context, _appId, false);
+            return (_appId != null && api.isWXAppInstalled());
         } catch (Throwable t) {
             return false;
         }
@@ -61,12 +67,6 @@ public class WeChatProvider extends Provider {
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                _appId = FileUtils.stringFromMetaData(_context, "wechatAppID");
-                if (_appId == null) {
-                    onLoginFailed("Failed to fetch application id");
-                    activity.finish();
-                }
-
                 _api = WXAPIFactory.createWXAPI(_context, _appId, true);
                 _api.registerApp(_appId);
 
@@ -94,8 +94,7 @@ public class WeChatProvider extends Provider {
     }
 
     public static void handleIntent(Context context, Intent intent, IWXAPIEventHandler eventHandler) {
-        String appId = FileUtils.stringFromMetaData(context, "wechatAppID");
-        IWXAPI api = WXAPIFactory.createWXAPI(context, appId, false);
+        IWXAPI api = WXAPIFactory.createWXAPI(context, _appId, false);
         if (api.isWXAppInstalled()) {
             api.handleIntent(intent, eventHandler);
         }

@@ -43,4 +43,10 @@ class IoCContainerTest {
 
     @Test
     public void testGetRegisteredClassWithOnlyUnavailableConstructors() {/*throw about missing dependencies*/}
+
+    @Test
+    public void testCreatingAnInstanceDirectly() {}
+
+    @Test
+    public void testChangesOnClonedContainerDoNotEffectOriginal() { }
 }

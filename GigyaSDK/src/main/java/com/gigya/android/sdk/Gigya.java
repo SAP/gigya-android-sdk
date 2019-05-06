@@ -94,9 +94,9 @@ public class Gigya<T extends GigyaAccount> {
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Application context, @NonNull Class<V> accountClazz) {
         if (INSTANCE == null) {
             IoCContainer container = getContainer();
-            container.bind(Application.class, context);
-            container.bind(Context.class, context);
-            container.bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
+            container.bind(Application.class, context)
+                    .bind(Context.class, context)
+                    .bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
 
             try {
                 INSTANCE = container.get(Gigya.class);

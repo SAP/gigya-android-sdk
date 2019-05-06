@@ -47,6 +47,8 @@ public class FileUtilsTest {
     @Mock
     private PackageManager packageManager;
 
+    public FileUtils fileUtils;
+
     @Before
     public void setup() throws IOException, PackageManager.NameNotFoundException {
         MockitoAnnotations.initMocks(this);
@@ -63,6 +65,8 @@ public class FileUtilsTest {
         when(packageManager.getApplicationInfo(anyString(), anyInt())).thenReturn(applicationInfo);
         applicationInfo.metaData = bundle;
         when(bundle.get(anyString())).thenReturn("MOCK");
+
+        fileUtils = new FileUtils(context);
     }
 
     @Test
@@ -96,7 +100,7 @@ public class FileUtilsTest {
             }
         });
         // Act
-        final String output = FileUtils.loadConfigJSON(context);
+        final String output = fileUtils.loadFile("gigyaSdkConfigurationMock.json");
         // Assert
         assertNotNull(output);
     }
@@ -104,7 +108,7 @@ public class FileUtilsTest {
     @Test
     public void testStringFromMetaData() {
         // Act
-        final String mockMetaDataString = FileUtils.stringFromMetaData(context, "MetaDataTag");
+        final String mockMetaDataString = fileUtils.stringFromMetaData("MetaDataTag");
         // Assert
         assertNotNull(mockMetaDataString);
         assertEquals("MOCK", mockMetaDataString);

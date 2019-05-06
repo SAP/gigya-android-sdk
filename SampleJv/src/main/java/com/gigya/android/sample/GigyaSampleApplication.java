@@ -21,6 +21,6 @@ public class GigyaSampleApplication extends Application {
         Log.d("GigyaSampleApplication", Gigya.VERSION);
 
         // Initialization with implicit configuration & account scheme.
-        Gigya.getInstance(getApplicationContext(), MyAccount.class);
+        Gigya.getInstance(this, MyAccount.class);
     }
 }

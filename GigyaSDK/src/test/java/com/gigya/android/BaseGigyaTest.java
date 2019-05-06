@@ -1,5 +1,6 @@
 package com.gigya.android;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -114,7 +115,7 @@ public class BaseGigyaTest {
 
     protected static class TestGigya extends Gigya<TestAccount> {
 
-        TestGigya(@NonNull Context context,
+        TestGigya(@NonNull Application context,
                   Config config,
                   ConfigFactory configFactory,
                   ISessionService sessionService,

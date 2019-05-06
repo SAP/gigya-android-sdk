@@ -21,41 +21,6 @@ public class Config {
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
 
-    //region LOAD
-
-    @Nullable
-    public static Config loadFromJson(Context appContext) {
-        if (FileUtils.containsConfigJSON(appContext)) {
-            try {
-                String json = FileUtils.loadConfigJSON(appContext);
-                GigyaLogger.debug("Configuration", json);
-                return new Gson().fromJson(json, Config.class);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-    @Nullable
-    public static Config loadFromManifest(Context appContext) {
-        try {
-            ApplicationInfo ai = appContext.getPackageManager().getApplicationInfo(appContext.getPackageName(), PackageManager.GET_META_DATA);
-            Bundle bundle = ai.metaData;
-            final String apiKey = bundle.getString("apiKey", null);
-            final String domain = bundle.getString("apiDomain", "us1.gigya.com");
-            final int accountCacheTime = bundle.getInt("accountCacheTime", 5);
-            final int sessionVerificationIInterval = bundle.getInt("sessionVerificationInterval", 0);
-            return new Config().updateWith(apiKey, domain, accountCacheTime, sessionVerificationIInterval);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    //endregion
-
     //region UPDATE
 
     public Config updateWith(String apiKey, String apiDomain) {

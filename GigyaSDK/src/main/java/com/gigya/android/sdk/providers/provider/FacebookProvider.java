@@ -23,6 +23,7 @@ import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.utils.FileUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 import org.json.JSONObject;
@@ -51,10 +52,9 @@ public class FacebookProvider extends Provider {
         return FACEBOOK;
     }
 
-    public static boolean isAvailable(Context context) {
+    public static boolean isAvailable(FileUtils fileUtils) {
         try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            String fbAppId = (String) appInfo.metaData.get("com.facebook.sdk.ApplicationId");
+            String fbAppId = fileUtils.stringFromMetaData("com.facebook.sdk.ApplicationId");
             Class.forName("com.facebook.login.LoginManager");
             return fbAppId != null;
         } catch (Throwable t) {

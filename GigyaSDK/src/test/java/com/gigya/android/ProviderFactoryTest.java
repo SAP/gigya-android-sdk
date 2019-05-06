@@ -22,6 +22,7 @@ import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionService;
+import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class ProviderFactoryTest {
     @Test
     public void testFacebook() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
-        when(FacebookProvider.isAvailable((Context) any())).thenReturn(true);
+        when(FacebookProvider.isAvailable((FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
         IProvider provider = factory.providerFor(FACEBOOK, null,mCallback);
@@ -111,7 +112,7 @@ public class ProviderFactoryTest {
     @Test
     public void testLine() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
-        when(LineProvider.isAvailable((Context) any())).thenReturn(true);
+        when(LineProvider.isAvailable((FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
         IProvider provider = factory.providerFor(LINE, null,mCallback);
@@ -123,7 +124,7 @@ public class ProviderFactoryTest {
     @Test
     public void testWeChat() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
-        when(WeChatProvider.isAvailable((Context) any())).thenReturn(true);
+        when(WeChatProvider.isAvailable((Context) any(), (FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = mContainer.get(IProviderFactory.class);
         IProvider provider = factory.providerFor(WECHAT,null, mCallback);

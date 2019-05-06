@@ -34,9 +34,18 @@ public class LineProvider extends Provider {
 
     private static final int REQUEST_CODE = 1;
 
-    public LineProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                        IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+    protected FileUtils _fileUtils;
+
+    public LineProvider(Context context,
+                        Config config,
+                        ISessionService sessionService,
+                        IAccountService accountService,
+                        IPersistenceService persistenceService,
+                        IApiObservable observable,
+                        FileUtils fileUtils,
+                        GigyaLoginCallback gigyaLoginCallback) {
         super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        _fileUtils = fileUtils;
     }
 
     @Override
@@ -44,9 +53,9 @@ public class LineProvider extends Provider {
         return LINE;
     }
 
-    public static boolean isAvailable(Context context) {
+    public static boolean isAvailable(FileUtils fileUtils) {
         try {
-            String lineChannelID = FileUtils.stringFromMetaData(context, "lineChannelID");
+            String lineChannelID = fileUtils.stringFromMetaData("lineChannelID");
             Class.forName("com.linecorp.linesdk.auth.LineLoginApi");
             return lineChannelID != null;
         } catch (Throwable t) {
@@ -61,7 +70,7 @@ public class LineProvider extends Provider {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 // Fetch channel Id from meta-data.
-                final String lineChannelID = FileUtils.stringFromMetaData(activity, "lineChannelID");
+                final String lineChannelID = _fileUtils.stringFromMetaData("lineChannelID");
                 if (lineChannelID == null) {
                     // Fail login.
                     onLoginFailed("Channel Id not available");
@@ -101,7 +110,7 @@ public class LineProvider extends Provider {
 
     @Override
     public void logout() {
-        final String lineChannelID = FileUtils.stringFromMetaData(_context, "lineChannelID");
+        final String lineChannelID = _fileUtils.stringFromMetaData("lineChannelID");
         if (lineChannelID == null) {
             return;
         }
