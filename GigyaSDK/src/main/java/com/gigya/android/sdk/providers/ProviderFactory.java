@@ -62,28 +62,31 @@ public class ProviderFactory implements IProviderFactory {
     }
 
     private Class getProviderClass(String providerName) {
-        switch (providerName) {
-            case FACEBOOK:
-                if (FacebookProvider.isAvailable(_fileUtils)) {
-                    return FacebookProvider.class;
-                }
-                break;
-            case GOOGLE:
-                if (GoogleProvider.isAvailable(_context)) {
-                    return GoogleProvider.class;
-                }
-                break;
-            case LINE:
-                if (LineProvider.isAvailable(_fileUtils)) {
-                    return LineProvider.class;
-                }
-                break;
-            case WECHAT:
-                if (WeChatProvider.isAvailable(_context, _fileUtils)) {
-                    return WeChatProvider.class;
-                }
-                break;
+        if (providerName != null) {
+            switch (providerName) {
+                case FACEBOOK:
+                    if (FacebookProvider.isAvailable(_fileUtils)) {
+                        return FacebookProvider.class;
+                    }
+                    break;
+                case GOOGLE:
+                    if (GoogleProvider.isAvailable(_context)) {
+                        return GoogleProvider.class;
+                    }
+                    break;
+                case LINE:
+                    if (LineProvider.isAvailable(_fileUtils)) {
+                        return LineProvider.class;
+                    }
+                    break;
+                case WECHAT:
+                    if (WeChatProvider.isAvailable(_context, _fileUtils)) {
+                        return WeChatProvider.class;
+                    }
+                    break;
+            }
         }
+
         return WebLoginProvider.class;
     }
 

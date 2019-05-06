@@ -9,7 +9,6 @@ import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
 
 public class ConfigFactory {
-    private final String configFileName = "gigyaSdkConfiguration.json";
     private FileUtils _fileUtils;
 
     public ConfigFactory(FileUtils fileUtils) {
@@ -27,6 +26,7 @@ public class ConfigFactory {
 
     @Nullable
     public Config loadFromJson() {
+        String configFileName = "gigyaSdkConfiguration.json";
         if (_fileUtils.containsFile(configFileName)) {
             try {
                 String json = _fileUtils.loadFile(configFileName);

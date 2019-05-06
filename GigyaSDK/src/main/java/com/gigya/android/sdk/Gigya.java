@@ -63,6 +63,12 @@ public class Gigya<T extends GigyaAccount> {
         return CONTAINER;
     }
 
+    public static void setApplication(Application appContext) {
+        getContainer()
+                .bind(Application.class, appContext)
+                .bind(Context.class, appContext);
+    }
+
     @SuppressLint("StaticFieldLeak")
     private static Gigya INSTANCE;
 
@@ -72,38 +78,25 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public static synchronized Gigya<? extends GigyaAccount> getInstance() {
         if (INSTANCE == null) {
-            // Log error.
-            GigyaLogger.error(LOG_TAG, "Gigya instance not initialized properly!" +
-                    " Make sure to call Gigya getInstance(Context appContext) at least once before trying to reference The Gigya instance");
-            return null;
+            return getInstance(GigyaAccount.class);
         }
         return INSTANCE;
-    }
-
-    /*
-    Simplified instance getter.
-     */
-    public static synchronized Gigya<GigyaAccount> getInstance(Application appContext) {
-        return Gigya.getInstance(appContext, GigyaAccount.class);
     }
 
     /*
     Generic account type instance getter.
     */
     @SuppressWarnings("unchecked")
-    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(Application context, @NonNull Class<V> accountClazz) {
+    public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(@NonNull Class<V> accountClazz) {
         if (INSTANCE == null) {
             IoCContainer container = getContainer();
-            container.bind(Application.class, context)
-                    .bind(Context.class, context)
-                    .bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
+            container.bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
 
             try {
-                INSTANCE = container.get(Gigya.class);
+                INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
+                GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication?)");
                 e.printStackTrace();
-                // TODO: #baryo how do we log programmatical errors? (this should never happen)
-                return null;
             }
         }
         // Check scheme. If already set log an error.

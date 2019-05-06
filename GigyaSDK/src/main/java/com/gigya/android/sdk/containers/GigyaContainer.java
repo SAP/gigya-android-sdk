@@ -35,23 +35,22 @@ import com.gigya.android.sdk.utils.FileUtils;
 
 public class GigyaContainer extends IoCContainer {
     public GigyaContainer() {
-        bind(Gigya.class, Gigya.class, true)
-                .bind(FileUtils.class, FileUtils.class, true)
-        .bind(Config.class, Config.class, true) // Concrete.
-        .bind(IRestAdapter.class, RestAdapter.class, true)
-        .bind(IApiService.class, ApiService.class, false)
-        .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
-                : SessionKeyLegacy.class, true)
-        .bind(IPersistenceService.class, PersistenceService.class, false)
-        .bind(ISessionService.class, SessionService.class, true)
-        .bind(IAccountService.class, AccountService.class, true)
-        .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
-        .bind(IProviderFactory.class, ProviderFactory.class, false)
-        .bind(IBusinessApiService.class, BusinessApiService.class, true)
-        .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false)
-        .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
-        .bind(IPresenter.class, Presenter.class, false)
-        .bind(IInterruptionsHandler.class, InterruptionHandler.class, true)
-        .bind(IoCContainer.class, this);
+        bind(FileUtils.class, FileUtils.class, true)
+                .bind(Config.class, Config.class, true)
+                .bind(IRestAdapter.class, RestAdapter.class, true)
+                .bind(IApiService.class, ApiService.class, false)
+                .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
+                        : SessionKeyLegacy.class, true)
+                .bind(IPersistenceService.class, PersistenceService.class, false)
+                .bind(ISessionService.class, SessionService.class, true)
+                .bind(IAccountService.class, AccountService.class, true)
+                .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
+                .bind(IProviderFactory.class, ProviderFactory.class, false)
+                .bind(IBusinessApiService.class, BusinessApiService.class, true)
+                .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false)
+                .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
+                .bind(IPresenter.class, Presenter.class, false)
+                .bind(IInterruptionsHandler.class, InterruptionHandler.class, true)
+                .bind(IoCContainer.class, this);
     }
 }
