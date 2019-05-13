@@ -5,8 +5,8 @@ import com.gigya.android.sdk.Config;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 
 public class ConfigTest {
     private Config config;

@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class BaseGigyaTest {
 
     @Mock
-    Context mContext;
+    Application mContext;
 
     @Mock
     Config mConfig;
