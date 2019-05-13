@@ -146,9 +146,9 @@ public class Gigya<T extends GigyaAccount> {
         _presenter = presenter;
         _providerFactory = providerFactory;
 
-        registerActivityLifecycleCallbacks();
+        // Setup sdk
+        _sessionVerificationService.registerActivityLifecycleCallbacks();
         _sessionService.load();
-
         init();
     }
 
@@ -198,76 +198,6 @@ public class Gigya<T extends GigyaAccount> {
         if (_config.getAccountCacheTime() != 0) {
             _accountService.nextAccountInvalidationTimestamp();
         }
-    }
-
-    //endregion
-
-
-    //region LIFECYCLE CALLBACKS
-
-    /**
-     * Attaching the SDK to the application lifecycle in order to distinguish foreground/background/resumed states.
-     */
-    private void registerActivityLifecycleCallbacks() {
-        _context.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-
-            private int activityReferences = 0;
-            private boolean isActivityChangingConfigurations = false;
-
-            @Override
-            public void onActivityCreated(Activity activity, Bundle bundle) {
-                // Stub.
-            }
-
-            @Override
-            public void onActivityStarted(Activity activity) {
-                if (++activityReferences == 1 && !isActivityChangingConfigurations) {
-                    // App enters foreground
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
-                    if (isLoggedIn()) {
-                        // Will start session countdown timer if the current session contains an expiration time.
-                        _sessionService.startSessionCountdownTimerIfNeeded();
-                        // Session verification is only relevant when user is logged in.
-                        _sessionVerificationService.start(); // TODO: #baryo maybe this should be inside sessionService?
-                    }
-                }
-            }
-
-            @Override
-            public void onActivityResumed(Activity activity) {
-                // Stub. Can track the current resumed activity.
-            }
-
-            @Override
-            public void onActivityPaused(Activity activity) {
-                // Stub.
-            }
-
-            @Override
-            public void onActivityStopped(Activity activity) {
-                isActivityChangingConfigurations = activity.isChangingConfigurations();
-                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
-                    // App enters background
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
-                    // Make sure to cancel the session expiration countdown timer (if live).
-                    _sessionService.cancelSessionCountdownTimer();
-                    _sessionVerificationService.stop(); // TODO: #baryo maybe this should be inside sessionService?
-                }
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-                // Stub.
-            }
-
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
-                    // Flush the Presenter statics just in case. When all activities have been destroyed.
-                    Presenter.flush();
-                }
-            }
-        });
     }
 
     //endregion

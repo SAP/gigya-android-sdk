@@ -9,7 +9,7 @@ import com.gigya.android.sdk.model.profile.Profile;
  * Gigya main account model.
  * Model is an inline representation of the base scheme available in the client site.
  */
-public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo main account model shouldn't contain request specific fields inherited
+public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo - main account model shouldn't contain request specific fields inherited
 
     @Nullable
     private String UID;
@@ -57,7 +57,7 @@ public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo main acco
     @Nullable
     private Long verifiedTimestamp;
     @Nullable
-    private String regToken; // TODO: #baryo shouldn't be here
+    private String regToken; // TODO: #baryo - shouldn't be here
 
     @Nullable
     public String getUID() {

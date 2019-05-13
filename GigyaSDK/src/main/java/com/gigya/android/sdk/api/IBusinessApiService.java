@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.api;
 
-import android.content.Context;
-
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -13,8 +11,6 @@ import java.util.Map;
 public interface IBusinessApiService<A> {
 
     <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback);
-
-    <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback);
 
     void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback);
 

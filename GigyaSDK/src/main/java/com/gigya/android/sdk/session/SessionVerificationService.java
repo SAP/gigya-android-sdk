@@ -1,7 +1,9 @@
 package com.gigya.android.sdk.session;
 
-import android.content.Context;
+import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
@@ -14,6 +16,7 @@ import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.ui.Presenter;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -26,14 +29,17 @@ public class SessionVerificationService implements ISessionVerificationService {
 
     private static final String LOG_TAG = "SessionVerificationService";
 
-    final private Context _context;
+    final private Application _context;
     final private Config _config;
     final private ISessionService _sessionService;
     final private IAccountService _accountService;
     final private IApiService _apiService;
 
-    public SessionVerificationService(Context context, Config config, ISessionService sessionService,
-                                      IAccountService accountService, IApiService apiService) {
+    public SessionVerificationService(Application context,
+                                      Config config,
+                                      ISessionService sessionService,
+                                      IAccountService accountService,
+                                      IApiService apiService) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
@@ -47,6 +53,69 @@ public class SessionVerificationService implements ISessionVerificationService {
     private long _verificationInterval;
     private long _lastRequestTimestamp = 0;
     private Timer _timer;
+
+    @Override
+    public void registerActivityLifecycleCallbacks() {
+        _context.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+
+            private int activityReferences = 0;
+            private boolean isActivityChangingConfigurations = false;
+
+            @Override
+            public void onActivityCreated(Activity activity, Bundle bundle) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                if (++activityReferences == 1 && !isActivityChangingConfigurations) {
+                    // App enters foreground
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
+                    if (_sessionService.isValid()) {
+                        // Will start session countdown timer if the current session contains an expiration time.
+                        _sessionService.startSessionCountdownTimerIfNeeded();
+                        // Session verification is only relevant when user is logged in.
+                        start();
+                    }
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                // Stub. Can track the current resumed activity.
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                isActivityChangingConfigurations = activity.isChangingConfigurations();
+                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                    // App enters background
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
+                    // Make sure to cancel the session expiration countdown timer (if live).
+                    _sessionService.cancelSessionCountdownTimer();
+                    stop();
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+                // Stub.
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                    // Flush the Presenter statics just in case. When all activities have been destroyed.
+                    Presenter.flush();
+                }
+            }
+        });
+    }
 
     @Override
     public void start() {

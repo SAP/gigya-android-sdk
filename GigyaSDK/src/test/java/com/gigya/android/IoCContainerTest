@@ -4,7 +4,7 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import org.junit.Before;
 import org.junit.Test;
 
-// TODO: #baryo complete tests
+// TODO: #baryo - complete tests
 
 class IoCContainerTest {
     private IoCContainer container;

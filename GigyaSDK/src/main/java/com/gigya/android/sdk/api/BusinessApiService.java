@@ -40,7 +40,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     private static final String LOG_TAG = "BusinessApiService";
 
     // Dependencies.
-    final private Context _context;
     final private Config _config;
     final private ISessionService _sessionService;
     final private IAccountService<A> _accountService;
@@ -48,14 +47,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IProviderFactory _providerFactory;
     final private IInterruptionsHandler _interruptionsHandler;
 
-    public BusinessApiService(Context context,
-                              Config config,
+    public BusinessApiService(Config config,
                               ISessionService sessionService,
                               IAccountService<A> accountService,
                               IApiService apiService,
                               IProviderFactory providerFactory,
                               IInterruptionsHandler interruptionsHandler) {
-        _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -63,6 +60,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _providerFactory = providerFactory;
         _interruptionsHandler = interruptionsHandler;
     }
+
+    // TODO: #baryo move getSDKConfig handling to new GigyaApiService extends ApiService
+    // TODO: #baryo refactor GigyaApiRequest.newInstance to ApiRequestFactory
 
     //region CONDITIONALS & HELPERS
 
@@ -169,8 +169,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaCallback Response callback.
      * @param <V>           Typed response class.
      */
-    @Override
-    public <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback) {
+    private <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback) {
         if (requestRequiresApiKey("getConfig")) {
             // Generate request.
             final Map<String, Object> params = new HashMap<>();
@@ -235,6 +234,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     private boolean isSupportedInterruption(int errorCode) {
         return _interruptionList.contains(errorCode);
     }
+
+    // TODO: #baryo move the two above to interruptionsHandler
 
     private void resolveInterruption(GigyaApiResponse response, GigyaLoginCallback<A> gigyaLoginCallback) {
         // Handle interruption.
