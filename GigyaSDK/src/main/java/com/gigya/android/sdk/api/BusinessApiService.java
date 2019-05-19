@@ -104,17 +104,16 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     private void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback) {
         final int errorCode = response.getErrorCode();
-        if (errorCode == 0) {
+        if (errorCode != 0) {
+            // Handle interruption.
+            final IApiObservable observable = new ApiObservable().register(BusinessApiService.this);
+            _interruptionsHandler.resolve(response, observable, loginCallback);
+        } else {
             // Parse & success.
             A parsed = response.parseTo(_accountService.getAccountSchema());
             updateWithNewSession(response);
             updateCachedAccount(response);
             loginCallback.onSuccess(parsed);
-        } else if (isSupportedInterruption(errorCode)) {
-            resolveInterruption(response, loginCallback);
-        } else {
-            // Unhandled error.
-            loginCallback.onError(GigyaError.fromResponse(response));
         }
     }
 
@@ -221,21 +220,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     //endregion
 
     //region INTERRUPTIONS
-
-    // Supported interruptions.
-    private final List<Integer> _interruptionList = Arrays.asList(
-            GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION,
-            GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION,
-            GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS,
-            GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION,
-            GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION,
-            GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED);
-
-    private boolean isSupportedInterruption(int errorCode) {
-        return _interruptionList.contains(errorCode);
-    }
-
-    // TODO: #baryo move the two above to interruptionsHandler
 
     private void resolveInterruption(GigyaApiResponse response, GigyaLoginCallback<A> gigyaLoginCallback) {
         // Handle interruption.
