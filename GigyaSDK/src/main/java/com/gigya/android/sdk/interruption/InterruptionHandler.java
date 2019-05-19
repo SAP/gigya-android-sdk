@@ -38,56 +38,61 @@ public class InterruptionHandler implements IInterruptionsHandler {
 
     @Override
     public void resolve(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
-        if (_enabled) {
-            final int errorCode = apiResponse.getErrorCode();
-            GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode);
+        if (!_enabled) {
+            loginCallback.onError(GigyaError.fromResponse(apiResponse));
+            return;
+        }
 
-            final IoCContainer resolverContainer =
-                    _container.clone()
-                            .bind(IApiObservable.class, observable)
-                            .bind(GigyaApiResponse.class, apiResponse)
-                            .bind(GigyaLoginCallback.class, loginCallback);
+        final IoCContainer resolverContainer =
+                _container.clone()
+                        .bind(IApiObservable.class, observable)
+                        .bind(GigyaApiResponse.class, apiResponse)
+                        .bind(GigyaLoginCallback.class, loginCallback);
 
-            try {
-                switch (errorCode) {
-                    case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
-                        loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
-                        break;
-                    case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-                        loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
-                        break;
-                    case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
-                        loginCallback.onPendingPasswordChange(apiResponse);
-                        break;
-                    case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                        GigyaLinkAccountsResolver linkAccountsResolver =
-                                resolverContainer.createInstance(GigyaLinkAccountsResolver.class);
-                        linkAccountsResolver.start();
-                        break;
-                    case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
-                        GigyaTFARegistrationResolver registrationResolver =
-                                resolverContainer.createInstance(GigyaTFARegistrationResolver.class);
-                        registrationResolver.start();
-                        break;
-                    case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                        GigyaTFAVerificationResolver verificationResolver =
-                                resolverContainer.createInstance(GigyaTFAVerificationResolver.class);
-                        verificationResolver.start();
-                        break;
-                    case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
-                        finalizeRegistration(apiResponse, observable, loginCallback);
-                        break;
-                    default:
-                        // Unsupported error
-                        loginCallback.onError(GigyaError.fromResponse(apiResponse));
-                        break;
-                }
-            } catch (Exception e) {
-                // error with creating resolvers - could be missing container dependencies
-                GigyaLogger.error(LOG_TAG, e.getMessage());
+        final int errorCode = apiResponse.getErrorCode();
+        GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode);
 
-                loginCallback.onError(GigyaError.fromResponse(apiResponse));
+        try {
+            switch (errorCode) {
+                case GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION:
+                    loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
+                    break;
+                case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
+                    // TODO: #baryo resolver?
+                    loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
+                    break;
+                case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
+                    // TODO: #baryo resolver?
+                    loginCallback.onPendingPasswordChange(apiResponse);
+                    break;
+                case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
+                    GigyaLinkAccountsResolver linkAccountsResolver =
+                            resolverContainer.createInstance(GigyaLinkAccountsResolver.class);
+                    linkAccountsResolver.start();
+                    break;
+                case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
+                    GigyaTFARegistrationResolver registrationResolver =
+                            resolverContainer.createInstance(GigyaTFARegistrationResolver.class);
+                    registrationResolver.start();
+                    break;
+                case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
+                    GigyaTFAVerificationResolver verificationResolver =
+                            resolverContainer.createInstance(GigyaTFAVerificationResolver.class);
+                    verificationResolver.start();
+                    break;
+                case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
+                    finalizeRegistration(apiResponse, observable, loginCallback);
+                    break;
+                default:
+                    // Unsupported error
+                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                    break;
             }
+        } catch (Exception e) {
+            // error with creating resolvers - could be missing container dependencies
+            GigyaLogger.error(LOG_TAG, e.getMessage());
+
+            loginCallback.onError(GigyaError.fromResponse(apiResponse));
         }
     }
 
