@@ -15,6 +15,8 @@ import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.interruption.InterruptionHandler;
+import com.gigya.android.sdk.network.GigyaApiRequestFactory;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -39,6 +41,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(Config.class, Config.class, true)
                 .bind(IRestAdapter.class, RestAdapter.class, true)
                 .bind(IApiService.class, ApiService.class, false)
+                .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)
                 .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                         : SessionKeyLegacy.class, true)
                 .bind(IPersistenceService.class, PersistenceService.class, false)

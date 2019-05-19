@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.api;
 
-import android.content.Context;
-
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -15,6 +13,7 @@ import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
@@ -23,9 +22,7 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -44,6 +41,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private ISessionService _sessionService;
     final private IAccountService<A> _accountService;
     final private IApiService _apiService;
+    final private IApiRequestFactory _reqFactory;
     final private IProviderFactory _providerFactory;
     final private IInterruptionsHandler _interruptionsHandler;
 
@@ -51,12 +49,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                               ISessionService sessionService,
                               IAccountService<A> accountService,
                               IApiService apiService,
+                              IApiRequestFactory requestFactory,
                               IProviderFactory providerFactory,
                               IInterruptionsHandler interruptionsHandler) {
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
+        _reqFactory = requestFactory;
         _providerFactory = providerFactory;
         _interruptionsHandler = interruptionsHandler;
     }
@@ -133,7 +133,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public <V> void send(String api, Map<String, Object> params, int requestMethod, final Class<V> clazz, final GigyaCallback<V> gigyaCallback) {
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, api, params, requestMethod);
+        final GigyaApiRequest request = _reqFactory.create(api, params, requestMethod);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -174,7 +174,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             final Map<String, Object> params = new HashMap<>();
             params.put("include", "permissions,ids,appIds");
             params.put("ApiKey", _config.getApiKey());
-            final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_GET_SDK_CONFIG, params, RestAdapter.GET);
+            final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SDK_CONFIG, params, RestAdapter.GET);
             _apiService.send(request, true, new ApiService.IApiServiceResponse() {
 
                 @Override
@@ -264,7 +264,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_LOGOUT, null);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
@@ -300,7 +300,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         requestRequiresGMID(GigyaDefinitions.API.API_LOGIN, gigyaLoginCallback);
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_LOGIN, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -347,7 +347,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             params.put("UID", UID);
         }
         params.put("include", "identities-all,loginIDs,profile,email,data");
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -385,7 +385,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
             }
         }
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -420,7 +420,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void finalizeRegistration(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_FINALIZE_REGISTRATION, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_FINALIZE_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -450,7 +450,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void register(final Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, gigyaLoginCallback);
         // #1 Chain init registration.
-        GigyaApiRequest initRequest = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
+        GigyaApiRequest initRequest = _reqFactory.create(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(initRequest, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -465,7 +465,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         return;
                     }
                     // #2 Chain login.
-                    GigyaApiRequest regRequest = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REGISTER, params, RestAdapter.POST);
+                    GigyaApiRequest regRequest = _reqFactory.create(GigyaDefinitions.API.API_REGISTER, params, RestAdapter.POST);
                     _apiService.send(regRequest, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {
@@ -506,7 +506,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -538,7 +538,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
         final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -568,7 +568,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
         requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -595,7 +595,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     // Non documented.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -626,7 +626,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("loginID", loginId);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -679,7 +679,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             return;
         }
         params.put("UID", UID);
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_REMOVE_CONNECTION, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REMOVE_CONNECTION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
