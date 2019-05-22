@@ -62,7 +62,7 @@ public class WeChatProvider extends Provider {
     }
 
     @Override
-    public void login(Map<String, Object> loginParams, String loginMode) {
+    public void login(final Map<String, Object> loginParams, String loginMode) {
         _loginMode = loginMode;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
@@ -79,7 +79,7 @@ public class WeChatProvider extends Provider {
             @Override
             public void onResume(AppCompatActivity activity) {
                 if (resp != null) {
-                    handleResponse(resp, activity);
+                    handleResponse(loginParams, resp, activity);
                 }
             }
 
@@ -104,14 +104,14 @@ public class WeChatProvider extends Provider {
         WeChatProvider.resp = resp;
     }
 
-    private void handleResponse(BaseResp baseResp, Activity activity) {
+    private void handleResponse(Map<String, Object> loginParams, BaseResp baseResp, Activity activity) {
         switch (baseResp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 try {
                     SendAuth.Resp sendResp = (SendAuth.Resp) baseResp;
                     final String authCode = sendResp.code;
                     final String providerSessions = getProviderSessions(authCode, -1L, _appId);
-                    onLoginSuccess(providerSessions, _loginMode);
+                    onLoginSuccess(loginParams, providerSessions, _loginMode);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

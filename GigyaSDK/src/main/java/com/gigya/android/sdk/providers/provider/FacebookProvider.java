@@ -70,7 +70,7 @@ public class FacebookProvider extends Provider {
         // Check login state.
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired() && permissionsGranted(readPermissions);
         if (isLoggedIn) {
-            onLoginSuccess(getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), loginMode);
+            onLoginSuccess(loginParams, getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), loginMode);
             return;
         }
         // Start new login flow.
@@ -90,7 +90,7 @@ public class FacebookProvider extends Provider {
                     public void onSuccess(LoginResult loginResult) {
                         loginManager.unregisterCallback(_callbackManager);
                         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        onLoginSuccess(getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), loginMode);
+                        onLoginSuccess(loginParams, getProviderSessions(accessToken.getToken(), accessToken.getExpires().getTime() / 1000, null), loginMode);
                         activity.finish();
                     }
 

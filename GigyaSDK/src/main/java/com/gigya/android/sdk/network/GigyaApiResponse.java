@@ -26,7 +26,7 @@ public class GigyaApiResponse {
     private Map<String, Object> mapped;
 
     // GSON Support.
-    private Gson gson = new GsonBuilder().create();
+    private Gson gson = new Gson();
 
     public Gson getGson() {
         return gson;

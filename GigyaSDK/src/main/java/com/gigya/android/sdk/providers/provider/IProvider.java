@@ -24,7 +24,7 @@ public interface IProvider {
 
     void onCanceled();
 
-    void onLoginSuccess(String providerSessions, String loginMode);
+    void onLoginSuccess(final Map<String, Object> loginParams, String providerSessions, String loginMode);
 
     void onLoginFailed(String error);
 

@@ -61,7 +61,7 @@ public class GoogleProvider extends Provider {
     }
 
     @Override
-    public void login(Map<String, Object> loginParams, final String loginMode) {
+    public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
         try {
             final ApplicationInfo appInfo = _context.getPackageManager().getApplicationInfo(_context.getPackageName(), PackageManager.GET_META_DATA);
@@ -82,7 +82,7 @@ public class GoogleProvider extends Provider {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(_context);
         if (account != null) {
             // This option should not happen theoretically because we logout out explicitly.
-            onLoginSuccess(getProviderSessions(account.getServerAuthCode(), -1L, null), loginMode);
+            onLoginSuccess(loginParams, getProviderSessions(account.getServerAuthCode(), -1L, null), loginMode);
             finish(null);
             return;
         }
@@ -99,13 +99,13 @@ public class GoogleProvider extends Provider {
             public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
                 if (requestCode == RC_SIGN_IN) {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    handleSignInResult(activity, task);
+                    handleSignInResult(loginParams, activity, task);
                 }
             }
         });
     }
 
-    private void handleSignInResult(AppCompatActivity activity, Task<GoogleSignInAccount> completedTask) {
+    private void handleSignInResult(final Map<String, Object> loginParams, AppCompatActivity activity, Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account == null) {
@@ -116,7 +116,7 @@ public class GoogleProvider extends Provider {
                 if (authCode == null) {
                     onLoginFailed("Id token no available");
                 } else {
-                    onLoginSuccess(getProviderSessions(authCode, -1L, null), _loginMode);
+                    onLoginSuccess(loginParams, getProviderSessions(authCode, -1L, null), _loginMode);
                 }
             }
             finish(activity);

@@ -72,22 +72,21 @@ public abstract class Provider implements IProvider {
     }
 
     @Override
-    public void onLoginSuccess(String providerSessions, String loginMode) {
+    public void onLoginSuccess(final Map<String, Object> loginParams, String providerSessions, String loginMode) {
         GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
                 + getName() + ", providerSessions = " + providerSessions);
         // Call intermediate load to give the client the option to trigger his own progress indicator.
         _gigyaLoginCallback.onIntermediateLoad();
         // Setup request.
-        final Map<String, Object> params = new HashMap<>();
-        params.put("providerSessions", providerSessions);
-        params.put("loginMode", loginMode);
+        loginParams.put("providerSessions", providerSessions);
+        loginParams.put("loginMode", loginMode);
         if (loginMode.equals("link") && _regToken != null) {
-            params.put("regToken", _regToken);
+            loginParams.put("regToken", _regToken);
         }
         // Notify.
         _observable.send(
                 GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN,
-                params,
+                loginParams,
                 _gigyaLoginCallback,
                 new Runnable() {
                     @Override

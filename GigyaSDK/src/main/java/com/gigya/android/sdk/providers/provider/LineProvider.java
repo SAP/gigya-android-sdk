@@ -64,7 +64,7 @@ public class LineProvider extends Provider {
     }
 
     @Override
-    public void login(Map<String, Object> loginParams, final String loginMode) {
+    public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
@@ -92,7 +92,7 @@ public class LineProvider extends Provider {
                                 return;
                             }
                             final String accessToken = result.getLineCredential().getAccessToken().getAccessToken();
-                            onLoginSuccess(getProviderSessions(accessToken, -1, null), loginMode);
+                            onLoginSuccess(loginParams, getProviderSessions(accessToken, -1, null), loginMode);
                             break;
                         case CANCEL:
                             onCanceled();

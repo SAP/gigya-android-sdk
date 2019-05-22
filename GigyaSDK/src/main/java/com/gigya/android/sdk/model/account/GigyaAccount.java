@@ -56,8 +56,6 @@ public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo - main ac
     private String verified;
     @Nullable
     private Long verifiedTimestamp;
-    @Nullable
-    private String regToken; // TODO: #baryo - shouldn't be here
 
     @Nullable
     public String getUID() {
@@ -270,14 +268,5 @@ public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo - main ac
 
     public void setVerifiedTimestamp(@Nullable Long verifiedTimestamp) {
         this.verifiedTimestamp = verifiedTimestamp;
-    }
-
-    @Nullable
-    public String getRegToken() {
-        return regToken;
-    }
-
-    public void setRegToken(@Nullable String regToken) {
-        this.regToken = regToken;
     }
 }
