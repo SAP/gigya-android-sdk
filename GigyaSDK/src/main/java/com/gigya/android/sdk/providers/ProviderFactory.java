@@ -3,8 +3,10 @@ package com.gigya.android.sdk.providers;
 import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.ApiObservable;
 import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
@@ -44,19 +46,15 @@ public class ProviderFactory implements IProviderFactory {
     public Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
         final Class<Provider> providerClazz = getProviderClass(name);
 
-        final IoCContainer tempContainer =
-                _container.clone()
-                        .bind(IApiObservable.class, observable)
-                        .bind(GigyaLoginCallback.class, gigyaLoginCallback);
-
+        final IoCContainer tempContainer = _container.clone()
+                .bind(GigyaLoginCallback.class, gigyaLoginCallback)
+                .bind(IApiObservable.class, observable);
         try {
             return tempContainer.createInstance(providerClazz);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // TODO: #baryo need to think what to do
             return null;
-        }
-        finally {
+        } finally {
             tempContainer.dispose();
         }
     }
@@ -106,7 +104,17 @@ public class ProviderFactory implements IProviderFactory {
         final Set<IProvider> usedProviders = new HashSet<>();
         final Set<String> usedProvidersNames = _psService.getSocialProviders();
         for (String name : usedProvidersNames) {
-            final IProvider provider = providerFor(name, null, null);
+            final IProvider provider = providerFor(name, new ApiObservable(), new GigyaLoginCallback() {
+                @Override
+                public void onSuccess(Object obj) {
+                    // Redundant.
+                }
+
+                @Override
+                public void onError(GigyaError error) {
+                    // Redundant.
+                }
+            });
 
             // Make sure were not getting the web view provider.
             if (provider.getName().equals(name)) {
@@ -114,6 +122,7 @@ public class ProviderFactory implements IProviderFactory {
             }
         }
 
-        return (IProvider[]) usedProviders.toArray();
+        IProvider[] array = new IProvider[usedProviders.size()];
+        return usedProviders.toArray(array);
     }
 }

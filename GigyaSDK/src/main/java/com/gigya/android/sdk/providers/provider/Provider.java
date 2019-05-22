@@ -66,6 +66,11 @@ public abstract class Provider implements IProvider {
     }
 
     @Override
+    public void logout() {
+        _observable.dispose();
+    }
+
+    @Override
     public void onCanceled() {
         _gigyaLoginCallback.onOperationCanceled();
         _observable.dispose();

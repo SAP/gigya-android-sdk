@@ -88,6 +88,7 @@ public class WeChatProvider extends Provider {
 
     @Override
     public void logout() {
+        super.logout();
         if (_api != null) {
             _api.detach();
         }

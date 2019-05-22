@@ -137,6 +137,7 @@ public class GoogleProvider extends Provider {
 
     @Override
     public void logout() {
+        super.logout();
         if (_googleClient == null) {
             if (_clientId == null) {
                 GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");

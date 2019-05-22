@@ -122,6 +122,7 @@ public class FacebookProvider extends Provider {
 
     @Override
     public void logout() {
+        super.logout();
         if (_tokenTracker != null) {
             _tokenTracker.stopTracking();
         }

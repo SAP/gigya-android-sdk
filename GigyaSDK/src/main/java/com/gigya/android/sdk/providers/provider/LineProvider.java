@@ -110,6 +110,7 @@ public class LineProvider extends Provider {
 
     @Override
     public void logout() {
+        super.logout();
         final String lineChannelID = _fileUtils.stringFromMetaData("lineChannelID");
         if (lineChannelID == null) {
             return;
