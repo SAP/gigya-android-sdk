@@ -274,7 +274,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     protected void verifyTotp(final String code) {
         final Map<String, String> arguments = new HashMap<>();
         arguments.put("code", code);
-        initTFA(GigyaDefinitions.TFA.TOTP, "register", arguments);
+        initTFA(GigyaDefinitions.TFA.TOTP, "verify", arguments);
     }
 
     /**

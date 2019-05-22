@@ -117,7 +117,7 @@ public class PersistenceService implements IPersistenceService {
      */
     @Override
     public Set<String> getSocialProviders() {
-        return getPrefs().getStringSet(PREFS_KEY_PROVIDER_SET, null);
+        return getPrefs().getStringSet(PREFS_KEY_PROVIDER_SET, new HashSet<String>());
     }
 
     /**

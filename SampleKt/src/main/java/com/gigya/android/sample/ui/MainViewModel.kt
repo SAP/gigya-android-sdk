@@ -189,6 +189,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_CODE_SENT, null))
             }
 
+            override fun onTotpTFAQrCodeAvailable(qrCode: String) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_QR_CODE, qrCode))
+            }
+
         })
     }
 

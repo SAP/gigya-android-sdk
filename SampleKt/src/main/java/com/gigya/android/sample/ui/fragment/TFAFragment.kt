@@ -195,7 +195,7 @@ class TFAFragment : Fragment(), BackPressListener {
                     GigyaDefinitions.TFA.TOTP -> {
                         when (mode) {
                             "registration" -> viewModel?.tfaRegistrationResolver?.verifyCode(GigyaDefinitions.TFA.TOTP, code)
-                            "verification" -> viewModel?.tfaVerificationResolver?.verifyCode(GigyaDefinitions.TFA.TOTP, code)
+                            "verification" -> viewModel?.tfaVerificationResolver?.startVerifyWithTotp(code)
                         }
                     }
                     GigyaDefinitions.TFA.EMAIL -> {

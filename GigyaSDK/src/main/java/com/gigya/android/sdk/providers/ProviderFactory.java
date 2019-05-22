@@ -103,6 +103,9 @@ public class ProviderFactory implements IProviderFactory {
     private IProvider[] getUsedSocialProviders() {
         final Set<IProvider> usedProviders = new HashSet<>();
         final Set<String> usedProvidersNames = _psService.getSocialProviders();
+        if (usedProvidersNames.isEmpty()) {
+            return new IProvider[0];
+        }
         for (String name : usedProvidersNames) {
             final IProvider provider = providerFor(name, new ApiObservable(), new GigyaLoginCallback() {
                 @Override

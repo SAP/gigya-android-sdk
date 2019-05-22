@@ -23,7 +23,7 @@ class GigyaSampleApplication : Application() {
 
         Gigya.setApplication(this)
         // Initialization with implicit configuration & myAccountLiveData scheme.
-        Gigya.getInstance(MyAccount::class.java)
+        //Gigya.getInstance(MyAccount::class.java)
 
         /*
         Initialization with implicit configuration & without a custom myAccountLiveData scheme.
@@ -34,7 +34,6 @@ class GigyaSampleApplication : Application() {
         /*
         Explicit initialization.
          */
-        //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
-        //Gigya.getInstance(applicationContext, MyAccount::class.java).init(getString(R.string.api_key_eu), "eu1-st1.gigya.com")
+        Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
     }
 }
