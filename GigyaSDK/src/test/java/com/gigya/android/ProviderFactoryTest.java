@@ -10,11 +10,11 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
+import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.LineProvider;
+import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
-import com.gigya.android.sdk.providers.provider.IProvider;
-import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Before;

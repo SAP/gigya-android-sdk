@@ -15,6 +15,7 @@ import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.ui.Presenter;
 
@@ -34,17 +35,20 @@ public class SessionVerificationService implements ISessionVerificationService {
     final private ISessionService _sessionService;
     final private IAccountService _accountService;
     final private IApiService _apiService;
+    final private IApiRequestFactory _requestFactory;
 
     public SessionVerificationService(Application context,
                                       Config config,
                                       ISessionService sessionService,
                                       IAccountService accountService,
-                                      IApiService apiService) {
+                                      IApiService apiService,
+                                      IApiRequestFactory requestFactory) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
+        _requestFactory = requestFactory;
 
         // Set verification interval.
         _verificationInterval = TimeUnit.MINUTES.toMillis(_config.getSessionVerificationInterval());
@@ -136,7 +140,7 @@ public class SessionVerificationService implements ISessionVerificationService {
                     _lastRequestTimestamp = System.currentTimeMillis();
                     final Map<String, Object> params = new HashMap<>();
                     params.put("include", "identities-all,loginIDs,profile,email,data");
-                    GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
+                    final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
                     _apiService.send(request, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {

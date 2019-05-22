@@ -23,6 +23,7 @@ import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.session.ISessionService;
 
@@ -34,9 +35,9 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
 
     private static final String LOG_TAG = "GigyaTFAResolver";
 
-    public GigyaTFAResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
+    public GigyaTFAResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, IApiRequestFactory requestFactory,
                             GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
-        super(config, sessionService, apiService, observable, originalResponse, loginCallback);
+        super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
     }
 
     private List<TFAProvider> activeProviders;
@@ -86,7 +87,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         // Request providers. Populate active & inactive on response.
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", _regToken);
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -128,7 +129,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         params.put("regToken", _regToken);
         params.put("provider", provider);
         params.put("mode", mode);
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_INIT, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_INIT, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -184,7 +185,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
     private void completeVerification(String api, final Map<String, Object> params) {
         GigyaLogger.debug(LOG_TAG, "completeVerification: with api = " + api);
         // Generate & send request
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, api, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(api, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -220,7 +221,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         params.put("regToken", _regToken);
         params.put("gigyaAssertion", this.gigyaAssertion);
         params.put("providerAssertion", providerAssertion);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -304,7 +305,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         // Generate & send request
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", gigyaAssertion);
-        final GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_TOTP_REGISTER, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_TOTP_REGISTER, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -394,7 +395,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         // Generate & send request
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", this.gigyaAssertion);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -435,7 +436,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         params.put(isVerify ? "phoneID" : "phone", numberOrId);
         params.put("method", method);
         params.put("lang", "eng");
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -500,7 +501,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         // Generate & send request
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", this.gigyaAssertion);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -546,7 +547,7 @@ public abstract class GigyaTFAResolver<A extends GigyaAccount> extends GigyaReso
         params.put("emailID", tfaEmail.getId());
         params.put("gigyaAssertion", this.gigyaAssertion);
         params.put("lang", "eng");
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {

@@ -3,7 +3,7 @@ package com.gigya.android.sdk.containers;
 import android.os.Build;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.account.AccountService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
@@ -39,6 +39,7 @@ public class GigyaContainer extends IoCContainer {
     public GigyaContainer() {
         bind(FileUtils.class, FileUtils.class, true)
                 .bind(Config.class, Config.class, true)
+                .bind(ConfigFactory.class, ConfigFactory.class, false)
                 .bind(IRestAdapter.class, RestAdapter.class, true)
                 .bind(IApiService.class, ApiService.class, false)
                 .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)

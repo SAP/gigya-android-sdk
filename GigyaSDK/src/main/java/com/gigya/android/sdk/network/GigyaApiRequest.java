@@ -3,17 +3,6 @@ package com.gigya.android.sdk.network;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.session.ISessionService;
-import com.gigya.android.sdk.utils.AuthUtils;
-import com.gigya.android.sdk.utils.UrlUtils;
-
-import java.util.Map;
-import java.util.TreeMap;
-
 public class GigyaApiRequest {
 
     @NonNull

@@ -1,16 +1,5 @@
 package com.gigya.android.sdk;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-
-import com.gigya.android.sdk.utils.FileUtils;
-import com.google.gson.Gson;
-
 public class Config {
 
     private String apiKey;

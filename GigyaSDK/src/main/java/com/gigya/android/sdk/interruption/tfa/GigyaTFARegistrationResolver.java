@@ -7,6 +7,7 @@ import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.TFA.PHONE;
@@ -14,8 +15,9 @@ import static com.gigya.android.sdk.GigyaDefinitions.TFA.TOTP;
 
 public class GigyaTFARegistrationResolver<A extends GigyaAccount> extends GigyaTFAResolver<A> implements IGigyaTFARegistrationResolver {
 
-    public GigyaTFARegistrationResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
-        super(config, sessionService, apiService, observable, originalResponse, loginCallback);
+    public GigyaTFARegistrationResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, IApiRequestFactory requestFactory,
+                                        GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+        super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
     }
 
     @Override

@@ -1,11 +1,9 @@
 package com.gigya.android.sdk;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
@@ -21,19 +19,15 @@ import com.gigya.android.sdk.model.account.GigyaAccountClass;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.ui.IPresenter;
-import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**

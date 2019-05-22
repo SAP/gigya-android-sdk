@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.interruption.link;
 
-import android.content.Context;
-
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -15,6 +13,7 @@ import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.IProvider;
@@ -30,9 +29,9 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     private ConflictingAccounts conflictingAccounts;
     private IProviderFactory _providerFactory;
 
-    public GigyaLinkAccountsResolver(Config config, ISessionService sessionService, IProviderFactory providerFactory,
-                                     IApiService apiService, IApiObservable observable, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
-        super(config, sessionService, apiService, observable, originalResponse, loginCallback);
+    public GigyaLinkAccountsResolver(Config config, ISessionService sessionService, IProviderFactory providerFactory, IApiService apiService, IApiObservable observable,
+                                     IApiRequestFactory requestFactory, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+        super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
         _providerFactory = providerFactory;
     }
 
@@ -47,7 +46,7 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         // Get conflicting accounts.
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", _regToken);
-        GigyaApiRequest request = GigyaApiRequest.newInstance(_config, _sessionService, GigyaDefinitions.API.API_GET_CONFLICTING_ACCOUNTS, params, RestAdapter.POST);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_GET_CONFLICTING_ACCOUNTS,params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {

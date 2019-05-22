@@ -60,7 +60,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     Using short version because SDK was initialized & myAccountLiveData scheme was already set
     in the Application class.
      */
-    private val gigya = Gigya.getInstance(application, MyAccount::class.java)
+    private val gigya = Gigya.getInstance(MyAccount::class.java)
 
     fun isLoggedIn() : Boolean = gigya.isLoggedIn
 
@@ -272,7 +272,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Login with specific supported social provider.
      */
     fun loginWithProvider(provider: String, success: (String) -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
-        gigya.login(provider, mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
+        gigya.login(provider, mutableMapOf<String, Any>(), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
@@ -365,7 +365,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Display myAccountLiveData details screen set.
      */
     fun showAccountDetails(onUpdated: () -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
-        gigya.showScreenSet("Default-ProfileUpdate", true, mutableMapOf(),
+        gigya.showScreenSet("Default-ProfileUpdate", true, mutableMapOf<String, Any>(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onHide(event: GigyaPluginEvent, reason: String?) {
                         if (reason != null) {

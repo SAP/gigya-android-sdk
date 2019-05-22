@@ -21,8 +21,9 @@ class GigyaSampleApplication : Application() {
         GigyaLogger.setDebugMode(true)
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
+        Gigya.setApplication(this)
         // Initialization with implicit configuration & myAccountLiveData scheme.
-        Gigya.getInstance(this, MyAccount::class.java)
+        Gigya.getInstance(MyAccount::class.java)
 
         /*
         Initialization with implicit configuration & without a custom myAccountLiveData scheme.

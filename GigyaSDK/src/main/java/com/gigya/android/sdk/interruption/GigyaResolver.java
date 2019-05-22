@@ -8,6 +8,7 @@ import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
 import java.lang.ref.SoftReference;
@@ -20,6 +21,7 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
     protected Config _config;
     protected ISessionService _sessionService;
     protected IApiService _apiService;
+    protected IApiRequestFactory _requestFactory;
 
     // Resolver specific.
     protected SoftReference<GigyaLoginCallback<A>> _loginCallback;
@@ -28,13 +30,14 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
 
     protected String _regToken;
 
-    public GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable,
+    public GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, IApiRequestFactory requestFactory,
                   GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
         // Dependencies.
         _config = config;
         _sessionService = sessionService;
         _apiService = apiService;
         _observable = observable;
+        _requestFactory = requestFactory;
         _originalResponse = originalResponse;
         // Handlers.
         _loginCallback = new SoftReference<>(loginCallback);

@@ -20,7 +20,8 @@ public class GigyaSampleApplication extends Application {
         GigyaLogger.setDebugMode(true);
         Log.d("GigyaSampleApplication", Gigya.VERSION);
 
+        Gigya.setApplication(this);
         // Initialization with implicit configuration & account scheme.
-        Gigya.getInstance(this, MyAccount.class);
+        Gigya.getInstance(MyAccount.class);
     }
 }
