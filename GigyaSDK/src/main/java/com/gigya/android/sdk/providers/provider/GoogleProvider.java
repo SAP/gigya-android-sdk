@@ -63,10 +63,15 @@ public class GoogleProvider extends Provider {
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
+        if (_connecting) {
+            return;
+        }
+        _connecting = true;
         try {
             final ApplicationInfo appInfo = _context.getPackageManager().getApplicationInfo(_context.getPackageName(), PackageManager.GET_META_DATA);
             _clientId = (String) appInfo.metaData.get("googleClientId");
         } catch (Exception ex) {
+            _connecting = false;
             ex.printStackTrace();
         }
         if (_clientId == null) {
@@ -160,6 +165,7 @@ public class GoogleProvider extends Provider {
                     .put(getName(), new JSONObject()
                             .put("code", tokenOrCode)).toString();
         } catch (Exception ex) {
+            _connecting = false;
             ex.printStackTrace();
         }
         return null;

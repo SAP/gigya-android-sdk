@@ -30,6 +30,8 @@ public abstract class Provider implements IProvider {
     private final GigyaLoginCallback _gigyaLoginCallback;
     final private IApiObservable _observable;
 
+    protected boolean _connecting = false;
+
     // Dynamic
     protected String _loginMode;
     private String _regToken;
@@ -67,17 +69,20 @@ public abstract class Provider implements IProvider {
 
     @Override
     public void logout() {
+        _connecting = false;
         _observable.dispose();
     }
 
     @Override
     public void onCanceled() {
+        _connecting = false;
         _gigyaLoginCallback.onOperationCanceled();
         _observable.dispose();
     }
 
     @Override
     public void onLoginSuccess(final Map<String, Object> loginParams, String providerSessions, String loginMode) {
+        _connecting = false;
         GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
                 + getName() + ", providerSessions = " + providerSessions);
         // Call intermediate load to give the client the option to trigger his own progress indicator.
@@ -107,6 +112,7 @@ public abstract class Provider implements IProvider {
 
     @Override
     public void onLoginFailed(String error) {
+        _connecting = false;
         GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
                 + getName() + ", error =" + error);
         _gigyaLoginCallback.onError(GigyaError.errorFrom(error));
@@ -115,6 +121,7 @@ public abstract class Provider implements IProvider {
 
     @Override
     public void onProviderSession(SessionInfo sessionInfo) {
+        _connecting = false;
         // Call intermediate load to give the client the option to trigger his own progress indicator
         _gigyaLoginCallback.onIntermediateLoad();
         // Persist used social provider.

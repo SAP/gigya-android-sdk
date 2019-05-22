@@ -63,6 +63,10 @@ public class FacebookProvider extends Provider {
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
+        if (_connecting) {
+            return;
+        }
+        _connecting = true;
         // Get login permissions.
         final List<String> readPermissions = getReadPermissions(loginParams);
 
@@ -139,6 +143,7 @@ public class FacebookProvider extends Provider {
                     .put("facebook", new JSONObject()
                             .put("authToken", tokenOrCode).put("tokenExpiration", expiration)).toString();
         } catch (Exception ex) {
+            _connecting = false;
             ex.printStackTrace();
         }
         return null;

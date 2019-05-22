@@ -38,6 +38,10 @@ public class WebLoginProvider extends Provider {
     @Override
     public void login(Map<String, Object> loginParams, String loginMode) {
         _loginMode = loginMode;
+        if (_connecting) {
+            return;
+        }
+        _connecting = true;
         final String loginUrl = getRequest(_context, loginParams);
         WebLoginActivity.present(_context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
 

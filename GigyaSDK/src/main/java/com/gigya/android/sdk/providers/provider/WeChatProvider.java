@@ -64,6 +64,10 @@ public class WeChatProvider extends Provider {
     @Override
     public void login(final Map<String, Object> loginParams, String loginMode) {
         _loginMode = loginMode;
+        if (_connecting) {
+            return;
+        }
+        _connecting = true;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -137,6 +141,7 @@ public class WeChatProvider extends Provider {
                     .put(getName(), new JSONObject()
                             .put("code", tokenOrCode).put("providerUID", uid)).toString();
         } catch (Exception ex) {
+            _connecting = false;
             ex.printStackTrace();
         }
         return null;

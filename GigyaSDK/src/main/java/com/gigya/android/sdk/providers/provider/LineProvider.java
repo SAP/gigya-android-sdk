@@ -66,6 +66,10 @@ public class LineProvider extends Provider {
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
         _loginMode = loginMode;
+        if (_connecting) {
+            return;
+        }
+        _connecting = true;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
@@ -128,6 +132,7 @@ public class LineProvider extends Provider {
                     .put(getName(), new JSONObject()
                             .put("authToken", tokenOrCode)).toString();
         } catch (Exception ex) {
+            _connecting = false;
             ex.printStackTrace();
         }
         return null;
