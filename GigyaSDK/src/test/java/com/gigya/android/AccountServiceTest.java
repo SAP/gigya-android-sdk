@@ -116,7 +116,6 @@ public class AccountServiceTest extends BaseGigyaTest {
         final GigyaAccount updateAccountWithRegToken = cAccountService.getAccount(); // Will generate a new new hard copy.
         updateAccount.getProfile().setLastName("Chipopo");
         updateAccount.setActive(false);
-        updateAccountWithRegToken.setRegToken("s2s.askfja0f13hfqifnf31234kn!J@KLFASMFLASFASFNASF2");
         updateAccountWithRegToken.setUID(null);
         // Act
         final Map map1 = cAccountService.calculateDiff(new Gson(), cachedAccount, updateAccount);
@@ -132,7 +131,6 @@ public class AccountServiceTest extends BaseGigyaTest {
         // Assert map2
         assertNotNull(map2);
         assertEquals(1, map2.size());
-        assertNotNull(map2.get("regToken"));
     }
 
 }

@@ -18,6 +18,7 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
@@ -62,6 +63,9 @@ public class BaseGigyaTest {
 
     @Mock
     SessionVerificationService mSessionVerificationService;
+
+    @Mock
+    IApiRequestFactory mRequestFactory;
 
     @Mock
     WebViewFragmentFactory mWebViewFragmentFactory;

@@ -61,11 +61,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _interruptionsHandler = interruptionsHandler;
     }
 
-    // TODO: #baryo move getSDKConfig handling to new GigyaApiService extends ApiService
-    // TODO: #baryo refactor GigyaApiRequest.newInstance to ApiRequestFactory
 
     //region CONDITIONALS & HELPERS
 
+    // TODO: redundant
     @SuppressWarnings("SameParameterValue")
     private boolean requestRequiresApiKey(String issuerTag) {
         if (_config.getApiKey() == null) {
@@ -75,19 +74,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         return true;
     }
 
+    // TODO: redundant
     private <V> void requestRequiresGMID(String tag, GigyaCallback<V> gigyaCallback) {
         if (_config.getGmid() == null) {
             GigyaLogger.debug(LOG_TAG, tag + " requestRequiresGMID - get lazy");
             getSDKConfig(tag, gigyaCallback);
         }
-    }
-
-    private <V> void requestRequiresValidSession(String tag, GigyaCallback<V> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.invalidSession());
-            return;
-        }
-        requestRequiresGMID(tag, gigyaCallback);
     }
 
     private void updateWithNewSession(GigyaApiResponse apiResponse) {
@@ -160,6 +152,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region CONFIG
 
+    // TODO: move getSDKConfig handling to new ApiService
+
     /**
      * Request SDK configuration.
      * Configuration request contains the base values required for continuous communication with the Gigya server.
@@ -219,26 +213,21 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //endregion
 
-    //region INTERRUPTIONS
-
-    private void resolveInterruption(GigyaApiResponse response, GigyaLoginCallback<A> gigyaLoginCallback) {
-        // Handle interruption.
-        final IApiObservable observable = new ApiObservable().register(BusinessApiService.this);
-        _interruptionsHandler.resolve(response, observable, gigyaLoginCallback);
-    }
-
-    //endregion
-
     //region OBSERVER
 
+    /*
+    This method is being used by interruption resolvers to trigger the next request of the flow
+     */
     @Override
     public synchronized void update(Observable observable, Object arg) {
+        // we're going to trigger a new call so if it gets interrupted a new observable will be created
+        observable.deleteObservers();
+
         final ApiObservable.ApiObservableData data = (ApiObservable.ApiObservableData) arg;
         final String api = data.getApi();
         switch (api) {
             case GigyaDefinitions.API.API_FINALIZE_REGISTRATION:
                 finalizeRegistration(data.getParams(), data.getLoginCallback());
-                ((ApiObservable) observable).dispose();
                 break;
             case GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN:
                 nativeSocialLogin(data.getParams(), data.getLoginCallback(), data.getCompletionHandler());
@@ -263,8 +252,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_LOGOUT, null);
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.POST);
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
+
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
@@ -341,7 +334,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_VERIFY_LOGIN, gigyaCallback);
+        // TODO: can we create a custom annotation "RequireSession"?
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
             params.put("UID", UID);
@@ -382,8 +379,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         if (params.containsKey("loginMode")) {
             final String linkMode = (String) params.get("loginMode");
             if (ObjectUtils.safeEquals(linkMode, "link")) {
-                requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
-            }
+                if (!_sessionService.isValid()) {
+                    gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
+                    return;
+                }            }
         }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
@@ -501,12 +500,15 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, gigyaCallback);
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         if (_accountService.isCachedAccount()) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.POST);
+        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -536,7 +538,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
         GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
@@ -567,7 +572,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, gigyaCallback);
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -653,7 +661,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void addConnection(String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
+        if (!_sessionService.isValid()) {
+            gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         IApiObservable observable = new ApiObservable().register(this);
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
@@ -670,7 +681,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        requestRequiresValidSession(GigyaDefinitions.API.API_REMOVE_CONNECTION, gigyaCallback);
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);
         final String UID = _accountService.getAccount().getUID();

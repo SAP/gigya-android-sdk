@@ -2,6 +2,7 @@ package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.ApiObservable;
 import com.gigya.android.sdk.api.IApiObservable;
@@ -26,7 +27,6 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
 
 public class ProviderFactory implements IProviderFactory {
-
     final private IoCContainer _container;
     final private Context _context;
     final private FileUtils _fileUtils;
@@ -46,13 +46,15 @@ public class ProviderFactory implements IProviderFactory {
     public Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
         final Class<Provider> providerClazz = getProviderClass(name);
 
-        final IoCContainer tempContainer = _container.clone()
+        final IoCContainer tempContainer =
+                _container.clone()
                 .bind(GigyaLoginCallback.class, gigyaLoginCallback)
                 .bind(IApiObservable.class, observable);
         try {
             return tempContainer.createInstance(providerClazz);
         } catch (Exception e) {
-            // TODO: #baryo need to think what to do
+            // TODO: #baryo
+            GigyaLogger.error("TAG", "missing dependency for creating provider");
             return null;
         } finally {
             tempContainer.dispose();

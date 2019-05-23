@@ -51,8 +51,8 @@ public class GigyaError extends GigyaResponseModel {
         return new GigyaError(400, message, "");
     }
 
-    public static GigyaError invalidSession() {
-        return new GigyaError(200001, "Invalid session", "");
+    public static GigyaError unauthorizedUser() {
+        return new GigyaError(403005, "Unauthorized user", "");
     }
 
     public static GigyaError cancelledOperation() {

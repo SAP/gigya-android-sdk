@@ -59,7 +59,7 @@ public class InterruptionHandler implements IInterruptionsHandler {
                     loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
                     break;
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-                    // TODO: #baryo resolver?
+                    // TODO: refactor to PendingRegistrationResolver that'll setAccount and then finalize.
                     loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
                     break;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
@@ -85,16 +85,19 @@ public class InterruptionHandler implements IInterruptionsHandler {
                     finalizeRegistration(apiResponse, observable, loginCallback);
                     break;
                 default:
-                    // Unsupported error
-                    loginCallback.onError(GigyaError.fromResponse(apiResponse));
+                    handleUnsupportedResponse(apiResponse, observable, loginCallback);
                     break;
             }
         } catch (Exception e) {
             // error with creating resolvers - could be missing container dependencies
             GigyaLogger.error(LOG_TAG, e.getMessage());
-
-            loginCallback.onError(GigyaError.fromResponse(apiResponse));
+            handleUnsupportedResponse(apiResponse, observable, loginCallback);
         }
+    }
+
+    private void handleUnsupportedResponse(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
+        observable.dispose();
+        loginCallback.onError(GigyaError.fromResponse(apiResponse));
     }
 
     private String getRegToken(GigyaApiResponse apiResponse) {
@@ -111,19 +114,4 @@ public class InterruptionHandler implements IInterruptionsHandler {
         // Notify observer.
         observable.send(api, params, loginCallback);
     }
-
-
-    // TODO: #baryo remove?
-//    // Supported interruptions.
-//    private final List<Integer> _interruptionList = Arrays.asList(
-//            GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION,
-//            GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION,
-//            GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS,
-//            GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION,
-//            GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION,
-//            GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED);
-//
-//    public boolean isSupportedInterruption(int errorCode) {
-//        return _interruptionList.contains(errorCode);
-//    }
 }

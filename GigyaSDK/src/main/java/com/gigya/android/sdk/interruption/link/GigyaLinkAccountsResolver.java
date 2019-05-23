@@ -29,8 +29,16 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     private ConflictingAccounts conflictingAccounts;
     private IProviderFactory _providerFactory;
 
-    public GigyaLinkAccountsResolver(Config config, ISessionService sessionService, IProviderFactory providerFactory, IApiService apiService, IApiObservable observable,
-                                     IApiRequestFactory requestFactory, GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+    //
+
+    public GigyaLinkAccountsResolver(Config config,
+                                     ISessionService sessionService,
+                                     IProviderFactory providerFactory,
+                                     IApiService apiService,
+                                     IApiRequestFactory requestFactory,
+                                     IApiObservable observable,
+                                     GigyaApiResponse originalResponse,
+                                     GigyaLoginCallback<A> loginCallback) {
         super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
         _providerFactory = providerFactory;
     }

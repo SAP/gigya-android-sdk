@@ -86,14 +86,16 @@ public class Gigya<T extends GigyaAccount> {
             try {
                 INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication?)");
+                GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
                 e.printStackTrace();
+                // TODO: throw
             }
         }
         // Check scheme. If already set log an error.
         final Class schema = INSTANCE.getAccountSchema();
         if (schema != accountClazz) {
             GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+            // TODO: throw
         }
         return INSTANCE;
     }
@@ -189,6 +191,8 @@ public class Gigya<T extends GigyaAccount> {
         if (_config.getAccountCacheTime() != 0) {
             _accountService.nextAccountInvalidationTimestamp();
         }
+
+        // TODO: throw if there's no apikey
     }
 
     //endregion
@@ -345,14 +349,14 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Request account info.
      *
-     * @param overrideCache Should override the account caching option. When set to true, the SDK will not cache the account object.
+     * @param invalidateCache Should override the account caching option. When set to true, the SDK will not cache the account object.
      * @param gigyaCallback Response listener callback.
      */
     @SuppressWarnings("unused")
-    public void getAccount(final boolean overrideCache, GigyaCallback<T> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + overrideCache);
-        if (overrideCache) {
-            _accountService.setAccountOverrideCache(overrideCache);
+    public void getAccount(final boolean invalidateCache, GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount: overrideCache = " + invalidateCache);
+        if (invalidateCache) {
+            _accountService.invalidateAccount();
         }
         _businessApiService.getAccount(gigyaCallback);
     }

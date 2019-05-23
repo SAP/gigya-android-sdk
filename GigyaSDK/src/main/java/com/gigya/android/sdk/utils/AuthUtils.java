@@ -14,7 +14,7 @@ public class AuthUtils {
 
         // Add nonce.
         final Random random = new Random();
-        String nonce = Long.toString(System.currentTimeMillis()) + "_" + random.nextInt();
+        String nonce = System.currentTimeMillis() + "_" + random.nextInt();
         params.put("nonce", nonce);
 
         // Add signature.

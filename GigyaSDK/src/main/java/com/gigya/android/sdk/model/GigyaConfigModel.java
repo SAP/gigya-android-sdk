@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.model;
 
+
+// TODO: move next to ApiService
 /**
  * Gigya SDK main configuration model.
  */

@@ -25,10 +25,6 @@ public class GigyaBiometric {
     public static synchronized GigyaBiometric getInstance() {
         if (_sharedInstance == null) {
             IoCContainer container = Gigya.getContainer();
-            if (!container.isBound(Context.class)) {
-                // TODO: #baryo throw error about using biometrics before Gigya
-                return null;
-            }
 
             container.bind(GigyaBiometric.class, GigyaBiometric.class, true);
 
@@ -39,8 +35,9 @@ public class GigyaBiometric {
             try {
                 _sharedInstance = container.get(GigyaBiometric.class);
             } catch (Exception e) {
+                GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?)");
                 e.printStackTrace();
-                // TODO: #baryo how do we log programmatical errors? (this should never happen)
+                // TODO: throw
                 return null;
             }
         }
@@ -77,6 +74,7 @@ public class GigyaBiometric {
      */
     public void setAnimationForPrePieDevices(boolean animate) {
         if (!GigyaBiometricUtils.isPromptEnabled()) {
+            // TODO: updateAnimationState as an abstract method in the base class - ImplV28 should throw
             ((BiometricImplV23) _impl).updateAnimationState(animate);
         }
     }
