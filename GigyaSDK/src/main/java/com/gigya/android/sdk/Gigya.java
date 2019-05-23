@@ -3,11 +3,8 @@ package com.gigya.android.sdk;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
@@ -280,22 +277,13 @@ public class Gigya<T extends GigyaAccount> {
      * Logout of Gigya services.
      * This will clean all session related data persistence.
      */
-    @SuppressWarnings("deprecation")
-    @SuppressLint("ObsoleteSdkInt")
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
         _businessApiService.logout(null);
         _sessionService.clear(true);
 
-        // TODO: #baryo move to the class responsible for screensets - Presenter?
-        // Clearing cached cookies.
-        CookieManager cookieManager = CookieManager.getInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.flush();
-        } else {
-            CookieSyncManager.createInstance(_context);
-            cookieManager.removeAllCookie();
-        }
+        // Clear presenter related data (cookies).
+        _presenter.clearOnLogout();
 
         _providerFactory.logoutFromUsedSocialProviders();
     }

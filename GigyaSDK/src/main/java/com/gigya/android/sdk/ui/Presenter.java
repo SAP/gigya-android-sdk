@@ -1,11 +1,14 @@
 package com.gigya.android.sdk.ui;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
@@ -73,6 +76,18 @@ public class Presenter implements IPresenter {
                 _pfgFactory.showProviderFragment(activity, businessApiService, params, args, gigyaLoginCallback);
             }
         });
+    }
+
+    @Override
+    public void clearOnLogout() {
+        // Clearing cached cookies.
+        CookieManager cookieManager = CookieManager.getInstance();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.flush();
+        } else {
+            CookieSyncManager.createInstance(_context);
+            cookieManager.removeAllCookie();
+        }
     }
 
     @Override

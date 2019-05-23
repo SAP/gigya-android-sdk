@@ -17,4 +17,5 @@ public interface IPresenter {
 
     String getPresentationUrl(Map<String, Object> params, String requestType);
 
+    void clearOnLogout();
 }
