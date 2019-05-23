@@ -18,6 +18,7 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -35,9 +36,14 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 
 public class FacebookProvider extends Provider {
 
-    public FacebookProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                            IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+    public FacebookProvider(Context context,
+                            Config config,
+                            ISessionService sessionService,
+                            IAccountService accountService,
+                            IPersistenceService persistenceService,
+                            IBusinessApiService businessApiService,
+                            GigyaLoginCallback gigyaLoginCallback) {
+        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
     }
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};

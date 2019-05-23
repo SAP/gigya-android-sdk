@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.ApiObservable;
-import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -43,13 +41,12 @@ public class ProviderFactory implements IProviderFactory {
     }
 
     @Override
-    public Provider providerFor(String name, IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+    public Provider providerFor(String name, GigyaLoginCallback gigyaLoginCallback) {
         final Class<Provider> providerClazz = getProviderClass(name);
 
         final IoCContainer tempContainer =
                 _container.clone()
-                .bind(GigyaLoginCallback.class, gigyaLoginCallback)
-                .bind(IApiObservable.class, observable);
+                        .bind(GigyaLoginCallback.class, gigyaLoginCallback);
         try {
             return tempContainer.createInstance(providerClazz);
         } catch (Exception e) {
@@ -109,7 +106,7 @@ public class ProviderFactory implements IProviderFactory {
             return new IProvider[0];
         }
         for (String name : usedProvidersNames) {
-            final IProvider provider = providerFor(name, new ApiObservable(), new GigyaLoginCallback() {
+            final IProvider provider = providerFor(name, new GigyaLoginCallback() {
                 @Override
                 public void onSuccess(Object obj) {
                     // Redundant.

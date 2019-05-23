@@ -12,6 +12,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -41,10 +42,10 @@ public class LineProvider extends Provider {
                         ISessionService sessionService,
                         IAccountService accountService,
                         IPersistenceService persistenceService,
-                        IApiObservable observable,
+                        IBusinessApiService businessApiService,
                         FileUtils fileUtils,
                         GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
         _fileUtils = fileUtils;
     }
 

@@ -15,6 +15,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
@@ -41,9 +42,14 @@ public class GoogleProvider extends Provider {
     private GoogleSignInClient _googleClient;
     private String _clientId;
 
-    public GoogleProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                          IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+    public GoogleProvider(Context context,
+                          Config config,
+                          ISessionService sessionService,
+                          IAccountService accountService,
+                          IPersistenceService persistenceService,
+                          IBusinessApiService businessApiService,
+                          GigyaLoginCallback gigyaLoginCallback) {
+        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
     }
 
     @Override

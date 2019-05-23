@@ -9,7 +9,7 @@ import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -25,9 +25,14 @@ public class WebLoginProvider extends Provider {
 
     private static final String LOG_TAG = "WebLoginProvider";
 
-    public WebLoginProvider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                            IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, observable, gigyaLoginCallback);
+    public WebLoginProvider(Context context,
+                            Config config,
+                            ISessionService sessionService,
+                            IAccountService accountService,
+                            IPersistenceService persistenceService,
+                            IBusinessApiService businessApiService,
+                            GigyaLoginCallback gigyaLoginCallback) {
+        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
     }
 
     @Override

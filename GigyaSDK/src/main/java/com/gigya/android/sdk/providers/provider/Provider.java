@@ -7,7 +7,9 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -28,7 +30,7 @@ public abstract class Provider implements IProvider {
     private final IAccountService _accountService;
     final private IPersistenceService _psService;
     private final GigyaLoginCallback _gigyaLoginCallback;
-    final private IApiObservable _observable;
+    private final IBusinessApiService _businessApiService;
 
     protected boolean _connecting = false;
 
@@ -38,14 +40,14 @@ public abstract class Provider implements IProvider {
     IProviderTokenTrackerListener _tokenTrackingListener;
 
     public Provider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
-                    IApiObservable observable, GigyaLoginCallback gigyaLoginCallback) {
+                    IBusinessApiService businessApiService, GigyaLoginCallback gigyaLoginCallback) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _psService = persistenceService;
-        _observable = observable;
         _gigyaLoginCallback = gigyaLoginCallback;
+        _businessApiService = businessApiService;
 
         if (supportsTokenTracking()) {
             _tokenTrackingListener = new IProviderTokenTrackerListener() {
@@ -57,11 +59,7 @@ public abstract class Provider implements IProvider {
                     final Map<String, Object> params = new HashMap<>();
                     params.put("providerSession", providerSession);
                     // Notify.
-                    _observable.send(
-                            GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION,
-                            params,
-                            permissionsCallback
-                    );
+                    _businessApiService.refreshNativeProviderSession(params, permissionsCallback);
                 }
             };
         }
@@ -70,14 +68,12 @@ public abstract class Provider implements IProvider {
     @Override
     public void logout() {
         _connecting = false;
-        _observable.dispose();
     }
 
     @Override
     public void onCanceled() {
         _connecting = false;
         _gigyaLoginCallback.onOperationCanceled();
-        _observable.dispose();
     }
 
     @Override
@@ -93,21 +89,19 @@ public abstract class Provider implements IProvider {
         if (loginMode.equals("link") && _regToken != null) {
             loginParams.put("regToken", _regToken);
         }
-        // Notify.
-        _observable.send(
-                GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN,
-                loginParams,
-                _gigyaLoginCallback,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        _psService.addSocialProvider(getName());
-                        if (supportsTokenTracking()) {
-                            trackTokenChange();
-                        }
-                    }
+
+        Runnable completionHandler = new Runnable() {
+            @Override
+            public void run() {
+                _psService.addSocialProvider(getName());
+                if (supportsTokenTracking()) {
+                    trackTokenChange();
                 }
-        );
+            }
+        };
+
+        // Notify.
+        _businessApiService.nativeSocialLogin(loginParams, _gigyaLoginCallback, completionHandler);
     }
 
     @Override
@@ -116,7 +110,6 @@ public abstract class Provider implements IProvider {
         GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
                 + getName() + ", error =" + error);
         _gigyaLoginCallback.onError(GigyaError.errorFrom(error));
-        _observable.dispose();
     }
 
     @Override
@@ -131,11 +124,7 @@ public abstract class Provider implements IProvider {
         // Force fetch account.
         _accountService.invalidateAccount();
 
-        _observable.send(
-                GigyaDefinitions.API.API_GET_ACCOUNT_INFO,
-                null,
-                _gigyaLoginCallback
-        );
+        _businessApiService.getAccount(_gigyaLoginCallback);
     }
 
     @Override
