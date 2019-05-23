@@ -2,6 +2,7 @@ package com.gigya.android.sdk.ui.new_plugin_impl;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,13 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.R;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
 
 @SuppressLint("ValidFragment")
@@ -32,7 +32,6 @@ public class GigyaPluginFragment extends DialogFragment implements IGigyaPluginF
 
     private WebView _webView;
     private ProgressBar _progressBar;
-    private TextView _titleTextView;
 
     public GigyaPluginFragment(Config config, IWebBridgeFactory webBridgeFactory) {
         _config = config;
@@ -61,6 +60,7 @@ public class GigyaPluginFragment extends DialogFragment implements IGigyaPluginF
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         setUpUiElements(view);
         setUpWebViewElement();
+        setUpFileInteractions();
         loadUrl(view);
     }
 
@@ -68,16 +68,14 @@ public class GigyaPluginFragment extends DialogFragment implements IGigyaPluginF
 
     @Override
     public void setUpUiElements(final View fragmentView) {
+        // Reference UI elements. Must be called first!
         _webView = fragmentView.findViewById(R.id.web_frag_web_view);
         _progressBar = fragmentView.findViewById(R.id.web_frag_progress_bar);
-        _titleTextView = fragmentView.findViewById(R.id.web_frag_title_text);
     }
 
     @Override
     public void setUpWebViewElement() {
-        _webView.setWebViewClient(new WebViewClient(){
-
-        });
+        _webView.setWebViewClient(_webViewClient);
     }
 
     @Override
@@ -109,4 +107,27 @@ public class GigyaPluginFragment extends DialogFragment implements IGigyaPluginF
     public void evaluatePermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
     }
+
+    private GigyaPluginWebViewClient _webViewClient = new GigyaPluginWebViewClient(new IGigyaPluginWebViewClientInteractions() {
+        @Override
+        public void onPageStarted() {
+            _progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onPageError(GigyaPluginEvent errorEvent) {
+            _pluginCallback.onError(errorEvent);
+        }
+
+        @Override
+        public void onUrlInvoke(String url) {
+            // TODO: 2019-05-23 Bridge invocation.
+        }
+
+        @Override
+        public void onBrowserIntent(Uri uri) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(browserIntent);
+        }
+    });
 }

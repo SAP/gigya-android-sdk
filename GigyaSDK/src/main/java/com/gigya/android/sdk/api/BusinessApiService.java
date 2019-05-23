@@ -64,24 +64,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region CONDITIONALS & HELPERS
 
-    // TODO: redundant
-    @SuppressWarnings("SameParameterValue")
-    private boolean requestRequiresApiKey(String issuerTag) {
-        if (_config.getApiKey() == null) {
-            GigyaLogger.error(LOG_TAG, issuerTag + " requestRequiresApiKey: ApiService key missing");
-            return false;
-        }
-        return true;
-    }
-
-    // TODO: redundant
-    private <V> void requestRequiresGMID(String tag, GigyaCallback<V> gigyaCallback) {
-        if (_config.getGmid() == null) {
-            GigyaLogger.debug(LOG_TAG, tag + " requestRequiresGMID - get lazy");
-            getSDKConfig(tag, gigyaCallback);
-        }
-    }
-
     private void updateWithNewSession(GigyaApiResponse apiResponse) {
         if (apiResponse.containsNested("sessionInfo.sessionSecret")) {
             final SessionInfo newSession = apiResponse.getField("sessionInfo", SessionInfo.class);
@@ -146,69 +128,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 gigyaCallback.onError(gigyaError);
             }
         });
-    }
-
-    //endregion
-
-    //region CONFIG
-
-    // TODO: move getSDKConfig handling to new ApiService
-
-    /**
-     * Request SDK configuration.
-     * Configuration request contains the base values required for continuous communication with the Gigya server.
-     *
-     * @param nextApiTag    The API tag which initiated the call.
-     * @param gigyaCallback Response callback.
-     * @param <V>           Typed response class.
-     */
-    private <V> void getSDKConfig(final String nextApiTag, final GigyaCallback<V> gigyaCallback) {
-        if (requestRequiresApiKey("getConfig")) {
-            // Generate request.
-            final Map<String, Object> params = new HashMap<>();
-            params.put("include", "permissions,ids,appIds");
-            params.put("ApiKey", _config.getApiKey());
-            final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SDK_CONFIG, params, RestAdapter.GET);
-            _apiService.send(request, true, new ApiService.IApiServiceResponse() {
-
-                @Override
-                public void onApiSuccess(GigyaApiResponse response) {
-                    if (response.getErrorCode() == 0) {
-                        final GigyaConfigModel parsed = response.parseTo(GigyaConfigModel.class);
-                        if (parsed == null) {
-                            // Parsing error.
-                            gigyaCallback.onError(GigyaError.fromResponse(response));
-                            onConfigError(nextApiTag);
-                            return;
-                        }
-                        onConfigResponse(parsed);
-                    } else {
-                        gigyaCallback.onError(GigyaError.fromResponse(response));
-                        onConfigError(nextApiTag);
-                    }
-                }
-
-                @Override
-                public void onApiError(GigyaError gigyaError) {
-                    gigyaCallback.onError(gigyaError);
-                    onConfigError(nextApiTag);
-                }
-            });
-        }
-    }
-
-    private void onConfigResponse(GigyaConfigModel response) {
-        _config.setUcid(response.getIds().getUcid());
-        _config.setGmid(response.getIds().getGmid());
-        _sessionService.save(null); // Will save only config instances.
-        _apiService.release();
-    }
-
-    private void onConfigError(String nextApiTag) {
-        if (nextApiTag != null) {
-            _apiService.cancel(nextApiTag);
-        }
-        _apiService.release();
     }
 
     //endregion
@@ -292,7 +211,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
-        requestRequiresGMID(GigyaDefinitions.API.API_LOGIN, gigyaLoginCallback);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -375,7 +293,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback, final Runnable optionalCompletionHandler) {
-        requestRequiresGMID(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, gigyaLoginCallback);
         if (params.containsKey("loginMode")) {
             final String linkMode = (String) params.get("loginMode");
             if (ObjectUtils.safeEquals(linkMode, "link")) {
@@ -447,7 +364,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void register(final Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
-        requestRequiresGMID(GigyaDefinitions.API.API_INIT_REGISTRATION, gigyaLoginCallback);
         // #1 Chain init registration.
         GigyaApiRequest initRequest = _reqFactory.create(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(initRequest, false, new ApiService.IApiServiceResponse() {

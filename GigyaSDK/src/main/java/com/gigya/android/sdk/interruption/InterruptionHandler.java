@@ -4,6 +4,7 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IApiObservable;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;

@@ -74,7 +74,7 @@ public class GigyaPluginWebViewClient extends WebViewClient {
         } else if (requiresInvocation(uriString)) {
             _interactions.onUrlInvoke(uriString);
         } else {
-            _interactions.onBrowserIntent(uriString);
+            _interactions.onBrowserIntent(uri);
         }
     }
 
@@ -98,7 +98,7 @@ interface IGigyaPluginWebViewClientInteractions {
 
     void onUrlInvoke(final String url);
 
-    void onBrowserIntent(final String url);
+    void onBrowserIntent(final Uri uri);
 }
 
 
