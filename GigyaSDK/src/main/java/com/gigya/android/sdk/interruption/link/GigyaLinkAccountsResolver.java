@@ -1,22 +1,19 @@
 package com.gigya.android.sdk.interruption.link;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.account.ConflictingAccounts;
 import com.gigya.android.sdk.model.account.GigyaAccount;
-import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.IApiRequestFactory;
-import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
-import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
 
 import java.util.HashMap;
@@ -26,10 +23,9 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
 
     private static final String LOG_TAG = "GigyaLinkAccountsResolver";
 
-    private ConflictingAccounts conflictingAccounts;
+    private ConflictingAccounts _conflictingAccounts;
     private IProviderFactory _providerFactory;
-
-    //
+    private IBusinessApiService<A> _businessApiService;
 
     public GigyaLinkAccountsResolver(Config config,
                                      ISessionService sessionService,
@@ -38,29 +34,28 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
                                      IApiRequestFactory requestFactory,
                                      IApiObservable observable,
                                      GigyaApiResponse originalResponse,
+                                     IBusinessApiService<A> businessApiService,
                                      GigyaLoginCallback<A> loginCallback) {
         super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
         _providerFactory = providerFactory;
+        _businessApiService = businessApiService;
     }
 
     @Override
     public ConflictingAccounts getConflictingAccounts() {
-        return conflictingAccounts;
+        return _conflictingAccounts;
     }
 
     @Override
     public void start() {
         GigyaLogger.debug(LOG_TAG, "init: sending fetching conflicting accounts");
         // Get conflicting accounts.
-        final Map<String, Object> params = new HashMap<>();
-        params.put("regToken", _regToken);
-        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_GET_CONFLICTING_ACCOUNTS,params, RestAdapter.POST);
-        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+        _businessApiService.getConflictingAccounts(_regToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onApiSuccess(GigyaApiResponse response) {
+            public void onSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
-                    GigyaLinkAccountsResolver.this.conflictingAccounts = response.getField("conflictingAccount", ConflictingAccounts.class);
-                    if (GigyaLinkAccountsResolver.this.conflictingAccounts == null) {
+                    _conflictingAccounts = response.getField("conflictingAccount", ConflictingAccounts.class);
+                    if (_conflictingAccounts == null) {
                         forwardError(GigyaError.generalError());
                     } else {
                         if (isAttached()) {
@@ -73,8 +68,8 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
             }
 
             @Override
-            public void onApiError(GigyaError gigyaError) {
-                forwardError(gigyaError);
+            public void onError(GigyaError error) {
+                forwardError(error);
             }
         });
     }
@@ -82,7 +77,7 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     @Override
     public void clear() {
         _regToken = null;
-        this.conflictingAccounts = null;
+        _conflictingAccounts = null;
         if (isAttached()) {
             _loginCallback.clear();
         }
@@ -90,25 +85,25 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
 
     @Override
     public void linkToSite(String loginID, String password) {
+        GigyaLogger.debug(LOG_TAG, "linkToSite: with loginID = " + loginID);
         if (isAttached()) {
             final Map<String, Object> params = new HashMap<>();
             params.put("loginID", loginID);
             params.put("password", password);
             params.put("loginMode", "link");
             params.put("regToken", _regToken);
-            final String api = GigyaDefinitions.API.API_LOGIN;
-            _observable.send(api, params, _loginCallback.get());
+            _businessApiService.login(params, _loginCallback.get());
         }
     }
 
     @Override
     public void linkToSocial(String providerName) {
+        GigyaLogger.debug(LOG_TAG, "linkToSocial: with provider" + providerName);
         if (isAttached()) {
-            IProvider provider = _providerFactory.providerFor(providerName, _observable, _loginCallback.get());
-            provider.setRegToken(_regToken);
-            Map<String, Object> params = new HashMap<>();
-            params.put("provider", provider);
-            provider.login(params, "link");
+            final Map<String, Object> params = new HashMap<>();
+            params.put("loginMode", "link");
+            params.put("regToken", _regToken);
+            _businessApiService.login(providerName, params, _loginCallback.get());
         }
     }
 }

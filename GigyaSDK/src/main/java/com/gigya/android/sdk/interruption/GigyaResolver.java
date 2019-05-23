@@ -30,8 +30,13 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
 
     protected String _regToken;
 
-    public GigyaResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, IApiRequestFactory requestFactory,
-                  GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
+    public GigyaResolver(Config config,
+                         ISessionService sessionService,
+                         IApiService apiService,
+                         IApiObservable observable,
+                         IApiRequestFactory requestFactory,
+                         GigyaApiResponse originalResponse,
+                         GigyaLoginCallback<A> loginCallback) {
         // Dependencies.
         _config = config;
         _sessionService = sessionService;

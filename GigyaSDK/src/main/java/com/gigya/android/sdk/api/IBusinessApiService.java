@@ -39,4 +39,6 @@ public interface IBusinessApiService<A> {
     void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
 
     void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback);
+
+    void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
 }

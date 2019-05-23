@@ -7,7 +7,6 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
-import com.gigya.android.sdk.model.GigyaConfigModel;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
@@ -240,7 +239,15 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         IApiObservable observable = new ApiObservable().register(this);
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, observable, gigyaLoginCallback);
-        provider.login(params, "standard");
+        if (params.containsKey("regToken")) {
+            final String regToken = (String) params.get("regToken");
+            provider.setRegToken(regToken);
+        }
+        String loginMode = "standard";
+        if (params.containsKey("loginMode")) {
+            loginMode = (String) params.get("loginMode");
+        }
+        provider.login(params, loginMode);
     }
 
     /**
@@ -293,14 +300,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback, final Runnable optionalCompletionHandler) {
-        if (params.containsKey("loginMode")) {
-            final String linkMode = (String) params.get("loginMode");
-            if (ObjectUtils.safeEquals(linkMode, "link")) {
-                if (!_sessionService.isValid()) {
-                    gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
-                    return;
-                }            }
-        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -628,4 +627,22 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     //endregion
+
+    @Override
+    public void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", regToken);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_CONFLICTING_ACCOUNTS, params, RestAdapter.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                 callback.onSuccess(response);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                callback.onError(gigyaError);
+            }
+        });
+    }
 }
