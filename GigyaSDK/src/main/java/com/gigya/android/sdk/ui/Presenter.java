@@ -26,6 +26,14 @@ import java.util.Map;
 
 public class Presenter implements IPresenter {
 
+    public static class Consts {
+        public static final String REDIRECT_URL_SCHEME = "gsapi";
+        public static final String ON_JS_LOAD_ERROR = "on_js_load_error";
+        public static final String ON_JS_EXCEPTION = "on_js_exception";
+        public static final String CONTAINER_ID = "pluginContainer";
+        public static final int JS_TIMEOUT = 10000;
+    }
+
     final private Context _context;
     final private Config _config;
     final private IWebViewFragmentFactory _pfgFactory;
@@ -131,8 +139,6 @@ public class Presenter implements IPresenter {
 
     //region HOST ACTIVITY LIFECYCLE CALLBACKS TRACKING
 
-    // TODO: 03/01/2019 When dropping support for <17 devices remove static references!!! Use Binder instead to attach the callbacks to the activity intent.
-
     private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
     private static SparseArray<WebLoginActivity.WebLoginActivityCallback> webLoginLifecycleSparse = new SparseArray<>();
 
@@ -160,7 +166,9 @@ public class Presenter implements IPresenter {
         lifecycleSparse.remove(id);
     }
 
-    public static void flushWebLoginLifecycleCallback(int id) { webLoginLifecycleSparse.remove(id);}
+    public static void flushWebLoginLifecycleCallback(int id) {
+        webLoginLifecycleSparse.remove(id);
+    }
 
     public static void flush() {
         lifecycleSparse.clear();

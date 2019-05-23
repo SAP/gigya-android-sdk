@@ -27,6 +27,8 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
 import com.gigya.android.sdk.session.SessionVerificationService;
+import com.gigya.android.sdk.ui.new_plugin_impl.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaPluginFragment;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
@@ -55,6 +57,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionsHandler.class, InterruptionHandler.class, true)
+                .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IoCContainer.class, this);
     }
 }

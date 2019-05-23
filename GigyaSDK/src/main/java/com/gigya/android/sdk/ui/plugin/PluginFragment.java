@@ -193,7 +193,7 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
 
     //endregion
 
-    //region WEBVIEW SETUP
+    //region WEB VIEW SETUP
 
     @Override
     protected void setUpWebView() {
@@ -338,6 +338,8 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
         startActivityForResult(chooserIntent, FILE_CHOOSER_MEDIA_REQUEST_CODE);
     }
 
+    // TODO: 2019-05-23 #tal move to file utils.
+
     @SuppressLint("SimpleDateFormat")
     private File createImageFile() throws IOException {
         final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -354,6 +356,8 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     //endregion
 
     //region HTML & PARAMETERS
+
+    // TODO: 2019-05-23 # Tal move to presenter class.
 
     private String getHTML() {
         organizeParameters();
@@ -393,6 +397,8 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
                 _config.getApiKey(), CONTAINER_ID, "", _plugin, flattenedParams);
     }
 
+    // TODO: 2019-05-23 #tal can be included in getHtml() method. Needs some code cleanup to match with iOS.
+
     private void organizeParameters() {
         _params.put("containerID", CONTAINER_ID);
         if (_params.containsKey("commentsUI")) {
@@ -417,6 +423,8 @@ public class PluginFragment<T extends GigyaAccount> extends WebViewFragment impl
     //endregion
 
     //region WEB BRIDGE INTERFACING
+
+    // TODO: 2019-05-23 #tal refactor bridge interactions.
 
     private Handler _uiHandler = new Handler(Looper.getMainLooper());
 
