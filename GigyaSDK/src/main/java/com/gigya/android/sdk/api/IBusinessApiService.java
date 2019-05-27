@@ -1,8 +1,16 @@
 package com.gigya.android.sdk.api;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
+import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
+import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
+import com.gigya.android.sdk.model.tfa.TFAInitModel;
+import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
+import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
+import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 
@@ -41,4 +49,28 @@ public interface IBusinessApiService<A> {
     void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback);
 
     void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
+
+    void getTFAProviders(final String regToken, final GigyaCallback<TFAProvidersModel> callback);
+
+    void initTFA(final String regToken, final String provider, final String mode, GigyaCallback<TFAInitModel> callback);
+
+    void finalizeTFA(final String regToken, final String gigyaAssertion, final String providerAssertion, GigyaCallback<GigyaApiResponse> callback);
+
+    void registerTotp(final String gigyaAssertion, GigyaCallback<TFATotpRegisterModel> callback);
+
+    void verifyTotp(final String code, final String gigyaAssertion, final String sctToken, GigyaCallback<TFACompleteVerificationModel> callback);
+
+    void getRegisteredPhoneNumbers(final String gigyaAssertion, GigyaCallback<TFAGetRegisteredPhoneNumbersModel> callback);
+
+    void registerPhoneNumber(final String gigyaAssertion, String phoneNumber, String method, GigyaCallback<TFAVerificationCodeModel> callback);
+
+    void verifyPhoneNumber(final String gigyaAssertion, String phoneId, String method, GigyaCallback<TFAVerificationCodeModel> callback);
+
+    void completePhoneVerification(final String gigyaAssertion, final String code, final String phvToken, GigyaCallback<TFACompleteVerificationModel> callback);
+
+    void getRegisteredEmails(final String gigyaAssertion, GigyaCallback<TFAGetEmailsModel> callback);
+
+    void verifyEmail(final String emailId, final String gigyaAssertion, GigyaCallback<TFAVerificationCodeModel> callback);
+
+    void completeEmailVerification(final String gigyaAssertion, final String code, final String phvToken, GigyaCallback<TFACompleteVerificationModel> callback);
 }

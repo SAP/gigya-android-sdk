@@ -1,19 +1,13 @@
 package com.gigya.android.sdk.interruption;
 
-import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.IApiObservable;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class InterruptionHandler implements IInterruptionsHandler {
 
@@ -39,7 +33,7 @@ public class InterruptionHandler implements IInterruptionsHandler {
     }
 
     @Override
-    public void resolve(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
+    public void resolve(GigyaApiResponse apiResponse, GigyaLoginCallback loginCallback) {
         if (!_enabled) {
             loginCallback.onError(GigyaError.fromResponse(apiResponse));
             return;
@@ -47,7 +41,6 @@ public class InterruptionHandler implements IInterruptionsHandler {
 
         final IoCContainer resolverContainer =
                 _container.clone()
-                        .bind(IApiObservable.class, observable)
                         .bind(GigyaApiResponse.class, apiResponse)
                         .bind(GigyaLoginCallback.class, loginCallback);
 
@@ -68,51 +61,34 @@ public class InterruptionHandler implements IInterruptionsHandler {
                     loginCallback.onPendingPasswordChange(apiResponse);
                     break;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    GigyaLinkAccountsResolver linkAccountsResolver =
-                            resolverContainer.createInstance(GigyaLinkAccountsResolver.class);
-                    linkAccountsResolver.start();
+                    resolverContainer.createInstance(GigyaLinkAccountsResolver.class);
                     break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
-                    GigyaTFARegistrationResolver registrationResolver =
-                            resolverContainer.createInstance(GigyaTFARegistrationResolver.class);
-                    registrationResolver.start();
+                    resolverContainer.createInstance(GigyaTFARegistrationResolver.class);
                     break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                    GigyaTFAVerificationResolver verificationResolver =
-                            resolverContainer.createInstance(GigyaTFAVerificationResolver.class);
-                    verificationResolver.start();
+                    resolverContainer.createInstance(GigyaTFAVerificationResolver.class);
                     break;
                 case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
-                    finalizeRegistration(apiResponse, observable, loginCallback);
+                    GigyaFinalizeResolver finalizeResolver = resolverContainer.createInstance(GigyaFinalizeResolver.class);
+                    finalizeResolver.finalizeRegistration();
                     break;
                 default:
-                    handleUnsupportedResponse(apiResponse, observable, loginCallback);
+                    handleUnsupportedResponse(apiResponse, loginCallback);
                     break;
             }
         } catch (Exception e) {
             // error with creating resolvers - could be missing container dependencies
             GigyaLogger.error(LOG_TAG, e.getMessage());
-            handleUnsupportedResponse(apiResponse, observable, loginCallback);
+            handleUnsupportedResponse(apiResponse, loginCallback);
         }
     }
 
-    private void handleUnsupportedResponse(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
-        observable.dispose();
+    private void handleUnsupportedResponse(GigyaApiResponse apiResponse, GigyaLoginCallback loginCallback) {
         loginCallback.onError(GigyaError.fromResponse(apiResponse));
     }
 
     private String getRegToken(GigyaApiResponse apiResponse) {
         return apiResponse.getField("regToken", String.class);
-    }
-
-    private void finalizeRegistration(GigyaApiResponse apiResponse, IApiObservable observable, GigyaLoginCallback loginCallback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("regToken", getRegToken(apiResponse));
-        params.put("include", "profile,data,emails,subscriptions,preferences");
-        params.put("includeUserInfo", "true");
-        // Api.
-        final String api = GigyaDefinitions.API.API_FINALIZE_REGISTRATION;
-        // Notify observer.
-        observable.send(api, params, loginCallback);
     }
 }

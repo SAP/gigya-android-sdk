@@ -3,13 +3,11 @@ package com.gigya.android.sdk.interruption.tfa;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.IApiObservable;
-import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.tfa.TFAEmail;
 import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
-import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.TFA.EMAIL;
@@ -18,9 +16,12 @@ import static com.gigya.android.sdk.GigyaDefinitions.TFA.TOTP;
 
 public class GigyaTFAVerificationResolver<A extends GigyaAccount> extends GigyaTFAResolver<A> implements IGigyaTFAVerificationResolver {
 
-    public GigyaTFAVerificationResolver(Config config, ISessionService sessionService, IApiService apiService, IApiObservable observable, IApiRequestFactory requestFactory,
-                                        GigyaApiResponse originalResponse, GigyaLoginCallback<A> loginCallback) {
-        super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
+    public GigyaTFAVerificationResolver(Config config,
+                                        ISessionService sessionService,
+                                        GigyaApiResponse originalResponse,
+                                        IBusinessApiService<A> businessApiService,
+                                        GigyaLoginCallback<A> loginCallback) {
+        super(config, sessionService, businessApiService, originalResponse, loginCallback);
     }
 
     @Override

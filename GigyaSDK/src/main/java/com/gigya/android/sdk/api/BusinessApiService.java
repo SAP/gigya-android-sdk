@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.api;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -9,6 +8,13 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
+import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
+import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
+import com.gigya.android.sdk.model.tfa.TFAInitModel;
+import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
+import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
+import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -18,7 +24,6 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
-import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -31,12 +36,11 @@ import java.util.Observer;
  *
  * @param <A> Typed account instance (extends GigyaAccount).
  */
-public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiService<A>, Observer {
+public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiService<A> {
 
     private static final String LOG_TAG = "BusinessApiService";
 
     // Dependencies.
-    final private Config _config;
     final private ISessionService _sessionService;
     final private IAccountService<A> _accountService;
     final private IApiService _apiService;
@@ -44,14 +48,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IProviderFactory _providerFactory;
     final private IInterruptionsHandler _interruptionsHandler;
 
-    public BusinessApiService(Config config,
-                              ISessionService sessionService,
+    public BusinessApiService(ISessionService sessionService,
                               IAccountService<A> accountService,
                               IApiService apiService,
                               IApiRequestFactory requestFactory,
                               IProviderFactory providerFactory,
                               IInterruptionsHandler interruptionsHandler) {
-        _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
@@ -79,8 +81,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
-            final IApiObservable observable = new ApiObservable().register(BusinessApiService.this);
-            _interruptionsHandler.resolve(response, observable, loginCallback);
+            _interruptionsHandler.resolve(response, loginCallback);
         } else {
             // Parse & success.
             A parsed = response.parseTo(_accountService.getAccountSchema());
@@ -127,36 +128,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 gigyaCallback.onError(gigyaError);
             }
         });
-    }
-
-    //endregion
-
-    //region OBSERVER
-
-    /*
-    This method is being used by interruption resolvers to trigger the next request of the flow
-     */
-    @Override
-    public synchronized void update(Observable observable, Object arg) {
-        // we're going to trigger a new call so if it gets interrupted a new observable will be created
-        observable.deleteObservers();
-
-        final ApiObservable.ApiObservableData data = (ApiObservable.ApiObservableData) arg;
-        final String api = data.getApi();
-        switch (api) {
-            case GigyaDefinitions.API.API_FINALIZE_REGISTRATION:
-                finalizeRegistration(data.getParams(), data.getLoginCallback());
-                break;
-            case GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN:
-                nativeSocialLogin(data.getParams(), data.getLoginCallback(), data.getCompletionHandler());
-                break;
-            case GigyaDefinitions.API.API_GET_ACCOUNT_INFO:
-                getAccount(data.getLoginCallback());
-                break;
-            case GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION:
-                refreshNativeProviderSession(data.getParams(), data.getPermissionsCallback());
-                break;
-        }
     }
 
     //endregion
@@ -626,6 +597,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //endregion
 
+    //region INTERRUPTIONS RELATED
+
     @Override
     public void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
@@ -634,7 +607,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                 callback.onSuccess(response);
+                callback.onSuccess(response);
             }
 
             @Override
@@ -643,4 +616,111 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         });
     }
+
+    @Override
+    public void getTFAProviders(String regToken, final GigyaCallback<TFAProvidersModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", regToken);
+        send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.GET, TFAProvidersModel.class, callback);
+    }
+
+    @Override
+    public void initTFA(String regToken, String provider, String mode, GigyaCallback<TFAInitModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", regToken);
+        params.put("provider", provider);
+        params.put("mode", mode);
+        send(GigyaDefinitions.API.API_TFA_INIT, params, RestAdapter.POST, TFAInitModel.class, callback);
+    }
+
+    @Override
+    public void finalizeTFA(String regToken, String gigyaAssertion, String providerAssertion, GigyaCallback<GigyaApiResponse> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("regToken", regToken);
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("providerAssertion", providerAssertion);
+        send(GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST, null, callback);
+    }
+
+    @Override
+    public void registerTotp(String gigyaAssertion, GigyaCallback<TFATotpRegisterModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        send(GigyaDefinitions.API.API_TFA_TOTP_REGISTER, params, RestAdapter.POST, TFATotpRegisterModel.class, callback);
+    }
+
+    @Override
+    public void verifyTotp(String code, String gigyaAssertion, String sctToken, GigyaCallback<TFACompleteVerificationModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("code", code);
+        if (sctToken != null) {
+            params.put("sctToken", sctToken);
+        }
+        send(GigyaDefinitions.API.API_TFA_TOTP_VERIFY, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
+    }
+
+    @Override
+    public void getRegisteredPhoneNumbers(String gigyaAssertion, GigyaCallback<TFAGetRegisteredPhoneNumbersModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST, TFAGetRegisteredPhoneNumbersModel.class, callback);
+    }
+
+    @Override
+    public void registerPhoneNumber(String gigyaAssertion, String phoneNumber, String method, GigyaCallback<TFAVerificationCodeModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("phone", phoneNumber);
+        params.put("method", method);
+        params.put("lang", "eng");
+        send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST, TFAVerificationCodeModel.class, callback);
+    }
+
+    @Override
+    public void verifyPhoneNumber(String gigyaAssertion, String phoneId, String method, GigyaCallback<TFAVerificationCodeModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("phoneID", phoneId);
+        params.put("method", method);
+        params.put("lang", "eng");
+        send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST, TFAVerificationCodeModel.class, callback);
+    }
+
+    @Override
+    public void completePhoneVerification(String gigyaAssertion, String code, String phvToken, GigyaCallback<TFACompleteVerificationModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("code", code);
+        params.put("phvToken", phvToken);
+        send(GigyaDefinitions.API.API_TFA_PHONE_COMPLETE_VERIFICATION, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
+    }
+
+    @Override
+    public void getRegisteredEmails(String gigyaAssertion, GigyaCallback<TFAGetEmailsModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        send(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, params, RestAdapter.GET, TFAGetEmailsModel.class, callback);
+    }
+
+    @Override
+    public void verifyEmail(String emailId, String gigyaAssertion, GigyaCallback<TFAVerificationCodeModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("emailID", emailId);
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("lang", "eng");
+        send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.GET, TFAVerificationCodeModel.class, callback);
+    }
+
+    @Override
+    public void completeEmailVerification(String gigyaAssertion, String code, String phvToken, GigyaCallback<TFACompleteVerificationModel> callback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("code", code);
+        params.put("phvToken", phvToken);
+        send(GigyaDefinitions.API.API_TFA_EMAIL_COMPLETE_VERIFICATION, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
+
+    }
+
+    //endregion
 }

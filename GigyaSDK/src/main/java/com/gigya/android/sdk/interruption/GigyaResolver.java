@@ -3,8 +3,8 @@ package com.gigya.android.sdk.interruption;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.IApiObservable;
 import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -21,28 +21,24 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
     protected Config _config;
     protected ISessionService _sessionService;
     protected IApiService _apiService;
-    protected IApiRequestFactory _requestFactory;
+    protected IBusinessApiService<A> _businessApiService;
+
 
     // Resolver specific.
     protected SoftReference<GigyaLoginCallback<A>> _loginCallback;
     protected GigyaApiResponse _originalResponse;
-    protected IApiObservable _observable;
 
     protected String _regToken;
 
     public GigyaResolver(Config config,
                          ISessionService sessionService,
-                         IApiService apiService,
-                         IApiObservable observable,
-                         IApiRequestFactory requestFactory,
+                         IBusinessApiService<A> businessApiService,
                          GigyaApiResponse originalResponse,
                          GigyaLoginCallback<A> loginCallback) {
         // Dependencies.
         _config = config;
         _sessionService = sessionService;
-        _apiService = apiService;
-        _observable = observable;
-        _requestFactory = requestFactory;
+        _businessApiService = businessApiService;
         _originalResponse = originalResponse;
         // Handlers.
         _loginCallback = new SoftReference<>(loginCallback);
@@ -65,7 +61,6 @@ public abstract class GigyaResolver<A extends GigyaAccount> implements IGigyaRes
 
     @Override
     public void clear() {
-        _observable.dispose();
     }
 
     public void forwardError(GigyaError error) {

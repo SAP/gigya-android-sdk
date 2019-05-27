@@ -6,6 +6,8 @@ public interface IGigyaLinkAccountsResolver {
 
     ConflictingAccounts getConflictingAccounts();
 
+    void requestConflictingAccounts();
+
     void linkToSite(String loginID, String password);
 
     void linkToSocial(String providerName);

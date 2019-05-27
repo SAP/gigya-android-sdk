@@ -4,16 +4,12 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.api.IApiObservable;
-import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.interruption.GigyaResolver;
 import com.gigya.android.sdk.model.account.ConflictingAccounts;
 import com.gigya.android.sdk.model.account.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.IApiRequestFactory;
-import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
 import java.util.HashMap;
@@ -24,21 +20,14 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
     private static final String LOG_TAG = "GigyaLinkAccountsResolver";
 
     private ConflictingAccounts _conflictingAccounts;
-    private IProviderFactory _providerFactory;
-    private IBusinessApiService<A> _businessApiService;
 
     public GigyaLinkAccountsResolver(Config config,
                                      ISessionService sessionService,
-                                     IProviderFactory providerFactory,
-                                     IApiService apiService,
-                                     IApiRequestFactory requestFactory,
-                                     IApiObservable observable,
                                      GigyaApiResponse originalResponse,
                                      IBusinessApiService<A> businessApiService,
                                      GigyaLoginCallback<A> loginCallback) {
-        super(config, sessionService, apiService, observable, requestFactory, originalResponse, loginCallback);
-        _providerFactory = providerFactory;
-        _businessApiService = businessApiService;
+        super(config, sessionService, businessApiService, originalResponse, loginCallback);
+        requestConflictingAccounts();
     }
 
     @Override
@@ -46,8 +35,9 @@ public class GigyaLinkAccountsResolver<A extends GigyaAccount> extends GigyaReso
         return _conflictingAccounts;
     }
 
+
     @Override
-    public void start() {
+    public void requestConflictingAccounts() {
         GigyaLogger.debug(LOG_TAG, "init: sending fetching conflicting accounts");
         // Get conflicting accounts.
         _businessApiService.getConflictingAccounts(_regToken, new GigyaCallback<GigyaApiResponse>() {

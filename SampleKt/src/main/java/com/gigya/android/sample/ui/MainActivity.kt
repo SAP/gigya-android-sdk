@@ -633,7 +633,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * On Gigya error interfacing. Display error alert.
      */
     private fun onError(error: GigyaError) {
-        displayErrorAlert(R.string.rest_error_title, error.localizedMessage)
+        displayErrorAlert(R.string.rest_error_title, when (error.localizedMessage != null) {
+            true -> error.localizedMessage
+            false -> "General error"
+        })
         onLoadingDone()
     }
 
