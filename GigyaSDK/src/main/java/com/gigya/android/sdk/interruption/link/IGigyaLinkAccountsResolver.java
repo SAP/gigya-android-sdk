@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.interruption.link;
 
-import com.gigya.android.sdk.model.account.ConflictingAccounts;
+import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts;
 
 public interface IGigyaLinkAccountsResolver {
 

@@ -1,6 +1,6 @@
 package com.gigya.android.utils;
 
-import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 

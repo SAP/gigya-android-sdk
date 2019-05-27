@@ -3,7 +3,6 @@ package com.gigya.android.sdk.api;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.model.GigyaConfigModel;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;

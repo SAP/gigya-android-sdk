@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.providers;
 
-import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.providers.provider.Provider;
 
 public interface IProviderCallback {

@@ -2,8 +2,6 @@ package com.gigya.android.sdk.network;
 
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.model.GigyaResponseModel;
-
 import org.json.JSONObject;
 
 import java.util.Map;

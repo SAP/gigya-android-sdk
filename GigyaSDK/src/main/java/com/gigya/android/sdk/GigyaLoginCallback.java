@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.interruption.link.IGigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver;
-import com.gigya.android.sdk.model.tfa.TFAEmail;
-import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
+import com.gigya.android.sdk.interruption.tfa.models.TFAEmail;
+import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 

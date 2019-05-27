@@ -8,7 +8,7 @@ import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
-import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;

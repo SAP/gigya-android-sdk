@@ -30,8 +30,8 @@ import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
-import com.gigya.android.sdk.model.account.ConflictingAccounts
-import com.gigya.android.sdk.model.tfa.TFAProvider
+import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*

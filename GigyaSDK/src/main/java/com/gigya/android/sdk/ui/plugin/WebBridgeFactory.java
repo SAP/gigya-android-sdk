@@ -5,7 +5,7 @@ import android.content.Context;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
-import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.session.ISessionService;
 
 public class WebBridgeFactory<T extends GigyaAccount> implements IWebBridgeFactory<T> {

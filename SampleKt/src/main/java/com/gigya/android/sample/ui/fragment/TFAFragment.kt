@@ -22,8 +22,8 @@ import com.gigya.android.sample.model.CountryCode
 import com.gigya.android.sample.ui.MainActivity
 import com.gigya.android.sample.ui.MainViewModel
 import com.gigya.android.sdk.GigyaDefinitions
-import com.gigya.android.sdk.model.tfa.TFAEmail
-import com.gigya.android.sdk.model.tfa.TFARegisteredPhone
+import com.gigya.android.sdk.interruption.tfa.models.TFAEmail
+import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_tfa.*
 import org.jetbrains.anko.toast

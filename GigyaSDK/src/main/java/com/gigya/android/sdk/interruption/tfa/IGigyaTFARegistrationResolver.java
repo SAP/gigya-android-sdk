@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.interruption.tfa;
 
 import com.gigya.android.sdk.GigyaDefinitions;
-import com.gigya.android.sdk.model.tfa.TFAProvider;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvider;
 
 import java.util.List;
 

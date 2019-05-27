@@ -2,8 +2,8 @@ package com.gigya.android;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.AccountService;
-import com.gigya.android.sdk.model.account.GigyaAccount;
-import com.gigya.android.sdk.model.account.GigyaAccountClass;
+import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 

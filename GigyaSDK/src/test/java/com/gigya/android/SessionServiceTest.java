@@ -5,8 +5,8 @@ import android.os.CountDownTimer;
 import android.text.TextUtils;
 
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.model.GigyaInterceptor;
-import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.GigyaInterceptor;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.session.SessionService;
 import com.google.gson.Gson;
 

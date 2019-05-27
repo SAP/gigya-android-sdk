@@ -1,6 +1,6 @@
 package com.gigya.android.sample.model;
 
-import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 
 public class MyAccount extends GigyaAccount {
 

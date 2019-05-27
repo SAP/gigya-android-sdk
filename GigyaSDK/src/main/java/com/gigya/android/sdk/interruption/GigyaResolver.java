@@ -5,10 +5,9 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
-import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
-import com.gigya.android.sdk.network.IApiRequestFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
 import java.lang.ref.SoftReference;

@@ -33,7 +33,7 @@ import android.webkit.WebViewClient;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
-import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.ObjectUtils;

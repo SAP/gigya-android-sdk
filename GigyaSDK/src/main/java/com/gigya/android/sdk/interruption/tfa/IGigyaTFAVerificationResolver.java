@@ -1,9 +1,9 @@
 package com.gigya.android.sdk.interruption.tfa;
 
 import com.gigya.android.sdk.GigyaDefinitions;
-import com.gigya.android.sdk.model.tfa.TFAEmail;
-import com.gigya.android.sdk.model.tfa.TFAProvider;
-import com.gigya.android.sdk.model.tfa.TFARegisteredPhone;
+import com.gigya.android.sdk.interruption.tfa.models.TFAEmail;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvider;
+import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone;
 
 import java.util.List;
 

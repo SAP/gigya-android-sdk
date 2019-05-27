@@ -1,16 +1,15 @@
 package com.gigya.android.sdk.api;
 
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
-import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
-import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
-import com.gigya.android.sdk.model.tfa.TFAInitModel;
-import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
-import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
-import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAGetRegisteredPhoneNumbersModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAInitModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFATotpRegisterModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 

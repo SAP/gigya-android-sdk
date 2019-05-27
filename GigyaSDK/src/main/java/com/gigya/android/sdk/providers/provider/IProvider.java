@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.providers.provider;
 
-import com.gigya.android.sdk.model.account.SessionInfo;
+import com.gigya.android.sdk.session.SessionInfo;
 
 import java.util.Map;
 

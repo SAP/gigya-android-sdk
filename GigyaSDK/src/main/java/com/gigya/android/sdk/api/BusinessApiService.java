@@ -6,15 +6,15 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
-import com.gigya.android.sdk.model.account.GigyaAccount;
-import com.gigya.android.sdk.model.account.SessionInfo;
-import com.gigya.android.sdk.model.tfa.TFACompleteVerificationModel;
-import com.gigya.android.sdk.model.tfa.TFAGetEmailsModel;
-import com.gigya.android.sdk.model.tfa.TFAGetRegisteredPhoneNumbersModel;
-import com.gigya.android.sdk.model.tfa.TFAInitModel;
-import com.gigya.android.sdk.model.tfa.TFAProvidersModel;
-import com.gigya.android.sdk.model.tfa.TFATotpRegisterModel;
-import com.gigya.android.sdk.model.tfa.TFAVerificationCodeModel;
+import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAGetRegisteredPhoneNumbersModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAInitModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFATotpRegisterModel;
+import com.gigya.android.sdk.interruption.tfa.models.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -28,8 +28,6 @@ import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Service responsible for sending and processing pre-defined API requests

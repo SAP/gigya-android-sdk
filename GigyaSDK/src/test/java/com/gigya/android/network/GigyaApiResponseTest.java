@@ -1,7 +1,7 @@
 package com.gigya.android.network;
 
 import com.gigya.android.StaticMockFactory;
-import com.gigya.android.sdk.model.account.GigyaAccount;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaApiResponse;
 
 import org.json.JSONException;
