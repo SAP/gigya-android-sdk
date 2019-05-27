@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.network;
+package com.gigya.android.sdk.api;
 
 import android.support.annotation.Nullable;
 

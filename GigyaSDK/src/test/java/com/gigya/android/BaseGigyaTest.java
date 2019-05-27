@@ -18,7 +18,7 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.network.IApiRequestFactory;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;

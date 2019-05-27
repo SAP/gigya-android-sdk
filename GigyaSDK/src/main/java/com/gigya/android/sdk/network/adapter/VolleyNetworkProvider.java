@@ -16,7 +16,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;
 

@@ -6,7 +6,7 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
 public class InterruptionHandler implements IInterruptionsHandler {

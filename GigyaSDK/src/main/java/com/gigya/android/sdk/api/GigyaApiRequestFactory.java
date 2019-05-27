@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.network;
+package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
@@ -56,7 +56,6 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
 
         GigyaLogger.debug("GigyaApiRequest", "Request parameters:\n" + urlParams.toString());
 
-        // TODO: #baryo move this to ApiService (also why requestMethod isn't an enum?)
         // Encode url & generate encoded parameters.
         final String encodedParams = UrlUtils.buildEncodedQuery(urlParams);
         final String url = UrlUtils.getBaseUrl(api, _config.getApiDomain()) + (requestMethod == RestAdapter.GET ? "?" + encodedParams : "");

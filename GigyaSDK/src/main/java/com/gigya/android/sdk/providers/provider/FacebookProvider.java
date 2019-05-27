@@ -90,8 +90,10 @@ public class FacebookProvider extends Provider {
                 // Set login behaviour.
                 LoginBehavior loginBehaviour = LoginBehavior.NATIVE_WITH_FALLBACK;
                 if (loginParams != null && loginParams.containsKey(LOGIN_BEHAVIOUR)) {
-                    // TODO: 15/01/2019 Check casting issues so we wont crash.
-                    loginBehaviour = (LoginBehavior) loginParams.get(LOGIN_BEHAVIOUR);
+                    Object behaviour = loginParams.get(LOGIN_BEHAVIOUR);
+                    if (behaviour instanceof LoginBehavior) {
+                        loginBehaviour = (LoginBehavior) behaviour;
+                    }
                 }
                 loginManager.setLoginBehavior(loginBehaviour);
                 loginManager.registerCallback(_callbackManager, new FacebookCallback<LoginResult>() {

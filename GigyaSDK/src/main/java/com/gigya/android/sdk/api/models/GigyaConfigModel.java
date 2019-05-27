@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.api;
+package com.gigya.android.sdk.api.models;
 
 
 import com.gigya.android.sdk.network.GigyaResponseModel;

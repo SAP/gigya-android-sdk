@@ -2,7 +2,7 @@ package com.gigya.android.sdk.network.adapter;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 
 public class RestAdapter implements IRestAdapter {
 

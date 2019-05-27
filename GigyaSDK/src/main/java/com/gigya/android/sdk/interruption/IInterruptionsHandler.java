@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 
 public interface IInterruptionsHandler {
 

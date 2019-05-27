@@ -17,7 +17,7 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.session.ISessionService;

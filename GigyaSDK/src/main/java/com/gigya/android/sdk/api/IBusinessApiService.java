@@ -10,7 +10,6 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAInitModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFATotpRegisterModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAVerificationCodeModel;
-import com.gigya.android.sdk.network.GigyaApiResponse;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 
 import java.util.Map;

@@ -7,7 +7,7 @@ import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.interruption.tfa.models.TFAEmail;
 import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.session.ISessionService;
 
 import static com.gigya.android.sdk.GigyaDefinitions.TFA.EMAIL;

@@ -1,4 +1,6 @@
-package com.gigya.android.sdk.network;
+package com.gigya.android.sdk.api;
+
+import com.gigya.android.sdk.api.GigyaApiRequest;
 
 import java.util.Map;
 

@@ -6,7 +6,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.session.ISessionService;
 

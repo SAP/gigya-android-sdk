@@ -2,7 +2,7 @@ package com.gigya.android.sdk.network.adapter;
 
 import android.os.AsyncTask;
 
-import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.io.BufferedReader;

@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.network.adapter;
 
-import com.gigya.android.sdk.network.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 
 public abstract class NetworkProvider {
 

@@ -8,7 +8,7 @@ import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver;
 import com.gigya.android.sdk.interruption.tfa.models.TFAEmail;
 import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.List;

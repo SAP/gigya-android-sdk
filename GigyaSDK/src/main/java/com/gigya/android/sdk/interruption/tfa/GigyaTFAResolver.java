@@ -19,7 +19,7 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProvider;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFATotpRegisterModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAVerificationCodeModel;
-import com.gigya.android.sdk.network.GigyaApiResponse;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.session.ISessionService;
 
