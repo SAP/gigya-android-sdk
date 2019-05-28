@@ -10,14 +10,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
+import com.gigya.android.sdk.utils.FileUtils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -41,14 +39,15 @@ public class GoogleProvider extends Provider {
     private GoogleSignInClient _googleClient;
     private String _clientId;
 
+    final private FileUtils _fileUtils;
+
     public GoogleProvider(Context context,
-                          Config config,
-                          ISessionService sessionService,
-                          IAccountService accountService,
                           IPersistenceService persistenceService,
                           IBusinessApiService businessApiService,
-                          GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
+                          GigyaLoginCallback gigyaLoginCallback,
+                          FileUtils fileUtils) {
+        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+        _fileUtils = fileUtils;
     }
 
     @Override
@@ -67,14 +66,13 @@ public class GoogleProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
-        _loginMode = loginMode;
         if (_connecting) {
             return;
         }
         _connecting = true;
+        _loginMode = loginMode;
         try {
-            final ApplicationInfo appInfo = _context.getPackageManager().getApplicationInfo(_context.getPackageName(), PackageManager.GET_META_DATA);
-            _clientId = (String) appInfo.metaData.get("googleClientId");
+            _clientId = _fileUtils.stringFromMetaData("googleClientId");
         } catch (Exception ex) {
             _connecting = false;
             ex.printStackTrace();

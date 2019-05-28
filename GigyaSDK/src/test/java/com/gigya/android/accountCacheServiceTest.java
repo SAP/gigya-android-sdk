@@ -1,7 +1,7 @@
 package com.gigya.android;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.account.AccountService;
+import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -25,36 +25,36 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(PowerMockRunner.class)
-public class AccountServiceTest extends BaseGigyaTest {
+public class accountCacheServiceTest extends BaseGigyaTest {
 
     @Mock
     private Config mConfig;
 
-    private AccountService cAccountService;
+    private accountCacheService cAccountCacheService;
 
     @Before
     public void setup() {
         when(mConfig.getAccountCacheTime()).thenReturn(5);
-        cAccountService = new AccountService(mConfig, GigyaAccountClass.Default);
+        cAccountCacheService = new accountCacheService(mConfig, GigyaAccountClass.Default);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testSetAccount() {
         // Act
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
         // Assert
-        assertNotNull(cAccountService.getAccount());
-        assertTrue(System.currentTimeMillis() < cAccountService.getNextInvalidationTimestamp());
+        assertNotNull(cAccountCacheService.getAccount());
+        assertTrue(System.currentTimeMillis() < cAccountCacheService.getNextInvalidationTimestamp());
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testGetAccount() {
         // Arrange
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
         // Act
-        final GigyaAccount cachedAccount = cAccountService.getAccount();
+        final GigyaAccount cachedAccount = cAccountCacheService.getAccount();
         // Assert
         assertNotNull(cachedAccount);
     }
@@ -63,9 +63,9 @@ public class AccountServiceTest extends BaseGigyaTest {
     @Test
     public void testIsCachedAccount() {
         // Arrange
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
         // Act
-        boolean isCachedAccount = cAccountService.isCachedAccount();
+        boolean isCachedAccount = cAccountCacheService.isCachedAccount();
         // Assert
         assertTrue(isCachedAccount);
     }
@@ -74,10 +74,10 @@ public class AccountServiceTest extends BaseGigyaTest {
     @Test
     public void testIsCachedAccountAfterOverride() {
         // Arrange
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
-        cAccountService.setAccountOverrideCache(true);
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
+        cAccountCacheService.setAccountOverrideCache(true);
         // Act
-        boolean isCachedAccount = cAccountService.isCachedAccount();
+        boolean isCachedAccount = cAccountCacheService.isCachedAccount();
         // Assert
         assertFalse(isCachedAccount);
     }
@@ -85,41 +85,41 @@ public class AccountServiceTest extends BaseGigyaTest {
     @Test
     public void testGetAccountScheme() {
         // Assert
-        assertEquals(GigyaAccount.class, cAccountService.getAccountSchema());
+        assertEquals(GigyaAccount.class, cAccountCacheService.getAccountSchema());
     }
 
     @Test
     public void testSetAccountScheme() {
         // Act
-        cAccountService.setAccountScheme(TestAccount.class);
+        cAccountCacheService.setAccountScheme(TestAccount.class);
         // Assert
-        assertEquals(TestAccount.class, cAccountService.getAccountSchema());
+        assertEquals(TestAccount.class, cAccountCacheService.getAccountSchema());
 
     }
 
     @Test
     public void testInvalidateAccount() {
         // Arrange
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
         // Act
-        cAccountService.invalidateAccount();
+        cAccountCacheService.invalidateAccount();
         // Assert
-        assertNull(cAccountService.getAccount());
+        assertNull(cAccountCacheService.getAccount());
     }
 
     @Test
     public void testCalculateDiff() throws Exception {
         // Arrange
-        cAccountService.setAccount(StaticMockFactory.getMockAccountJson());
-        final GigyaAccount cachedAccount = cAccountService.getAccount();
-        final GigyaAccount updateAccount = cAccountService.getAccount(); // Will generate a new new hard copy.
-        final GigyaAccount updateAccountWithRegToken = cAccountService.getAccount(); // Will generate a new new hard copy.
+        cAccountCacheService.setAccount(StaticMockFactory.getMockAccountJson());
+        final GigyaAccount cachedAccount = cAccountCacheService.getAccount();
+        final GigyaAccount updateAccount = cAccountCacheService.getAccount(); // Will generate a new new hard copy.
+        final GigyaAccount updateAccountWithRegToken = cAccountCacheService.getAccount(); // Will generate a new new hard copy.
         updateAccount.getProfile().setLastName("Chipopo");
         updateAccount.setActive(false);
         updateAccountWithRegToken.setUID(null);
         // Act
-        final Map map1 = cAccountService.calculateDiff(new Gson(), cachedAccount, updateAccount);
-        final Map map2 = cAccountService.calculateDiff(new Gson(), cachedAccount, updateAccountWithRegToken);
+        final Map map1 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccount);
+        final Map map2 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccountWithRegToken);
         // Assert map1
         assertNotNull(map1);
         assertEquals(3, map1.size());

@@ -5,9 +5,8 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.interruption.IInterruptionsHandler;
 import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetRegisteredPhoneNumbersModel;
@@ -21,6 +20,7 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -264,7 +264,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param optionalCompletionHandler additional completion handler Runnable.
      */
     @Override
-    public void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback, final Runnable optionalCompletionHandler) {
+    public void notifyNativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback, final Runnable optionalCompletionHandler) {
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_NOTIFY_SOCIAL_LOGIN, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -483,6 +483,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     // Non documented.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
+        if (!_sessionService.isValid()) {
+            return;
+        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override

@@ -7,13 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.linecorp.linesdk.LineApiResponse;
@@ -34,17 +31,14 @@ public class LineProvider extends Provider {
 
     private static final int REQUEST_CODE = 1;
 
-    protected FileUtils _fileUtils;
+    private FileUtils _fileUtils;
 
     public LineProvider(Context context,
-                        Config config,
-                        ISessionService sessionService,
-                        IAccountService accountService,
                         IPersistenceService persistenceService,
                         IBusinessApiService businessApiService,
                         FileUtils fileUtils,
                         GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
+        super(context, persistenceService, businessApiService, gigyaLoginCallback);
         _fileUtils = fileUtils;
     }
 
@@ -65,11 +59,11 @@ public class LineProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
-        _loginMode = loginMode;
         if (_connecting) {
             return;
         }
         _connecting = true;
+        _loginMode = loginMode;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {

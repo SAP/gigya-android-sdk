@@ -14,12 +14,9 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -36,13 +33,10 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 public class FacebookProvider extends Provider {
 
     public FacebookProvider(Context context,
-                            Config config,
-                            ISessionService sessionService,
-                            IAccountService accountService,
                             IPersistenceService persistenceService,
                             IBusinessApiService businessApiService,
                             GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
+        super(context, persistenceService, businessApiService, gigyaLoginCallback);
     }
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};
@@ -67,11 +61,11 @@ public class FacebookProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
-        _loginMode = loginMode;
         if (_connecting) {
             return;
         }
         _connecting = true;
+        _loginMode = loginMode;
         // Get login permissions.
         final List<String> readPermissions = getReadPermissions(loginParams);
 
@@ -167,9 +161,6 @@ public class FacebookProvider extends Provider {
 
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                if (!_sessionService.isValid()) {
-                    return;
-                }
                 // Send api request.
                 final String newAuthToken = currentAccessToken.getToken();
                 final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;

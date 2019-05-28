@@ -10,10 +10,10 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
-import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.WebLoginActivity;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -25,6 +25,10 @@ public class WebLoginProvider extends Provider {
 
     private static final String LOG_TAG = "WebLoginProvider";
 
+    final private ISessionService _sessionService;
+    final private IAccountService _accountService;
+    final private Config _config;
+
     public WebLoginProvider(Context context,
                             Config config,
                             ISessionService sessionService,
@@ -32,7 +36,10 @@ public class WebLoginProvider extends Provider {
                             IPersistenceService persistenceService,
                             IBusinessApiService businessApiService,
                             GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
+        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+        _config = config;
+        _sessionService = sessionService;
+        _accountService = accountService;
     }
 
     @Override
@@ -42,11 +49,12 @@ public class WebLoginProvider extends Provider {
 
     @Override
     public void login(Map<String, Object> loginParams, String loginMode) {
-        _loginMode = loginMode;
         if (_connecting) {
             return;
         }
         _connecting = true;
+        _loginMode = loginMode;
+        final String providerName = (String) loginParams.get("provider");
         final String loginUrl = getRequest(_context, loginParams);
         WebLoginActivity.present(_context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
 
@@ -57,7 +65,7 @@ public class WebLoginProvider extends Provider {
                 final String status = (String) parsed.get("status");
                 if (status != null && status.equals("ok")) {
                     final SessionInfo sessionInfo = parseSessionInfo(parsed);
-                    onProviderSession(sessionInfo);
+                    onProviderSession(providerName, sessionInfo);
                 } else {
                     onLoginFailed("Failed to login");
                 }
@@ -72,6 +80,27 @@ public class WebLoginProvider extends Provider {
     @Override
     public void logout() {
         // Stub.
+    }
+
+    /**
+     * Received a session from a successful sign in process. Update session & request an account update.
+     *
+     * @param providerName Specified provider.
+     * @param sessionInfo  New session info.
+     */
+    @SuppressWarnings("unchecked")
+    private void onProviderSession(String providerName, SessionInfo sessionInfo) {
+        _connecting = false;
+        // Call intermediate load to give the client the option to trigger his own progress indicator
+        _gigyaLoginCallback.onIntermediateLoad();
+        // Persist used social provider.
+        _psService.addSocialProvider(providerName);
+        // Set new session.
+        _sessionService.setSession(sessionInfo);
+        // Force fetch account.
+        _accountService.invalidateAccount();
+
+        _businessApiService.getAccount(_gigyaLoginCallback);
     }
 
     @Override

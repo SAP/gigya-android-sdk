@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.Gigya;
-import com.gigya.android.sdk.account.AccountService;
+import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiService;
@@ -53,7 +53,7 @@ public class BaseGigyaTest {
     SessionService mSessionService;
 
     @Mock
-    AccountService mAccountService;
+    accountCacheService mAccountCacheService;
 
     @Mock
     PersistenceService mPersistenceService;
@@ -87,7 +87,7 @@ public class BaseGigyaTest {
         container.bind(Context.class, mContext);
         container.bind(Config.class, mConfig);
         container.bind(ISessionService.class, mSessionService);
-        container.bind(IAccountService.class, mAccountService);
+        container.bind(IAccountService.class, mAccountCacheService);
         container.bind(IPersistenceService.class, mPersistenceService);
         container.bind(IApiService.class, mApiService);
         container.bind(ISessionVerificationService.class, mSessionVerificationService);

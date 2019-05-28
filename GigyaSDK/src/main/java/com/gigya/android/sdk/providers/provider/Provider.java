@@ -2,17 +2,13 @@ package com.gigya.android.sdk.providers.provider;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
-import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.IProviderTokenTrackerListener;
-import com.gigya.android.sdk.session.ISessionService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +18,9 @@ public abstract class Provider implements IProvider {
     private static final String LOG_TAG = "Provider";
 
     final protected Context _context;
-    final protected Config _config;
-    final protected ISessionService _sessionService;
-    private final IAccountService _accountService;
-    final private IPersistenceService _psService;
-    private final GigyaLoginCallback _gigyaLoginCallback;
-    private final IBusinessApiService _businessApiService;
+    final protected IPersistenceService _psService;
+    final protected GigyaLoginCallback _gigyaLoginCallback;
+    final protected IBusinessApiService _businessApiService;
 
     protected boolean _connecting = false;
 
@@ -36,12 +29,9 @@ public abstract class Provider implements IProvider {
     private String _regToken;
     IProviderTokenTrackerListener _tokenTrackingListener;
 
-    public Provider(Context context, Config config, ISessionService sessionService, IAccountService accountService, IPersistenceService persistenceService,
+    public Provider(Context context, IPersistenceService persistenceService,
                     IBusinessApiService businessApiService, GigyaLoginCallback gigyaLoginCallback) {
         _context = context;
-        _config = config;
-        _sessionService = sessionService;
-        _accountService = accountService;
         _psService = persistenceService;
         _gigyaLoginCallback = gigyaLoginCallback;
         _businessApiService = businessApiService;
@@ -98,7 +88,7 @@ public abstract class Provider implements IProvider {
         };
 
         // Notify.
-        _businessApiService.nativeSocialLogin(loginParams, _gigyaLoginCallback, completionHandler);
+        _businessApiService.notifyNativeSocialLogin(loginParams, _gigyaLoginCallback, completionHandler);
     }
 
     @Override
@@ -107,21 +97,6 @@ public abstract class Provider implements IProvider {
         GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
                 + getName() + ", error =" + error);
         _gigyaLoginCallback.onError(GigyaError.errorFrom(error));
-    }
-
-    @Override
-    public void onProviderSession(SessionInfo sessionInfo) {
-        _connecting = false;
-        // Call intermediate load to give the client the option to trigger his own progress indicator
-        _gigyaLoginCallback.onIntermediateLoad();
-        // Persist used social provider.
-        _psService.addSocialProvider(getName());
-        // Set new session.
-        _sessionService.setSession(sessionInfo);
-        // Force fetch account.
-        _accountService.invalidateAccount();
-
-        _businessApiService.getAccount(_gigyaLoginCallback);
     }
 
     @Override

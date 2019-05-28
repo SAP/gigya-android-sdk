@@ -26,7 +26,7 @@ public interface IBusinessApiService<A> {
 
     void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback);
 
-    void nativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback, final Runnable optionalCompletionHandler);
+    void notifyNativeSocialLogin(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback, final Runnable optionalCompletionHandler);
 
     void finalizeRegistration(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);
 

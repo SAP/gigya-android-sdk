@@ -32,13 +32,10 @@ public class WeChatProvider extends Provider {
     public static final String LOG_TAG = "WeChatProvider";
 
     public WeChatProvider(Context context,
-                          Config config,
-                          ISessionService sessionService,
-                          IAccountService accountService,
                           IPersistenceService persistenceService,
                           IBusinessApiService businessApiService,
                           GigyaLoginCallback gigyaLoginCallback) {
-        super(context, config, sessionService, accountService, persistenceService, businessApiService, gigyaLoginCallback);
+        super(context, persistenceService, businessApiService, gigyaLoginCallback);
     }
 
     private IWXAPI _api;
@@ -63,11 +60,11 @@ public class WeChatProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, String loginMode) {
-        _loginMode = loginMode;
         if (_connecting) {
             return;
         }
         _connecting = true;
+        _loginMode = loginMode;
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {

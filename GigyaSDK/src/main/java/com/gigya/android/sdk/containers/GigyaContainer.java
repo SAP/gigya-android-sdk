@@ -4,7 +4,7 @@ import android.os.Build;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
-import com.gigya.android.sdk.account.AccountService;
+import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
@@ -49,7 +49,7 @@ public class GigyaContainer extends IoCContainer {
                         : SessionKeyLegacy.class, true)
                 .bind(IPersistenceService.class, PersistenceService.class, false)
                 .bind(ISessionService.class, SessionService.class, true)
-                .bind(IAccountService.class, AccountService.class, true)
+                .bind(IAccountService.class, accountCacheService.class, true)
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
                 .bind(IProviderFactory.class, ProviderFactory.class, false)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)

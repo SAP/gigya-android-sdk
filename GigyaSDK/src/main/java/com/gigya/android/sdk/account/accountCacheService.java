@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <A> Typed account instance (extends GigyaAccount).
  */
-public class AccountService<A extends GigyaAccount> implements IAccountService<A> {
+public class accountCacheService<A extends GigyaAccount> implements IAccountService<A> {
 
     final private Config _config;
 
@@ -36,7 +36,7 @@ public class AccountService<A extends GigyaAccount> implements IAccountService<A
     every time the user will request "getAccount" from the SDK.
      */
     private boolean _accountOverrideCache = false;
-    public AccountService(Config config, GigyaAccountClass<A> accountClazz) {
+    public accountCacheService(Config config, GigyaAccountClass<A> accountClazz) {
         _config = config;
         _accountScheme = accountClazz.getAccountClass();
     }
