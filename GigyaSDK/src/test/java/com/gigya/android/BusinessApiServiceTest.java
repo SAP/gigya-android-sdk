@@ -7,7 +7,7 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.IApiService;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
@@ -60,7 +60,7 @@ public class BusinessApiServiceTest {
     IProviderFactory mProviderFactory;
 
     @Mock
-    IInterruptionsHandler mInterruptionHandler;
+    IInterruptionResolverFactory mInterruptionHandler;
 
     @Mock
     ApiService.IApiServiceResponse mResponse;

@@ -6,7 +6,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetRegisteredPhoneNumbersModel;
@@ -41,14 +41,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IApiService _apiService;
     final private IApiRequestFactory _reqFactory;
     final private IProviderFactory _providerFactory;
-    final private IInterruptionsHandler _interruptionsHandler;
+    final private IInterruptionResolverFactory _interruptionsHandler;
 
     public BusinessApiService(ISessionService sessionService,
                               IAccountService<A> accountService,
                               IApiService apiService,
                               IApiRequestFactory requestFactory,
                               IProviderFactory providerFactory,
-                              IInterruptionsHandler interruptionsHandler) {
+                              IInterruptionResolverFactory interruptionsHandler) {
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;

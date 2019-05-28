@@ -9,16 +9,16 @@ import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
-public class InterruptionHandler implements IInterruptionsHandler {
+public class InterruptionResolverFactory implements IInterruptionResolverFactory {
 
-    public static final String LOG_TAG = "InterruptionHandler";
+    public static final String LOG_TAG = "InterruptionResolverFactory";
 
     //Dependencies
     final private IoCContainer _container;
 
     private boolean _enabled = true;
 
-    public InterruptionHandler(IoCContainer container) {
+    public InterruptionResolverFactory(IoCContainer container) {
         _container = container.clone();
     }
 

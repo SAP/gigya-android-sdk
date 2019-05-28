@@ -13,8 +13,8 @@ import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
-import com.gigya.android.sdk.interruption.InterruptionHandler;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
+import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
@@ -56,7 +56,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
-                .bind(IInterruptionsHandler.class, InterruptionHandler.class, true)
+                .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IoCContainer.class, this);
     }

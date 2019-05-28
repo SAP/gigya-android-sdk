@@ -3,7 +3,7 @@ package com.gigya.android.sdk.interruption;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 
-public interface IInterruptionsHandler {
+public interface IInterruptionResolverFactory {
 
     void setEnabled(boolean enabled);
 

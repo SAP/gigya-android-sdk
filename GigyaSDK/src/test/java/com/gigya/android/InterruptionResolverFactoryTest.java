@@ -3,7 +3,7 @@ import org.junit.Test;
 
 // TODO: complete
 
-public class InterruptionHandlerTest {
+public class InterruptionResolverFactoryTest {
     @Test
     public void testResolveWhenDisabled() {}
 

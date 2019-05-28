@@ -15,7 +15,7 @@ import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.api.IApiRequestFactory;
@@ -126,7 +126,7 @@ public class BaseGigyaTest {
                   IAccountService<TestAccount> accountService,
                   IBusinessApiService<TestAccount> businessApiService,
                   ISessionVerificationService sessionVerificationService,
-                  IInterruptionsHandler interruptionsHandler,
+                  IInterruptionResolverFactory interruptionsHandler,
                   IPresenter presenter,
                   IProviderFactory providerFactory) {
             super(context,

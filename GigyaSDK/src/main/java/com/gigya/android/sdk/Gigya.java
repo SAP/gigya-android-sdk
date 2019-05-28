@@ -10,7 +10,7 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.interruption.IInterruptionsHandler;
+import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.session.SessionInfo;
@@ -112,7 +112,7 @@ public class Gigya<T extends GigyaAccount> {
     final private IAccountService<T> _accountService;
     final private IBusinessApiService<T> _businessApiService;
     final private ISessionVerificationService _sessionVerificationService;
-    final private IInterruptionsHandler _interruptionsHandler;
+    final private IInterruptionResolverFactory _interruptionsHandler;
     final private IPresenter _presenter;
     final private IProviderFactory _providerFactory;
 
@@ -124,7 +124,7 @@ public class Gigya<T extends GigyaAccount> {
                     IAccountService<T> accountService,
                     IBusinessApiService<T> businessApiService,
                     ISessionVerificationService sessionVerificationService,
-                    IInterruptionsHandler interruptionsHandler,
+                    IInterruptionResolverFactory interruptionsHandler,
                     IPresenter presenter,
                     IProviderFactory providerFactory) {
         // Setup dependencies.
