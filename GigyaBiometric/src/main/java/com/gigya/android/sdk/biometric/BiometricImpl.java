@@ -48,6 +48,8 @@ public abstract class BiometricImpl implements IBiometricImpl {
         _biometricKey = new BiometricKey(_persistenceService);
     }
 
+    protected abstract void updateAnimationState(boolean state);
+
     //region SET SESSION & SESSION INTERCEPTION
 
     /**

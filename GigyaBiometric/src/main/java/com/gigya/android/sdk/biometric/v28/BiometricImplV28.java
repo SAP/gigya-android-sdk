@@ -31,6 +31,11 @@ public class BiometricImplV28 extends BiometricImpl {
     }
 
     @Override
+    protected void updateAnimationState(boolean state) {
+        throw new RuntimeException("Updating animation state is only available for Pre 28 Android versions");
+    }
+
+    @Override
     synchronized public void showPrompt(final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, final @NonNull IGigyaBiometricCallback callback) {
         final SecretKey key = _biometricKey.getKey();

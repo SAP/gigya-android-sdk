@@ -35,10 +35,9 @@ public class GigyaBiometric {
             try {
                 _sharedInstance = container.get(GigyaBiometric.class);
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?)");
+                GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                // TODO: throw
-                return null;
+                throw new RuntimeException("Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;
@@ -74,8 +73,7 @@ public class GigyaBiometric {
      */
     public void setAnimationForPrePieDevices(boolean animate) {
         if (!GigyaBiometricUtils.isPromptEnabled()) {
-            // TODO: updateAnimationState as an abstract method in the base class - ImplV28 should throw
-            ((BiometricImplV23) _impl).updateAnimationState(animate);
+            _impl.updateAnimationState(animate);
         }
     }
 

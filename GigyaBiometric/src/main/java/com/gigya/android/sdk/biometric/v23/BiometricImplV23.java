@@ -28,6 +28,7 @@ public class BiometricImplV23 extends BiometricImpl {
 
     private boolean _animate = true;
 
+    @Override
     public void updateAnimationState(boolean animate) {
         _animate = animate;
     }
