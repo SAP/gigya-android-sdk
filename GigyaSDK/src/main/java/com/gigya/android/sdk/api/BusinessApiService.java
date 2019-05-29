@@ -6,6 +6,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.annotations.RequireSession;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
@@ -136,12 +137,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
-
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.GET);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
@@ -223,8 +219,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST">accounts.verifyLogin REST</a>
      */
     @Override
+    @RequireSession
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
-        // TODO: can we create a custom annotation "RequireSession"?
         if (!_sessionService.isValid()) {
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
@@ -329,7 +325,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public void register(final Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         // #1 Chain init registration.
-        GigyaApiRequest initRequest = _reqFactory.create(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
+        final GigyaApiRequest initRequest = _reqFactory.create(GigyaDefinitions.API.API_INIT_REGISTRATION, params, RestAdapter.POST);
         _apiService.send(initRequest, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -379,16 +375,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.getAccountInfo+REST">accounts.getAccountInfo REST</a>
      */
     @Override
+    @RequireSession
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
         if (_accountService.isCachedAccount()) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.GET);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -417,13 +410,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
+    @RequireSession
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
         final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -451,12 +441,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
+    @RequireSession
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -483,9 +470,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     // Non documented.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
-        if (!_sessionService.isValid()) {
-            return;
-        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -517,7 +501,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("loginID", loginId);
-        GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -543,11 +527,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
+    @RequireSession
     public void addConnection(String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, gigyaLoginCallback);
@@ -562,11 +543,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/socialize.removeConnection+REST">socialize.removeConnection REST</a>
      */
     @Override
+    @RequireSession
     public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);
         final String UID = _accountService.getAccount().getUID();

@@ -4,12 +4,13 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.network.GigyaResponseModel;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Gigya main account model.
  * Model is an inline representation of the base scheme available in the client site.
  */
-public class GigyaAccount extends GigyaResponseModel { // TODO: #baryo - main account model shouldn't contain request specific fields inherited
+public class GigyaAccount extends GigyaResponseModel {
 
     @Nullable
     private String UID;

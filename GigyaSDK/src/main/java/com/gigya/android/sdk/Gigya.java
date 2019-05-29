@@ -6,22 +6,26 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.annotations.RequireSession;
+import com.gigya.android.sdk.api.BusinessApiService;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
-import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.account.GigyaAccountClass;
-import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.api.GigyaApiResponse;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.PluginFragment;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,14 +92,14 @@ public class Gigya<T extends GigyaAccount> {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
                 e.printStackTrace();
-                // TODO: throw
+                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
             }
         }
         // Check scheme. If already set log an error.
         final Class schema = INSTANCE.getAccountSchema();
         if (schema != accountClazz) {
             GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
-            // TODO: throw
+            throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
         }
         return INSTANCE;
     }
@@ -112,7 +116,7 @@ public class Gigya<T extends GigyaAccount> {
     final private IAccountService<T> _accountService;
     final private IBusinessApiService<T> _businessApiService;
     final private ISessionVerificationService _sessionVerificationService;
-    final private IInterruptionResolverFactory _interruptionsHandler;
+    final private IInterruptionResolverFactory _interruptionResolverFactory;
     final private IPresenter _presenter;
     final private IProviderFactory _providerFactory;
 
@@ -135,7 +139,7 @@ public class Gigya<T extends GigyaAccount> {
         _accountService = accountService;
         _businessApiService = businessApiService;
         _sessionVerificationService = sessionVerificationService;
-        _interruptionsHandler = interruptionsHandler;
+        _interruptionResolverFactory = interruptionsHandler;
         _presenter = presenter;
         _providerFactory = providerFactory;
 
@@ -192,7 +196,10 @@ public class Gigya<T extends GigyaAccount> {
             _accountService.nextAccountInvalidationTimestamp();
         }
 
-        // TODO: throw if there's no apikey
+        if (_config.getApiKey() == null || _config.getApiKey().isEmpty()) {
+            GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+            throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+        }
     }
 
     //endregion
@@ -215,7 +222,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param sdkHandles False if manually handling all errors.
      */
     public void handleInterruptions(boolean sdkHandles) {
-        _interruptionsHandler.setEnabled(sdkHandles);
+        _interruptionResolverFactory.setEnabled(sdkHandles);
     }
 
     /**
@@ -223,7 +230,7 @@ public class Gigya<T extends GigyaAccount> {
      * if TRUE, interruption handling will be optional via the GigyaLoginCallback.
      */
     public boolean interruptionsEnabled() {
-        return _interruptionsHandler.isEnabled();
+        return _interruptionResolverFactory.isEnabled();
     }
 
     //endregion
@@ -283,7 +290,10 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
-        _businessApiService.logout(null);
+
+        if (runOnValidSession("logout", null)) {
+            _businessApiService.logout(null);
+        }
         _sessionService.clear(true);
 
         // Clear presenter related data (cookies).
@@ -350,7 +360,7 @@ public class Gigya<T extends GigyaAccount> {
      * Request account info.
      *
      * @param invalidateCache Should override the account caching option. When set to true, the SDK will not cache the account object.
-     * @param gigyaCallback Response listener callback.
+     * @param gigyaCallback   Response listener callback.
      */
     @SuppressWarnings("unused")
     public void getAccount(final boolean invalidateCache, GigyaCallback<T> gigyaCallback) {
@@ -358,7 +368,10 @@ public class Gigya<T extends GigyaAccount> {
         if (invalidateCache) {
             _accountService.invalidateAccount();
         }
-        _businessApiService.getAccount(gigyaCallback);
+
+        if (runOnValidSession("getAccount", gigyaCallback)) {
+            _businessApiService.getAccount(gigyaCallback);
+        }
     }
 
     /**
@@ -369,7 +382,10 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
-        _businessApiService.setAccount(account, gigyaCallback);
+
+        if (runOnValidSession("setAccount", gigyaCallback)) {
+            _businessApiService.setAccount(account, gigyaCallback);
+        }
     }
 
     /**
@@ -380,7 +396,10 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: with params");
-        _businessApiService.setAccount(params, gigyaCallback);
+
+        if (runOnValidSession("setAccount", gigyaCallback)) {
+            _businessApiService.setAccount(params, gigyaCallback);
+        }
     }
 
     /**
@@ -391,7 +410,10 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-        _businessApiService.verifyLogin(UID, gigyaCallback);
+
+        if (runOnValidSession("verifyLogin", gigyaCallback)) {
+            _businessApiService.verifyLogin(UID, gigyaCallback);
+        }
     }
 
     /**
@@ -442,7 +464,10 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
-        _businessApiService.addConnection(socialProvider, loginCallback);
+
+        if (runOnValidSession("addConnection", loginCallback)) {
+            _businessApiService.addConnection(socialProvider, loginCallback);
+        }
     }
 
     /**
@@ -453,10 +478,11 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
-        _businessApiService.removeConnection(socialProvider, gigyaCallback);
-    }
 
-    // TODO: #baryo should Gigya inherit from BusinessApiService?
+        if (runOnValidSession("removeConnection", gigyaCallback)) {
+            _businessApiService.removeConnection(socialProvider, gigyaCallback);
+        }
+    }
 
     //endregion
 
@@ -511,4 +537,22 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     //endregion
+
+    private boolean runOnValidSession(String methodName, GigyaCallback callback) {
+        final Class<BusinessApiService> clazz = BusinessApiService.class;
+        final Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName) && method.getAnnotation(RequireSession.class) != null) {
+                // Check if session is valid.
+                if (_sessionService.isValid()) {
+                    return true;
+                }
+            }
+        }
+        GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+        if (callback != null) {
+            callback.onError(GigyaError.unauthorizedUser());
+        }
+        return false;
+    }
 }

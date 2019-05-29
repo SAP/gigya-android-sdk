@@ -30,6 +30,8 @@ public class ProviderFactory implements IProviderFactory {
     final private FileUtils _fileUtils;
     final private IPersistenceService _psService;
 
+    private static final String LOG_TAG = "ProviderFactory";
+
     public ProviderFactory(IoCContainer container,
                            Context context,
                            FileUtils fileUtils,
@@ -50,8 +52,7 @@ public class ProviderFactory implements IProviderFactory {
         try {
             return tempContainer.createInstance(providerClazz);
         } catch (Exception e) {
-            // TODO: #baryo
-            GigyaLogger.error("TAG", "missing dependency for creating provider");
+            GigyaLogger.error(LOG_TAG, "Missing dependency for creating provider");
             return null;
         } finally {
             tempContainer.dispose();
