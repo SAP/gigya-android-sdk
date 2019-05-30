@@ -16,7 +16,6 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
-import com.gigya.android.sdk.ui.plugin.PluginFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
 
@@ -58,13 +57,11 @@ public class Presenter implements IPresenter {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putBoolean(PluginFragment.ARG_OBFUSCATE, obfuscate);
-                args.putString(PluginFragment.ARG_PLUGIN, plugin);
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
                 if (fullScreen) {
                     args.putBoolean(Presenter.SHOW_FULL_SCREEN, true);
                 }
-                _pfgFactory.showPluginFragment(activity, args, gigyaPluginCallback);
+                _pfgFactory.showPluginFragment(activity, plugin, params, args, gigyaPluginCallback);
             }
         });
     }

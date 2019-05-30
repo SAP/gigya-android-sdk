@@ -23,7 +23,7 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
-import com.gigya.android.sdk.ui.plugin.PluginFragment;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -519,8 +519,8 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void showScreenSet(final String screensSet, boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         params.put("screenSet", screensSet);
-        GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
-        _presenter.showPlugin(false, PluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
+        _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
     }
 
     /**
@@ -532,8 +532,8 @@ public class Gigya<T extends GigyaAccount> {
      */
     // TODO: 16/04/2019 Not available in beta.
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
-        GigyaLogger.debug(LOG_TAG, "showPlugin: " + PluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        _presenter.showPlugin(false, PluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
+        _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
     }
 
     //endregion

@@ -1,8 +1,16 @@
-package com.gigya.android.sdk.ui.new_plugin_impl;
+package com.gigya.android.sdk.ui.plugin;
+
+import android.support.annotation.NonNull;
+
+import com.gigya.android.sdk.account.models.GigyaAccount;
 
 import java.util.Map;
 
-public interface IGigyaWebBridge {
+public interface IGigyaWebBridge<A extends GigyaAccount> {
+
+    void withObfuscation(boolean obfuscation);
+
+    void setInvocationCallback(@NonNull GigyaPluginFragment.IBridgeCallbacks<A> invocationCallback);
 
     boolean invoke(String action, String method, String queryStringParams);
 

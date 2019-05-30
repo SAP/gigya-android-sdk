@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.ui.new_plugin_impl;
+package com.gigya.android.sdk.ui.plugin;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -11,7 +11,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.gigya.android.sdk.ui.Presenter;
-import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.HashMap;

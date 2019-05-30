@@ -1,14 +1,15 @@
-package com.gigya.android.sdk.ui.new_plugin_impl;
+package com.gigya.android.sdk.ui.plugin;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.gigya.android.sdk.GigyaPluginCallback;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 
-public interface IGigyaPluginFragment {
+public interface IGigyaPluginFragment<A extends GigyaAccount> {
 
-    void setCallback(final GigyaPluginCallback gigyaPluginCallback);
+    void setCallback(final GigyaPluginCallback<A> gigyaPluginCallback);
 
     void setHtml(final String html);
 

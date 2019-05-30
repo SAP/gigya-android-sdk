@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.ui.new_plugin_impl;
+package com.gigya.android.sdk.ui.plugin;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -16,6 +16,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +78,7 @@ public class GigyaPluginFileChooser extends WebChromeClient {
         if (takePictureIntent.resolveActivity(getFragment().getActivity().getPackageManager()) != null) {
             File imageFile = null;
             try {
-                imageFile = createImageFile();
+                imageFile = FileUtils.createImageFile();
                 takePictureIntent.putExtra("imagePath", _cameraTempImagePath);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -100,21 +101,7 @@ public class GigyaPluginFileChooser extends WebChromeClient {
         chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, takePictureIntent != null ?
                 new Intent[]{takePictureIntent} : new Intent[0]);
-        getFragment().getActivity().startActivityForResult(chooserIntent, FILE_CHOOSER_MEDIA_REQUEST_CODE);
-    }
-
-    // TODO: 2019-05-30 Move to fileUtils class.
-    @SuppressLint("SimpleDateFormat")
-    private File createImageFile() throws IOException {
-        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        final String imageFileName = "JPEG_" + timeStamp + "_";
-        final File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
+        getFragment().startActivityForResult(chooserIntent, FILE_CHOOSER_MEDIA_REQUEST_CODE);
     }
 
     void onActivityResult(int resultCode, Intent data) {

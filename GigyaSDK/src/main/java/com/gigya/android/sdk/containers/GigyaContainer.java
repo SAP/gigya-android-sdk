@@ -29,13 +29,11 @@ import com.gigya.android.sdk.session.SessionService;
 import com.gigya.android.sdk.session.SessionVerificationService;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.Presenter;
-import com.gigya.android.sdk.ui.new_plugin_impl.GigyaPluginFragment;
-import com.gigya.android.sdk.ui.new_plugin_impl.GigyaWebBridge;
-import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaPluginFragment;
-import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaWebBridge;
-import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
+import com.gigya.android.sdk.ui.plugin.IGigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
-import com.gigya.android.sdk.ui.plugin.WebBridgeFactory;
 import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
 import com.gigya.android.sdk.utils.FileUtils;
 
@@ -55,7 +53,6 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
                 .bind(IProviderFactory.class, ProviderFactory.class, false)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
-                .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false) //TODO Remove when finished with plugin refactoring.
                 .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
