@@ -18,8 +18,6 @@ public interface IGigyaPluginFragment {
 
     void loadUrl(final View fragmentView);
 
-    void setUpFileInteractions();
-
     void dismissWhenDone();
 
     void evaluateActivityResult(int requestCode, int resultCode, Intent data);

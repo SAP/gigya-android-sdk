@@ -4,10 +4,12 @@ import android.os.Build;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
-import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
+import com.gigya.android.sdk.api.GigyaApiRequestFactory;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.encryption.ISecureKey;
@@ -15,8 +17,6 @@ import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
-import com.gigya.android.sdk.api.GigyaApiRequestFactory;
-import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -27,10 +27,12 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
 import com.gigya.android.sdk.session.SessionVerificationService;
-import com.gigya.android.sdk.ui.new_plugin_impl.GigyaPluginFragment;
-import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaPluginFragment;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.Presenter;
+import com.gigya.android.sdk.ui.new_plugin_impl.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.new_plugin_impl.GigyaWebBridge;
+import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaPluginFragment;
+import com.gigya.android.sdk.ui.new_plugin_impl.IGigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IWebBridgeFactory;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.plugin.WebBridgeFactory;
@@ -53,7 +55,8 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
                 .bind(IProviderFactory.class, ProviderFactory.class, false)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
-                .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false)
+                .bind(IWebBridgeFactory.class, WebBridgeFactory.class, false) //TODO Remove when finished with plugin refactoring.
+                .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)

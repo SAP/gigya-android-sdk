@@ -71,9 +71,7 @@ public class GigyaPluginWebViewClient extends WebViewClient {
             eventMap.put("description", "Javascript error while loading plugin. Please make sure the plugin name is correct.");
             eventMap.put("dismiss", true);
             _interactions.onPageError(new GigyaPluginEvent(eventMap));
-        } else if (requiresInvocation(uriString)) {
-            _interactions.onUrlInvoke(uriString);
-        } else {
+        } else if (!_interactions.onUrlInvoke(uriString)) {
             _interactions.onBrowserIntent(uri);
         }
     }
@@ -85,10 +83,6 @@ public class GigyaPluginWebViewClient extends WebViewClient {
     private boolean isJSException(final Uri uri) {
         return ObjectUtils.safeEquals(uri.getScheme(), Presenter.Consts.REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), Presenter.Consts.ON_JS_EXCEPTION);
     }
-
-    private boolean requiresInvocation(final String url) {
-        return url.startsWith("gsapi://");
-    }
 }
 
 interface IGigyaPluginWebViewClientInteractions {
@@ -96,7 +90,7 @@ interface IGigyaPluginWebViewClientInteractions {
 
     void onPageError(GigyaPluginEvent errorEvent);
 
-    void onUrlInvoke(final String url);
+    boolean onUrlInvoke(final String url);
 
     void onBrowserIntent(final Uri uri);
 }
