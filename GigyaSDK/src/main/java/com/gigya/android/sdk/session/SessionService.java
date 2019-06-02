@@ -11,10 +11,10 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -45,7 +45,10 @@ public class SessionService implements ISessionService {
     // Injected field - session logic interceptors.
     private ArrayMap<String, GigyaInterceptor> _sessionInterceptors = new ArrayMap<>();
 
-    public SessionService(Context context, Config config, IPersistenceService psService, ISecureKey secureKey) {
+    public SessionService(Context context,
+                          Config config,
+                          IPersistenceService psService,
+                          ISecureKey secureKey) {
         _context = context;
         _psService = psService;
         _config = config;
@@ -210,10 +213,23 @@ public class SessionService implements ISessionService {
     public void clear(boolean clearStorage) {
         GigyaLogger.debug(LOG_TAG, "clear: ");
         _sessionInfo = null;
+
         if (clearStorage) {
             // Remove session data. Update encryption to DEFAULT.
             _psService.removeSession();
             _psService.setSessionEncryptionType("DEFAULT");
+
+            // Make sure to keep reference to GMID & UCID if available.
+            if (_config.getGmid() != null && _config.getUcid() != null) {
+                try {
+                    // Encrypt again & save.
+                    final JSONObject jsonObject = new JSONObject().put("ucid", _config.getUcid()).put("gmid", _config.getGmid());
+                    final String encryptedSession = encryptSession(jsonObject.toString(), _secureKey.getKey());
+                    _psService.setSession(encryptedSession);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
