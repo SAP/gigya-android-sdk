@@ -44,31 +44,31 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class BaseGigyaTest {
 
     @Mock
-    Application mContext;
+    public Application mContext;
 
     @Mock
-    Config mConfig;
+    public Config mConfig;
 
     @Mock
-    SessionService mSessionService;
+    public SessionService mSessionService;
 
     @Mock
-    accountCacheService mAccountCacheService;
+    public accountCacheService mAccountCacheService;
 
     @Mock
-    PersistenceService mPersistenceService;
+    public PersistenceService mPersistenceService;
 
     @Mock
-    ApiService mApiService;
+    public ApiService mApiService;
 
     @Mock
-    SessionVerificationService mSessionVerificationService;
+    public SessionVerificationService mSessionVerificationService;
 
     @Mock
-    IApiRequestFactory mRequestFactory;
+    public IApiRequestFactory mRequestFactory;
 
     @Mock
-    WebViewFragmentFactory mWebViewFragmentFactory;
+    public WebViewFragmentFactory mWebViewFragmentFactory;
 
     protected IoCContainer container;
 
@@ -146,7 +146,7 @@ public class BaseGigyaTest {
 
     //region MOCK CONFIG
 
-    void mockConfig() {
+    public void mockConfig() {
         when(mConfig.getApiKey()).thenReturn(StaticMockFactory.API_KEY);
         when(mConfig.getApiDomain()).thenReturn(StaticMockFactory.API_DOMAIN);
         when(mConfig.getGmid()).thenReturn(StaticMockFactory.GMID);
@@ -161,7 +161,7 @@ public class BaseGigyaTest {
 
     //region MOCK SHARED PREFERENCES
 
-    void mockSharedPreferences() {
+    public void mockSharedPreferences() {
         when(mContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mSharedPreferences);
         when(mSharedPreferences.edit()).thenReturn(mEditor);
         when(mEditor.putString(anyString(), anyString())).thenReturn(mEditor);
@@ -173,7 +173,7 @@ public class BaseGigyaTest {
 
     //region STATIC MOCKS
 
-    void mockAndroidTextUtils() {
+    public void mockAndroidTextUtils() {
         mockStatic(TextUtils.class);
         when(TextUtils.isEmpty((CharSequence) any())).thenAnswer(new Answer<Boolean>() {
             @Override

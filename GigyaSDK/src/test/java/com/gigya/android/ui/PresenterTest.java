@@ -1,5 +1,6 @@
-package com.gigya.android;
+package com.gigya.android.ui;
 
+import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.ui.Presenter;
 

@@ -1,11 +1,13 @@
-package com.gigya.android;
+package com.gigya.android.api;
 
 import android.content.Context;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
+import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.session.SessionInfo;
@@ -64,6 +66,12 @@ public class BusinessApiServiceTest {
 
     @Mock
     ApiService.IApiServiceResponse mResponse;
+
+    @Mock
+    GigyaCallback mCallback;
+
+    @Mock
+    GigyaApiRequestFactory mRequestFactory;
 
     @InjectMocks
     BusinessApiService cBusinessApiService;

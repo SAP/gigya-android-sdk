@@ -1,5 +1,6 @@
-package com.gigya.android;
+package com.gigya.android.session;
 
+import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.sdk.session.SessionVerificationService;
 
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.api;
 import org.junit.Test;
 
 // TODO: complete

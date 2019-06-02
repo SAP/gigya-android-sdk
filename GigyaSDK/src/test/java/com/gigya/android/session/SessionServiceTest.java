@@ -1,9 +1,11 @@
-package com.gigya.android;
+package com.gigya.android.session;
 
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
 
+import com.gigya.android.BaseGigyaTest;
+import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.session.SessionInfo;

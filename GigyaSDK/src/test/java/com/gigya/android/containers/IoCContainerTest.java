@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.containers;
 
 import com.gigya.android.sdk.containers.IoCContainer;
 import org.junit.Before;

@@ -1,10 +1,10 @@
-package com.gigya.android;
+package com.gigya.android.encryption;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
+import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.persistence.PersistenceService;
 
 import org.junit.Before;
@@ -15,11 +15,7 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Cipher;
+import java.security.Key;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -29,7 +25,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.crypto.*")
-public class SessionKeyTest {
+public class SessionKeyLegacyTest {
 
     @Mock
     private Context mContext;
@@ -51,42 +47,28 @@ public class SessionKeyTest {
         when(mSharedPreferences.edit()).thenReturn(mEditor);
         when(mEditor.putString(anyString(), anyString())).thenReturn(mEditor);
         doNothing().when(mEditor).apply();
-
         // Test instance.
-        cSecureKey = new SessionKey(mContext, mPsService);
+        cSecureKey = new SessionKeyLegacy(mPsService);
     }
 
     @Test
-    public void testAlias() {
-        // Act
-        final String alias = cSecureKey.getAlias();
-        // Assert
-        assertNotNull(alias);
-    }
-
-    @Test
-    public void testGetEncryptionCipher() throws NoSuchAlgorithmException {
+    public void testGetKeyNew() {
         // Arrange
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-        KeyPair kp = kpg.generateKeyPair();
+        when(mSharedPreferences.getString(anyString(), anyString())).thenReturn(null);
         // Act
-        final Cipher cipher = cSecureKey.getEncryptionCipher(kp.getPrivate());
+        final Key key = cSecureKey.getKey();
         // Assert
-        assertNotNull(cipher);
-        assertNotNull(cipher.getAlgorithm());
+        assertNotNull(key);
     }
 
     @Test
-    public void testGetDecryptionCipher() throws NoSuchAlgorithmException {
+    public void testGetKeyExisting() {
         // Arrange
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-        KeyPair kp = kpg.generateKeyPair();
+        when(mSharedPreferences.getString("GS_PREFA", null)).thenReturn("mockEncryption");
         // Act
-        final Cipher cipher = cSecureKey.getDecryptionCipher(kp.getPrivate());
+        final Key key = cSecureKey.getKey();
         // Assert
-        assertNotNull(cipher);
-        assertNotNull(cipher.getAlgorithm());
+        assertNotNull(key);
     }
+
 }

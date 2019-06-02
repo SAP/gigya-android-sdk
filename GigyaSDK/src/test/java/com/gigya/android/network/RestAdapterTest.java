@@ -1,4 +1,4 @@
-package com.gigya.android;
+package com.gigya.android.network;
 
 import android.content.Context;
 
