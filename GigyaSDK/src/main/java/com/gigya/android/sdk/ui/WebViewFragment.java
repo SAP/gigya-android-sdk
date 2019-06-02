@@ -115,7 +115,7 @@ public abstract class WebViewFragment extends DialogFragment {
                 final Bundle args = getArguments();
                 if (args != null) {
                     // Check fullscreen mode request.
-                    final boolean fullScreen = args.getBoolean(Presenter.SHOW_FULL_SCREEN, false);
+                    final boolean fullScreen = args.getBoolean(Presenter.ARG_STYLE_SHOW_FULL_SCREEN, false);
                     if (fullScreen) {
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

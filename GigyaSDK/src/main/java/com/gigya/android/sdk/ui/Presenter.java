@@ -27,12 +27,16 @@ import java.util.Map;
 public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
 
     public static class Consts {
+
         public static final String REDIRECT_URL_SCHEME = "gsapi";
         public static final String ON_JS_LOAD_ERROR = "on_js_load_error";
         public static final String ON_JS_EXCEPTION = "on_js_exception";
         public static final String CONTAINER_ID = "pluginContainer";
         public static final int JS_TIMEOUT = 10000;
     }
+
+    public static final String ARG_STYLE_SHOW_FULL_SCREEN = "arg_style_show_full_screen";
+    public static final String ARG_OBFUSCATE = "arg_obfuscate";
 
     final private Context _context;
     final private Config _config;
@@ -62,7 +66,8 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putBoolean(Presenter.SHOW_FULL_SCREEN, fullScreen);
+                args.putBoolean(ARG_STYLE_SHOW_FULL_SCREEN, fullScreen);
+                args.putBoolean(ARG_OBFUSCATE, obfuscate);
                 _pfgFactory.showPluginFragment(activity, plugin, params, args, gigyaPluginCallback);
             }
         });
@@ -137,7 +142,6 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
         return String.format("%s://%s.%s/%s?%s", protocol, domainPrefix, _config.getApiDomain(), endpoint, qs);
     }
 
-    public static final String SHOW_FULL_SCREEN = "style_show_full_screen";
 
     //region HOST ACTIVITY LIFECYCLE CALLBACKS TRACKING
 
