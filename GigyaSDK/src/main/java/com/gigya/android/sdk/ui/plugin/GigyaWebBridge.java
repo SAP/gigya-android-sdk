@@ -223,7 +223,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             public void onSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     // Check if generic send was a login/register request.
-                    if (api.equals("accounts.register") || api.equals("accounts.login")) {
+                    if (response.containsNested("sessionInfo.sessionSecret")) {
                         A parsed = response.parseTo(_accountService.getAccountSchema());
                         final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
                         _sessionService.setSession(newSession);

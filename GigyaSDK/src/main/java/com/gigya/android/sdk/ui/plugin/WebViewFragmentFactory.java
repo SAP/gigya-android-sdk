@@ -10,6 +10,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
 
@@ -18,12 +19,6 @@ import org.json.JSONObject;
 import java.util.Map;
 
 public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewFragmentFactory<A> {
-
-    private static final String REDIRECT_URL_SCHEME = "gsapi";
-    private static final String ON_JS_LOAD_ERROR = "on_js_load_error";
-    private static final String ON_JS_EXCEPTION = "on_js_exception";
-    private static final String CONTAINER_ID = "pluginContainer";
-    private static final int JS_TIMEOUT = 10000;
 
     final private Config _config;
     final private IGigyaWebBridge<A> _gigyaWebBridge;
@@ -34,8 +29,11 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
     }
 
     @Override
-    public void showPluginFragment(AppCompatActivity activity, String plugin, Map<String, Object> params, Bundle args, GigyaPluginCallback<A> gigyaPluginCallback) {
-        params.put("containerID", CONTAINER_ID);
+    public void showPluginFragment(AppCompatActivity activity,
+                                   String plugin, Map<String, Object> params,
+                                   Bundle args,
+                                   GigyaPluginCallback<A> gigyaPluginCallback) {
+        params.put("containerID", Presenter.Consts.CONTAINER_ID);
 
         if (params.containsKey("commentsUI")) {
             params.put("hideShareButtons", true);
@@ -80,20 +78,31 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
                         "</script>" +
                         "</body>";
 
-        GigyaPluginFragment<A> fragment = new GigyaPluginFragment<>();
+        final GigyaPluginFragment<A> fragment = new GigyaPluginFragment<>();
         fragment.setArguments(args);
         fragment.setConfig(_config);
         fragment.setWebBridge(_gigyaWebBridge);
         fragment.setCallback(gigyaPluginCallback);
-        fragment.setHtml(String.format(template, REDIRECT_URL_SCHEME, ON_JS_EXCEPTION, REDIRECT_URL_SCHEME, ON_JS_LOAD_ERROR, JS_TIMEOUT,
-                _config.getApiKey(), CONTAINER_ID, "", plugin, new JSONObject(params).toString()));
+        fragment.setHtml(String.format(template,
+                Presenter.Consts.REDIRECT_URL_SCHEME,
+                Presenter.Consts.ON_JS_EXCEPTION,
+                Presenter.Consts.REDIRECT_URL_SCHEME,
+                Presenter.Consts.ON_JS_LOAD_ERROR,
+                Presenter.Consts.JS_TIMEOUT,
+                _config.getApiKey(),
+                Presenter.Consts.CONTAINER_ID,
+                "",
+                plugin,
+                new JSONObject(params).toString()));
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, "GigyaPluginFragment");
         fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
-    public void showProviderFragment(final AppCompatActivity activity, final IBusinessApiService businessApiService, final Map<String, Object> params, Bundle args,
+    public void showProviderFragment(final AppCompatActivity activity,
+                                     final IBusinessApiService businessApiService,
+                                     final Map<String, Object> params, Bundle args,
                                      final GigyaLoginCallback gigyaLoginCallback) {
         ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 

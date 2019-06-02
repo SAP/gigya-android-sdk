@@ -92,7 +92,7 @@ public class ProviderFactoryTest {
         when(GoogleProvider.isAvailable((Context) any())).thenReturn(true);
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        Provider provider = factory.providerFor(GOOGLE, null,mCallback);
+        Provider provider = factory.providerFor(GOOGLE, mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof GoogleProvider);
@@ -104,7 +104,7 @@ public class ProviderFactoryTest {
         when(FacebookProvider.isAvailable((FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(FACEBOOK, null,mCallback);
+        IProvider provider = factory.providerFor(FACEBOOK, mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof FacebookProvider);
@@ -117,7 +117,7 @@ public class ProviderFactoryTest {
         when(LineProvider.isAvailable((FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(LINE, null,mCallback);
+        IProvider provider = factory.providerFor(LINE, mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof LineProvider);
@@ -129,7 +129,7 @@ public class ProviderFactoryTest {
         when(WeChatProvider.isAvailable((Context) any(), (FileUtils) any())).thenReturn(true);
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(WECHAT,null, mCallback);
+        IProvider provider = factory.providerFor(WECHAT,mCallback);
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WeChatProvider);
@@ -139,7 +139,7 @@ public class ProviderFactoryTest {
     public void testWeb() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(AMAZON, null, mCallback); // Not available as native.
+        IProvider provider = factory.providerFor(AMAZON,  mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WebLoginProvider);
@@ -149,7 +149,7 @@ public class ProviderFactoryTest {
     public void testNullName() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Act
         IProviderFactory factory = testContainer.get(IProviderFactory.class);
-        IProvider provider = factory.providerFor(null, null,mCallback); // Not available as native.
+        IProvider provider = factory.providerFor(null, mCallback); // Not available as native.
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WebLoginProvider);

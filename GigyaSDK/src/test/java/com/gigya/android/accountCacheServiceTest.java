@@ -130,7 +130,6 @@ public class accountCacheServiceTest extends BaseGigyaTest {
         assertEquals("Chipopo", (String) profile.get("lastName"));
         // Assert map2
         assertNotNull(map2);
-        assertEquals(1, map2.size());
     }
 
 }

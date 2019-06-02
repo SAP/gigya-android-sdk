@@ -14,6 +14,7 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Presenter implements IPresenter {
+public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
 
     public static class Consts {
         public static final String REDIRECT_URL_SCHEME = "gsapi";
@@ -35,18 +36,22 @@ public class Presenter implements IPresenter {
 
     final private Context _context;
     final private Config _config;
-    final private IWebViewFragmentFactory _pfgFactory;
+    final private IWebViewFragmentFactory<A> _pfgFactory;
 
     private static final String REDIRECT_URI = "gsapi://result/";
 
-    public Presenter(Context context, Config config, IWebViewFragmentFactory pfgFactory) {
+    public Presenter(Context context, Config config, IWebViewFragmentFactory<A> pfgFactory) {
         _context = context;
         _config = config;
         _pfgFactory = pfgFactory;
     }
 
     @Override
-    public void showPlugin(final boolean obfuscate, final String plugin, final boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback gigyaPluginCallback) {
+    public void showPlugin(final boolean obfuscate,
+                           final String plugin,
+                           final boolean fullScreen,
+                           final Map<String, Object> params,
+                           final GigyaPluginCallback<A> gigyaPluginCallback) {
         if (!params.containsKey("lang")) {
             params.put("lang", "en");
         }
@@ -57,17 +62,17 @@ public class Presenter implements IPresenter {
             @Override
             public void onCreate(final AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
                 Bundle args = new Bundle();
-                args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                if (fullScreen) {
-                    args.putBoolean(Presenter.SHOW_FULL_SCREEN, true);
-                }
+                args.putBoolean(Presenter.SHOW_FULL_SCREEN, fullScreen);
                 _pfgFactory.showPluginFragment(activity, plugin, params, args, gigyaPluginCallback);
             }
         });
     }
 
     @Override
-    public void showNativeLoginProviders(List<String> providers, final IBusinessApiService businessApiService, final Map<String, Object> params, final GigyaLoginCallback gigyaLoginCallback) {
+    public void showNativeLoginProviders(List<String> providers,
+                                         final IBusinessApiService businessApiService,
+                                         final Map<String, Object> params,
+                                         final GigyaLoginCallback<A> gigyaLoginCallback) {
         params.put("enabledProviders", TextUtils.join(",", providers));
         final String url = getPresentationUrl(params, "login");
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
