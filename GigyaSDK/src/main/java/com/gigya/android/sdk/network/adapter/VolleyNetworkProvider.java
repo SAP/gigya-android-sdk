@@ -47,7 +47,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+    public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         if (_blocked) {
             _blockedQueue.add(newRequest);
@@ -60,14 +60,14 @@ public class VolleyNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+    public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
         _blocked = true;
     }
 
     @Override
-    void release() {
+    public void release() {
         super.release();
         if (_blockedQueue.isEmpty()) {
             return;
@@ -80,7 +80,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void cancel(String tag) {
+    public void cancel(String tag) {
         if (tag == null) {
             // Cancel all.
             _requestQueue.cancelAll(new RequestQueue.RequestFilter() {

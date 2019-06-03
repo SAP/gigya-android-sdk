@@ -69,14 +69,7 @@ public class ApiServiceTest {
         // Arrange
         _config.setGmid(StaticMockFactory.GMID);
 
-        final String mockJsonResponse = "{\n" +
-                "  \"callId\": \"d6e963d1bf5c4d73a010b06fe2182f6c\",\n" +
-                "  \"errorCode\": 0,\n" +
-                "  \"apiVersion\": 2,\n" +
-                "  \"statusCode\": 200,\n" +
-                "  \"statusReason\": \"OK\",\n" +
-                "  \"time\": \"2019-06-02T06:42:55.678Z\"\n" +
-                "}";
+        final String mockJsonResponse = StaticMockFactory.getMockResponseJson();
 
         doAnswer(new Answer<Object>() {
             @Override
@@ -102,7 +95,7 @@ public class ApiServiceTest {
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                System.out.println("error");
+                // Redundant.
             }
         });
     }
@@ -142,38 +135,9 @@ public class ApiServiceTest {
     public void testSuccessfulSendWithSuccessfulGetSdkConfig() {
 
         // Arrange
-        final String mockConfigJson = "{\n" +
-                "\t\"errorReportRules\": [],\n" +
-                "\t\"permissions\": {\n" +
-                "\t\t\"facebook\": [\n" +
-                "\t\t\t\"user_friends\"],\n" +
-                "\t\t\"googleplus\": [\n" +
-                "\t\t\t\"profile\",\n" +
-                "\t\t\t\"email\",\n" +
-                "\t\t\t\"openid\"]\n" +
-                "\t},\n" +
-                "\t\"appIds\": {\n" +
-                "\t\t\"googleplus\": \"977811956095-t72doari7i8iuv9r6qf3kbhh2ns3u7cj.apps.googleusercontent.com\"\n" +
-                "\t},\n" +
-                "\t\"ids\": {\n" +
-                "\t\t\"gmid\": \"KoRxXCZzFKoAFl2jL2WuJMZV4H0nx9NJJ7jxmgJyA7c=\",\n" +
-                "\t\t\"ucid\": \"ff3f112d92b657ee\"\n" +
-                "\t},\n" +
-                "\t\"statusCode\": 200,\n" +
-                "\t\"errorCode\": 0,\n" +
-                "\t\"statusReason\": \"OK\",\n" +
-                "\t\"callId\": \"bd22e624bea844b8827b43e1587711fe\",\n" +
-                "\t\"time\": \"2019-06-02T11:03:57.415Z\"\n" +
-                "}";
+        final String mockConfigJson = StaticMockFactory.getMockConfigJson();
 
-        final String mockJsonResponse = "{\n" +
-                "  \"callId\": \"d6e963d1bf5c4d73a010b06fe2182f6c\",\n" +
-                "  \"errorCode\": 0,\n" +
-                "  \"apiVersion\": 2,\n" +
-                "  \"statusCode\": 200,\n" +
-                "  \"statusReason\": \"OK\",\n" +
-                "  \"time\": \"2019-06-02T06:42:55.678Z\"\n" +
-                "}";
+        final String mockJsonResponse = StaticMockFactory.getMockResponseJson();
 
         _config.setGmid(null);
 
@@ -223,15 +187,6 @@ public class ApiServiceTest {
     public void testSuccessfulSendWithUnsuccessfulGetSdkConfig() {
 
         // Arrange
-        final String mockJsonResponse = "{\n" +
-                "  \"callId\": \"d6e963d1bf5c4d73a010b06fe2182f6c\",\n" +
-                "  \"errorCode\": 0,\n" +
-                "  \"apiVersion\": 2,\n" +
-                "  \"statusCode\": 200,\n" +
-                "  \"statusReason\": \"OK\",\n" +
-                "  \"time\": \"2019-06-02T06:42:55.678Z\"\n" +
-                "}";
-
         _config.setGmid(null);
 
         when(_reqFactory.create(anyString(), (Map<String, Object>) any(), anyInt()))

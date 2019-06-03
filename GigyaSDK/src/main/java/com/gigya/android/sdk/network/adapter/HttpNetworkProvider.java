@@ -22,7 +22,7 @@ public class HttpNetworkProvider extends NetworkProvider {
     private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
     @Override
-    void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+    public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         if (_blocked) {
             _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
@@ -32,13 +32,13 @@ public class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+    public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
         _blocked = true;
     }
 
     @Override
-    void release() {
+    public void release() {
         super.release();
         if (_queue.isEmpty()) {
             return;
@@ -51,7 +51,7 @@ public class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
-    void cancel(String tag) {
+    public void cancel(String tag) {
         if (tag == null) {
             _queue.clear();
             // Unable to cancel already sent requests.

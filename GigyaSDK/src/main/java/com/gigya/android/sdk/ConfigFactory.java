@@ -9,6 +9,7 @@ import com.gigya.android.sdk.utils.FileUtils;
 import com.google.gson.Gson;
 
 public class ConfigFactory {
+
     private FileUtils _fileUtils;
 
     public ConfigFactory(FileUtils fileUtils) {

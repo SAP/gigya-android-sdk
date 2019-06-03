@@ -5,6 +5,7 @@ import org.junit.Test;
 // TODO: complete
 
 public class GigyaTest {
+
     @Test
     public void testInitializing() {
         // should test:

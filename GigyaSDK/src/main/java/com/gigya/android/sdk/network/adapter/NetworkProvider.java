@@ -4,19 +4,19 @@ import com.gigya.android.sdk.api.GigyaApiRequest;
 
 public abstract class NetworkProvider {
 
-    boolean _blocked = false;
+    public boolean _blocked = false;
 
-    abstract void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
+    public abstract void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
 
-    abstract void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
+    public abstract void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
 
-    void block() {
+    public void block() {
         _blocked = true;
     }
 
-    void release() {
+    public void release() {
         _blocked = false;
     }
 
-    abstract void cancel(String tag);
+    public abstract void cancel(String tag);
 }

@@ -17,6 +17,15 @@ public class StaticMockFactory {
         return TOKEN;
     }
 
+    public static String getMockConfigurationFileJson() {
+        return "{\n" +
+                "  \"apiKey\": \"3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC\",\n" +
+                "  \"apiDomain\": \"us1.gigya.com\",\n" +
+                "  \"accountCacheTime\": 1,\n" +
+                "  \"sessionVerificationInterval\": 0\n" +
+                "}";
+    }
+
     public static String getSessionMock() {
         return "{\n" +
                 "  \"sessionToken\": \"" + TOKEN + "\",\n" +
@@ -38,6 +47,54 @@ public class StaticMockFactory {
                 "  \"session.Token\": \"" + TOKEN + "\",\n" +
                 "  \"session.Secret\": \"" + SECRET + "\",\n" +
                 "  \"session.ExpirationTime\": 0\n" +
+                "}";
+    }
+
+    public static String getMockResponseJson() {
+        return "{\n" +
+                "  \"callId\": \"d6e963d1bf5c4d73a010b06fe2182f6c\",\n" +
+                "  \"errorCode\": 0,\n" +
+                "  \"apiVersion\": 2,\n" +
+                "  \"statusCode\": 200,\n" +
+                "  \"statusReason\": \"OK\",\n" +
+                "  \"time\": \"2019-06-02T06:42:55.678Z\"\n" +
+                "}";
+    }
+
+    public static String getMockGigyaErorJson() {
+        return "{\n" +
+                "  \"callId\": \"d6e963d1bf5c4d73a010b06fe2182f6c\",\n" +
+                "  \"errorCode\": 400001,\n" +
+                "  \"apiVersion\": 2,\n" +
+                "  \"statusCode\": 200,\n" +
+                "  \"statusReason\": \"OK\",\n" +
+                "  \"time\": \"2019-06-02T06:42:55.678Z\"\n" +
+                "}";
+    }
+
+    public static String getMockConfigJson() {
+        return "{\n" +
+                "\t\"errorReportRules\": [],\n" +
+                "\t\"permissions\": {\n" +
+                "\t\t\"facebook\": [\n" +
+                "\t\t\t\"user_friends\"],\n" +
+                "\t\t\"googleplus\": [\n" +
+                "\t\t\t\"profile\",\n" +
+                "\t\t\t\"email\",\n" +
+                "\t\t\t\"openid\"]\n" +
+                "\t},\n" +
+                "\t\"appIds\": {\n" +
+                "\t\t\"googleplus\": \"977811956095-t72doari7i8iuv9r6qf3kbhh2ns3u7cj.apps.googleusercontent.com\"\n" +
+                "\t},\n" +
+                "\t\"ids\": {\n" +
+                "\t\t\"gmid\": \"KoRxXCZzFKoAFl2jL2WuJMZV4H0nx9NJJ7jxmgJyA7c=\",\n" +
+                "\t\t\"ucid\": \"ff3f112d92b657ee\"\n" +
+                "\t},\n" +
+                "\t\"statusCode\": 200,\n" +
+                "\t\"errorCode\": 0,\n" +
+                "\t\"statusReason\": \"OK\",\n" +
+                "\t\"callId\": \"bd22e624bea844b8827b43e1587711fe\",\n" +
+                "\t\"time\": \"2019-06-02T11:03:57.415Z\"\n" +
                 "}";
     }
 

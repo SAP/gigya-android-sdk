@@ -3,7 +3,11 @@ package com.gigya.android.network;
 import android.content.Context;
 
 import com.android.volley.toolbox.Volley;
+import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
+import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
+import com.gigya.android.sdk.network.adapter.NetworkProvider;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.network.adapter.VolleyNetworkProvider;
 
@@ -14,9 +18,15 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
+import java.lang.reflect.InvocationTargetException;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -29,55 +39,97 @@ public class RestAdapterTest {
     @Mock
     private Context mContext;
 
-    private IRestAdapter cRestAdapter;
+    @Mock
+    IRestAdapter _restAdapter;
+
+    @Mock
+    NetworkProvider _networkProvider;
+
+    private IoCContainer container;
 
     @Before
     public void setup() {
         mockStatic(Volley.class);
         when(Volley.newRequestQueue(mContext)).thenReturn(null);
+
+        container = new IoCContainer();
     }
 
     @Test
-    public void testNewInstance() {
-        // Act
-        cRestAdapter = new RestAdapter(mContext);
-        // Assert
-        assertNotNull(cRestAdapter);
-    }
-
-    @Test
-    public void testNewVolleyInstance() {
-        // Act
-        cRestAdapter = new RestAdapter(mContext);
-        // Assert
-        assertNotNull(cRestAdapter);
-        assertEquals("VolleyNetworkProvider", cRestAdapter.getProviderType());
-    }
-
-    @Test
-    public void testNewHttpInstance() {
+    public void testNewInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
+        container.bind(Context.class, mContext);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        // Act
+        IRestAdapter adapter = container.get(IRestAdapter.class);
+        // Assert
+        assertNotNull(adapter);
+    }
+
+    @Test
+    public void testNewVolleyInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, mContext);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        // Act
+        IRestAdapter adapter = container.get(IRestAdapter.class);
+        final String providerType = adapter.getProviderType();
+        // Assert
+        assertNotNull(adapter);
+        assertEquals("VolleyNetworkProvider", providerType);
+    }
+
+    @Test
+    public void testNewHttpInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, mContext);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
         mockStatic(VolleyNetworkProvider.class);
         when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
         // Act
-        cRestAdapter = new RestAdapter(mContext);
+        IRestAdapter adapter = container.get(IRestAdapter.class);
+        final String providerType = adapter.getProviderType();
         // Assert
-        assertNotNull(cRestAdapter);
-        assertEquals("HttpNetworkProvider", cRestAdapter.getProviderType());
+        assertNotNull(adapter);
+        assertEquals("HttpNetworkProvider", providerType);
     }
 
     @Test
-    public void testSend() {
+    public void testSend() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, mContext);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        IRestAdapter adapter = container.get(IRestAdapter.class);
+        Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
+        doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
+        doNothing().when(_networkProvider).sendBlocking(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
 
+        mockStatic(VolleyNetworkProvider.class);
+        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
+
+        final GigyaApiRequest request = mock(GigyaApiRequest.class);
+        final IRestAdapterCallback callback = mock(IRestAdapterCallback.class);
+
+        // Act
+        adapter.send(request, false, callback);
     }
 
     @Test
-    public void testSendBlocking() {
+    public void testSendBlocking() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        container.bind(Context.class, mContext);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        IRestAdapter adapter = container.get(IRestAdapter.class);
+        Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
+        doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
+        doNothing().when(_networkProvider).sendBlocking(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
 
-    }
+        mockStatic(VolleyNetworkProvider.class);
+        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
 
-    @Test
-    public void testGetProviderType() {
+        final GigyaApiRequest request = mock(GigyaApiRequest.class);
+        final IRestAdapterCallback callback = mock(IRestAdapterCallback.class);
 
+        // Act
+        adapter.send(request, true, callback);
     }
 }
