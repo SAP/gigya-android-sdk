@@ -186,6 +186,16 @@ public class IoCContainerTest {
         assertNotNull(persistenceServiceNotNull);
     }
 
+    @Test(expected = java.lang.NullPointerException.class)
+    public void testDisposeContainer() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, _context);
+        // Act
+        container.dispose();
+        // assert.
+        assertNull(container.get(Context.class));
+    }
+
     public static class TestClassWithMultipleConstructors {
 
         Context _context;
