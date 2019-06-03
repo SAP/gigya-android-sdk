@@ -65,4 +65,19 @@ public class RestAdapterTest {
         assertNotNull(cRestAdapter);
         assertEquals("HttpNetworkProvider", cRestAdapter.getProviderType());
     }
+
+    @Test
+    public void testSend() {
+
+    }
+
+    @Test
+    public void testSendBlocking() {
+
+    }
+
+    @Test
+    public void testGetProviderType() {
+
+    }
 }
