@@ -9,7 +9,7 @@ import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
-public class InterruptionResolverFactory implements IInterruptionResolverFactory {
+public class                                InterruptionResolverFactory implements IInterruptionResolverFactory {
 
     public static final String LOG_TAG = "InterruptionResolverFactory";
 

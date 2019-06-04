@@ -6,6 +6,7 @@ import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
@@ -462,6 +463,79 @@ public class BusinessApiServiceTest {
                 assertNotNull(response);
                 assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
                 assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void testForgotPassword() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockResponseJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.forgotPassword("loginID", new GigyaLoginCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse response) {
+                // Assert
+                assertEquals("d6e963d1bf5c4d73a010b06fe2182f6c", response.getCallId());
+                assertEquals(0, response.getErrorCode());
+                assertEquals(200, response.getStatusCode());
+                assertEquals("OK", response.getStatusReason());
+                assertEquals("2019-06-02T06:42:55.678Z", response.getTime());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void removeConnection() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockResponseJson());
+        final GigyaAccount mockAccount = mock(GigyaAccount.class);
+        when(mockAccount.getUID()).thenReturn("mockUID");
+        when(_accountService.getAccount()).thenReturn(mockAccount);
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.removeConnection(GigyaDefinitions.Providers.GOOGLE, new GigyaLoginCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse response) {
+                // Assert
+                assertEquals("d6e963d1bf5c4d73a010b06fe2182f6c", response.getCallId());
+                assertEquals(0, response.getErrorCode());
+                assertEquals(200, response.getStatusCode());
+                assertEquals("OK", response.getStatusReason());
+                assertEquals("2019-06-02T06:42:55.678Z", response.getTime());
             }
 
             @Override

@@ -48,6 +48,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
     @Override
     public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+        _requestQueue.getCache().clear();
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         if (_blocked) {
             _blockedQueue.add(newRequest);
@@ -61,6 +62,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+        _requestQueue.getCache().clear();
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
         _blocked = true;
