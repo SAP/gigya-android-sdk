@@ -15,6 +15,7 @@ import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
+import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -120,7 +121,7 @@ public class ProviderFactory implements IProviderFactory {
             });
 
             // Make sure were not getting the web view provider.
-            if (provider.getName().equals(name)) {
+            if (ObjectUtils.safeEquals(provider.getName(),equals(name))) {
                 usedProviders.add(provider);
             }
         }

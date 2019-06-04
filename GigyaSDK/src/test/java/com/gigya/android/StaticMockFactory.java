@@ -144,4 +144,29 @@ public class StaticMockFactory {
                 "\t\"verifiedTimestamp\": 1554991351939\n" +
                 "}";
     }
+
+    public static String getMockLogoutJson() {
+        return "{\n" +
+                "\t\"connectedProviders\": \"site\",\n" +
+                "\t\"UID\": \"0e5712b22b5a42e8be28747b4c076214\",\n" +
+                "\t\"logoutActiveSession\": true,\n" +
+                "\t\"callId\": \"511f334d792c4958bc555cd71f78088e\",\n" +
+                "\t\"errorCode\": 0,\n" +
+                "\t\"apiVersion\": 2,\n" +
+                "\t\"statusCode\": 200,\n" +
+                "\t\"statusReason\": \"OK\",\n" +
+                "\t\"time\": \"2019-06-02T11:05:02.009Z\"\n" +
+                "}";
+    }
+
+    public static String getMockSetAccountJson() {
+        return "{\n" +
+                "\t\"callId\": \"c11778cdb52046efa4c416383454ebc7\",\n" +
+                "\t\"errorCode\": 0,\n" +
+                "\t\"apiVersion\": 2,\n" +
+                "\t\"statusCode\": 200,\n" +
+                "\t\"statusReason\": \"OK\",\n" +
+                "\t\"time\": \"2019-06-04T11:23:46.399Z\"\n" +
+                "}";
+    }
 }

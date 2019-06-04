@@ -16,12 +16,12 @@ public class ConfigFactory {
         _fileUtils = fileUtils;
     }
 
+    @Nullable
     public Config load() {
         Config config = loadFromJson();
         if (config == null) {
             config = loadFromManifest();
         }
-
         return config;
     }
 
@@ -44,6 +44,9 @@ public class ConfigFactory {
     @Nullable
     public Config loadFromManifest() {
         Bundle bundle = _fileUtils.getMetaData();
+        if (bundle == null) {
+            return null;
+        }
         final String apiKey = bundle.getString("apiKey", null);
         final String domain = bundle.getString("apiDomain", "us1.gigya.com");
         final int accountCacheTime = bundle.getInt("accountCacheTime", 5);

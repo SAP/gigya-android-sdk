@@ -117,7 +117,7 @@ public class Gigya<T extends GigyaAccount> {
     final private IBusinessApiService<T> _businessApiService;
     final private ISessionVerificationService _sessionVerificationService;
     final private IInterruptionResolverFactory _interruptionResolverFactory;
-    final private IPresenter _presenter;
+    final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
 
     @SuppressWarnings("unchecked")
@@ -129,7 +129,7 @@ public class Gigya<T extends GigyaAccount> {
                     IBusinessApiService<T> businessApiService,
                     ISessionVerificationService sessionVerificationService,
                     IInterruptionResolverFactory interruptionsHandler,
-                    IPresenter presenter,
+                    IPresenter<T> presenter,
                     IProviderFactory providerFactory) {
         // Setup dependencies.
         _context = context;

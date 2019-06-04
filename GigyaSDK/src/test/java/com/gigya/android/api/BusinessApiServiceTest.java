@@ -6,6 +6,7 @@ import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -42,6 +43,7 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -112,6 +114,9 @@ public class BusinessApiServiceTest {
                 .bind(IInterruptionResolverFactory.class, _interruptionResolverFactory);
         container.bind(Context.class, _context);
         container.bind(GigyaAccountClass.class, new GigyaAccountClass(GigyaAccount.class));
+
+        // Mock account scheme.
+        when(_accountService.getAccountSchema()).thenReturn(GigyaAccount.class);
 
         params = new HashMap<>();
     }
@@ -256,6 +261,212 @@ public class BusinessApiServiceTest {
                 System.out.println("error");
                 assertEquals(400001, error.getErrorCode());
                 assertEquals("d6e963d1bf5c4d73a010b06fe2182f6c", error.getCallId());
+            }
+        });
+    }
+
+    @Test
+    public void testLogout() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        // Arrange
+        mockRequestFactory();
+        // Gigya logout response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockLogoutJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.logout(new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                assertEquals("511f334d792c4958bc555cd71f78088e", response.getCallId());
+                assertEquals("2019-06-02T11:05:02.009Z", response.getTime());
+
+                final boolean logoutActiveSession = response.getField("logoutActiveSession", Boolean.class);
+                assertTrue(logoutActiveSession);
+
+                final String uid = response.getField("UID", String.class);
+                assertEquals("0e5712b22b5a42e8be28747b4c076214", uid);
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void testLogin() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.login(params, new GigyaLoginCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount response) {
+                // Assert
+                assertNotNull(response);
+                assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
+                assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void testVerifyLogin() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.verifyLogin("fd30ce9173d24d0d9edce38f7c711b51", new GigyaLoginCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount response) {
+                // Assert
+                assertNotNull(response);
+                assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
+                assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void testNotifyNativeSocialLogin() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.notifyNativeSocialLogin(params, new GigyaLoginCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount response) {
+                // Assert
+                assertNotNull(response);
+                assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
+                assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        }, null);
+    }
+
+    @Test
+    public void testFinalizeRegistration() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        mockRequestFactory();
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.finalizeRegistration(params, new GigyaLoginCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount response) {
+                // Assert
+                assertNotNull(response);
+                assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
+                assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
+            }
+        });
+    }
+
+    @Test
+    public void testSetAccount() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+
+        // Gigya error response.
+        final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
+
+        final GigyaApiRequest request = mock(GigyaApiRequest.class);
+        when(_reqFactory.create(anyString(), (Map<String, Object>) any(), anyInt())).thenReturn(request);
+
+        // Act
+        IBusinessApiService service = container.get(IBusinessApiService.class);
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                ((ApiService.IApiServiceResponse) invocation.getArgument(2)).onApiSuccess(response);
+                return null;
+            }
+        }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
+        service.setAccount(params, new GigyaLoginCallback<GigyaAccount>() {
+            @Override
+            public void onSuccess(GigyaAccount response) {
+                // Assert
+                assertNotNull(response);
+                assertEquals("fd30ce9173d24d0d9edce38f7c711b51", response.getCallId());
+                assertEquals("06529a7a82e2478a8b008a08dafcf20f", response.getUID());
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                // Redundant.
             }
         });
     }

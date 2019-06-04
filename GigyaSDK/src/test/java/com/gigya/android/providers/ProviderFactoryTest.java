@@ -27,6 +27,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.AMAZON;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
@@ -153,5 +155,17 @@ public class ProviderFactoryTest {
         // Assert
         assertNotNull(provider);
         assertTrue(provider instanceof WebLoginProvider);
+    }
+
+    @Test
+    public void logoutFromUsedSocialProviders() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        Set<String> set = new HashSet<>();
+        set.add(GOOGLE);
+        set.add(FACEBOOK);
+        when(mPersistenceService.getSocialProviders()).thenReturn(set);
+        // Act
+        IProviderFactory factory = testContainer.get(IProviderFactory.class);
+        factory.logoutFromUsedSocialProviders();
     }
 }

@@ -27,6 +27,9 @@ public class Config {
     }
 
     public Config updateWith(Config config) {
+        if (config == null) {
+            return this;
+        }
         updateWith(
                 config.getApiKey(),
                 config.getApiDomain(),

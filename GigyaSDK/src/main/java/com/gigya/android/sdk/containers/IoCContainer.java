@@ -4,6 +4,7 @@ import com.gigya.android.sdk.GigyaLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,7 @@ public class IoCContainer {
 
     public <T> T createInstance(Class<T> concreteClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         GigyaLogger.ioc(LOG_TAG, "Trying to create new instance for: " + concreteClazz.getCanonicalName());
-        Constructor<?>[] constructors = concreteClazz.getConstructors();
+        Constructor<?>[] constructors = concreteClazz.getDeclaredConstructors();
         if (constructors.length == 0) {
             GigyaLogger.ioc(LOG_TAG, "Default constructor - creating instance");
             return concreteClazz.newInstance();
@@ -96,6 +97,10 @@ public class IoCContainer {
 
             if (params.size() == ctorParams.length) {
                 GigyaLogger.ioc(LOG_TAG, "Creating new instance for " + concreteClazz.getCanonicalName());
+                if (Modifier.isProtected(ctor.getModifiers())) {
+                    GigyaLogger.ioc(LOG_TAG, "Constructor is protected");
+                    ctor.setAccessible(true);
+                }
                 return (T) ctor.newInstance(params.toArray());
             } else {
                 GigyaLogger.ioc(LOG_TAG, "Constructor wasn't suitable");

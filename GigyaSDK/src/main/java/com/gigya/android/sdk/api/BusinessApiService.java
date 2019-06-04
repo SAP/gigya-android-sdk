@@ -221,10 +221,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     @RequireSession
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
         final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
             params.put("UID", UID);
