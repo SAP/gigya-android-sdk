@@ -6,7 +6,6 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.annotations.RequireSession;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
@@ -219,8 +218,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST">accounts.verifyLogin REST</a>
      */
     @Override
-    @RequireSession
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
             params.put("UID", UID);
@@ -371,8 +375,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.getAccountInfo+REST">accounts.getAccountInfo REST</a>
      */
     @Override
-    @RequireSession
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         if (_accountService.isCachedAccount()) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
@@ -406,8 +415,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
-    @RequireSession
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
@@ -437,8 +451,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST">accounts.setAccountInfo REST</a>
      */
     @Override
-    @RequireSession
     public void setAccount(Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -523,8 +542,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    @RequireSession
     public void addConnection(String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaLoginCallback != null) {
+                gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, gigyaLoginCallback);
@@ -539,8 +563,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @see <a href="https://developers.gigya.com/display/GD/socialize.removeConnection+REST">socialize.removeConnection REST</a>
      */
     @Override
-    @RequireSession
     public void removeConnection(String socialProvider, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);
         final String UID = _accountService.getAccount().getUID();

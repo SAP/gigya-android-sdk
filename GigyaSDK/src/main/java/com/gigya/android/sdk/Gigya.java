@@ -9,14 +9,11 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.annotations.RequireSession;
-import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
@@ -26,7 +23,6 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,9 +288,8 @@ public class Gigya<T extends GigyaAccount> {
     public void logout() {
         GigyaLogger.debug(LOG_TAG, "logout: ");
 
-        if (runOnValidSession("logout", null)) {
-            _businessApiService.logout(null);
-        }
+        _businessApiService.logout(null);
+
         _sessionService.clear(true);
 
         // Clear presenter related data (cookies).
@@ -370,9 +365,7 @@ public class Gigya<T extends GigyaAccount> {
             _accountService.invalidateAccount();
         }
 
-        if (runOnValidSession("getAccount", gigyaCallback)) {
-            _businessApiService.getAccount(gigyaCallback);
-        }
+        _businessApiService.getAccount(gigyaCallback);
     }
 
     /**
@@ -384,9 +377,7 @@ public class Gigya<T extends GigyaAccount> {
     public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
 
-        if (runOnValidSession("setAccount", gigyaCallback)) {
-            _businessApiService.setAccount(account, gigyaCallback);
-        }
+        _businessApiService.setAccount(account, gigyaCallback);
     }
 
     /**
@@ -398,9 +389,7 @@ public class Gigya<T extends GigyaAccount> {
     public void setAccount(Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: with params");
 
-        if (runOnValidSession("setAccount", gigyaCallback)) {
-            _businessApiService.setAccount(params, gigyaCallback);
-        }
+        _businessApiService.setAccount(params, gigyaCallback);
     }
 
     /**
@@ -412,9 +401,7 @@ public class Gigya<T extends GigyaAccount> {
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
 
-        if (runOnValidSession("verifyLogin", gigyaCallback)) {
-            _businessApiService.verifyLogin(UID, gigyaCallback);
-        }
+        _businessApiService.verifyLogin(UID, gigyaCallback);
     }
 
     /**
@@ -466,9 +453,7 @@ public class Gigya<T extends GigyaAccount> {
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
 
-        if (runOnValidSession("addConnection", loginCallback)) {
-            _businessApiService.addConnection(socialProvider, loginCallback);
-        }
+        _businessApiService.addConnection(socialProvider, loginCallback);
     }
 
     /**
@@ -480,9 +465,7 @@ public class Gigya<T extends GigyaAccount> {
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
 
-        if (runOnValidSession("removeConnection", gigyaCallback)) {
-            _businessApiService.removeConnection(socialProvider, gigyaCallback);
-        }
+        _businessApiService.removeConnection(socialProvider, gigyaCallback);
     }
 
     //endregion
@@ -550,22 +533,4 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     //endregion
-
-    private boolean runOnValidSession(String methodName, GigyaCallback callback) {
-        final Class<BusinessApiService> clazz = BusinessApiService.class;
-        final Method[] methods = clazz.getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals(methodName) && method.getAnnotation(RequireSession.class) != null) {
-                // Check if session is valid.
-                if (_sessionService.isValid()) {
-                    return true;
-                }
-            }
-        }
-        GigyaLogger.error(LOG_TAG, "Action requires a valid session");
-        if (callback != null) {
-            callback.onError(GigyaError.unauthorizedUser());
-        }
-        return false;
-    }
 }
