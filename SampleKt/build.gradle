@@ -52,7 +52,9 @@ dependencies {
     kapt deps.glide.compiler
 
     implementation deps.libs.gson
-    implementation deps.libs.volley
+
+    // Uncomment if you want to use Google Volley to send http requests.
+    //implementation deps.libs.volley
 
     // Social libs
     implementation deps.libs.facebook
