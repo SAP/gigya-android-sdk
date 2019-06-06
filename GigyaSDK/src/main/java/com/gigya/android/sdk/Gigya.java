@@ -19,6 +19,7 @@ import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
+import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
@@ -487,6 +488,18 @@ public class Gigya<T extends GigyaAccount> {
     //endregion
 
     //region NATIVE LOGIN
+
+    /**
+     * Request reference to used Gigya social provider.
+     * Currently supported provider (GOOGLE, FACEBOOK, LINE, WECHAT).
+     *
+     * @param name Provider name.
+     * @return Provider reference or null if not available.
+     */
+    @Nullable
+    public Provider getUsedSocialProvider(String name) {
+        return _providerFactory.usedProviderFor(name);
+    }
 
     /**
      * Present social login selection list.

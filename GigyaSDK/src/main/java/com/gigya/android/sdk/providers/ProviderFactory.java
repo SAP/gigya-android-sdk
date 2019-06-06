@@ -5,7 +5,6 @@ import android.content.Context;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
 import com.gigya.android.sdk.providers.provider.GoogleProvider;
@@ -15,10 +14,8 @@ import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
-import com.gigya.android.sdk.utils.ObjectUtils;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
@@ -51,13 +48,27 @@ public class ProviderFactory implements IProviderFactory {
                 _container.clone()
                         .bind(GigyaLoginCallback.class, gigyaLoginCallback);
         try {
-            return tempContainer.createInstance(providerClazz);
+            final Provider provider = tempContainer.createInstance(providerClazz);
+            // Bind generated provider to main IoC container.
+            _container.bind(providerClazz, provider);
+            return provider;
         } catch (Exception e) {
             GigyaLogger.error(LOG_TAG, "Missing dependency for creating provider");
             return null;
         } finally {
             tempContainer.dispose();
         }
+    }
+
+    @Override
+    public Provider usedProviderFor(String name) {
+        final Class<Provider> providerClazz = getProviderClass(name);
+        try {
+            return _container.get(providerClazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private Class getProviderClass(String providerName) {
@@ -91,8 +102,8 @@ public class ProviderFactory implements IProviderFactory {
 
     @Override
     public void logoutFromUsedSocialProviders() {
-        final IProvider[] usedProviders = getUsedSocialProviders();
-        if (usedProviders.length > 0) {
+        final ArrayList<IProvider> usedProviders = getUsedSocialProviders();
+        if (usedProviders.size() > 0) {
             for (IProvider provider : usedProviders) {
                 provider.logout();
             }
@@ -101,32 +112,20 @@ public class ProviderFactory implements IProviderFactory {
         }
     }
 
-    private IProvider[] getUsedSocialProviders() {
-        final Set<IProvider> usedProviders = new HashSet<>();
-        final Set<String> usedProvidersNames = _psService.getSocialProviders();
-        if (usedProvidersNames.isEmpty()) {
-            return new IProvider[0];
-        }
-        for (String name : usedProvidersNames) {
-            final IProvider provider = providerFor(name, new GigyaLoginCallback() {
-                @Override
-                public void onSuccess(Object obj) {
-                    // Redundant.
-                }
+    private final String[] _optionalBoundProviders = new String[]{GOOGLE, FACEBOOK, LINE, WECHAT};
 
-                @Override
-                public void onError(GigyaError error) {
-                    // Redundant.
+    private ArrayList<IProvider> getUsedSocialProviders() {
+        ArrayList<IProvider> providers = new ArrayList<>();
+        for (String optional : _optionalBoundProviders) {
+            try {
+                IProvider provider = (IProvider) _container.get(getProviderClass(optional));
+                if (provider != null) {
+                    providers.add(provider);
                 }
-            });
-
-            // Make sure were not getting the web view provider.
-            if (ObjectUtils.safeEquals(provider.getName(),equals(name))) {
-                usedProviders.add(provider);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-
-        IProvider[] array = new IProvider[usedProviders.size()];
-        return usedProviders.toArray(array);
+        return providers;
     }
 }

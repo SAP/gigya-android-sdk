@@ -7,12 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
-import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -32,16 +29,19 @@ public class WeChatProvider extends Provider {
     public static final String LOG_TAG = "WeChatProvider";
 
     public WeChatProvider(Context context,
+                          FileUtils fileUtils,
                           IPersistenceService persistenceService,
                           IBusinessApiService businessApiService,
                           GigyaLoginCallback gigyaLoginCallback) {
         super(context, persistenceService, businessApiService, gigyaLoginCallback);
+        _appId = fileUtils.stringFromMetaData("wechatAppID");
+        _api = WXAPIFactory.createWXAPI(_context, _appId, true);
+        _api.registerApp(_appId);
     }
 
+    private String _appId;
     private IWXAPI _api;
-
-    private static String _appId;
-    private static BaseResp resp;
+    private BaseResp _resp;
 
     @Override
     public String getName() {
@@ -50,9 +50,9 @@ public class WeChatProvider extends Provider {
 
     public static boolean isAvailable(Context context, FileUtils fileUtils) {
         try {
-            _appId = fileUtils.stringFromMetaData("wechatAppID");
-            IWXAPI api = WXAPIFactory.createWXAPI(context, _appId, false);
-            return (_appId != null && api.isWXAppInstalled());
+            String appId = fileUtils.stringFromMetaData("wechatAppID");
+            IWXAPI api = WXAPIFactory.createWXAPI(context, appId, false);
+            return (appId != null && api.isWXAppInstalled());
         } catch (Throwable t) {
             return false;
         }
@@ -68,9 +68,6 @@ public class WeChatProvider extends Provider {
         HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                _api = WXAPIFactory.createWXAPI(_context, _appId, true);
-                _api.registerApp(_appId);
-
                 final SendAuth.Req req = new SendAuth.Req();
                 req.scope = "snsapi_userinfo";
                 req.state = "";
@@ -79,8 +76,8 @@ public class WeChatProvider extends Provider {
 
             @Override
             public void onResume(AppCompatActivity activity) {
-                if (resp != null) {
-                    handleResponse(loginParams, resp, activity);
+                if (_resp != null) {
+                    handleResponse(loginParams, _resp, activity);
                 }
             }
 
@@ -95,15 +92,14 @@ public class WeChatProvider extends Provider {
         }
     }
 
-    public static void handleIntent(Context context, Intent intent, IWXAPIEventHandler eventHandler) {
-        IWXAPI api = WXAPIFactory.createWXAPI(context, _appId, false);
-        if (api.isWXAppInstalled()) {
-            api.handleIntent(intent, eventHandler);
+    public void handleIntent(Intent intent, IWXAPIEventHandler eventHandler) {
+        if (_api != null && _api.isWXAppInstalled()) {
+            _api.handleIntent(intent, eventHandler);
         }
     }
 
-    public static void onResponse(BaseResp resp) {
-        WeChatProvider.resp = resp;
+    public void onResponse(BaseResp resp) {
+        _resp = resp;
     }
 
     private void handleResponse(Map<String, Object> loginParams, BaseResp baseResp, Activity activity) {
@@ -126,6 +122,7 @@ public class WeChatProvider extends Provider {
                 break;
         }
         if (activity != null) {
+            _resp = null;
             activity.finish();
         }
     }

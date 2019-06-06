@@ -20,8 +20,12 @@ public class WebLoginActivity extends Activity {
     private static final String EXTRA_LIFECYCLE_CALLBACK_ID = "web_login_lifecycle_callback";
     private static final String EXTRA_URI = "web_login_uri";
 
+    private static final int REQUEST_CODE = 4040;
+
     public interface WebLoginActivityCallback {
         void onResult(Activity activity, Map<String, Object> parsed);
+
+        void onCancelled();
     }
 
     private WebLoginActivityCallback _webLoginLifecycleCallbacks;
@@ -60,7 +64,21 @@ public class WebLoginActivity extends Activity {
         final Uri uri = Uri.parse(_uri);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
         browserIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        startActivity(browserIntent);
+        startActivityForResult(browserIntent, REQUEST_CODE);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            GigyaLogger.debug(LOG_TAG, "onActivityResult: cancelled");
+            if (resultCode == Activity.RESULT_CANCELED) {
+                _webLoginLifecycleCallbacks.onCancelled();
+                finish();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override

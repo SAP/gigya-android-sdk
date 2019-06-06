@@ -74,6 +74,13 @@ public class WebLoginProvider extends Provider {
                     activity.finish();
                 }
             }
+
+            @Override
+            public void onCancelled() {
+                if (_gigyaLoginCallback != null) {
+                    _gigyaLoginCallback.onOperationCanceled();
+                }
+            }
         });
     }
 
