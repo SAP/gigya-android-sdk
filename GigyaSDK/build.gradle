@@ -114,8 +114,7 @@ android.libraryVariants.all { variant ->
             from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
             destinationDir = file(outDir)
             include(
-                    'com/gigya/android/sdk/**',
-                    'com/google/gson/**'
+                    'com/gigya/android/sdk/**'
             )
             manifest {
                 from sharedManifest
@@ -130,15 +129,16 @@ android.libraryVariants.all { variant ->
             include(
                     'com/gigya/android/sdk/*.java',
                     'com/gigya/android/sdk/account/*.java',
+                    'com/gigya/android/sdk/account/models/*.java',
                     'com/gigya/android/sdk/api/*.java',
+                    'com/gigya/android/sdk/api/models/*.java',
+                    'com/gigya/android/sdk/containers/*.java',
                     'com/gigya/android/sdk/encryption/*.java',
                     'com/gigya/android/sdk/interruption/*.java',
                     'com/gigya/android/sdk/interruption/link/*.java',
+                    'com/gigya/android/sdk/interruption/link/models/*.java',
                     'com/gigya/android/sdk/interruption/tfa/*.java',
-                    'com/gigya/android/sdk/model/*.java',
-                    'com/gigya/android/sdk/model/account/*.java',
-                    'com/gigya/android/sdk/model/profile/*.java',
-                    'com/gigya/android/sdk/model/tfa/*.java',
+                    'com/gigya/android/sdk/interruption/tfa/modeks/*.java',
                     'com/gigya/android/sdk/network/*.java',
                     'com/gigya/android/sdk/network/adapter/*.java',
                     'com/gigya/android/sdk/persistence/*.java',
