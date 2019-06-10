@@ -11,8 +11,8 @@ android {
         applicationId "com.gigya.android.sample"
         minSdkVersion build_versions.min_sdk_app
         targetSdkVersion build_versions.target_sdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 4000
+        versionName "1.4.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -36,9 +36,9 @@ dependencies {
     implementation project(path: ':GigyaSDK')
     implementation project(path: ':GigyaBiometric')
 
-    //implementation files('libs/Gigya-android-sdk-4.0.0_a1-debug.aar')
+    //implementation files('libs/gigya-android-sdk-4.0.0-debug.aar')
     // Optional.
-    //implementation files('libs/Gigya-android-biometric-1.0.0-debug.aar')
+    //implementation files('libs/gigya-android-biometric-1.0.0-debug.aar')
 
     implementation deps.android_support.appcompat
     implementation deps.android_support.design

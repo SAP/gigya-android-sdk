@@ -17,7 +17,7 @@ public class GigyaPluginEvent {
     }
 
     @Nullable
-    @PluginDefinitions.PluginEvent
+    @PluginEventDef.PluginEvent
     public String getEvent() {
         final String eventName = (String) eventMap.get("eventName");
         if (eventName == null) {

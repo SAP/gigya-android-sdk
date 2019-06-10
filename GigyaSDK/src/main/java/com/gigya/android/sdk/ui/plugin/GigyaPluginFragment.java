@@ -35,17 +35,22 @@ import org.json.JSONArray;
 
 import java.util.Locale;
 
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.AFTER_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.BEFORE_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.ERROR;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.FIELD_CHANGED;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.HIDE;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginDefinitions.SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 @SuppressLint("ValidFragment")
 public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A> {
@@ -68,7 +73,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
         void onPluginEvent(GigyaPluginEvent event, String containerID);
 
-        void onPluginAuthEvent(String method, @Nullable A accountObj);
+        void onPluginAuthEvent(@PluginAuthEventDef.PluginAuthEvent String method, @Nullable A accountObj);
     }
 
     // Dependencies.
@@ -239,7 +244,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                 if (!containerID.equals("pluginContainer")) {
                     return;
                 }
-                final @PluginDefinitions.PluginEvent String eventName = event.getEvent();
+                final @PluginEventDef.PluginEvent String eventName = event.getEvent();
                 if (eventName == null) {
                     return;
                 }
@@ -293,23 +298,27 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
             }
 
             @Override
-            public void onPluginAuthEvent(final String method, @Nullable final A accountObj) {
+            public void onPluginAuthEvent(final @PluginAuthEventDef.PluginAuthEvent String method, @Nullable final A accountObj) {
                 _webView.post(new Runnable() {
                     @Override
                     public void run() {
                         switch (method) {
-                            case "login":
+                            case LOGIN_STARTED:
+                                _progressBar.setVisibility(View.VISIBLE);
+                                break;
+                            case LOGIN:
+                                _progressBar.setVisibility(View.INVISIBLE);
                                 if (accountObj != null) {
                                     _pluginCallback.onLogin(accountObj);
                                 }
                                 break;
-                            case "logout":
+                            case LOGOUT:
                                 _pluginCallback.onLogout();
                                 break;
-                            case "addConnection":
+                            case ADD_CONNECTION:
                                 _pluginCallback.onConnectionAdded();
                                 break;
-                            case "removeConnection":
+                            case REMOVE_CONNECTION:
                                 _pluginCallback.onConnectionRemoved();
                                 break;
                             default:

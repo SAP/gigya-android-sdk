@@ -5,7 +5,7 @@ import android.support.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public class PluginDefinitions {
+public class PluginEventDef {
 
     @Retention(RetentionPolicy.SOURCE)
 
@@ -30,7 +30,7 @@ public class PluginDefinitions {
     public static final String ERROR = "error";
     public static final String HIDE = "hide";
 
-    public PluginDefinitions(@PluginEvent String pluginEvent) {
+    public PluginEventDef(@PluginEvent String pluginEvent) {
         this.pluginEvent = pluginEvent;
     }
 }
