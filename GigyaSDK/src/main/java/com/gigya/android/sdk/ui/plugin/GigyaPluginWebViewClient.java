@@ -12,6 +12,7 @@ import android.webkit.WebViewClient;
 
 import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.utils.ObjectUtils;
+import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,11 +77,11 @@ public class GigyaPluginWebViewClient extends WebViewClient {
     }
 
     private boolean isJSLoadError(final Uri uri) {
-        return ObjectUtils.safeEquals(uri.getScheme(), Presenter.Consts.REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), Presenter.Consts.ON_JS_LOAD_ERROR);
+        return UrlUtils.isGigyaScheme(uri.getScheme()) && ObjectUtils.safeEquals(uri.getHost(), Presenter.Consts.ON_JS_LOAD_ERROR);
     }
 
     private boolean isJSException(final Uri uri) {
-        return ObjectUtils.safeEquals(uri.getScheme(), Presenter.Consts.REDIRECT_URL_SCHEME) && ObjectUtils.safeEquals(uri.getHost(), Presenter.Consts.ON_JS_EXCEPTION);
+        return UrlUtils.isGigyaScheme(uri.getScheme()) && ObjectUtils.safeEquals(uri.getHost(), Presenter.Consts.ON_JS_EXCEPTION);
     }
 }
 

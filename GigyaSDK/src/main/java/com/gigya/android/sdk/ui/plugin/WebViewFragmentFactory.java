@@ -91,7 +91,7 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
                 Presenter.Consts.JS_TIMEOUT,
                 _config.getApiKey(),
                 Presenter.Consts.CONTAINER_ID,
-                "",
+                "", // js script before showing the plugin
                 plugin,
                 new JSONObject(params).toString()));
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();

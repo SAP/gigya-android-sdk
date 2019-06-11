@@ -2,6 +2,8 @@ package com.gigya.android.sdk.utils;
 
 import android.support.annotation.NonNull;
 
+import com.gigya.android.sdk.ui.Presenter;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -102,4 +104,7 @@ public class UrlUtils {
                 .toString();
     }
 
+    public static boolean isGigyaScheme(String scheme) {
+        return ObjectUtils.safeEquals(scheme, Presenter.Consts.REDIRECT_URL_SCHEME);
+    }
 }
