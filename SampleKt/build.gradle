@@ -49,6 +49,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation project(path: ':GigyaSDK')
+    implementation project(path: ':GigyaTFA')
     implementation project(path: ':GigyaBiometric')
 
     //implementation files('libs/gigya-android-sdk-4.0.0-debug.aar')
@@ -76,4 +77,8 @@ dependencies {
     implementation deps.libs.google_auth
     implementation deps.libs.wechat
     implementation files('libs/line-sdk-4.0.10.aar')
+
+    implementation 'com.google.firebase:firebase-core:16.0.9'
 }
+
+apply plugin: 'com.google.gms.google-services'

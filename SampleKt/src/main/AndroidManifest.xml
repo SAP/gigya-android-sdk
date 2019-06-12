@@ -55,16 +55,16 @@
         </activity>
 
         <!--<meta-data-->
-            <!--android:name="apiKey"-->
-            <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
+        <!--android:name="apiKey"-->
+        <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
 
         <!--<meta-data-->
-            <!--android:name="accountCacheTime"-->
-            <!--android:value="1" />-->
+        <!--android:name="accountCacheTime"-->
+        <!--android:value="1" />-->
 
         <!--<meta-data-->
-            <!--android:name="sessionVerificationInterval"-->
-            <!--android:value="5" />-->
+        <!--android:name="sessionVerificationInterval"-->
+        <!--android:value="5" />-->
 
         <!-- Facebook integration -->
         <activity
@@ -99,6 +99,23 @@
         <meta-data
             android:name="googleClientId"
             android:value="@string/google_client_id" />
+
+        <!-- Gigya TFA messaging service -->
+        <service
+            android:name="com.gigya.android.sdk.tfa.service.GigyaMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Gigya TFA display activity -->
+        <activity
+            android:name="com.gigya.android.sdk.tfa.ui.GigyaPushTfaActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Translucent" />
 
     </application>
 

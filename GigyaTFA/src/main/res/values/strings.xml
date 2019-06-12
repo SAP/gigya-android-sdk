@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GigyaTFA</string>
+
+    <string name="tfa_channel_name">TFA Channel</string>
+    <string name="tfa_channel_description">TFA Channel description</string>
+
+    <string name="tfa_title">TFA title</string>
+    <string name="tfa_message">TFA message</string>
+    <string name="approve">Approve</string>
+    <string name="deny">Deny</string>
+</resources>

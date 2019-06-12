@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "977811956095",
+    "firebase_url": "https://gigya-sdk-v2-1546766892216.firebaseio.com",
+    "project_id": "gigya-sdk-v2-1546766892216",
+    "storage_bucket": "gigya-sdk-v2-1546766892216.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977811956095:android:1868dbdea7b45397",
+        "android_client_info": {
+          "package_name": "com.gigya.android.sample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977811956095-40bcfgjseoeocsl9l3gg3qkab2c4i71p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gigya.android.sample",
+            "certificate_hash": "4b20dcfefae011b3f5ea2958310bf3075f343c83"
+          }
+        },
+        {
+          "client_id": "977811956095-f7ruokni372o1q18hk5hccndtee7ssl7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gigya.android.sample",
+            "certificate_hash": "05417c465fa3e9831b62a58f246389813bb1f069"
+          }
+        },
+        {
+          "client_id": "977811956095-nb5h5kf2ve2vgf5f4s75901lvlumaoj5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs8Be9xFscB4tpfX_F6t11CTR9fzAbV64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977811956095-nb5h5kf2ve2vgf5f4s75901lvlumaoj5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
