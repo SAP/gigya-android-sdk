@@ -124,18 +124,18 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
     @Override
     public boolean invoke(String url) {
-        if (url.startsWith("gsapi://")) {
-            Uri uri = Uri.parse(url);
-            if (uri.getPath() == null) {
-                return false;
-            }
-            return invoke(uri.getHost(), uri.getPath().replace("/", ""), uri.getEncodedQuery());
+        Uri uri = Uri.parse(url);
+        if (uri == null || !UrlUtils.isGigyaScheme(uri.getScheme())) {
+            return false;
         }
-        return false;
+        if (uri.getPath() == null) {
+            return false;
+        }
+        return invoke(uri.getHost(), uri.getPath().replace("/", ""), uri.getEncodedQuery());
     }
 
     @Override
-    public void invokeCallback(String id, String baseInvocation) {
+    public void invokeWebViewCallback(String id, String baseInvocation) {
         GigyaLogger.debug(LOG_TAG, "evaluateJS: " + baseInvocation);
         String value = obfuscate(baseInvocation, true);
         final String invocation = String.format("javascript:%s['%s'](%s);", EVALUATE_JS_PATH, id, value);
@@ -146,14 +146,14 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     public void getIds(String id) {
         String ids = "{\"ucid\":\"" + _config.getUcid() + "\", \"gmid\":\"" + _config.getGmid() + "\"}";
         GigyaLogger.debug(LOG_TAG, "getIds: " + ids);
-        invokeCallback(id, ids);
+        invokeWebViewCallback(id, ids);
     }
 
     @Override
     public void isSessionValid(String id) {
         final boolean isValid = _sessionService.isValid();
         GigyaLogger.debug(LOG_TAG, "isSessionValid: " + isValid);
-        invokeCallback(id, String.valueOf(isValid));
+        invokeWebViewCallback(id, String.valueOf(isValid));
     }
 
     @Override
@@ -195,18 +195,18 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             public void onSuccess(A account) {
                 GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + account.toString());
                 String invocation = "{\"errorCode\":" + account.getErrorCode() + ",\"userInfo\":" + new Gson().toJson(account) + "}";
-                invokeCallback(callbackId, invocation);
+                invokeWebViewCallback(callbackId, invocation);
                 _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
             }
 
             @Override
             public void onError(GigyaError error) {
-                invokeCallback(callbackId, error.getData());
+                invokeWebViewCallback(callbackId, error.getData());
             }
 
             @Override
             public void onOperationCanceled() {
-                invokeCallback(callbackId, GigyaError.cancelledOperation().getData());
+                invokeWebViewCallback(callbackId, GigyaError.cancelledOperation().getData());
             }
         });
     }
@@ -234,7 +234,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         _accountService.setAccount(response.asJson());
                         _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
                     }
-                    invokeCallback(callbackId, response.asJson());
+                    invokeWebViewCallback(callbackId, response.asJson());
                 } else {
                     onError(GigyaError.fromResponse(response));
                 }
@@ -242,7 +242,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
             @Override
             public void onError(GigyaError error) {
-                invokeCallback(callbackId, error.getData());
+                invokeWebViewCallback(callbackId, error.getData());
             }
         });
     }
@@ -253,7 +253,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             @Override
             public void onSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
-                    invokeCallback(callbackId, response.asJson());
+                    invokeWebViewCallback(callbackId, response.asJson());
                     _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
                 } else {
                     onError(GigyaError.fromResponse(response));
@@ -262,7 +262,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
             @Override
             public void onError(GigyaError error) {
-                invokeCallback(callbackId, error.getData());
+                invokeWebViewCallback(callbackId, error.getData());
             }
         });
     }
@@ -273,7 +273,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             @Override
             public void onSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
-                    invokeCallback(callbackId, response.asJson());
+                    invokeWebViewCallback(callbackId, response.asJson());
                     _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.REMOVE_CONNECTION, null);
                 } else {
                     onError(GigyaError.fromResponse(response));
@@ -282,7 +282,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
             @Override
             public void onError(GigyaError error) {
-                invokeCallback(callbackId, error.getData());
+                invokeWebViewCallback(callbackId, error.getData());
             }
         });
     }
@@ -292,13 +292,13 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         _businessApiService.addConnection(provider, new GigyaLoginCallback<A>() {
             @Override
             public void onSuccess(A response) {
-                invokeCallback(callbackId, new Gson().toJson(response));
+                invokeWebViewCallback(callbackId, new Gson().toJson(response));
                 _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.ADD_CONNECTION, response);
             }
 
             @Override
             public void onError(GigyaError error) {
-                invokeCallback(callbackId, error.getData());
+                invokeWebViewCallback(callbackId, error.getData());
             }
         });
     }
@@ -311,6 +311,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String obfuscate(String string, boolean quote) {
         if (_obfuscation) {
+            // by default, using obsfuscation strategy of base64
             try {
                 byte[] data = string.getBytes("UTF-8");
                 String base64 = Base64.encodeToString(data, Base64.DEFAULT);

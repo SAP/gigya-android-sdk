@@ -16,7 +16,7 @@ public interface IGigyaWebBridge<A extends GigyaAccount> {
 
     boolean invoke(String url);
 
-    void invokeCallback(String id, String baseInvocation);
+    void invokeWebViewCallback(String id, String baseInvocation);
 
     void getIds(String id);
 
