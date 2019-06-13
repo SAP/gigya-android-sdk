@@ -1,8 +1,12 @@
 package com.gigya.android.sdk.tfa;
 
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.tfa.worker.ApproveTFAWorker;
 
 public class GigyaTFA {
 
@@ -40,6 +44,16 @@ public class GigyaTFA {
     }
 
     public void optOutOfPushTFA() {
+
+    }
+
+    public void onApprovePushTFA() {
+        OneTimeWorkRequest approveWorkRequest = new OneTimeWorkRequest.Builder(ApproveTFAWorker.class)
+                .build();
+        WorkManager.getInstance().enqueue(approveWorkRequest);
+    }
+
+    public void onDenyPushTFA() {
 
     }
 }

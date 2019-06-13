@@ -8,4 +8,7 @@
     <string name="tfa_message">TFA message</string>
     <string name="approve">Approve</string>
     <string name="deny">Deny</string>
+
+    <string name="tfa_action_approve">com.gigya.android.sdk.tfa.push_approve</string>
+    <string name="tfa_action_deny">com.gigya.android.sdk.tfa.push_deny</string>
 </resources>

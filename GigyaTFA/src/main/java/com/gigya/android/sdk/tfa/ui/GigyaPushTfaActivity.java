@@ -9,7 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.worker.ApproveTFAWorker;
 
@@ -49,15 +51,20 @@ public class GigyaPushTfaActivity extends AppCompatActivity {
     }
 
     private void onApprove() {
-        OneTimeWorkRequest approveWorkRequest = new OneTimeWorkRequest.Builder(ApproveTFAWorker.class)
-                .build();
-        WorkManager.getInstance().enqueue(approveWorkRequest);
+        GigyaTFA.getInstance().onApprovePushTFA();
         finish();
     }
 
     private void onDeny() {
-        // TODO: 2019-06-12 Should we do anything here?
+        GigyaTFA.getInstance().onDenyPushTFA();
         finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        // Disable exit animation.
+        overridePendingTransition(0, 0);
     }
 }
 
