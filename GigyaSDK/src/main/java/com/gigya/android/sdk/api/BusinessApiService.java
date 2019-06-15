@@ -376,17 +376,24 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void getAccount(final GigyaCallback<A> gigyaCallback) {
+        getAccount(null, gigyaCallback);
+    }
+
+    @Override
+    public void getAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
+        if (gigyaCallback == null) {
+            // Callback restricted api call.
+            return;
+        }
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
-            if (gigyaCallback != null) {
-                gigyaCallback.onError(GigyaError.unauthorizedUser());
-            }
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
         if (_accountService.isCachedAccount()) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, null, RestAdapter.GET);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -407,6 +414,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+
     /**
      * Request account update for current active session.
      *
@@ -416,11 +424,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback) {
+        if (gigyaCallback == null) {
+            // Callback restricted api call.
+            return;
+        }
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
-            if (gigyaCallback != null) {
-                gigyaCallback.onError(GigyaError.unauthorizedUser());
-            }
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
         final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.POST);
@@ -482,7 +492,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region MISC
 
-    // Non documented.
+    // Non documented. For SDK use only.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REFRESH_PROVIDER_SESSION, params, RestAdapter.POST);

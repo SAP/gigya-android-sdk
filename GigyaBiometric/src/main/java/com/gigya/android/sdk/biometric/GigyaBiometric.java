@@ -11,7 +11,9 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import javax.crypto.Cipher;
 
 public class GigyaBiometric {
+
     //region static
+
     public enum Action {
         OPT_IN, OPT_OUT, LOCK, UNLOCK
     }
@@ -32,8 +34,10 @@ public class GigyaBiometric {
             container.bind(BiometricImpl.class,
                     GigyaBiometricUtils.isPromptEnabled() ? BiometricImplV28.class : BiometricImplV23.class,
                     true);
+
             try {
                 _sharedInstance = container.get(GigyaBiometric.class);
+                GigyaLogger.debug(LOG_TAG, "Instantiation version: " + VERSION);
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
                 e.printStackTrace();

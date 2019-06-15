@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.worker;
+package com.gigya.android.sdk.tfa.workers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+/**
+ * Worker used for server push token update.
+ */
 public class TokenUpdateWorker extends Worker {
 
     private String token;

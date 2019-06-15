@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.worker;
+package com.gigya.android.sdk.tfa.workers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+/**
+ * Worker used for push TFA approval process.
+ */
 public class ApproveTFAWorker extends Worker {
 
     public ApproveTFAWorker(@NonNull Context context,

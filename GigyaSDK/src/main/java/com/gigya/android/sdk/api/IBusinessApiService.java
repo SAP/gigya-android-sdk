@@ -34,6 +34,8 @@ public interface IBusinessApiService<A> {
 
     void getAccount(final GigyaCallback<A> gigyaCallback);
 
+    void getAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback);
+
     void setAccount(A updatedAccount, final GigyaCallback<A> gigyaCallback);
 
     void setAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback);

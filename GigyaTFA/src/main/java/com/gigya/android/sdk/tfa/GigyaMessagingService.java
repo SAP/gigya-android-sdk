@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.service;
+package com.gigya.android.sdk.tfa;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,24 +13,25 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.tfa.GigyaDefinitions;
-import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.ui.GigyaPushTfaActivity;
-import com.gigya.android.sdk.tfa.worker.TokenUpdateWorker;
+import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
 
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+
 /**
  * Main FCM messaging service.
  * Extend this service if your application already uses the FirebaseMessagingService.
  */
-public abstract class GigyaMessagingService extends FirebaseMessagingService {
+public class GigyaMessagingService extends FirebaseMessagingService {
 
     final private static String LOG_TAG = "GigyaMessagingService";
 
-    protected abstract int getNotificationIcon();
+    public static final int PUSH_TFA_CONTENT_ACTION_REQUEST_CODE = 2020;
+    public static final int PUSH_TFA_CONTENT_INTENT_REQUEST_CODE = 2021;
 
     @Override
     public void onCreate() {
@@ -85,22 +86,27 @@ public abstract class GigyaMessagingService extends FirebaseMessagingService {
         final String title = "My notification";
         final String content = "Hello World!";
 
-        Intent intent = new Intent(this, GigyaPushTfaActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        // Content activity pending intent.
+        Intent intent = new Intent(this, getCustomActionActivity());
+        // We don't want the annoying enter animation.
+        intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
+                intent, PendingIntent.FLAG_ONE_SHOT);
 
         // Deny action.
         Intent denyIntent = new Intent(this, GigyaTFAActionReceiver.class);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         denyIntent.putExtra("notificationId", androidNotificationId);
         PendingIntent denyPendingIntent =
-                PendingIntent.getBroadcast(this, 0, denyIntent, 0);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
 
         // Approve action.
         Intent approveIntent = new Intent(this, GigyaTFAActionReceiver.class);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         approveIntent.putExtra("notificationId", androidNotificationId);
         PendingIntent approvePendingIntent =
-                PendingIntent.getBroadcast(this, 0, approveIntent, 0);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, 0);
 
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -110,33 +116,14 @@ public abstract class GigyaMessagingService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .addAction(getNotificationIcon(), getString(R.string.deny),
+                .addAction(getDenyActionIcon(), getString(R.string.deny),
                         denyPendingIntent)
-                .addAction(getNotificationIcon(), getString(R.string.approve),
+                .addAction(getApproveActionIcon(), getString(R.string.approve),
                         approvePendingIntent);
 
+        // Notify.
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-        // notificationId is a unique int for each notification that you must define
         notificationManager.notify(androidNotificationId, builder.build());
-    }
-
-    private PendingIntent getContentBroadcasePendingIntent() {
-        Intent notifyIntent = new Intent(this, null);
-        return PendingIntent.getBroadcast(this, GigyaDefinitions.Codes.PUST_TFA_CONTENT_ACTION_REQUEST_CODE,
-                notifyIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    // TODO: 2019-06-12 Not entirely sure we need an activity initiator.
-    private PendingIntent getContentActivityPendingIntent() {
-        Intent notifyIntent = new Intent(this, GigyaPushTfaActivity.class);
-        // Set the Activity to start in a new, empty task
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        // Create the PendingIntent
-        return PendingIntent.getActivity(
-                this, 0, notifyIntent, PendingIntent.FLAG_CANCEL_CURRENT
-        );
     }
 
     /**
@@ -160,4 +147,39 @@ public abstract class GigyaMessagingService extends FirebaseMessagingService {
         updateWorkRequestBuilder.setInputData(inputData);
         WorkManager.getInstance().enqueue(updateWorkRequestBuilder.build());
     }
+
+    //region CUSTOMIZATION OPTIONS
+
+    /**
+     * Optional override.
+     * Define the notification approve action icon.
+     *
+     * @return Icon reference.
+     */
+    protected int getApproveActionIcon() {
+        return 0;
+    }
+
+    /**
+     * Optional override.
+     * Define the notification deny action icon.
+     *
+     * @return Icon reference.
+     */
+    protected int getDenyActionIcon() {
+        return 0;
+    }
+
+    /**
+     * Optional override.
+     * Allows to define the activity class used by the the notification's content intent.
+     * default class GigyaPushTfaActivity.class.
+     *
+     * @return Activity class reference.
+     */
+    public Class getCustomActionActivity() {
+        return GigyaPushTfaActivity.class;
+    }
+
+    //endregion
 }

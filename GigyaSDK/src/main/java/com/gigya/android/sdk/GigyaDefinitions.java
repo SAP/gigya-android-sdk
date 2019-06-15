@@ -127,4 +127,75 @@ public class GigyaDefinitions {
         public static final String YAHOO_JAPAN = "Yahoo Japan";
     }
 
+    public static class AccountIncludes {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({IDENTITIES_ACTIVE, IDENTITIES_ALL, IDENTITIES_GLOBAL, LOGIN_IDS, EMAILS, PROFILE, DATA, PASSWORD, IS_LOCKED_OUT,
+                LAST_LOGIN_LOCATION, REG_SOURCE, I_RANK, RBA, SUBSCRIPTIONS, USER_INFO, PREFERENCES, GROUPS})
+        public @interface Includes {
+
+        }
+
+        public static final String IDENTITIES_ACTIVE = "identities-active";
+        public static final String IDENTITIES_ALL = "identities-all";
+        public static final String IDENTITIES_GLOBAL = "identities-global";
+        public static final String LOGIN_IDS = "loginIDs";
+        public static final String EMAILS = "emails";
+        public static final String PROFILE = "profile";
+        public static final String DATA = "data";
+        public static final String PASSWORD = "password";
+        public static final String IS_LOCKED_OUT = "isLockedOut";
+        public static final String LAST_LOGIN_LOCATION = "lastLoginLocation";
+        public static final String REG_SOURCE = "regSource";
+        public static final String I_RANK = "irank";
+        public static final String RBA = "rba";
+        public static final String SUBSCRIPTIONS = "subscriptions";
+        public static final String USER_INFO = "userInfo";
+        public static final String PREFERENCES = "preferences";
+        public static final String GROUPS = "groups";
+    }
+
+    public static class AccountProfileExtraFields {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({LANGUAGES, ADDRESS, PHONES, EDUCATION, EDUCATION_LEVEL, HONORS, PUBLICATIONS, PATENTS, CERTIFICATIONS,
+                PROFESSIONAL_HEADLINE, BIO, INDUSTRY, SPECIALITIES, WORK, SKILLS, RELIGION, POLITICAL_VIEW, INTERESTED_IN,
+                RELATIONSHIP_STATUS, HOMETOWN, FAVORITES, FOLLOWERS_COUNT, FOLLOWING_COUNT, USERNAME, NAME, LOCALE, VERIFIED,
+                TIMEZONE, LIKES, SAMLDATA})
+        public @interface ProfileExtraFields {
+
+        }
+
+        public static final String LANGUAGES = "languages";
+        public static final String ADDRESS = "address";
+        public static final String PHONES = "phones";
+        public static final String EDUCATION = "education";
+        public static final String EDUCATION_LEVEL = "educationLevel";
+        public static final String HONORS = "honors";
+        public static final String PUBLICATIONS = "publications";
+        public static final String PATENTS = "patents";
+        public static final String CERTIFICATIONS = "certifications";
+        public static final String PROFESSIONAL_HEADLINE = "professionalHeadline";
+        public static final String BIO = "bio";
+        public static final String INDUSTRY = "industry";
+        public static final String SPECIALITIES = "specialties";
+        public static final String WORK = "work";
+        public static final String SKILLS = "skills";
+        public static final String RELIGION = "religion";
+        public static final String POLITICAL_VIEW = "politicalView";
+        public static final String INTERESTED_IN = "interestedIn";
+        public static final String RELATIONSHIP_STATUS = "relationshipStatus";
+        public static final String HOMETOWN = "hometown";
+        public static final String FAVORITES = "favorites";
+        public static final String FOLLOWERS_COUNT = "followersCount";
+        public static final String FOLLOWING_COUNT = "followingCount";
+        public static final String USERNAME = "username";
+        public static final String NAME = "name";
+        public static final String LOCALE = "locale";
+        public static final String VERIFIED = "verified";
+        public static final String TIMEZONE = "timezone";
+        public static final String LIKES = "likes";
+        public static final String SAMLDATA = "samlData";
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.service;
+package com.gigya.android.sdk.tfa;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.tfa.GigyaTFA;
-import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 public class GigyaTFAActionReceiver extends BroadcastReceiver {

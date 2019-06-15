@@ -102,7 +102,7 @@
 
         <!-- Gigya TFA messaging service -->
         <service
-            android:name=".GigyaMessagingServiceExt"
+            android:name="com.gigya.android.sdk.tfa.GigyaMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -117,11 +117,12 @@
             android:taskAffinity=""
             android:theme="@style/Theme.AppCompat.Translucent" />
 
-        <receiver android:name="com.gigya.android.sdk.tfa.service.GigyaTFAActionReceiver"
+        <receiver
+            android:name="com.gigya.android.sdk.tfa.GigyaTFAActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="@string/tfa_action_approve"/>
-                <action android:name="@string/tfa_action_deny"/>
+                <action android:name="@string/tfa_action_approve" />
+                <action android:name="@string/tfa_action_deny" />
             </intent-filter>
         </receiver>
 

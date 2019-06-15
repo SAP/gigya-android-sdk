@@ -6,17 +6,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
-import com.gigya.android.sdk.tfa.worker.ApproveTFAWorker;
 
 /**
  * Activity used in conjunction with the GigyaMessagingService in order to apply custom message actions.
+ * It is optional to use your own custom activity class instead of this one. In order to do so you will need
+ * to extend the GigyaMessagingService and provide your own by overriding the getCustomActionActivity method.
  */
 public class GigyaPushTfaActivity extends AppCompatActivity {
 
