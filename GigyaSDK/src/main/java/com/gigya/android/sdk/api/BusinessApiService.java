@@ -393,8 +393,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
         // Fetch caching relevant fields from parameter map (if exist) null fields are viable.
-        final String include = (String) params.get("include");
-        final String profileExtraFields = (String) params.get("profileExtraFields");
+        final String include = params != null ? (String) params.get("include") : null;
+        final String profileExtraFields = params != null ? (String) params.get("profileExtraFields") : null;
         if (_accountService.isCachedAccount(include, profileExtraFields)) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
