@@ -35,15 +35,13 @@ public class ObjectUtils {
         Map<String, Object> map = new HashMap<>();
 
         Iterator<String> keysItr = object.keys();
-        while(keysItr.hasNext()) {
+        while (keysItr.hasNext()) {
             String key = keysItr.next();
             Object value = object.get(key);
 
-            if(value instanceof JSONArray) {
+            if (value instanceof JSONArray) {
                 value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
+            } else if (value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
             map.put(key, value);
@@ -53,13 +51,11 @@ public class ObjectUtils {
 
     private static List<Object> toList(JSONArray array) throws JSONException {
         List<Object> list = new ArrayList<>();
-        for(int i = 0; i < array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
-            if(value instanceof JSONArray) {
+            if (value instanceof JSONArray) {
                 value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
+            } else if (value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
             list.add(value);
@@ -104,5 +100,20 @@ public class ObjectUtils {
     public static <T> T deepCopy(Gson gson, T obj, Class<T> clazz) {
         final String json = gson.toJson(obj);
         return gson.fromJson(json, clazz);
+    }
+
+    public static String commaConcat(String[] input) {
+        if (input.length > 0) {
+            StringBuilder concat = new StringBuilder();
+            for (String string : input) {
+                concat.append("'").append(string.replace("'", "\\'")).append("',");
+                // can also do the following
+                // nameBuilder.append("'").append(n.replace("'", "''")).append("',");
+            }
+
+            concat.deleteCharAt(concat.length() - 1);
+            return concat.toString();
+        }
+        return "";
     }
 }

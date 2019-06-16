@@ -23,6 +23,7 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,7 +348,7 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param gigyaCallback Response listener callback.
      */
-    public void getAccount(GigyaCallback<T> gigyaCallback) {
+    public void getAccount(@NonNull GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getAccount: ");
         getAccount(false, gigyaCallback);
     }
@@ -366,6 +367,30 @@ public class Gigya<T extends GigyaAccount> {
         }
 
         _businessApiService.getAccount(gigyaCallback);
+    }
+
+    /**
+     * Request account info given parameters map.
+     *
+     * @param params        Request parameter map.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getAccount(@NonNull final Map<String, Object> params, @NonNull GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount with params:\n" + params.toString());
+        _businessApiService.getAccount(params, gigyaCallback);
+    }
+
+    /**
+     * Request account info given comma separated array of include parameters & comma separated array of profile extra fields.
+     *
+     * @param include            String[]  array.
+     * @param profileExtraFields String[] array.
+     * @param gigyaCallback      Response listener callback.
+     */
+    public void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
+                + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
+        _businessApiService.getAccount(include, profileExtraFields, gigyaCallback);
     }
 
     /**

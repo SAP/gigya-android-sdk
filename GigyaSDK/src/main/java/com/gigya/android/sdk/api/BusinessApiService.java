@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.api;
 
+import android.support.annotation.NonNull;
+
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -21,6 +23,7 @@ import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -389,7 +392,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
-        if (_accountService.isCachedAccount()) {
+        final String include = (String) params.get("include");
+        final String profileExtraFields = (String) params.get("profileExtraFields");
+        if (_accountService.isCachedAccount(include, profileExtraFields)) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
@@ -412,6 +417,21 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 gigyaCallback.onError(gigyaError);
             }
         });
+    }
+
+    @Override
+    public void getAccount(@NonNull String[] include, @NonNull String[] profileExtraFields, GigyaCallback<A> gigyaCallback) {
+        final String includeParam = ObjectUtils.commaConcat(include);
+        final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
+        if (_accountService.isCachedAccount(includeParam, profileExtraFieldsParam)) {
+            gigyaCallback.onSuccess(_accountService.getAccount());
+            return;
+        }
+        final Map<String, Object> params = new HashMap<>();
+        params.put("include", includeParam);
+        params.put("extraProfileFields", profileExtraFieldsParam);
+        _accountService.updateExtendedParametersRequest(includeParam, profileExtraFieldsParam);
+        getAccount(params, gigyaCallback);
     }
 
 
@@ -452,6 +472,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         });
     }
+
 
     /**
      * Request account update for current active session.
