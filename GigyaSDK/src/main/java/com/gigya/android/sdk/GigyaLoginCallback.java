@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.interruption.link.IGigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver;
+import com.gigya.android.sdk.interruption.tfa.TfaResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFAEmail;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvider;
 import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
@@ -48,6 +50,16 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
     //region TFA
 
     public void onPendingTFARegistration(@NonNull GigyaApiResponse response, @NonNull IGigyaTFARegistrationResolver resolver) {
+        forwardError(response);
+    }
+
+    public void onPendingTwoFactorRegistration(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> availableProviders,
+                                               @NonNull TfaResolverFactory resolverFactory) {
+        forwardError(response);
+    }
+
+    public void onPendingTwoFactorVerification(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> availableProviders,
+                                               @NonNull TfaResolverFactory resolverFactory) {
         forwardError(response);
     }
 

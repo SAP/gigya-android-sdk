@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.resolvers.sms;
+package com.gigya.android.sdk.tfa.resolvers.phone;
 
 import android.support.annotation.NonNull;
 
@@ -16,10 +16,12 @@ import java.util.Map;
 
 public class PhoneVerificationResolver<A extends GigyaAccount> extends Resolver<A> implements IPhoneVerificationResolver<A> {
 
-    public static final String LOG_TAG = "PhoneVerificationResolver";
+    private static final String LOG_TAG = "PhoneVerificationResolver";
 
-    public PhoneVerificationResolver(IBusinessApiService<A> businessApiService) {
-        super(businessApiService);
+    public PhoneVerificationResolver(GigyaLoginCallback<A> loginCallback,
+                                     GigyaApiResponse interruption,
+                                     IBusinessApiService<A> businessApiService) {
+        super(loginCallback, interruption, businessApiService);
     }
 
     @Override

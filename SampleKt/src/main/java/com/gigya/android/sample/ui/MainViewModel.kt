@@ -18,7 +18,11 @@ import com.gigya.android.sdk.interruption.tfa.IGigyaTFAVerificationResolver
 import com.gigya.android.sdk.interruption.tfa.models.TFAEmail
 import com.gigya.android.sdk.interruption.tfa.models.TFARegisteredPhone
 import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.interruption.tfa.TfaResolverFactory
+import com.gigya.android.sdk.interruption.tfa.models.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.tfa.GigyaTFA
+import com.gigya.android.sdk.tfa.resolvers.phone.IPhoneRegistrationResolver
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
 
@@ -152,6 +156,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onEmailTFAVerificationEmailSent() {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_EMAIL_SENT, null))
+            }
+
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, availableProviders: MutableList<TFAProvider>, resolverFactory: TfaResolverFactory) {
+               val resolver = resolverFactory.getResolverFor(IPhoneRegistrationResolver::class.java)
             }
 
         })

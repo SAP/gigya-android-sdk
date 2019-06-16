@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.resolvers.sms;
+package com.gigya.android.sdk.tfa.resolvers.phone;
 
 import android.support.annotation.NonNull;
 
@@ -7,6 +7,7 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.interruption.Resolver;
 import com.gigya.android.sdk.interruption.tfa.models.TFAInitModel;
@@ -15,11 +16,12 @@ import com.gigya.android.sdk.network.GigyaError;
 
 public class PhoneRegistrationResolver<A extends GigyaAccount> extends Resolver<A> implements IPhoneRegistrationResolver {
 
+    private static final String LOG_TAG = "SmsRegistrationResolver";
 
-    public static final String LOG_TAG = "SmsRegistrationResolver";
-
-    public PhoneRegistrationResolver(IBusinessApiService<A> businessApiService) {
-        super(businessApiService);
+    public PhoneRegistrationResolver(GigyaLoginCallback<A> loginCallback,
+                                     GigyaApiResponse interruption,
+                                     IBusinessApiService<A> businessApiService) {
+        super(loginCallback, interruption, businessApiService);
     }
 
     @Override

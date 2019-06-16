@@ -45,7 +45,8 @@ public class                                InterruptionResolverFactory implemen
                         .bind(GigyaLoginCallback.class, loginCallback);
 
         final int errorCode = apiResponse.getErrorCode();
-        GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode);
+        GigyaLogger.debug(LOG_TAG,
+                "resolve: with errorCode = " + errorCode);
 
         try {
             switch (errorCode) {
@@ -81,6 +82,8 @@ public class                                InterruptionResolverFactory implemen
             // error with creating resolvers - could be missing container dependencies
             GigyaLogger.error(LOG_TAG, e.getMessage());
             handleUnsupportedResponse(apiResponse, loginCallback);
+        } finally {
+            resolverContainer.dispose();
         }
     }
 
