@@ -392,6 +392,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
+        // Fetch caching relevant fields from parameter map (if exist) null fields are viable.
         final String include = (String) params.get("include");
         final String profileExtraFields = (String) params.get("profileExtraFields");
         if (_accountService.isCachedAccount(include, profileExtraFields)) {

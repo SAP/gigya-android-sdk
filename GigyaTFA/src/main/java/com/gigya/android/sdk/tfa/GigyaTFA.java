@@ -8,10 +8,10 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.tfa.resolvers.email.EmailVerificationResolver;
 import com.gigya.android.sdk.tfa.resolvers.email.IEmailVerificationResolver;
-import com.gigya.android.sdk.tfa.resolvers.sms.ISmsRegistrationResolver;
-import com.gigya.android.sdk.tfa.resolvers.sms.ISmsVerificationResolver;
-import com.gigya.android.sdk.tfa.resolvers.sms.SmsRegistrationResolver;
-import com.gigya.android.sdk.tfa.resolvers.sms.SmsVerificationResolver;
+import com.gigya.android.sdk.tfa.resolvers.sms.IPhoneRegistrationResolver;
+import com.gigya.android.sdk.tfa.resolvers.sms.IPhoneVerificationResolver;
+import com.gigya.android.sdk.tfa.resolvers.sms.PhoneRegistrationResolver;
+import com.gigya.android.sdk.tfa.resolvers.sms.PhoneVerificationResolver;
 import com.gigya.android.sdk.tfa.resolvers.totp.ITotpRegistrationResolver;
 import com.gigya.android.sdk.tfa.resolvers.totp.ITotpVerificationResolver;
 import com.gigya.android.sdk.tfa.resolvers.totp.TotpRegistrationResolver;
@@ -46,8 +46,8 @@ public class GigyaTFA {
     }
 
     private static void bindTo(IoCContainer container) {
-        container.bind(ISmsRegistrationResolver.class, SmsRegistrationResolver.class, true);
-        container.bind(ISmsVerificationResolver.class, SmsVerificationResolver.class, true);
+        container.bind(IPhoneRegistrationResolver.class, PhoneRegistrationResolver.class, true);
+        container.bind(IPhoneVerificationResolver.class, PhoneVerificationResolver.class, true);
         container.bind(ITotpRegistrationResolver.class, TotpRegistrationResolver.class, true);
         container.bind(ITotpVerificationResolver.class, TotpVerificationResolver.class, true);
         container.bind(IEmailVerificationResolver.class, EmailVerificationResolver.class, true);
