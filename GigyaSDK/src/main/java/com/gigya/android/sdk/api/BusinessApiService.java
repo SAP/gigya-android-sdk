@@ -9,13 +9,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
-import com.gigya.android.sdk.interruption.tfa.models.TFACompleteVerificationModel;
-import com.gigya.android.sdk.interruption.tfa.models.TFAGetEmailsModel;
-import com.gigya.android.sdk.interruption.tfa.models.TFAGetRegisteredPhoneNumbersModel;
-import com.gigya.android.sdk.interruption.tfa.models.TFAInitModel;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
-import com.gigya.android.sdk.interruption.tfa.models.TFATotpRegisterModel;
-import com.gigya.android.sdk.interruption.tfa.models.TFAVerificationCodeModel;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
@@ -655,104 +649,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
         send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.GET, TFAProvidersModel.class, callback);
-    }
-
-    @Override
-    public void initTFA(String regToken, String provider, String mode, GigyaCallback<TFAInitModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("regToken", regToken);
-        params.put("provider", provider);
-        params.put("mode", mode);
-        send(GigyaDefinitions.API.API_TFA_INIT, params, RestAdapter.POST, TFAInitModel.class, callback);
-    }
-
-    @Override
-    public void finalizeTFA(String regToken, String gigyaAssertion, String providerAssertion, GigyaCallback<GigyaApiResponse> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("regToken", regToken);
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("providerAssertion", providerAssertion);
-        send(GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST, null, callback);
-    }
-
-    @Override
-    public void registerTotp(String gigyaAssertion, GigyaCallback<TFATotpRegisterModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        send(GigyaDefinitions.API.API_TFA_TOTP_REGISTER, params, RestAdapter.POST, TFATotpRegisterModel.class, callback);
-    }
-
-    @Override
-    public void verifyTotp(String code, String gigyaAssertion, String sctToken, GigyaCallback<TFACompleteVerificationModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("code", code);
-        if (sctToken != null) {
-            params.put("sctToken", sctToken);
-        }
-        send(GigyaDefinitions.API.API_TFA_TOTP_VERIFY, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
-    }
-
-    @Override
-    public void getRegisteredPhoneNumbers(String gigyaAssertion, GigyaCallback<TFAGetRegisteredPhoneNumbersModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST, TFAGetRegisteredPhoneNumbersModel.class, callback);
-    }
-
-    @Override
-    public void registerPhoneNumber(String gigyaAssertion, String phoneNumber, String method, GigyaCallback<TFAVerificationCodeModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("phone", phoneNumber);
-        params.put("method", method);
-        params.put("lang", "eng");
-        send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST, TFAVerificationCodeModel.class, callback);
-    }
-
-    @Override
-    public void verifyPhoneNumber(String gigyaAssertion, String phoneId, String method, GigyaCallback<TFAVerificationCodeModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("phoneID", phoneId);
-        params.put("method", method);
-        params.put("lang", "eng");
-        send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST, TFAVerificationCodeModel.class, callback);
-    }
-
-    @Override
-    public void completePhoneVerification(String gigyaAssertion, String code, String phvToken, GigyaCallback<TFACompleteVerificationModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("code", code);
-        params.put("phvToken", phvToken);
-        send(GigyaDefinitions.API.API_TFA_PHONE_COMPLETE_VERIFICATION, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
-    }
-
-    @Override
-    public void getRegisteredEmails(String gigyaAssertion, GigyaCallback<TFAGetEmailsModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        send(GigyaDefinitions.API.API_TFA_EMAIL_GET_EMAILS, params, RestAdapter.GET, TFAGetEmailsModel.class, callback);
-    }
-
-    @Override
-    public void verifyEmail(String emailId, String gigyaAssertion, GigyaCallback<TFAVerificationCodeModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("emailID", emailId);
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("lang", "eng");
-        send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.GET, TFAVerificationCodeModel.class, callback);
-    }
-
-    @Override
-    public void completeEmailVerification(String gigyaAssertion, String code, String phvToken, GigyaCallback<TFACompleteVerificationModel> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gigyaAssertion", gigyaAssertion);
-        params.put("code", code);
-        params.put("phvToken", phvToken);
-        send(GigyaDefinitions.API.API_TFA_EMAIL_COMPLETE_VERIFICATION, params, RestAdapter.POST, TFACompleteVerificationModel.class, callback);
-
     }
 
     //endregion

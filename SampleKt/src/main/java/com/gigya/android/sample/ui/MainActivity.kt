@@ -13,7 +13,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.gigya.android.sample.R
@@ -25,14 +24,12 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.fragment.BackPressListener
 import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.fragment.InputDialog
-import com.gigya.android.sample.ui.fragment.TFAFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
-import com.gigya.android.sdk.interruption.tfa.models.TFAProvider
 import com.gigya.android.sdk.network.GigyaError
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -132,9 +129,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.uiTrigger?.observe(this, Observer { dataPair ->
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
-                MainViewModel.UI_TRIGGER_SHOW_TFA_REGISTRATION -> showTFARegistrationFragment(dataPair.second as ArrayList<TFAProvider>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_VERIFICATION -> showTFAVerificationFragment(dataPair.second as ArrayList<TFAProvider>)
-                MainViewModel.UI_TRIGGER_SHOW_TFA_EMAIL_SENT -> toast("Verification email sent")
                 MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as ConflictingAccounts)
             }
         })
@@ -359,22 +353,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun onSendAnonymousRequest() {
         val dialog = InputDialog.newInstance(InputDialog.MainInputType.ANONYMOUS, this)
         dialog.show(supportFragmentManager, "onSendAnonymousRequest")
-    }
-
-    /**
-     * Show TFA fragment for registration mode.
-     */
-    private fun showTFARegistrationFragment(providers: ArrayList<TFAProvider>) {
-        val fragment = TFAFragment.newInstance("registration", ArrayList(providers.map { it.name }))
-        supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
-    }
-
-    /**
-     * Show TFA fragment for verification mode.
-     */
-    private fun showTFAVerificationFragment(providers: ArrayList<TFAProvider>) {
-        val fragment = TFAFragment.newInstance("verification", ArrayList(providers.map { it.name }))
-        supportFragmentManager.beginTransaction().add(R.id.frag_container, fragment).addToBackStack(null).commit()
     }
 
     /**

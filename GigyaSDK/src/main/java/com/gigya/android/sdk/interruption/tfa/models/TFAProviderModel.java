@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.interruption.tfa.models;
 
-public class TFAProvider {
+public class TFAProviderModel {
 
     private String name;
     private int authLevel;

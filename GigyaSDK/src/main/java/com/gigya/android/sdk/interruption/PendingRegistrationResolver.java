@@ -28,6 +28,7 @@ public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolve
 
     @Override
     public void setAccount(@NonNull Map<String, Object> params) {
+        params.put("regToken", getRegToken()); // Reg token field is mandatory in order to resolve this issue.
         _businessApiService.setAccount(params, new GigyaCallback<A>() {
             @Override
             public void onSuccess(A updatedAccount) {

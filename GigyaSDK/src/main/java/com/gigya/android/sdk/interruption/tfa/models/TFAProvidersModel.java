@@ -7,14 +7,14 @@ import java.util.List;
 
 public class TFAProvidersModel extends GigyaResponseModel {
 
-    private List<TFAProvider> activeProviders = new ArrayList<>();
-    private List<TFAProvider> inactiveProviders = new ArrayList<>();
+    private List<TFAProviderModel> activeProviders = new ArrayList<>();
+    private List<TFAProviderModel> inactiveProviders = new ArrayList<>();
 
-    public List<TFAProvider> getActiveProviders() {
+    public List<TFAProviderModel> getActiveProviders() {
         return activeProviders;
     }
 
-    public List<TFAProvider> getInactiveProviders() {
+    public List<TFAProviderModel> getInactiveProviders() {
         return inactiveProviders;
     }
 }

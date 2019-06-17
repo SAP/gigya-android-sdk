@@ -4,9 +4,8 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
-import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
-import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
+import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
+import com.gigya.android.sdk.interruption.tfa.TFAProviderResolver;
 import com.gigya.android.sdk.network.GigyaError;
 
 public class InterruptionResolverFactory implements IInterruptionResolverFactory {
@@ -45,8 +44,7 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                         .bind(GigyaLoginCallback.class, loginCallback);
 
         final int errorCode = apiResponse.getErrorCode();
-        GigyaLogger.debug(LOG_TAG,
-                "resolve: with errorCode = " + errorCode);
+        GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode);
 
         try {
             switch (errorCode) {
@@ -54,24 +52,24 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                     loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
                     break;
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-
-                    loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
+                    PendingRegistrationResolver resolver = resolverContainer.createInstance(PendingRegistrationResolver.class);
+                    loginCallback.onPendingRegistration(apiResponse, resolver);
                     break;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
                     // TODO: #baryo resolver?
                     loginCallback.onPendingPasswordChange(apiResponse);
                     break;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
-                    resolverContainer.createInstance(GigyaLinkAccountsResolver.class);
+                    LinkAccountsResolver linkAccountsResolver = resolverContainer.createInstance(LinkAccountsResolver.class);
+                    linkAccountsResolver.requestConflictingAccounts();
                     break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:
-                    resolverContainer.createInstance(GigyaTFARegistrationResolver.class);
-                    break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION:
-                    resolverContainer.createInstance(GigyaTFAVerificationResolver.class);
+                    TFAProviderResolver tfaProviderResolver = resolverContainer.createInstance(TFAProviderResolver.class);
+                    tfaProviderResolver.init();
                     break;
                 case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
-                    GigyaFinalizeResolver finalizeResolver = resolverContainer.createInstance(GigyaFinalizeResolver.class);
+                    Resolver finalizeResolver = resolverContainer.createInstance(Resolver.class);
                     finalizeResolver.finalizeRegistration();
                     break;
                 default:

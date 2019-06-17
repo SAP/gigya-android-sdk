@@ -20,10 +20,13 @@ public class Resolver<A extends GigyaAccount> {
         _businessApiService = businessApiService;
     }
 
+    protected String getRegToken() {
+        return _interruption.getField("regToken", String.class);
+    }
+
     protected void finalizeRegistration() {
-        final String regToken = _interruption.getField("regToken", String.class);
         final Map<String, Object> params = new HashMap<>();
-        params.put("regToken", regToken); // Null will result in error.
+        params.put("regToken", getRegToken()); // Null will result in error.
         params.put("include", "profile,data,emails,subscriptions,preferences");
         params.put("includeUserInfo", "true");
         _businessApiService.finalizeRegistration(params, _loginCallback);
