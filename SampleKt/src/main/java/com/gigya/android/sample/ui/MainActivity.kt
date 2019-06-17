@@ -30,13 +30,17 @@ import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
+import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
+import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.tfa.ui.TFAProviderSelectionFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.toast
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, InputDialog.IApiResultCallback {
@@ -130,6 +134,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             @Suppress("UNCHECKED_CAST")
             when (dataPair?.first) {
                 MainViewModel.UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS -> onConflictingAccounts(dataPair.second as ConflictingAccounts)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION ->
+                    onTFARegistrationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
+                MainViewModel.UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION ->
+                    onTFAVerificationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
             }
         })
     }
@@ -363,6 +371,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val providers = conflictingAccount.loginProviders
         val dialog = ConflictingAccountsDialog.newInstance(loginID, providers)
         dialog.show(supportFragmentManager, "onConflictingAccounts")
+    }
+
+    /**
+     * Show TFA provider selection fragment (Fragment is included in the gigya-tfa library).
+     */
+    private fun onTFARegistrationProviderSelection(dataPair: Pair<MutableList<TFAProviderModel>, TFAResolverFactory>) {
+        val dialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
+        dialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
+            override fun onProviderSelected(selectedProvider: String?) {
+
+            }
+
+            override fun onDismiss() {
+                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                onLoadingDone()
+            }
+
+        })
+        dialog.show(supportFragmentManager, "onTFARegistrationProviderSelection")
+    }
+
+    /**
+     * Show TFA provider selection fragment (Fragment is included in the gigya-tfa library).
+     */
+    private fun onTFAVerificationProviderSelection(dataPair: Pair<MutableList<TFAProviderModel>, TFAResolverFactory>) {
+        val dialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
+        dialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
+            override fun onProviderSelected(selectedProvider: String?) {
+
+            }
+
+            override fun onDismiss() {
+                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                onLoadingDone()
+            }
+
+        })
+        dialog.show(supportFragmentManager, "onTFAVerificationProviderSelection")
     }
 
     /**

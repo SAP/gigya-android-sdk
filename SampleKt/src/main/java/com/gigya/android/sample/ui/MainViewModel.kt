@@ -29,6 +29,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         const val UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS = 1
         const val UI_TRIGGER_DISMISS_ON_ERROR = 2
+        const val UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION = 3
+        const val UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION = 4
     }
 
     /*
@@ -101,12 +103,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviderModels: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
-                // Stub.
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
             }
 
-            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviderModels: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
-                // Stub.
+            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION, Pair(activeProviders, resolverFactory)))
             }
 
         })
@@ -115,8 +117,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Register using loginID, password, policy.
      */
-    fun register(loginID: String, password: String, exp: Int,
-                 success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+    fun register(loginID: String, password: String, exp: Int, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
         gigya.register(loginID, password, mutableMapOf<String, Any>("sessionExpiration" to exp), object : GigyaLoginCallback<MyAccount>() {
 
@@ -131,12 +132,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
-            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviderModels: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
-                // Stub.
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
             }
 
-            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviderModels: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
-                // Stub.
+            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION, Pair(activeProviders, resolverFactory)))
             }
         })
     }
