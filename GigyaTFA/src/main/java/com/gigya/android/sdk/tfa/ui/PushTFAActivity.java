@@ -15,7 +15,7 @@ import com.gigya.android.sdk.tfa.R;
  * It is optional to use your own custom activity class instead of this one. In order to do so you will need
  * to extend the GigyaMessagingService and provide your own by overriding the getCustomActionActivity method.
  */
-public class GigyaPushTFAActivity extends AppCompatActivity {
+public class PushTFAActivity extends AppCompatActivity {
 
     private final static String LOG_TAG = "GigyaPushTfaActivity";
 

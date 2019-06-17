@@ -10,7 +10,7 @@ import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
-public class GigyaPushTFAReceiver extends BroadcastReceiver {
+public class PushTFAReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "GigyaTFAActionReceiver";
 

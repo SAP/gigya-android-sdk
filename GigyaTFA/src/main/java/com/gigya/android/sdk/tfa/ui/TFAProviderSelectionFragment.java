@@ -67,7 +67,7 @@ public class TFAProviderSelectionFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getArguments() != null && getActivity() != null) {
             final ArrayList<String> providers = getArguments().getStringArrayList(ARG_PROVIDER_LIST);
-            final Spinner spinner = view.findViewById(R.id.pgs_provider_spinner);
+            final Spinner spinner = view.findViewById(R.id.fps_provider_spinner);
             final ArrayAdapter providerAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, providers);
             spinner.setAdapter(providerAdapter);
 
@@ -93,6 +93,8 @@ public class TFAProviderSelectionFragment extends DialogFragment {
                     }
                 }
             });
+        } else {
+            dismiss();
         }
     }
 

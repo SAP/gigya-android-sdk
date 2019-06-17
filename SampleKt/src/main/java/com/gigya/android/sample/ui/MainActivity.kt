@@ -33,6 +33,8 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.tfa.ui.BaseTFAFragment
+import com.gigya.android.sdk.tfa.ui.TFAPhoneRegistrationFragment
 import com.gigya.android.sdk.tfa.ui.TFAProviderSelectionFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -377,10 +379,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Show TFA provider selection fragment (Fragment is included in the gigya-tfa library).
      */
     private fun onTFARegistrationProviderSelection(dataPair: Pair<MutableList<TFAProviderModel>, TFAResolverFactory>) {
-        val dialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
-        dialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
+        val providerDialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
+        providerDialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
             override fun onProviderSelected(selectedProvider: String?) {
+                when (selectedProvider) {
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE -> {
+                        // Resolving Phone TFA registration.
+                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance()
+                        phoneDialog.setResolverFactory(dataPair.second)
+                        phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
+                            override fun onDismiss() {
+                                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                                onLoadingDone()
+                            }
 
+                            override fun onResolved() {
+                                // This callback is used to notify that the flow has been resolved.
+                                // Once resolved the initial onSuccess callback will be called.
+                            }
+
+                            override fun onError(error: GigyaError?) {
+                                displayErrorAlert("TFA flow error", error?.localizedMessage!!)
+                            }
+
+                        })
+                        phoneDialog.show(supportFragmentManager, "TFAPhoneRegistrationFragment")
+                    }
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.TOTP -> {
+                        // Resolving TOTP TFA registration.
+                    }
+                }
             }
 
             override fun onDismiss() {
@@ -389,7 +417,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
         })
-        dialog.show(supportFragmentManager, "onTFARegistrationProviderSelection")
+        providerDialog.show(supportFragmentManager, "onTFARegistrationProviderSelection")
     }
 
     /**

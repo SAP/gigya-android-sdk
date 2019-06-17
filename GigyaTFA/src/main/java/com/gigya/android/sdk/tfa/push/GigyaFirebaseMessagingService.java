@@ -14,7 +14,7 @@ import androidx.work.WorkManager;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.R;
-import com.gigya.android.sdk.tfa.ui.GigyaPushTFAActivity;
+import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -95,14 +95,14 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 intent, PendingIntent.FLAG_ONE_SHOT);
 
         // Deny action.
-        Intent denyIntent = new Intent(this, GigyaPushTFAReceiver.class);
+        Intent denyIntent = new Intent(this, PushTFAReceiver.class);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         denyIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
 
         // Approve action.
-        Intent approveIntent = new Intent(this, GigyaPushTFAReceiver.class);
+        Intent approveIntent = new Intent(this, PushTFAReceiver.class);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         approveIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent approvePendingIntent =
@@ -110,7 +110,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.bg_gigya_custom)
+                .setSmallIcon(getSmallIcon())
                 .setContentTitle(title)
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -149,6 +149,16 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     //region CUSTOMIZATION OPTIONS
 
     /**
+     * Optional override
+     * Define the notification small icon.
+     *
+     * @return Icon reference.
+     */
+    protected int getSmallIcon() {
+        return 0;
+    }
+
+    /**
      * Optional override.
      * Define the notification approve action icon.
      *
@@ -176,7 +186,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      * @return Activity class reference.
      */
     public Class getCustomActionActivity() {
-        return GigyaPushTFAActivity.class;
+        return PushTFAActivity.class;
     }
 
     //endregion

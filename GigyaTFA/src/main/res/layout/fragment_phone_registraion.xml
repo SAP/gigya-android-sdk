@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@drawable/bg_gigya_custom">
+
+    <TextView
+        android:id="@+id/fpr_title_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/register_phone_number"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/fpr_phone_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fpr_title_text_view"
+        android:layout_alignStart="@id/fpr_title_text_view"
+        android:layout_alignLeft="@id/fpr_title_text_view"
+        android:layout_alignEnd="@id/fpr_title_text_view"
+        android:layout_alignRight="@id/fpr_title_text_view"
+        android:hint="@string/phone_number" />
+
+    <LinearLayout
+        android:id="@+id/fpr_verification_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fpr_phone_edit_text"
+        android:layout_alignStart="@id/fpr_title_text_view"
+        android:layout_alignLeft="@id/fpr_title_text_view"
+        android:layout_alignEnd="@id/fpr_title_text_view"
+        android:layout_alignRight="@id/fpr_title_text_view"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/fpr_verification_title_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/submit_verification_code"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/fpr_verification_code_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/verification_code" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/fpr_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fpr_verification_layout"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:text="@string/register" />
+
+    <Button
+        android:id="@+id/fpr_dismiss_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/fpr_action_button"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toStartOf="@id/fpr_action_button"
+        android:layout_toLeftOf="@id/fpr_action_button"
+        android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:text="@string/dismiss" />
+
+</RelativeLayout>
