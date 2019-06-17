@@ -2,7 +2,7 @@ package com.gigya.android.sdk.tfa.resolvers.models;
 
 import com.gigya.android.sdk.network.GigyaResponseModel;
 
-public class TotpRegisterModel extends GigyaResponseModel {
+public class TOTPRegisterModel extends GigyaResponseModel {
 
     private String qrCode;
     private String sctToken;

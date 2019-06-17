@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolver<A> implements IRegisteredPhonesResolver {
 
-    public static final String LOG_TAG = "RegisteredPhonesResolver";
+    private static final String LOG_TAG = "RegisteredPhonesResolver";
 
     @NonNull
     private final VerifyCodeResolver<A> _verifyCodeResolver;

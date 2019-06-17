@@ -34,6 +34,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     public static final int PUSH_TFA_CONTENT_ACTION_REQUEST_CODE = 2020;
     public static final int PUSH_TFA_CONTENT_INTENT_REQUEST_CODE = 2021;
 
+    public static final int PUSH_TFA_NOTIFICATION_ID = 99990;
+
     @Override
     public void onCreate() {
         // Safe to call here. Once notification channel is created it won't be recreated again.
@@ -61,9 +63,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             // Check data purpose and continue flow accordingly.
             if (isCancelMessage()) {
-                // TODO: 2019-06-12 Fetch notification id from the data structure.
-                final int id = 0;
-                cancel(id);
+                cancel();
             } else {
                 notifyWith(remoteMessage.getData());
             }
@@ -83,7 +83,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
     private void notifyWith(Map<String, String> data) {
         // Fetch the data.
-        final int androidNotificationId = 0;
         final String title = "My notification";
         final String content = "Hello World!";
 
@@ -98,14 +97,14 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         // Deny action.
         Intent denyIntent = new Intent(this, GigyaPushTFAReceiver.class);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
-        denyIntent.putExtra("notificationId", androidNotificationId);
+        denyIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
 
         // Approve action.
         Intent approveIntent = new Intent(this, GigyaPushTFAReceiver.class);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
-        approveIntent.putExtra("notificationId", androidNotificationId);
+        approveIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent approvePendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, 0);
 
@@ -124,17 +123,15 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         // Notify.
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(androidNotificationId, builder.build());
+        notificationManager.notify(PUSH_TFA_NOTIFICATION_ID, builder.build());
     }
 
     /**
      * Attempt to cancel a displayed notification given a unique identification.
-     *
-     * @param notificationId Currently displayed notification id.
      */
-    private void cancel(int notificationId) {
+    private void cancel() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.cancel(notificationId);
+        notificationManager.cancel(PUSH_TFA_NOTIFICATION_ID);
     }
 
     /**
