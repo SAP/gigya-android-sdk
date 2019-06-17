@@ -40,18 +40,7 @@ public class GigyaDefinitions {
         public static final String API_VERIFY_LOGIN = "accounts.verifyLogin";
         public static final String API_NOTIFY_SOCIAL_LOGIN = "accounts.notifySocialLogin";
         public static final String API_REMOVE_CONNECTION = "socialize.removeConnection";
-        // TFA
-        public static final String API_TFA_INIT = "accounts.tfa.initTFA";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
-        public static final String API_TFA_FINALIZE = "accounts.tfa.finalizeTFA";
-        public static final String API_TFA_EMAIL_GET_EMAILS = "accounts.tfa.email.getEmails";
-        public static final String API_TFA_EMAIL_SEND_VERIFICATION_CODE = "accounts.tfa.email.sendVerificationCode";
-        public static final String API_TFA_EMAIL_COMPLETE_VERIFICATION = "accounts.tfa.email.completeVerification";
-        public static final String API_TFA_PHONE_COMPLETE_VERIFICATION = "accounts.tfa.phone.completeVerification";
-        public static final String API_TFA_PHONE_GET_REGISTERED_NUMBERS = "accounts.tfa.phone.getRegisteredPhoneNumbers";
-        public static final String API_TFA_PHONE_SEND_VERIFICATION_CODE = "accounts.tfa.phone.sendVerificationCode";
-        public static final String API_TFA_TOTP_REGISTER = "accounts.tfa.totp.register";
-        public static final String API_TFA_TOTP_VERIFY = "accounts.tfa.totp.verify";
     }
 
     /**

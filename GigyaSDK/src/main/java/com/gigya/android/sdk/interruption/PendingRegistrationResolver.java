@@ -32,7 +32,7 @@ public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolve
         _businessApiService.setAccount(params, new GigyaCallback<A>() {
             @Override
             public void onSuccess(A updatedAccount) {
-                finalizeRegistration();
+                finalizeRegistration(null);
             }
 
             @Override

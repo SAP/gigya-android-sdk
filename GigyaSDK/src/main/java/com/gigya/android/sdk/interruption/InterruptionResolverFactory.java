@@ -70,7 +70,7 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                     break;
                 case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
                     Resolver finalizeResolver = resolverContainer.createInstance(Resolver.class);
-                    finalizeResolver.finalizeRegistration();
+                    finalizeResolver.finalizeRegistration(null);
                     break;
                 default:
                     handleUnsupportedResponse(apiResponse, loginCallback);

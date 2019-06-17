@@ -27,7 +27,7 @@ public class TFAResolverFactory {
                 .bind(GigyaApiResponse.class, _interruption);
 
         try {
-            return resolverContainer.createInstance(clazz);
+            return resolverContainer.createInstance(clazz, true);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
