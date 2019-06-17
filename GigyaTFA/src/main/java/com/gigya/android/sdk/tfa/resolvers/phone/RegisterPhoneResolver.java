@@ -14,8 +14,8 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
-import com.gigya.android.sdk.tfa.resolvers.models.InitTFAModel;
-import com.gigya.android.sdk.tfa.resolvers.models.VerificationCodeModel;
+import com.gigya.android.sdk.tfa.models.InitTFAModel;
+import com.gigya.android.sdk.tfa.models.VerificationCodeModel;
 
 import java.util.HashMap;
 import java.util.Map;

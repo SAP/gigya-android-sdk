@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.resolvers.models;
+package com.gigya.android.sdk.tfa.models;
 
 public class RegisteredPhone {
 

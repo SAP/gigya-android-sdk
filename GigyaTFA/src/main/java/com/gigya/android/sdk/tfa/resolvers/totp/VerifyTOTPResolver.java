@@ -13,8 +13,8 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
-import com.gigya.android.sdk.tfa.resolvers.models.CompleteVerificationModel;
-import com.gigya.android.sdk.tfa.resolvers.models.InitTFAModel;
+import com.gigya.android.sdk.tfa.models.CompleteVerificationModel;
+import com.gigya.android.sdk.tfa.models.InitTFAModel;
 
 import java.util.HashMap;
 import java.util.Map;

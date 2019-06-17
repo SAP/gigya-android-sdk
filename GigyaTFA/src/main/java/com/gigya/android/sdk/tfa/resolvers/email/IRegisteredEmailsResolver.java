@@ -2,7 +2,7 @@ package com.gigya.android.sdk.tfa.resolvers.email;
 
 import android.support.annotation.NonNull;
 
-import com.gigya.android.sdk.tfa.resolvers.models.EmailModel;
+import com.gigya.android.sdk.tfa.models.EmailModel;
 
 public interface IRegisteredEmailsResolver {
 
