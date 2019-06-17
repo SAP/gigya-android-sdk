@@ -172,6 +172,23 @@ public class IoCContainerTest {
         assertNotNull(persistenceService);
     }
 
+    @Test(expected = java.util.MissingResourceException.class)
+    public void testCreatingAnInstanceWithUnboundDependencies() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, _context);
+
+        // Act+Assert
+        container.createInstance(TestUnboundClass.class);
+    }
+    @Test
+    public void testForceCreatingAnInstanceWithUnboundDependencies() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        container.bind(Context.class, _context);
+
+        // Act+Assert
+        assertNotNull(container.createInstance(TestUnboundClass.class, true));
+    }
+
     @Test
     public void testChangesOnClonedContainerDoNotEffectOriginal() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
@@ -196,6 +213,7 @@ public class IoCContainerTest {
         assertNull(container.get(Context.class));
     }
 
+
     public static class TestClassWithMultipleConstructors {
 
         Context _context;
@@ -216,5 +234,9 @@ public class IoCContainerTest {
         public FileUtils get_fileUtils() {
             return _fileUtils;
         }
+    }
+
+    public static class TestUnboundClass {
+        public TestUnboundClass(TestClassWithMultipleConstructors unboundDependency) {}
     }
 }

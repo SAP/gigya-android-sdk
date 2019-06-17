@@ -72,6 +72,10 @@ public class IoCContainer {
     }
 
     public <T> T createInstance(Class<T> concreteClazz) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return createInstance(concreteClazz, false);
+    }
+
+    public <T> T createInstance(Class<T> concreteClazz, boolean forceCreation) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         GigyaLogger.ioc(LOG_TAG, "Trying to create new instance for: " + concreteClazz.getCanonicalName());
         Constructor<?>[] constructors = concreteClazz.getDeclaredConstructors();
         if (constructors.length == 0) {
@@ -86,7 +90,13 @@ public class IoCContainer {
             List<Object> params = new ArrayList<>();
             for (Class paramContract : ctorParams) {
                 GigyaLogger.ioc(LOG_TAG, "Getting required param: " + paramContract.getCanonicalName());
+
                 Object paramInstance = get(paramContract);
+
+                if (paramInstance == null && forceCreation) {
+                    paramInstance = createInstance(paramContract);
+                }
+
                 if (paramInstance != null) {
                     params.add(paramInstance);
                 } else {
