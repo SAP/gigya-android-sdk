@@ -11,7 +11,14 @@ import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.Map;
 
-public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolver<A> implements IPendingRegistrationResolver<A> {
+/**
+ * Helper class used to resolve flows that get interrupted with error "Account Pending Registration" (206001).
+ * Missing registration field will appear in the interruption "errorDetails" field.
+ * In order to resolve the flow you will need to set the missing account fields using the setAccount method.
+ *
+ * @param <A> Account scheme.
+ */
+public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolver<A> implements IPendingRegistrationResolver {
 
     public PendingRegistrationResolver(GigyaLoginCallback<A> loginCallback,
                                        GigyaApiResponse interruption,

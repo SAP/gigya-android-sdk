@@ -2,14 +2,14 @@ package com.gigya.android.sdk.interruption;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.link.GigyaLinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFARegistrationResolver;
 import com.gigya.android.sdk.interruption.tfa.GigyaTFAVerificationResolver;
-import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
-public class                                InterruptionResolverFactory implements IInterruptionResolverFactory {
+public class InterruptionResolverFactory implements IInterruptionResolverFactory {
 
     public static final String LOG_TAG = "InterruptionResolverFactory";
 
@@ -54,7 +54,7 @@ public class                                InterruptionResolverFactory implemen
                     loginCallback.onPendingVerification(apiResponse, getRegToken(apiResponse));
                     break;
                 case GigyaError.Codes.ERROR_ACCOUNT_PENDING_REGISTRATION:
-                    // TODO: refactor to PendingRegistrationResolver that'll setAccount and then finalize.
+
                     loginCallback.onPendingRegistration(apiResponse, getRegToken(apiResponse));
                     break;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:

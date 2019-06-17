@@ -53,12 +53,12 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
         forwardError(response);
     }
 
-    public void onPendingTwoFactorRegistration(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> availableProviders,
+    public void onPendingTwoFactorRegistration(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> inactiveProviders,
                                                @NonNull TfaResolverFactory resolverFactory) {
         forwardError(response);
     }
 
-    public void onPendingTwoFactorVerification(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> availableProviders,
+    public void onPendingTwoFactorVerification(@NonNull GigyaApiResponse response, @NonNull List<TFAProvider> activeProviders,
                                                @NonNull TfaResolverFactory resolverFactory) {
         forwardError(response);
     }

@@ -17,14 +17,14 @@ public class TfaProviderResolver<A extends GigyaAccount> extends Resolver {
 
     private static final String LOG_TAG = "TfaProviderResolver";
 
-    final IoCContainer _container;
+    private final IoCContainer _container;
 
     public TfaProviderResolver(IoCContainer container,
                                GigyaLoginCallback<A> loginCallback,
                                GigyaApiResponse interruption,
                                IBusinessApiService<A> businessApiService) {
         super(loginCallback, interruption, businessApiService);
-        _container = container;
+        _container = container.clone();
         getProviders();
     }
 
@@ -37,13 +37,26 @@ public class TfaProviderResolver<A extends GigyaAccount> extends Resolver {
             service.getTFAProviders(regToken, new GigyaLoginCallback<TFAProvidersModel>() {
                 @Override
                 public void onSuccess(TFAProvidersModel model) {
+                    // Get provider lists.
                     final List<TFAProvider> activeProviders = model.getActiveProviders();
                     final List<TFAProvider> inactiveProviders = model.getInactiveProviders();
 
-                    if (_interruption.getErrorCode() == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
-                        onTwoFactorAuthenticationRegistration(inactiveProviders);
-                    } else if (_interruption.getErrorCode() == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
-                        onTwoFactorAuthenticationVerification(activeProviders);
+                    // Instantiate the TFA factory and forward initial interruption.
+                    _container.bind(GigyaApiResponse.class, _interruption)
+                            .bind(GigyaLoginCallback.class, _loginCallback);
+                    try {
+                        TfaResolverFactory factory = _container.createInstance(TfaResolverFactory.class);
+                        if (_interruption.getErrorCode() == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION) {
+                            _loginCallback.onPendingTwoFactorRegistration(_interruption, inactiveProviders, factory);
+                        } else if (_interruption.getErrorCode() == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
+                            _loginCallback.onPendingTwoFactorVerification(_interruption, activeProviders, factory);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        // TODO: 2019-06-16 General error?
+                        _loginCallback.onError(GigyaError.generalError());
+                    } finally {
+                        _container.dispose();
                     }
                 }
 
@@ -56,42 +69,6 @@ public class TfaProviderResolver<A extends GigyaAccount> extends Resolver {
             ex.printStackTrace();
             // TODO: 2019-06-16 General error?
             _loginCallback.onError(GigyaError.generalError());
-        }
-    }
-
-    private void onTwoFactorAuthenticationRegistration(List<TFAProvider> providers) {
-        final IoCContainer resolverContainer = _container.clone();
-        resolverContainer
-                .bind(GigyaApiResponse.class, _interruption)
-                .bind(GigyaLoginCallback.class, _loginCallback);
-        try {
-            TfaResolverFactory factory = resolverContainer.createInstance(TfaResolverFactory.class);
-
-            _loginCallback.onPendingTwoFactorRegistration(_interruption, providers, factory);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            // TODO: 2019-06-16 General error?
-            _loginCallback.onError(GigyaError.generalError());
-        } finally {
-            resolverContainer.dispose();
-        }
-    }
-
-    private void onTwoFactorAuthenticationVerification(List<TFAProvider> providers) {
-        final IoCContainer resolverContainer = _container.clone();
-        resolverContainer
-                .bind(GigyaApiResponse.class, _interruption)
-                .bind(GigyaLoginCallback.class, _loginCallback);
-        try {
-            TfaResolverFactory factory = resolverContainer.createInstance(TfaResolverFactory.class);
-
-            _loginCallback.onPendingTwoFactorVerification(_interruption, providers, factory);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            // TODO: 2019-06-16 General error?
-            _loginCallback.onError(GigyaError.generalError());
-        } finally {
-            resolverContainer.dispose();
         }
     }
 }

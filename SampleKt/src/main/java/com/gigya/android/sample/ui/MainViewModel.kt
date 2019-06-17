@@ -158,7 +158,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_EMAIL_SENT, null))
             }
 
-            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, availableProviders: MutableList<TFAProvider>, resolverFactory: TfaResolverFactory) {
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProvider>, resolverFactory: TfaResolverFactory) {
                val resolver = resolverFactory.getResolverFor(IPhoneRegistrationResolver::class.java)
             }
 
