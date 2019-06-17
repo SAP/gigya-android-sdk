@@ -21,6 +21,23 @@ public class GigyaDefinitions {
         public static final String API_TFA_TOTP_VERIFY = "accounts.tfa.totp.verify";
     }
 
+    /**
+     * TFA related specific constants.
+     */
+    public static class TFAProvider {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({EMAIL, PHONE, LIVELINK, TOTP})
+        public @interface Provider {
+
+        }
+
+        public static final String EMAIL = "gigyaEmail";
+        public static final String PHONE = "gigyaPhone";
+        public static final String LIVELINK = "liveLink";
+        public static final String TOTP = "gigyaTotp";
+    }
+
     public static class PhoneMethod {
 
         @Retention(RetentionPolicy.SOURCE)

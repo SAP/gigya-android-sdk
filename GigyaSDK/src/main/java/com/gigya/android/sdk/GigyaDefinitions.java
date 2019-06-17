@@ -44,22 +44,6 @@ public class GigyaDefinitions {
     }
 
     /**
-     * TFA related specific constants.
-     */
-    public static class TFA {
-
-        @Retention(RetentionPolicy.SOURCE)
-        @StringDef({EMAIL, PHONE, TOTP})
-        public @interface TFAProvider {
-
-        }
-
-        public static final String EMAIL = "gigyaEmail";
-        public static final String PHONE = "gigyaPhone";
-        public static final String TOTP = "gigyaTotp";
-    }
-
-    /**
      * Plugin view specific constants.
      */
     public static class Plugin {

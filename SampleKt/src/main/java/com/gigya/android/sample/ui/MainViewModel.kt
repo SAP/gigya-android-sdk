@@ -17,9 +17,6 @@ import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.tfa.resolvers.phone.IVerifyCodeResolver
-import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver
-import com.gigya.android.sdk.tfa.resolvers.phone.VerifyCodeResolver
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
 

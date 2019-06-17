@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa;
+package com.gigya.android.sdk.tfa.push;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,7 +13,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.tfa.ui.GigyaPushTfaActivity;
+import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.tfa.ui.GigyaPushTFAActivity;
 import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -26,7 +27,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
  * Main FCM messaging service.
  * Extend this service if your application already uses the FirebaseMessagingService.
  */
-public class GigyaMessagingService extends FirebaseMessagingService {
+public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
     final private static String LOG_TAG = "GigyaMessagingService";
 
@@ -95,14 +96,14 @@ public class GigyaMessagingService extends FirebaseMessagingService {
                 intent, PendingIntent.FLAG_ONE_SHOT);
 
         // Deny action.
-        Intent denyIntent = new Intent(this, GigyaTFAActionReceiver.class);
+        Intent denyIntent = new Intent(this, GigyaPushTFAReceiver.class);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         denyIntent.putExtra("notificationId", androidNotificationId);
         PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
 
         // Approve action.
-        Intent approveIntent = new Intent(this, GigyaTFAActionReceiver.class);
+        Intent approveIntent = new Intent(this, GigyaPushTFAReceiver.class);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         approveIntent.putExtra("notificationId", androidNotificationId);
         PendingIntent approvePendingIntent =
@@ -178,7 +179,7 @@ public class GigyaMessagingService extends FirebaseMessagingService {
      * @return Activity class reference.
      */
     public Class getCustomActionActivity() {
-        return GigyaPushTfaActivity.class;
+        return GigyaPushTFAActivity.class;
     }
 
     //endregion

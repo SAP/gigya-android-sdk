@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa;
+package com.gigya.android.sdk.tfa.push;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.tfa.GigyaTFA;
+import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
-public class GigyaTFAActionReceiver extends BroadcastReceiver {
+public class GigyaPushTFAReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "GigyaTFAActionReceiver";
 

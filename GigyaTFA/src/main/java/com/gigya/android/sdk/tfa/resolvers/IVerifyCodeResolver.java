@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.resolvers.phone;
+package com.gigya.android.sdk.tfa.resolvers;
 
 import android.support.annotation.NonNull;
 

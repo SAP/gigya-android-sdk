@@ -12,6 +12,8 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
+import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
+import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.models.GetRegisteredPhoneNumbersModel;
 import com.gigya.android.sdk.tfa.resolvers.models.InitTFAModel;
 import com.gigya.android.sdk.tfa.resolvers.models.RegisteredPhone;
@@ -29,7 +31,7 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
     private final VerifyCodeResolver<A> _verifyCodeResolver;
 
     @NonNull
-    private String _provider = "gigyaPhone"; // If "livelink" will be supported we will need to update the provider.
+    private String _provider = GigyaDefinitions.TFAProvider.PHONE; // If "liveLink" will be supported we will need to update the provider.
 
     public RegisteredPhonesResolver(GigyaLoginCallback<A> loginCallback,
                                     GigyaApiResponse interruption,
@@ -39,7 +41,7 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
         _verifyCodeResolver = verifyCodeResolver;
     }
 
-    public RegisteredPhonesResolver provider(String provider) {
+    public RegisteredPhonesResolver provider(@GigyaDefinitions.TFAProvider.Provider String provider) {
         _provider = provider;
         return this;
     }
