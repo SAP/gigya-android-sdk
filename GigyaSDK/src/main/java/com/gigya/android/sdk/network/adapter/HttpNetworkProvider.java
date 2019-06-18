@@ -174,6 +174,10 @@ public class HttpNetworkProvider extends NetworkProvider {
             if (networkCallbacks == null) {
                 return;
             }
+            if (asyncResult == null) {
+                networkCallbacks.onError(GigyaError.generalError());
+                return;
+            }
             boolean badRequest = asyncResult.getCode() >= HttpURLConnection.HTTP_BAD_REQUEST;
             if (badRequest) {
                 // Generate gigya error.

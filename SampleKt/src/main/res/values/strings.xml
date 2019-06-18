@@ -38,9 +38,7 @@
 
     <!-- Helper Strings -->
     <string name="send_request_test_no_parameters">socialize.getAvailableProviders</string>
-
-
-
+    <string name="opt_in_for_push_tfa">Opt in for push TFA</string>
 
 
 </resources>

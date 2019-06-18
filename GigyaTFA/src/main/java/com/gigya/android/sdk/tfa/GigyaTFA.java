@@ -1,17 +1,15 @@
 package com.gigya.android.sdk.tfa;
 
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
 import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
-import com.gigya.android.sdk.tfa.workers.ApproveTFAWorker;
-import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 
 public class GigyaTFA {
 
@@ -61,44 +59,54 @@ public class GigyaTFA {
         return _sharedInstance;
     }
 
-    protected GigyaTFA() {
-        generateDeviceInfo();
+    private ITFABusinessApiService _tfaBusinessApiService;
+
+    protected GigyaTFA(ITFABusinessApiService tfaBusinessApiService) {
+        _tfaBusinessApiService = tfaBusinessApiService;
+    }
+
+    private void generateDeviceInfo(final Runnable completionHandler) {
+        new DeviceInfoBuilder().setPushService(_pushService).buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
+            @Override
+            public void onDeviceInfo(String deviceInfoJson) {
+                _deviceInfo = deviceInfoJson;
+                if (completionHandler != null) {
+                    completionHandler.run();
+                }
+            }
+        });
     }
 
     //region INTERFACING
 
-    public void pushOptIn() {
-
+    public void pushOptIn(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        // Device info is required.
+        generateDeviceInfo(new Runnable() {
+            @Override
+            public void run() {
+                _tfaBusinessApiService.optIntoPush(_deviceInfo, gigyaCallback);
+            }
+        });
     }
 
     public void pushOptOut() {
 
     }
 
+    public void verifyPush() {
+
+    }
+
     public void pushApprove() {
-        OneTimeWorkRequest approveWorkRequest = new OneTimeWorkRequest.Builder(ApproveTFAWorker.class)
-                .build();
-        WorkManager.getInstance().enqueue(approveWorkRequest);
+
     }
 
     public void pushDeny() {
 
     }
 
-    private void updatePushDeviceInfo(String fcmToken) {
-        OneTimeWorkRequest.Builder updateWorkRequestBuilder = new OneTimeWorkRequest.Builder(TokenUpdateWorker.class);
-        Data inputData = new Data.Builder().putString("token", fcmToken).build();
-        updateWorkRequestBuilder.setInputData(inputData);
-        WorkManager.getInstance().enqueue(updateWorkRequestBuilder.build());
-    }
+    private void updatePushDeviceInfo() {
 
-    private void generateDeviceInfo() {
-        new DeviceInfoBuilder().setPushService(_pushService).buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
-            @Override
-            public void onDeviceInfo(String deviceInfoJson) {
-                _deviceInfo = deviceInfoJson;
-            }
-        });
     }
 
     //endregion

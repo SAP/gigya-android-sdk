@@ -8,15 +8,10 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.push.PushTFAReceiver;
 import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
-import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -74,8 +69,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String fcmToken) {
         GigyaLogger.debug(LOG_TAG, "onNewToken: " + fcmToken);
-        // TODO: 2019-06-12 Check if token should be updated. If so send update task to server.
-        sendTokenToServer(fcmToken);
     }
 
     private boolean isCancelMessage() {
@@ -133,15 +126,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     private void cancel() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.cancel(PUSH_TFA_NOTIFICATION_ID);
-    }
-
-    /**
-     * Start a worker task to update the Firebase token.
-     *
-     * @param fcmToken Received Token.
-     */
-    private void sendTokenToServer(String fcmToken) {
-
     }
 
     //region CUSTOMIZATION OPTIONS

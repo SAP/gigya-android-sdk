@@ -191,6 +191,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_native_login -> presentNativeLogin()
             R.id.action_show_screen_sets -> showRAAS()
             R.id.action_forgot_password -> onForgotPassword()
+            R.id.action_push_tfa_opt_in -> optInForPushTFA()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -603,6 +604,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         } else {
             response_text_view.snackbar("Please login to test api. Current view model setup is dependent on a live myAccountLiveData (can be changed)")
+        }
+    }
+
+    /**
+     * Opt-in to use TFA push.
+     */
+    private fun optInForPushTFA() {
+        if (viewModel!!.isLoggedIn()) {
+            viewModel?.pushTFAOptIn(
+                    success = {
+                        response_text_view.snackbar("Successfully opt-in for push TFA.")
+                    },
+                    error = { possibleError ->
+                        possibleError?.let { error -> onError(error) }
+                    }
+            )
+        } else {
+            response_text_view.snackbar("An active session is required")
         }
     }
 

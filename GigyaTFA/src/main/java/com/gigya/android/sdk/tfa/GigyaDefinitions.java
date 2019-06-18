@@ -29,7 +29,7 @@ public class GigyaDefinitions {
     public static class TFAProvider {
 
         @Retention(RetentionPolicy.SOURCE)
-        @StringDef({EMAIL, PHONE, LIVELINK, TOTP})
+        @StringDef({EMAIL, PHONE, LIVELINK, TOTP, PUSH})
         public @interface Provider {
 
         }
@@ -38,6 +38,7 @@ public class GigyaDefinitions {
         public static final String PHONE = "gigyaPhone";
         public static final String LIVELINK = "liveLink";
         public static final String TOTP = "gigyaTotp";
+        public static final String PUSH = "gigyaPush";
     }
 
     public static class PhoneMethod {

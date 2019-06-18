@@ -47,6 +47,10 @@
                     android:id="@+id/action_forgot_password"
                     android:title="@string/nav_forgot_password" />
 
+                <item
+                    android:id="@+id/action_push_tfa_opt_in"
+                    android:title="@string/opt_in_for_push_tfa"/>
+
             </menu>
         </item>
 
