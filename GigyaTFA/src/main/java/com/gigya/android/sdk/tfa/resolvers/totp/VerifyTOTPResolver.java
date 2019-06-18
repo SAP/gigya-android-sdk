@@ -32,7 +32,8 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
         super(loginCallback, interruption, businessApiService);
     }
 
-    VerifyTOTPResolver withSctToken(String sctToken) {
+    VerifyTOTPResolver withAssertionAndSctToken(String gigyaAssertion, String sctToken) {
+        _gigyaAssertion = gigyaAssertion;
         _sctToken = sctToken;
         return this;
     }
@@ -91,6 +92,10 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
 
                     @Override
                     public void onError(GigyaError error) {
+                        if (error.getErrorCode() == GigyaError.Codes.ERROR_INVALID_JWT) {
+                            resultCallback.onInvalidCode();
+                            return;
+                        }
                         resultCallback.onError(error);
                     }
                 });
@@ -124,6 +129,8 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
     public interface ResultCallback {
 
         void onResolved();
+
+        void onInvalidCode();
 
         void onError(GigyaError error);
     }

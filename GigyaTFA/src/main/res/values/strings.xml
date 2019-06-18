@@ -16,6 +16,7 @@
     <!-- UI related -->
     <string name="available_providers">Available providers:</string>
     <string name="register_phone_number">Register phone number:</string>
+    <string name="register_authenticator">Register authenticator:</string>
     <string name="verify_phone_number">Verify phone number:</string>
     <string name="registered_emails">Registered emails:</string>
     <string name="phone_number">Phone number</string>

@@ -407,8 +407,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         phoneDialog.show(supportFragmentManager, "TFAPhoneRegistrationFragment")
                     }
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.TOTP -> {
-                        // Resolving TOTP TFA registration.
+                        val totpDialog = TFATOTPRegistrationFragment.newInstance()
+                        totpDialog.setRoundedCorners(true)
+                        totpDialog.setResolverFactory(dataPair.second)
+                        totpDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
+                            override fun onDismiss() {
+                                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                                onLoadingDone()
+                            }
+
+                            override fun onResolved() {
+                                // This callback is used to notify that the flow has been resolved.
+                                // Once resolved the initial onSuccess callback will be called.
+                            }
+
+                            override fun onError(error: GigyaError?) {
+                                onLoadingDone()
+                                displayErrorAlert("TFA flow error", error?.localizedMessage!!)
+                            }
+
+                        })
+                        totpDialog.show(supportFragmentManager, "TFATOTPRegistrationFragment")
                     }
+
                 }
             }
 
@@ -472,7 +493,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 displayErrorAlert("TFA flow error", error?.localizedMessage!!)
                             }
                         })
-                        emailDialog.show(supportFragmentManager, "TFAPhoneVerificationFragment")
+                        emailDialog.show(supportFragmentManager, "TFAEmailVerificationFragment")
                     }
                 }
             }

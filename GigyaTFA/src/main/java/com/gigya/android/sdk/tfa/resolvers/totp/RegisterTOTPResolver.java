@@ -65,7 +65,7 @@ public class RegisterTOTPResolver<A extends GigyaAccount> extends TFAResolver<A>
                     public void onSuccess(TOTPRegisterModel model) {
                         final String sctToken = model.getSctToken();
                         final String qrCode = model.getQrCode();
-                        resultCallback.onQRCodeAvailable(qrCode, _verifyTOTPresolver.withSctToken(sctToken));
+                        resultCallback.onQRCodeAvailable(qrCode, _verifyTOTPresolver.withAssertionAndSctToken(_gigyaAssertion, sctToken));
                     }
 
                     @Override

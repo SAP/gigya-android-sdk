@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gigya_custom">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp">
+
+        <ProgressBar
+            android:id="@+id/ftpr_progress"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/ftpr_title_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_toStartOf="@id/ftpr_progress"
+            android:layout_toLeftOf="@id/ftpr_progress"
+            android:text="@string/register_authenticator"
+            android:textSize="18sp" />
+
+        <FrameLayout
+            android:id="@+id/ftpr_qr_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ftpr_title_text_view"
+            android:layout_alignStart="@+id/ftpr_title_text_view"
+            android:layout_alignLeft="@id/ftpr_title_text_view"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp">
+
+            <ImageView
+                android:id="@+id/ftpr_qr_code_image"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_gravity="center" />
+
+            <ProgressBar
+                android:id="@+id/ftpr_qr_code_image_progress"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+
+        </FrameLayout>
+
+        <EditText
+            android:id="@+id/ftpr_verification_code_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/ftpr_qr_layout"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_toEndOf="@id/ftpr_qr_layout"
+            android:layout_toRightOf="@id/ftpr_qr_layout"
+            android:hint="@string/verification_code" />
+
+        <TextView
+            android:id="@+id/ftpr_verification_title_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/ftpr_verification_code_edit_text"
+            android:layout_alignStart="@id/ftpr_verification_code_edit_text"
+            android:layout_alignLeft="@id/ftpr_verification_code_edit_text"
+            android:layout_alignEnd="@id/ftpr_verification_code_edit_text"
+            android:layout_alignRight="@id/ftpr_verification_code_edit_text"
+            android:layout_marginBottom="8dp"
+            android:text="@string/submit_verification_code"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/ftpr_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ftpr_qr_layout"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:text="@string/register" />
+
+        <Button
+            android:id="@+id/ftpr_dismiss_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/ftpr_action_button"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:layout_toStartOf="@id/ftpr_action_button"
+            android:layout_toLeftOf="@id/ftpr_action_button"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:text="@string/dismiss" />
+
+    </RelativeLayout>
+
+</FrameLayout>
