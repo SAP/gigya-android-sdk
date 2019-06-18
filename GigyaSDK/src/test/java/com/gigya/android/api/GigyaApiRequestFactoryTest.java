@@ -99,7 +99,7 @@ public class GigyaApiRequestFactoryTest {
         assertNotNull(request);
         assertEquals("TestAPI", request.getApi());
         assertEquals(RestAdapter.POST, request.getMethod());
-        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=android_4.0.0_beta_1&targetEnv=mobile", request.getEncodedParams());
+        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=4.0.0&targetEnv=mobile", request.getEncodedParams());
     }
 
 

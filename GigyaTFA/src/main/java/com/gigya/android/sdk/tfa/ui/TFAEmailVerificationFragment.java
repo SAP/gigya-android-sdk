@@ -11,33 +11,34 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.R;
-import com.gigya.android.sdk.tfa.models.RegisteredPhone;
+import com.gigya.android.sdk.tfa.models.EmailModel;
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
-import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver;
+import com.gigya.android.sdk.tfa.resolvers.email.RegisteredEmailsResolver;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TFAPhoneVerificationFragment extends BaseTFAFragment {
+public class TFAEmailVerificationFragment extends BaseTFAFragment {
 
     @Nullable
-    RegisteredPhonesResolver _registeredPhonesResolver;
+    private RegisteredEmailsResolver _registeredEmailsResolver;
 
     private ProgressBar _progressBar;
-    private Spinner _registeredPhonesSpinner;
+    private Spinner _registeredEmailsSpinner;
     private Button _sendCodeButton, _verifyButton, _dismissButton;
     private View _verificationLayout;
     private EditText _verificationCodeEditText;
 
-    public static TFAPhoneVerificationFragment newInstance() {
-        return new TFAPhoneVerificationFragment();
-    }
-
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_phone_verification;
+        return R.layout.fragment_email_verification;
+    }
+
+    public static TFAEmailVerificationFragment newInstance() {
+        return new TFAEmailVerificationFragment();
     }
 
     @Override
@@ -47,18 +48,18 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         initFlow();
     }
 
-
     private void initUI(View view) {
-        _progressBar = view.findViewById(R.id.fpv_progress);
-        _registeredPhonesSpinner = view.findViewById(R.id.fpv_selection_spinner);
-        _sendCodeButton = view.findViewById(R.id.fpv_send_code_button);
-        _verificationLayout = view.findViewById(R.id.fpv_verification_layout);
+        _progressBar = view.findViewById(R.id.fev_progress);
+        _registeredEmailsSpinner = view.findViewById(R.id.fev_selection_spinner);
+        _sendCodeButton = view.findViewById(R.id.fev_send_code_button);
+        _verificationLayout = view.findViewById(R.id.fev_verification_layout);
 
-        _verifyButton = view.findViewById(R.id.fpv_verify_button);
-        _dismissButton = view.findViewById(R.id.fpv_dismiss_button);
+        _verifyButton = view.findViewById(R.id.fev_verify_button);
+        _dismissButton = view.findViewById(R.id.fev_dismiss_button);
 
-        _verificationCodeEditText = view.findViewById(R.id.fpv_verification_code_edit_text);
+        _verificationCodeEditText = view.findViewById(R.id.fev_verification_code_edit_text);
     }
+
 
     private void setActions() {
         _dismissButton.setOnClickListener(new View.OnClickListener() {
@@ -82,26 +83,28 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
             return;
         }
 
-        _registeredPhonesResolver = _resolverFactory.getResolverFor(RegisteredPhonesResolver.class);
-        if (_registeredPhonesResolver == null) {
+        _registeredEmailsResolver = _resolverFactory.getResolverFor(RegisteredEmailsResolver.class);
+        if (_registeredEmailsResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
             }
             dismiss();
             return;
         }
-        _registeredPhonesResolver.getPhoneNumbers(_registeredPhonesResolverResultCallback);
+
+        // Fetch emails.
+        _registeredEmailsResolver.getRegisteredEmails(registeredEmailsResolverResultCallback);
     }
 
-    private final RegisteredPhonesResolver.ResultCallback _registeredPhonesResolverResultCallback = new RegisteredPhonesResolver.ResultCallback() {
+    private final RegisteredEmailsResolver.ResultCallback registeredEmailsResolverResultCallback = new RegisteredEmailsResolver.ResultCallback() {
         @Override
-        public void onRegisteredPhones(List<RegisteredPhone> registeredPhoneList) {
+        public void onRegisteredEmails(List<EmailModel> registeredEmailList) {
             _progressBar.setVisibility(View.INVISIBLE);
-            populateRegisteredPhones(registeredPhoneList);
+            populateRegisteredEmailsList(registeredEmailList);
         }
 
         @Override
-        public void onVerificationCodeSent(IVerifyCodeResolver verifyCodeResolver) {
+        public void onEmailVerificationCodeSent(IVerifyCodeResolver verifyCodeResolver) {
             _progressBar.setVisibility(View.INVISIBLE);
             updateToVerificationState(verifyCodeResolver);
         }
@@ -115,15 +118,15 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         }
     };
 
-    private void populateRegisteredPhones(List<RegisteredPhone> registeredPhoneList) {
-        final ArrayList<PhoneHelper> helpers = new ArrayList<>(registeredPhoneList.size());
-        for (RegisteredPhone phone : registeredPhoneList) {
-            helpers.add(new PhoneHelper(phone));
+    private void populateRegisteredEmailsList(List<EmailModel> registeredEmailList) {
+        final ArrayList<EmailHelper> helpers = new ArrayList<>(registeredEmailList.size());
+        for (EmailModel email : registeredEmailList) {
+            helpers.add(new EmailHelper(email));
         }
 
-        // Set registered phones spinner adapter.
-        final ArrayAdapter phonesAdapter = new ArrayAdapter<>(_registeredPhonesSpinner.getContext(), android.R.layout.simple_spinner_dropdown_item, helpers);
-        _registeredPhonesSpinner.setAdapter(phonesAdapter);
+        // Set registered email spinner adapter.
+        final ArrayAdapter emailAdapter = new ArrayAdapter<>(_registeredEmailsSpinner.getContext(), android.R.layout.simple_spinner_dropdown_item, helpers);
+        _registeredEmailsSpinner.setAdapter(emailAdapter);
 
         // Click action for send code is only relevant at this point.
         _sendCodeButton.setOnClickListener(new View.OnClickListener() {
@@ -131,11 +134,10 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
             public void onClick(View v) {
                 // Send code.
                 _progressBar.setVisibility(View.VISIBLE);
-                final PhoneHelper helper = (PhoneHelper) _registeredPhonesSpinner.getSelectedItem();
-                _registeredPhonesResolver.sendVerificationCode(
-                        helper.phone.getId(),
-                        helper.phone.getLastMethod(),
-                        _registeredPhonesResolverResultCallback);
+                final EmailHelper helper = (EmailHelper) _registeredEmailsSpinner.getSelectedItem();
+                _registeredEmailsResolver.sendEmailCode(
+                        helper.email,
+                        registeredEmailsResolverResultCallback);
             }
         });
     }
@@ -152,7 +154,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
                 _verificationCodeEditText.setError(null);
                 _progressBar.setVisibility(View.VISIBLE);
                 final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-                verifyCodeResolver.verifyCode(_registeredPhonesResolver.getProvider(), verificationCode, new VerifyCodeResolver.ResultCallback() {
+                verifyCodeResolver.verifyCode(GigyaDefinitions.TFAProvider.EMAIL, verificationCode, new VerifyCodeResolver.ResultCallback() {
                     @Override
                     public void onResolved() {
                         if (_selectionCallback != null) {
@@ -181,18 +183,18 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private static class PhoneHelper {
+    private static class EmailHelper {
 
-        final private RegisteredPhone phone;
+        final private EmailModel email;
 
-        PhoneHelper(RegisteredPhone phone) {
-            this.phone = phone;
+        EmailHelper(EmailModel email) {
+            this.email = email;
         }
 
         @NonNull
         @Override
         public String toString() {
-            return this.phone.getObfuscated();
+            return this.email.getObfuscated();
         }
     }
 }

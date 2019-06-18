@@ -1,16 +1,9 @@
 package com.gigya.android.sdk.tfa.ui;
 
-import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -19,7 +12,7 @@ import com.gigya.android.sdk.tfa.R;
 
 import java.util.ArrayList;
 
-public class TFAProviderSelectionFragment extends DialogFragment {
+public class TFAProviderSelectionFragment extends BaseTFAFragment {
 
     public static final String ARG_PROVIDER_LIST = "arg_provider_list";
 
@@ -45,22 +38,8 @@ public class TFAProviderSelectionFragment extends DialogFragment {
     }
 
     @Override
-    public void onStart() {
-        setCancelable(false);
-        super.onStart();
-        final Dialog dialog = getDialog();
-        if (dialog != null) {
-            final Window window = dialog.getWindow();
-            if (window != null) {
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            }
-        }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_provider_selection, container, false);
+    public int getLayoutId() {
+        return R.layout.fragment_provider_selection;
     }
 
     @Override

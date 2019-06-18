@@ -11,15 +11,15 @@
         android:layout_margin="8dp">
 
         <TextView
-            android:id="@+id/fpv_title_text_view"
+            android:id="@+id/fev_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="@string/verify_phone_number"
+            android:text="@string/registered_emails"
             android:textSize="18sp" />
 
         <ProgressBar
-            android:id="@+id/fpv_progress"
+            android:id="@+id/fev_progress"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
@@ -28,20 +28,20 @@
             android:visibility="visible" />
 
         <Spinner
-            android:id="@+id/fpv_selection_spinner"
+            android:id="@+id/fev_selection_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fpv_title_text_view"
+            android:layout_below="@id/fev_title_text_view"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp" />
 
         <Button
-            android:id="@+id/fpv_send_code_button"
+            android:id="@+id/fev_send_code_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fpv_selection_spinner"
+            android:layout_below="@id/fev_selection_spinner"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_marginTop="8dp"
@@ -53,42 +53,42 @@
             android:text="@string/send_code" />
 
         <Button
-            android:id="@+id/fpv_dismiss_button"
+            android:id="@+id/fev_dismiss_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/fpv_send_code_button"
+            android:layout_alignBaseline="@id/fev_send_code_button"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="16dp"
-            android:layout_toStartOf="@id/fpv_send_code_button"
-            android:layout_toLeftOf="@id/fpv_send_code_button"
+            android:layout_toStartOf="@id/fev_send_code_button"
+            android:layout_toLeftOf="@id/fev_send_code_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/dismiss" />
 
         <LinearLayout
-            android:id="@+id/fpv_verification_layout"
+            android:id="@+id/fev_verification_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fpv_send_code_button"
-            android:layout_alignStart="@id/fpv_selection_spinner"
-            android:layout_alignLeft="@id/fpv_selection_spinner"
-            android:layout_alignEnd="@id/fpv_selection_spinner"
-            android:layout_alignRight="@id/fpv_selection_spinner"
+            android:layout_below="@id/fev_send_code_button"
+            android:layout_alignStart="@id/fev_selection_spinner"
+            android:layout_alignLeft="@id/fev_selection_spinner"
+            android:layout_alignEnd="@id/fev_selection_spinner"
+            android:layout_alignRight="@id/fev_selection_spinner"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
 
             <TextView
-                android:id="@+id/fpv_verification_title_text"
+                android:id="@+id/fev_verification_title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/submit_verification_code"
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/fpv_verification_code_edit_text"
+                android:id="@+id/fev_verification_code_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content">
 
                 <Button
-                    android:id="@+id/fpv_verify_button"
+                    android:id="@+id/fev_verify_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"

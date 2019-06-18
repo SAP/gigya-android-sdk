@@ -1,55 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gigya_custom">
 
-    <TextView
-        android:id="@+id/fps_title_text_view"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/available_providers"
-        android:textSize="18sp" />
+        android:layout_height="match_parent"
+        android:layout_margin="8dp">
 
-    <Spinner
-        android:id="@+id/fps_provider_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fps_title_text_view"
-        android:layout_alignStart="@id/fps_title_text_view"
-        android:layout_alignLeft="@id/fps_title_text_view"
-        android:layout_alignEnd="@id/fps_title_text_view"
-        android:layout_alignRight="@id/fps_title_text_view" />
+        <TextView
+            android:id="@+id/fps_title_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="@string/available_providers"
+            android:textSize="18sp" />
 
-    <Button
-        android:id="@+id/fps_select_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fps_provider_spinner"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/transparent"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:text="@string/select" />
+        <Spinner
+            android:id="@+id/fps_provider_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fps_title_text_view"
+            android:layout_alignStart="@id/fps_title_text_view"
+            android:layout_alignLeft="@id/fps_title_text_view"
+            android:layout_alignEnd="@id/fps_title_text_view"
+            android:layout_alignRight="@id/fps_title_text_view" />
 
-    <Button
-        android:id="@+id/fps_dismiss_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/fps_select_button"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="16dp"
-        android:layout_toStartOf="@id/fps_select_button"
-        android:layout_toLeftOf="@id/fps_select_button"
-        android:background="@android:color/transparent"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:text="@string/dismiss" />
+        <Button
+            android:id="@+id/fps_select_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fps_provider_spinner"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:text="@string/select" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/fps_dismiss_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/fps_select_button"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:layout_toStartOf="@id/fps_select_button"
+            android:layout_toLeftOf="@id/fps_select_button"
+            android:background="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:text="@string/dismiss" />
+
+    </RelativeLayout>
+
+</FrameLayout>

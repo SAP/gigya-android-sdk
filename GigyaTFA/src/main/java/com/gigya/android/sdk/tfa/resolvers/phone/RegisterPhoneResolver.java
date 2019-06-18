@@ -32,6 +32,11 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
     @NonNull
     private String _provider = GigyaDefinitions.TFAProvider.PHONE; // If "liveLink" will be supported we will need to update the provider.
 
+    @NonNull
+    public String getProvider() {
+        return _provider;
+    }
+
     public RegisterPhoneResolver(GigyaLoginCallback<A> loginCallback,
                                  GigyaApiResponse interruption,
                                  IBusinessApiService<A> businessApiService,

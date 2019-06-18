@@ -6,7 +6,7 @@
     <string name="tfa_message">TFA message</string>
     <string name="approve">Approve</string>
     <string name="deny">Deny</string>
-
+77
     <string name="tfa_channel_name">TFA Authorization</string>
     <string name="tfa_channel_description">TFA Authorization channel is used for applying two factor authentication security for your application.</string>
 
@@ -17,6 +17,7 @@
     <string name="available_providers">Available providers:</string>
     <string name="register_phone_number">Register phone number:</string>
     <string name="verify_phone_number">Verify phone number:</string>
+    <string name="registered_emails">Registered emails:</string>
     <string name="phone_number">Phone number</string>
     <string name="verification_code">Verification code</string>
     <string name="submit_verification_code">Submit verification code:</string>
@@ -24,5 +25,8 @@
     <string name="select">Select</string>
     <string name="dismiss">Dismiss</string>
     <string name="verify">Verify</string>
+    <string name="send_code">Send code</string>
+    <string name="send_again">Send again</string>
+    <string name="invalid_verification_code">Invalid verification code</string>
 </resources>
 
