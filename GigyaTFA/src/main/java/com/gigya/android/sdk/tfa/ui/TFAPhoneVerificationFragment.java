@@ -152,7 +152,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
                 _verificationCodeEditText.setError(null);
                 _progressBar.setVisibility(View.VISIBLE);
                 final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-                verifyCodeResolver.verifyCode(_registeredPhonesResolver.getProvider(), verificationCode, new VerifyCodeResolver.ResultCallback() {
+                verifyCodeResolver.verifyCode(_registeredPhonesResolver.getProvider(), verificationCode, false, new VerifyCodeResolver.ResultCallback() {
                     @Override
                     public void onResolved() {
                         if (_selectionCallback != null) {

@@ -7,6 +7,7 @@ import android.webkit.WebView
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.tfa.GigyaTFA
 
 @Suppress("unused") // Referenced in manifest.
 class GigyaSampleApplication : Application() {

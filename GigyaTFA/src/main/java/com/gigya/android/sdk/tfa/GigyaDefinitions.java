@@ -19,11 +19,13 @@ public class GigyaDefinitions {
         public static final String API_TFA_PHONE_SEND_VERIFICATION_CODE = "accounts.tfa.phone.sendVerificationCode";
         public static final String API_TFA_TOTP_REGISTER = "accounts.tfa.totp.register";
         public static final String API_TFA_TOTP_VERIFY = "accounts.tfa.totp.verify";
-    }
 
-    /**
-     * TFA related specific constants.
-     */
+        // Push
+        public static final String API_TFA_PUSH_OPT_IN = "accounts.tfa.push.optin";
+        public static final String API_TFA_PUSH_VERIFY = "accounts.tfa.push.verify";
+        public static final String API_TFA_PUSH_UPDATE_DEVICE_INFO = "";
+    }
+    
     public static class TFAProvider {
 
         @Retention(RetentionPolicy.SOURCE)

@@ -23,5 +23,7 @@ public class GigyaSampleApplication extends Application {
         Gigya.setApplication(this);
         // Initialization with implicit configuration & account scheme.
         Gigya.getInstance(MyAccount.class);
+
+
     }
 }

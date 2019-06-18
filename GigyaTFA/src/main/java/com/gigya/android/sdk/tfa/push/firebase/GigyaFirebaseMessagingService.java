@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.tfa.push;
+package com.gigya.android.sdk.tfa.push.firebase;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,6 +14,7 @@ import androidx.work.WorkManager;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.tfa.push.PushTFAReceiver;
 import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 import com.gigya.android.sdk.tfa.workers.TokenUpdateWorker;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -140,10 +141,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      * @param fcmToken Received Token.
      */
     private void sendTokenToServer(String fcmToken) {
-        OneTimeWorkRequest.Builder updateWorkRequestBuilder = new OneTimeWorkRequest.Builder(TokenUpdateWorker.class);
-        Data inputData = new Data.Builder().putString("token", fcmToken).build();
-        updateWorkRequestBuilder.setInputData(inputData);
-        WorkManager.getInstance().enqueue(updateWorkRequestBuilder.build());
+
     }
 
     //region CUSTOMIZATION OPTIONS

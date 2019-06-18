@@ -48,12 +48,12 @@ public class PushTFAActivity extends AppCompatActivity {
     }
 
     private void onApprove() {
-        GigyaTFA.getInstance().onApprovePushTFA();
+        GigyaTFA.getInstance().pushApprove();
         finish();
     }
 
     private void onDeny() {
-        GigyaTFA.getInstance().onDenyPushTFA();
+        GigyaTFA.getInstance().pushDeny();
         finish();
     }
 

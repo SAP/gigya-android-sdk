@@ -102,7 +102,7 @@
 
         <!-- Gigya TFA messaging service -->
         <service
-            android:name="com.gigya.android.sdk.tfa.push.GigyaFirebaseMessagingService"
+            android:name="com.gigya.android.sdk.tfa.push.firebase.GigyaFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

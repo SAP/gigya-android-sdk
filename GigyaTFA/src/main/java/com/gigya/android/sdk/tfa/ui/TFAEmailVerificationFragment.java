@@ -154,7 +154,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
                 _verificationCodeEditText.setError(null);
                 _progressBar.setVisibility(View.VISIBLE);
                 final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-                verifyCodeResolver.verifyCode(GigyaDefinitions.TFAProvider.EMAIL, verificationCode, new VerifyCodeResolver.ResultCallback() {
+                verifyCodeResolver.verifyCode(GigyaDefinitions.TFAProvider.EMAIL, verificationCode, false, new VerifyCodeResolver.ResultCallback() {
                     @Override
                     public void onResolved() {
                         if (_selectionCallback != null) {

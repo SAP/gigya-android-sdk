@@ -31,10 +31,10 @@ public class PushTFAReceiver extends BroadcastReceiver {
         // Evaluate action.
         if (ObjectUtils.safeEquals(action, context.getString(R.string.tfa_action_deny))) {
             GigyaLogger.debug(LOG_TAG, "onReceive deny action chosen");
-            GigyaTFA.getInstance().onDenyPushTFA();
+            GigyaTFA.getInstance().pushDeny();
         } else if (ObjectUtils.safeEquals(action, context.getString(R.string.tfa_action_approve))) {
             GigyaLogger.debug(LOG_TAG, "onReceive approve action chosen");
-            GigyaTFA.getInstance().onApprovePushTFA();
+            GigyaTFA.getInstance().pushApprove();
         }
     }
 
