@@ -29,5 +29,6 @@
     <string name="send_code">Send code</string>
     <string name="send_again">Send again</string>
     <string name="invalid_verification_code">Invalid verification code</string>
+    <string name="remember_this_device">Remember this device</string>
 </resources>
 

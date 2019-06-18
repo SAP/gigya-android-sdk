@@ -4,5 +4,5 @@ import android.support.annotation.NonNull;
 
 public interface IVerifyTOTPResolver {
 
-    void verifyTOTPCode(@NonNull String verificationCode, @NonNull VerifyTOTPResolver.ResultCallback resultCallback);
+    void verifyTOTPCode(@NonNull String verificationCode, boolean rememberDevice, @NonNull VerifyTOTPResolver.ResultCallback resultCallback);
 }

@@ -450,12 +450,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         providerDialog.setRoundedCorners(true)
         providerDialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
             override fun onProviderSelected(selectedProvider: String?) {
-                when(selectedProvider) {
+                when (selectedProvider) {
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE -> {
                         val phoneDialog = TFAPhoneVerificationFragment.newInstance()
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
-                        phoneDialog.setSelectionCallback(object: BaseTFAFragment.SelectionCallback {
+                        phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
                             override fun onDismiss() {
                                 // Dismiss the progress bar. Notice that the TFA flow is broken.
                                 onLoadingDone()
@@ -477,7 +477,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val emailDialog = TFAEmailVerificationFragment.newInstance();
                         emailDialog.setRoundedCorners(true)
                         emailDialog.setResolverFactory(dataPair.second)
-                        emailDialog.setSelectionCallback(object: BaseTFAFragment.SelectionCallback {
+                        emailDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
                             override fun onDismiss() {
                                 // Dismiss the progress bar. Notice that the TFA flow is broken.
                                 onLoadingDone()
@@ -494,6 +494,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             }
                         })
                         emailDialog.show(supportFragmentManager, "TFAEmailVerificationFragment")
+                    }
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.TOTP -> {
+                        val totpDialog = TFATOTPVerificationFragment.newInstance()
+                        totpDialog.setRoundedCorners(true)
+                        totpDialog.setResolverFactory(dataPair.second)
+                        totpDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
+                            override fun onDismiss() {
+                                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                                onLoadingDone()
+                            }
+
+                            override fun onResolved() {
+                                // This callback is used to notify that the flow has been resolved.
+                                // Once resolved the initial onSuccess callback will be called.
+                            }
+
+                            override fun onError(error: GigyaError?) {
+                                onLoadingDone()
+                                displayErrorAlert("TFA flow error", error?.localizedMessage!!)
+                            }
+                        })
+                        totpDialog.show(supportFragmentManager, "TFATOTPVerificationFragment")
                     }
                 }
             }

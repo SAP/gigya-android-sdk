@@ -39,20 +39,20 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
     }
 
     @Override
-    public void verifyTOTPCode(@NonNull String verificationCode, @NonNull ResultCallback resultCallback) {
+    public void verifyTOTPCode(@NonNull String verificationCode, boolean rememberDevice, @NonNull ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyTOTPCode with verification code: " + verificationCode);
 
         // Flow varies according to sctToken field availability.
         if (_sctToken == null) {
             // Start a brand new TFA initialization process.
-            restartVerificationFlow(verificationCode, resultCallback);
+            restartVerificationFlow(verificationCode, rememberDevice, resultCallback);
         } else {
             // Complete verification.
-            completeVerification(verificationCode, resultCallback);
+            completeVerification(verificationCode, rememberDevice, resultCallback);
         }
     }
 
-    private void restartVerificationFlow(@NonNull final String verificationCode, @NonNull final ResultCallback resultCallback) {
+    private void restartVerificationFlow(@NonNull final String verificationCode, final boolean rememeberDevice, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "restartVerificationFlow: ");
 
         // Initialize the TFA flow.
@@ -65,7 +65,7 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                     @Override
                     public void onSuccess(InitTFAModel model) {
                         _gigyaAssertion = model.getGigyaAssertion();
-                        completeVerification(verificationCode, resultCallback);
+                        completeVerification(verificationCode, rememeberDevice, resultCallback);
                     }
 
                     @Override
@@ -75,7 +75,7 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                 });
     }
 
-    private void completeVerification(@NonNull final String verificationCode, @NonNull final ResultCallback resultCallback) {
+    private void completeVerification(@NonNull final String verificationCode, final boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("code", verificationCode);
@@ -87,7 +87,7 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                     @Override
                     public void onSuccess(CompleteVerificationModel model) {
                         final String providerAssertion = model.getProviderAssertion();
-                        resolve(providerAssertion, resultCallback);
+                        finalizeTFA(providerAssertion, rememberDevice, resultCallback);
                     }
 
                     @Override
@@ -101,12 +101,15 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                 });
     }
 
-    private void resolve(String providerAssertion, @NonNull final ResultCallback resultCallback) {
+    private void finalizeTFA(String providerAssertion, final boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         // Finalizing the TFA flow.
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", getRegToken());
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("providerAssertion", providerAssertion);
+        if (rememberDevice) {
+            params.put("tempDevice", false);
+        }
         _businessApiService.send(GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST,
                 GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
                     @Override

@@ -6,5 +6,8 @@ import com.gigya.android.sdk.tfa.GigyaDefinitions;
 
 public interface IVerifyCodeResolver {
 
-    void verifyCode(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider, @NonNull String verificationCode, @NonNull VerifyCodeResolver.ResultCallback resultCallback);
+    void verifyCode(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider,
+                    @NonNull String verificationCode,
+                    boolean rememberDevice,
+                    @NonNull VerifyCodeResolver.ResultCallback resultCallback);
 }

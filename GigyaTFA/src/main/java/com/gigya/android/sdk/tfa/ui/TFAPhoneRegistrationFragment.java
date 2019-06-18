@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
@@ -30,6 +31,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     private EditText _phoneEditText, _verificationCodeEditText;
     private View _verificationLayout;
     private Button _actionButton, _dismissButton;
+    private CheckBox _rememberDeviceCheckbox;
 
     public static TFAPhoneRegistrationFragment newInstance() {
         return new TFAPhoneRegistrationFragment();
@@ -66,6 +68,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         _verificationCodeEditText = view.findViewById(R.id.fpr_verification_code_edit_text);
         _actionButton = view.findViewById(R.id.fpr_action_button);
         _dismissButton = view.findViewById(R.id.fpr_dismiss_button);
+        _rememberDeviceCheckbox = view.findViewById(R.id.fpr_remember_device_checkbox);
     }
 
     private void setActions() {
@@ -145,7 +148,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
 
         _progressBar.setVisibility(View.VISIBLE);
         final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-        _verifyCodeResolver.verifyCode(_registerPhoneResolver.getProvider(), verificationCode, new VerifyCodeResolver.ResultCallback() {
+        _verifyCodeResolver.verifyCode(_registerPhoneResolver.getProvider(), verificationCode, _rememberDeviceCheckbox.isChecked(),new VerifyCodeResolver.ResultCallback() {
             @Override
             public void onResolved() {
                 if (_selectionCallback != null) {
@@ -156,7 +159,10 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
 
             @Override
             public void onInvalidCode() {
-
+                _progressBar.setVisibility(View.INVISIBLE);
+                // Clear input text.
+                _verificationCodeEditText.setText("");
+                _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
             }
 
             @Override

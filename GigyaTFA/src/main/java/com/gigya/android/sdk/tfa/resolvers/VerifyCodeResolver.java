@@ -37,12 +37,15 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
         return this;
     }
 
-    private void resolve(String providerAssertion, @NonNull final ResultCallback resultCallback) {
+    private void finalizeTFA(String providerAssertion, boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         // Finalizing the TFA flow.
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", getRegToken());
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("providerAssertion", providerAssertion);
+        if (rememberDevice) {
+            params.put("tempDevice", false);
+        }
         _businessApiService.send(GigyaDefinitions.API.API_TFA_FINALIZE, params, RestAdapter.POST,
                 GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
                     @Override
@@ -72,7 +75,8 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
     }
 
     @Override
-    public void verifyCode(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider, @NonNull String verificationCode, @NonNull final ResultCallback resultCallback) {
+    public void verifyCode(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider, @NonNull String verificationCode, final boolean rememberDevice,
+                           @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyCode: code = " + verificationCode);
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);
@@ -83,7 +87,7 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
                     @Override
                     public void onSuccess(CompleteVerificationModel model) {
                         final String providerAssertion = model.getProviderAssertion();
-                        resolve(providerAssertion, resultCallback);
+                        finalizeTFA(providerAssertion, rememberDevice, resultCallback);
                     }
 
                     @Override

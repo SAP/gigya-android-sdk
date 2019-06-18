@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -31,6 +32,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
     private ImageView _qrImageView;
     private Button _registerButton, _dismissButton;
     private EditText _verificationCodeEditText;
+    private CheckBox _rememberDeviceCheckbox;
 
     private Bitmap _qrImage;
 
@@ -58,6 +60,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
         _registerButton = view.findViewById(R.id.ftpr_action_button);
         _dismissButton = view.findViewById(R.id.ftpr_dismiss_button);
         _verificationCodeEditText = view.findViewById(R.id.ftpr_verification_code_edit_text);
+        _rememberDeviceCheckbox = view.findViewById(R.id.ftpr_remember_device_checkbox);
     }
 
     private void setActions() {
@@ -127,7 +130,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
             public void onClick(View v) {
                 _progressBar.setVisibility(View.VISIBLE);
                 final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-                verifyTOTPResolver.verifyTOTPCode(verificationCode, new VerifyTOTPResolver.ResultCallback() {
+                verifyTOTPResolver.verifyTOTPCode(verificationCode, _rememberDeviceCheckbox.isChecked(), new VerifyTOTPResolver.ResultCallback() {
                     @Override
                     public void onResolved() {
                         if (_selectionCallback != null) {
