@@ -31,6 +31,16 @@ public class ObjectUtils {
         return false;
     }
 
+    public static <T,V> boolean nullAllowedEquals(T first, V second) {
+        if (first != null && second != null) {
+            return first.equals(second);
+        }
+        if (first == null && second == null) {
+            return true;
+        }
+        return false;
+    }
+
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<>();
 
@@ -106,9 +116,7 @@ public class ObjectUtils {
         if (input.length > 0) {
             StringBuilder concat = new StringBuilder();
             for (String string : input) {
-                concat.append("'").append(string.replace("'", "\\'")).append("',");
-                // can also do the following
-                // nameBuilder.append("'").append(n.replace("'", "''")).append("',");
+                concat.append(string).append(",");
             }
 
             concat.deleteCharAt(concat.length() - 1);

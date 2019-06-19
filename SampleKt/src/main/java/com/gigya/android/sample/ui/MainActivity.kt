@@ -186,6 +186,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_remove_connection -> onRemoveConnection()
             R.id.action_register -> onRegister()
             R.id.action_get_account_info -> onGetAccount()
+            R.id.action_get_account_info_extra -> onGetAccountWithExtraFields()
             R.id.action_set_account_info -> onSetAccount()
             R.id.action_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
@@ -540,6 +541,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         onLoading()
         viewModel?.getAccount(
+                success = { json ->
+                    onJsonResult(json)
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                }
+        )
+    }
+
+    private fun onGetAccountWithExtraFields() {
+        if (!viewModel!!.isLoggedIn()) {
+            response_text_view.snackbar(getString(R.string.not_logged_in))
+            return
+        }
+        onLoading()
+        viewModel?.getAccountWithExtraFields(
                 success = { json ->
                     onJsonResult(json)
                 },

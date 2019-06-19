@@ -85,10 +85,10 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
         if (!(!_accountOverrideCache && _cachedAccount != null && System.currentTimeMillis() < _accountInvalidationTimestamp)) {
             return false;
         }
-        if (!ObjectUtils.safeEquals(include, _lastRequestedInclude)) {
+        if (!ObjectUtils.nullAllowedEquals(include, _lastRequestedInclude)) {
             return false;
         }
-        return ObjectUtils.safeEquals(profileExtraFields, _lastRequestedProfileExtraFields);
+        return ObjectUtils.nullAllowedEquals(profileExtraFields, _lastRequestedProfileExtraFields);
     }
 
     @Override

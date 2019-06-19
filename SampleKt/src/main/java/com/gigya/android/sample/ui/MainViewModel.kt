@@ -7,6 +7,8 @@ import android.util.Log
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
+import com.gigya.android.sdk.GigyaDefinitions.AccountIncludes.*
+import com.gigya.android.sdk.GigyaDefinitions.AccountProfileExtraFields.LANGUAGES
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.CANCELED
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
@@ -148,6 +150,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun getAccount(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         gigya.getAccount(object : GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                myAccountLiveData.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
+    /**
+     * Request new account info with extra fields.
+     */
+    fun getAccountWithExtraFields(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.getAccount(arrayOf(PROFILE, DATA, SUBSCRIPTIONS), arrayOf(LANGUAGES), object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))

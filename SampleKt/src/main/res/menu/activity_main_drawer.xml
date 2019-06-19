@@ -20,12 +20,10 @@
 
                 <item
                     android:id="@+id/action_add_connection"
-                    android:title="@string/nav_add_connection"
-                    />
+                    android:title="@string/nav_add_connection" />
                 <item
                     android:id="@+id/action_remove_connection"
-                    android:title="@string/nav_remove_connection"
-                    />
+                    android:title="@string/nav_remove_connection" />
 
                 <item
                     android:id="@+id/action_register"
@@ -36,12 +34,16 @@
                     android:title="@string/nav_get_account_info" />
 
                 <item
+                    android:id="@+id/action_get_account_info_extra"
+                    android:title="@string/get_account_with_extrea_fields" />
+
+                <item
                     android:id="@+id/action_set_account_info"
                     android:title="@string/nav_set_account_info" />
 
                 <item
                     android:id="@+id/action_verify_login"
-                    android:title="@string/nav_verify_login"/>
+                    android:title="@string/nav_verify_login" />
 
                 <item
                     android:id="@+id/action_forgot_password"
@@ -49,7 +51,7 @@
 
                 <item
                     android:id="@+id/action_push_tfa_opt_in"
-                    android:title="@string/opt_in_for_push_tfa"/>
+                    android:title="@string/opt_in_for_push_tfa" />
 
             </menu>
         </item>

@@ -377,6 +377,16 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     @Override
+    public void getAccount(@NonNull String[] include, @NonNull String[] profileExtraFields, GigyaCallback<A> gigyaCallback) {
+        final String includeParam = ObjectUtils.commaConcat(include);
+        final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("include", includeParam);
+        params.put("extraProfileFields", profileExtraFieldsParam);
+        getAccount(params, gigyaCallback);
+    }
+
+    @Override
     public void getAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
         if (gigyaCallback == null) {
             // Callback restricted api call.
@@ -388,11 +398,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         }
         // Fetch caching relevant fields from parameter map (if exist) null fields are viable.
         final String include = params != null ? (String) params.get("include") : null;
-        final String profileExtraFields = params != null ? (String) params.get("profileExtraFields") : null;
+        final String profileExtraFields = params != null ? (String) params.get("extraProfileFields") : null;
         if (_accountService.isCachedAccount(include, profileExtraFields)) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
+        _accountService.updateExtendedParametersRequest(include, profileExtraFields);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.GET);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -413,22 +424,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         });
     }
-
-    @Override
-    public void getAccount(@NonNull String[] include, @NonNull String[] profileExtraFields, GigyaCallback<A> gigyaCallback) {
-        final String includeParam = ObjectUtils.commaConcat(include);
-        final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
-        if (_accountService.isCachedAccount(includeParam, profileExtraFieldsParam)) {
-            gigyaCallback.onSuccess(_accountService.getAccount());
-            return;
-        }
-        final Map<String, Object> params = new HashMap<>();
-        params.put("include", includeParam);
-        params.put("extraProfileFields", profileExtraFieldsParam);
-        _accountService.updateExtendedParametersRequest(includeParam, profileExtraFieldsParam);
-        getAccount(params, gigyaCallback);
-    }
-
 
     /**
      * Request account update for current active session.
