@@ -9,5 +9,7 @@ public interface ITFABusinessApiService {
 
     void optIntoPush(@NonNull final String deviceInfo, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 
-    void finalizePushOptIn(@NonNull final String gigyaAssertion, @NonNull final String providerAssertion, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+    void finalizePushOptIn(@NonNull final String gigyaAssertion, @NonNull final String verificationToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+
+    void verifyPush(@NonNull final String gigyaAssertion, @NonNull final String verificationToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 }

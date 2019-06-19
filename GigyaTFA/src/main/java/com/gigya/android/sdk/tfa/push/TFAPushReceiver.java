@@ -3,7 +3,6 @@ package com.gigya.android.sdk.tfa.push;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
@@ -42,7 +41,8 @@ public class TFAPushReceiver extends BroadcastReceiver {
 
         switch (mode) {
             case GigyaDefinitions.PushMode.OPT_IN:
-                if (isDenyAction(context,action)) {
+            case GigyaDefinitions.PushMode.VERIFY:
+                if (isDenyAction(context, action)) {
                     // Redundant.
                     GigyaLogger.debug(LOG_TAG, "Opt-In mode. User chose to deny. Flow will not complete.");
                 } else if (isApproveAction(context, action)) {
@@ -53,10 +53,12 @@ public class TFAPushReceiver extends BroadcastReceiver {
                     final String verificationToken = intent.getStringExtra("verificationToken");
 
                     // Continue flow.
-                    GigyaTFA.getInstance().verifyPushOptIn(gigyaAssertion, verificationToken);
+                    if (mode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
+                        GigyaTFA.getInstance().verifyPushOptIn(gigyaAssertion, verificationToken);
+                    } else {
+                        GigyaTFA.getInstance().pushApprove(gigyaAssertion, verificationToken);
+                    }
                 }
-                break;
-            case GigyaDefinitions.PushMode.VERIFY:
                 break;
             default:
                 GigyaLogger.error(LOG_TAG, "Push mode not supported. Action ignored. Flow is broken");

@@ -5,11 +5,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import com.gigya.android.sdk.GigyaLogger;
+
 import java.util.Random;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
 public class TFANotifier implements ITFANotifier {
+
+    private static final String LOG_TAG = "TFANotifier";
 
     private Context _context;
 
@@ -19,8 +23,10 @@ public class TFANotifier implements ITFANotifier {
 
     @Override
     public void notifyWith(@NonNull String title, @NonNull String body) {
+        GigyaLogger.debug(LOG_TAG, "notifyWith: title = " + title + ", body = " + body);
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, TFA_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -25,8 +26,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 public class VolleyNetworkProvider extends NetworkProvider {
+
+    private static final String LOG_TAG = "VolleyNetworkProvider";
 
     private RequestQueue _requestQueue;
     private Queue<VolleyNetworkRequest> _blockedQueue = new ConcurrentLinkedQueue<>();
@@ -51,17 +55,22 @@ public class VolleyNetworkProvider extends NetworkProvider {
         _requestQueue.getCache().clear();
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         if (_blocked) {
+            GigyaLogger.debug(LOG_TAG, "addToQueue: is blocked. adding to blocked queued - " + request.getUrl());
             _blockedQueue.add(newRequest);
             return;
         }
         if (!_blockedQueue.isEmpty()) {
+            GigyaLogger.debug(LOG_TAG, "addToQueue: blockedQueue is empty releasing it - " + request.getUrl());
             release();
         }
+
+        GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getUrl());
         _requestQueue.add(newRequest);
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+        GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getUrl());
         _requestQueue.getCache().clear();
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
@@ -74,10 +83,14 @@ public class VolleyNetworkProvider extends NetworkProvider {
         if (_blockedQueue.isEmpty()) {
             return;
         }
-        VolleyNetworkRequest queued = _blockedQueue.poll();
-        while (queued != null) {
-            _requestQueue.add(queued);
-            queued = _blockedQueue.poll();
+
+        // Traverse over blocked queue and release all.
+        while (!_blockedQueue.isEmpty()) {
+            final VolleyNetworkRequest queued = _blockedQueue.poll();
+            if (queued != null) {
+                GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
+                _requestQueue.add(queued);
+            }
         }
     }
 
@@ -161,6 +174,10 @@ public class VolleyNetworkProvider extends NetworkProvider {
             setTag(tag);
             this.body = body;
             setShouldCache(false);
+            setRetryPolicy(new DefaultRetryPolicy(
+                    (int) TimeUnit.SECONDS.toMillis(30), //After the set time elapses the request will timeout
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         }
 
         @Override

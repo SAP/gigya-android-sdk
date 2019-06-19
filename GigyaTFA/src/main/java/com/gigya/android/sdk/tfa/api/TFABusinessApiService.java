@@ -90,7 +90,17 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
         });
     }
 
-    public void updateDeviceInfo() {
+    @Override
+    public void verifyPush(@NonNull String gigyaAssertion, @NonNull String verificationToken, @NonNull GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
 
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gigyaAssertion", gigyaAssertion);
+        params.put("verificationToken", verificationToken);
+        send(GigyaDefinitions.API.API_TFA_PUSH_VERIFY, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
     }
+
 }

@@ -122,6 +122,10 @@ public class GigyaTFA {
         });
     }
 
+    public void pushOptOut() {
+
+    }
+
     public void verifyPushOptIn(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
@@ -137,17 +141,19 @@ public class GigyaTFA {
         });
     }
 
-    public void pushOptOut() {
+    public void pushApprove(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+        _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.error(LOG_TAG, "Successfully verified push");
+                _tfaNotifier.notifyWith("Verify push TFA", "Successfully authenticated login");
+            }
 
-    }
-
-
-    public void verifyPush() {
-
-    }
-
-    public void pushApprove() {
-
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.error(LOG_TAG, "Failed to verify push");
+            }
+        });
     }
 
     public void pushDeny() {

@@ -98,6 +98,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         final String gigyaAssertion = data.get("gigyaAssertion");
         final String verificationToken = data.get("verificationToken");
 
+        GigyaLogger.debug(LOG_TAG, "verificationToken: " + verificationToken);
+
         // Content activity pending intent.
         Intent intent = new Intent(this, getCustomActionActivity());
         intent.putExtra("mode", mode);
@@ -107,7 +109,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
-                intent, PendingIntent.FLAG_ONE_SHOT);
+                intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Deny action.
         Intent denyIntent = new Intent(this, TFAPushReceiver.class);
@@ -116,7 +118,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         denyIntent.putExtra("verificationToken", verificationToken);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         PendingIntent denyPendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Approve action.
         Intent approveIntent = new Intent(this, TFAPushReceiver.class);
@@ -125,7 +127,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         approveIntent.putExtra("verificationToken", verificationToken);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         PendingIntent approvePendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, 0);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
@@ -162,7 +164,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      * @return Icon reference.
      */
     protected int getSmallIcon() {
-        return 0;
+        return android.R.drawable.ic_dialog_alert;
     }
 
     /**

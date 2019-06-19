@@ -614,7 +614,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.pushTFAOptIn(
                     success = {
-                        response_text_view.snackbar("Successfully opt-in for push TFA.")
+                        response_text_view.snackbar("Approve opt-in notification to complete TFA push registration")
                     },
                     error = { possibleError ->
                         possibleError?.let { error -> onError(error) }
