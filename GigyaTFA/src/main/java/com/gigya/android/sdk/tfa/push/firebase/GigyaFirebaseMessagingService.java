@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
+import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.TFAPushReceiver;
@@ -52,12 +53,23 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     @Override
-    public void onNewToken(String fcmToken) {
-        GigyaLogger.debug(LOG_TAG, "onNewToken: " + fcmToken);
+    public void onNewToken(String newToken) {
+        GigyaLogger.debug(LOG_TAG, "onNewToken: " + newToken);
 
-        if (fcmToken != null) {
-            // Update push token in SDK preference file.
-            new TFAPersistenceService(this).setPushToken(fcmToken);
+        if (newToken != null) {
+            // Check for token updates.
+            TFAPersistenceService ps = new TFAPersistenceService(this);
+            final String persistentToken = ps.getPushToken();
+            if (persistentToken == null) {
+                // Update push token in SDK preference file.
+                ps.setPushToken(newToken);
+                return;
+            }
+
+            if (!persistentToken.equals(newToken)) {
+                // Push token for this device has been updated.
+                GigyaTFA.getInstance().updateDeviceInfo(newToken);
+            }
         }
     }
 

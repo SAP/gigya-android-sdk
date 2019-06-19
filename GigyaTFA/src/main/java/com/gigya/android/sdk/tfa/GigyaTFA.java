@@ -109,17 +109,21 @@ public class GigyaTFA {
 
     public void pushOptIn(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         // Device info is required.
-        generateDeviceInfo(new Runnable() {
-            @Override
-            public void run() {
-                _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                gigyaCallback.onError(GigyaError.unauthorizedUser());
-            }
-        });
+        if (_deviceInfo == null) {
+            generateDeviceInfo(new Runnable() {
+                @Override
+                public void run() {
+                    _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    gigyaCallback.onError(GigyaError.unauthorizedUser());
+                }
+            });
+        } else {
+            _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
+        }
     }
 
     public void pushOptOut() {
@@ -160,8 +164,21 @@ public class GigyaTFA {
 
     }
 
-    private void updatePushDeviceInfo() {
+    public void updateDeviceInfo(@NonNull final String newPushToken) {
+        _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.debug(LOG_TAG, "Successfully update push token. Persisting new token");
 
+                // Persist new token. This will allow to correctly monitor any token changes.
+                _persistenceService.setPushToken(newPushToken);
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.debug(LOG_TAG, "Failed to update device info.");
+            }
+        });
     }
 
     //endregion

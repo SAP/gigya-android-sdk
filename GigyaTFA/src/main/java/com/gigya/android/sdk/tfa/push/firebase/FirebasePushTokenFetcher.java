@@ -29,5 +29,4 @@ public class FirebasePushTokenFetcher implements IPushTokenFetcher {
             }
         });
     }
-
 }

@@ -40,7 +40,6 @@ deps.firebase = firebase
 def android_arch = [:]
 android_arch.lifecycle_extensions = "android.arch.lifecycle:extensions:$versions.arch"
 android_arch.lifecycle_compiler = "android.arch.lifecycle:compiler:$versions.arch"
-android_arch.work_manager = "android.arch.work:work-runtime:1.0.1"
 deps.android_arch = android_arch
 
 def androidx = [:]

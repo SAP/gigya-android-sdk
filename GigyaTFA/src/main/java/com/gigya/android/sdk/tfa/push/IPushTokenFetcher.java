@@ -5,5 +5,4 @@ import android.support.annotation.NonNull;
 public interface IPushTokenFetcher {
 
     void getToken(@NonNull IPushTokenAvailability availabilityCallback);
-
 }

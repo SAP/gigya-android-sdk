@@ -14,11 +14,6 @@ public class GigyaDefinitions {
 
     public static final String TFA_CHANNEL_ID = "tfa_channel";
 
-    public static class Broadcasts {
-
-        public static final String INTENT_ACTION_FINALIZE_OPT_IN = "intent_action_finalize_opt_in";
-    }
-
     public static class API {
 
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
@@ -35,7 +30,7 @@ public class GigyaDefinitions {
         // Push
         public static final String API_TFA_PUSH_OPT_IN = "accounts.tfa.push.optin";
         public static final String API_TFA_PUSH_VERIFY = "accounts.tfa.push.verify";
-        public static final String API_TFA_PUSH_UPDATE_DEVICE_INFO = "";
+        public static final String API_TFA_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
     }
     
     public static class TFAProvider {

@@ -12,4 +12,6 @@ public interface ITFABusinessApiService {
     void finalizePushOptIn(@NonNull final String gigyaAssertion, @NonNull final String verificationToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 
     void verifyPush(@NonNull final String gigyaAssertion, @NonNull final String verificationToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+
+    void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 }

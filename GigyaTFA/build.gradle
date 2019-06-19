@@ -60,6 +60,5 @@ dependencies {
     compileOnly project(path: ':GigyaSDK')
 
     api deps.firebase.messaging
-    implementation deps.android_arch.work_manager
 
 }
