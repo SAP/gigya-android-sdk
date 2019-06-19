@@ -7,6 +7,18 @@ import java.lang.annotation.RetentionPolicy;
 
 public class GigyaDefinitions {
 
+    public static final int PUSH_TFA_CONTENT_ACTION_REQUEST_CODE = 2020;
+    public static final int PUSH_TFA_CONTENT_INTENT_REQUEST_CODE = 2021;
+
+    public static final int PUSH_TFA_NOTIFICATION_ID = 99990;
+
+    public static final String TFA_CHANNEL_ID = "tfa_channel";
+
+    public static class Broadcasts {
+
+        public static final String INTENT_ACTION_FINALIZE_OPT_IN = "intent_action_finalize_opt_in";
+    }
+
     public static class API {
 
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";
@@ -52,6 +64,19 @@ public class GigyaDefinitions {
 
         public static final String SMS = "sms";
         public static final String VOICE = "voice";
+    }
+
+    public static class PushMode {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({OPT_IN, VERIFY, CANCEL})
+
+        public @interface Mode {
+        }
+
+        public static final String OPT_IN = "optin";
+        public static final String VERIFY = "verify";
+        public static final String CANCEL = "cancel";
     }
 
 }

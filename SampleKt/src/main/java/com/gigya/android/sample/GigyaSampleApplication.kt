@@ -37,6 +37,6 @@ class GigyaSampleApplication : Application() {
          */
         //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
 
-        Gigya.getInstance(MyAccount::class.java).init("3_OoqiaK9NrS56BF961WjweElQxPY4XBI2jefYCZgvBnwi9reWnUjJHFP9wh2RyFwH", "il1-st7.gigya.com")
+        Gigya.getInstance(MyAccount::class.java).init("3_V1vL_nFvZY-n4RwoFiKFomr5ncnB9loV25Bbrir9AghPtwY0S2nyQb3mChZR6d3t", "il1-st7.gigya.com")
     }
 }

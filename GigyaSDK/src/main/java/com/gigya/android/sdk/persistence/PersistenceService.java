@@ -16,7 +16,7 @@ public class PersistenceService implements IPersistenceService {
         _context = context;
     }
 
-    private SharedPreferences getPrefs() {
+    protected SharedPreferences getPrefs() {
         if (_prefs == null) {
             _prefs = _context.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
         }

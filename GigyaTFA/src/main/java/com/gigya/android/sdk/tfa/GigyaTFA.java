@@ -7,9 +7,14 @@ import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
+import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
+import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
+import com.gigya.android.sdk.tfa.push.ITFANotifier;
+import com.gigya.android.sdk.tfa.push.TFANotifier;
 
 public class GigyaTFA {
 
@@ -46,6 +51,8 @@ public class GigyaTFA {
 
             container.bind(GigyaTFA.class, GigyaTFA.class, true);
             container.bind(ITFABusinessApiService.class, TFABusinessApiService.class, true);
+            container.bind(ITFAPersistenceService.class, TFAPersistenceService.class, true);
+            container.bind(ITFANotifier.class, TFANotifier.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaTFA.class);
@@ -59,20 +66,41 @@ public class GigyaTFA {
         return _sharedInstance;
     }
 
-    private ITFABusinessApiService _tfaBusinessApiService;
+    private ITFABusinessApiService _businessApiService;
+    private ITFAPersistenceService _persistenceService;
+    private ITFANotifier _tfaNotifier;
 
-    protected GigyaTFA(ITFABusinessApiService tfaBusinessApiService) {
-        _tfaBusinessApiService = tfaBusinessApiService;
+    protected GigyaTFA(ITFABusinessApiService businessApiService,
+                       ITFAPersistenceService persistenceService,
+                       ITFANotifier tfaNotifier) {
+        _businessApiService = businessApiService;
+        _persistenceService = persistenceService;
+        _tfaNotifier = tfaNotifier;
     }
 
-    private void generateDeviceInfo(final Runnable completionHandler) {
-        new DeviceInfoBuilder().setPushService(_pushService).buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
+    private void generateDeviceInfo(@NonNull final Runnable completionHandler, @NonNull final Runnable errorHandler) {
+        final DeviceInfoBuilder builder = new DeviceInfoBuilder(_persistenceService).setPushService(_pushService);
+        builder.buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
             @Override
             public void onDeviceInfo(String deviceInfoJson) {
                 _deviceInfo = deviceInfoJson;
-                if (completionHandler != null) {
+                completionHandler.run();
+            }
+
+            @Override
+            public void unavailableToken() {
+                GigyaLogger.error(LOG_TAG, "Push token fetch unsuccessful");
+
+                // Try to fetch the token from persistence.
+                final String persistentToken = _persistenceService.getPushToken();
+                if (persistentToken != null) {
+                    _deviceInfo = builder.buildWith(persistentToken);
                     completionHandler.run();
+                    return;
                 }
+
+                // All else failed.
+                errorHandler.run();
             }
         });
     }
@@ -84,7 +112,27 @@ public class GigyaTFA {
         generateDeviceInfo(new Runnable() {
             @Override
             public void run() {
-                _tfaBusinessApiService.optIntoPush(_deviceInfo, gigyaCallback);
+                _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
+        });
+    }
+
+    public void verifyPushOptIn(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+        _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.error(LOG_TAG, "Opt-In verification flow completed");
+                _tfaNotifier.notifyWith("Opt-In for push TFA", "This device is not registered for push two factor authentication");
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.error(LOG_TAG, "Failed to complete TFA opt in verification");
             }
         });
     }
@@ -92,6 +140,7 @@ public class GigyaTFA {
     public void pushOptOut() {
 
     }
+
 
     public void verifyPush() {
 

@@ -33,12 +33,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     private static final String LOG_TAG = "BusinessApiService";
 
     // Dependencies.
-    final private ISessionService _sessionService;
-    final private IAccountService<A> _accountService;
-    final private IApiService _apiService;
-    final private IApiRequestFactory _reqFactory;
-    final private IProviderFactory _providerFactory;
-    final private IInterruptionResolverFactory _interruptionsHandler;
+    final protected ISessionService _sessionService;
+    final protected IAccountService<A> _accountService;
+    final protected IApiService _apiService;
+    final protected IApiRequestFactory _reqFactory;
+    final protected IProviderFactory _providerFactory;
+    final protected IInterruptionResolverFactory _interruptionsHandler;
 
     public BusinessApiService(ISessionService sessionService,
                               IAccountService<A> accountService,

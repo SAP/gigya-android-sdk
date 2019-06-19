@@ -118,7 +118,7 @@
             android:theme="@style/Theme.AppCompat.Translucent" />
 
         <receiver
-            android:name="com.gigya.android.sdk.tfa.push.PushTFAReceiver"
+            android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="@string/tfa_action_approve" />

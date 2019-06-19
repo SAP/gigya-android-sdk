@@ -9,8 +9,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.R;
-import com.gigya.android.sdk.tfa.push.PushTFAReceiver;
+import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
+import com.gigya.android.sdk.tfa.push.TFAPushReceiver;
 import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -18,6 +20,10 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_ACTION_REQUEST_CODE;
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_INTENT_REQUEST_CODE;
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_NOTIFICATION_ID;
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
 /**
  * Main FCM messaging service.
@@ -27,28 +33,31 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
     final private static String LOG_TAG = "GigyaMessagingService";
 
-    public static final int PUSH_TFA_CONTENT_ACTION_REQUEST_CODE = 2020;
-    public static final int PUSH_TFA_CONTENT_INTENT_REQUEST_CODE = 2021;
-
-    public static final int PUSH_TFA_NOTIFICATION_ID = 99990;
-
     @Override
     public void onCreate() {
         // Safe to call here. Once notification channel is created it won't be recreated again.
         createTFANotificationChannel();
     }
 
-    private static final String CHANNEL_ID = "tfa_channel";
-
     private void createTFANotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.tfa_channel_name);
             String description = getString(R.string.tfa_channel_description);
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(TFA_CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    @Override
+    public void onNewToken(String fcmToken) {
+        GigyaLogger.debug(LOG_TAG, "onNewToken: " + fcmToken);
+
+        if (fcmToken != null) {
+            // Update push token in SDK preference file.
+            new TFAPersistenceService(this).setPushToken(fcmToken);
         }
     }
 
@@ -58,30 +67,42 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         if (remoteMessage.getData().size() > 0) {
             // Check data purpose and continue flow accordingly.
-            if (isCancelMessage()) {
-                cancel();
-            } else {
-                notifyWith(remoteMessage.getData());
-            }
+            handleRemoteMessage(remoteMessage.getData());
         }
     }
 
-    @Override
-    public void onNewToken(String fcmToken) {
-        GigyaLogger.debug(LOG_TAG, "onNewToken: " + fcmToken);
+    private void handleRemoteMessage(Map<String, String> data) {
+        final String pushMode = data.get("mode");
+        if (pushMode == null) {
+            GigyaLogger.debug(LOG_TAG, "Push mode not available. Notification is ignored");
+            return;
+        }
+        switch (pushMode) {
+            case GigyaDefinitions.PushMode.OPT_IN:
+            case GigyaDefinitions.PushMode.VERIFY:
+                notifyWith(pushMode, data);
+                break;
+            case GigyaDefinitions.PushMode.CANCEL:
+                cancel();
+                break;
+            default:
+                GigyaLogger.debug(LOG_TAG, "Push mode not supported. Notification is ignored");
+                break;
+        }
     }
 
-    private boolean isCancelMessage() {
-        return false;
-    }
-
-    private void notifyWith(Map<String, String> data) {
+    private void notifyWith(String mode, Map<String, String> data) {
         // Fetch the data.
-        final String title = "My notification";
-        final String content = "Hello World!";
+        final String title = data.get("title");
+        final String body = data.get("body");
+        final String gigyaAssertion = data.get("gigyaAssertion");
+        final String verificationToken = data.get("verificationToken");
 
         // Content activity pending intent.
         Intent intent = new Intent(this, getCustomActionActivity());
+        intent.putExtra("mode", mode);
+        intent.putExtra("gigyaAssertion", gigyaAssertion);
+        intent.putExtra("verificationToken", verificationToken);
         // We don't want the annoying enter animation.
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -89,24 +110,28 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 intent, PendingIntent.FLAG_ONE_SHOT);
 
         // Deny action.
-        Intent denyIntent = new Intent(this, PushTFAReceiver.class);
+        Intent denyIntent = new Intent(this, TFAPushReceiver.class);
+        denyIntent.putExtra("mode", mode);
+        denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
+        denyIntent.putExtra("verificationToken", verificationToken);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
-        denyIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, 0);
 
         // Approve action.
-        Intent approveIntent = new Intent(this, PushTFAReceiver.class);
+        Intent approveIntent = new Intent(this, TFAPushReceiver.class);
+        approveIntent.putExtra("mode", mode);
+        approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
+        approveIntent.putExtra("verificationToken", verificationToken);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
-        approveIntent.putExtra("notificationId", PUSH_TFA_NOTIFICATION_ID);
         PendingIntent approvePendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, 0);
 
         // Build notification.
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
                 .setSmallIcon(getSmallIcon())
                 .setContentTitle(title)
-                .setContentText(content)
+                .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)

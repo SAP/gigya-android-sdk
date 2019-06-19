@@ -7,5 +7,7 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 
 public interface ITFABusinessApiService {
 
-    void optIntoPush(final String deviceInfo, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+    void optIntoPush(@NonNull final String deviceInfo, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+
+    void finalizePushOptIn(@NonNull final String gigyaAssertion, @NonNull final String providerAssertion, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 }
