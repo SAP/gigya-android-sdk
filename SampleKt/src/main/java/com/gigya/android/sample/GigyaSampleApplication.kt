@@ -20,6 +20,7 @@ class GigyaSampleApplication : Application() {
         WebView.setWebContentsDebuggingEnabled(true)
         // Gigya logs.
         GigyaLogger.setDebugMode(true)
+        GigyaLogger.enableSmartLog(this)
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         Gigya.setApplication(this)

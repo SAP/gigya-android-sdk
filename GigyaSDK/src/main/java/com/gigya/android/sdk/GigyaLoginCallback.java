@@ -36,12 +36,12 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
         onError(GigyaError.fromResponse(response));
     }
 
-    public void onPendingTwoFactorRegistration(@NonNull GigyaApiResponse response, @NonNull List<TFAProviderModel> inactiveProviders,
+    public void onPendingTwoFactorRegistration(@NonNull GigyaApiResponse response, @NonNull final List<TFAProviderModel> inactiveProviders,
                                                @NonNull TFAResolverFactory resolverFactory) {
         onError(GigyaError.fromResponse(response));
     }
 
-    public void onPendingTwoFactorVerification(@NonNull GigyaApiResponse response, @NonNull List<TFAProviderModel> activeProviders,
+    public void onPendingTwoFactorVerification(@NonNull GigyaApiResponse response, @NonNull final List<TFAProviderModel> activeProviders,
                                                @NonNull TFAResolverFactory resolverFactory) {
         onError(GigyaError.fromResponse(response));
     }

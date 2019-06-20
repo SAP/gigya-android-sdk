@@ -135,7 +135,7 @@ public class GigyaTFA {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.error(LOG_TAG, "Opt-In verification flow completed");
-                _tfaNotifier.notifyWith("Opt-In for push TFA", "This device is not registered for push two factor authentication");
+                _tfaNotifier.notifyWith("Opt-In for push TFA", "This device is registered for push two factor authentication");
             }
 
             @Override

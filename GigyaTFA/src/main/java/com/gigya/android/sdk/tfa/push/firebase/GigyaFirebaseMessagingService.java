@@ -177,7 +177,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      */
     protected int getSmallIcon() {
         // TODO: 2019-06-19 Will need a default icon!
-        return android.R.drawable.ic_dialog_alert;
+        return android.R.drawable.ic_dialog_info;
     }
 
     /**

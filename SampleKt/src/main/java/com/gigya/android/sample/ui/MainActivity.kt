@@ -26,6 +26,7 @@ import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
 import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
+import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
@@ -78,6 +79,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
         unregisterAccountUpdates()
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        GigyaLogger.exportSmartLog(this)
+        super.onDestroy()
     }
 
     private
