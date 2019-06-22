@@ -18,7 +18,6 @@ import com.gigya.android.sdk.network.GigyaError;
 public abstract class BaseTFAFragment extends DialogFragment {
 
     public abstract int getLayoutId();
-    private boolean _roundedCorners = false;
 
     public interface SelectionCallback {
 
@@ -42,6 +41,8 @@ public abstract class BaseTFAFragment extends DialogFragment {
     public void setSelectionCallback(TFAPhoneRegistrationFragment.SelectionCallback selectionCallback) {
         _selectionCallback = selectionCallback;
     }
+
+    private boolean _roundedCorners = false;
 
     public void setRoundedCorners(boolean roundedCorners) {
         _roundedCorners = roundedCorners;

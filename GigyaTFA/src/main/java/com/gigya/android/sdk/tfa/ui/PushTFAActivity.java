@@ -59,7 +59,7 @@ public class PushTFAActivity extends AppCompatActivity {
     }
 
     private void onDeny() {
-        GigyaTFA.getInstance().pushDeny();
+        //GigyaTFA.getInstance().pushDeny(); /* Not implemented on version 1.0.0 */
         finish();
     }
 

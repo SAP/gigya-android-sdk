@@ -138,6 +138,13 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     }
 
     private void verify() {
+        if (_registerPhoneResolver == null) {
+            if (_selectionCallback != null) {
+                _selectionCallback.onError(GigyaError.cancelledOperation());
+            }
+            dismiss();
+            return;
+        }
         if (_verifyCodeResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
@@ -148,31 +155,34 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
 
         _progressBar.setVisibility(View.VISIBLE);
         final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-        _verifyCodeResolver.verifyCode(_registerPhoneResolver.getProvider(), verificationCode, _rememberDeviceCheckbox.isChecked(),new VerifyCodeResolver.ResultCallback() {
-            @Override
-            public void onResolved() {
-                if (_selectionCallback != null) {
-                    _selectionCallback.onResolved();
-                }
-                dismiss();
-            }
+        _verifyCodeResolver.verifyCode(_registerPhoneResolver.getProvider(),
+                verificationCode,
+                _rememberDeviceCheckbox.isChecked()
+                , new VerifyCodeResolver.ResultCallback() {
+                    @Override
+                    public void onResolved() {
+                        if (_selectionCallback != null) {
+                            _selectionCallback.onResolved();
+                        }
+                        dismiss();
+                    }
 
-            @Override
-            public void onInvalidCode() {
-                _progressBar.setVisibility(View.INVISIBLE);
-                // Clear input text.
-                _verificationCodeEditText.setText("");
-                _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
-            }
+                    @Override
+                    public void onInvalidCode() {
+                        _progressBar.setVisibility(View.INVISIBLE);
+                        // Clear input text.
+                        _verificationCodeEditText.setText("");
+                        _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                if (_selectionCallback != null) {
-                    _selectionCallback.onError(error);
-                }
-                dismiss();
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (_selectionCallback != null) {
+                            _selectionCallback.onError(error);
+                        }
+                        dismiss();
+                    }
+                });
     }
 
 

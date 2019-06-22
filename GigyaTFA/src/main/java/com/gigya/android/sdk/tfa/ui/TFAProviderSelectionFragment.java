@@ -46,6 +46,14 @@ public class TFAProviderSelectionFragment extends BaseTFAFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getArguments() != null && getActivity() != null) {
             final ArrayList<String> providers = getArguments().getStringArrayList(ARG_PROVIDER_LIST);
+            if (providers == null) {
+                if (_selectionCallback != null) {
+                    _selectionCallback.onDismiss();
+                }
+                dismiss();
+                return;
+            }
+
             final Spinner spinner = view.findViewById(R.id.fps_provider_spinner);
             final ArrayAdapter providerAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, providers);
             spinner.setAdapter(providerAdapter);

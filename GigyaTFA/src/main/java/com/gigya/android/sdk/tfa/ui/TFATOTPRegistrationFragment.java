@@ -130,31 +130,34 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
             public void onClick(View v) {
                 _progressBar.setVisibility(View.VISIBLE);
                 final String verificationCode = _verificationCodeEditText.getText().toString().trim();
-                verifyTOTPResolver.verifyTOTPCode(verificationCode, _rememberDeviceCheckbox.isChecked(), new VerifyTOTPResolver.ResultCallback() {
-                    @Override
-                    public void onResolved() {
-                        if (_selectionCallback != null) {
-                            _selectionCallback.onResolved();
-                        }
-                        dismiss();
-                    }
+                verifyTOTPResolver.verifyTOTPCode(
+                        verificationCode,
+                        _rememberDeviceCheckbox.isChecked(),
+                        new VerifyTOTPResolver.ResultCallback() {
+                            @Override
+                            public void onResolved() {
+                                if (_selectionCallback != null) {
+                                    _selectionCallback.onResolved();
+                                }
+                                dismiss();
+                            }
 
-                    @Override
-                    public void onInvalidCode() {
-                        _progressBar.setVisibility(View.INVISIBLE);
-                        // Clear input text.
-                        _verificationCodeEditText.setText("");
-                        _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
-                    }
+                            @Override
+                            public void onInvalidCode() {
+                                _progressBar.setVisibility(View.INVISIBLE);
+                                // Clear input text.
+                                _verificationCodeEditText.setText("");
+                                _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
+                            }
 
-                    @Override
-                    public void onError(GigyaError error) {
-                        if (_selectionCallback != null) {
-                            _selectionCallback.onError(error);
-                        }
-                        dismiss();
-                    }
-                });
+                            @Override
+                            public void onError(GigyaError error) {
+                                if (_selectionCallback != null) {
+                                    _selectionCallback.onError(error);
+                                }
+                                dismiss();
+                            }
+                        });
             }
         });
     }

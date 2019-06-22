@@ -119,13 +119,22 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
     };
 
     private void populateRegisteredEmailsList(List<EmailModel> registeredEmailList) {
+        if (_registeredEmailsResolver == null) {
+            if (_selectionCallback != null) {
+                _selectionCallback.onError(GigyaError.cancelledOperation());
+            }
+            dismiss();
+            return;
+        }
+
         final ArrayList<EmailHelper> helpers = new ArrayList<>(registeredEmailList.size());
         for (EmailModel email : registeredEmailList) {
             helpers.add(new EmailHelper(email));
         }
 
         // Set registered email spinner adapter.
-        final ArrayAdapter emailAdapter = new ArrayAdapter<>(_registeredEmailsSpinner.getContext(), android.R.layout.simple_spinner_dropdown_item, helpers);
+        final ArrayAdapter emailAdapter = new ArrayAdapter<>(_registeredEmailsSpinner.getContext(),
+                android.R.layout.simple_spinner_dropdown_item, helpers);
         _registeredEmailsSpinner.setAdapter(emailAdapter);
 
         // Click action for send code is only relevant at this point.
