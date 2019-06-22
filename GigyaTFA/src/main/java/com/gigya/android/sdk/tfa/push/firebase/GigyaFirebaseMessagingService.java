@@ -38,6 +38,9 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     public void onCreate() {
         // Safe to call here. Once notification channel is created it won't be recreated again.
         createTFANotificationChannel();
+
+        GigyaLogger.info(LOG_TAG, "GigyaFirebaseMessagingService created: If you have not extended this service with" +
+                " your own service class, all notification with use small icon \"android.R.drawable.ic_dialog_in\'");
     }
 
     private void createTFANotificationChannel() {
@@ -163,6 +166,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      * Attempt to cancel a displayed notification given a unique identification.
      */
     private void cancel() {
+        GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.cancel(PUSH_TFA_NOTIFICATION_ID);
     }

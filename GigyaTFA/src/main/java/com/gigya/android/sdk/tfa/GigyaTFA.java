@@ -78,6 +78,9 @@ public class GigyaTFA {
         _tfaNotifier = tfaNotifier;
     }
 
+    /*
+    Will generate required device information asynchronously.
+     */
     private void generateDeviceInfo(@NonNull final Runnable completionHandler, @NonNull final Runnable errorHandler) {
         final DeviceInfoBuilder builder = new DeviceInfoBuilder(_persistenceService).setPushService(_pushService);
         builder.buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
@@ -107,6 +110,12 @@ public class GigyaTFA {
 
     //region INTERFACING
 
+    /**
+     * Request to Opt-In to push Two Factor Authentication.
+     * This is the first of two stages of the Opt-In process.
+     *
+     * @param gigyaCallback Request callback.
+     */
     public void pushOptIn(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         // Device info is required.
         if (_deviceInfo == null) {
@@ -126,10 +135,20 @@ public class GigyaTFA {
         }
     }
 
-    public void pushOptOut() {
+    /**
+     * Not implemented in version 1.0.0.
+     */
+    private void pushOptOut() {
 
     }
 
+    /**
+     * Verify Opt-In process push notifications.
+     * This is the second and final stage of the Opt-In process.
+     *
+     * @param gigyaAssertion    Provided gigya assertion token.
+     * @param verificationToken Provided verification token.
+     */
     public void verifyPushOptIn(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
@@ -145,6 +164,12 @@ public class GigyaTFA {
         });
     }
 
+    /**
+     * Approve push TFA.
+     *
+     * @param gigyaAssertion    Provided gigya assertion token.
+     * @param verificationToken Provided verification token to identify device.
+     */
     public void pushApprove(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
@@ -160,10 +185,19 @@ public class GigyaTFA {
         });
     }
 
-    public void pushDeny() {
+    /**
+     * Not implemented in version 1.0.0
+     */
+    private void pushDeny() {
 
     }
 
+    /**
+     * Update device information in server.
+     * Device information includes: platform, manufacturer, os & push token.
+     *
+     * @param newPushToken New provided push token.
+     */
     public void updateDeviceInfo(@NonNull final String newPushToken) {
         _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
             @Override

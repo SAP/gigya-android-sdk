@@ -1,11 +1,14 @@
 package com.gigya.android.sdk.tfa.push;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.firebase.FirebasePushTokenFetcher;
 import com.gigya.android.sdk.utils.DeviceUtils;
 
 public class DeviceInfoBuilder {
+
+    private static final String LOG_TAG = "DeviceInfoBuilder";
 
     final private ITFAPersistenceService _persistenceService;
 
@@ -20,7 +23,7 @@ public class DeviceInfoBuilder {
         void unavailableToken();
     }
 
-    GigyaTFA.PushService pushService;
+    private GigyaTFA.PushService pushService;
 
     public DeviceInfoBuilder setPushService(GigyaTFA.PushService pushService) {
         this.pushService = pushService;
@@ -44,6 +47,7 @@ public class DeviceInfoBuilder {
                         final String man = DeviceUtils.getManufacturer();
                         final String os = DeviceUtils.getOsVersion();
                         final String json = "{ \"platform\": \"android\", \"os\": \"" + os + "\", \"man\": \"" + man + "\", \"pushToken\": \"" + pushToken + "\" }";
+                        GigyaLogger.debug(LOG_TAG, "Device info: " + json);
                         callback.onDeviceInfo(json);
                     }
                 });
@@ -54,6 +58,8 @@ public class DeviceInfoBuilder {
     public String buildWith(String pushToken) {
         final String man = DeviceUtils.getManufacturer();
         final String os = DeviceUtils.getOsVersion();
-        return "{ \"platform\": \"android\", \"os\": \"" + os + "\", \"man\": \"" + man + "\", \"pushToken\": \"" + pushToken + "\" }";
+        final String json = "{ \"platform\": \"android\", \"os\": \"" + os + "\", \"man\": \"" + man + "\", \"pushToken\": \"" + pushToken + "\" }";
+        GigyaLogger.debug(LOG_TAG, "Device info: " + json);
+        return json;
     }
 }

@@ -26,7 +26,7 @@ public class TFANotifier implements ITFANotifier {
         GigyaLogger.debug(LOG_TAG, "notifyWith: title = " + title + ", body = " + body);
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, TFA_CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

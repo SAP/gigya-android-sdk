@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProviderFragment extends WebViewFragment {
-    public static final String LOG_TAG = "ProviderFragment";
+
+    private static final String LOG_TAG = "ProviderFragment";
 
     /* Arguments. */
     public static final String ARG_TITLE = "arg_title";

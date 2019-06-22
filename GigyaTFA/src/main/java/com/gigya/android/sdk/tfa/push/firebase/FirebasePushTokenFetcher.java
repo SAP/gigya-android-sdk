@@ -2,6 +2,7 @@ package com.gigya.android.sdk.tfa.push.firebase;
 
 import android.support.annotation.NonNull;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.push.IPushTokenAvailability;
 import com.gigya.android.sdk.tfa.push.IPushTokenFetcher;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,6 +22,7 @@ public class FirebasePushTokenFetcher implements IPushTokenFetcher {
                 if (task.isSuccessful() && task.getResult() != null) {
                     // Get new Instance ID token
                     final String fcmToken = task.getResult().getToken();
+                    GigyaLogger.debug(LOG_TAG, "getToken: " + fcmToken);
                     availabilityCallback.onToken(fcmToken);
                     return;
                 }

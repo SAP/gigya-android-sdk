@@ -3,7 +3,6 @@ package com.gigya.android.sdk.tfa.api;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
-import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -109,6 +108,7 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
     @Override
     public void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
         final Map<String, Object> params = new HashMap<>();

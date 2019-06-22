@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class WebLoginActivity extends Activity {
 
-    public static final String LOG_TAG = "WebLoginActivity";
+    private static final String LOG_TAG = "WebLoginActivity";
 
     private static final String EXTRA_LIFECYCLE_CALLBACK_ID = "web_login_lifecycle_callback";
     private static final String EXTRA_URI = "web_login_uri";

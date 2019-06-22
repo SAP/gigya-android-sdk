@@ -10,7 +10,7 @@ import com.gigya.android.sdk.network.GigyaError;
 
 public class InterruptionResolverFactory implements IInterruptionResolverFactory {
 
-    public static final String LOG_TAG = "InterruptionResolverFactory";
+    private static final String LOG_TAG = "InterruptionResolverFactory";
 
     //Dependencies
     final private IoCContainer _container;

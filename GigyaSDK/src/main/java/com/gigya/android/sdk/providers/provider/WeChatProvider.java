@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -26,7 +27,7 @@ import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
 
 public class WeChatProvider extends Provider {
 
-    public static final String LOG_TAG = "WeChatProvider";
+    private static final String LOG_TAG = "WeChatProvider";
 
     public WeChatProvider(Context context,
                           FileUtils fileUtils,
@@ -131,9 +132,11 @@ public class WeChatProvider extends Provider {
     public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
         // code is relevant
         try {
-            return new JSONObject()
+            final String json = new JSONObject()
                     .put(getName(), new JSONObject()
                             .put("code", tokenOrCode).put("providerUID", uid)).toString();
+            GigyaLogger.debug(LOG_TAG, "Provider sessions: " + json);
+            return json;
         } catch (Exception ex) {
             _connecting = false;
             ex.printStackTrace();
