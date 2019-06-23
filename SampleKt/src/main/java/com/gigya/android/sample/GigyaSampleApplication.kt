@@ -52,6 +52,6 @@ class GigyaSampleApplication : Application() {
          */
         //Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
 
-//        Gigya.getInstance(MyAccount::class.java).init("3_cedjEwc0k12UEQVJkIfdUib4FQ9O-o_UMti8iFNqIDWtprbtNeFEKHWCZDay3AV5", "us1-st1.gigya.com")
+        //Gigya.getInstance(MyAccount::class.java).init("3_cedjEwc0k12UEQVJkIfdUib4FQ9O-o_UMti8iFNqIDWtprbtNeFEKHWCZDay3AV5", "us1-st1.gigya.com")
     }
 }

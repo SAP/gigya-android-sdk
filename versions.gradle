@@ -3,33 +3,18 @@
  * maven repositories.
  **/
 ext.deps = [:]
-def versions = [:]
-versions.support = "28.0.0"
-versions.volley = "1.1.1"
-versions.facebook = "4.41.0"
-versions.google_auth = "16.0.1"
-versions.wechat = "5.3.1"
-versions.gson = "2.8.5"
-versions.junit = "4.12"
-versions.json = "20141113"
-versions.mockito = "2.8.9"
-versions.power_mock = "1.7.4"
-versions.androidx = "1.1.0"
-versions.anko = "0.10.8"
-versions.glide = "4.8.0"
-versions.arch = "1.1.1"
 
 def libs = [:]
-libs.volley = "com.android.volley:volley:$versions.volley"
-libs.facebook = "com.facebook.android:facebook-android-sdk:$versions.facebook"
-libs.google_auth = "com.google.android.gms:play-services-auth:$versions.google_auth"
-libs.wechat = "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:$versions.wechat"
-libs.gson = "com.google.code.gson:gson:$versions.gson"
+libs.volley = "com.android.volley:volley:1.1.1"
+libs.facebook = "com.facebook.android:facebook-android-sdk:4.41.0"
+libs.google_auth = "com.google.android.gms:play-services-auth:16.0.1"
+libs.wechat = "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.3.1"
+libs.gson = "com.google.code.gson:gson:2.8.5"
 deps.libs = libs
 
 def android_support = [:]
-android_support.appcompat = "com.android.support:appcompat-v7:$versions.support"
-android_support.design = "com.android.support:design:$versions.support"
+android_support.appcompat = "com.android.support:appcompat-v7:28.0.0"
+android_support.design = "com.android.support:design:28.0.0"
 android_support.constraint = "com.android.support.constraint:constraint-layout:1.1.3"
 deps.android_support = android_support
 
@@ -38,28 +23,28 @@ firebase.messaging = "com.google.firebase:firebase-messaging:18.0.0"
 deps.firebase = firebase
 
 def android_arch = [:]
-android_arch.lifecycle_extensions = "android.arch.lifecycle:extensions:$versions.arch"
-android_arch.lifecycle_compiler = "android.arch.lifecycle:compiler:$versions.arch"
+android_arch.lifecycle_extensions = "android.arch.lifecycle:extensions:1.1.1"
+android_arch.lifecycle_compiler = "android.arch.lifecycle:compiler:1.1.1"
 deps.android_arch = android_arch
 
 def androidx = [:]
-androidx.test_core = "androidx.test:core:$versions.androidx"
-androidx.junit = "androidx.test.ext:junit:$versions.androidx"
-androidx.rules = "androidx.test:rules:$versions.androidx"
+androidx.test_core = "androidx.test:core:1.1.0"
+androidx.junit = "androidx.test.ext:junit:1.1.0"
+androidx.rules = "androidx.test:rules:1.1.0"
 deps.androidx = androidx
 
 def test = [:]
-test.junit = "junit:junit:$versions.junit"
-test.json = "org.json:json:$versions.json"
+test.junit = "junit:junit:4.12"
+test.json = "org.json:json:20141113"
 deps.test = test
 
 def mockito = [:]
-mockito.core = "org.mockito:mockito-core:$versions.mockito"
+mockito.core = "org.mockito:mockito-core:2.8.9"
 deps.mockito = mockito
 
 def power_mock = [:]
-power_mock.junit4 = "org.powermock:powermock-module-junit4:$versions.power_mock"
-power_mock.mockito2 = "org.powermock:powermock-api-mockito2:$versions.power_mock"
+power_mock.junit4 = "org.powermock:powermock-module-junit4:1.7.4"
+power_mock.mockito2 = "org.powermock:powermock-api-mockito2:1.7.4"
 deps.power_mock = power_mock
 
 def apache = [:]
@@ -68,13 +53,13 @@ apache.http_client = "org.apache.httpcomponents:httpclient:4.5.6"
 deps.apache = apache
 
 def anko = [:]
-anko.commons = "org.jetbrains.anko:anko-commons:$versions.anko"
-anko.design = "org.jetbrains.anko:anko-design:$versions.anko"
+anko.commons = "org.jetbrains.anko:anko-commons:0.10.8"
+anko.design = "org.jetbrains.anko:anko-design:0.10.8"
 deps.anko = anko
 
 def glide = [:]
-glide.main = "com.github.bumptech.glide:glide:$versions.glide"
-glide.compiler = "com.github.bumptech.glide:compiler:$versions.glide"
+glide.main = "com.github.bumptech.glide:glide:4.8.0"
+glide.compiler = "com.github.bumptech.glide:compiler:4.8.0"
 deps.glide = glide
 
 def build_versions = [:]
