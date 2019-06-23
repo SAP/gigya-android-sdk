@@ -115,7 +115,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         // the unique notification id will be the hash code of the gigyaAssertion field.
         int notificationId = 0;
         if (gigyaAssertion != null) {
-            notificationId = gigyaAssertion.hashCode();
+            notificationId = Math.abs(gigyaAssertion.hashCode());
         }
 
         GigyaLogger.debug(LOG_TAG, "verificationToken: " + verificationToken);
@@ -177,7 +177,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         final String gigyaAssertion = data.get("gigyaAssertion");
         int notificationId = 0;
         if (gigyaAssertion != null) {
-            notificationId = gigyaAssertion.hashCode();
+            notificationId = Math.abs(gigyaAssertion.hashCode());
         }
         GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);

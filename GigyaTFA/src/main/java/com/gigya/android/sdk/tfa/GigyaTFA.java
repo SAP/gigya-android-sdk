@@ -1,6 +1,13 @@
 package com.gigya.android.sdk.tfa;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
@@ -15,6 +22,8 @@ import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
 import com.gigya.android.sdk.tfa.push.ITFANotifier;
 import com.gigya.android.sdk.tfa.push.TFANotifier;
+
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.Broadcast.INTENT_FILTER_PUSH_TFA_VERIFY;
 
 public class GigyaTFA {
 
@@ -66,16 +75,28 @@ public class GigyaTFA {
         return _sharedInstance;
     }
 
-    private ITFABusinessApiService _businessApiService;
-    private ITFAPersistenceService _persistenceService;
-    private ITFANotifier _tfaNotifier;
+    private final ITFABusinessApiService _businessApiService;
+    private final ITFAPersistenceService _persistenceService;
+    private final ITFANotifier _tfaNotifier;
+    private final Context _context;
 
-    protected GigyaTFA(ITFABusinessApiService businessApiService,
+    protected GigyaTFA(Context context,
+                       ITFABusinessApiService businessApiService,
                        ITFAPersistenceService persistenceService,
                        ITFANotifier tfaNotifier) {
+        _context = context;
         _businessApiService = businessApiService;
         _persistenceService = persistenceService;
         _tfaNotifier = tfaNotifier;
+    }
+
+    /**
+     * Check if push notifications are enabled for application.
+     *
+     * @return True if enabled.
+     */
+    public boolean pushNotificationEnabled() {
+        return NotificationManagerCompat.from(_context).areNotificationsEnabled();
     }
 
     /*
@@ -109,6 +130,46 @@ public class GigyaTFA {
     }
 
     //region INTERFACING
+
+    /**
+     * Check if device is registered for push TFA & notifications permission is available.
+     * If not. Will display a information dialog allowing the user to open the notificaitons application settings in order
+     * to enable them.
+     *
+     * @param activity Current activity. Activity context must be provided.
+     */
+    public void checkNotificationsPermissionsRequired(final Activity activity) {
+        final boolean deviceRegisteredForPushTFA = _persistenceService.isOptInForPushTFA();
+        if (!pushNotificationEnabled() && deviceRegisteredForPushTFA) {
+            // Show dialog informing the user that he needs to enable push notifications.
+            AlertDialog alert = new AlertDialog.Builder(activity)
+                    .setTitle(R.string.push_notifications_alert_title)
+                    .setMessage(R.string.push_notifications_alert_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.approve, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            GigyaLogger.debug(LOG_TAG, "approve clicked");
+                            Intent intent = new Intent();
+                            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                            //for Android 5-7
+                            intent.putExtra("app_package", activity.getPackageName());
+                            intent.putExtra("app_uid", activity.getApplicationInfo().uid);
+                            // for Android 8 and above
+                            intent.putExtra("android.provider.extra.APP_PACKAGE", activity.getPackageName());
+                            activity.startActivity(intent);
+                            dialog.dismiss();
+                        }
+                    }).setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            GigyaLogger.debug(LOG_TAG, "deny clicked");
+                            dialog.dismiss();
+                        }
+                    }).create();
+            alert.show();
+        }
+    }
 
     /**
      * Request to Opt-In to push Two Factor Authentication.
@@ -154,6 +215,11 @@ public class GigyaTFA {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.error(LOG_TAG, "Opt-In verification flow completed");
+
+                // Update shared preferences.
+                _persistenceService.updateOptInState(true);
+
+                // Notify success.
                 _tfaNotifier.notifyWith("Opt-In for push TFA", "This device is registered for push two factor authentication");
             }
 
@@ -176,6 +242,10 @@ public class GigyaTFA {
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.error(LOG_TAG, "Successfully verified push");
                 _tfaNotifier.notifyWith("Verify push TFA", "Successfully authenticated login");
+
+                // Send a local broadcast to notify the application that the verification process was completed.
+                // This is useful when resolving push TFA with mobile login.
+                LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(INTENT_FILTER_PUSH_TFA_VERIFY));
             }
 
             @Override

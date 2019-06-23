@@ -19,6 +19,7 @@
     <string name="register_authenticator">Register authenticator:</string>
     <string name="verify_phone_number">Verify phone number:</string>
     <string name="registered_emails">Registered emails:</string>
+    <string name="verify_push">Verify push TFA:</string>
     <string name="phone_number">Phone number</string>
     <string name="verification_code">Verification code</string>
     <string name="submit_verification_code">Submit verification code:</string>
@@ -30,5 +31,9 @@
     <string name="send_again">Send again</string>
     <string name="invalid_verification_code">Invalid verification code</string>
     <string name="remember_this_device">Remember this device</string>
+    <string name="push_verification_message">Waiting for verification event…\n\nApprove TFA push notification when arrives.</string>
+    <string name="push_notifications_alert_title">Push notifications disabled</string>
+    <string name="push_notifications_alert_message">This device is registered to use Push TFA.\nYou will need to enable push notifications to allow this device to approve login requests.</string>
+    <string name="no_thanks">No thanks</string>
 </resources>
 

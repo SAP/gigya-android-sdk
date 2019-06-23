@@ -34,6 +34,7 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -73,6 +74,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             onGetAccount()
         }
+
+        /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
+        GigyaTFA.getInstance().checkNotificationsPermissionsRequired(this)
     }
 
     override fun onPause() {
@@ -527,6 +531,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         })
                         totpDialog.show(supportFragmentManager, "TFATOTPVerificationFragment")
                     }
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PUSH -> {
+                        val pushDialog = TFAPushVerificationFragment.newInstance()
+                        pushDialog.setRoundedCorners(true)
+                        pushDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
+                            override fun onDismiss() {
+                                // Dismiss the progress bar. Notice that the TFA flow is broken.
+                                onLoadingDone()
+                            }
+
+                            override fun onResolved() {
+                                // This callback is used to notify that the flow has been resolved.
+                                // Once resolved the initial onSuccess callback will be called.
+                            }
+
+                            override fun onError(error: GigyaError?) {
+                                onLoadingDone()
+                                displayErrorAlert("TFA flow error", error?.localizedMessage!!)
+                            }
+                        })
+                        pushDialog.show(supportFragmentManager, "TFAPushVerificationFragment")
+                    }
+
                 }
             }
 
