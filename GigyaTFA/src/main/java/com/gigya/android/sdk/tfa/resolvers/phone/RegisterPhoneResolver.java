@@ -12,10 +12,10 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
-import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
-import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 import com.gigya.android.sdk.tfa.models.InitTFAModel;
 import com.gigya.android.sdk.tfa.models.VerificationCodeModel;
+import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
+import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
     private final VerifyCodeResolver<A> _verifyCodeResolver;
 
     @NonNull
-    private String _provider = GigyaDefinitions.TFAProvider.PHONE; // If "liveLink" will be supported we will need to update the provider.
+    private String _provider = GigyaDefinitions.TFAProvider.PHONE.toString(); // If "liveLink" will be supported we will need to update the provider.
 
     @NonNull
     public String getProvider() {

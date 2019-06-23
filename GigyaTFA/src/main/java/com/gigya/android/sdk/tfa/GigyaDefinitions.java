@@ -10,8 +10,6 @@ public class GigyaDefinitions {
     public static final int PUSH_TFA_CONTENT_ACTION_REQUEST_CODE = 2020;
     public static final int PUSH_TFA_CONTENT_INTENT_REQUEST_CODE = 2021;
 
-    public static final int PUSH_TFA_NOTIFICATION_ID = 99990;
-
     public static final String TFA_CHANNEL_ID = "tfa_channel";
 
     public static class API {
@@ -43,7 +41,7 @@ public class GigyaDefinitions {
 
         public static final String EMAIL = "gigyaEmail";
         public static final String PHONE = "gigyaPhone";
-        public static final String LIVELINK = "liveLink";
+        public static final String LIVELINK = "livelink";
         public static final String TOTP = "gigyaTotp";
         public static final String PUSH = "gigyaPush";
     }

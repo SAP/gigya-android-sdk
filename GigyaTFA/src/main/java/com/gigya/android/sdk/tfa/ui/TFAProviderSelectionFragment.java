@@ -18,7 +18,7 @@ public class TFAProviderSelectionFragment extends BaseTFAFragment {
 
     public interface SelectionCallback {
 
-        void onProviderSelected(String selectedProvider);
+        void onProviderSelected(@NonNull String selectedProvider);
 
         void onDismiss();
     }

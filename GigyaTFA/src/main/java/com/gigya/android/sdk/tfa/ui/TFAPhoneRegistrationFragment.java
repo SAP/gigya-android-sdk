@@ -27,6 +27,8 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE;
+
 public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
 
     private static final String LOG_TAG = "TFAPhoneRegistrationFragment";
@@ -37,6 +39,8 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     @Nullable
     private IVerifyCodeResolver _verifyCodeResolver;
 
+    private String _phoneProvider = PHONE;
+
     private CountryCode[] _countryCodes = new CountryCode[240];
 
     private ProgressBar _progressBar;
@@ -46,13 +50,31 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     private CheckBox _rememberDeviceCheckbox;
     private Spinner _countryCodeSpinner;
 
-    public static TFAPhoneRegistrationFragment newInstance() {
-        return new TFAPhoneRegistrationFragment();
+    private static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
+
+    public static TFAPhoneRegistrationFragment newInstance(String phoneprovider) {
+        TFAPhoneRegistrationFragment fragment = new TFAPhoneRegistrationFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PHONE_PROVIDER, phoneprovider);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public int getLayoutId() {
         return R.layout.fragment_phone_registraion;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() == null) {
+            dismiss();
+            return;
+        }
+
+        _phoneProvider = getArguments().getString(ARG_PHONE_PROVIDER);
     }
 
     @Override
@@ -127,7 +149,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         final CountryCode countryCode = (CountryCode) _countryCodeSpinner.getSelectedItem();
         final String phoneNumber = countryCode.getDialCode() + _phoneEditText.getText().toString().trim();
 
-        _registerPhoneResolver = _resolverFactory.getResolverFor(RegisterPhoneResolver.class);
+        _registerPhoneResolver = _resolverFactory.getResolverFor(RegisterPhoneResolver.class).provider(_phoneProvider);
         if (_registerPhoneResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());

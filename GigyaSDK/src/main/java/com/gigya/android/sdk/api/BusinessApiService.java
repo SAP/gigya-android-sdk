@@ -73,7 +73,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
-            _interruptionsHandler.resolve(response, loginCallback);
+            _interruptionsHandler.                                                                resolve(response, loginCallback);
         } else {
             // Parse & success.
             A parsed = response.parseTo(_accountService.getAccountSchema());

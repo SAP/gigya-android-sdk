@@ -20,6 +20,8 @@ import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE;
+
 public class TFAPhoneVerificationFragment extends BaseTFAFragment {
 
     @Nullable
@@ -31,8 +33,28 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
     private View _verificationLayout;
     private EditText _verificationCodeEditText;
 
-    public static TFAPhoneVerificationFragment newInstance() {
-        return new TFAPhoneVerificationFragment();
+    private String _phoneProvider = PHONE;
+
+    private static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
+
+    public static TFAPhoneVerificationFragment newInstance(String phoneProvider) {
+        TFAPhoneVerificationFragment fragment = new TFAPhoneVerificationFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PHONE_PROVIDER, phoneProvider);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() == null) {
+            dismiss();
+            return;
+        }
+
+        _phoneProvider = getArguments().getString(ARG_PHONE_PROVIDER);
     }
 
     @Override
@@ -82,7 +104,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
             return;
         }
 
-        _registeredPhonesResolver = _resolverFactory.getResolverFor(RegisteredPhonesResolver.class);
+        _registeredPhonesResolver = _resolverFactory.getResolverFor(RegisteredPhonesResolver.class).provider(_phoneProvider);
         if (_registeredPhonesResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());

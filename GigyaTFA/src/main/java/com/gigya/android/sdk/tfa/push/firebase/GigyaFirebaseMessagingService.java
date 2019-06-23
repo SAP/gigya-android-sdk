@@ -23,7 +23,6 @@ import java.util.Map;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_ACTION_REQUEST_CODE;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_INTENT_REQUEST_CODE;
-import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_NOTIFICATION_ID;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
 /**
@@ -98,7 +97,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 notifyWith(pushMode, data);
                 break;
             case GigyaDefinitions.PushMode.CANCEL:
-                cancel();
+                cancel(data);
                 break;
             default:
                 GigyaLogger.debug(LOG_TAG, "Push mode not supported. Notification is ignored");
@@ -113,6 +112,12 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         final String gigyaAssertion = data.get("gigyaAssertion");
         final String verificationToken = data.get("verificationToken");
 
+        // the unique notification id will be the hash code of the gigyaAssertion field.
+        int notificationId = 0;
+        if (gigyaAssertion != null) {
+            notificationId = gigyaAssertion.hashCode();
+        }
+
         GigyaLogger.debug(LOG_TAG, "verificationToken: " + verificationToken);
 
         // Content activity pending intent.
@@ -120,6 +125,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         intent.putExtra("mode", mode);
         intent.putExtra("gigyaAssertion", gigyaAssertion);
         intent.putExtra("verificationToken", verificationToken);
+        intent.putExtra("notificationId", notificationId);
         // We don't want the annoying enter animation.
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -131,6 +137,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         denyIntent.putExtra("mode", mode);
         denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
         denyIntent.putExtra("verificationToken", verificationToken);
+        denyIntent.putExtra("notificationId", notificationId);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
@@ -140,6 +147,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         approveIntent.putExtra("mode", mode);
         approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
         approveIntent.putExtra("verificationToken", verificationToken);
+        approveIntent.putExtra("notificationId", notificationId);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         PendingIntent approvePendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
@@ -159,16 +167,21 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         // Notify.
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(PUSH_TFA_NOTIFICATION_ID, builder.build());
+        notificationManager.notify(notificationId, builder.build());
     }
 
     /**
      * Attempt to cancel a displayed notification given a unique identification.
      */
-    private void cancel() {
+    private void cancel(Map<String, String> data) {
+        final String gigyaAssertion = data.get("gigyaAssertion");
+        int notificationId = 0;
+        if (gigyaAssertion != null) {
+            notificationId = gigyaAssertion.hashCode();
+        }
         GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.cancel(PUSH_TFA_NOTIFICATION_ID);
+        notificationManager.cancel(notificationId);
     }
 
     //region CUSTOMIZATION OPTIONS

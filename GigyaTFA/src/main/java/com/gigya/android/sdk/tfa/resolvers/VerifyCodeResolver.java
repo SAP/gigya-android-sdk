@@ -66,7 +66,7 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
     }
 
     private String getVerificationApi(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider) {
-        if (provider.equals(GigyaDefinitions.TFAProvider.PHONE)) {
+        if (provider.equals(GigyaDefinitions.TFAProvider.PHONE) || provider.equals(GigyaDefinitions.TFAProvider.LIVELINK)) {
             return GigyaDefinitions.API.API_TFA_PHONE_COMPLETE_VERIFICATION;
         } else if (provider.equals(GigyaDefinitions.TFAProvider.EMAIL)) {
             return GigyaDefinitions.API.API_TFA_EMAIL_COMPLETE_VERIFICATION;

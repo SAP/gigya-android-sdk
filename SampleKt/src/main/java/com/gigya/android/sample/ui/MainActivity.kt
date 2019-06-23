@@ -388,11 +388,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val providerDialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
         providerDialog.setRoundedCorners(true)
         providerDialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
-            override fun onProviderSelected(selectedProvider: String?) {
+            override fun onProviderSelected(selectedProvider: String) {
                 when (selectedProvider) {
-                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE -> {
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
                         // Resolving Phone TFA registration.
-                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance()
+                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance(selectedProvider)
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
@@ -457,10 +458,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val providerDialog = TFAProviderSelectionFragment.newInstance(dataPair.first.map { it.name } as ArrayList<String>)
         providerDialog.setRoundedCorners(true)
         providerDialog.setSelectionCallback(object : TFAProviderSelectionFragment.SelectionCallback {
-            override fun onProviderSelected(selectedProvider: String?) {
+            override fun onProviderSelected(selectedProvider: String) {
                 when (selectedProvider) {
-                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE -> {
-                        val phoneDialog = TFAPhoneVerificationFragment.newInstance()
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
+                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
+                        val phoneDialog = TFAPhoneVerificationFragment.newInstance(selectedProvider)
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {

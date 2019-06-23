@@ -11,8 +11,6 @@ import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
-import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_NOTIFICATION_ID;
-
 public class TFAPushReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "GigyaTFAActionReceiver";
@@ -21,8 +19,9 @@ public class TFAPushReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         // Make sure to cancel the notification.
+        final int notificationId = intent.getIntExtra("notificationId", 0);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.cancel(PUSH_TFA_NOTIFICATION_ID);
+        notificationManager.cancel(notificationId);
 
         // Fetch push mode from intent extras. Mandatory.
         final String mode = intent.getStringExtra("mode");
