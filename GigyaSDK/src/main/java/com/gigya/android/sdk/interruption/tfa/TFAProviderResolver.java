@@ -29,7 +29,7 @@ public class TFAProviderResolver<A extends GigyaAccount> extends Resolver {
 
     public void init() {
         GigyaLogger.debug(LOG_TAG, "getProviders: ");
-        final String regToken = _interruption.getField("regToken", String.class);
+        final String regToken = getRegToken();
 
         try {
             _businessApiService.getTFAProviders(regToken, new GigyaLoginCallback<TFAProvidersModel>() {

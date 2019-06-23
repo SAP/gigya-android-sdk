@@ -57,6 +57,8 @@ dependencies {
 
     implementation deps.android_support.appcompat
 
+    implementation deps.libs.gson
+
     compileOnly project(path: ':GigyaSDK')
 
     api deps.firebase.messaging

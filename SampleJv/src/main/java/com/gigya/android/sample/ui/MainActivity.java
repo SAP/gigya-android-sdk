@@ -11,7 +11,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sample.R;
+import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.api.GigyaApiResponse;
+import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.tfa.GigyaTFA;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,5 +64,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mSessionLifecycleReceiver);
         super.onPause();
+    }
+
+    public void test() {
+
     }
 }

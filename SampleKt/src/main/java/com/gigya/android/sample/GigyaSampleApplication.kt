@@ -7,8 +7,11 @@ import android.webkit.WebView
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.tfa.GigyaTFA
 
+/**
+ * Application extender class.
+ * Initialize all SDKs in this class to avoid concurrent context dependant initializations.
+ */
 @Suppress("unused") // Referenced in manifest.
 class GigyaSampleApplication : Application() {
 
@@ -18,6 +21,7 @@ class GigyaSampleApplication : Application() {
 
         // Allow WebViews debugging.
         WebView.setWebContentsDebuggingEnabled(true)
+
         // Gigya logs.
         GigyaLogger.setDebugMode(true)
         GigyaLogger.enableSmartLog(this)
@@ -34,10 +38,20 @@ class GigyaSampleApplication : Application() {
         // Gigya.getInstance(applicationContext)
 
         /*
-        Explicit initialization.
+        TFA phone/totp.
          */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
+        Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
 
-        Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
+        /*
+        TFA Email.
+         */
+        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
+
+        /*
+        TFA push (Staging).
+         */
+        //Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
+
+//        Gigya.getInstance(MyAccount::class.java).init("3_cedjEwc0k12UEQVJkIfdUib4FQ9O-o_UMti8iFNqIDWtprbtNeFEKHWCZDay3AV5", "us1-st1.gigya.com")
     }
 }

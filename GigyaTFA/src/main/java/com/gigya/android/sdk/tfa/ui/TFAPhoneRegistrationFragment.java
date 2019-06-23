@@ -8,18 +8,28 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver;
+import com.gigya.android.sdk.tfa.ui.models.CountryCode;
+import com.gigya.android.sdk.utils.FileUtils;
+import com.google.gson.Gson;
+
+import java.io.IOException;
 
 public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
+
+    private static final String LOG_TAG = "TFAPhoneRegistrationFragment";
 
     @Nullable
     private RegisterPhoneResolver _registerPhoneResolver;
@@ -27,11 +37,14 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     @Nullable
     private IVerifyCodeResolver _verifyCodeResolver;
 
+    private CountryCode[] _countryCodes = new CountryCode[240];
+
     private ProgressBar _progressBar;
     private EditText _phoneEditText, _verificationCodeEditText;
     private View _verificationLayout;
     private Button _actionButton, _dismissButton;
     private CheckBox _rememberDeviceCheckbox;
+    private Spinner _countryCodeSpinner;
 
     public static TFAPhoneRegistrationFragment newInstance() {
         return new TFAPhoneRegistrationFragment();
@@ -58,6 +71,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initUI(view);
+        loadCountryCodesFromAssets();
         setActions();
     }
 
@@ -69,6 +83,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         _actionButton = view.findViewById(R.id.fpr_action_button);
         _dismissButton = view.findViewById(R.id.fpr_dismiss_button);
         _rememberDeviceCheckbox = view.findViewById(R.id.fpr_remember_device_checkbox);
+        _countryCodeSpinner = view.findViewById(R.id.fpr_country_code_spinner);
     }
 
     private void setActions() {
@@ -108,7 +123,9 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
             dismiss();
             return;
         }
-        final String phoneNumber = _phoneEditText.getText().toString().trim();
+
+        final CountryCode countryCode = (CountryCode) _countryCodeSpinner.getSelectedItem();
+        final String phoneNumber = countryCode.getDialCode() + _phoneEditText.getText().toString().trim();
 
         _registerPhoneResolver = _resolverFactory.getResolverFor(RegisterPhoneResolver.class);
         if (_registerPhoneResolver == null) {
@@ -185,5 +202,20 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
                 });
     }
 
+    private void loadCountryCodesFromAssets() {
+        if (getContext() == null) {
+            return;
+        }
+        try {
+            final String json = FileUtils.assetJsonFileToString(getContext(), "country_codes.json");
+            _countryCodes = new Gson().fromJson(json, CountryCode[].class);
+            GigyaLogger.debug(LOG_TAG, "Country code list parsed successfully");
+
+            ArrayAdapter countryCodeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, _countryCodes);
+            _countryCodeSpinner.setAdapter(countryCodeAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

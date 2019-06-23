@@ -48,6 +48,7 @@ dependencies {
 
     implementation project(path: ':GigyaSDK')
     implementation project(path: ':GigyaBiometric')
+    implementation project(path: ':GigyaTFA')
 
     implementation deps.android_support.appcompat
     implementation deps.android_support.design

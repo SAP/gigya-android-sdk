@@ -30,22 +30,44 @@
             android:text="@string/register_phone_number"
             android:textSize="18sp" />
 
-        <EditText
-            android:id="@+id/fpr_phone_edit_text"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/fpr_phone_input_layout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/fpr_title_text_view"
             android:layout_alignStart="@id/fpr_title_text_view"
             android:layout_alignLeft="@id/fpr_title_text_view"
             android:layout_alignEnd="@id/fpr_progress"
             android:layout_alignRight="@id/fpr_progress"
-            android:hint="@string/phone_number" />
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/fpr_country_code_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fpr_title_text_view"
+                android:layout_alignStart="@id/fpr_title_text_view"
+                android:layout_alignLeft="@id/fpr_title_text_view" />
+
+            <EditText
+                android:id="@+id/fpr_phone_edit_text"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fpr_title_text_view"
+                android:layout_alignStart="@id/fpr_country_code_spinner"
+                android:layout_alignLeft="@id/fpr_country_code_spinner"
+                android:layout_alignEnd="@id/fpr_progress"
+                android:layout_alignRight="@id/fpr_progress"
+                android:hint="@string/phone_number" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/fpr_verification_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fpr_phone_edit_text"
+            android:layout_below="@id/fpr_phone_input_layout"
             android:layout_alignStart="@id/fpr_title_text_view"
             android:layout_alignLeft="@id/fpr_title_text_view"
             android:layout_alignEnd="@id/fpr_progress"
@@ -71,20 +93,20 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <CheckBox
                     android:id="@+id/fpr_remember_device_checkbox"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_marginRight="8dp" />
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:text="@string/remember_this_device"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@string/remember_this_device" />
 
             </LinearLayout>
 
