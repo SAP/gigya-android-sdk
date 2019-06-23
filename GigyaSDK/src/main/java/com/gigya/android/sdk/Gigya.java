@@ -118,7 +118,6 @@ public class Gigya<T extends GigyaAccount> {
     final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
 
-    @SuppressWarnings("unchecked")
     protected Gigya(@NonNull Application context,
                     Config config,
                     ConfigFactory configFactory,
@@ -167,7 +166,6 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey    Client API-KEY
      * @param apiDomain Request Domain.
      */
-    @SuppressWarnings("WeakerAccess")
     public void init(String apiKey, String apiDomain) {
         // Override existing configuration when applied explicitly.
         _config.updateWith(apiKey, apiDomain);
@@ -242,7 +240,6 @@ public class Gigya<T extends GigyaAccount> {
      * @param params        Additional parameters.
      * @param gigyaCallback Response listener callback.
      */
-    @SuppressWarnings("unchecked")
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
     }
@@ -256,7 +253,6 @@ public class Gigya<T extends GigyaAccount> {
      * @param clazz         Response class scheme.
      * @param gigyaCallback Response listener callback.
      */
-    @SuppressWarnings("unchecked")
     public <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback) {
         _businessApiService.send(api, params, requestMethod, clazz, gigyaCallback);
     }
@@ -551,7 +547,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param fullScreen          Show in fullscreen mode.
      * @param gigyaPluginCallback Plugin callback.
      */
-    // TODO: 16/04/2019 Not available in beta.
+    // Not available in version 4.0.0.
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);

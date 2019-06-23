@@ -180,7 +180,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      * @return Icon reference.
      */
     protected int getSmallIcon() {
-        // TODO: 2019-06-19 Will need a default icon!
         return android.R.drawable.ic_dialog_info;
     }
 
