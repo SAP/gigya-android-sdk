@@ -132,7 +132,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     }
 
     private void updateToVerificationState() {
-        _actionButton.setText(getString(R.string.verify));
+        _actionButton.setText(getString(R.string.tfa_verify));
         _phoneEditText.setVisibility(View.GONE);
         _verificationLayout.setVisibility(View.VISIBLE);
     }
@@ -211,7 +211,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
                         _progressBar.setVisibility(View.INVISIBLE);
                         // Clear input text.
                         _verificationCodeEditText.setText("");
-                        _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
+                        _verificationCodeEditText.setError(getString(R.string.tfa_invalid_verification_code));
                     }
 
                     @Override

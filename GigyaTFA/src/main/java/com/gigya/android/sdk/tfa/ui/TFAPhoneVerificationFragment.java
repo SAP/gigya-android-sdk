@@ -172,7 +172,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
             return;
         }
         _verificationLayout.setVisibility(View.VISIBLE);
-        _sendCodeButton.setText(getString(R.string.send_again));
+        _sendCodeButton.setText(getString(R.string.tfa_send_again));
 
         // Click action for verify action.
         _verifyButton.setOnClickListener(new View.OnClickListener() {
@@ -199,7 +199,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
                                 _progressBar.setVisibility(View.INVISIBLE);
                                 // Clear input text.
                                 _verificationCodeEditText.setText("");
-                                _verificationCodeEditText.setError(getString(R.string.invalid_verification_code));
+                                _verificationCodeEditText.setError(getString(R.string.tfa_invalid_verification_code));
                             }
 
                             @Override

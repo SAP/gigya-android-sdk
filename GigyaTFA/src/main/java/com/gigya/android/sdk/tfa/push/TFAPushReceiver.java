@@ -53,9 +53,9 @@ public class TFAPushReceiver extends BroadcastReceiver {
 
                     // Continue flow.
                     if (mode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
-                        GigyaTFA.getInstance().verifyPushOptIn(gigyaAssertion, verificationToken);
+                        GigyaTFA.getInstance().verifyOptInForPushTFA(gigyaAssertion, verificationToken);
                     } else {
-                        GigyaTFA.getInstance().pushApprove(gigyaAssertion, verificationToken);
+                        GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
                     }
                 }
                 break;

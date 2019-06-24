@@ -4,36 +4,44 @@
     <!-- Push related -->
     <string name="tfa_title">TFA title</string>
     <string name="tfa_message">TFA message</string>
-    <string name="approve">Approve</string>
-    <string name="deny">Deny</string>
-77
-    <string name="tfa_channel_name">TFA Authorization</string>
-    <string name="tfa_channel_description">TFA Authorization channel is used for applying two factor authentication security for your application.</string>
+    <string name="tfa_approve">Approve</string>
+    <string name="tfa_deny">Deny</string>
 
+    <!-- TFA notification channel -->
+    <string name="tfa_channel_name">TFA Authorization</string>
+    <string name="tfa_channel_description">TFA Authorization channel is used for applying an additional two factor authentication security layer for your application.</string>
+
+    <!-- TFA intent filter actions -->
     <string name="tfa_action_approve">com.gigya.android.sdk.tfa.push_approve</string>
     <string name="tfa_action_deny">com.gigya.android.sdk.tfa.push_deny</string>
 
+    <!-- Local notifications strings -->
+    <string name="tfa_opt_in_approval_success_title">Opt-In for push TFA</string>
+    <string name="tfa_opt_in_approval_success_body">This device is now registered for push TFA</string>
+    <string name="tfa_login_approval_success_title">Verify push TFA</string>
+    <string name="tfa_login_approval_success_body">Successfully authenticated login request</string>
+
     <!-- UI related -->
-    <string name="available_providers">Available providers:</string>
-    <string name="register_phone_number">Register phone number:</string>
-    <string name="register_authenticator">Register authenticator:</string>
-    <string name="verify_phone_number">Verify phone number:</string>
-    <string name="registered_emails">Registered emails:</string>
-    <string name="verify_push">Verify push TFA:</string>
-    <string name="phone_number">Phone number</string>
-    <string name="verification_code">Verification code</string>
-    <string name="submit_verification_code">Submit verification code:</string>
-    <string name="register">Register</string>
-    <string name="select">Select</string>
-    <string name="dismiss">Dismiss</string>
-    <string name="verify">Verify</string>
-    <string name="send_code">Send code</string>
-    <string name="send_again">Send again</string>
-    <string name="invalid_verification_code">Invalid verification code</string>
-    <string name="remember_this_device">Remember this device</string>
-    <string name="push_verification_message">Waiting for verification event…\n\nApprove TFA push notification when arrives.</string>
-    <string name="push_notifications_alert_title">Push notifications disabled</string>
-    <string name="push_notifications_alert_message">This device is registered to use Push TFA.\nYou will need to enable push notifications to allow this device to approve login requests.</string>
-    <string name="no_thanks">No thanks</string>
+    <string name="tfa_available_providers">Available providers:</string>
+    <string name="tfa_register_phone_number">Register phone number:</string>
+    <string name="tfa_register_authenticator">Register authenticator:</string>
+    <string name="tfa_verify_phone_number">Verify phone number:</string>
+    <string name="tfa_registered_emails">Registered emails:</string>
+    <string name="tfa_verify_push">Verify push TFA:</string>
+    <string name="tfa_phone_number">Phone number</string>
+    <string name="tfa_verification_code">Verification code</string>
+    <string name="tfa_submit_verification_code">Submit verification code:</string>
+    <string name="tfa_register">Register</string>
+    <string name="tfa_select">Select</string>
+    <string name="tfa_dismiss">Dismiss</string>
+    <string name="tfa_verify">Verify</string>
+    <string name="tfa_send_code">Send code</string>
+    <string name="tfa_send_again">Send again</string>
+    <string name="tfa_invalid_verification_code">Invalid verification code</string>
+    <string name="tfa_remember_this_device">Remember this device</string>
+    <string name="tfa_push_verification_message">Waiting for verification event…\n\nApprove TFA push notification when arrives.</string>
+    <string name="tfa_push_notifications_alert_title">Push notifications disabled</string>
+    <string name="tfa_push_notifications_alert_message">This device is registered to use Push TFA.\nYou will need to enable push notifications to allow this device to approve login requests.</string>
+    <string name="tfa_no_thanks">No thanks</string>
 </resources>
 

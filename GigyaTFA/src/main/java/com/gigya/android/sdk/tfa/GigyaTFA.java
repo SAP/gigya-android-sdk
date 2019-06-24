@@ -1,9 +1,13 @@
 package com.gigya.android.sdk.tfa;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,13 +28,15 @@ import com.gigya.android.sdk.tfa.push.ITFANotifier;
 import com.gigya.android.sdk.tfa.push.TFANotifier;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.Broadcast.INTENT_FILTER_PUSH_TFA_VERIFY;
+import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
 public class GigyaTFA {
 
-    public static final String VERSION = "1.0.0";
+    private static final String VERSION = "1.0.0";
 
     private static final String LOG_TAG = "GigyaTFA";
 
+    @SuppressLint("StaticFieldLeak")
     private static GigyaTFA _sharedInstance;
 
     public enum PushService {
@@ -90,15 +96,6 @@ public class GigyaTFA {
         _tfaNotifier = tfaNotifier;
     }
 
-    /**
-     * Check if push notifications are enabled for application.
-     *
-     * @return True if enabled.
-     */
-    public boolean pushNotificationEnabled() {
-        return NotificationManagerCompat.from(_context).areNotificationsEnabled();
-    }
-
     /*
     Will generate required device information asynchronously.
      */
@@ -120,6 +117,7 @@ public class GigyaTFA {
                 if (persistentToken != null) {
                     _deviceInfo = builder.buildWith(persistentToken);
                     completionHandler.run();
+
                     return;
                 }
 
@@ -132,6 +130,21 @@ public class GigyaTFA {
     //region INTERFACING
 
     /**
+     * Check if push notifications are enabled for application.
+     * For Android >= 0 check if push TFA notification channel is enabled.
+     *
+     * @return True if enabled.
+     */
+    public boolean pushTFAEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager manager = (NotificationManager) _context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = manager.getNotificationChannel(TFA_CHANNEL_ID);
+            return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+        }
+        return NotificationManagerCompat.from(_context).areNotificationsEnabled();
+    }
+
+    /**
      * Check if device is registered for push TFA & notifications permission is available.
      * If not. Will display a information dialog allowing the user to open the notificaitons application settings in order
      * to enable them.
@@ -140,13 +153,13 @@ public class GigyaTFA {
      */
     public void checkNotificationsPermissionsRequired(final Activity activity) {
         final boolean deviceRegisteredForPushTFA = _persistenceService.isOptInForPushTFA();
-        if (!pushNotificationEnabled() && deviceRegisteredForPushTFA) {
+        if (!pushTFAEnabled() && deviceRegisteredForPushTFA) {
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
-                    .setTitle(R.string.push_notifications_alert_title)
-                    .setMessage(R.string.push_notifications_alert_message)
+                    .setTitle(R.string.tfa_push_notifications_alert_title)
+                    .setMessage(R.string.tfa_push_notifications_alert_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.approve, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             GigyaLogger.debug(LOG_TAG, "approve clicked");
@@ -160,7 +173,7 @@ public class GigyaTFA {
                             activity.startActivity(intent);
                             dialog.dismiss();
                         }
-                    }).setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                    }).setNegativeButton(R.string.tfa_no_thanks, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             GigyaLogger.debug(LOG_TAG, "deny clicked");
@@ -177,7 +190,7 @@ public class GigyaTFA {
      *
      * @param gigyaCallback Request callback.
      */
-    public void pushOptIn(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+    public void optInForPushTFA(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         // Device info is required.
         if (_deviceInfo == null) {
             generateDeviceInfo(new Runnable() {
@@ -200,7 +213,7 @@ public class GigyaTFA {
      * Not implemented in version 1.0.0.
      */
     private void pushOptOut() {
-
+        // For security reasons opt-out must be performed when logging out of the account.
     }
 
     /**
@@ -210,7 +223,7 @@ public class GigyaTFA {
      * @param gigyaAssertion    Provided gigya assertion token.
      * @param verificationToken Provided verification token.
      */
-    public void verifyPushOptIn(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+    public void verifyOptInForPushTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
@@ -220,7 +233,9 @@ public class GigyaTFA {
                 _persistenceService.updateOptInState(true);
 
                 // Notify success.
-                _tfaNotifier.notifyWith("Opt-In for push TFA", "This device is registered for push two factor authentication");
+                _tfaNotifier.notifyWith(
+                        _context.getString(R.string.tfa_opt_in_approval_success_title),
+                        _context.getString(R.string.tfa_opt_in_approval_success_body));
             }
 
             @Override
@@ -236,12 +251,14 @@ public class GigyaTFA {
      * @param gigyaAssertion    Provided gigya assertion token.
      * @param verificationToken Provided verification token to identify device.
      */
-    public void pushApprove(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+    public void approveLoginForPusTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.error(LOG_TAG, "Successfully verified push");
-                _tfaNotifier.notifyWith("Verify push TFA", "Successfully authenticated login");
+                _tfaNotifier.notifyWith(
+                        _context.getString(R.string.tfa_login_approval_success_title),
+                        _context.getString(R.string.tfa_login_approval_success_body));
 
                 // Send a local broadcast to notify the application that the verification process was completed.
                 // This is useful when resolving push TFA with mobile login.
@@ -255,10 +272,10 @@ public class GigyaTFA {
         });
     }
 
-    /**
+    /*
      * Not implemented in version 1.0.0
      */
-    private void pushDeny() {
+    private void denyLoginForPushTFA() {
 
     }
 
@@ -268,7 +285,7 @@ public class GigyaTFA {
      *
      * @param newPushToken New provided push token.
      */
-    public void updateDeviceInfo(@NonNull final String newPushToken) {
+    public void updateDeviceInfoForPushTFA(@NonNull final String newPushToken) {
         _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {

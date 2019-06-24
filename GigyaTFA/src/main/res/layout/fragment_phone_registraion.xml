@@ -27,7 +27,7 @@
             android:layout_margin="16dp"
             android:layout_toStartOf="@id/fpr_progress"
             android:layout_toLeftOf="@id/fpr_progress"
-            android:text="@string/register_phone_number"
+            android:text="@string/tfa_register_phone_number"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -59,7 +59,7 @@
                 android:layout_alignLeft="@id/fpr_country_code_spinner"
                 android:layout_alignEnd="@id/fpr_progress"
                 android:layout_alignRight="@id/fpr_progress"
-                android:hint="@string/phone_number" />
+                android:hint="@string/tfa_phone_number" />
 
         </LinearLayout>
 
@@ -81,7 +81,7 @@
                 android:id="@+id/fpr_verification_title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/submit_verification_code"
+                android:text="@string/tfa_submit_verification_code"
                 android:textSize="18sp" />
 
             <EditText
@@ -89,7 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/verification_code" />
+                android:hint="@string/tfa_verification_code" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/remember_this_device" />
+                    android:text="@string/tfa_remember_this_device" />
 
             </LinearLayout>
 
@@ -125,7 +125,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/register" />
+            android:text="@string/tfa_register" />
 
         <Button
             android:id="@+id/fpr_dismiss_button"
@@ -140,7 +140,7 @@
             android:layout_toLeftOf="@id/fpr_action_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/dismiss" />
+            android:text="@string/tfa_dismiss" />
     </RelativeLayout>
 
 </FrameLayout>

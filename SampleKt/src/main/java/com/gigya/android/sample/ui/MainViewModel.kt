@@ -265,7 +265,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //region PUSH TFA
 
     fun pushTFAOptIn(success: () -> Unit, error: (GigyaError?) -> Unit) {
-        GigyaTFA.getInstance().pushOptIn(object : GigyaCallback<GigyaApiResponse>() {
+        GigyaTFA.getInstance().optInForPushTFA(object : GigyaCallback<GigyaApiResponse>() {
 
             override fun onSuccess(obj: GigyaApiResponse?) {
                 success()

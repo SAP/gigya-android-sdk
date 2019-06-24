@@ -52,7 +52,7 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
         }
     }
 
-    private void restartVerificationFlow(@NonNull final String verificationCode, final boolean rememeberDevice, @NonNull final ResultCallback resultCallback) {
+    private void restartVerificationFlow(@NonNull final String verificationCode, final boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "restartVerificationFlow: ");
 
         // Initialize the TFA flow.
@@ -65,7 +65,7 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                     @Override
                     public void onSuccess(InitTFAModel model) {
                         _gigyaAssertion = model.getGigyaAssertion();
-                        completeVerification(verificationCode, rememeberDevice, resultCallback);
+                        completeVerification(verificationCode, rememberDevice, resultCallback);
                     }
 
                     @Override

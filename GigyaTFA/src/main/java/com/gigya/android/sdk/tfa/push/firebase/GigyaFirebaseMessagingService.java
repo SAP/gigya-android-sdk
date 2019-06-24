@@ -70,7 +70,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
             if (!persistentToken.equals(newToken)) {
                 // Push token for this device has been updated.
-                GigyaTFA.getInstance().updateDeviceInfo(newToken);
+                GigyaTFA.getInstance().updateDeviceInfoForPushTFA(newToken);
             }
         }
     }
@@ -160,9 +160,9 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .addAction(getDenyActionIcon(), getString(R.string.deny),
+                .addAction(getDenyActionIcon(), getString(R.string.tfa_deny),
                         denyPendingIntent)
-                .addAction(getApproveActionIcon(), getString(R.string.approve),
+                .addAction(getApproveActionIcon(), getString(R.string.tfa_approve),
                         approvePendingIntent);
 
         // Notify.

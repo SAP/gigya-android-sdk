@@ -18,6 +18,16 @@ import com.gigya.android.sdk.tfa.models.CompleteVerificationModel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Two factor authentication verification resolver class.
+ * This resolver is responsible for verifying two factor authentication flows.
+ * Supported providers:
+ * 1. gigyaPhone
+ * 2. livelink
+ * 3. gigyaTotp
+ *
+ * @param <A> Account scheme.
+ */
 public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> implements IVerifyCodeResolver {
 
     private static final String LOG_TAG = "VerifyCodeResolver";

@@ -29,14 +29,14 @@ public class PushTFAActivity extends AppCompatActivity {
                 .setTitle(getString(R.string.tfa_title))
                 .setMessage(R.string.tfa_message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.approve, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "approve clicked");
                         onApprove(getIntent().getExtras());
                         dialog.dismiss();
                     }
-                }).setNegativeButton(R.string.deny, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.tfa_deny, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "deny clicked");
@@ -51,7 +51,7 @@ public class PushTFAActivity extends AppCompatActivity {
         final String gigyaAssertion = extras.getString("gigyaAssertion");
         final String verificationToken = extras.getString("verificationToken");
         if (gigyaAssertion != null && verificationToken != null) {
-            GigyaTFA.getInstance().pushApprove(gigyaAssertion, verificationToken);
+            GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
         } else {
             GigyaLogger.error(LOG_TAG, "Error fetching mandatory fields (gigyaAssertion, verificationToken) from intent extras");
         }

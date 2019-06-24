@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="@string/available_providers"
+            android:text="@string/tfa_available_providers"
             android:textSize="18sp" />
 
         <Spinner
@@ -40,7 +40,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/select" />
+            android:text="@string/tfa_select" />
 
         <Button
             android:id="@+id/fps_dismiss_button"
@@ -55,7 +55,7 @@
             android:layout_toLeftOf="@id/fps_select_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/dismiss" />
+            android:text="@string/tfa_dismiss" />
 
     </RelativeLayout>
 
