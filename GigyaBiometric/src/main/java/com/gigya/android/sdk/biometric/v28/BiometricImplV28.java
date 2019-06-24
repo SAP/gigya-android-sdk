@@ -51,9 +51,9 @@ public class BiometricImplV28 extends BiometricImpl {
         }
         if (cipher != null) {
             BiometricPrompt prompt = new BiometricPrompt.Builder(_context)
-                    .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.prompt_default_title))
-                    .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.prompt_default_subtitle))
-                    .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.prompt_default_description))
+                    .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title))
+                    .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle))
+                    .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description))
                     .setNegativeButton("Cancel", _context.getMainExecutor(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

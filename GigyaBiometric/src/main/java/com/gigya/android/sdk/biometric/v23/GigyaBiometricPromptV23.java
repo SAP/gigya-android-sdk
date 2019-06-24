@@ -169,7 +169,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
     private void resetState() {
         if (_indicatorText != null) {
             _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_text_secondary));
-            _indicatorText.setText(getContext().getString(R.string.touch_sensor));
+            _indicatorText.setText(getContext().getString(R.string.bio_touch_sensor));
         }
         if (_indicatorImage == null) {
             return;
@@ -190,7 +190,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
         if (_indicatorText != null) {
             _indicatorText.setTextColor(ContextCompat.getColor(getContext(), R.color.color_error));
             if (errorString == null) {
-                errorString = getContext().getString(R.string.not_recognized);
+                errorString = getContext().getString(R.string.bio_not_recognized);
             }
             _indicatorText.setText(errorString);
         }

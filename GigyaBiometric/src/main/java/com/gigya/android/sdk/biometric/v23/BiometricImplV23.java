@@ -53,9 +53,9 @@ public class BiometricImplV23 extends BiometricImpl {
             final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(_context);
             // Initialize prompt dialog.
             final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(_context, callback);
-            dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.prompt_default_title));
-            dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.prompt_default_subtitle));
-            dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.prompt_default_description));
+            dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title));
+            dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle));
+            dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description));
             dialog.setAnimate(_animate);
             CancellationSignal signal = new CancellationSignal();
             dialog.setCancellationSignal(signal);

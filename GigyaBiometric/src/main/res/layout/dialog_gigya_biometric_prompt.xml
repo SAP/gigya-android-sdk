@@ -43,7 +43,7 @@
         android:layout_height="64dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="48dp"
-        android:contentDescription="@string/fingerprint_indicator_image"
+        android:contentDescription="@string/bio_fingerprint_indicator_image"
         android:src="@drawable/v_fingerprint" />
 
     <TextView
@@ -55,7 +55,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
         android:gravity="center_horizontal"
-        android:text="@string/touch_sensor"
+        android:text="@string/bio_touch_sensor"
         android:textColor="@color/color_text_secondary" />
 
     <Button
@@ -68,7 +68,7 @@
         android:layout_marginEnd="24dp"
         android:background="@android:color/transparent"
         android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:text="@string/cancel"
+        android:text="@string/bio_cancel"
         android:textColor="@color/color_blue" />
 
 </LinearLayout>
