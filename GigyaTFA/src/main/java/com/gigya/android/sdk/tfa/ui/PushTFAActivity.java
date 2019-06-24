@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.GigyaTFA;
 import com.gigya.android.sdk.tfa.R;
 
@@ -48,10 +49,17 @@ public class PushTFAActivity extends AppCompatActivity {
     }
 
     private void onApprove(Bundle extras) {
+        final String pushMode = extras.getString("mode");
         final String gigyaAssertion = extras.getString("gigyaAssertion");
         final String verificationToken = extras.getString("verificationToken");
-        if (gigyaAssertion != null && verificationToken != null) {
-            GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
+
+        if (pushMode != null && gigyaAssertion != null && verificationToken != null) {
+            // Continue flow.
+            if (pushMode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
+                GigyaTFA.getInstance().verifyOptInForPushTFA(gigyaAssertion, verificationToken);
+            } else {
+                GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
+            }
         } else {
             GigyaLogger.error(LOG_TAG, "Error fetching mandatory fields (gigyaAssertion, verificationToken) from intent extras");
         }
