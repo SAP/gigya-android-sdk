@@ -12,11 +12,6 @@ public class GigyaDefinitions {
 
     public static final String TFA_CHANNEL_ID = "tfa_channel";
 
-    public static class Broadcast {
-
-        public static final String INTENT_FILTER_PUSH_TFA_VERIFY = "intent_filter_push_tfa_verify";
-    }
-
     public static class API {
 
         public static final String API_TFA_INIT = "accounts.tfa.initTFA";

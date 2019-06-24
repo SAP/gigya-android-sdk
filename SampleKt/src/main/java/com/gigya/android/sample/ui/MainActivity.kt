@@ -531,28 +531,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         })
                         totpDialog.show(supportFragmentManager, "TFATOTPVerificationFragment")
                     }
-                    com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PUSH -> {
-                        val pushDialog = TFAPushVerificationFragment.newInstance()
-                        pushDialog.setRoundedCorners(true)
-                        pushDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
-                            override fun onDismiss() {
-                                // Dismiss the progress bar. Notice that the TFA flow is broken.
-                                onLoadingDone()
-                            }
-
-                            override fun onResolved() {
-                                // This callback is used to notify that the flow has been resolved.
-                                // Once resolved the initial onSuccess callback will be called.
-                            }
-
-                            override fun onError(error: GigyaError?) {
-                                onLoadingDone()
-                                displayErrorAlert("TFA flow error", error?.localizedMessage!!)
-                            }
-                        })
-                        pushDialog.show(supportFragmentManager, "TFAPushVerificationFragment")
-                    }
-
                 }
             }
 

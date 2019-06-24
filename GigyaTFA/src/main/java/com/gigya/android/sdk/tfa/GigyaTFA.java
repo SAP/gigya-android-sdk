@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 
 import com.gigya.android.sdk.Gigya;
@@ -27,7 +26,6 @@ import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
 import com.gigya.android.sdk.tfa.push.ITFANotifier;
 import com.gigya.android.sdk.tfa.push.TFANotifier;
 
-import static com.gigya.android.sdk.tfa.GigyaDefinitions.Broadcast.INTENT_FILTER_PUSH_TFA_VERIFY;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
 public class GigyaTFA {
@@ -139,7 +137,9 @@ public class GigyaTFA {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager manager = (NotificationManager) _context.getSystemService(Context.NOTIFICATION_SERVICE);
             NotificationChannel channel = manager.getNotificationChannel(TFA_CHANNEL_ID);
-            return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+            if (channel != null) {
+                return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+            }
         }
         return NotificationManagerCompat.from(_context).areNotificationsEnabled();
     }
@@ -154,6 +154,7 @@ public class GigyaTFA {
     public void checkNotificationsPermissionsRequired(final Activity activity) {
         final boolean deviceRegisteredForPushTFA = _persistenceService.isOptInForPushTFA();
         if (!pushTFAEnabled() && deviceRegisteredForPushTFA) {
+
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
                     .setTitle(R.string.tfa_push_notifications_alert_title)
@@ -163,6 +164,7 @@ public class GigyaTFA {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             GigyaLogger.debug(LOG_TAG, "approve clicked");
+
                             Intent intent = new Intent();
                             intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
                             //for Android 5-7
@@ -176,6 +178,7 @@ public class GigyaTFA {
                     }).setNegativeButton(R.string.tfa_no_thanks, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                             GigyaLogger.debug(LOG_TAG, "deny clicked");
                             dialog.dismiss();
                         }
@@ -259,10 +262,6 @@ public class GigyaTFA {
                 _tfaNotifier.notifyWith(
                         _context.getString(R.string.tfa_login_approval_success_title),
                         _context.getString(R.string.tfa_login_approval_success_body));
-
-                // Send a local broadcast to notify the application that the verification process was completed.
-                // This is useful when resolving push TFA with mobile login.
-                LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(INTENT_FILTER_PUSH_TFA_VERIFY));
             }
 
             @Override

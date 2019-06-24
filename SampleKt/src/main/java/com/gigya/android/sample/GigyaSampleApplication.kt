@@ -45,7 +45,7 @@ class GigyaSampleApplication : Application() {
         /*
         TFA Email.
          */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
+        Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
 
         /*
         TFA push (Staging).
