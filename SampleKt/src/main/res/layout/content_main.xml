@@ -5,20 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
+    android:background="@android:color/background_dark"
     android:focusableInTouchMode="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
     <android.support.v7.widget.AppCompatImageView
-        android:layout_width="280dp"
-        android:layout_height="180dp"
+        android:layout_width="149dp"
+        android:layout_height="125dp"
         android:alpha="0.2"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.938"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.2"
+        app:layout_constraintVertical_bias="0.072"
         app:srcCompat="@drawable/sap_gigya" />
 
     <android.support.v7.widget.AppCompatTextView
@@ -28,7 +30,7 @@
         android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
         android:text="Api response JSON"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +43,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/choose_action"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constrainedHeight="true"
@@ -72,7 +74,7 @@
                 android:id="@+id/response_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="14sp" />
         </LinearLayout>
 

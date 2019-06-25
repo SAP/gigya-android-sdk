@@ -257,6 +257,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 linkAccountsResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
             }
+
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
+            }
+
+            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION, Pair(activeProviders, resolverFactory)))
+            }
         })
     }
 
@@ -305,6 +313,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             override fun onError(error: GigyaError?) {
                 Log.d("socialLoginWith", "onError")
                 error(error)
+            }
+
+            override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
+            }
+
+            override fun onPendingTwoFactorVerification(response: GigyaApiResponse, activeProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION, Pair(activeProviders, resolverFactory)))
             }
         })
     }

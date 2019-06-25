@@ -155,8 +155,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
                 .setSmallIcon(getSmallIcon())
-                .setContentTitle(title)
-                .setContentText(body)
+                .setContentTitle(title != null ? title.trim() : "")
+                .setContentText(body != null ? body.trim() : "")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)

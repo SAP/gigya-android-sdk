@@ -40,17 +40,17 @@ class GigyaSampleApplication : Application() {
         /*
         TFA phone/totp.
          */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa))
+        Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa), "us1-st1.gigya.com")
 
         /*
         TFA Email.
          */
-        Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
+        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
 
         /*
-        TFA push (Staging).
+        TFA push only (Staging).
          */
-        Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
+        //Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
 
         /*
         With LiveLink.
