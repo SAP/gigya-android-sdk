@@ -53,15 +53,19 @@ public class PushTFAActivity extends AppCompatActivity {
         final String gigyaAssertion = extras.getString("gigyaAssertion");
         final String verificationToken = extras.getString("verificationToken");
 
+        // Restrictions apply.
         if (pushMode != null && gigyaAssertion != null && verificationToken != null) {
+
+            GigyaLogger.debug(LOG_TAG, "Action for vt: " + verificationToken);
+
             // Continue flow.
             if (pushMode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
                 GigyaTFA.getInstance().verifyOptInForPushTFA(gigyaAssertion, verificationToken);
             } else {
-                GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
+                GigyaTFA.getInstance().approveLoginForPushTFA(gigyaAssertion, verificationToken);
             }
         } else {
-            GigyaLogger.error(LOG_TAG, "Error fetching mandatory fields (gigyaAssertion, verificationToken) from intent extras");
+            GigyaLogger.error(LOG_TAG, "Error fetching mandatory fields (gigyaAssertion, verificationToken, pushMode) from intent extras");
         }
         finish();
     }

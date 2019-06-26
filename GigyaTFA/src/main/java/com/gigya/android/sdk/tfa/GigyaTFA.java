@@ -254,7 +254,7 @@ public class GigyaTFA {
      * @param gigyaAssertion    Provided gigya assertion token.
      * @param verificationToken Provided verification token to identify device.
      */
-    public void approveLoginForPusTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+    public void approveLoginForPushTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
         _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
@@ -275,7 +275,7 @@ public class GigyaTFA {
      * Not implemented in version 1.0.0
      */
     private void denyLoginForPushTFA() {
-
+        // Stub.
     }
 
     /**

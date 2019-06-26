@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.tfa.push;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -8,9 +9,13 @@ import android.support.v4.app.NotificationManagerCompat;
 import com.gigya.android.sdk.GigyaLogger;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
+/**
+ * Local notifications helper class.
+ */
 public class TFANotifier implements ITFANotifier {
 
     private static final String LOG_TAG = "TFANotifier";
@@ -31,6 +36,11 @@ public class TFANotifier implements ITFANotifier {
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true);
+
+        // Set a 3 second timeout for the notification display.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setTimeoutAfter(TimeUnit.SECONDS.toMillis(3));
+        }
 
         // Notify.
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);

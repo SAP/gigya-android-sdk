@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.widget.RemoteViews;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
@@ -112,6 +113,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         final String gigyaAssertion = data.get("gigyaAssertion");
         final String verificationToken = data.get("verificationToken");
 
+        GigyaLogger.debug(LOG_TAG, "Action for vt: " + verificationToken);
+
         // the unique notification id will be the hash code of the gigyaAssertion field.
         int notificationId = 0;
         if (gigyaAssertion != null) {
@@ -130,7 +133,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
-                intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Deny action.
         Intent denyIntent = new Intent(this, TFAPushReceiver.class);
@@ -140,7 +143,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         denyIntent.putExtra("notificationId", notificationId);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
         PendingIntent denyPendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Approve action.
         Intent approveIntent = new Intent(this, TFAPushReceiver.class);
@@ -150,7 +154,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         approveIntent.putExtra("notificationId", notificationId);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
         PendingIntent approvePendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Build notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
@@ -164,6 +169,22 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                         denyPendingIntent)
                 .addAction(getApproveActionIcon(), getString(R.string.tfa_approve),
                         approvePendingIntent);
+
+        // Apply fully customization options (not in v 1.0.0).
+        if (getStyle() != null) {
+            builder.setStyle(getStyle());
+        }
+        if (getNotificationLayout() != null) {
+            builder.setCustomContentView(getNotificationLayout());
+        }
+        if (getNotificationLayoutExtended() != null) {
+            /*
+            To support Android versions older than Android 4.1 (API level 16), you should also call setContent(), passing it the same RemoteViews object.
+            @see <a href="https://developer.android.com/training/notify-user/custom-notification"></a>
+             */
+            builder.setCustomBigContentView(getNotificationLayoutExtended());
+            builder.setContent(getNotificationLayoutExtended());
+        }
 
         // Notify.
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -197,6 +218,34 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     /**
+     * Optional override
+     * Define a custom notification style.
+     *
+     * @return Customized style instance.
+     */
+    private NotificationCompat.Style getStyle() {
+        return null;
+    }
+
+    /**
+     * Optional override
+     * Define a custom notification layout.
+     * not available in version 1.0.0.
+     *
+     * @return RemoteViews instance.
+     */
+    private RemoteViews getNotificationLayout() {
+        return null;
+    }
+
+    /*
+    Not available in 1.0.0
+     */
+    private RemoteViews getNotificationLayoutExtended() {
+        return null;
+    }
+
+    /**
      * Optional override.
      * Define the notification approve action icon.
      *
@@ -223,7 +272,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @return Activity class reference.
      */
-    public Class getCustomActionActivity() {
+    protected Class getCustomActionActivity() {
         return PushTFAActivity.class;
     }
 

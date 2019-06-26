@@ -51,11 +51,13 @@ public class TFAPushReceiver extends BroadcastReceiver {
                     final String gigyaAssertion = intent.getStringExtra("gigyaAssertion");
                     final String verificationToken = intent.getStringExtra("verificationToken");
 
+                    GigyaLogger.debug(LOG_TAG, "Action for vt: " + verificationToken);
+
                     // Continue flow.
                     if (mode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
                         GigyaTFA.getInstance().verifyOptInForPushTFA(gigyaAssertion, verificationToken);
                     } else {
-                        GigyaTFA.getInstance().approveLoginForPusTFA(gigyaAssertion, verificationToken);
+                        GigyaTFA.getInstance().approveLoginForPushTFA(gigyaAssertion, verificationToken);
                     }
                 }
                 break;
