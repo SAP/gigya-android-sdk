@@ -53,6 +53,10 @@ public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolve
                     @Override
                     public void onSuccess(InitTFAModel model) {
                         _gigyaAssertion = model.getGigyaAssertion();
+                        if (_gigyaAssertion == null) {
+                            resultCallback.onError(GigyaError.unauthorizedUser());
+                            return;
+                        }
                         fetchEmails(resultCallback);
                     }
 

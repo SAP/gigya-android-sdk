@@ -65,6 +65,10 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                     @Override
                     public void onSuccess(InitTFAModel model) {
                         _gigyaAssertion = model.getGigyaAssertion();
+                        if (_gigyaAssertion == null) {
+                            resultCallback.onError(GigyaError.unauthorizedUser());
+                            return;
+                        }
                         completeVerification(verificationCode, rememberDevice, resultCallback);
                     }
 

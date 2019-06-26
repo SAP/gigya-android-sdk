@@ -69,6 +69,10 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
             @Override
             public void onSuccess(InitTFAModel model) {
                 _gigyaAssertion = model.getGigyaAssertion();
+                if (_gigyaAssertion == null) {
+                    resultCallback.onError(GigyaError.unauthorizedUser());
+                    return;
+                }
                 registerPhoneNumber(phoneNumber, method, resultCallback);
             }
 

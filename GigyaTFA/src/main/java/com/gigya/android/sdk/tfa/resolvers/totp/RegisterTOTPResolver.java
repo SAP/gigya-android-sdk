@@ -46,6 +46,10 @@ public class RegisterTOTPResolver<A extends GigyaAccount> extends TFAResolver<A>
                     @Override
                     public void onSuccess(InitTFAModel model) {
                         _gigyaAssertion = model.getGigyaAssertion();
+                        if (_gigyaAssertion == null) {
+                            resultCallback.onError(GigyaError.unauthorizedUser());
+                            return;
+                        }
                         getQRCode(resultCallback);
                     }
 
