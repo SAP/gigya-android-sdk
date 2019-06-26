@@ -30,7 +30,7 @@ public class TFANotifier implements ITFANotifier {
     public void notifyWith(@NonNull String title, @NonNull String body) {
         GigyaLogger.debug(LOG_TAG, "notifyWith: title = " + title + ", body = " + body);
         // Build notification.
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, TFA_CHANNEL_ID)
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, TFA_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(body)
@@ -43,7 +43,7 @@ public class TFANotifier implements ITFANotifier {
         }
 
         // Notify.
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);
+        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);
         notificationManager.notify(new Random().nextInt(), builder.build());
     }
 }

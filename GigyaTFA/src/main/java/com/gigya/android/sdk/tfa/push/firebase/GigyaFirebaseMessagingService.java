@@ -45,12 +45,12 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
     private void createTFANotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.tfa_channel_name);
-            String description = getString(R.string.tfa_channel_description);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(TFA_CHANNEL_ID, name, importance);
+            final CharSequence name = getString(R.string.tfa_channel_name);
+            final String description = getString(R.string.tfa_channel_description);
+            final int importance = NotificationManager.IMPORTANCE_HIGH;
+            final NotificationChannel channel = new NotificationChannel(TFA_CHANNEL_ID, name, importance);
             channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            final NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
@@ -61,7 +61,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         if (newToken != null) {
             // Check for token updates.
-            TFAPersistenceService ps = new TFAPersistenceService(this);
+            final TFAPersistenceService ps = new TFAPersistenceService(this);
             final String persistentToken = ps.getPushToken();
             if (persistentToken == null) {
                 // Update push token in SDK preference file.
@@ -71,6 +71,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
             if (!persistentToken.equals(newToken)) {
                 // Push token for this device has been updated.
+                GigyaLogger.debug(LOG_TAG, "Firebase token recycled. New token needs to be updated in server");
                 GigyaTFA.getInstance().updateDeviceInfoForPushTFA(newToken);
             }
         }
@@ -124,7 +125,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         GigyaLogger.debug(LOG_TAG, "verificationToken: " + verificationToken);
 
         // Content activity pending intent.
-        Intent intent = new Intent(this, getCustomActionActivity());
+        final Intent intent = new Intent(this, getCustomActionActivity());
         intent.putExtra("mode", mode);
         intent.putExtra("gigyaAssertion", gigyaAssertion);
         intent.putExtra("verificationToken", verificationToken);
@@ -132,33 +133,33 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         // We don't want the annoying enter animation.
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
                 intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Deny action.
-        Intent denyIntent = new Intent(this, TFAPushReceiver.class);
+        final Intent denyIntent = new Intent(this, TFAPushReceiver.class);
         denyIntent.putExtra("mode", mode);
         denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
         denyIntent.putExtra("verificationToken", verificationToken);
         denyIntent.putExtra("notificationId", notificationId);
         denyIntent.setAction(getString(R.string.tfa_action_deny));
-        PendingIntent denyPendingIntent =
+        final PendingIntent denyPendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Approve action.
-        Intent approveIntent = new Intent(this, TFAPushReceiver.class);
+        final Intent approveIntent = new Intent(this, TFAPushReceiver.class);
         approveIntent.putExtra("mode", mode);
         approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
         approveIntent.putExtra("verificationToken", verificationToken);
         approveIntent.putExtra("notificationId", notificationId);
         approveIntent.setAction(getString(R.string.tfa_action_approve));
-        PendingIntent approvePendingIntent =
+        final PendingIntent approvePendingIntent =
                 PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Build notification.
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
                 .setSmallIcon(getSmallIcon())
                 .setContentTitle(title != null ? title.trim() : "")
                 .setContentText(body != null ? body.trim() : "")
@@ -170,7 +171,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 .addAction(getApproveActionIcon(), getString(R.string.tfa_approve),
                         approvePendingIntent);
 
-        // Apply fully customization options (not in v 1.0.0).
+        // Apply full customization options (not in v 1.0.0).
         if (getStyle() != null) {
             builder.setStyle(getStyle());
         }
@@ -187,7 +188,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         // Notify.
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(notificationId, builder.build());
     }
 
@@ -201,7 +202,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
             notificationId = Math.abs(gigyaAssertion.hashCode());
         }
         GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.cancel(notificationId);
     }
 

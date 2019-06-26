@@ -119,6 +119,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
 
     @Nullable
     private Bitmap decodeImage(String encodedImage) {
+        // Decoding the image received (Base64).
         final byte[] decoded = Base64.decode(encodedImage.split(",")[1], Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
     }

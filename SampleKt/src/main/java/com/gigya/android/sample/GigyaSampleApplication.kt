@@ -50,7 +50,7 @@ class GigyaSampleApplication : Application() {
         /*
         TFA push only (Staging).
          */
-        Gigya.getInstance(MyAccount::class.java).init("3_OKJbactZHkyOZuX-YBoE9-w_Mcogk80h_ihWZcC4je2yH1VQW7ye5I2na7wzp2Ho", "us1-st1.gigya.com")
+        //Gigya.getInstance(MyAccount::class.java).init("3_r0q_m0wQe7gyZJxHFL-mBAkPYILsmsIzloWwAB6QMXRiacHjq2f6CxBy0Mya9rLS", "ru1.gigya.com")
 
         /*
         With LiveLink.

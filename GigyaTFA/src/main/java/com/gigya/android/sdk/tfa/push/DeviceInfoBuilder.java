@@ -47,7 +47,9 @@ public class DeviceInfoBuilder {
                         final String man = DeviceUtils.getManufacturer();
                         final String os = DeviceUtils.getOsVersion();
                         final String json = "{ \"platform\": \"android\", \"os\": \"" + os + "\", \"man\": \"" + man + "\", \"pushToken\": \"" + pushToken + "\" }";
+
                         GigyaLogger.debug(LOG_TAG, "Device info: " + json);
+
                         callback.onDeviceInfo(json);
                     }
                 });
@@ -59,7 +61,9 @@ public class DeviceInfoBuilder {
         final String man = DeviceUtils.getManufacturer();
         final String os = DeviceUtils.getOsVersion();
         final String json = "{ \"platform\": \"android\", \"os\": \"" + os + "\", \"man\": \"" + man + "\", \"pushToken\": \"" + pushToken + "\" }";
+
         GigyaLogger.debug(LOG_TAG, "Device info: " + json);
+
         return json;
     }
 }

@@ -233,7 +233,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
             _countryCodes = new Gson().fromJson(json, CountryCode[].class);
             GigyaLogger.debug(LOG_TAG, "Country code list parsed successfully");
 
-            ArrayAdapter countryCodeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, _countryCodes);
+            final ArrayAdapter countryCodeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, _countryCodes);
             _countryCodeSpinner.setAdapter(countryCodeAdapter);
         } catch (IOException e) {
             e.printStackTrace();

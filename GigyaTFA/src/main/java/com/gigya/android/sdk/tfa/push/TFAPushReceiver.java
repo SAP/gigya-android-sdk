@@ -20,7 +20,7 @@ public class TFAPushReceiver extends BroadcastReceiver {
 
         // Make sure to cancel the notification.
         final int notificationId = intent.getIntExtra("notificationId", 0);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.cancel(notificationId);
 
         // Fetch push mode from intent extras. Mandatory.
