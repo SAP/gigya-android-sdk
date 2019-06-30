@@ -83,7 +83,7 @@ android.libraryVariants.all { variant ->
             from variant.javaCompileProvider.get().destinationDir
             destinationDir = file(outDir)
             include(
-                    'com/gigya/android/sdk/biometric/**'
+                    'com/gigya/android/sdk/**'
             )
             manifest {
                 from sharedManifest
