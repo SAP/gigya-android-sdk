@@ -685,6 +685,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 onLogin = { json ->
                     onJsonResult(json)
                 },
+                onCanceled = {
+                    response_text_view.snackbar("Operation canceled")
+                },
                 onError = { possibleError ->
                     possibleError?.let {
                         // We cant display an alert on top of an alert.

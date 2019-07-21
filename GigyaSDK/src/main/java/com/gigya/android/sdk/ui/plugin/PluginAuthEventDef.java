@@ -9,7 +9,7 @@ public class PluginAuthEventDef {
 
     @Retention(RetentionPolicy.SOURCE)
 
-    @StringDef({LOGIN_STARTED, LOGIN, LOGOUT, ADD_CONNECTION, REMOVE_CONNECTION})
+    @StringDef({LOGIN_STARTED, LOGIN, LOGOUT, ADD_CONNECTION, REMOVE_CONNECTION, CANCELED})
 
     public @interface PluginAuthEvent {
     }
@@ -22,6 +22,7 @@ public class PluginAuthEventDef {
     public static final String LOGOUT = "logout";
     public static final String ADD_CONNECTION = "addConnection";
     public static final String REMOVE_CONNECTION = "removeConnection";
+    public static final String CANCELED = "canceled";
 
     public PluginAuthEventDef(@PluginAuthEvent String pluginAuthEvent) {
         this.pluginAuthEvent = pluginAuthEvent;

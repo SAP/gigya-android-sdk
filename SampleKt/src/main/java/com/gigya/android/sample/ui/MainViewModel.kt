@@ -383,13 +383,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     override fun onError(event: GigyaPluginEvent) {
                         onError(GigyaError.errorFrom(event.eventMap))
                     }
+
+                    override fun onCanceled() {
+                        onCanceled()
+                    }
+
                 })
     }
 
     /**
      * Show screen set "Default-RegistrationLogin".
      */
-    fun showScreenSets(onLogin: (String) -> Unit, onError: (GigyaError?) -> Unit) {
+    fun showScreenSets(onLogin: (String) -> Unit, onCanceled: () -> Unit, onError: (GigyaError?) -> Unit) {
         gigya.showScreenSet("Default-RegistrationLogin", false, mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
                     override fun onLogin(accountObj: MyAccount) {
@@ -399,6 +404,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                     override fun onError(event: GigyaPluginEvent) {
                         onError(GigyaError.errorFrom(event.eventMap))
+                    }
+
+                    override fun onCanceled() {
+                        onCanceled()
                     }
 
                 })

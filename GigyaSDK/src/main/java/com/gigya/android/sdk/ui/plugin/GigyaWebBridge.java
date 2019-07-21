@@ -207,6 +207,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             @Override
             public void onOperationCanceled() {
                 invokeWebViewCallback(callbackId, GigyaError.cancelledOperation().getData());
+                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.CANCELED, null);
             }
         });
     }

@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import java.util.Locale;
 
 import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
 import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
 import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
 import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
@@ -320,6 +321,10 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                                 break;
                             case REMOVE_CONNECTION:
                                 _pluginCallback.onConnectionRemoved();
+                                break;
+                            case CANCELED:
+                                _progressBar.setVisibility(View.INVISIBLE);
+                                _pluginCallback.onCanceled();
                                 break;
                             default:
                                 break;
