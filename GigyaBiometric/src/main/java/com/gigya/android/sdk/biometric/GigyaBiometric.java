@@ -116,6 +116,7 @@ public class GigyaBiometric {
     /**
      * Opts-in the existing session to use fingerprint authentication.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
@@ -133,6 +134,7 @@ public class GigyaBiometric {
     /**
      * Opts-out the existing session from using fingerprint authentication.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
@@ -176,6 +178,7 @@ public class GigyaBiometric {
      * Unlocks the session so the user can continue to make authenticated actions.
      * Invokes the onError callback if the session is not opt-in.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
