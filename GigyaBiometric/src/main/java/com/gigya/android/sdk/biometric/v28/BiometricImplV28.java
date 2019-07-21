@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.biometric.v28;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.biometrics.BiometricPrompt;
@@ -36,7 +37,7 @@ public class BiometricImplV28 extends BiometricImpl {
     }
 
     @Override
-    synchronized public void showPrompt(final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
+    synchronized public void showPrompt(final Activity activity, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, final @NonNull IGigyaBiometricCallback callback) {
         final SecretKey key = _biometricKey.getKey();
         if (key == null) {
@@ -50,7 +51,7 @@ public class BiometricImplV28 extends BiometricImpl {
             cipher = _biometricKey.getEncryptionCipher(key);
         }
         if (cipher != null) {
-            BiometricPrompt prompt = new BiometricPrompt.Builder(_context)
+            BiometricPrompt prompt = new BiometricPrompt.Builder(activity)
                     .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title))
                     .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle))
                     .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description))

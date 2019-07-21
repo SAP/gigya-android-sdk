@@ -1,10 +1,12 @@
 package com.gigya.android.sdk.biometric;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 
 public interface IBiometricImpl {
 
-    void showPrompt(GigyaBiometric.Action action,
+    void showPrompt(final Activity activity,
+                    GigyaBiometric.Action action,
                     @NonNull GigyaPromptInfo gigyaPromptInfo,
                     int encryptionMode,
                     final @NonNull IGigyaBiometricCallback callback);

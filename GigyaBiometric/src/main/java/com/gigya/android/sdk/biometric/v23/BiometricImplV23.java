@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.biometric.v23;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
@@ -34,7 +35,7 @@ public class BiometricImplV23 extends BiometricImpl {
     }
 
     @Override
-    synchronized public void showPrompt(final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
+    synchronized public void showPrompt(final Activity activity, final GigyaBiometric.Action action, @NonNull GigyaPromptInfo gigyaPromptInfo,
                                         int encryptionMode, @NonNull final IGigyaBiometricCallback callback) {
         final SecretKey key = _biometricKey.getKey();
         if (key == null) {
@@ -50,9 +51,9 @@ public class BiometricImplV23 extends BiometricImpl {
         if (cipher != null) {
             // Init crypto.
             final FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
-            final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(_context);
+            final FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(activity);
             // Initialize prompt dialog.
-            final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(_context, callback);
+            final GigyaBiometricPromptV23 dialog = new GigyaBiometricPromptV23(activity, callback);
             dialog.setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title));
             dialog.setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle));
             dialog.setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description));
