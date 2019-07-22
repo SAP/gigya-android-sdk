@@ -321,7 +321,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params             parameters map.
      * @param gigyaLoginCallback Login response callback.
      */
-    public void login(Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
+    public void login(@NonNull Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
         params.put("include", "profile,data,subscriptions,preferences");
         _businessApiService.login(params, gigyaLoginCallback);
@@ -434,7 +434,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params   Additional parameters.
      * @param callback Response listener callback.
      */
-    public void register(String email, String password, Map<String, Object> params, GigyaLoginCallback<T> callback) {
+    public void register(String email, String password, @NonNull Map<String, Object> params, GigyaLoginCallback<T> callback) {
         GigyaLogger.debug(LOG_TAG, "register: with email: " + email + " and params: " + params.toString());
         params.put("email", email);
         params.put("password", password);
@@ -513,10 +513,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaLoginCallback Login response callback.
      */
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
-                                Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
+                                @NonNull Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());
         _presenter.showNativeLoginProviders(providers, _businessApiService, params, gigyaLoginCallback);
     }
@@ -534,7 +531,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params              ScreensSet flow parameters.
      * @param gigyaPluginCallback Plugin callback.
      */
-    public void showScreenSet(final String screensSet, boolean fullScreen, final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
+    public void showScreenSet(final String screensSet, boolean fullScreen, @NonNull final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
