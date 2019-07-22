@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.KeyEvent;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -24,6 +25,9 @@ public class WebLoginActivity extends Activity {
 
     private static final int REQUEST_CODE = 4040;
 
+    /*
+    Result handling and cancel dismissal timer.
+     */
     private boolean _handledResult = false;
     private CountDownTimer _cancelResultTimer;
 
@@ -77,6 +81,10 @@ public class WebLoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             // Start short timer to see if result is being handled in the onNewIntent.
+            // Explanation: When using startActivityForResult with an ACTION_VIEW intent we will not receive the correct
+            // resultCode (Will always be 0 == Activity.RESULT_CANCELED). Therefore in order to determine when the user
+            // actually dismissed the browser we will use this short countdown timer as the onNewIntentCall should trigger
+            // immediately.
             _cancelResultTimer = new CountDownTimer(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(1)) {
 
                 @Override
