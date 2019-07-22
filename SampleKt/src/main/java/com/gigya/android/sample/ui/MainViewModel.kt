@@ -293,7 +293,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Present SDK native login pre defined UI.
      */
-    fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit, error: (GigyaError?) -> Unit, cancel: () -> Unit) {
+    fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit,
+                        error: (GigyaError?) -> Unit,
+                        cancel: () -> Unit) {
         gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE), mutableMapOf()
                 , object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
