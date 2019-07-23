@@ -228,6 +228,34 @@ public class ObjectUtilsTest {
         assertTrue(permissionsMap.get("facebook") instanceof ArrayList);
     }
 
+    @Test
+    public void test_nullAllowedEquals() {
+        // Arrange
+        String obj1 = "Obj1";
+        String obj2 = null;
+
+        // Act Assert
+        assertFalse(ObjectUtils.nullAllowedEquals(obj1, obj2));
+
+        // Arrange
+        obj2 = "Obj1";
+
+        // Act Assert
+        assertTrue(ObjectUtils.nullAllowedEquals(obj1, obj2));
+    }
+
+    @Test
+    public void test_commaConcat() {
+        // Arrange
+        final String[] mock = new String[]{"this", "is", "a", "mock"};
+
+        // Act
+        final String commaConcat = ObjectUtils.commaConcat(mock);
+
+        // Assert
+        assertEquals("this,is,a,mock", commaConcat);
+    }
+
     private final String mockJson = "{\n" +
             "  \"callId\": \"3539049072074feaaea97f57aabb4738\",\n" +
             "  \"errorCode\": 0,\n" +
