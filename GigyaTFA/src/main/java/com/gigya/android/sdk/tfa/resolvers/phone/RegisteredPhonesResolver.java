@@ -12,17 +12,22 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolver;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
-import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
-import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 import com.gigya.android.sdk.tfa.models.GetRegisteredPhoneNumbersModel;
 import com.gigya.android.sdk.tfa.models.InitTFAModel;
 import com.gigya.android.sdk.tfa.models.RegisteredPhone;
 import com.gigya.android.sdk.tfa.models.VerificationCodeModel;
+import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
+import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Resolver used for TFA phone verification.
+ *
+ * @param <A>
+ */
 public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolver<A> implements IRegisteredPhonesResolver {
 
     private static final String LOG_TAG = "RegisteredPhonesResolver";
@@ -46,11 +51,23 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
         _verifyCodeResolver = verifyCodeResolver;
     }
 
+    /**
+     * Update the current phone provider using the builder method.
+     *
+     * @param provider TFA provider.
+     * @return Current instance of the resolver.
+     * @see com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.Provider for available providers.
+     */
     public RegisteredPhonesResolver provider(@GigyaDefinitions.TFAProvider.Provider String provider) {
         _provider = provider;
         return this;
     }
 
+    /**
+     * Request TFA registered phone numbers.
+     *
+     * @param resultCallback Result callback.
+     */
     @Override
     public void getPhoneNumbers(@NonNull final RegisteredPhonesResolver.ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "getPhoneNumbers: ");
@@ -79,6 +96,9 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
         });
     }
 
+    /*
+    Get registered phone numbers.
+     */
     private void fetchNumbers(@NonNull final RegisteredPhonesResolver.ResultCallback resultCallback) {
         // Fetch actual phone numbers after TFA initialization.
         final Map<String, Object> params = new HashMap<>();
@@ -98,6 +118,13 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
                 });
     }
 
+    /**
+     * Send TFA verification code for approval.
+     *
+     * @param phoneId        Phone number id.
+     * @param method         Verification method used.
+     * @param resultCallback Result callback.
+     */
     @Override
     public void sendVerificationCode(@NonNull String phoneId, @NonNull @GigyaDefinitions.PhoneMethod.Method String method, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "sendVerificationCode with phoneId: " + phoneId + ", method: " + method);

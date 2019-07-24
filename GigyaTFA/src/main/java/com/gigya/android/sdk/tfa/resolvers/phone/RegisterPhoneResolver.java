@@ -22,6 +22,11 @@ import java.util.Map;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod.SMS;
 
+/**
+ * Resolver used for TFA phone registration.
+ *
+ * @param <A>
+ */
 public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A> implements IRegisterPhoneResolver {
 
     private static final String LOG_TAG = "SmsRegistrationResolver";
@@ -45,16 +50,37 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
         _verifyCodeResolver = verifyCodeResolver;
     }
 
+    /**
+     * Update the current phone provider using the builder method.
+     *
+     * @param provider TFA provider.
+     * @return Current instance of the resolver.
+     * @see com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.Provider for available providers.
+     */
     public RegisterPhoneResolver provider(@GigyaDefinitions.TFAProvider.Provider String provider) {
         _provider = provider;
         return this;
     }
 
+    /**
+     * Register provided phone number. Default method is SMS.
+     *
+     * @param phoneNumber    Phone number for registration.
+     * @param resultCallback Result callback.
+     */
     @Override
     public void registerPhone(@NonNull String phoneNumber, @NonNull ResultCallback resultCallback) {
         registerPhone(phoneNumber, SMS, resultCallback);
     }
 
+    /**
+     * Register provided phone number.
+     *
+     * @param phoneNumber    Phone number for registration.
+     * @param method         Registration method
+     * @param resultCallback Result callback.
+     * @see com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod for available methods.
+     */
     @Override
     public void registerPhone(final @NonNull String phoneNumber, final @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                               @NonNull final ResultCallback resultCallback) {
@@ -83,6 +109,14 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
         });
     }
 
+    /**
+     * Register selected phone number.
+     *
+     * @param phoneNumber    Phone number to register.
+     * @param method         Registration method.
+     * @param resultCallback Result callback.
+     * @see com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod for available methods.
+     */
     private void registerPhoneNumber(@NonNull final String phoneNumber, @NonNull @GigyaDefinitions.PhoneMethod.Method final String method,
                                      @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "register with phone number: " + phoneNumber + " and method: " + method);

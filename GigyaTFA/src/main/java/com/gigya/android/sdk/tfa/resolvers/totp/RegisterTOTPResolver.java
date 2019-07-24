@@ -18,6 +18,11 @@ import com.gigya.android.sdk.tfa.models.TOTPRegisterModel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Resolver used for TOTP registration.
+ *
+ * @param <A>
+ */
 public class RegisterTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> implements IRegisterTOTPResolver {
 
     private static final String LOG_TAG = "RegisterTOTPResolver";
@@ -32,6 +37,11 @@ public class RegisterTOTPResolver<A extends GigyaAccount> extends TFAResolver<A>
         _verifyTOTPresolver = verifyTOTPResolver;
     }
 
+    /**
+     * Begin TOTP registration flow. Successful result will provide the needed QR code data.
+     *
+     * @param resultCallback Result callback.
+     */
     @Override
     public void registerTOTP(@NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "registerTOTP: ");
@@ -60,6 +70,9 @@ public class RegisterTOTPResolver<A extends GigyaAccount> extends TFAResolver<A>
                 });
     }
 
+    /*
+    Fetch QRCode.
+     */
     private void getQRCode(@NonNull final ResultCallback resultCallback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);

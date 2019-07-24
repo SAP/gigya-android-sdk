@@ -55,6 +55,6 @@ class GigyaSampleApplication : Application() {
         /*
         With LiveLink.
          */
-        //Gigya.getInstance(MyAccount::class.java).init("3_HCalFtInj--1FsLPEnTrEB0G1up6BDobQ16YVTt00VBL4DrFYK54Vy_g-zeu6gNw", "us1-st1.gigya.com")
+        //Gigya.getInstance(MyAccount::class.java).init("3_HCalFtInj--1FsLPEnTrEB0G1up6BDobQ16YVTt00VBL4DrFYK54Vy_g-zeu6gNw", "us1.gigya.com")
     }
 }

@@ -41,6 +41,11 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
         super(loginCallback, interruption, businessApiService);
     }
 
+    /**
+     * Adds required fields "gigyaAssertion" & "phvToken" using the builder method.
+     *
+     * @return Current resolver instance.
+     */
     public VerifyCodeResolver withAssertionAndPhvToken(String gigyaAssertion, String phvToken) {
         _gigyaAssertion = gigyaAssertion;
         _phvToken = phvToken;
@@ -84,6 +89,14 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
         return "";
     }
 
+    /**
+     * Verify provided code.
+     *
+     * @param provider         Selected TFA provider.
+     * @param verificationCode Verification code.
+     * @param rememberDevice   Remember this device option.
+     * @param resultCallback   Result callback.
+     */
     @Override
     public void verifyCode(@NonNull @GigyaDefinitions.TFAProvider.Provider String provider, @NonNull String verificationCode, final boolean rememberDevice,
                            @NonNull final ResultCallback resultCallback) {

@@ -23,6 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Resolver used for Email TFA registration.
+ *
+ * @param <A>
+ */
 public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolver<A> implements IRegisteredEmailsResolver {
 
     private static final String LOG_TAG = "RegisteredEmailsResolver";
@@ -38,6 +43,11 @@ public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolve
         _verifyCodeResolver = verifyCodeResolver;
     }
 
+    /**
+     * Request account registered emails.
+     *
+     * @param resultCallback Result callback.
+     */
     @Override
     public void getRegisteredEmails(@NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "getRegisteredEmails: ");
@@ -67,6 +77,9 @@ public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolve
                 });
     }
 
+    /*
+    Fetch emails request.
+     */
     private void fetchEmails(@NonNull final ResultCallback resultCallback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);

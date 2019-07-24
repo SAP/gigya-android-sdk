@@ -19,6 +19,11 @@ import com.gigya.android.sdk.tfa.models.InitTFAModel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Resolver used for TOTP verification.
+ *
+ * @param <A>
+ */
 public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> implements IVerifyTOTPResolver {
 
     private static final String LOG_TAG = "VerifyTOTPResolver";
@@ -38,6 +43,13 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
         return this;
     }
 
+    /**
+     * Request verification for a provided TOTP code.
+     *
+     * @param verificationCode Verification code provided.
+     * @param rememberDevice   Option to remember this device.
+     * @param resultCallback   Result callback.
+     */
     @Override
     public void verifyTOTPCode(@NonNull String verificationCode, boolean rememberDevice, @NonNull ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyTOTPCode with verification code: " + verificationCode);
@@ -52,6 +64,10 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
         }
     }
 
+    /*
+    Will start verification flow.
+    #1 - InitTFA
+     */
     private void restartVerificationFlow(@NonNull final String verificationCode, final boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "restartVerificationFlow: ");
 
@@ -79,6 +95,10 @@ public class VerifyTOTPResolver<A extends GigyaAccount> extends TFAResolver<A> i
                 });
     }
 
+    /*
+    Continue verification flow.
+    #2 - Complete verification.
+     */
     private void completeVerification(@NonNull final String verificationCode, final boolean rememberDevice, @NonNull final ResultCallback resultCallback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);
