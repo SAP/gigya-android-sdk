@@ -16,6 +16,11 @@ public abstract class GigyaPluginCallback<A> {
         // Stub.
     }
 
+    /* Called on user cancel initiated. */
+    public void onCanceled() {
+        // Stub.
+    }
+
     /* Called before validation of the form. */
     public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
         // Stub.

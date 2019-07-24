@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.KeyEvent;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class WebLoginActivity extends Activity {
@@ -21,6 +24,12 @@ public class WebLoginActivity extends Activity {
     private static final String EXTRA_URI = "web_login_uri";
 
     private static final int REQUEST_CODE = 4040;
+
+    /*
+    Result handling and cancel dismissal timer.
+     */
+    private boolean _handledResult = false;
+    private CountDownTimer _cancelResultTimer;
 
     public interface WebLoginActivityCallback {
         void onResult(Activity activity, Map<String, Object> parsed);
@@ -71,11 +80,26 @@ public class WebLoginActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
-            GigyaLogger.debug(LOG_TAG, "onActivityResult: cancelled");
-            if (resultCode == Activity.RESULT_CANCELED) {
-                _webLoginLifecycleCallbacks.onCancelled();
-                finish();
-            }
+            // Start short timer to see if result is being handled in the onNewIntent.
+            // Explanation: When using startActivityForResult with an ACTION_VIEW intent we will not receive the correct
+            // resultCode (Will always be 0 == Activity.RESULT_CANCELED). Therefore in order to determine when the user
+            // actually dismissed the browser we will use this short countdown timer as the onNewIntentCall should trigger
+            // immediately.
+            _cancelResultTimer = new CountDownTimer(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(1)) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    GigyaLogger.debug(LOG_TAG, "Result countdown tick:");
+                }
+
+                @Override
+                public void onFinish() {
+                    if (!_handledResult && !isFinishing()) {
+                        _webLoginLifecycleCallbacks.onCancelled();
+                        finish();
+                    }
+                }
+            }.start();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -84,6 +108,9 @@ public class WebLoginActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
+
+        invalidateCancelTimer();
 
         GigyaLogger.debug(LOG_TAG, "onNewIntent: " + intent.getAction());
         final Uri data = intent.getData();
@@ -103,10 +130,13 @@ public class WebLoginActivity extends Activity {
         }
         // Evaluate intent-filter params,
         if (scheme.equals("gigya") && host.equals("gsapi") && pathPrefix.equalsIgnoreCase("/" + packageName + "/login_result")) {
+
+            _handledResult = true;
+
             final String encodedFragment = data.getEncodedFragment();
             final Map<String, Object> parsed = new HashMap<>();
             UrlUtils.parseUrlParameters(parsed, encodedFragment);
-            if (_webLoginLifecycleCallbacks != null) {
+            if (_webLoginLifecycleCallbacks != null && !isFinishing()) {
                 _webLoginLifecycleCallbacks.onResult(this, parsed);
             }
             finish();
@@ -115,8 +145,20 @@ public class WebLoginActivity extends Activity {
         }
     }
 
+    private void invalidateCancelTimer() {
+        if (_cancelResultTimer != null) {
+            _cancelResultTimer.cancel();
+        }
+        _cancelResultTimer = null;
+    }
+
     @Override
     public void finish() {
+
+        _handledResult = false;
+
+        invalidateCancelTimer();
+
         Presenter.flushWebLoginLifecycleCallback(_webLoginLifecycleCallbacksId);
         super.finish();
         /*
