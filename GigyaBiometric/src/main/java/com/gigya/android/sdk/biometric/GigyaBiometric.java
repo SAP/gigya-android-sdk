@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.biometric;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.gigya.android.sdk.Gigya;
@@ -115,13 +116,14 @@ public class GigyaBiometric {
     /**
      * Opts-in the existing session to use fingerprint authentication.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optIn(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optIn(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optIn: ");
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
+            _impl.showPrompt(activity, Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
         } else {
             final String failedMessage = "Session is invalid. Opt in operation is unavailable";
             GigyaLogger.error(LOG_TAG, failedMessage);
@@ -132,10 +134,11 @@ public class GigyaBiometric {
     /**
      * Opts-out the existing session from using fingerprint authentication.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optOut(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optOut(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optOut: ");
         if (_impl.isLocked()) {
             GigyaLogger.error(LOG_TAG, "optOut: Need to unlock first before trying Opt-out operation");
@@ -144,7 +147,7 @@ public class GigyaBiometric {
             return;
         }
         if (_impl.okayToOptInOut()) {
-            _impl.showPrompt(Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
+            _impl.showPrompt(activity, Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
             GigyaLogger.error(LOG_TAG, "optOut: Session is invalid. Opt in operation is unavailable");
             final String failedMessage = "Invalid session. Unable to perform biometric operation";
@@ -175,13 +178,14 @@ public class GigyaBiometric {
      * Unlocks the session so the user can continue to make authenticated actions.
      * Invokes the onError callback if the session is not opt-in.
      *
+     * @param activity Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void unlock(final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void unlock(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "unlock: ");
         if (_impl.isOptIn()) {
-            _impl.showPrompt(Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
+            _impl.showPrompt(activity, Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
             final String failedMessage = "Not Opt-In";
             GigyaLogger.error(LOG_TAG, failedMessage);
