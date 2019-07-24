@@ -68,7 +68,10 @@ public abstract class BiometricImpl implements IBiometricImpl {
                     return;
                 }
                 try {
-                    setSession(null, _sessionService.getSession());
+                    // Enforce session encryption only if opt-in for fingerprint auth.
+                    if (isOptIn()) {
+                        setSession(null, _sessionService.getSession());
+                    }
                 } catch (Exception e) {
                     GigyaLogger.error(LOG_TAG, "Error setting biometric session");
                     e.printStackTrace();
