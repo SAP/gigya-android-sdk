@@ -40,7 +40,7 @@ class BiometricPushTFAActivity : PushTFAActivity() {
                     showActionAlert()
                     return
                 }
-                biometric.unlock(
+                biometric.unlock(this,
                         GigyaPromptInfo(
                                 getString(R.string.tfa_biometric_locked_session_title),
                                 getString(R.string.tfa_biometric_locked_session_subtitle),

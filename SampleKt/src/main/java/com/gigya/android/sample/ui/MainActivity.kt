@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
         unregisterAccountUpdates()
+        val biometric = GigyaBiometric.getInstance()
+        if (biometric.isLocked) {
+            onClear()
+        }
         super.onPause()
     }
 
