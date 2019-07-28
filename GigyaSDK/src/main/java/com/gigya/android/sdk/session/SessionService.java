@@ -96,7 +96,7 @@ public class SessionService implements ISessionService {
     @Override
     public void save(SessionInfo sessionInfo) {
         final String encryptionType = _psService.getSessionEncryptionType();
-        if (!encryptionType.equals("DEFAULT")) {
+        if (!encryptionType.equals(GigyaDefinitions.SessionEncryption.DEFAULT)) {
             // Saving & encrypting the session via this service is only viable for "default" session encryption.
             return;
         }
@@ -133,7 +133,7 @@ public class SessionService implements ISessionService {
             String encryptedSession = _psService.getSession();
             if (!TextUtils.isEmpty(encryptedSession)) {
                 final String encryptionType = _psService.getSessionEncryptionType();
-                if (ObjectUtils.safeEquals(encryptionType, "FINGERPRINT")) {
+                if (ObjectUtils.safeEquals(encryptionType, GigyaDefinitions.SessionEncryption.FINGERPRINT)) {
                     GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
                 }
                 try {
@@ -217,7 +217,7 @@ public class SessionService implements ISessionService {
         if (clearStorage) {
             // Remove session data. Update encryption to DEFAULT.
             _psService.removeSession();
-            _psService.setSessionEncryptionType("DEFAULT");
+            _psService.setSessionEncryptionType(GigyaDefinitions.SessionEncryption.DEFAULT);
 
             // Make sure to keep reference to GMID & UCID if available.
             if (_config.getGmid() != null && _config.getUcid() != null) {

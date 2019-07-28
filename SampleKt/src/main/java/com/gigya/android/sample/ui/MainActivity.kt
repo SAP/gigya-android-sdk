@@ -233,6 +233,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     GigyaBiometric.Action.UNLOCK -> {
                         fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
+
                     }
                 }
             }

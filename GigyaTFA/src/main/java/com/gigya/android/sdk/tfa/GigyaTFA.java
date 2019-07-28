@@ -301,5 +301,13 @@ public class GigyaTFA {
         });
     }
 
+    /**
+     * Return the current session encryption type.
+     */
+    public String getSessionEncryption() {
+        return _persistenceService.getSessionEncryptionType();
+    }
+
+
     //endregion
 }

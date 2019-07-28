@@ -3,6 +3,8 @@ package com.gigya.android.sdk.persistence;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.gigya.android.sdk.GigyaDefinitions;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -107,7 +109,7 @@ public class PersistenceService implements IPersistenceService {
      */
     @Override
     public String getSessionEncryptionType() {
-        return getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+        return getString(PREFS_KEY_SESSION_ENCRYPTION_TYPE, GigyaDefinitions.SessionEncryption.DEFAULT);
     }
 
     /**

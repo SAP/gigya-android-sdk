@@ -34,6 +34,8 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
     final private static String LOG_TAG = "GigyaMessagingService";
 
+    private TFAPersistenceService _psService;
+
     @Override
     public void onCreate() {
         // Safe to call here. Once notification channel is created it won't be recreated again.
@@ -41,6 +43,9 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         GigyaLogger.info(LOG_TAG, "GigyaFirebaseMessagingService created: If you have not extended this service with" +
                 " your own service class, all notification with use small icon \"android.R.drawable.ic_dialog_in\'");
+
+        // Instantiate new persistence service extension.
+        _psService = new TFAPersistenceService(this);
     }
 
     private void createTFANotificationChannel() {
@@ -61,11 +66,10 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         if (newToken != null) {
             // Check for token updates.
-            final TFAPersistenceService ps = new TFAPersistenceService(this);
-            final String persistentToken = ps.getPushToken();
+            final String persistentToken = _psService.getPushToken();
             if (persistentToken == null) {
                 // Update push token in SDK preference file.
-                ps.setPushToken(newToken);
+                _psService.setPushToken(newToken);
                 return;
             }
 
@@ -87,6 +91,12 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Handle push message data.
+     * Fetch "mode" property from data and apply logic accordingly.
+     *
+     * @param data Notification data map.
+     */
     private void handleRemoteMessage(Map<String, String> data) {
         final String pushMode = data.get("mode");
         if (pushMode == null) {
@@ -105,6 +115,13 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 GigyaLogger.debug(LOG_TAG, "Push mode not supported. Notification is ignored");
                 break;
         }
+    }
+
+    /**
+     * Check if the current session is encrypted using a biometric key.
+     */
+    private boolean isDefaultEncryptedSession() {
+        return _psService.getSessionEncryptionType().equals(com.gigya.android.sdk.GigyaDefinitions.SessionEncryption.DEFAULT);
     }
 
     private void notifyWith(String mode, Map<String, String> data) {
@@ -136,28 +153,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
                 intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        // Deny action.
-        final Intent denyIntent = new Intent(this, TFAPushReceiver.class);
-        denyIntent.putExtra("mode", mode);
-        denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
-        denyIntent.putExtra("verificationToken", verificationToken);
-        denyIntent.putExtra("notificationId", notificationId);
-        denyIntent.setAction(getString(R.string.tfa_action_deny));
-        final PendingIntent denyPendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT);
-
-        // Approve action.
-        final Intent approveIntent = new Intent(this, TFAPushReceiver.class);
-        approveIntent.putExtra("mode", mode);
-        approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
-        approveIntent.putExtra("verificationToken", verificationToken);
-        approveIntent.putExtra("notificationId", notificationId);
-        approveIntent.setAction(getString(R.string.tfa_action_approve));
-        final PendingIntent approvePendingIntent =
-                PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT);
-
         // Build notification.
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TFA_CHANNEL_ID)
                 .setSmallIcon(getSmallIcon())
@@ -165,11 +160,39 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(body != null ? body.trim() : "")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .addAction(getDenyActionIcon(), getString(R.string.tfa_deny),
-                        denyPendingIntent)
-                .addAction(getApproveActionIcon(), getString(R.string.tfa_approve),
-                        approvePendingIntent);
+                .setAutoCancel(true);
+
+        // Adding notification actions only for default encrypted sessions.
+        // This is due to the fact that decrypting a session is a time consuming task and performing it via a
+        // broadcast receiver context can cause intent data to be flushed before usage.
+        if (isDefaultEncryptedSession()) {
+            // Deny action.
+            final Intent denyIntent = new Intent(this, TFAPushReceiver.class);
+            denyIntent.putExtra("mode", mode);
+            denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
+            denyIntent.putExtra("verificationToken", verificationToken);
+            denyIntent.putExtra("notificationId", notificationId);
+            denyIntent.setAction(getString(R.string.tfa_action_deny));
+            final PendingIntent denyPendingIntent =
+                    PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
+                            PendingIntent.FLAG_CANCEL_CURRENT);
+
+            // Approve action.
+            final Intent approveIntent = new Intent(this, TFAPushReceiver.class);
+            approveIntent.putExtra("mode", mode);
+            approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
+            approveIntent.putExtra("verificationToken", verificationToken);
+            approveIntent.putExtra("notificationId", notificationId);
+            approveIntent.setAction(getString(R.string.tfa_action_approve));
+            final PendingIntent approvePendingIntent =
+                    PendingIntent.getBroadcast(this, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
+                            PendingIntent.FLAG_CANCEL_CURRENT);
+
+            builder
+                    .addAction(getDenyActionIcon(), getString(R.string.tfa_deny), denyPendingIntent)
+                    .addAction(getApproveActionIcon(), getString(R.string.tfa_approve), approvePendingIntent);
+        }
+
 
         // Apply full customization options (not in v 1.0.0).
         if (getStyle() != null) {

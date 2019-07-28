@@ -32,6 +32,11 @@ public class TFAPersistenceService extends PersistenceService implements ITFAPer
         return getPrefs().getBoolean(PREFS_PUSH_TFA_OPT_IN, false);
     }
 
+    @Override
+    public String getSessionEncryptionType() {
+        return super.getSessionEncryptionType();
+    }
+
     //region KEYS
 
     /*

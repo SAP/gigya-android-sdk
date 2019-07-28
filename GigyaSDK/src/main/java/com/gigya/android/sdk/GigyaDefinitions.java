@@ -43,6 +43,18 @@ public class GigyaDefinitions {
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
     }
 
+    public static class SessionEncryption {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({DEFAULT, FINGERPRINT})
+        public @interface Type {
+
+        }
+
+        public static final String DEFAULT = "DEFAULT";
+        public static final String FINGERPRINT = "FINGERPRINT";
+    }
+
     /**
      * Plugin view specific constants.
      */
