@@ -20,11 +20,31 @@ public class PushTFAActivity extends AppCompatActivity {
 
     private final static String LOG_TAG = "GigyaPushTfaActivity";
 
+    protected final GigyaTFA _tfaLib = GigyaTFA.getInstance();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_push_tfa);
 
+        if (alertOnCreate()) {
+            showActionAlert();
+        }
+    }
+
+    protected boolean alertOnCreate() {
+        return true;
+    }
+
+    /**
+     * Show TFA actions alert.
+     */
+    protected void showActionAlert() {
+        final Bundle extras = getIntent().getExtras();
+        if (extras == null) {
+            finish();
+            return;
+        }
         // Show alert fragment.
         AlertDialog alert = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.tfa_title))
@@ -34,7 +54,7 @@ public class PushTFAActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "approve clicked");
-                        onApprove(getIntent().getExtras());
+                        onApprove(extras);
                         dialog.dismiss();
                     }
                 }).setNegativeButton(R.string.tfa_deny, new DialogInterface.OnClickListener() {
@@ -48,7 +68,13 @@ public class PushTFAActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private void onApprove(Bundle extras) {
+    /**
+     * User chose to approve the push action.
+     * Approval logic is dependant on included mode parameter.
+     *
+     * @param extras Parameters passed in push intent.
+     */
+    protected void onApprove(Bundle extras) {
         final String pushMode = extras.getString("mode");
         final String gigyaAssertion = extras.getString("gigyaAssertion");
         final String verificationToken = extras.getString("verificationToken");
@@ -60,9 +86,9 @@ public class PushTFAActivity extends AppCompatActivity {
 
             // Continue flow.
             if (pushMode.equals(GigyaDefinitions.PushMode.OPT_IN)) {
-                GigyaTFA.getInstance().verifyOptInForPushTFA(gigyaAssertion, verificationToken);
+                _tfaLib.verifyOptInForPushTFA(gigyaAssertion, verificationToken);
             } else {
-                GigyaTFA.getInstance().approveLoginForPushTFA(gigyaAssertion, verificationToken);
+                _tfaLib.approveLoginForPushTFA(gigyaAssertion, verificationToken);
             }
         } else {
             GigyaLogger.error(LOG_TAG, "Error fetching mandatory fields (gigyaAssertion, verificationToken, pushMode) from intent extras");
@@ -70,15 +96,19 @@ public class PushTFAActivity extends AppCompatActivity {
         finish();
     }
 
-    private void onDeny() {
-        //GigyaTFA.getInstance().pushDeny(); /* Not implemented on version 1.0.0 */
+    /**
+     * User chose to deny the push action.
+     */
+    protected void onDeny() {
+        //_tfaLib.getInstance().pushDeny(); /* Not implemented on version 1.0.0 */
         finish();
     }
+
 
     @Override
     public void finish() {
         super.finish();
-        // Disable exit animation.
+        // Disable exit animation. Will cause a smoother dismissal experience.
         overridePendingTransition(0, 0);
     }
 }

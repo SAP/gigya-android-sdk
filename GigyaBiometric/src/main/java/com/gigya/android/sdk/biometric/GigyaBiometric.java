@@ -162,7 +162,7 @@ public class GigyaBiometric {
      *
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void lock(final IGigyaBiometricCallback biometricCallback) {
+    public void lock(final IGigyaBiometricOperationCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "lock: ");
         if (_impl.isOptIn()) {
             _impl.lock(biometricCallback);

@@ -22,7 +22,7 @@ public class Resolver<A extends GigyaAccount> {
         _businessApiService = businessApiService;
     }
 
-    protected String getRegToken() {
+    public String getRegToken() {
         return _interruption.getField("regToken", String.class);
     }
 

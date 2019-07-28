@@ -102,7 +102,7 @@
 
         <!-- Gigya TFA messaging service -->
         <service
-            android:name="com.gigya.android.sdk.tfa.push.firebase.GigyaFirebaseMessagingService"
+            android:name="GigyaFirebaseMessagingExt"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -111,7 +111,7 @@
 
         <!-- Gigya TFA display activity -->
         <activity
-            android:name="com.gigya.android.sdk.tfa.ui.PushTFAActivity"
+            android:name=".ui.BiometricPushTFAActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""

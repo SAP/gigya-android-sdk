@@ -12,4 +12,6 @@ public interface ITFAPersistenceService {
     void updateOptInState(boolean enabled);
 
     boolean isOptInForPushTFA();
+
+    String getSessionEncryptionType();
 }

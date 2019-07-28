@@ -7,6 +7,7 @@ import android.support.v4.util.Pair;
 import android.util.Base64;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.GigyaInterceptor;
@@ -105,7 +106,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
         // Persist.
         _persistenceService.add(PersistenceService.PREFS_KEY_SESSION, encodedPair.first);
         _persistenceService.add(PersistenceService.PREFS_KEY_IV_SPEC, encodedPair.second);
-        _persistenceService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "FINGERPRINT");
+        _persistenceService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, GigyaDefinitions.SessionEncryption.FINGERPRINT);
     }
 
     //endregion
@@ -123,8 +124,9 @@ public abstract class BiometricImpl implements IBiometricImpl {
      * Check Opt-In state.
      */
     boolean isOptIn() {
-        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
-        final boolean optIn = ObjectUtils.safeEquals(encryptionType, "FINGERPRINT");
+        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE,
+                GigyaDefinitions.SessionEncryption.DEFAULT);
+        final boolean optIn = ObjectUtils.safeEquals(encryptionType, GigyaDefinitions.SessionEncryption.FINGERPRINT);
         GigyaLogger.debug(LOG_TAG, "isOptIn : " + String.valueOf(optIn));
         return optIn;
     }
@@ -173,8 +175,9 @@ public abstract class BiometricImpl implements IBiometricImpl {
      * @param biometricCallback Status callback.
      */
     private void optIn(@NonNull Cipher cipher, @NonNull final IGigyaBiometricCallback biometricCallback) {
-        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
-        if (encryptionType.equals("FINGERPRINT")) {
+        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE,
+                GigyaDefinitions.SessionEncryption.DEFAULT);
+        if (encryptionType.equals(GigyaDefinitions.SessionEncryption.FINGERPRINT)) {
             GigyaLogger.error(LOG_TAG, "Fingerprint already opt-in");
             return;
         }
@@ -199,15 +202,16 @@ public abstract class BiometricImpl implements IBiometricImpl {
      * @param biometricCallback Status callback.
      */
     private void optOut(@NonNull Cipher cipher, IGigyaBiometricCallback biometricCallback) {
-        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
-        if (encryptionType.equals("DEFAULT")) {
+        final String encryptionType = _persistenceService.getString(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE,
+                GigyaDefinitions.SessionEncryption.DEFAULT);
+        if (encryptionType.equals(GigyaDefinitions.SessionEncryption.DEFAULT)) {
             GigyaLogger.error(LOG_TAG, "Fingerprint already opt-out");
             return;
         }
         try {
             final SessionInfo sessionInfo = decryptBiometricSession(cipher);
             // Reset session encryption to DEFAULT.
-            _persistenceService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, "DEFAULT");
+            _persistenceService.add(PersistenceService.PREFS_KEY_SESSION_ENCRYPTION_TYPE, GigyaDefinitions.SessionEncryption.DEFAULT);
             _sessionService.setSession(sessionInfo);
             // Delete KeyStore.
             ((BiometricKey) _biometricKey).deleteKey();
@@ -224,7 +228,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
      *
      * @param biometricCallback Status callback.
      */
-    void lock(IGigyaBiometricCallback biometricCallback) {
+    void lock(IGigyaBiometricOperationCallback biometricCallback) {
         // Locking means clearing the SessionInfo from the heap but keeping the persistence.
         _sessionService.clear(false);
         biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.LOCK);

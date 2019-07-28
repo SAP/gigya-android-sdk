@@ -21,6 +21,11 @@
     <string name="tfa_login_approval_success_title">Verify push TFA</string>
     <string name="tfa_login_approval_success_body">Successfully authenticated login request</string>
 
+    <!-- Biometric restriction -->
+    <string name="tfa_biometric_locked_session_title">Unlock session</string>
+    <string name="tfa_biometric_locked_session_subtitle">Place finger on sensor to continue</string>
+    <string name="tfa_biometric_locked_session_description">Unlocking the session is required in order to approve your push notification action</string>
+
     <!-- UI related -->
     <string name="tfa_available_providers">Available providers:</string>
     <string name="tfa_register_phone_number">Register phone number:</string>
