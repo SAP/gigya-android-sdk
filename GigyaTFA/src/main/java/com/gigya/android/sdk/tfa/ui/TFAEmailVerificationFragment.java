@@ -41,6 +41,14 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
         return new TFAEmailVerificationFragment();
     }
 
+    public static TFAEmailVerificationFragment newInstance(String language) {
+        final Bundle args = new Bundle();
+        args.putString(ARG_LANGUAGE, language);
+        TFAEmailVerificationFragment fragment = new TFAEmailVerificationFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initUI(view);
@@ -146,6 +154,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
                 final EmailHelper helper = (EmailHelper) _registeredEmailsSpinner.getSelectedItem();
                 _registeredEmailsResolver.sendEmailCode(
                         helper.email,
+                        _language,
                         registeredEmailsResolverResultCallback);
             }
         });

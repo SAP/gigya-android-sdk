@@ -9,4 +9,7 @@ public interface IRegisteredEmailsResolver {
     void getRegisteredEmails(@NonNull RegisteredEmailsResolver.ResultCallback resultCallback);
 
     void sendEmailCode(@NonNull EmailModel verifiedEmail, @NonNull RegisteredEmailsResolver.ResultCallback resultCallback);
+
+    void sendEmailCode(@NonNull EmailModel verifiedEmail, @NonNull final String lang, @NonNull RegisteredEmailsResolver.ResultCallback resultCallback);
+
 }

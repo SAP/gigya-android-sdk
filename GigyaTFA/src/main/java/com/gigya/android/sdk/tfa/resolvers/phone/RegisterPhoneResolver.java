@@ -97,7 +97,8 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
      * @see com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod for available methods.
      */
     @Override
-    public void registerPhone(@NonNull final String phoneNumber, @NonNull final String lang, @NonNull final String method,
+    public void registerPhone(@NonNull final String phoneNumber, @NonNull final String lang,
+                              @NonNull final @GigyaDefinitions.PhoneMethod.Method String method,
                               @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "register with phoneNumber: " + phoneNumber + ", method: " + method);
 

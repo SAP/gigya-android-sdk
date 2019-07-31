@@ -28,6 +28,10 @@ public abstract class BaseTFAFragment extends DialogFragment {
         void onError(GigyaError error);
     }
 
+    public static final String ARG_LANGUAGE = "arg_language";
+
+    protected String _language = "eng";
+
     @Nullable
     protected TFAResolverFactory _resolverFactory;
 

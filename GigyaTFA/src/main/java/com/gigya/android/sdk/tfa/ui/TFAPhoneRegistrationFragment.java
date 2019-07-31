@@ -17,6 +17,7 @@ import android.widget.Spinner;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver;
 import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver;
@@ -60,6 +61,15 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         return fragment;
     }
 
+    public static TFAPhoneRegistrationFragment newInstance(String phoneProvider, String language) {
+        TFAPhoneRegistrationFragment fragment = new TFAPhoneRegistrationFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PHONE_PROVIDER, phoneProvider);
+        args.putString(ARG_LANGUAGE, language);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public int getLayoutId() {
         return R.layout.fragment_phone_registraion;
@@ -75,6 +85,9 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         }
 
         _phoneProvider = getArguments().getString(ARG_PHONE_PROVIDER);
+        if (getArguments().containsKey(ARG_LANGUAGE)) {
+            _language = getArguments().getString(ARG_LANGUAGE);
+        }
     }
 
     @Override
@@ -158,22 +171,23 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
             return;
         }
         _progressBar.setVisibility(View.VISIBLE);
-        _registerPhoneResolver.registerPhone(phoneNumber, new RegisterPhoneResolver.ResultCallback() {
-            @Override
-            public void onVerificationCodeSent(IVerifyCodeResolver verifyCodeResolver) {
-                _progressBar.setVisibility(View.INVISIBLE);
-                _verifyCodeResolver = verifyCodeResolver;
-                updateToVerificationState();
-            }
+        _registerPhoneResolver.registerPhone(phoneNumber, _language, GigyaDefinitions.PhoneMethod.SMS,
+                new RegisterPhoneResolver.ResultCallback() {
+                    @Override
+                    public void onVerificationCodeSent(IVerifyCodeResolver verifyCodeResolver) {
+                        _progressBar.setVisibility(View.INVISIBLE);
+                        _verifyCodeResolver = verifyCodeResolver;
+                        updateToVerificationState();
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                if (_selectionCallback != null) {
-                    _selectionCallback.onError(error);
-                }
-                dismiss();
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        if (_selectionCallback != null) {
+                            _selectionCallback.onError(error);
+                        }
+                        dismiss();
+                    }
+                });
     }
 
     private void verify() {

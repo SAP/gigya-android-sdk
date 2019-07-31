@@ -45,6 +45,15 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         return fragment;
     }
 
+    public static TFAPhoneVerificationFragment newInstance(String phoneProvider, String language) {
+        TFAPhoneVerificationFragment fragment = new TFAPhoneVerificationFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PHONE_PROVIDER, phoneProvider);
+        args.putString(ARG_LANGUAGE, language);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +64,9 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         }
 
         _phoneProvider = getArguments().getString(ARG_PHONE_PROVIDER);
+        if (getArguments().containsKey(ARG_LANGUAGE)) {
+            _language = getArguments().getString(ARG_LANGUAGE);
+        }
     }
 
     @Override
@@ -157,6 +169,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
                 final PhoneHelper helper = (PhoneHelper) _registeredPhonesSpinner.getSelectedItem();
                 _registeredPhonesResolver.sendVerificationCode(
                         helper.phone.getId(),
+                        _language,
                         helper.phone.getLastMethod(),
                         _registeredPhonesResolverResultCallback);
             }

@@ -98,15 +98,29 @@ public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolve
                 });
     }
 
+    /**
+     * @param verifiedEmail  Verified email address.
+     * @param resultCallback Result callback.
+     */
     @Override
     public void sendEmailCode(@NonNull EmailModel verifiedEmail, @NonNull final ResultCallback resultCallback) {
+        sendEmailCode(verifiedEmail, "eng", resultCallback);
+    }
+
+    /**
+     * @param verifiedEmail  Verified email address.
+     * @param lang           Localization language.
+     * @param resultCallback Result callback.
+     */
+    @Override
+    public void sendEmailCode(@NonNull EmailModel verifiedEmail, @NonNull final String lang, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "sendEmailCode for verified email: " + verifiedEmail.getObfuscated());
 
         // Send verification code.
         final Map<String, Object> params = new HashMap<>();
         params.put("emailID", verifiedEmail.getId());
         params.put("gigyaAssertion", _gigyaAssertion);
-        params.put("lang", "eng");
+        params.put("lang", lang);
         _businessApiService.send(GigyaDefinitions.API.API_TFA_EMAIL_SEND_VERIFICATION_CODE, params, RestAdapter.POST,
                 VerificationCodeModel.class, new GigyaCallback<VerificationCodeModel>() {
                     @Override
