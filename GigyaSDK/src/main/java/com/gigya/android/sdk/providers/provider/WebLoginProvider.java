@@ -76,16 +76,20 @@ public class WebLoginProvider extends Provider {
                     if (parsed.containsKey("error_description")) {
 
                         final String errorDescription = (String) parsed.get("error_description");
-                        String[] parts = errorDescription.replace("+", "").split("-");
-                        final int errorCode = Integer.parseInt(parts[0].trim());
-                        final String errorMessage = parts[1].trim();
+                        if (errorDescription != null) {
+                            String[] parts = errorDescription.replace("+", "").split("-");
+                            if (parts.length > 1) {
+                                final int errorCode = Integer.parseInt(parts[0].trim());
+                                final String errorMessage = parts[1].trim();
 
-                        errorParams.put("errorCode", errorCode);
-                        errorParams.put("errorMessage", errorMessage);
+                                errorParams.put("errorCode", errorCode);
+                                errorParams.put("errorMessage", errorMessage);
+                            }
+                        }
 
                         if (parsed.containsKey("x_regToken")) {
                             final String regToken = (String) parsed.get("x_regToken");
-                            errorParams.put("regToken", regToken);
+                            errorParams.put("regToken", regToken); // Nullification is not relevant here.
                         }
                     }
 
