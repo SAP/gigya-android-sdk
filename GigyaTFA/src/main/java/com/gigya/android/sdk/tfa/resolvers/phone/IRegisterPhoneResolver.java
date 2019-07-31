@@ -10,7 +10,13 @@ public interface IRegisterPhoneResolver {
     void registerPhone(@NonNull String phoneNumber,
                        @NonNull RegisterPhoneResolver.ResultCallback resultCallback);
 
+    // Default language is "eng".
     void registerPhone(@NonNull String phoneNumber,
+                       @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
+                       @NonNull RegisterPhoneResolver.ResultCallback resultCallback);
+
+    void registerPhone(@NonNull String phoneNumber,
+                       @NonNull String lang,
                        @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                        @NonNull RegisterPhoneResolver.ResultCallback resultCallback);
 

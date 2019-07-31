@@ -120,6 +120,7 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
 
     /**
      * Send TFA verification code for approval.
+     * Default language is "eng".
      *
      * @param phoneId        Phone number id.
      * @param method         Verification method used.
@@ -127,6 +128,19 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
      */
     @Override
     public void sendVerificationCode(@NonNull String phoneId, @NonNull @GigyaDefinitions.PhoneMethod.Method String method, @NonNull final ResultCallback resultCallback) {
+        sendVerificationCode(phoneId, "eng", method, resultCallback);
+    }
+
+    /**
+     * Send TFA verification code for approval.
+     *
+     * @param phoneId        Phone number id.
+     * @param lang           The language of the text or voice message.
+     * @param method         Verification method used.
+     * @param resultCallback Result callback.
+     */
+    @Override
+    public void sendVerificationCode(@NonNull String phoneId, @NonNull String lang, @NonNull final String method, @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "sendVerificationCode with phoneId: " + phoneId + ", method: " + method);
 
         // Send verification code.
@@ -134,7 +148,7 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("phoneID", phoneId);
         params.put("method", method);
-        params.put("lang", "eng");
+        params.put("lang", lang);
         _businessApiService.send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST,
                 VerificationCodeModel.class, new GigyaCallback<VerificationCodeModel>() {
                     @Override

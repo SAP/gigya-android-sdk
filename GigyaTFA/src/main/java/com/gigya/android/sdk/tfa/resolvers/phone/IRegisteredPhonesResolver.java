@@ -8,5 +8,13 @@ public interface IRegisteredPhonesResolver {
 
     void getPhoneNumbers(@NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
 
-    void sendVerificationCode(@NonNull String phoneId, @NonNull @GigyaDefinitions.PhoneMethod.Method String method, @NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
+    // Default language is "eng"
+    void sendVerificationCode(@NonNull String phoneId,
+                              @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
+                              @NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
+
+    void sendVerificationCode(@NonNull String phoneId,
+                              @NonNull String lang,
+                              @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
+                              @NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
 }

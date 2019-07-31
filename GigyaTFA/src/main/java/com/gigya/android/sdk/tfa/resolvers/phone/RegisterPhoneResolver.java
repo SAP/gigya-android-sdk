@@ -84,6 +84,21 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
     @Override
     public void registerPhone(final @NonNull String phoneNumber, final @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                               @NonNull final ResultCallback resultCallback) {
+        registerPhone(phoneNumber, "eng", method, resultCallback);
+    }
+
+    /**
+     * Register provided phone number.
+     *
+     * @param phoneNumber    Phone number for registration.
+     * @param lang           The language of the text or voice message.
+     * @param method         Registration method
+     * @param resultCallback Result callback.
+     * @see com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod for available methods.
+     */
+    @Override
+    public void registerPhone(@NonNull final String phoneNumber, @NonNull final String lang, @NonNull final String method,
+                              @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "register with phoneNumber: " + phoneNumber + ", method: " + method);
 
         // Initialize the TFA flow.
@@ -99,7 +114,7 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
                     resultCallback.onError(GigyaError.unauthorizedUser());
                     return;
                 }
-                registerPhoneNumber(phoneNumber, method, resultCallback);
+                registerPhoneNumber(phoneNumber, lang, method, resultCallback);
             }
 
             @Override
@@ -113,11 +128,12 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
      * Register selected phone number.
      *
      * @param phoneNumber    Phone number to register.
+     * @param lang           The language of the text or voice message.
      * @param method         Registration method.
      * @param resultCallback Result callback.
      * @see com.gigya.android.sdk.tfa.GigyaDefinitions.PhoneMethod for available methods.
      */
-    private void registerPhoneNumber(@NonNull final String phoneNumber, @NonNull @GigyaDefinitions.PhoneMethod.Method final String method,
+    private void registerPhoneNumber(@NonNull final String phoneNumber, String lang, @NonNull @GigyaDefinitions.PhoneMethod.Method final String method,
                                      @NonNull final ResultCallback resultCallback) {
         GigyaLogger.debug(LOG_TAG, "register with phone number: " + phoneNumber + " and method: " + method);
 
@@ -126,7 +142,7 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("phone", phoneNumber);
         params.put("method", method);
-        params.put("lang", "eng");
+        params.put("lang", lang);
         _businessApiService.send(GigyaDefinitions.API.API_TFA_PHONE_SEND_VERIFICATION_CODE, params, RestAdapter.POST,
                 VerificationCodeModel.class, new GigyaCallback<VerificationCodeModel>() {
                     @Override

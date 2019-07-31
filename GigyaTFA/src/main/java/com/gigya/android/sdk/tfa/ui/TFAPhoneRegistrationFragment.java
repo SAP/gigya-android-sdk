@@ -52,10 +52,10 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
 
     private static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
 
-    public static TFAPhoneRegistrationFragment newInstance(String phoneprovider) {
+    public static TFAPhoneRegistrationFragment newInstance(String phoneProvider) {
         TFAPhoneRegistrationFragment fragment = new TFAPhoneRegistrationFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PHONE_PROVIDER, phoneprovider);
+        args.putString(ARG_PHONE_PROVIDER, phoneProvider);
         fragment.setArguments(args);
         return fragment;
     }
