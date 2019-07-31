@@ -50,6 +50,15 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null && getArguments().containsKey(ARG_LANGUAGE)) {
+            _language = getArguments().getString(ARG_LANGUAGE);
+        }
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initUI(view);
         setActions();
