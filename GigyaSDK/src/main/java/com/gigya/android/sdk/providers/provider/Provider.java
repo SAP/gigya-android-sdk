@@ -100,6 +100,14 @@ public abstract class Provider implements IProvider {
     }
 
     @Override
+    public void onLoginFailed(GigyaError error) {
+        _connecting = false;
+        GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
+                + getName() + ", error =" + error.getData());
+        _gigyaLoginCallback.onError(error);
+    }
+
+    @Override
     public void setRegToken(String regToken) {
         _regToken = regToken;
     }

@@ -10,6 +10,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -18,6 +19,7 @@ import com.gigya.android.sdk.ui.WebLoginActivity;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -67,7 +69,31 @@ public class WebLoginProvider extends Provider {
                     final SessionInfo sessionInfo = parseSessionInfo(parsed);
                     onProviderSession(providerName, sessionInfo);
                 } else {
-                    onLoginFailed("Failed to login");
+
+                    // An error result appears in a different format.
+                    // Need to parse it correctly in order for the flow to continue as expected.
+                    Map<String, Object> errorParams = new HashMap<>();
+                    if (parsed.containsKey("error_description")) {
+
+                        final String errorDescription = (String) parsed.get("error_description");
+                        String[] parts = errorDescription.replace("+", "").split("-");
+                        final int errorCode = Integer.parseInt(parts[0].trim());
+                        final String errorMessage = parts[1].trim();
+
+                        errorParams.put("errorCode", errorCode);
+                        errorParams.put("errorMessage", errorMessage);
+
+                        if (parsed.containsKey("x_regToken")) {
+                            final String regToken = (String) parsed.get("x_regToken");
+                            errorParams.put("regToken", regToken);
+                        }
+                    }
+
+                    final GigyaError error = GigyaError.errorFrom(errorParams);
+
+                    GigyaLogger.debug(LOG_TAG, "onResult: with error = " + error.getData());
+
+                    onLoginFailed(error);
                 }
 
                 if (activity != null) {
