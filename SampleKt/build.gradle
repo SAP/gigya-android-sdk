@@ -46,6 +46,15 @@ android {
 }
 
 dependencies {
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-web:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation project(path: ':GigyaSDK')
@@ -70,7 +79,7 @@ dependencies {
     implementation deps.libs.gson
 
     // Uncomment if you want to use Google Volley to send http requests.
-    //implementation deps.libs.volley
+    implementation deps.libs.volley
 
     // Social libs
     implementation deps.libs.facebook

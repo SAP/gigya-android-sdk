@@ -60,7 +60,7 @@ dependencies {
 
     compileOnly project(path: ':GigyaSDK')
 
-    api deps.firebase.messaging
+    implementation deps.firebase.messaging
 }
 
 // Task for building release Jar/sources/JavaDocs.

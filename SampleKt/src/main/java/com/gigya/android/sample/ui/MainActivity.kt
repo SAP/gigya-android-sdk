@@ -406,7 +406,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
                         // Resolving Phone TFA registration.
-                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance(selectedProvider)
+                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance(selectedProvider, "fr")
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
@@ -475,7 +475,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 when (selectedProvider) {
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
-                        val phoneDialog = TFAPhoneVerificationFragment.newInstance(selectedProvider)
+                        val phoneDialog = TFAPhoneVerificationFragment.newInstance(selectedProvider, "fr")
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
@@ -497,7 +497,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         phoneDialog.show(supportFragmentManager, "TFAPhoneVerificationFragment")
                     }
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.EMAIL -> {
-                        val emailDialog = TFAEmailVerificationFragment.newInstance();
+                        val emailDialog = TFAEmailVerificationFragment.newInstance("fr")
                         emailDialog.setRoundedCorners(true)
                         emailDialog.setResolverFactory(dataPair.second)
                         emailDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
