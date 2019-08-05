@@ -35,7 +35,7 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
     private final VerifyCodeResolver<A> _verifyCodeResolver;
 
     @NonNull
-    private String _provider = GigyaDefinitions.TFAProvider.PHONE.toString(); // If "liveLink" will be supported we will need to update the provider.
+    private String _provider = GigyaDefinitions.TFAProvider.PHONE; // If "liveLink" will be supported we will need to update the provider.
 
     @NonNull
     public String getProvider() {
@@ -84,7 +84,7 @@ public class RegisterPhoneResolver<A extends GigyaAccount> extends TFAResolver<A
     @Override
     public void registerPhone(final @NonNull String phoneNumber, final @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                               @NonNull final ResultCallback resultCallback) {
-        registerPhone(phoneNumber, "eng", method, resultCallback);
+        registerPhone(phoneNumber, "en", method, resultCallback);
     }
 
     /**

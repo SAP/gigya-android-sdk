@@ -6,12 +6,12 @@ import com.gigya.android.sdk.tfa.GigyaDefinitions;
 
 public interface IRegisterPhoneResolver {
 
-    // Default method is "sms". Default language is "eng".
+    // Default method is "sms". Default language is "en".
     void registerPhone(@NonNull String phoneNumber,
                        @NonNull RegisterPhoneResolver.ResultCallback resultCallback);
 
 
-    // Default language is "eng".
+    // Default language is "en".
     void registerPhone(@NonNull String phoneNumber,
                        @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                        @NonNull RegisterPhoneResolver.ResultCallback resultCallback);

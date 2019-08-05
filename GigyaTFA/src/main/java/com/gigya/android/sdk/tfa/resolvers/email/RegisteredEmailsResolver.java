@@ -104,7 +104,7 @@ public class RegisteredEmailsResolver<A extends GigyaAccount> extends TFAResolve
      */
     @Override
     public void sendEmailCode(@NonNull EmailModel verifiedEmail, @NonNull final ResultCallback resultCallback) {
-        sendEmailCode(verifiedEmail, "eng", resultCallback);
+        sendEmailCode(verifiedEmail, "en", resultCallback);
     }
 
     /**

@@ -30,7 +30,7 @@ public abstract class BaseTFAFragment extends DialogFragment {
 
     public static final String ARG_LANGUAGE = "arg_language";
 
-    protected String _language = "eng";
+    protected String _language = "en";
 
     @Nullable
     protected TFAResolverFactory _resolverFactory;

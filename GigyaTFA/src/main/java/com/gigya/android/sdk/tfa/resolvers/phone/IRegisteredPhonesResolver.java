@@ -8,7 +8,7 @@ public interface IRegisteredPhonesResolver {
 
     void getPhoneNumbers(@NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
 
-    // Default language is "eng"
+    // Default language is "en"
     void sendVerificationCode(@NonNull String phoneId,
                               @NonNull @GigyaDefinitions.PhoneMethod.Method String method,
                               @NonNull RegisteredPhonesResolver.ResultCallback resultCallback);
