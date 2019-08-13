@@ -1,4 +1,6 @@
 package com.gigya.android.sample.screensets
 
-class SimpleUsernameAndPasswordSignUpTest {
+import com.gigya.android.sample.BaseAndroidTest
+
+class SimpleUsernameAndPasswordSignUpTest: BaseAndroidTest() {
 }

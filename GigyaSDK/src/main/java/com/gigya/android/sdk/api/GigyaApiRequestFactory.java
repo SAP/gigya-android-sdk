@@ -27,7 +27,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         }
 
         // Add general parameters.
-        urlParams.put("sdk", Gigya.VERSION);
+        urlParams.put("sdk", "Android_" + Gigya.VERSION);
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");

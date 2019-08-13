@@ -44,21 +44,13 @@
             <Spinner
                 android:id="@+id/fpr_country_code_spinner"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/fpr_title_text_view"
-                android:layout_alignStart="@id/fpr_title_text_view"
-                android:layout_alignLeft="@id/fpr_title_text_view" />
+                android:layout_height="wrap_content" />
 
             <EditText
                 android:id="@+id/fpr_phone_edit_text"
-                android:layout_marginTop="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/fpr_title_text_view"
-                android:layout_alignStart="@id/fpr_country_code_spinner"
-                android:layout_alignLeft="@id/fpr_country_code_spinner"
-                android:layout_alignEnd="@id/fpr_progress"
-                android:layout_alignRight="@id/fpr_progress"
+                android:layout_marginTop="4dp"
                 android:hint="@string/tfa_phone_number" />
 
         </LinearLayout>
@@ -125,7 +117,8 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_register" />
+            android:text="@string/tfa_register"
+            tools:ignore="UnusedAttribute" />
 
         <Button
             android:id="@+id/fpr_dismiss_button"
@@ -140,7 +133,8 @@
             android:layout_toLeftOf="@id/fpr_action_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_dismiss" />
+            android:text="@string/tfa_dismiss"
+            tools:ignore="UnusedAttribute" />
     </RelativeLayout>
 
 </FrameLayout>
