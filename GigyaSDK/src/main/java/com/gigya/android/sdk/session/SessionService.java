@@ -350,6 +350,8 @@ public class SessionService implements ISessionService {
             public void onFinish() {
                 GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
                 _psService.setSessionExpiration(_sessionWillExpireIn = 0);
+                // Clear the session from heap & persistence.
+                clear(true);
                 // Send "session expired" local broadcast.
                 LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
             }
