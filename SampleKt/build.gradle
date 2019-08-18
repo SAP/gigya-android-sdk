@@ -54,16 +54,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-web:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation project(path: ':GigyaSDK')
     implementation project(path: ':GigyaTFA')
     implementation project(path: ':GigyaBiometric')
-
-    //implementation files('libs/gigya-android-sdk-4.0.0-debug.aar')
-    // Optional.
-    //implementation files('libs/gigya-android-biometric-1.0.0-debug.aar')
 
     implementation deps.android_support.appcompat
     implementation deps.android_support.design
@@ -88,6 +85,7 @@ dependencies {
     implementation files('libs/line-sdk-4.0.10.aar')
 
     implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation deps.firebase.messaging
 }
 
 apply plugin: 'com.google.gms.google-services'
