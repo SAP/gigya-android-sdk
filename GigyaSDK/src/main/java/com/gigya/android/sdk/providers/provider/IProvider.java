@@ -1,6 +1,8 @@
 package com.gigya.android.sdk.providers.provider;
 
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.session.SessionInfo;
 
 import java.util.Map;
 
@@ -26,7 +28,9 @@ public interface IProvider {
 
     void onLoginSuccess(final Map<String, Object> loginParams, String providerSessions, String loginMode);
 
+    void onLoginSuccess(String providerName, SessionInfo sessionInfo);
+
     void onLoginFailed(String error);
 
-    void onLoginFailed(GigyaError error);
+    void onLoginFailed(GigyaApiResponse response);
 }

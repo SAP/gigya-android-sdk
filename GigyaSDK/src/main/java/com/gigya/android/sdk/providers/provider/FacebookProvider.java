@@ -35,8 +35,8 @@ public class FacebookProvider extends Provider {
     public FacebookProvider(Context context,
                             IPersistenceService persistenceService,
                             IBusinessApiService businessApiService,
-                            GigyaLoginCallback gigyaLoginCallback) {
-        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+                            ProviderCallback providerCallback) {
+        super(context, persistenceService, businessApiService, providerCallback);
     }
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};

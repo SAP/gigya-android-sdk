@@ -33,8 +33,8 @@ public class WeChatProvider extends Provider {
                           FileUtils fileUtils,
                           IPersistenceService persistenceService,
                           IBusinessApiService businessApiService,
-                          GigyaLoginCallback gigyaLoginCallback) {
-        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+                          ProviderCallback providerCallback) {
+        super(context, persistenceService, businessApiService, providerCallback);
         _appId = fileUtils.stringFromMetaData("wechatAppID");
         _api = WXAPIFactory.createWXAPI(_context, _appId, true);
         _api.registerApp(_appId);

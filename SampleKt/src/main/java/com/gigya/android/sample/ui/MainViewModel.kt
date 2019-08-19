@@ -254,6 +254,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 cancel()
             }
 
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                error(GigyaError.fromResponse(response))
+            }
+
             override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
                 linkAccountsResolver = resolver
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_CONFLICTING_ACCOUNTS, resolver.conflictingAccounts))
@@ -318,6 +322,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+               error(GigyaError.fromResponse(response))
+            }
+
             override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
             }
@@ -338,6 +346,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(error: GigyaError?) {
                 error(error)
+            }
+
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                error(GigyaError.fromResponse(response))
             }
 
             override fun onIntermediateLoad() {

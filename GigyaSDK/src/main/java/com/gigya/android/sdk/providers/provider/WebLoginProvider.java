@@ -7,8 +7,8 @@ import android.util.Pair;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
@@ -18,6 +18,8 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.WebLoginActivity;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +39,8 @@ public class WebLoginProvider extends Provider {
                             IAccountService accountService,
                             IPersistenceService persistenceService,
                             IBusinessApiService businessApiService,
-                            GigyaLoginCallback gigyaLoginCallback) {
-        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+                            ProviderCallback providerCallback) {
+        super(context, persistenceService, businessApiService, providerCallback);
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -66,38 +68,45 @@ public class WebLoginProvider extends Provider {
 
                 final String status = (String) parsed.get("status");
                 if (status != null && status.equals("ok")) {
+
                     final SessionInfo sessionInfo = parseSessionInfo(parsed);
-                    onProviderSession(providerName, sessionInfo);
+                    // Notify successful sign in.
+                    onLoginSuccess(providerName, sessionInfo);
+                    
                 } else {
 
-                    // An error result appears in a different format.
-                    // Need to parse it correctly in order for the flow to continue as expected.
-                    Map<String, Object> errorParams = new HashMap<>();
-                    if (parsed.containsKey("error_description")) {
+                    JSONObject jsonObject = new JSONObject();
 
-                        final String errorDescription = (String) parsed.get("error_description");
-                        if (errorDescription != null) {
-                            String[] parts = errorDescription.replace("+", "").split("-");
-                            if (parts.length > 1) {
-                                final int errorCode = Integer.parseInt(parts[0].trim());
-                                final String errorMessage = parts[1].trim();
+                    try {
+                        // An error result appears in a different format.
+                        // Need to parse it correctly in order for the flow to continue as expected.
 
-                                errorParams.put("errorCode", errorCode);
-                                errorParams.put("errorMessage", errorMessage);
+                        if (parsed.containsKey("error_description")) {
+
+                            final String errorDescription = (String) parsed.get("error_description");
+                            if (errorDescription != null) {
+                                String[] parts = errorDescription.replace("+", "").split("-");
+                                if (parts.length > 1) {
+                                    final int errorCode = Integer.parseInt(parts[0].trim());
+                                    final String errorMessage = parts[1].trim();
+
+                                    jsonObject.put("errorCode", errorCode);
+                                    jsonObject.put("errorMessage", errorMessage);
+                                }
+                            }
+
+                            if (parsed.containsKey("x_regToken")) {
+                                final String regToken = (String) parsed.get("x_regToken");
+                                jsonObject.put("regToken", regToken); // Nullification is not relevant here.
                             }
                         }
-
-                        if (parsed.containsKey("x_regToken")) {
-                            final String regToken = (String) parsed.get("x_regToken");
-                            errorParams.put("regToken", regToken); // Nullification is not relevant here.
-                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
 
-                    final GigyaError error = GigyaError.errorFrom(errorParams);
+                    GigyaLogger.debug(LOG_TAG, "onResult: with error = " + jsonObject.toString());
 
-                    GigyaLogger.debug(LOG_TAG, "onResult: with error = " + error.getData());
-
-                    onLoginFailed(error);
+                    onLoginFailed(new GigyaApiResponse(jsonObject.toString()));
                 }
 
                 if (activity != null) {
@@ -107,8 +116,8 @@ public class WebLoginProvider extends Provider {
 
             @Override
             public void onCancelled() {
-                if (_gigyaLoginCallback != null) {
-                    _gigyaLoginCallback.onOperationCanceled();
+                if (_providerCallback != null) {
+                    _providerCallback.onCanceled();
                 }
             }
         });
@@ -117,27 +126,6 @@ public class WebLoginProvider extends Provider {
     @Override
     public void logout() {
         // Stub.
-    }
-
-    /**
-     * Received a session from a successful sign in process. Update session & request an account update.
-     *
-     * @param providerName Specified provider.
-     * @param sessionInfo  New session info.
-     */
-    @SuppressWarnings("unchecked")
-    private void onProviderSession(String providerName, SessionInfo sessionInfo) {
-        _connecting = false;
-        // Call intermediate load to give the client the option to trigger his own progress indicator
-        _gigyaLoginCallback.onIntermediateLoad();
-        // Persist used social provider.
-        _psService.addSocialProvider(providerName);
-        // Set new session.
-        _sessionService.setSession(sessionInfo);
-        // Force fetch account.
-        _accountService.invalidateAccount();
-
-        _businessApiService.getAccount(_gigyaLoginCallback);
     }
 
     @Override

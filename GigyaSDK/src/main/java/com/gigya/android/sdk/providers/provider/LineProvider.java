@@ -37,8 +37,8 @@ public class LineProvider extends Provider {
                         IPersistenceService persistenceService,
                         IBusinessApiService businessApiService,
                         FileUtils fileUtils,
-                        GigyaLoginCallback gigyaLoginCallback) {
-        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+                        ProviderCallback providerCallback) {
+        super(context, persistenceService, businessApiService, providerCallback);
         _fileUtils = fileUtils;
     }
 

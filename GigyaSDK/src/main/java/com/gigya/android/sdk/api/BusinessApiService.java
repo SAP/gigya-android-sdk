@@ -15,6 +15,7 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
+import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.ObjectUtils;
@@ -73,7 +74,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
-            _interruptionsHandler.                                                                resolve(response, loginCallback);
+            _interruptionsHandler.resolve(response, loginCallback);
         } else {
             // Parse & success.
             A parsed = response.parseTo(_accountService.getAccountSchema());
@@ -193,9 +194,46 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
+    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         params.put("provider", socialProvider);  // Needed for non native providers.
-        IProvider provider = _providerFactory.providerFor(socialProvider, gigyaLoginCallback);
+
+        IProvider provider = _providerFactory.providerFor(socialProvider, new ProviderCallback() {
+            @Override
+            public void onProviderSession(String providerName, SessionInfo sessionInfo, Runnable completionHandler) {
+                if (gigyaLoginCallback != null) {
+                    gigyaLoginCallback.onIntermediateLoad();
+                    // Set new session.
+                    _sessionService.setSession(sessionInfo);
+                    // Force fetch account.
+                    _accountService.invalidateAccount();
+                    getAccount(gigyaLoginCallback);
+                    completionHandler.run();
+                }
+            }
+
+            @Override
+            public void onProviderSessions(Map<String, Object> loginParams, Runnable completionHandler) {
+                if (gigyaLoginCallback != null) {
+                    gigyaLoginCallback.onIntermediateLoad();
+                    notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
+                }
+            }
+
+            @Override
+            public void onCanceled() {
+                if (gigyaLoginCallback != null) {
+                    gigyaLoginCallback.onOperationCanceled();
+                }
+            }
+
+            @Override
+            public void onError(GigyaApiResponse response) {
+                if (gigyaLoginCallback != null) {
+                    handleAccountApiResponse(response, gigyaLoginCallback);
+                }
+            }
+        });
+
         if (params.containsKey("regToken")) {
             final String regToken = (String) params.get("regToken");
             provider.setRegToken(regToken);
@@ -204,6 +242,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         if (params.containsKey("loginMode")) {
             loginMode = (String) params.get("loginMode");
         }
+
+        // Perform provider login.
         provider.login(params, loginMode);
     }
 
@@ -563,7 +603,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    public void addConnection(String socialProvider, GigyaLoginCallback<A> gigyaLoginCallback) {
+    public void addConnection(String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback) {
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             if (gigyaLoginCallback != null) {
@@ -572,7 +612,42 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
-        IProvider provider = _providerFactory.providerFor(socialProvider, gigyaLoginCallback);
+        IProvider provider = _providerFactory.providerFor(socialProvider, new ProviderCallback() {
+            @Override
+            public void onProviderSession(String providerName, SessionInfo sessionInfo, Runnable completionHandler) {
+                if (gigyaLoginCallback != null) {
+                    gigyaLoginCallback.onIntermediateLoad();
+                    // Set new session.
+                    _sessionService.setSession(sessionInfo);
+                    // Force fetch account.
+                    _accountService.invalidateAccount();
+                    getAccount(gigyaLoginCallback);
+                    completionHandler.run();
+                }
+            }
+
+            @Override
+            public void onProviderSessions(Map<String, Object> loginParams, Runnable completionHandler) {
+                if (gigyaLoginCallback != null) {
+                    notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
+                }
+            }
+
+            @Override
+            public void onCanceled() {
+                if (gigyaLoginCallback != null) {
+                    gigyaLoginCallback.onOperationCanceled();
+                }
+            }
+
+            @Override
+            public void onError(GigyaApiResponse response) {
+                if (gigyaLoginCallback != null) {
+                    handleAccountApiResponse(response, gigyaLoginCallback);
+                }
+            }
+        });
+
         provider.login(params, "connect");
     }
 

@@ -44,9 +44,9 @@ public class GoogleProvider extends Provider {
     public GoogleProvider(Context context,
                           IPersistenceService persistenceService,
                           IBusinessApiService businessApiService,
-                          GigyaLoginCallback gigyaLoginCallback,
+                          ProviderCallback providerCallback,
                           FileUtils fileUtils) {
-        super(context, persistenceService, businessApiService, gigyaLoginCallback);
+        super(context, persistenceService, businessApiService, providerCallback);
         _fileUtils = fileUtils;
     }
 

@@ -3,12 +3,13 @@ package com.gigya.android.sdk.providers.provider;
 import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.IProviderTokenTrackerListener;
+import com.gigya.android.sdk.session.SessionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,23 +19,26 @@ public abstract class Provider implements IProvider {
     private static final String LOG_TAG = "Provider";
 
     final protected Context _context;
-    final protected IPersistenceService _psService;
-    final protected GigyaLoginCallback _gigyaLoginCallback;
+    private final IPersistenceService _psService;
     final protected IBusinessApiService _businessApiService;
 
-    protected boolean _connecting = false;
+    boolean _connecting = false;
 
     // Dynamic
-    protected String _loginMode;
+    String _loginMode;
+
     private String _regToken;
+
     IProviderTokenTrackerListener _tokenTrackingListener;
 
+    ProviderCallback _providerCallback;
+
     public Provider(Context context, IPersistenceService persistenceService,
-                    IBusinessApiService businessApiService, GigyaLoginCallback gigyaLoginCallback) {
+                    IBusinessApiService businessApiService, ProviderCallback providerCallback) {
         _context = context;
         _psService = persistenceService;
-        _gigyaLoginCallback = gigyaLoginCallback;
         _businessApiService = businessApiService;
+        _providerCallback = providerCallback;
 
         if (supportsTokenTracking()) {
             _tokenTrackingListener = new IProviderTokenTrackerListener() {
@@ -60,19 +64,18 @@ public abstract class Provider implements IProvider {
     @Override
     public void onCanceled() {
         _connecting = false;
-        _gigyaLoginCallback.onOperationCanceled();
     }
 
     @Override
     public void onLoginSuccess(final Map<String, Object> loginParams, String providerSessions, String loginMode) {
         _connecting = false;
-        GigyaLogger.debug(LOG_TAG, "onProviderLoginSuccess: provider = "
+        GigyaLogger.debug(LOG_TAG, "onLoginSuccess: provider = "
                 + getName() + ", providerSessions = " + providerSessions);
-        // Call intermediate load to give the client the option to trigger his own progress indicator.
-        _gigyaLoginCallback.onIntermediateLoad();
+
         // Setup request.
         loginParams.put("providerSessions", providerSessions);
         loginParams.put("loginMode", loginMode);
+
         if (loginMode.equals("link") && _regToken != null) {
             loginParams.put("regToken", _regToken);
         }
@@ -88,7 +91,28 @@ public abstract class Provider implements IProvider {
         };
 
         // Notify.
-        _businessApiService.notifyNativeSocialLogin(loginParams, _gigyaLoginCallback, completionHandler);
+        _providerCallback.onProviderSessions(loginParams, completionHandler);
+    }
+
+    @Override
+    public void onLoginSuccess(String providerName, SessionInfo sessionInfo) {
+        _connecting = false;
+
+        GigyaLogger.debug(LOG_TAG, "onLoginSuccess: provider = "
+                + getName() + ", sessionToken = " + sessionInfo.getSessionToken());
+
+        Runnable completionHandler = new Runnable() {
+            @Override
+            public void run() {
+                _psService.addSocialProvider(getName());
+                if (supportsTokenTracking()) {
+                    trackTokenChange();
+                }
+            }
+        };
+
+        //Notify.
+        _providerCallback.onProviderSession(providerName, sessionInfo, completionHandler);
     }
 
     @Override
@@ -96,15 +120,20 @@ public abstract class Provider implements IProvider {
         _connecting = false;
         GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
                 + getName() + ", error =" + error);
-        _gigyaLoginCallback.onError(GigyaError.errorFrom(error));
+
+        // Notify.
+        final String json = GigyaError.errorFrom(error).getData();
+        _providerCallback.onError(new GigyaApiResponse(json));
     }
 
     @Override
-    public void onLoginFailed(GigyaError error) {
+    public void onLoginFailed(GigyaApiResponse response) {
         _connecting = false;
         GigyaLogger.debug(LOG_TAG, "onProviderLoginFailed: provider = "
-                + getName() + ", error =" + error.getData());
-        _gigyaLoginCallback.onError(error);
+                + getName() + ", error =" + response.toString());
+
+        // Notify.
+        _providerCallback.onError(response);
     }
 
     @Override

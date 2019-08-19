@@ -11,6 +11,7 @@ import com.gigya.android.sdk.providers.provider.GoogleProvider;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
+import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -41,12 +42,12 @@ public class ProviderFactory implements IProviderFactory {
     }
 
     @Override
-    public Provider providerFor(String name, GigyaLoginCallback gigyaLoginCallback) {
+    public Provider providerFor(String name, ProviderCallback providerCallback) {
         final Class<Provider> providerClazz = getProviderClass(name);
 
         final IoCContainer tempContainer =
                 _container.clone()
-                        .bind(GigyaLoginCallback.class, gigyaLoginCallback);
+                        .bind(ProviderCallback.class, providerCallback);
         try {
             final Provider provider = tempContainer.createInstance(providerClazz);
             // Bind generated provider to main IoC container.
