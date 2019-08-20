@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:hint="Enter new api key"
+        android:inputType="textNoSuggestions|textUri"
         android:textColorHint="@color/colorAccent"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="@id/re_init_sheet_title"
