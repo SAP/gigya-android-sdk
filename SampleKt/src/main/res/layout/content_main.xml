@@ -71,8 +71,18 @@
             android:orientation="vertical">
 
             <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/uid_text_view"
+                android:layout_width="match_parent"
+                android:gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
+                android:textSize="14sp" />
+
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/response_text_view"
                 android:layout_width="match_parent"
+                android:layout_marginTop="8dp"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />

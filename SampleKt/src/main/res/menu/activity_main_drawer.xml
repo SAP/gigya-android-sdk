@@ -8,7 +8,7 @@
             <menu>
                 <item
                     android:id="@+id/action_send_request"
-                    android:title="@string/nav_send_request" />
+                    android:title="@string/nav_send_request"/>
 
                 <item
                     android:id="@+id/action_login"

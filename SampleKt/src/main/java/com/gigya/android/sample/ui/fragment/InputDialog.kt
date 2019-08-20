@@ -33,6 +33,7 @@ class InputDialog : DialogFragment() {
         fun onRegisterWith(username: String, password: String, exp: Int)
         fun onLoginWith(username: String, password: String)
         fun onUpdateAccountWith(comment: String)
+        fun onUpdateAccountWith(field: String, value: String)
         fun onAddConnection(provider: String)
         fun onRemoveConnection(provider: String)
     }
@@ -191,10 +192,11 @@ class InputDialog : DialogFragment() {
      * Implement according to application requirements.
      */
     private fun setupForSetAccountInfo() {
-        set_account_sheet_title.text = "Set myAccountLiveData info custom (updating \"comment\" custom data field)"
+        set_account_sheet_title.text = "Set account info with selected parameters"
         set_account_sheet_send_button.setOnClickListener {
-            val comment = set_account_sheet_edit.text.toString().trim()
-            resultCallback.onUpdateAccountWith(comment)
+            val field = set_account_sheet_field_edit.text.toString().trim()
+            val value = set_account_sheet_value_edit.text.toString().trim()
+            resultCallback.onUpdateAccountWith(field, value)
             dismiss()
         }
     }

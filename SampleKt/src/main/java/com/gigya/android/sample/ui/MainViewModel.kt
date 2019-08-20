@@ -196,6 +196,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    fun setAccount(field: String, value: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        val params = mutableMapOf<String, Any>()
+        params[field] = value
+        gigya.setAccount(params, object: GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                myAccountLiveData.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
     /**
      * Check login state via accounts.verifyLogin API.
      */
