@@ -151,6 +151,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onTFARegistrationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION ->
                     onTFAVerificationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
+                MainViewModel.UI_TRIGGER_SHOW_PENDING_REGISTRATION_UI -> onPendingRegistrationUI()
+
             }
         })
     }
@@ -551,6 +553,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         providerDialog.show(supportFragmentManager, "onTFAVerificationProviderSelection")
     }
 
+    private fun onPendingRegistrationUI() {
+        val sheet = InputDialog.newInstance(InputDialog.MainInputType.PENDING_REGISTRATION, this)
+        sheet.show(supportFragmentManager, "set_account_sheet")
+    }
+
     /**
      * Request myAccountLiveData instance update.
      */
@@ -801,14 +808,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 })
     }
 
-    override fun onUpdateAccountWith(field: String, value: String) {
+    override fun onUpdateAccountWith(field: String, value: String, forPendingRegistration: Boolean) {
         onLoading()
-        viewModel?.setAccount(field, value,
-                success = { json -> onJsonResult(json) },
-                error = { possibleError ->
-                    possibleError?.let { error -> onError(error) }
-                }
-        )
+        when (forPendingRegistration) {
+            false -> {
+                viewModel?.setAccount(field, value,
+                        success = { json -> onJsonResult(json) },
+                        error = { possibleError ->
+                            possibleError?.let { error -> onError(error) }
+                        }
+                )
+            }
+            true -> viewModel?.onResolvePendingRegistrationWithMissingData(field, value)
+        }
+
     }
 
     //endregion

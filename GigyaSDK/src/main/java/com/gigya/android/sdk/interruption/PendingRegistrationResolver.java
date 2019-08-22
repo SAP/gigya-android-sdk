@@ -3,11 +3,13 @@ package com.gigya.android.sdk.interruption;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.adapter.RestAdapter;
 
 import java.util.Map;
 
@@ -28,17 +30,23 @@ public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolve
 
     @Override
     public void setAccount(@NonNull Map<String, Object> missingAccountFields) {
-        missingAccountFields.put("regToken", getRegToken()); // Reg token field is mandatory in order to resolve this issue.
-        _businessApiService.setAccount(missingAccountFields, new GigyaCallback<A>() {
-            @Override
-            public void onSuccess(A updatedAccount) {
-                finalizeRegistration(null);
-            }
+        // Reg token field is mandatory in order to resolve this issue.
+        missingAccountFields.put("regToken", getRegToken());
+        _businessApiService.send(
+                GigyaDefinitions.API.API_SET_ACCOUNT_INFO,
+                missingAccountFields,
+                RestAdapter.POST,
+                GigyaApiResponse.class,
+                new GigyaCallback<GigyaApiResponse>() {
+                    @Override
+                    public void onSuccess(GigyaApiResponse obj) {
+                        finalizeRegistration(null);
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                _loginCallback.onError(error);
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        _loginCallback.onError(error);
+                    }
+                });
     }
 }

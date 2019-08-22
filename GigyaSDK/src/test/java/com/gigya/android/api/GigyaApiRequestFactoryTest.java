@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiRequestFactory;
@@ -99,7 +100,7 @@ public class GigyaApiRequestFactoryTest {
         assertNotNull(request);
         assertEquals("TestAPI", request.getApi());
         assertEquals(RestAdapter.POST, request.getMethod());
-        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=4.0.0&targetEnv=mobile", request.getEncodedParams());
+        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=" + Gigya.VERSION + "&targetEnv=mobile", request.getEncodedParams());
     }
 
 
