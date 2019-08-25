@@ -23,7 +23,14 @@ class InputDialog : DialogFragment() {
     private var viewModel: MainViewModel? = null
 
     enum class MainInputType {
-        ANONYMOUS, LOGIN, REGISTER, SET_ACCOUNT_INFO, REINIT, LOGIN_WITH_PROVIDER, ADD_CONNECTION, REMOVE_CONNECTION
+        ANONYMOUS,
+        LOGIN, REGISTER,
+        SET_ACCOUNT_INFO,
+        REINIT,
+        LOGIN_WITH_PROVIDER,
+        ADD_CONNECTION,
+        REMOVE_CONNECTION,
+        PENDING_REGISTRATION,
     }
 
     interface IApiResultCallback {
@@ -33,6 +40,7 @@ class InputDialog : DialogFragment() {
         fun onRegisterWith(username: String, password: String, exp: Int)
         fun onLoginWith(username: String, password: String)
         fun onUpdateAccountWith(comment: String)
+        fun onUpdateAccountWith(field: String, value: String, forPendingRegistration: Boolean)
         fun onAddConnection(provider: String)
         fun onRemoveConnection(provider: String)
     }
@@ -73,7 +81,7 @@ class InputDialog : DialogFragment() {
             MainInputType.REINIT -> R.layout.input_re_init
             MainInputType.ANONYMOUS -> R.layout.input_anonymous
             MainInputType.LOGIN, MainInputType.REGISTER -> R.layout.input_login_register
-            MainInputType.SET_ACCOUNT_INFO -> R.layout.input_set_account
+            MainInputType.SET_ACCOUNT_INFO, MainInputType.PENDING_REGISTRATION -> R.layout.input_set_account
             MainInputType.LOGIN_WITH_PROVIDER, MainInputType.ADD_CONNECTION, MainInputType.REMOVE_CONNECTION -> R.layout.input_login_with_provider
             else -> 0
         }
@@ -85,7 +93,8 @@ class InputDialog : DialogFragment() {
             MainInputType.REINIT -> setupForReInit()
             MainInputType.ANONYMOUS -> setupForAnonymous()
             MainInputType.REGISTER, MainInputType.LOGIN -> setupForLoginRegister()
-            MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo()
+            MainInputType.SET_ACCOUNT_INFO -> setupForSetAccountInfo(false)
+            MainInputType.PENDING_REGISTRATION -> setupForSetAccountInfo(true)
             MainInputType.LOGIN_WITH_PROVIDER -> setupForLoginWithProvider()
             MainInputType.ADD_CONNECTION, MainInputType.REMOVE_CONNECTION -> setupForAddOrRemoveConnection(type!!)
         }
@@ -146,6 +155,7 @@ class InputDialog : DialogFragment() {
      * Setup input dialog for social provider input.
      */
     private fun setupForLoginWithProvider() {
+        login_with_provider_sheet_title.text = "Type supported provider name"
         login_with_provider_sheet_send_button.setOnClickListener {
             val provider = login_with_provider_sheet_edit.text.toString().trim()
             resultCallback.onLoginWithProvider(provider)
@@ -190,11 +200,12 @@ class InputDialog : DialogFragment() {
      * Update options are hard coded for a specific example only.
      * Implement according to application requirements.
      */
-    private fun setupForSetAccountInfo() {
-        set_account_sheet_title.text = "Set myAccountLiveData info custom (updating \"comment\" custom data field)"
+    private fun setupForSetAccountInfo(pendingRegistration: Boolean) {
+        set_account_sheet_title.text = "Set account info with selected parameters"
         set_account_sheet_send_button.setOnClickListener {
-            val comment = set_account_sheet_edit.text.toString().trim()
-            resultCallback.onUpdateAccountWith(comment)
+            val field = set_account_sheet_field_edit.text.toString().trim()
+            val value = set_account_sheet_value_edit.text.toString().trim()
+            resultCallback.onUpdateAccountWith(field, value, pendingRegistration)
             dismiss()
         }
     }

@@ -35,6 +35,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         const val UI_TRIGGER_DISMISS_ON_ERROR = 2
         const val UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION = 3
         const val UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION = 4
+        const val UI_TRIGGER_SHOW_PENDING_REGISTRATION_UI = 5
     }
 
     /*
@@ -69,6 +70,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun onLinkAccountWithSocial(provider: String) {
         linkAccountsResolver?.linkToSocial(provider)
     }
+
+    private var pendingRegistrationResolver : IPendingRegistrationResolver? = null
+
+    fun onResolvePendingRegistrationWithMissingData(field: String, value: String) {
+        val params = mutableMapOf<String, Any>()
+        params[field] = value
+        pendingRegistrationResolver?.setAccount(params)
+    }
+
 
     //endregion
 
@@ -196,6 +206,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    fun setAccount(field: String, value: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        val params = mutableMapOf<String, Any>()
+        params[field] = value
+        gigya.setAccount(params, object: GigyaCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                myAccountLiveData.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+        })
+    }
+
     /**
      * Check login state via accounts.verifyLogin API.
      */
@@ -252,6 +277,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onOperationCanceled() {
                 cancel()
+            }
+
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                pendingRegistrationResolver = resolver
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_PENDING_REGISTRATION_UI, null))
             }
 
             override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
@@ -318,6 +348,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 error(error)
             }
 
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                pendingRegistrationResolver = resolver
+                uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_PENDING_REGISTRATION_UI, null))
+            }
+
             override fun onPendingTwoFactorRegistration(response: GigyaApiResponse, inactiveProviders: MutableList<TFAProviderModel>, resolverFactory: TFAResolverFactory) {
                 uiTrigger.postValue(Pair(UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_REGISTRATION, Pair(inactiveProviders, resolverFactory)))
             }
@@ -338,6 +373,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(error: GigyaError?) {
                 error(error)
+            }
+
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                error(GigyaError.fromResponse(response))
             }
 
             override fun onIntermediateLoad() {

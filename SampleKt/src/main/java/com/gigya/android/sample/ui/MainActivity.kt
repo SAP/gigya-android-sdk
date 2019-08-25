@@ -11,7 +11,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -152,6 +151,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onTFARegistrationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
                 MainViewModel.UI_TRIGGER_SHOW_TFA_PROVIDER_SELECTION_FOR_VERIFICATION ->
                     onTFAVerificationProviderSelection(dataPair.second as Pair<MutableList<TFAProviderModel>, TFAResolverFactory>)
+                MainViewModel.UI_TRIGGER_SHOW_PENDING_REGISTRATION_UI -> onPendingRegistrationUI()
+
             }
         })
     }
@@ -552,6 +553,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         providerDialog.show(supportFragmentManager, "onTFAVerificationProviderSelection")
     }
 
+    private fun onPendingRegistrationUI() {
+        val sheet = InputDialog.newInstance(InputDialog.MainInputType.PENDING_REGISTRATION, this)
+        sheet.show(supportFragmentManager, "set_account_sheet")
+    }
+
     /**
      * Request myAccountLiveData instance update.
      */
@@ -592,22 +598,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Will show dialog to remind client to make sure all fields he is requesting to update are marked as "clientModify".
      */
     private fun onSetAccount() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(title).setTitle("Attention!").setMessage("Make sure all updated fields are marked as \"clientModify\"");
-        builder.setPositiveButton(getString(android.R.string.ok)) { dialog, _ ->
-            if (viewModel?.okayToRequestSetAccount()!!) {
-                val sheet = InputDialog.newInstance(InputDialog.MainInputType.SET_ACCOUNT_INFO, this)
-                sheet.show(supportFragmentManager, "sheet")
-            } else {
-                response_text_view.snackbar(getString(R.string.account_not_available))
-            }
-            dialog.dismiss()
-        }
-        builder.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ ->
-            dialog.dismiss()
-        }
-        val dialog = builder.create()
-        dialog.show()
+        val sheet = InputDialog.newInstance(InputDialog.MainInputType.SET_ACCOUNT_INFO, this)
+        sheet.show(supportFragmentManager, "set_account_sheet")
     }
 
     private fun onVerifyLogin() {
@@ -807,9 +799,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 })
     }
 
-    /**
-     * Trigger a set myAccountLiveData call using the string provided.
-     */
     override fun onUpdateAccountWith(comment: String) {
         onLoading()
         viewModel?.setAccount(comment,
@@ -817,6 +806,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
                 })
+    }
+
+    override fun onUpdateAccountWith(field: String, value: String, forPendingRegistration: Boolean) {
+        onLoading()
+        when (forPendingRegistration) {
+            false -> {
+                viewModel?.setAccount(field, value,
+                        success = { json -> onJsonResult(json) },
+                        error = { possibleError ->
+                            possibleError?.let { error -> onError(error) }
+                        }
+                )
+            }
+            true -> viewModel?.onResolvePendingRegistrationWithMissingData(field, value)
+        }
+
     }
 
     //endregion
@@ -830,6 +835,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         response_text_view.text = json
         empty_response_text.gone()
         onLoadingDone()
+
+        // Update UI field if available.
     }
 
     /**
@@ -887,6 +894,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_subtitle?.text = myAccount?.profile?.email
         nav_image?.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
         invalidateOptionsMenu()
+
+        myAccount?.uid?.let {
+            uid_text_view.text = it
+            uid_text_view.visible()
+        }
     }
 
     private fun registerAccountUpdates() {
@@ -904,6 +916,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_title?.text = getString(R.string.nav_header_title)
         nav_subtitle?.text = getString(R.string.nav_header_subtitle)
         nav_image?.setImageResource(R.mipmap.ic_launcher_round)
+        uid_text_view.text = ""
+        uid_text_view.gone()
     }
 
     //endregion

@@ -3,6 +3,7 @@ package com.gigya.android.sdk.network;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.api.GigyaApiResponse;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -113,6 +114,9 @@ public class GigyaError extends GigyaResponseModel {
     }
 
     public String getData() {
-        return data;
+        if (data != null) {
+            return data;
+        }
+        return new Gson().toJson(this);
     }
 }
