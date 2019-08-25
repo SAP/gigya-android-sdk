@@ -22,6 +22,7 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -548,6 +549,21 @@ public class Gigya<T extends GigyaAccount> {
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
+    }
+
+    /**
+     * Create an new instance of the GigyaWebBridge.
+     *
+     * @return GigyaWebBridge instance.
+     */
+    public GigyaWebBridge createWebBridge() {
+        try {
+            return CONTAINER.get(GigyaWebBridge.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
+        }
+        return null;
     }
 
     //endregion
