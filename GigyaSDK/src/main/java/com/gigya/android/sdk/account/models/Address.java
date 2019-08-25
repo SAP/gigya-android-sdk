@@ -13,7 +13,7 @@ public class Address {
     @Nullable
     private String locality;
     @Nullable
-    @SerializedName("postalCode")
+    @SerializedName("postal_code")
     private String postalCode;
     @Nullable
     private String region;

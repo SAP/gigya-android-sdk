@@ -32,6 +32,7 @@ public class PendingRegistrationResolver<A extends GigyaAccount> extends Resolve
     public void setAccount(@NonNull Map<String, Object> missingAccountFields) {
         // Reg token field is mandatory in order to resolve this issue.
         missingAccountFields.put("regToken", getRegToken());
+        // Using "send" method in order to avoid flow constraints in the regular "setAccount" BA.
         _businessApiService.send(
                 GigyaDefinitions.API.API_SET_ACCOUNT_INFO,
                 missingAccountFields,

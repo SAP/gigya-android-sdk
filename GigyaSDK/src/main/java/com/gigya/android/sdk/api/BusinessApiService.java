@@ -74,13 +74,17 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
-            _interruptionsHandler.resolve(response, loginCallback);
+            if (loginCallback != null) {
+                _interruptionsHandler.resolve(response, loginCallback);
+            }
         } else {
             // Parse & success.
             A parsed = response.parseTo(_accountService.getAccountSchema());
             updateWithNewSession(response);
             updateCachedAccount(response);
-            loginCallback.onSuccess(parsed);
+            if (loginCallback != null) {
+                loginCallback.onSuccess(parsed);
+            }
         }
     }
 
@@ -202,21 +206,21 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onProviderSession(String providerName, SessionInfo sessionInfo, Runnable completionHandler) {
                 if (gigyaLoginCallback != null) {
                     gigyaLoginCallback.onIntermediateLoad();
-                    // Set new session.
-                    _sessionService.setSession(sessionInfo);
-                    // Force fetch account.
-                    _accountService.invalidateAccount();
-                    getAccount(gigyaLoginCallback);
-                    completionHandler.run();
                 }
+                // Set new session.
+                _sessionService.setSession(sessionInfo);
+                completionHandler.run();
+                // Force fetch account.
+                _accountService.invalidateAccount();
+                getAccount(gigyaLoginCallback);
             }
 
             @Override
             public void onProviderSessions(Map<String, Object> loginParams, Runnable completionHandler) {
                 if (gigyaLoginCallback != null) {
                     gigyaLoginCallback.onIntermediateLoad();
-                    notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
                 }
+                notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
             }
 
             @Override
@@ -228,9 +232,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
             @Override
             public void onError(GigyaApiResponse response) {
-                if (gigyaLoginCallback != null) {
-                    handleAccountApiResponse(response, gigyaLoginCallback);
-                }
+                handleAccountApiResponse(response, gigyaLoginCallback);
             }
         });
 
@@ -617,20 +619,21 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onProviderSession(String providerName, SessionInfo sessionInfo, Runnable completionHandler) {
                 if (gigyaLoginCallback != null) {
                     gigyaLoginCallback.onIntermediateLoad();
-                    // Set new session.
-                    _sessionService.setSession(sessionInfo);
-                    // Force fetch account.
-                    _accountService.invalidateAccount();
-                    getAccount(gigyaLoginCallback);
-                    completionHandler.run();
                 }
+
+                completionHandler.run();
+
+                // Force fetch account.
+                _accountService.invalidateAccount();
+                getAccount(gigyaLoginCallback);
             }
 
             @Override
             public void onProviderSessions(Map<String, Object> loginParams, Runnable completionHandler) {
                 if (gigyaLoginCallback != null) {
-                    notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
+                    gigyaLoginCallback.onIntermediateLoad();
                 }
+                notifyNativeSocialLogin(loginParams, gigyaLoginCallback, completionHandler);
             }
 
             @Override
@@ -642,9 +645,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
             @Override
             public void onError(GigyaApiResponse response) {
-                if (gigyaLoginCallback != null) {
-                    handleAccountApiResponse(response, gigyaLoginCallback);
-                }
+                handleAccountApiResponse(response, gigyaLoginCallback);
             }
         });
 

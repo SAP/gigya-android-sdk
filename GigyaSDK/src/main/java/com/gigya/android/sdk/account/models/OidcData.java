@@ -9,7 +9,7 @@ import java.util.List;
 public class OidcData {
 
     @Nullable
-    private List<Address> addresses;
+    private Address address;
     @Nullable
     @SerializedName("email_verified")
     private String emailVerified;
@@ -32,12 +32,12 @@ public class OidcData {
     private String zoneinfo;
 
     @Nullable
-    public List<Address> getAddresses() {
-        return addresses;
+    public Address getAddresses() {
+        return address;
     }
 
-    public void setAddresses(@Nullable List<Address> addresses) {
-        this.addresses = addresses;
+    public void setAddresses(@Nullable Address address) {
+        this.address = address;
     }
 
     @Nullable

@@ -52,14 +52,14 @@ public class WebLoginProvider extends Provider {
     }
 
     @Override
-    public void login(Map<String, Object> loginParams, String loginMode) {
+    public void login(Map<String, Object> loginParams, final String loginMode) {
         if (_connecting) {
             return;
         }
         _connecting = true;
         _loginMode = loginMode;
         final String providerName = (String) loginParams.get("provider");
-        final String loginUrl = getRequest(_context, loginParams);
+        final String loginUrl = getRequest(_context, loginParams, loginMode);
         WebLoginActivity.present(_context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
 
             @Override
@@ -151,7 +151,7 @@ public class WebLoginProvider extends Provider {
         return new SessionInfo(secret, accessToken, expiresIn);
     }
 
-    private String getRequest(Context context, Map<String, Object> loginParams) {
+    private String getRequest(Context context, Map<String, Object> loginParams, String loginMode) {
         final TreeMap<String, Object> serverParams = new TreeMap<>();
         final String provider = ((String) loginParams.get("provider"));
         if (provider != null) {
@@ -182,6 +182,12 @@ public class WebLoginProvider extends Provider {
                     serverParams.put("x_" + key, value);
             }
         }
+
+        String api = "socialize.login";
+        if (loginMode.equals("connect")) {
+            api = "socialize.addConnection";
+        }
+
         if (_sessionService.isValid()) {
             // Add signature parameters if needed.
             @SuppressWarnings("ConstantConditions") final String sessionToken = _sessionService.getSession().getSessionToken();
@@ -189,11 +195,14 @@ public class WebLoginProvider extends Provider {
             final String sessionSecret = _sessionService.getSession().getSessionSecret();
             AuthUtils.addAuthenticationParameters(sessionSecret,
                     RestAdapter.GET,
-                    UrlUtils.getBaseUrl("socialize.login", _config.getApiDomain()),
+                    UrlUtils.getBaseUrl(api, _config.getApiDomain()),
                     serverParams);
         }
+
+
         // Build final URL.
-        return String.format("%s://%s.%s/%s?%s", "https", "socialize", _config.getApiDomain(), "socialize.login", UrlUtils.buildEncodedQuery(serverParams));
+        return String.format("%s://%s.%s/%s?%s", "https", "socialize", _config.getApiDomain(),
+                api, UrlUtils.buildEncodedQuery(serverParams));
     }
 
     private Pair<String, String> getPostRequest(Map<String, Object> loginParams) {

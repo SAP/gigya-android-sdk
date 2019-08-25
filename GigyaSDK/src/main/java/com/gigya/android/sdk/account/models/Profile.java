@@ -67,7 +67,7 @@ public class Profile {
     @Nullable
     private String nickName;
     @Nullable
-    private List<OidcData> oidcData;
+    private OidcData oidcData;
     @Nullable
     private List<Patent> patents;
     @Nullable
@@ -378,11 +378,11 @@ public class Profile {
     }
 
     @Nullable
-    public List<OidcData> getOidcData() {
+    public OidcData getOidcData() {
         return oidcData;
     }
 
-    public void setOidcData(@Nullable List<OidcData> oidcData) {
+    public void setOidcData(@Nullable OidcData oidcData) {
         this.oidcData = oidcData;
     }
 
