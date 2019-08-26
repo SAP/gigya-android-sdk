@@ -23,6 +23,7 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -556,9 +557,10 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @return GigyaWebBridge instance.
      */
-    public GigyaWebBridge createWebBridge() {
+    @SuppressWarnings("unchecked")
+    public GigyaWebBridge<T> createWebBridge() {
         try {
-            return CONTAINER.get(GigyaWebBridge.class);
+            return (GigyaWebBridge<T>) CONTAINER.get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");

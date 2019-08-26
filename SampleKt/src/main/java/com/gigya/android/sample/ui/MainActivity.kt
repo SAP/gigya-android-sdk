@@ -216,6 +216,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_screen_sets -> showRAAS()
             R.id.action_forgot_password -> onForgotPassword()
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
+            R.id.action_web_bridge_test -> {
+                startActivity(Intent(this, WebBridgeTestActivity::class.java))
+            }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
