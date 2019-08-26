@@ -1,5 +1,6 @@
 package com.gigya.android.sample.ui
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -7,6 +8,8 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.gigya.android.sample.R
+import com.gigya.android.sample.extras.gone
+import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaPluginCallback
@@ -34,16 +37,31 @@ class WebBridgeTestActivity : AppCompatActivity() {
         _webBridge = Gigya.getInstance(MyAccount::class.java).createWebBridge()
         _webBridge?.attachTo(web_view, false, object : GigyaPluginCallback<MyAccount>() {
 
+            /*
+            All GigyaPluginCallback methods are optional & available to override.
+             */
 
             override fun onLogin(accountObj: MyAccount) {
                 web_view.snackbar("onLogin event shown")
             }
 
+            override fun onLogout() {
+                web_view.snackbar("onLogout event shown")
+            }
 
-        }, null, null)
+
+        }, progress_indicator, null)
 
 
         web_view.webViewClient = (object : WebViewClient() {
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+               progress_indicator.visible()
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                progress_indicator.gone()
+            }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val uri = request?.getUrl()
@@ -63,5 +81,9 @@ class WebBridgeTestActivity : AppCompatActivity() {
         web_view.loadUrl("http://10.27.65.167:3333")
     }
 
+    override fun onDestroy() {
+        _webBridge?.detachFrom(web_view)
+        super.onDestroy()
+    }
 
 }

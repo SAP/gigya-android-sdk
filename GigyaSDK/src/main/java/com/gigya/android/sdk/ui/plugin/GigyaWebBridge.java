@@ -438,6 +438,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             }
         }, "__gigAPIAdapterSettings");
 
+
         _invocationCallback = new GigyaPluginFragment.IBridgeCallbacks<A>() {
             @Override
             public void invokeCallback(final String invocation) {
