@@ -379,6 +379,16 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
     //region ATTACH
 
+    /**
+     * Attach a WebView instance to WebBridge.
+     * Allows external use of the Gigya web bridge.
+     *
+     * @param webView        WebView instance.
+     * @param obfuscate      Should use Base64 obfuscation.
+     * @param pluginCallback Plugin callback used for JS and event interactions.
+     * @param progressView   Optional progress view that will be triggered (VISIBLE/GONE) according to event life cycle.
+     * @param onHide         Optional code block to be executed when a "Hide" event occurs (Usually used to dismiss current context).
+     */
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void attachTo(
@@ -431,23 +441,21 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         _invocationCallback = new GigyaPluginFragment.IBridgeCallbacks<A>() {
             @Override
             public void invokeCallback(final String invocation) {
-                if (webView != null) {
-                    webView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (android.os.Build.VERSION.SDK_INT > 18) {
-                                webView.evaluateJavascript(invocation, new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        GigyaLogger.debug("evaluateJavascript Callback", value);
-                                    }
-                                });
-                            } else {
-                                webView.loadUrl(invocation);
-                            }
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (android.os.Build.VERSION.SDK_INT > 18) {
+                            webView.evaluateJavascript(invocation, new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String value) {
+                                    GigyaLogger.debug("evaluateJavascript Callback", value);
+                                }
+                            });
+                        } else {
+                            webView.loadUrl(invocation);
                         }
-                    });
-                }
+                    }
+                });
             }
 
             @Override
@@ -504,6 +512,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 if (onHide != null) {
                                     onHide.run();
                                 }
+
                                 break;
                             case ERROR:
                                 pluginCallback.onError(event);
@@ -559,6 +568,12 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         };
     }
 
+    /**
+     * Detach a WebView instance from this web bridge instance.
+     * Use to avoid leaking the enclosing context.
+     *
+     * @param webView Current attached WebView instance.
+     */
     @Override
     public void detachFrom(@NonNull final WebView webView) {
         webView.loadUrl("about:blank");
