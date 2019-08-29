@@ -1,5 +1,6 @@
 package com.gigya.android.sample.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -28,6 +29,7 @@ class WebBridgeTestActivity : AppCompatActivity() {
         initUi()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun initUi() {
 
         val webSettings = web_view.settings
@@ -35,28 +37,36 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
         // Generate a new web bridge instance.
         _webBridge = Gigya.getInstance(MyAccount::class.java).createWebBridge()
-        _webBridge?.attachTo(web_view, false, object : GigyaPluginCallback<MyAccount>() {
 
-            /*
-            All GigyaPluginCallback methods are optional & available to override.
-             */
+        // Attach web view to the web bridge instance.
+        _webBridge?.attachTo(
+                web_view,
+                false,
+                object : GigyaPluginCallback<MyAccount>() {
 
-            override fun onLogin(accountObj: MyAccount) {
-                web_view.snackbar("onLogin event shown")
-            }
+                    /*
+                    All GigyaPluginCallback methods are optional & available to override.
+                     */
 
-            override fun onLogout() {
-                web_view.snackbar("onLogout event shown")
-            }
+                    override fun onLogin(accountObj: MyAccount) {
+                        web_view.snackbar("onLogin event shown")
+                    }
+
+                    override fun onLogout() {
+                        web_view.snackbar("onLogout event shown")
+                    }
 
 
-        }, progress_indicator, null)
+                },
+                progress_indicator,
+                null)
 
 
+        // Setup a web view client to allow web bridge URL exchange.
         web_view.webViewClient = (object : WebViewClient() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-               progress_indicator.visible()
+                progress_indicator.visible()
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -76,6 +86,8 @@ class WebBridgeTestActivity : AppCompatActivity() {
                 return true
             }
         })
+
+        /* Load custom URL */
 
 //        web_view.loadUrl("https://gigyademo.com")
         web_view.loadUrl("http://10.27.65.167:3333")

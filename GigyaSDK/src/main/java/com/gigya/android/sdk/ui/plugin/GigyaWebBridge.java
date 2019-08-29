@@ -346,7 +346,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String obfuscate(String string, boolean quote) {
         if (_obfuscation) {
-            // by default, using obsfuscation strategy of base64
+            // by default, using obfuscation strategy of base64
             try {
                 byte[] data = string.getBytes("UTF-8");
                 String base64 = Base64.encodeToString(data, Base64.DEFAULT);
