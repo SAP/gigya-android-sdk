@@ -38,6 +38,27 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/custom_domain_sheet_input"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="Enter custom domain"
+        android:inputType="textNoSuggestions|textUri"
+        android:textColorHint="@color/colorAccent"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintEnd_toEndOf="@id/re_init_sheet_title"
+        app:layout_constraintStart_toStartOf="@id/re_init_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/api_key_sheet_input">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/custom_domain_sheet_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+    </android.support.design.widget.TextInputLayout>
+
     <RadioGroup
         android:id="@+id/api_domain_selection_group"
         android:layout_width="wrap_content"
@@ -46,7 +67,7 @@
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
         app:layout_constraintStart_toStartOf="@id/api_key_sheet_input"
-        app:layout_constraintTop_toBottomOf="@id/api_key_sheet_input">
+        app:layout_constraintTop_toBottomOf="@id/custom_domain_sheet_input">
 
         <RadioButton
             android:id="@+id/domain_us1"

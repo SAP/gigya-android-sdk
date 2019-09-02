@@ -105,8 +105,7 @@ class InputDialog : DialogFragment() {
      */
     private fun setupForReInit() {
         re_init_apply_button.setOnClickListener {
-            val apiDomainId: Int = api_domain_selection_group.checkedRadioButtonId
-            val apiDomainString: String = when (apiDomainId) {
+            val apiDomainString: String = when (api_domain_selection_group.checkedRadioButtonId) {
                 R.id.domain_us1 -> "us1.gigya.com"
                 R.id.domain_eu1 -> "eu1.gigya.com"
                 R.id.domain_au1 -> "au1.gigya.com"
@@ -115,8 +114,7 @@ class InputDialog : DialogFragment() {
                 else -> ""
             }
 
-            val envId: Int = env_selection_group.checkedRadioButtonId
-            val envString: String = when (envId) {
+            val envString: String = when (env_selection_group.checkedRadioButtonId) {
                 R.id.env_prod -> ""
                 R.id.env_st1 -> "-st1"
                 R.id.env_st2 -> "-st2"
@@ -128,12 +126,22 @@ class InputDialog : DialogFragment() {
                 api_key_sheet_edit.snackbar("Must enter new ApiService-Key for re-initialization")
             }
 
-            var newDomainString: String = apiDomainString
-            if (!envString.isEmpty()) {
-                newDomainString = apiDomainString.substring(0, 3) + envString + apiDomainString.substring(3, apiDomainString.length)
+            val customDomainString: String = custom_domain_sheet_edit.text.toString().trim()
+
+            val apiDomain = when(customDomainString.isEmpty()) {
+                true ->  {
+                    if (envString.isNotEmpty()) {
+                        apiDomainString.substring(0, 3) + envString + apiDomainString.substring(3, apiDomainString.length)
+                    } else {
+                        apiDomainString
+                    }
+                }
+                false -> {
+                    customDomainString
+                }
             }
 
-            Gigya.getInstance().init(apiKeyString, newDomainString)
+            Gigya.getInstance().init(apiKeyString, apiDomain)
             api_key_sheet_edit.snackbar("Re-initialized SDK")
             resultCallback.onReInit()
             dismiss()
