@@ -20,6 +20,11 @@ import org.jetbrains.anko.design.snackbar
 
 class WebBridgeTestActivity : AppCompatActivity() {
 
+    companion object {
+
+        const val TEST_BRIDGE_URL = "http://10.27.65.167:3333"
+    }
+
     private var _webBridge: GigyaWebBridge<MyAccount>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,8 +94,7 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
         /* Load custom URL */
 
-//        web_view.loadUrl("https://gigyademo.com")
-        web_view.loadUrl("http://10.27.65.167:3333")
+        web_view.loadUrl(TEST_BRIDGE_URL)
     }
 
     override fun onDestroy() {

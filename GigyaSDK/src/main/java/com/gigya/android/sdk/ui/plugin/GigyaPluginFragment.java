@@ -18,8 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
@@ -30,28 +28,6 @@ import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.R;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.ui.Presenter;
-
-import org.json.JSONArray;
-
-import java.util.Locale;
-
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 @SuppressLint("ValidFragment")
 public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A> {
@@ -228,13 +204,13 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                 _obfuscation,
                 _pluginCallback,
                 _progressBar, new Runnable() {
-            @Override
-            public void run() {
-                if (getActivity() != null) {
-                    getActivity().onBackPressed();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (getActivity() != null) {
+                            getActivity().onBackPressed();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -305,42 +281,4 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     startActivity(browserIntent);
                 }
             });
-
-    /*
-    Define the JavaScript interface.
-     */
-    private Object _JSInterface = new Object() {
-
-        private static final String ADAPTER_NAME = "mobile";
-
-        @JavascriptInterface
-        public String getAPIKey() {
-            return _config.getApiKey();
-        }
-
-        @JavascriptInterface
-        public String getAdapterName() {
-            return ADAPTER_NAME;
-        }
-
-        @JavascriptInterface
-        public String getObfuscationStrategy() {
-            return _obfuscation ? "base64" : "";
-        }
-
-        @JavascriptInterface
-        public String getFeatures() {
-            JSONArray features = new JSONArray();
-            for (GigyaWebBridge.Feature feature : GigyaWebBridge.Feature.values()) {
-                features.put(feature.toString().toLowerCase(Locale.ROOT));
-            }
-            return features.toString();
-        }
-
-        @JavascriptInterface
-        public boolean sendToMobile(String action, String method, String queryStringParams) {
-            return _gigyaWebBridge.invoke(action, method, queryStringParams);
-        }
-
-    };
 }
