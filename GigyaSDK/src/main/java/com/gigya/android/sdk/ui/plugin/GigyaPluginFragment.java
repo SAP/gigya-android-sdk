@@ -201,7 +201,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         // Web bridge.
         _gigyaWebBridge.attachTo(
                 _webView,
-                _obfuscation,
                 _pluginCallback,
                 _progressBar, new Runnable() {
                     @Override

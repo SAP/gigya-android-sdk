@@ -22,7 +22,6 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
-import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
 import java.util.Arrays;
@@ -119,17 +118,20 @@ public class Gigya<T extends GigyaAccount> {
     final private IInterruptionResolverFactory _interruptionResolverFactory;
     final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
+    final private IoCContainer _container;
 
-    protected Gigya(@NonNull Application context,
-                    Config config,
-                    ConfigFactory configFactory,
-                    ISessionService sessionService,
-                    IAccountService<T> accountService,
-                    IBusinessApiService<T> businessApiService,
-                    ISessionVerificationService sessionVerificationService,
-                    IInterruptionResolverFactory interruptionsHandler,
-                    IPresenter<T> presenter,
-                    IProviderFactory providerFactory) {
+    protected Gigya(
+            @NonNull Application context,
+            Config config,
+            ConfigFactory configFactory,
+            ISessionService sessionService,
+            IAccountService<T> accountService,
+            IBusinessApiService<T> businessApiService,
+            ISessionVerificationService sessionVerificationService,
+            IInterruptionResolverFactory interruptionsHandler,
+            IPresenter<T> presenter,
+            IProviderFactory providerFactory,
+            IoCContainer container) {
         // Setup dependencies.
         _context = context;
         _config = config;
@@ -141,6 +143,7 @@ public class Gigya<T extends GigyaAccount> {
         _interruptionResolverFactory = interruptionsHandler;
         _presenter = presenter;
         _providerFactory = providerFactory;
+        _container = container;
 
         // Setup sdk
         _sessionVerificationService.registerActivityLifecycleCallbacks();
@@ -558,9 +561,9 @@ public class Gigya<T extends GigyaAccount> {
      * @return GigyaWebBridge instance.
      */
     @SuppressWarnings("unchecked")
-    public GigyaWebBridge<T> createWebBridge() {
+    public IGigyaWebBridge<T> createWebBridge() {
         try {
-            return (GigyaWebBridge<T>) getContainer().get(IGigyaWebBridge.class);
+            return _container.get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");

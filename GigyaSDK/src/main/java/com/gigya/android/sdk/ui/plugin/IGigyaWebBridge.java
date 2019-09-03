@@ -33,7 +33,6 @@ public interface IGigyaWebBridge<A extends GigyaAccount> {
     void onPluginEvent(Map<String, Object> params);
 
     void attachTo(@NonNull final WebView webView,
-                  final boolean obfuscate,
                   @NonNull final GigyaPluginCallback<A> pluginCallback,
                   @Nullable View progressView,
                   @Nullable Runnable onHide);

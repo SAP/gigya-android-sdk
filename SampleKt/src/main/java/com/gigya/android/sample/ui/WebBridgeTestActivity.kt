@@ -15,6 +15,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.ui.plugin.GigyaWebBridge
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge
 import kotlinx.android.synthetic.main.activity_web_bridge.*
 import org.jetbrains.anko.design.snackbar
 
@@ -22,10 +23,10 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
     companion object {
 
-        const val TEST_BRIDGE_URL = "http://10.27.65.167:3333"
+        const val TEST_BRIDGE_URL = "CUSTOM_URL"
     }
 
-    private var _webBridge: GigyaWebBridge<MyAccount>? = null
+    private var _webBridge: IGigyaWebBridge<MyAccount>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +47,6 @@ class WebBridgeTestActivity : AppCompatActivity() {
         // Attach web view to the web bridge instance.
         _webBridge?.attachTo(
                 web_view,
-                false,
                 object : GigyaPluginCallback<MyAccount>() {
 
                     /*
@@ -79,16 +79,14 @@ class WebBridgeTestActivity : AppCompatActivity() {
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                val uri = request?.getUrl()
+                val uri = request?.url
                 val uriString = uri.toString()
-                _webBridge?.invoke(uriString)
-                return true
+                return _webBridge?.invoke(uriString) ?: false
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, urlString: String?): Boolean {
                 val uri = Uri.parse(urlString)
-                _webBridge?.invoke(uri.toString())
-                return true
+                return _webBridge?.invoke(uri.toString()) ?: false
             }
         })
 

@@ -384,7 +384,6 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
      * Allows external use of the Gigya web bridge.
      *
      * @param webView        WebView instance.
-     * @param obfuscate      Should use Base64 obfuscation.
      * @param pluginCallback Plugin callback used for JS and event interactions.
      * @param progressView   Optional progress view that will be triggered (VISIBLE/GONE) according to event life cycle.
      * @param onHide         Optional code block to be executed when a "Hide" event occurs (Usually used to dismiss current context).
@@ -393,12 +392,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     @Override
     public void attachTo(
             @NonNull final WebView webView,
-            final boolean obfuscate,
             @NonNull final GigyaPluginCallback<A> pluginCallback,
             @Nullable final View progressView,
             @Nullable final Runnable onHide) {
-
-        _obfuscation = obfuscate;
 
         if (android.os.Build.VERSION.SDK_INT < 17) {
             GigyaLogger.error(LOG_TAG, "WebBridge invocation is only available for Android >= 17");
@@ -420,7 +416,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
             @JavascriptInterface
             public String getObfuscationStrategy() {
-                return obfuscate ? "base64" : "";
+                return _obfuscation ? "base64" : "";
             }
 
             @JavascriptInterface
