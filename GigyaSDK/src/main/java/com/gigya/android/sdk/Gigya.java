@@ -560,7 +560,7 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public GigyaWebBridge<T> createWebBridge() {
         try {
-            return (GigyaWebBridge<T>) CONTAINER.get(IGigyaWebBridge.class);
+            return (GigyaWebBridge<T>) getContainer().get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
