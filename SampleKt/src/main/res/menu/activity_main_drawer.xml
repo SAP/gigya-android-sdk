@@ -8,7 +8,7 @@
             <menu>
                 <item
                     android:id="@+id/action_send_request"
-                    android:title="@string/nav_send_request"/>
+                    android:title="@string/nav_send_request" />
 
                 <item
                     android:id="@+id/action_login"
@@ -65,6 +65,10 @@
                 <item
                     android:id="@+id/action_show_screen_sets"
                     android:title="@string/nav_show_screen_sets" />
+
+                <item
+                    android:id="@+id/action_web_bridge_test"
+                    android:title="Web Bridge test" />
 
             </menu>
         </item>

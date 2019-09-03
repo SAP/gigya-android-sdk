@@ -98,7 +98,7 @@ public class GigyaApiRequestFactoryTest {
         // Assert
         assertNotNull(request);
         assertNotNull(request.getEncodedParams());
-        assertEquals("format=json&httpStatusCodes=false&sdk=" + Gigya.VERSION + "&targetEnv=mobile", request.getEncodedParams());
+        assertEquals("format=json&httpStatusCodes=false&sdk=Android_" + Gigya.VERSION + "&targetEnv=mobile", request.getEncodedParams());
     }
 
     @Test

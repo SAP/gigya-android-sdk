@@ -343,7 +343,7 @@ public class SessionService implements ISessionService {
             @Override
             public void onTick(long millisUntilFinished) {
                 // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
-                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
+                //GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
             }
 
             @Override

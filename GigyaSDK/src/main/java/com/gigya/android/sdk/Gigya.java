@@ -22,6 +22,7 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "Android_4.0.3";
+    public static final String VERSION = "4.0.3";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -117,17 +118,20 @@ public class Gigya<T extends GigyaAccount> {
     final private IInterruptionResolverFactory _interruptionResolverFactory;
     final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
+    final private IoCContainer _container;
 
-    protected Gigya(@NonNull Application context,
-                    Config config,
-                    ConfigFactory configFactory,
-                    ISessionService sessionService,
-                    IAccountService<T> accountService,
-                    IBusinessApiService<T> businessApiService,
-                    ISessionVerificationService sessionVerificationService,
-                    IInterruptionResolverFactory interruptionsHandler,
-                    IPresenter<T> presenter,
-                    IProviderFactory providerFactory) {
+    protected Gigya(
+            @NonNull Application context,
+            Config config,
+            ConfigFactory configFactory,
+            ISessionService sessionService,
+            IAccountService<T> accountService,
+            IBusinessApiService<T> businessApiService,
+            ISessionVerificationService sessionVerificationService,
+            IInterruptionResolverFactory interruptionsHandler,
+            IPresenter<T> presenter,
+            IProviderFactory providerFactory,
+            IoCContainer container) {
         // Setup dependencies.
         _context = context;
         _config = config;
@@ -139,6 +143,7 @@ public class Gigya<T extends GigyaAccount> {
         _interruptionResolverFactory = interruptionsHandler;
         _presenter = presenter;
         _providerFactory = providerFactory;
+        _container = container;
 
         // Setup sdk
         _sessionVerificationService.registerActivityLifecycleCallbacks();
@@ -548,6 +553,22 @@ public class Gigya<T extends GigyaAccount> {
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
+    }
+
+    /**
+     * Create an new instance of the GigyaWebBridge.
+     *
+     * @return GigyaWebBridge instance.
+     */
+    @SuppressWarnings("unchecked")
+    public IGigyaWebBridge<T> createWebBridge() {
+        try {
+            return _container.get(IGigyaWebBridge.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
+        }
+        return null;
     }
 
     //endregion

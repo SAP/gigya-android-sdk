@@ -57,6 +57,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initDrawer()
     }
 
+    override fun onStart() {
+        super.onStart()
+        // Register for myAccountLiveData info updates.
+        registerAccountUpdates()
+    }
+
     override fun onResume() {
         super.onResume()
         val filter = IntentFilter()
@@ -66,8 +72,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 filter)
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
-        // Register for myAccountLiveData info updates.
-        registerAccountUpdates()
 
         /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
         if (viewModel!!.isLoggedIn()) {
@@ -80,12 +84,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
-        unregisterAccountUpdates()
         val biometric = GigyaBiometric.getInstance()
         if (biometric.isLocked) {
             onClear()
         }
         super.onPause()
+    }
+
+    override fun onStop() {
+        unregisterAccountUpdates()
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -208,6 +216,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_screen_sets -> showRAAS()
             R.id.action_forgot_password -> onForgotPassword()
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
+            R.id.action_web_bridge_test -> {
+                startActivity(Intent(this, WebBridgeTestActivity::class.java))
+            }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true

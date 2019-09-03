@@ -1,13 +1,20 @@
 package com.gigya.android.sdk.ui.plugin;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Base64;
+import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -20,8 +27,29 @@ import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
+
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A> {
 
@@ -78,6 +106,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     public void setInvocationCallback(@NonNull GigyaPluginFragment.IBridgeCallbacks<A> invocationCallback) {
         _invocationCallback = invocationCallback;
     }
+
+    //region ACTIONS
 
     @Override
     public boolean invoke(String action, String method, String queryStringParams) {
@@ -139,7 +169,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         GigyaLogger.debug(LOG_TAG, "evaluateJS: " + baseInvocation);
         String value = obfuscate(baseInvocation, true);
         final String invocation = String.format("javascript:%s['%s'](%s);", EVALUATE_JS_PATH, id, value);
-        _invocationCallback.invokeCallback(invocation);
+        if (_invocationCallback != null) {
+            _invocationCallback.invokeCallback(invocation);
+        }
     }
 
     @Override
@@ -219,6 +251,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             _invocationCallback.onPluginEvent(new GigyaPluginEvent(params), containerId);
         }
     }
+
+    //endregion
 
     //region APIS
 
@@ -312,7 +346,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String obfuscate(String string, boolean quote) {
         if (_obfuscation) {
-            // by default, using obsfuscation strategy of base64
+            // by default, using obfuscation strategy of base64
             try {
                 byte[] data = string.getBytes("UTF-8");
                 String base64 = Base64.encodeToString(data, Base64.DEFAULT);
@@ -339,6 +373,212 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             }
         }
         return base64String;
+    }
+
+    //endregion
+
+    //region ATTACH
+
+    /**
+     * Attach a WebView instance to WebBridge.
+     * Allows external use of the Gigya web bridge.
+     *
+     * @param webView        WebView instance.
+     * @param pluginCallback Plugin callback used for JS and event interactions.
+     * @param progressView   Optional progress view that will be triggered (VISIBLE/GONE) according to event life cycle.
+     * @param onHide         Optional code block to be executed when a "Hide" event occurs (Usually used to dismiss current context).
+     */
+    @SuppressLint("AddJavascriptInterface")
+    @Override
+    public void attachTo(
+            @NonNull final WebView webView,
+            @NonNull final GigyaPluginCallback<A> pluginCallback,
+            @Nullable final View progressView,
+            @Nullable final Runnable onHide) {
+
+        if (android.os.Build.VERSION.SDK_INT < 17) {
+            GigyaLogger.error(LOG_TAG, "WebBridge invocation is only available for Android >= 17");
+            return;
+        }
+        webView.addJavascriptInterface(new Object() {
+
+            private static final String ADAPTER_NAME = "mobile";
+
+            @JavascriptInterface
+            public String getAPIKey() {
+                return _config.getApiKey();
+            }
+
+            @JavascriptInterface
+            public String getAdapterName() {
+                return ADAPTER_NAME;
+            }
+
+            @JavascriptInterface
+            public String getObfuscationStrategy() {
+                return _obfuscation ? "base64" : "";
+            }
+
+            @JavascriptInterface
+            public String getFeatures() {
+                JSONArray features = new JSONArray();
+                for (GigyaWebBridge.Feature feature : GigyaWebBridge.Feature.values()) {
+                    features.put(feature.toString().toLowerCase(Locale.ROOT));
+                }
+                return features.toString();
+            }
+
+            @JavascriptInterface
+            public boolean sendToMobile(String action, String method, String queryStringParams) {
+                return invoke(action, method, queryStringParams);
+            }
+        }, "__gigAPIAdapterSettings");
+
+
+        _invocationCallback = new GigyaPluginFragment.IBridgeCallbacks<A>() {
+            @Override
+            public void invokeCallback(final String invocation) {
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (android.os.Build.VERSION.SDK_INT > 18) {
+                            webView.evaluateJavascript(invocation, new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String value) {
+                                    GigyaLogger.debug("evaluateJavascript Callback", value);
+                                }
+                            });
+                        } else {
+                            webView.loadUrl(invocation);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onPluginEvent(final GigyaPluginEvent event, final String containerID) {
+                if (!containerID.equals("pluginContainer")) {
+                    return;
+                }
+                final @PluginEventDef.PluginEvent String eventName = event.getEvent();
+                if (eventName == null) {
+                    return;
+                }
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (eventName) {
+                            case BEFORE_SCREEN_LOAD:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.VISIBLE);
+                                }
+                                pluginCallback.onBeforeScreenLoad(event);
+                                break;
+                            case LOAD:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                }
+                                break;
+                            case AFTER_SCREEN_LOAD:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                }
+                                pluginCallback.onAfterScreenLoad(event);
+                                break;
+                            case FIELD_CHANGED:
+                                pluginCallback.onFieldChanged(event);
+                                break;
+                            case BEFORE_VALIDATION:
+                                pluginCallback.onBeforeValidation(event);
+                                break;
+                            case AFTER_VALIDATION:
+                                break;
+                            case BEFORE_SUBMIT:
+                                pluginCallback.onBeforeSubmit(event);
+                                break;
+                            case SUBMIT:
+                                pluginCallback.onSubmit(event);
+                                break;
+                            case AFTER_SUBMIT:
+                                pluginCallback.onAfterSubmit(event);
+                                break;
+                            case HIDE:
+                                final String reason = (String) event.getEventMap().get("reason");
+                                pluginCallback.onHide(event, reason);
+
+                                if (onHide != null) {
+                                    onHide.run();
+                                }
+
+                                break;
+                            case ERROR:
+                                pluginCallback.onError(event);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onPluginAuthEvent(final String method, final @Nullable A accountObj) {
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (method) {
+                            case LOGIN_STARTED:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.VISIBLE);
+                                }
+                                break;
+                            case LOGIN:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                }
+                                if (accountObj != null) {
+                                    pluginCallback.onLogin(accountObj);
+                                }
+                                break;
+                            case LOGOUT:
+                                pluginCallback.onLogout();
+                                break;
+                            case ADD_CONNECTION:
+                                pluginCallback.onConnectionAdded();
+                                break;
+                            case REMOVE_CONNECTION:
+                                pluginCallback.onConnectionRemoved();
+                                break;
+                            case CANCELED:
+                                if (progressView != null) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                }
+                                pluginCallback.onCanceled();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+            }
+        };
+    }
+
+    /**
+     * Detach a WebView instance from this web bridge instance.
+     * Use to avoid leaking the enclosing context.
+     *
+     * @param webView Current attached WebView instance.
+     */
+    @Override
+    public void detachFrom(@NonNull final WebView webView) {
+        webView.loadUrl("about:blank");
+        webView.setWebViewClient(null);
+        webView.setWebChromeClient(null);
+        if (_invocationCallback != null) {
+            _invocationCallback = null;
+        }
     }
 
     //endregion

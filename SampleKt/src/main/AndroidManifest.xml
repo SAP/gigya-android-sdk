@@ -116,6 +116,7 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity android:name=".ui.WebBridgeTestActivity" />
 
         <receiver
             android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"

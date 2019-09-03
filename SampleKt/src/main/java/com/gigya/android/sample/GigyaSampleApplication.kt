@@ -65,8 +65,6 @@ class GigyaSampleApplication : Application() {
         /*
         Forcing pending registration
          */
-        Gigya.getInstance(MyAccount::class.java).init("3_5FIA8jNk1LTw_spOzIYLVU-GJVm93TAfJjqTjACQCnfxfRm0kZghGH1lx7zoNMbD")
-
-        //Gigya.getInstance(MyAccount::class.java).init("3_dS8axaIvoO5OtnEyQwCgkBhh2GTL_tbwOpQ5MOFIQFxZBZAxvTTP2s-x68Me9iJt", "eu1.gigya.com")
+        //Gigya.getInstance(MyAccount::class.java).init("3_5FIA8jNk1LTw_spOzIYLVU-GJVm93TAfJjqTjACQCnfxfRm0kZghGH1lx7zoNMbD")
     }
 }
