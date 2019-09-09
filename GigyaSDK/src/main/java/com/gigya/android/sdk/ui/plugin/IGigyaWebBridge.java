@@ -34,8 +34,7 @@ public interface IGigyaWebBridge<A extends GigyaAccount> {
 
     void attachTo(@NonNull final WebView webView,
                   @NonNull final GigyaPluginCallback<A> pluginCallback,
-                  @Nullable View progressView,
-                  @Nullable Runnable onHide);
+                  @Nullable View progressView);
 
     void detachFrom(@NonNull final WebView webView);
 

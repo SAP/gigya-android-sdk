@@ -128,7 +128,8 @@ public class BaseGigyaTest {
                   ISessionVerificationService sessionVerificationService,
                   IInterruptionResolverFactory interruptionsHandler,
                   IPresenter presenter,
-                  IProviderFactory providerFactory) {
+                  IProviderFactory providerFactory,
+                  IoCContainer container) {
             super(context,
                     config,
                     configFactory,
@@ -138,7 +139,8 @@ public class BaseGigyaTest {
                     sessionVerificationService,
                     interruptionsHandler,
                     presenter,
-                    providerFactory);
+                    providerFactory,
+                    container);
         }
     }
 

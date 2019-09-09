@@ -73,6 +73,8 @@ dependencies {
     testImplementation deps.apache.http_components
     testImplementation deps.apache.http_client
     testImplementation deps.libs.volley
+    testImplementation project(path: ':GigyaTFA')
+    testImplementation project(path: ':GigyaBiometric')
 
     // Implementations.
     //noinspection GradleDependency

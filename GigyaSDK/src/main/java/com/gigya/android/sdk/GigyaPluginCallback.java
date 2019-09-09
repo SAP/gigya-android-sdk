@@ -26,6 +26,11 @@ public abstract class GigyaPluginCallback<A> {
         // Stub.
     }
 
+    /* Called after validation of the form. */
+    public void onAfterValidation(@NonNull GigyaPluginEvent event) {
+        // Stub.
+    }
+
     /*
     Called before a form is submitted. This event gives you an opportunity to perform certain actions before
     the form is submitted, or cancel the submission by returning false.

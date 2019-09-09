@@ -14,6 +14,7 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaPluginCallback
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.gigya.android.sdk.ui.plugin.GigyaWebBridge
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge
 import kotlinx.android.synthetic.main.activity_web_bridge.*
@@ -61,10 +62,8 @@ class WebBridgeTestActivity : AppCompatActivity() {
                         web_view.snackbar("onLogout event shown")
                     }
 
-
                 },
-                progress_indicator,
-                null)
+                progress_indicator)
 
 
         // Setup a web view client to allow web bridge URL exchange.

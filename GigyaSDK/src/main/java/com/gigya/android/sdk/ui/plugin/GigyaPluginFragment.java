@@ -198,18 +198,97 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _webView.setWebViewClient(_webViewClient);
         _webView.setWebChromeClient(_fileChooserClient);
 
+       attachBridge();
+    }
+
+    private void attachBridge() {
+        if (_pluginCallback == null) {
+            GigyaLogger.error(LOG_TAG, "Plugin callback is mandatory - cannot remain null.");
+            return;
+        }
         // Web bridge.
         _gigyaWebBridge.attachTo(
                 _webView,
-                _pluginCallback,
-                _progressBar, new Runnable() {
+                new GigyaPluginCallback<A>() {
                     @Override
-                    public void run() {
+                    public void onError(GigyaPluginEvent event) {
+                        _pluginCallback.onError(event);
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        _pluginCallback.onCanceled();
+                    }
+
+                    @Override
+                    public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeValidation(event);
+                    }
+
+                    @Override
+                    public void onAfterValidation(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterValidation(event);
+                    }
+
+                    @Override
+                    public void onBeforeSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeSubmit(event);
+                    }
+
+                    @Override
+                    public void onSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onSubmit(event);
+                    }
+
+                    @Override
+                    public void onAfterSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterSubmit(event);
+                    }
+
+                    @Override
+                    public void onBeforeScreenLoad(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeScreenLoad(event);
+                    }
+
+                    @Override
+                    public void onAfterScreenLoad(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterScreenLoad(event);
+                    }
+
+                    @Override
+                    public void onFieldChanged(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onFieldChanged(event);
+                    }
+
+                    @Override
+                    public void onHide(@NonNull GigyaPluginEvent event, String reason) {
+                        _pluginCallback.onHide(event, reason);
                         if (getActivity() != null) {
                             getActivity().onBackPressed();
                         }
                     }
-                });
+
+                    @Override
+                    public void onLogin(@NonNull A accountObj) {
+                        _pluginCallback.onLogin(accountObj);
+                    }
+
+                    @Override
+                    public void onLogout() {
+                        _pluginCallback.onLogout();
+                    }
+
+                    @Override
+                    public void onConnectionAdded() {
+                        _pluginCallback.onConnectionAdded();
+                    }
+
+                    @Override
+                    public void onConnectionRemoved() {
+                        _pluginCallback.onConnectionRemoved();
+                    }
+                },
+                _progressBar);
     }
 
     @Override

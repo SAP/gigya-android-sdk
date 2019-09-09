@@ -78,7 +78,7 @@ public class GigyaDefinitions {
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({AMAZON, BLOGGER, FACEBOOK, FOURSQUARE, GOOGLE, INSTAGRAM, KAKAO, LINE, LINKEDIN, WECHAT,
                 LIVEDOOR, MESSENGER, MIXI, NAVER, NETLOG, ODNOKLASSNIKI, ORANGE_FRANCE, PAYPALOAUTH, TENCENT_QQ, RENREN, SINA_WEIBO,
-                SPICEWORKS, TWITTER, VKONTAKTE, WECHAT, WORDPRESS, XING, YAHOO, YAHOO_JAPAN})
+                SPICEWORKS, TWITTER, VKONTAKTE, WECHAT, WORDPRESS, XING, YAHOO, YAHOO_JAPAN, APPLE})
         public @interface SocialProvider {
         }
 
@@ -110,6 +110,7 @@ public class GigyaDefinitions {
         public static final String XING = "xing";
         public static final String YAHOO = "yahoo";
         public static final String YAHOO_JAPAN = "Yahoo Japan";
+        public static final String APPLE = "apple";
     }
 
     public static class AccountIncludes {

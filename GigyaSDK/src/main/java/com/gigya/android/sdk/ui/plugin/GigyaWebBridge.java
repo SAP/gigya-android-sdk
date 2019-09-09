@@ -386,15 +386,13 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
      * @param webView        WebView instance.
      * @param pluginCallback Plugin callback used for JS and event interactions.
      * @param progressView   Optional progress view that will be triggered (VISIBLE/GONE) according to event life cycle.
-     * @param onHide         Optional code block to be executed when a "Hide" event occurs (Usually used to dismiss current context).
      */
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void attachTo(
             @NonNull final WebView webView,
             @NonNull final GigyaPluginCallback<A> pluginCallback,
-            @Nullable final View progressView,
-            @Nullable final Runnable onHide) {
+            @Nullable final View progressView) {
 
         if (android.os.Build.VERSION.SDK_INT < 17) {
             GigyaLogger.error(LOG_TAG, "WebBridge invocation is only available for Android >= 17");
@@ -492,6 +490,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 pluginCallback.onBeforeValidation(event);
                                 break;
                             case AFTER_VALIDATION:
+                                pluginCallback.onAfterValidation(event);
                                 break;
                             case BEFORE_SUBMIT:
                                 pluginCallback.onBeforeSubmit(event);
@@ -505,11 +504,6 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                             case HIDE:
                                 final String reason = (String) event.getEventMap().get("reason");
                                 pluginCallback.onHide(event, reason);
-
-                                if (onHide != null) {
-                                    onHide.run();
-                                }
-
                                 break;
                             case ERROR:
                                 pluginCallback.onError(event);
