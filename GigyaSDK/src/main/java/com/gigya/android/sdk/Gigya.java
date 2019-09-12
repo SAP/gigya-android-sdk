@@ -148,7 +148,7 @@ public class Gigya<T extends GigyaAccount> {
         // Setup sdk
         _sessionVerificationService.registerActivityLifecycleCallbacks();
         _sessionService.load();
-        init();
+        init(false);
     }
 
     //region INITIALIZE
@@ -161,7 +161,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey Client API-KEY.
      */
     @SuppressWarnings("unused")
-    public void init(String apiKey) {
+    public void init(@NonNull String apiKey) {
         init(apiKey, DEFAULT_API_DOMAIN);
     }
 
@@ -171,10 +171,10 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey    Client API-KEY
      * @param apiDomain Request Domain.
      */
-    public void init(String apiKey, String apiDomain) {
+    public void init(@NonNull String apiKey, @NonNull String apiDomain) {
         // Override existing configuration when applied explicitly.
         _config.updateWith(apiKey, apiDomain);
-        init();
+        init(true);
     }
 
     /**
@@ -184,7 +184,7 @@ public class Gigya<T extends GigyaAccount> {
      * - parse application manifest meta data tags.
      * For explicit setting see {@link #init(String, String)} method.
      */
-    private void init() {
+    private void init(boolean explicit) {
         // Will load configuration fields only if none have yet to be set.
         if (_config.getApiKey() == null) {
             // Try to from assets JSON file,
@@ -197,9 +197,11 @@ public class Gigya<T extends GigyaAccount> {
             _accountService.nextAccountInvalidationTimestamp();
         }
 
-        if (_config.getApiKey() == null || _config.getApiKey().isEmpty()) {
-            GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
-            throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+        if (explicit) {
+            if (_config.getApiKey() == null || _config.getApiKey().isEmpty()) {
+                GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+                throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+            }
         }
     }
 
