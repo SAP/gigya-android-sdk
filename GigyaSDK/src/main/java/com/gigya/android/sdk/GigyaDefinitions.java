@@ -86,7 +86,7 @@ public class GigyaDefinitions {
         public static final String BLOGGER = "blogger";
         public static final String FACEBOOK = "facebook";
         public static final String FOURSQUARE = "foursquare";
-        public static final String GOOGLE = "googleplus";
+        public static final String GOOGLE = "google";
         public static final String INSTAGRAM = "Instagram";
         public static final String KAKAO = "kakao";
         public static final String LINE = "line";
