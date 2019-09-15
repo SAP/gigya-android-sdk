@@ -39,7 +39,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.0.3";
+    public static final String VERSION = "4.0.4";
 
     private static final String LOG_TAG = "Gigya";
 

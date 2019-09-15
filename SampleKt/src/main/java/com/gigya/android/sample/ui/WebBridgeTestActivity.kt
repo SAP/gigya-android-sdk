@@ -56,10 +56,12 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
                     override fun onLogin(accountObj: MyAccount) {
                         web_view.snackbar("onLogin event shown")
+                        onBackPressed()
                     }
 
                     override fun onLogout() {
                         web_view.snackbar("onLogout event shown")
+                        onBackPressed()
                     }
 
                 },
