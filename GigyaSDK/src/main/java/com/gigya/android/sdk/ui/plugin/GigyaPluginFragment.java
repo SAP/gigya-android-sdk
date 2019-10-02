@@ -94,12 +94,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         // Parse arguments.
         if (getArguments() != null) {
             _obfuscation = getArguments().getBoolean(Presenter.ARG_OBFUSCATE, false);
-
-            /* When using GigyaPluginPresenter.ARG_STYLE_SHOW_FULL_SCREEN option the style attribute will be ignored. */
-            final boolean fullScreen = getArguments().getBoolean(Presenter.ARG_STYLE_SHOW_FULL_SCREEN, false);
-            if (fullScreen) {
-                setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-            }
         }
     }
 
@@ -128,7 +122,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     final boolean fullScreen = args.getBoolean(Presenter.ARG_STYLE_SHOW_FULL_SCREEN, false);
                     if (fullScreen) {
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     }
                 }
             }
