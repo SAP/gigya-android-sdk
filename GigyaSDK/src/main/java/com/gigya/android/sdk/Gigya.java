@@ -468,8 +468,21 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
-        _businessApiService.forgotPassword(loginId, gigyaCallback);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginId);
+        forgotPassword(params, gigyaCallback);
+    }
+
+    /**
+     * Send a reset email password to verified email attached to the users loginId.
+     *
+     * @param params        Parameter map.
+     * @param gigyaCallback Response listener callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST">accounts.resetPassword REST</a> for available parameters.
+     */
+    public void forgotPassword(@NonNull Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "forgotPassword: with given parameters " + params.toString());
+        _businessApiService.forgotPassword(params, gigyaCallback);
     }
 
     /**
@@ -551,7 +564,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param fullScreen          Show in fullscreen mode.
      * @param gigyaPluginCallback Plugin callback.
      */
-    // Not available in version 4.0.0.
+    // Not available in version 4.0.*
     private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);

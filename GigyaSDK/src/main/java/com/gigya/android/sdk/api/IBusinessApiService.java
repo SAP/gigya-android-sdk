@@ -40,7 +40,7 @@ public interface IBusinessApiService<A> {
 
     void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback);
 
-    void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback);
+    void forgotPassword(Map<String, Object> params, final GigyaCallback<GigyaApiResponse> callback);
 
     void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
 

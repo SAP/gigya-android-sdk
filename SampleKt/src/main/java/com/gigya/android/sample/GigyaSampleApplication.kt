@@ -45,7 +45,7 @@ class GigyaSampleApplication : Application() {
         /*
         TFA Email.
          */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_email_tfa));
+        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.apui_with_email_tfa));
 
         /*
         TFA push only (Staging).
@@ -60,7 +60,7 @@ class GigyaSampleApplication : Application() {
         /*
         Global login site
          */
-        //Gigya.getInstance(MyAccount::class.java).init("NEED-API-KEY")
+        //Gigya.getInstance(MyAccount::class.java).init("4_mOdtipUxEhwsuZ6McabFRQ")
 
         /*
         Forcing pending registration
@@ -70,6 +70,11 @@ class GigyaSampleApplication : Application() {
         /*
         SAML
          */
-        Gigya.getInstance(MyAccount::class.java).init("3_e6fBzFpWA_5w1A2aB96Ad3NGmlbg6r1iQ5JQHv78tGj_YaYr1laPmM5XA3hO2YNh")
+        //Gigya.getInstance(MyAccount::class.java).init("3_e6fBzFpWA_5w1A2aB96Ad3NGmlbg6r1iQ5JQHv78tGj_YaYr1laPmM5XA3hO2YNh")
+
+        /*
+        Eu site testing.
+         */
+        //Gigya.getInstance(MyAccount::class.java).init("3_1pjil0H2GoDmHPAAMsqY24BdoNNAqBEFO4n461JnkbarkP2DBKoOpFzaxekXt3kt", "eu1.gigya.com")
     }
 }

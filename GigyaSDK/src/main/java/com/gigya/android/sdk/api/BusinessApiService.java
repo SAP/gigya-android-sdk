@@ -571,14 +571,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     /**
      * Issue a reset password request.
      *
-     * @param loginId  Current login ID.
      * @param callback Response callback.
      * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST">accounts.resetPassword REST</a>
      */
     @Override
-    public void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback) {
-        final Map<String, Object> params = new HashMap<>();
-        params.put("loginID", loginId);
+    public void forgotPassword(Map<String, Object> params, final GigyaCallback<GigyaApiResponse> callback) {
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_RESET_PASSWORD, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
