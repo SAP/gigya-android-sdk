@@ -48,16 +48,17 @@ android {
 
 dependencies {
     // Test implementations.
-    testImplementation deps.test.junit
-    testImplementation deps.test.json
-    testImplementation deps.androidx.test_core
-    testImplementation deps.mockito.core
-    testImplementation deps.power_mock.junit4
-    testImplementation deps.power_mock.mockito2
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.json:json:20141113'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
+    testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
+    testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+
     testImplementation project(path: ':GigyaSDK')
 
-    implementation deps.android_support.appcompat
-    implementation deps.android_support.design
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
 
     compileOnly project(path: ':GigyaSDK')
 }
@@ -81,7 +82,7 @@ android.libraryVariants.all { variant ->
         task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
             baseName androidJarName
             from variant.javaCompileProvider.get().destinationDir
-            destinationDir = file(outDir)
+            destinationDirectory = file(outDir)
             include(
                     'com/gigya/android/sdk/**'
             )
