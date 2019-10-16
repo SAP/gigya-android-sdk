@@ -22,6 +22,7 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.fragment.BackPressListener
 import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
+import com.gigya.android.sample.ui.fragment.CustomTFAPhoneRegistrationFragment
 import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
@@ -418,7 +419,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
                         // Resolving Phone TFA registration.
-                        val phoneDialog = TFAPhoneRegistrationFragment.newInstance(selectedProvider, "fr")
+                        val phoneDialog = CustomTFAPhoneRegistrationFragment.newInstance(selectedProvider, "en")
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
@@ -487,7 +488,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 when (selectedProvider) {
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE,
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.LIVELINK -> {
-                        val phoneDialog = TFAPhoneVerificationFragment.newInstance(selectedProvider, "fr")
+                        val phoneDialog = TFAPhoneVerificationFragment.newInstance(selectedProvider, "en")
                         phoneDialog.setRoundedCorners(true)
                         phoneDialog.setResolverFactory(dataPair.second)
                         phoneDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {
@@ -509,7 +510,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         phoneDialog.show(supportFragmentManager, "TFAPhoneVerificationFragment")
                     }
                     com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.EMAIL -> {
-                        val emailDialog = TFAEmailVerificationFragment.newInstance("fr")
+                        val emailDialog = TFAEmailVerificationFragment.newInstance("en")
                         emailDialog.setRoundedCorners(true)
                         emailDialog.setResolverFactory(dataPair.second)
                         emailDialog.setSelectionCallback(object : BaseTFAFragment.SelectionCallback {

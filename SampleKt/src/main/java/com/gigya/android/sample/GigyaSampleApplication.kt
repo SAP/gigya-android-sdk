@@ -31,6 +31,9 @@ class GigyaSampleApplication : Application() {
         // Initialization with implicit configuration & myAccountLiveData scheme.
         Gigya.getInstance(MyAccount::class.java)
 
+        val signatureHelper = AppSignatureHelper(this)
+        GigyaLogger.debug("GigyaSampleApplication SIG", signatureHelper.getAppSignatures().toString())
+
         /*
         Initialization with implicit configuration & without a custom myAccountLiveData scheme.
         Will use the default GigyaAccount scheme.
@@ -55,7 +58,7 @@ class GigyaSampleApplication : Application() {
         /*
         With LiveLink.
          */
-        //Gigya.getInstance(MyAccount::class.java).init("3_HCalFtInj--1FsLPEnTrEB0G1up6BDobQ16YVTt00VBL4DrFYK54Vy_g-zeu6gNw", "us1.gigya.com")
+        Gigya.getInstance(MyAccount::class.java).init("3_7iTV4NJUApz8TdUB5_Ms-SH2Fuj3aUgfw-y78IYulD-BA8IFLYRcpUDoCwzDgs9o", "us1.gigya.com")
 
         /*
         Global login site
