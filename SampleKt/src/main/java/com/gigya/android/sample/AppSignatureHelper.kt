@@ -12,11 +12,12 @@ import java.util.*
 
 class AppSignatureHelper(base: Context) : ContextWrapper(base) {
 
-    val TAG = AppSignatureHelper::class.java.simpleName
-
-    private val HASH_TYPE = "SHA-256"
-    val NUM_HASHED_BYTES = 9
-    val NUM_BASE64_CHAR = 11
+    companion object {
+        const val HASH_TYPE = "SHA-256"
+        const val NUM_HASHED_BYTES = 9
+        const val NUM_BASE64_CHAR = 11
+        const val TAG = "AppSignatureHelper"
+    }
 
     fun getAppSignatures(): List<String> {
         val appCodes = mutableListOf<String>()
