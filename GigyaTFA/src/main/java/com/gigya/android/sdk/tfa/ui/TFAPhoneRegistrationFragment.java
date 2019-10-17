@@ -45,13 +45,13 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     private CountryCode[] _countryCodes = new CountryCode[240];
 
     private ProgressBar _progressBar;
-    private EditText _phoneEditText, _verificationCodeEditText;
+    protected EditText _phoneEditText, _verificationCodeEditText;
     private View _verificationLayout;
-    private Button _actionButton, _dismissButton;
+    protected Button _actionButton, _dismissButton;
     private CheckBox _rememberDeviceCheckbox;
     private Spinner _countryCodeSpinner;
 
-    private static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
+    protected static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
 
     public static TFAPhoneRegistrationFragment newInstance(String phoneProvider) {
         TFAPhoneRegistrationFragment fragment = new TFAPhoneRegistrationFragment();
