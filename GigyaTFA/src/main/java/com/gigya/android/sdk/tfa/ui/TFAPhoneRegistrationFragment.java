@@ -35,21 +35,21 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
     private static final String LOG_TAG = "TFAPhoneRegistrationFragment";
 
     @Nullable
-    private RegisterPhoneResolver _registerPhoneResolver;
+    protected RegisterPhoneResolver _registerPhoneResolver;
 
     @Nullable
-    private IVerifyCodeResolver _verifyCodeResolver;
+    protected IVerifyCodeResolver _verifyCodeResolver;
 
-    private String _phoneProvider = PHONE;
+    protected String _phoneProvider = PHONE;
 
-    private CountryCode[] _countryCodes = new CountryCode[240];
+    protected CountryCode[] _countryCodes = new CountryCode[240];
 
-    private ProgressBar _progressBar;
+    protected ProgressBar _progressBar;
     protected EditText _phoneEditText, _verificationCodeEditText;
-    private View _verificationLayout;
+    protected View _verificationLayout;
     protected Button _actionButton, _dismissButton;
-    private CheckBox _rememberDeviceCheckbox;
-    private Spinner _countryCodeSpinner;
+    protected CheckBox _rememberDeviceCheckbox;
+    protected Spinner _countryCodeSpinner;
 
     protected static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
 
@@ -110,7 +110,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         setActions();
     }
 
-    private void initUI(View view) {
+    protected void initUI(View view) {
         _progressBar = view.findViewById(R.id.fpr_progress);
         _phoneEditText = view.findViewById(R.id.fpr_phone_edit_text);
         _verificationLayout = view.findViewById(R.id.fpr_verification_layout);
@@ -121,7 +121,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         _countryCodeSpinner = view.findViewById(R.id.fpr_country_code_spinner);
     }
 
-    private void setActions() {
+    protected void setActions() {
         _actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,13 +144,13 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
         });
     }
 
-    private void updateToVerificationState() {
+    protected void updateToVerificationState() {
         _actionButton.setText(getString(R.string.tfa_verify));
         _phoneEditText.setVisibility(View.GONE);
         _verificationLayout.setVisibility(View.VISIBLE);
     }
 
-    private void register() {
+    protected void register() {
         if (_resolverFactory == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
@@ -190,7 +190,7 @@ public class TFAPhoneRegistrationFragment extends BaseTFAFragment {
                 });
     }
 
-    private void verify() {
+    protected void verify() {
         if (_registerPhoneResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());

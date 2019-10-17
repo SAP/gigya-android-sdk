@@ -25,17 +25,17 @@ import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider.PHONE;
 public class TFAPhoneVerificationFragment extends BaseTFAFragment {
 
     @Nullable
-    RegisteredPhonesResolver _registeredPhonesResolver;
+    protected RegisteredPhonesResolver _registeredPhonesResolver;
 
-    private ProgressBar _progressBar;
-    private Spinner _registeredPhonesSpinner;
-    private Button _sendCodeButton, _verifyButton, _dismissButton;
-    private View _verificationLayout;
-    private EditText _verificationCodeEditText;
+    protected ProgressBar _progressBar;
+    protected Spinner _registeredPhonesSpinner;
+    protected Button _sendCodeButton, _verifyButton, _dismissButton;
+    protected View _verificationLayout;
+    protected EditText _verificationCodeEditText;
 
     private String _phoneProvider = PHONE;
 
-    private static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
+    protected static final String ARG_PHONE_PROVIDER = "arg_phone_provider";
 
     public static TFAPhoneVerificationFragment newInstance(String phoneProvider) {
         TFAPhoneVerificationFragment fragment = new TFAPhoneVerificationFragment();
@@ -82,7 +82,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
     }
 
 
-    private void initUI(View view) {
+    protected void initUI(View view) {
         _progressBar = view.findViewById(R.id.fpv_progress);
         _registeredPhonesSpinner = view.findViewById(R.id.fpv_selection_spinner);
         _sendCodeButton = view.findViewById(R.id.fpv_send_code_button);
@@ -94,7 +94,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         _verificationCodeEditText = view.findViewById(R.id.fpv_verification_code_edit_text);
     }
 
-    private void setActions() {
+    protected void setActions() {
         _dismissButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,7 +106,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private void initFlow() {
+    protected void initFlow() {
         _progressBar.setVisibility(View.VISIBLE);
         if (_resolverFactory == null) {
             if (_selectionCallback != null) {
@@ -149,7 +149,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         }
     };
 
-    private void populateRegisteredPhones(List<RegisteredPhone> registeredPhoneList) {
+    protected void populateRegisteredPhones(List<RegisteredPhone> registeredPhoneList) {
         final ArrayList<PhoneHelper> helpers = new ArrayList<>(registeredPhoneList.size());
         for (RegisteredPhone phone : registeredPhoneList) {
             helpers.add(new PhoneHelper(phone));
@@ -176,7 +176,7 @@ public class TFAPhoneVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private void updateToVerificationState(final IVerifyCodeResolver verifyCodeResolver) {
+    protected void updateToVerificationState(final IVerifyCodeResolver verifyCodeResolver) {
         if (_registeredPhonesResolver == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
