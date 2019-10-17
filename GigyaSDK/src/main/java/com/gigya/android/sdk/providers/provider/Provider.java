@@ -64,6 +64,9 @@ public abstract class Provider implements IProvider {
     @Override
     public void onCanceled() {
         _connecting = false;
+
+        // Trigger cancellation callback.
+        _providerCallback.onCanceled();
     }
 
     @Override
