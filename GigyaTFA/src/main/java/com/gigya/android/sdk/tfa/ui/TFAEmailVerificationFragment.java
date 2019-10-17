@@ -26,11 +26,11 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
     @Nullable
     private RegisteredEmailsResolver _registeredEmailsResolver;
 
-    private ProgressBar _progressBar;
-    private Spinner _registeredEmailsSpinner;
-    private Button _sendCodeButton, _verifyButton, _dismissButton;
-    private View _verificationLayout;
-    private EditText _verificationCodeEditText;
+    protected ProgressBar _progressBar;
+    protected Spinner _registeredEmailsSpinner;
+    protected Button _sendCodeButton, _verifyButton, _dismissButton;
+    protected View _verificationLayout;
+    protected EditText _verificationCodeEditText;
 
     @Override
     public int getLayoutId() {
@@ -65,7 +65,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
         initFlow();
     }
 
-    private void initUI(View view) {
+    protected void initUI(View view) {
         _progressBar = view.findViewById(R.id.fev_progress);
         _registeredEmailsSpinner = view.findViewById(R.id.fev_selection_spinner);
         _sendCodeButton = view.findViewById(R.id.fev_send_code_button);
@@ -78,7 +78,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
     }
 
 
-    private void setActions() {
+    protected void setActions() {
         _dismissButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +90,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private void initFlow() {
+    protected void initFlow() {
         _progressBar.setVisibility(View.VISIBLE);
         if (_resolverFactory == null) {
             if (_selectionCallback != null) {
@@ -113,7 +113,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
         _registeredEmailsResolver.getRegisteredEmails(registeredEmailsResolverResultCallback);
     }
 
-    private final RegisteredEmailsResolver.ResultCallback registeredEmailsResolverResultCallback = new RegisteredEmailsResolver.ResultCallback() {
+    protected final RegisteredEmailsResolver.ResultCallback registeredEmailsResolverResultCallback = new RegisteredEmailsResolver.ResultCallback() {
         @Override
         public void onRegisteredEmails(List<EmailModel> registeredEmailList) {
             _progressBar.setVisibility(View.INVISIBLE);
@@ -169,7 +169,7 @@ public class TFAEmailVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private void updateToVerificationState(final IVerifyCodeResolver verifyCodeResolver) {
+    protected void updateToVerificationState(final IVerifyCodeResolver verifyCodeResolver) {
         _verificationLayout.setVisibility(View.VISIBLE);
         _sendCodeButton.setText(getString(R.string.tfa_send_again));
 
