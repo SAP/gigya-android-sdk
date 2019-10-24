@@ -17,7 +17,7 @@ class SMSBroadcastReceiver(private val codeCallback: ISMSMessage) : BroadcastRec
                 CommonStatusCodes.SUCCESS -> {
                     // Get SMS message contents
                     val message = extras.get(SmsRetriever.EXTRA_SMS_MESSAGE) as String
-                    val code = message.split(":")[1].trim().split(" ")[0].trim()
+                    val code = message.split(":")[1].trim().split("\n\n\n")[0].trim()
                     codeCallback.onMessageCodeReceived(code)
                 }
                 CommonStatusCodes.TIMEOUT -> {
