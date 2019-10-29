@@ -3,9 +3,9 @@ package com.gigya.android.account;
 import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 

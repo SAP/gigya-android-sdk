@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.providers.provider;
 
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.session.SessionInfo;
 
 import java.util.Map;

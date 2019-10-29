@@ -10,7 +10,6 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -21,7 +20,6 @@ import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -196,7 +194,8 @@ public class WebLoginProvider extends Provider {
             AuthUtils.addAuthenticationParameters(sessionSecret,
                     RestAdapter.GET,
                     UrlUtils.getBaseUrl(api, _config.getApiDomain()),
-                    serverParams);
+                    serverParams,
+                    _config.getServerOffset());
         }
 
 

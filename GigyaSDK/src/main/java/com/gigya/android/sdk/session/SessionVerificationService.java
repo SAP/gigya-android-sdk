@@ -11,11 +11,11 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
-import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.api.IApiRequestFactory;
+import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.ui.Presenter;
 

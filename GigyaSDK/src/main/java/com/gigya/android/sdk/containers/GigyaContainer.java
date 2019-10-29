@@ -9,9 +9,11 @@ import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
+import com.gigya.android.sdk.api.GigyaApiRequestSigner;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.api.IGigyaApiRequestSigner;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
@@ -45,6 +47,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IRestAdapter.class, RestAdapter.class, true)
                 .bind(IApiService.class, ApiService.class, false)
                 .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)
+                .bind(IGigyaApiRequestSigner.class, GigyaApiRequestSigner.class, true)
                 .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                         : SessionKeyLegacy.class, true)
                 .bind(IPersistenceService.class, PersistenceService.class, false)

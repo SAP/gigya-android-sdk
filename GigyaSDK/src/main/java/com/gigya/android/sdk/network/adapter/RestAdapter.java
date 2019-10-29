@@ -3,6 +3,7 @@ package com.gigya.android.sdk.network.adapter;
 import android.content.Context;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.IGigyaApiRequestSigner;
 
 public class RestAdapter implements IRestAdapter {
 
@@ -11,11 +12,11 @@ public class RestAdapter implements IRestAdapter {
 
     private NetworkProvider _networkProvider;
 
-    public RestAdapter(Context context) {
+    public RestAdapter(Context context, IGigyaApiRequestSigner requestSigner) {
         if (VolleyNetworkProvider.isAvailable()) {
-            _networkProvider = new VolleyNetworkProvider(context);
+            _networkProvider = new VolleyNetworkProvider(requestSigner, context);
         } else {
-            _networkProvider = new HttpNetworkProvider();
+            _networkProvider = new HttpNetworkProvider(requestSigner);
         }
     }
 

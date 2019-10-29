@@ -446,7 +446,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             return;
         }
         _accountService.updateExtendedParametersRequest(include, profileExtraFields);
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.GET);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {

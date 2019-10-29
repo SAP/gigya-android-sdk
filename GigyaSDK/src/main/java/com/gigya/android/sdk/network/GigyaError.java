@@ -26,6 +26,8 @@ public class GigyaError extends GigyaResponseModel {
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;
 
         public static final int ERROR_INVALID_JWT = 400006;
+
+        public static final int ERROR_REQUEST_HAS_EXPIRED = 403002;
     }
 
     /* Raw Json data. */
