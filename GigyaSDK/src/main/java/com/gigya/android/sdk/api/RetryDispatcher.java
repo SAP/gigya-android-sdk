@@ -35,10 +35,10 @@ public class RetryDispatcher {
         adapter.send(request, false, new IRestAdapterCallback() {
 
             @Override
-            public void onResponse(String jsonResponse, String dateHeader) {
+            public void onResponse(String jsonResponse, String responseDateHeader) {
 
                 // Make sure to update the offset date.
-                handler.onUpdateDate(dateHeader);
+                handler.onUpdateDate(responseDateHeader);
 
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final boolean retry = decrement();

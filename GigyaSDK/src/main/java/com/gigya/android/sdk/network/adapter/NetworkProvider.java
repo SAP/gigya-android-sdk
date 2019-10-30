@@ -1,14 +1,14 @@
 package com.gigya.android.sdk.network.adapter;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
-import com.gigya.android.sdk.api.IGigyaApiRequestSigner;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 
 public abstract class NetworkProvider {
 
-    public IGigyaApiRequestSigner _requestSigner;
+    public IApiRequestFactory _requestFactory;
 
-    public NetworkProvider(IGigyaApiRequestSigner requestSigner) {
-        _requestSigner = requestSigner;
+    public NetworkProvider(IApiRequestFactory requestFactory) {
+        _requestFactory = requestFactory;
     }
 
     public boolean _blocked = false;

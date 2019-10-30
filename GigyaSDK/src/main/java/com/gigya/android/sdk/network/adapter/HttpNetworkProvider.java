@@ -3,7 +3,7 @@ package com.gigya.android.sdk.network.adapter;
 import android.os.AsyncTask;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
-import com.gigya.android.sdk.api.IGigyaApiRequestSigner;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.io.BufferedReader;
@@ -22,8 +22,8 @@ public class HttpNetworkProvider extends NetworkProvider {
 
     private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
-    public HttpNetworkProvider(IGigyaApiRequestSigner requestSigner) {
-        super(requestSigner);
+    public HttpNetworkProvider(IApiRequestFactory requestFactory) {
+        super(requestFactory);
     }
 
     @Override
@@ -33,13 +33,13 @@ public class HttpNetworkProvider extends NetworkProvider {
             return;
         }
         // If not blocked send the request.
-        _requestSigner.signRequest(request);
+        _requestFactory.sign(request);
         new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
-        _requestSigner.signRequest(request);
+        _requestFactory.sign(request);
         new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
         _blocked = true;
     }
@@ -53,7 +53,7 @@ public class HttpNetworkProvider extends NetworkProvider {
 
         HttpTask queued = _queue.poll();
         // Requests need to be re-signed when released from the blocking queue.
-        _requestSigner.signRequest(queued.getRequest());
+        _requestFactory.sign(queued.getRequest());
 
         while (queued != null) {
             queued.run();

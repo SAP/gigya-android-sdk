@@ -54,14 +54,15 @@ public class ApiService implements IApiService {
     private void updateOffset(String dateHeader) {
         if (dateHeader != null) {
             try {
-                SimpleDateFormat format = new SimpleDateFormat(
-                        SERVER_TIMESTAMP_PATTERN, Locale.ENGLISH);
+                SimpleDateFormat format = new SimpleDateFormat(SERVER_TIMESTAMP_PATTERN, Locale.ENGLISH);
                 Date serverDate = format.parse(dateHeader);
                 Long offset = (serverDate.getTime() - System.currentTimeMillis()) / 1000;
+
                 GigyaLogger.debug("ServerTime", "Server timestamp = " + offset);
 
                 _config.setServerOffset(offset);
             } catch (Exception ex) {
+
                 GigyaLogger.error("ServerTime", "unable to update offset with exception");
                 ex.printStackTrace();
             }
@@ -79,9 +80,9 @@ public class ApiService implements IApiService {
 
         _adapter.send(request, blocking, new IRestAdapterCallback() {
             @Override
-            public void onResponse(String jsonResponse, String dateHeader) {
+            public void onResponse(String jsonResponse, String responseDateHeader) {
 
-                updateOffset(dateHeader);
+                updateOffset(responseDateHeader);
 
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final int apiErrorCode = apiResponse.getErrorCode();
@@ -165,9 +166,9 @@ public class ApiService implements IApiService {
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SDK_CONFIG, params, RestAdapter.GET);
         _adapter.send(request, true, new IRestAdapterCallback() {
             @Override
-            public void onResponse(String jsonResponse, String dateHeader) {
+            public void onResponse(String jsonResponse, String responseDateHeader) {
 
-                updateOffset(dateHeader);
+                updateOffset(responseDateHeader);
 
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final int apiErrorCode = apiResponse.getErrorCode();

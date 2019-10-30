@@ -18,7 +18,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiRequest;
-import com.gigya.android.sdk.api.IGigyaApiRequestSigner;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;
 
@@ -36,8 +36,8 @@ public class VolleyNetworkProvider extends NetworkProvider {
     private RequestQueue _requestQueue;
     private Queue<HttpVolleyTask> _blockedQueue = new ConcurrentLinkedQueue<>();
 
-    VolleyNetworkProvider(IGigyaApiRequestSigner requestSigner, Context appContext) {
-        super(requestSigner);
+    VolleyNetworkProvider(IApiRequestFactory requestFactory, Context appContext) {
+        super(requestFactory);
         _requestQueue = Volley.newRequestQueue(appContext);
         // Enable Volley logs.
         VolleyLog.DEBUG = GigyaLogger.isDebug();
@@ -68,7 +68,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
         GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getUrl());
 
-        _requestSigner.signRequest(request);
+        _requestFactory.sign(request);
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
     }
@@ -78,7 +78,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
         GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getUrl());
         _requestQueue.getCache().clear();
 
-        _requestSigner.signRequest(request);
+        _requestFactory.sign(request);
         VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
         _blocked = true;
@@ -96,7 +96,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
             final HttpVolleyTask task = _blockedQueue.poll();
             // Need to resign the request.
-            _requestSigner.signRequest(task.getRequest());
+            _requestFactory.sign(task.getRequest());
 
             final VolleyNetworkRequest queued = newRequest(task.getRequest(), task.getNetworkCallbacks());
             GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
