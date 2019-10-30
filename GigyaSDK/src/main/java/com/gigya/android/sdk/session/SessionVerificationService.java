@@ -140,7 +140,10 @@ public class SessionVerificationService implements ISessionVerificationService {
                     _lastRequestTimestamp = System.currentTimeMillis();
                     final Map<String, Object> params = new HashMap<>();
                     params.put("include", "identities-all,loginIDs,profile,email,data");
-                    final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
+                    final GigyaApiRequest request = _requestFactory.create(
+                            GigyaDefinitions.API.API_VERIFY_LOGIN,
+                            params,
+                            RestAdapter.HttpMethod.POST);
                     _apiService.send(request, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {

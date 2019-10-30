@@ -3,6 +3,7 @@ package com.gigya.android.sdk.network.adapter;
 import android.os.AsyncTask;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 
@@ -29,18 +30,17 @@ public class HttpNetworkProvider extends NetworkProvider {
     @Override
     public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         if (_blocked) {
-            _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
+            _queue.add(new HttpTask(_requestFactory, new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
         }
         // If not blocked send the request.
-        _requestFactory.sign(request);
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         _requestFactory.sign(request);
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
         _blocked = true;
     }
 
@@ -98,8 +98,10 @@ public class HttpNetworkProvider extends NetworkProvider {
     }
 
     private static class HttpTask {
+
         private GigyaNetworkAsyncTask asyncTask;
         private GigyaApiRequest request;
+        private IApiRequestFactory requestFactory;
 
         public GigyaApiRequest getRequest() {
             return request;
@@ -109,17 +111,19 @@ public class HttpNetworkProvider extends NetworkProvider {
             this.request = request;
         }
 
-        HttpTask(GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
+        HttpTask(IApiRequestFactory requestFactory, GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
+            this.requestFactory = requestFactory;
             this.asyncTask = asyncTask;
             this.request = request;
         }
 
         void run() {
-            this.asyncTask.execute(this.request);
+            final GigyaApiHttpRequest signedRequest = this.requestFactory.sign(request);
+            this.asyncTask.execute(signedRequest);
         }
     }
 
-    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiRequest, Void, AsyncResult> {
+    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiHttpRequest, Void, AsyncResult> {
 
         private IRestAdapterCallback networkCallbacks;
 
@@ -128,8 +132,8 @@ public class HttpNetworkProvider extends NetworkProvider {
         }
 
         @Override
-        protected AsyncResult doInBackground(GigyaApiRequest... gigyaApiRequests) {
-            GigyaApiRequest request = gigyaApiRequests[0];
+        protected AsyncResult doInBackground(GigyaApiHttpRequest... gigyaApiRequests) {
+            GigyaApiHttpRequest request = gigyaApiRequests[0];
             if (request != null) {
                 HttpURLConnection connection = null;
                 OutputStreamWriter outputStreamWriter = null;
@@ -143,8 +147,8 @@ public class HttpNetworkProvider extends NetworkProvider {
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("connection", "close");
 
-                    connection.setRequestMethod(request.getMethod() == 0 ? "GET" : "POST");
-                    if (request.getMethod() == 1) {
+                    connection.setRequestMethod(request.getHttpMethod().intValue() == 0 ? "GET" : "POST");
+                    if (request.getHttpMethod().intValue() == 1) {
                         connection.setDoOutput(true);
                         outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
                         outputStreamWriter.write(request.getEncodedParams());

@@ -71,12 +71,12 @@ public class ApiService implements IApiService {
 
     @Override
     public void send(final GigyaApiRequest request, boolean blocking, final IApiServiceResponse apiCallback) {
-        if (requiresSdkConfig()) {
+        if (!request.getApi().equals(GigyaDefinitions.API.API_GET_SDK_CONFIG) && requiresSdkConfig()) {
             // Need to verify if GMID is available. If not we must request SDK configuration.
             getSdkConfig(apiCallback, request.getTag());
         }
 
-        GigyaLogger.debug(LOG_TAG, "sending: " + request.getApi() + "\n" + request.getEncodedParams());
+        GigyaLogger.debug(LOG_TAG, "sending: " + request.getApi());
 
         _adapter.send(request, blocking, new IRestAdapterCallback() {
             @Override
@@ -163,14 +163,15 @@ public class ApiService implements IApiService {
 
         final Map<String, Object> params = new HashMap<>();
         params.put("include", "permissions,ids,appIds");
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SDK_CONFIG, params, RestAdapter.GET);
-        _adapter.send(request, true, new IRestAdapterCallback() {
+        final GigyaApiRequest request = _reqFactory.create(
+                GigyaDefinitions.API.API_GET_SDK_CONFIG,
+                params,
+                RestAdapter.HttpMethod.GET);
+        // Set request as anonymous! Will not go through if will include timestamp, nonce & signature.
+        request.setAnonymous(true);
+        send(request, true, new IApiServiceResponse() {
             @Override
-            public void onResponse(String jsonResponse, String responseDateHeader) {
-
-                updateOffset(responseDateHeader);
-
-                final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
+            public void onApiSuccess(GigyaApiResponse apiResponse) {
                 final int apiErrorCode = apiResponse.getErrorCode();
                 if (apiErrorCode == 0) {
                     final GigyaConfigModel parsed = apiResponse.parseTo(GigyaConfigModel.class);
@@ -182,50 +183,13 @@ public class ApiService implements IApiService {
                     }
                     onConfigResponse(parsed);
                 } else {
-                    // Check for timestamp skew error.
-                    if (isRequestExpiredError(apiErrorCode)) {
-
-                        GigyaLogger.error(LOG_TAG, "Request expired error occurred. Allowing retries");
-
-                        new RetryDispatcher.Builder(_adapter)
-                                .request(request)
-                                .errorCode(GigyaError.Codes.ERROR_REQUEST_HAS_EXPIRED)
-                                .tries(2)
-                                .handler(new RetryDispatcher.IRetryHandler() {
-                                    @Override
-                                    public void onCompleteWithResponse(GigyaApiResponse retryResponse) {
-                                        final GigyaConfigModel parsed = apiResponse.parseTo(GigyaConfigModel.class);
-                                        if (parsed == null) {
-                                            // Parsing error.
-                                            apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
-                                            onConfigError(nextApiTag);
-                                            return;
-                                        }
-                                        onConfigResponse(parsed);
-                                    }
-
-                                    @Override
-                                    public void onCompleteWithError(GigyaError error) {
-                                        apiCallback.onApiError(error);
-                                        onConfigError(nextApiTag);
-                                    }
-
-                                    @Override
-                                    public void onUpdateDate(String date) {
-                                        updateOffset(date);
-                                    }
-                                })
-                                .dispatch();
-                        return;
-                    }
-
                     apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
                     onConfigError(nextApiTag);
                 }
             }
 
             @Override
-            public void onError(GigyaError gigyaError) {
+            public void onApiError(GigyaError gigyaError) {
                 apiCallback.onApiError(gigyaError);
                 onConfigError(nextApiTag);
             }

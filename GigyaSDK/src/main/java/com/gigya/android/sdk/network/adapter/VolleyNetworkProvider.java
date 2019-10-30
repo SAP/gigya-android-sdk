@@ -18,6 +18,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -57,29 +58,29 @@ public class VolleyNetworkProvider extends NetworkProvider {
         _requestQueue.getCache().clear();
 
         if (_blocked) {
-            GigyaLogger.debug(LOG_TAG, "addToQueue: is blocked. adding to blocked queued - " + request.getUrl());
+            GigyaLogger.debug(LOG_TAG, "addToQueue: is blocked. adding to blocked queued - " + request.getApi());
             _blockedQueue.add(new HttpVolleyTask(request, networkCallbacks));
             return;
         }
         if (!_blockedQueue.isEmpty()) {
-            GigyaLogger.debug(LOG_TAG, "addToQueue: blockedQueue is empty releasing it - " + request.getUrl());
+            GigyaLogger.debug(LOG_TAG, "addToQueue: blockedQueue is empty releasing it - " + request.getApi());
             release();
         }
 
-        GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getUrl());
+        GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getApi());
 
         _requestFactory.sign(request);
-        VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
-        GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getUrl());
+        GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getApi());
         _requestQueue.getCache().clear();
 
         _requestFactory.sign(request);
-        VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
         _blocked = true;
     }
@@ -98,7 +99,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
             // Need to resign the request.
             _requestFactory.sign(task.getRequest());
 
-            final VolleyNetworkRequest queued = newRequest(task.getRequest(), task.getNetworkCallbacks());
+            final VolleyNetworkRequest queued = createRequest(task.getRequest(), task.getNetworkCallbacks());
             GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
 
             _requestQueue.add(queued);
@@ -160,12 +161,17 @@ public class VolleyNetworkProvider extends NetworkProvider {
     /*
     Generate a new Volley request.
      */
-    private VolleyNetworkRequest newRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks) {
-        return new VolleyNetworkRequest(request.getMethod(), request.getUrl(),
+    private VolleyNetworkRequest createRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks) {
+
+        final GigyaApiHttpRequest signedRequest = _requestFactory.sign(request);
+
+        return new VolleyNetworkRequest(
+                request.getMethod().intValue(),
+                signedRequest.getUrl(),
                 new Response.Listener<VolleyResponsePair>() {
                     @Override
                     public void onResponse(VolleyResponsePair response) {
-                        GigyaLogger.debug("GigyaApiResponse", "ApiService: " + request.getUrl() + "\n" + response);
+                        GigyaLogger.debug("GigyaApiResponse", "ApiService: " + signedRequest.getUrl() + "\n" + response);
                         if (networkCallbacks != null) {
                             networkCallbacks.onResponse(response.res, response.date);
                         }
@@ -181,15 +187,15 @@ public class VolleyNetworkProvider extends NetworkProvider {
                         final String localizedMessage = error.getLocalizedMessage() == null ? "" : error.getLocalizedMessage();
                         final GigyaError gigyaError = new GigyaError(errorCode, localizedMessage, null);
                         GigyaLogger.debug("GigyaApiResponse", "GigyaApiResponse: Error " +
-                                "ApiService: " + request.getUrl() + "\n" +
+                                "ApiService: " + signedRequest.getUrl() + "\n" +
                                 gigyaError.toString());
                         if (networkCallbacks != null) {
                             networkCallbacks.onError(gigyaError);
                         }
                     }
-                }
-                , request.getEncodedParams()
-                , request.getTag()
+                },
+                signedRequest.getEncodedParams(),
+                request.getTag()
         );
     }
 
