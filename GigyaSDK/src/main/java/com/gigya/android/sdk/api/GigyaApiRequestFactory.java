@@ -13,6 +13,8 @@ import java.util.TreeMap;
 
 public class GigyaApiRequestFactory implements IApiRequestFactory {
 
+    private static final String LOG_TAG = "GigyaApiRequestFactory";
+
     final private Config _config;
     final private ISessionService _sessionService;
 
@@ -67,7 +69,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         // authentication parameters from the original request. Order must be kept prior to signing the request.
         AuthUtils.removeAuthenticationParameters(request.getParams());
 
-        GigyaLogger.debug("ServerTime", "offset for signer = " + _config.getServerOffset());
+        GigyaLogger.debug(LOG_TAG, "sign: offset for signer = " + _config.getServerOffset());
 
         // Add authentication parameters. Get SDK Config request is an exception.
         if (_sessionService.isValid() && !request.isAnonymous()) {
@@ -84,7 +86,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             request.getParams().put("apiKey", _config.getApiKey());
         }
 
-        GigyaLogger.debug("GigyaApiRequest", "Request parameters:\n" + request.getParams().toString());
+        GigyaLogger.debug(LOG_TAG, "sign: request parameters:\n" + request.getParams().toString());
 
         // Encode url & generate encoded parameters.
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());

@@ -58,12 +58,12 @@ public class ApiService implements IApiService {
                 Date serverDate = format.parse(dateHeader);
                 Long offset = (serverDate.getTime() - System.currentTimeMillis()) / 1000;
 
-                GigyaLogger.debug("ServerTime", "Server timestamp = " + offset);
+                GigyaLogger.debug(LOG_TAG, "updateOffset: Server timestamp = " + offset);
 
                 _config.setServerOffset(offset);
             } catch (Exception ex) {
 
-                GigyaLogger.error("ServerTime", "unable to update offset with exception");
+                GigyaLogger.error(LOG_TAG, "updateOffset: unable to update offset with exception");
                 ex.printStackTrace();
             }
         }
