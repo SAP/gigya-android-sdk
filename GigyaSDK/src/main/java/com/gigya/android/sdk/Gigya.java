@@ -279,6 +279,16 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Manually set the current session.
+     * Setting a session manually will update the current session persistence state and login state.
+     *
+     * @param session SessionInfo instance.
+     */
+    public void setSession(@NonNull SessionInfo session) {
+        _sessionService.setSession(session);
+    }
+
+    /**
      * Check if we currently have a valid session.
      */
     public boolean isLoggedIn() {
