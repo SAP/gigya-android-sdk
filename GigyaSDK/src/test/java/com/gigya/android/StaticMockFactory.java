@@ -169,4 +169,17 @@ public class StaticMockFactory {
                 "\t\"time\": \"2019-06-04T11:23:46.399Z\"\n" +
                 "}";
     }
+
+    public static String mockRequestExpiredErrorJson() {
+        return "{\n" +
+                "  \"callId\": \"93c52cdd21c243559a00f5fa4c798742\",\n" +
+                "  \"errorCode\": 403002,\n" +
+                "  \"errorDetails\": \"The requests timestamp skew more than 120 seconds from the server time. Please check you server's time and timezone configuration. Server timestamp: 1572514484, Request timestamp: 1572515113\",\n" +
+                "  \"errorMessage\": \"Request has expired\",\n" +
+                "  \"apiVersion\": 2,\n" +
+                "  \"statusCode\": 403,\n" +
+                "  \"statusReason\": \"Forbidden\",\n" +
+                "  \"time\": \"2019-10-31T09:34:44.285Z\"\n" +
+                "}\n";
+    }
 }

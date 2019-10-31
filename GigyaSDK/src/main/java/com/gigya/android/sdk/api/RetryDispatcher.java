@@ -31,7 +31,7 @@ public class RetryDispatcher {
         return this.tries > 0;
     }
 
-    void dispatch() {
+    public void dispatch() {
         adapter.send(request, false, new IRestAdapterCallback() {
 
             @Override
