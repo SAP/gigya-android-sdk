@@ -5,6 +5,7 @@ import android.content.Context;
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiRequestFactory;
@@ -75,14 +76,17 @@ public class GigyaApiRequestFactoryTest {
         when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
         // Act
         final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.POST);
+        final GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.POST);
+        final GigyaApiHttpRequest httpRequest = factory.sign(request);
+
         // Assert
         assertNotNull(request);
+        assertNotNull(httpRequest);
         assertEquals("TestAPI", request.getApi());
         assertEquals("TestAPI", request.getTag());
-        assertEquals("https://TestAPI.us1.gigya.com/TestAPI", request.getUrl());
-        assertEquals(RestAdapter.POST, request.getMethod());
-        assertNotNull(request.getEncodedParams());
+        assertEquals("https://TestAPI.us1.gigya.com/TestAPI", httpRequest.getUrl());
+        assertEquals(RestAdapter.POST, request.getMethod().intValue());
+        assertNotNull(httpRequest.getEncodedParams());
     }
 
     @Test
@@ -95,12 +99,15 @@ public class GigyaApiRequestFactoryTest {
         when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
         // Act
         final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.POST);
+        final GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.POST);
+        final GigyaApiHttpRequest httpRequest = factory.sign(request);
         // Assert
         assertNotNull(request);
+        assertNotNull(httpRequest);
         assertEquals("TestAPI", request.getApi());
-        assertEquals(RestAdapter.POST, request.getMethod());
-        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=Android_" + Gigya.VERSION + "&targetEnv=mobile", request.getEncodedParams());
+        assertEquals(RestAdapter.POST, request.getMethod().intValue());
+        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=Android_" + Gigya.VERSION + "&targetEnv=mobile",
+                httpRequest.getEncodedParams());
     }
 
 
@@ -113,13 +120,16 @@ public class GigyaApiRequestFactoryTest {
         when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
         // Act
         final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.GET);
+        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.GET);
+        final GigyaApiHttpRequest httpRequest = factory.sign(request);
+
         // Assert
         assertNotNull(request);
+        assertNotNull(httpRequest);
         assertEquals("TestAPI", request.getApi());
-        assertEquals(RestAdapter.GET, request.getMethod());
-        assertNull(request.getEncodedParams());
-        assertTrue(request.getUrl().contains("https://TestAPI.us1.gigya.com/TestAPI?format=json&httpStatusCodes=false"));
+        assertEquals(RestAdapter.GET, request.getMethod().intValue());
+        assertNull(httpRequest.getEncodedParams());
+        assertTrue(httpRequest.getUrl().contains("https://TestAPI.us1.gigya.com/TestAPI?format=json&httpStatusCodes=false"));
     }
 
     @Test
@@ -132,13 +142,16 @@ public class GigyaApiRequestFactoryTest {
         when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
         // Act
         final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.GET);
+        final GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.GET);
+        final GigyaApiHttpRequest httpRequest = factory.sign(request);
+
         // Assert
         assertNotNull(request);
+        assertNotNull(httpRequest);
         assertEquals("TestAPI", request.getApi());
-        assertEquals(RestAdapter.GET, request.getMethod());
-        assertNull(request.getEncodedParams());
-        assertTrue(request.getUrl().contains("ApiKey=" + StaticMockFactory.API_KEY));
+        assertEquals(RestAdapter.GET, request.getMethod().intValue());
+        assertNull(httpRequest.getEncodedParams());
+        assertTrue(httpRequest.getUrl().contains("ApiKey=" + StaticMockFactory.API_KEY));
     }
 
 }

@@ -11,11 +11,11 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
-import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.api.IApiRequestFactory;
+import com.gigya.android.sdk.api.IApiService;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.ui.Presenter;
 
@@ -140,7 +140,10 @@ public class SessionVerificationService implements ISessionVerificationService {
                     _lastRequestTimestamp = System.currentTimeMillis();
                     final Map<String, Object> params = new HashMap<>();
                     params.put("include", "identities-all,loginIDs,profile,email,data");
-                    final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.POST);
+                    final GigyaApiRequest request = _requestFactory.create(
+                            GigyaDefinitions.API.API_VERIFY_LOGIN,
+                            params,
+                            RestAdapter.HttpMethod.POST);
                     _apiService.send(request, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {

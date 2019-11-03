@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.network.adapter;
 
 import android.content.Context;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -14,10 +15,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;
 
@@ -33,9 +35,10 @@ public class VolleyNetworkProvider extends NetworkProvider {
     private static final String LOG_TAG = "VolleyNetworkProvider";
 
     private RequestQueue _requestQueue;
-    private Queue<VolleyNetworkRequest> _blockedQueue = new ConcurrentLinkedQueue<>();
+    private Queue<HttpVolleyTask> _blockedQueue = new ConcurrentLinkedQueue<>();
 
-    VolleyNetworkProvider(Context appContext) {
+    VolleyNetworkProvider(IApiRequestFactory requestFactory, Context appContext) {
+        super(requestFactory);
         _requestQueue = Volley.newRequestQueue(appContext);
         // Enable Volley logs.
         VolleyLog.DEBUG = GigyaLogger.isDebug();
@@ -53,26 +56,31 @@ public class VolleyNetworkProvider extends NetworkProvider {
     @Override
     public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         _requestQueue.getCache().clear();
-        VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
+
         if (_blocked) {
-            GigyaLogger.debug(LOG_TAG, "addToQueue: is blocked. adding to blocked queued - " + request.getUrl());
-            _blockedQueue.add(newRequest);
+            GigyaLogger.debug(LOG_TAG, "addToQueue: is blocked. adding to blocked queued - " + request.getApi());
+            _blockedQueue.add(new HttpVolleyTask(request, networkCallbacks));
             return;
         }
         if (!_blockedQueue.isEmpty()) {
-            GigyaLogger.debug(LOG_TAG, "addToQueue: blockedQueue is empty releasing it - " + request.getUrl());
+            GigyaLogger.debug(LOG_TAG, "addToQueue: blockedQueue is empty releasing it - " + request.getApi());
             release();
         }
 
-        GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getUrl());
+        GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getApi());
+
+        _requestFactory.sign(request);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
-        GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getUrl());
+        GigyaLogger.debug(LOG_TAG, "sendBlocking: " + request.getApi());
         _requestQueue.getCache().clear();
-        VolleyNetworkRequest newRequest = newRequest(request, networkCallbacks);
+
+        _requestFactory.sign(request);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
         _requestQueue.add(newRequest);
         _blocked = true;
     }
@@ -86,11 +94,15 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
         // Traverse over blocked queue and release all.
         while (!_blockedQueue.isEmpty()) {
-            final VolleyNetworkRequest queued = _blockedQueue.poll();
-            if (queued != null) {
-                GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
-                _requestQueue.add(queued);
-            }
+
+            final HttpVolleyTask task = _blockedQueue.poll();
+            // Need to resign the request.
+            _requestFactory.sign(task.getRequest());
+
+            final VolleyNetworkRequest queued = createRequest(task.getRequest(), task.getNetworkCallbacks());
+            GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
+
+            _requestQueue.add(queued);
         }
     }
 
@@ -123,17 +135,45 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
     //region VOLLEY SPECIFIC IMPLEMENTATION
 
+    private static class HttpVolleyTask {
+
+        private GigyaApiRequest request;
+        private final IRestAdapterCallback networkCallbacks;
+
+        private HttpVolleyTask(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+            this.request = request;
+            this.networkCallbacks = networkCallbacks;
+        }
+
+        public GigyaApiRequest getRequest() {
+            return request;
+        }
+
+        public void setRequest(GigyaApiRequest request) {
+            this.request = request;
+        }
+
+        public IRestAdapterCallback getNetworkCallbacks() {
+            return networkCallbacks;
+        }
+    }
+
     /*
     Generate a new Volley request.
      */
-    private VolleyNetworkRequest newRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks) {
-        return new VolleyNetworkRequest(request.getMethod(), request.getUrl(),
-                new Response.Listener<String>() {
+    private VolleyNetworkRequest createRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks) {
+
+        final GigyaApiHttpRequest signedRequest = _requestFactory.sign(request);
+
+        return new VolleyNetworkRequest(
+                request.getMethod().intValue(),
+                signedRequest.getUrl(),
+                new Response.Listener<VolleyResponsePair>() {
                     @Override
-                    public void onResponse(String response) {
-                        GigyaLogger.debug("GigyaApiResponse", "ApiService: " + request.getUrl() + "\n" + response);
+                    public void onResponse(VolleyResponsePair response) {
+                        GigyaLogger.debug("GigyaApiResponse", "ApiService: " + signedRequest.getUrl() + "\n" + response);
                         if (networkCallbacks != null) {
-                            networkCallbacks.onResponse(response);
+                            networkCallbacks.onResponse(response.res, response.date);
                         }
                     }
                 },
@@ -147,32 +187,42 @@ public class VolleyNetworkProvider extends NetworkProvider {
                         final String localizedMessage = error.getLocalizedMessage() == null ? "" : error.getLocalizedMessage();
                         final GigyaError gigyaError = new GigyaError(errorCode, localizedMessage, null);
                         GigyaLogger.debug("GigyaApiResponse", "GigyaApiResponse: Error " +
-                                "ApiService: " + request.getUrl() + "\n" +
+                                "ApiService: " + signedRequest.getUrl() + "\n" +
                                 gigyaError.toString());
                         if (networkCallbacks != null) {
                             networkCallbacks.onError(gigyaError);
                         }
                     }
-                }
-                , request.getEncodedParams()
-                , request.getTag()
+                },
+                signedRequest.getEncodedParams(),
+                request.getTag()
         );
     }
 
-    private static class VolleyNetworkRequest extends StringRequest {
+    private static class VolleyNetworkRequest extends Request<VolleyResponsePair> {
+
+        /**
+         * Lock to guard mListener as it is cleared on cancel() and read on delivery.
+         */
+        private final Object _lock = new Object();
 
         @Nullable
-        private String body;
+        @GuardedBy("mLock")
+        private Response.Listener<VolleyResponsePair> _listener;
+
+        @Nullable
+        private String _body;
 
         VolleyNetworkRequest(int method,
                              String url,
-                             @NonNull Response.Listener<String> listener,
+                             @NonNull Response.Listener<VolleyResponsePair> listener,
                              @NonNull Response.ErrorListener errorListener,
                              @Nullable String body,
                              String tag) {
-            super(method, url, listener, errorListener);
+            super(method, url, errorListener);
             setTag(tag);
-            this.body = body;
+            _body = body;
+            _listener = listener;
             setShouldCache(false);
             setRetryPolicy(new DefaultRetryPolicy(
                     (int) TimeUnit.SECONDS.toMillis(30), //After the set time elapses the request will timeout
@@ -190,16 +240,36 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
         @Override
         public byte[] getBody() throws AuthFailureError {
-            if (body != null) {
-                return this.body.getBytes();
+            if (_body != null) {
+                return this._body.getBytes();
             }
             return super.getBody();
         }
 
         @Override
-        protected Response<String> parseNetworkResponse(NetworkResponse response) {
+        public void cancel() {
+            super.cancel();
+            synchronized (_lock) {
+                _listener = null;
+            }
+        }
+
+        @Override
+        protected void deliverResponse(VolleyResponsePair response) {
+            Response.Listener<VolleyResponsePair> listener;
+            synchronized (_lock) {
+                listener = _listener;
+            }
+            if (listener != null) {
+                listener.onResponse(response);
+            }
+        }
+
+        @Override
+        protected Response<VolleyResponsePair> parseNetworkResponse(NetworkResponse response) {
             String jsonString;
             try {
+                final String dateHeader = response.headers.get("Date");
                 final String encoding = response.headers.get("Content-Encoding");
                 if (encoding != null && encoding.equals("gzip")) {
                     // Response contains GZIP encoding.
@@ -210,10 +280,22 @@ public class VolleyNetworkProvider extends NetworkProvider {
                             HttpHeaderParser.parseCharset(response.headers, "utf-8"));
                 }
                 return Response.success(
-                        jsonString, HttpHeaderParser.parseCacheHeaders(response));
+                        new VolleyResponsePair(jsonString, dateHeader),
+                        HttpHeaderParser.parseCacheHeaders(response));
             } catch (Exception e) {
                 return Response.error(new ParseError(e));
             }
+        }
+    }
+
+    static class VolleyResponsePair {
+
+        final private String res;
+        final private String date;
+
+        VolleyResponsePair(String res, String date) {
+            this.res = res;
+            this.date = date;
         }
     }
 

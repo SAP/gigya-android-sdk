@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.view.KeyEvent;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.UrlUtils;

@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.network.GigyaResponseModel;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Gigya main account model.

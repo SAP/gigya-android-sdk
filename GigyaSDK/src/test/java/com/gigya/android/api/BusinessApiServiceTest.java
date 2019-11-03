@@ -127,7 +127,7 @@ public class BusinessApiServiceTest {
     }
 
     private void mockRequestFactory() {
-        when(_reqFactory.create(anyString(), (Map<String, Object>) any(), anyInt())).thenReturn(mockRequest());
+        when(_reqFactory.create(anyString(), (Map<String, Object>) any(), (RestAdapter.HttpMethod) any())).thenReturn(mockRequest());
     }
 
     @Test
@@ -445,7 +445,7 @@ public class BusinessApiServiceTest {
         final GigyaApiResponse response = new GigyaApiResponse(StaticMockFactory.getMockAccountJson());
 
         final GigyaApiRequest request = mock(GigyaApiRequest.class);
-        when(_reqFactory.create(anyString(), (Map<String, Object>) any(), anyInt())).thenReturn(request);
+        when(_reqFactory.create(anyString(), (Map<String, Object>) any(), (RestAdapter.HttpMethod) any())).thenReturn(request);
 
         // Act
         IBusinessApiService service = container.get(IBusinessApiService.class);
@@ -482,6 +482,8 @@ public class BusinessApiServiceTest {
 
         // Act
         IBusinessApiService service = container.get(IBusinessApiService.class);
+        final Map<String, Object> parameters = new HashMap<>();
+        parameters.put("loginID", "loginID");
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
@@ -489,7 +491,7 @@ public class BusinessApiServiceTest {
                 return null;
             }
         }).when(_apiService).send(any(GigyaApiRequest.class), anyBoolean(), any(ApiService.IApiServiceResponse.class));
-        service.forgotPassword("loginID", new GigyaLoginCallback<GigyaApiResponse>() {
+        service.forgotPassword(parameters, new GigyaLoginCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse response) {
                 // Assert

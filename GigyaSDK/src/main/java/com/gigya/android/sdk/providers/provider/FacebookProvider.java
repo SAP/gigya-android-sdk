@@ -14,7 +14,6 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;

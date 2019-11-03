@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -3,19 +3,43 @@ package com.gigya.android.sdk.network.adapter;
 import android.content.Context;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 
 public class RestAdapter implements IRestAdapter {
 
-    public static final int GET = 0;
-    public static final int POST = 1;
+    public enum HttpMethod {
+
+        GET(0),
+        POST(1);
+
+        private final int method;
+
+        HttpMethod(int method) {
+            this.method = method;
+        }
+
+        public int intValue() {
+            return method;
+        }
+
+        public static HttpMethod fromInt(int method) {
+            if (method == 1) {
+                return POST;
+            }
+            return GET;
+        }
+    }
+
+    public static final int GET = HttpMethod.GET.intValue();
+    public static final int POST = HttpMethod.POST.intValue();
 
     private NetworkProvider _networkProvider;
 
-    public RestAdapter(Context context) {
+    public RestAdapter(Context context, IApiRequestFactory requestFactory) {
         if (VolleyNetworkProvider.isAvailable()) {
-            _networkProvider = new VolleyNetworkProvider(context);
+            _networkProvider = new VolleyNetworkProvider(requestFactory, context);
         } else {
-            _networkProvider = new HttpNetworkProvider();
+            _networkProvider = new HttpNetworkProvider(requestFactory);
         }
     }
 

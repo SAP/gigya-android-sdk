@@ -1,35 +1,40 @@
 package com.gigya.android.sdk.api;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import com.gigya.android.sdk.network.adapter.RestAdapter;
+
+import java.util.TreeMap;
 
 public class GigyaApiRequest {
 
     @NonNull
-    private String url, api;
-    @Nullable
-    private String encodedParams;
-    private int method;
+    private String api;
+    private RestAdapter.HttpMethod method;
+    @NonNull
+    private TreeMap<String, Object> params;
 
-    public GigyaApiRequest(@NonNull String url, @Nullable String encodedParams, int method, @NonNull String api) {
-        this.url = url;
-        this.encodedParams = encodedParams;
+    /*
+    Anonymous requests will not be signed using timestamp, nonce & signature.
+     */
+    private boolean isAnonymous = false;
+
+    public GigyaApiRequest(RestAdapter.HttpMethod method, @NonNull String api, @NonNull TreeMap<String, Object> params) {
         this.method = method;
         this.api = api;
+        this.params = params;
     }
 
-    @NonNull
-    public String getUrl() {
-        return url;
-    }
-
-    @Nullable
-    public String getEncodedParams() {
-        return encodedParams;
-    }
-
-    public int getMethod() {
+    public RestAdapter.HttpMethod getMethod() {
         return method;
+    }
+
+    public boolean isAnonymous() {
+        return isAnonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        isAnonymous = anonymous;
     }
 
     @NonNull
@@ -41,4 +46,10 @@ public class GigyaApiRequest {
     public String getApi() {
         return api;
     }
+
+    @NonNull
+    public TreeMap<String, Object> getParams() {
+        return params;
+    }
+
 }

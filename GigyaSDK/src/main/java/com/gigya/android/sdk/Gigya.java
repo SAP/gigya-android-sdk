@@ -248,7 +248,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
+        _businessApiService.send(api, params, RestAdapter.HttpMethod.GET.intValue(), GigyaApiResponse.class, gigyaCallback);
     }
 
     /**
@@ -276,6 +276,16 @@ public class Gigya<T extends GigyaAccount> {
     @Nullable
     public SessionInfo getSession() {
         return _sessionService.getSession();
+    }
+
+    /**
+     * Manually set the current session.
+     * Setting a session manually will update the current session persistence state and login state.
+     *
+     * @param session SessionInfo instance.
+     */
+    public void setSession(@NonNull SessionInfo session) {
+        _sessionService.setSession(session);
     }
 
     /**
