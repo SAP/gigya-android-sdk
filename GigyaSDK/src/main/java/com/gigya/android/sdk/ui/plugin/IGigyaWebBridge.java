@@ -26,9 +26,9 @@ public interface IGigyaWebBridge<A extends GigyaAccount> {
 
     void isSessionValid(String id);
 
-    void sendRequest(final String callbackId, final String api, Map<String, Object> params, Map<String, Object> settings);
+    void sendRequest(final String callbackId, final String api, Map<String, Object> params);
 
-    void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings);
+    void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params);
 
     void onPluginEvent(Map<String, Object> params);
 

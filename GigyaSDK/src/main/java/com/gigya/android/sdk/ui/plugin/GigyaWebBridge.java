@@ -138,10 +138,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                 isSessionValid(callbackId);
                 break;
             case SEND_REQUEST:
-                sendRequest(callbackId, method, params, settings);
-                break;
             case SEND_OAUTH_REQUEST:
-                sendOAuthRequest(callbackId, method, params, settings);
+                mapApisToRequests(feature, callbackId, method, params);
                 break;
             case ON_PLUGIN_EVENT:
                 onPluginEvent(params);
@@ -188,9 +186,15 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         invokeWebViewCallback(id, String.valueOf(isValid));
     }
 
-    @Override
-    public void sendRequest(String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
-        GigyaLogger.debug(LOG_TAG, "sendRequest with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
+    /*
+    Mapping requests directed from web sdk mobile adapter.
+    This is required because certain requests require specific flows.
+     */
+    private void mapApisToRequests(Feature feature,
+                                   String callbackId,
+                                   String api,
+                                   Map<String, Object> params) {
+        GigyaLogger.debug(LOG_TAG, "mapApisToRequests with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
         switch (api) {
             case "socialize.logout":
             case "accounts.logout":
@@ -206,13 +210,17 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                 removeConnection(callbackId, providerToRemove);
                 break;
             default:
-                sendRequest(callbackId, api, params);
+                if (feature.equals(Feature.SEND_REQUEST)) {
+                    sendRequest(callbackId, api, params);
+                } else if (feature.equals(Feature.SEND_OAUTH_REQUEST)) {
+                    sendOAuthRequest(callbackId, api, params);
+                }
                 break;
         }
     }
 
     @Override
-    public void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params, Map<String, Object> settings) {
+    public void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params) {
         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
         final String providerName = ObjectUtils.firstNonNull((String) params.get("provider"), "");
         if (providerName.isEmpty()) {
@@ -222,26 +230,29 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         // Invoking login started (custom event) in order to show the web view progress bar.
         _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN_STARTED, null);
 
-        _businessApiService.login(providerName, params, new GigyaLoginCallback<A>() {
-            @Override
-            public void onSuccess(A account) {
-                GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + account.toString());
-                String invocation = "{\"errorCode\":" + account.getErrorCode() + ",\"userInfo\":" + new Gson().toJson(account) + "}";
-                invokeWebViewCallback(callbackId, invocation);
-                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
-            }
+        _businessApiService.login(
+                providerName,
+                params,
+                new GigyaLoginCallback<A>() {
+                    @Override
+                    public void onSuccess(A account) {
+                        GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + account.toString());
+                        String invocation = "{\"errorCode\":" + account.getErrorCode() + ",\"userInfo\":" + new Gson().toJson(account) + "}";
+                        invokeWebViewCallback(callbackId, invocation);
+                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                invokeWebViewCallback(callbackId, error.getData());
-            }
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
 
-            @Override
-            public void onOperationCanceled() {
-                invokeWebViewCallback(callbackId, GigyaError.cancelledOperation().getData());
-                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.CANCELED, null);
-            }
-        });
+                    @Override
+                    public void onOperationCanceled() {
+                        invokeWebViewCallback(callbackId, GigyaError.cancelledOperation().getData());
+                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.CANCELED, null);
+                    }
+                });
     }
 
     @Override
@@ -256,86 +267,130 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
     //region APIS
 
-    private void sendRequest(final String callbackId, final String api, Map<String, Object> params) {
-        _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
-            @Override
-            public void onSuccess(GigyaApiResponse response) {
-                if (response.getErrorCode() == 0) {
-                    // Check if generic send was a login/register request.
-                    if (response.containsNested("sessionInfo.sessionSecret")) {
-                        A parsed = response.parseTo(_accountService.getAccountSchema());
-                        final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
-                        _sessionService.setSession(newSession);
-                        _accountService.setAccount(response.asJson());
-                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
+    @Override
+    public void sendRequest(final String callbackId, final String api, Map<String, Object> params) {
+        _businessApiService.send(
+                api,
+                params,
+                RestAdapter.POST,
+                GigyaApiResponse.class,
+                new GigyaCallback<GigyaApiResponse>() {
+                    @Override
+                    public void onSuccess(GigyaApiResponse response) {
+                        if (response.getErrorCode() == 0) {
+                            // Check if generic send was a login/register request.
+                            if (response.containsNested("sessionInfo.sessionSecret")) {
+                                A parsed = response.parseTo(_accountService.getAccountSchema());
+                                final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
+                                _sessionService.setSession(newSession);
+                                _accountService.setAccount(response.asJson());
+                                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
+                            }
+                            invokeWebViewCallback(callbackId, response.asJson());
+                        } else {
+                            onError(GigyaError.fromResponse(response));
+                        }
                     }
-                    invokeWebViewCallback(callbackId, response.asJson());
-                } else {
-                    onError(GigyaError.fromResponse(response));
-                }
-            }
 
-            @Override
-            public void onError(GigyaError error) {
-                invokeWebViewCallback(callbackId, error.getData());
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
+                });
     }
 
+    /*
+    Send logout request via business API service.
+     */
     private void logout(final String callbackId) {
         GigyaLogger.debug(LOG_TAG, "Sending logout request");
-        _businessApiService.logout(new GigyaCallback<GigyaApiResponse>() {
-            @Override
-            public void onSuccess(GigyaApiResponse response) {
-                if (response.getErrorCode() == 0) {
-                    invokeWebViewCallback(callbackId, response.asJson());
-                    _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
-                } else {
-                    onError(GigyaError.fromResponse(response));
-                }
-            }
+        _businessApiService.logout(
+                new GigyaCallback<GigyaApiResponse>() {
+                    @Override
+                    public void onSuccess(GigyaApiResponse response) {
+                        if (response.getErrorCode() == 0) {
+                            invokeWebViewCallback(callbackId, response.asJson());
+                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
+                        } else {
+                            onError(GigyaError.fromResponse(response));
+                        }
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                invokeWebViewCallback(callbackId, error.getData());
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
+                });
     }
 
+    /*
+    Send removeConnection request via business API service.
+     */
     private void removeConnection(final String callbackId, String provider) {
         GigyaLogger.debug(LOG_TAG, "Sending removeConnection api request with provider: " + provider);
-        _businessApiService.removeConnection(provider, new GigyaCallback<GigyaApiResponse>() {
-            @Override
-            public void onSuccess(GigyaApiResponse response) {
-                if (response.getErrorCode() == 0) {
-                    invokeWebViewCallback(callbackId, response.asJson());
-                    _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.REMOVE_CONNECTION, null);
-                } else {
-                    onError(GigyaError.fromResponse(response));
-                }
-            }
+        _businessApiService.removeConnection(
+                provider,
+                new GigyaCallback<GigyaApiResponse>() {
+                    @Override
+                    public void onSuccess(GigyaApiResponse response) {
+                        if (response.getErrorCode() == 0) {
+                            invokeWebViewCallback(callbackId, response.asJson());
+                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.REMOVE_CONNECTION, null);
+                        } else {
+                            onError(GigyaError.fromResponse(response));
+                        }
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                invokeWebViewCallback(callbackId, error.getData());
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
+                });
     }
 
+    /*
+    Send addConnection request via business API service.
+    On successful response request userInfo in order to invoke the web sdk callback.
+     */
     private void addConnection(final String callbackId, String provider) {
         GigyaLogger.debug(LOG_TAG, "Sending addConnection api request with provider: " + provider);
-        _businessApiService.addConnection(provider, new GigyaLoginCallback<A>() {
-            @Override
-            public void onSuccess(A response) {
-                invokeWebViewCallback(callbackId, new Gson().toJson(response));
-                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.ADD_CONNECTION, response);
-            }
+        _businessApiService.addConnection(
+                provider,
+                new GigyaLoginCallback<A>() {
+                    @Override
+                    public void onSuccess(A response) {
+                        getUserInfoAndInvoke(callbackId);
+                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.ADD_CONNECTION, response);
+                    }
 
-            @Override
-            public void onError(GigyaError error) {
-                invokeWebViewCallback(callbackId, error.getData());
-            }
-        });
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
+                });
+    }
+
+    /*
+    Add connection requests requires us to invoke a "socialize.getUserInfo" json response in order
+    To correctly refresh the screenset.
+     */
+    private void getUserInfoAndInvoke(final String callbackId) {
+        _businessApiService.send(
+                "socialize.getUserInfo",
+                null,
+                RestAdapter.POST,
+                GigyaApiResponse.class,
+                new GigyaCallback<GigyaApiResponse>() {
+                    @Override
+                    public void onSuccess(GigyaApiResponse obj) {
+                        invokeWebViewCallback(callbackId, obj.asJson());
+                    }
+
+                    @Override
+                    public void onError(GigyaError error) {
+                        invokeWebViewCallback(callbackId, error.getData());
+                    }
+                });
     }
 
 

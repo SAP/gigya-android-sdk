@@ -173,6 +173,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
+        if (!params.containsKey("include")) {
+            // If include field is not present add default fields.
+            params.put("include", "profile,data,subscriptions,preferences");
+        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGIN, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -268,7 +272,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         if (UID != null) {
             params.put("UID", UID);
         }
-        params.put("include", "identities-all,loginIDs,profile,email,data");
+        if (!params.containsKey("include")) {
+            // If include field is not present add default fields.
+            params.put("include", "identities-all,loginIDs,profile,email,data");
+        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override

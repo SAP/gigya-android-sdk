@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import android.widget.Toast
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
@@ -428,6 +429,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                     override fun onCanceled() {
                         onCanceled()
+                    }
+
+                    override fun onConnectionAdded() {
+                        Toast.makeText(getApplication(), "Connection added", Toast.LENGTH_SHORT).show()
+                        onUpdated()
                     }
 
                 })

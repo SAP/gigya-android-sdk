@@ -328,7 +328,6 @@ public class Gigya<T extends GigyaAccount> {
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
         params.put("password", password);
-        params.put("include", "profile,data,subscriptions,preferences");
         login(params, gigyaCallback);
     }
 
@@ -340,7 +339,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void login(@NonNull Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
-        params.put("include", "profile,data,subscriptions,preferences");
         _businessApiService.login(params, gigyaLoginCallback);
     }
 
@@ -414,7 +412,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
-
         _businessApiService.setAccount(account, gigyaCallback);
     }
 
@@ -426,7 +423,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: with params");
-
         _businessApiService.setAccount(params, gigyaCallback);
     }
 
@@ -438,7 +434,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-
         _businessApiService.verifyLogin(UID, gigyaCallback);
     }
 
@@ -503,7 +498,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
-
         _businessApiService.addConnection(socialProvider, loginCallback);
     }
 
@@ -515,7 +509,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
-
         _businessApiService.removeConnection(socialProvider, gigyaCallback);
     }
 

@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.models.GigyaConfigModel;
@@ -77,6 +78,7 @@ public class ApiService implements IApiService {
         }
 
         GigyaLogger.debug(LOG_TAG, "sending: " + request.getApi());
+        GigyaLogger.debug(LOG_TAG, "sending: params = " + request.getParams().toString());
 
         _adapter.send(request, blocking, new IRestAdapterCallback() {
             @Override
