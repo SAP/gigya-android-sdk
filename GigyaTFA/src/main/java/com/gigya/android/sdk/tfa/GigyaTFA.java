@@ -155,7 +155,7 @@ public class GigyaTFA {
 
     /**
      * Check if device is registered for push TFA & notifications permission is available.
-     * If not. Will display a information dialog allowing the user to open the notificaitons application settings in order
+     * If not. Will display a information dialog allowing the user to open the notifications application settings in order
      * to enable them.
      *
      * @param activity Current activity. Activity context must be provided.
