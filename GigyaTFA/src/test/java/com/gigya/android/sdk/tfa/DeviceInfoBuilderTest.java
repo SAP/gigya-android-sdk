@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.tfa;
 
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
-import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
 import com.gigya.android.sdk.utils.DeviceUtils;
 
 import org.junit.Before;

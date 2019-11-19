@@ -121,7 +121,7 @@
         </receiver>
 
         <service
-            android:name="GigyaFirebaseMessagingExt"
+            android:name="com.gigya.android.sdk.push.GigyaFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

@@ -7,9 +7,12 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 
 import com.gigya.android.sdk.Gigya;
@@ -18,13 +21,16 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
+import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
-import com.gigya.android.sdk.tfa.push.DeviceInfoBuilder;
-import com.gigya.android.sdk.tfa.push.ITFANotifier;
-import com.gigya.android.sdk.tfa.push.TFANotifier;
+import com.gigya.android.sdk.tfa.push.ITFARemoteMessageHandler;
+import com.gigya.android.sdk.tfa.push.TFAPushCustomizer;
+import com.gigya.android.sdk.tfa.push.TFARemoteMessageHandler;
+import com.gigya.android.sdk.tfa.push.TFARemoteMessageLocalReceiver;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
@@ -37,27 +43,6 @@ public class GigyaTFA {
     @SuppressLint("StaticFieldLeak")
     private static GigyaTFA _sharedInstance;
 
-    public enum PushService {
-        FIREBASE
-    }
-
-    private PushService _pushService = PushService.FIREBASE;
-
-    /*
-    Device info JSON representation.
-     */
-    private String _deviceInfo;
-
-    /**
-     * Optional method to allow changing the push service provider.
-     * Currently not supported. Thus private.
-     *
-     * @param pushService Selected push service.
-     */
-    private void setPushService(PushService pushService) {
-        _pushService = pushService;
-    }
-
     public static synchronized GigyaTFA getInstance() {
         if (_sharedInstance == null) {
             IoCContainer container = Gigya.getContainer();
@@ -65,7 +50,7 @@ public class GigyaTFA {
             container.bind(GigyaTFA.class, GigyaTFA.class, true);
             container.bind(ITFABusinessApiService.class, TFABusinessApiService.class, true);
             container.bind(ITFAPersistenceService.class, TFAPersistenceService.class, true);
-            container.bind(ITFANotifier.class, TFANotifier.class, true);
+            container.bind(ITFARemoteMessageHandler.class, TFARemoteMessageHandler.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaTFA.class);
@@ -79,50 +64,74 @@ public class GigyaTFA {
         return _sharedInstance;
     }
 
+    private final Context _context;
     private final ITFABusinessApiService _businessApiService;
     private final ITFAPersistenceService _persistenceService;
-    private final ITFANotifier _tfaNotifier;
-    private final Context _context;
+    private final IGigyaNotificationManager _gigyaNotificationManager;
+
+    private TFAPushCustomizer _tfaPushCustomizer = new TFAPushCustomizer();
 
     protected GigyaTFA(Context context,
                        ITFABusinessApiService businessApiService,
                        ITFAPersistenceService persistenceService,
-                       ITFANotifier tfaNotifier) {
+                       ITFARemoteMessageHandler remoteMessageHandler,
+                       IGigyaNotificationManager gigyaNotificationManager) {
         _context = context;
         _businessApiService = businessApiService;
         _persistenceService = persistenceService;
-        _tfaNotifier = tfaNotifier;
+        _gigyaNotificationManager = gigyaNotificationManager;
+
+        /*
+        Update push notification customization options.
+         */
+        remoteMessageHandler.setPushCustomizer(_tfaPushCustomizer);
+
+        /*
+        Register remote message receiver to handle TFA push messages.
+         */
+        LocalBroadcastManager.getInstance(context).registerReceiver(
+                new TFARemoteMessageLocalReceiver(remoteMessageHandler),
+                new IntentFilter(com.gigya.android.sdk.GigyaDefinitions.Broadcasts.INTENT_ACTION_REMOTE_MESSAGE)
+        );
     }
+
+    /**
+     * Optional setter for TFA push notification customization.
+     *
+     * @param customizer TFAPushCustomizer instance for available notification customization options.
+     */
+    public void setPushCustomizer(TFAPushCustomizer customizer) {
+        _tfaPushCustomizer = customizer;
+    }
+
+    /*
+    Device info JSON representation.
+    */
+    private String _deviceInfo;
 
     /*
     Will generate required device information asynchronously.
      */
     private void generateDeviceInfo(@NonNull final Runnable completionHandler, @NonNull final Runnable errorHandler) {
-        final DeviceInfoBuilder builder = new DeviceInfoBuilder(_persistenceService).setPushService(_pushService);
-        builder.buildAsync(new DeviceInfoBuilder.DeviceInfoCallback() {
-            @Override
-            public void onDeviceInfo(String deviceInfoJson) {
-                _deviceInfo = deviceInfoJson;
-                completionHandler.run();
-            }
-
-            @Override
-            public void unavailableToken() {
-                GigyaLogger.error(LOG_TAG, "Push token fetch unsuccessful");
-
-                // Try to fetch the token from persistence.
-                final String persistentToken = _persistenceService.getPushToken();
-                if (persistentToken != null) {
-                    _deviceInfo = builder.buildWith(persistentToken);
+        final String currentPushToken = _persistenceService.getPushToken();
+        if (currentPushToken == null) {
+            GigyaFirebaseMessagingService.requestTokenAsync(new GigyaFirebaseMessagingService.IFcmTokenResponse() {
+                @Override
+                public void onAvailable(@Nullable String token) {
+                    if (token == null) {
+                        // All else fails.
+                        errorHandler.run();
+                        return;
+                    }
+                    _deviceInfo = _gigyaNotificationManager.getDeviceInfo(token);
                     completionHandler.run();
-
-                    return;
                 }
+            });
+            return;
+        }
 
-                // All else failed.
-                errorHandler.run();
-            }
-        });
+        _deviceInfo = _gigyaNotificationManager.getDeviceInfo(currentPushToken);
+        completionHandler.run();
     }
 
     //region INTERFACING
@@ -236,14 +245,23 @@ public class GigyaTFA {
                 _persistenceService.updateOptInState(true);
 
                 // Notify success.
-                _tfaNotifier.notifyWith(
+                _gigyaNotificationManager.notifyWith(
+                        _context,
                         _context.getString(R.string.tfa_opt_in_approval_success_title),
-                        _context.getString(R.string.tfa_opt_in_approval_success_body));
+                        _context.getString(R.string.tfa_opt_in_approval_success_body),
+                        TFA_CHANNEL_ID);
             }
 
             @Override
             public void onError(GigyaError error) {
                 GigyaLogger.error(LOG_TAG, "Failed to complete TFA opt in verification");
+
+                // Notify error.
+                _gigyaNotificationManager.notifyWith(
+                        _context,
+                        _context.getString(R.string.tfa_opt_in_approval_success_title),
+                        _context.getString(R.string.tfa_opt_in_approval_error_body),
+                        TFA_CHANNEL_ID);
             }
         });
     }
@@ -259,23 +277,27 @@ public class GigyaTFA {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.error(LOG_TAG, "Successfully verified push");
-                _tfaNotifier.notifyWith(
+
+                // Notify success.
+                _gigyaNotificationManager.notifyWith(
+                        _context,
                         _context.getString(R.string.tfa_login_approval_success_title),
-                        _context.getString(R.string.tfa_login_approval_success_body));
+                        _context.getString(R.string.tfa_login_approval_success_body),
+                        TFA_CHANNEL_ID);
             }
 
             @Override
             public void onError(GigyaError error) {
                 GigyaLogger.error(LOG_TAG, "Failed to verify push");
+
+                // Notify error.
+                _gigyaNotificationManager.notifyWith(
+                        _context,
+                        _context.getString(R.string.tfa_login_approval_success_title),
+                        _context.getString(R.string.tfa_login_approval_error_body),
+                        TFA_CHANNEL_ID);
             }
         });
-    }
-
-    /*
-     * Not implemented in version 1.0.0
-     */
-    private void denyLoginForPushTFA() {
-        // Stub.
     }
 
     /**

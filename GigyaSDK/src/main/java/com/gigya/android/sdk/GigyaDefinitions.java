@@ -18,6 +18,7 @@ public class GigyaDefinitions {
         // ACTIONS
         public static final String INTENT_ACTION_SESSION_EXPIRED = "intent_action_session_expired";
         public static final String INTENT_ACTION_SESSION_INVALID = "intent_action_session_invalid";
+        public static final String INTENT_ACTION_REMOTE_MESSAGE = "intent_action_remote_message";
     }
 
     /**

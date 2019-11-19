@@ -1,5 +1,6 @@
 package com.gigya.android.sample
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
@@ -19,6 +20,7 @@ class AppSignatureHelper(base: Context) : ContextWrapper(base) {
         const val TAG = "AppSignatureHelper"
     }
 
+    @SuppressLint("PackageManagerGetSignatures")
     fun getAppSignatures(): List<String> {
         val appCodes = mutableListOf<String>()
 

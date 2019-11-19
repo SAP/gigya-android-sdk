@@ -61,8 +61,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
 
     compileOnly project(path: ':GigyaSDK')
-
-    implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    compileOnly 'com.google.firebase:firebase-messaging:18.0.0'
 }
 
 // Task for building release Jar/sources/JavaDocs.
