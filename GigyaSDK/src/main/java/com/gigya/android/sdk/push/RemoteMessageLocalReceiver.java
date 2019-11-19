@@ -1,21 +1,20 @@
-package com.gigya.android.sdk.tfa.push;
+package com.gigya.android.sdk.push;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
 
 import java.util.HashMap;
 
-public class TFARemoteMessageLocalReceiver extends BroadcastReceiver {
+public class RemoteMessageLocalReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "TFARemoteMessageLocalReceiver";
 
-    final private ITFARemoteMessageHandler _messageHandler;
+    final private IRemoteMessageHandler _messageHandler;
 
-    public TFARemoteMessageLocalReceiver(ITFARemoteMessageHandler messageHandler) {
+    public RemoteMessageLocalReceiver(IRemoteMessageHandler messageHandler) {
         _messageHandler = messageHandler;
     }
 
@@ -32,11 +31,7 @@ public class TFARemoteMessageLocalReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (remoteMessage.containsKey("gigyaAssertion")) {
-            GigyaLogger.error(LOG_TAG, "onReceive: TFA related remote message");
-            _messageHandler.handleRemoteMessage(remoteMessage);
-        }
-
+        _messageHandler.handleRemoteMessage(remoteMessage);
     }
 
 }

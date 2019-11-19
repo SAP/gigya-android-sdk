@@ -9,6 +9,8 @@ import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
+import com.gigya.android.sdk.push.IGigyaPushCustomizer;
+import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
@@ -20,16 +22,18 @@ import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_ACTION
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_INTENT_REQUEST_CODE;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
-public class TFARemoteMessageHandler implements ITFARemoteMessageHandler {
+public class TFARemoteMessageHandler implements IRemoteMessageHandler {
+
+    private static final String LOG_TAG = "TFARemoteMessageHandler";
 
     final private Context _context;
     final private ITFAPersistenceService _psService;
     final private IGigyaNotificationManager _gigyaNotificationManager;
 
-    private TFAPushCustomizer _customizer;
+    private IGigyaPushCustomizer _customizer;
 
     @Override
-    public void setPushCustomizer(TFAPushCustomizer customizer) {
+    public void setPushCustomizer(IGigyaPushCustomizer customizer) {
         _customizer = customizer;
     }
 
@@ -39,10 +43,14 @@ public class TFARemoteMessageHandler implements ITFARemoteMessageHandler {
         _gigyaNotificationManager = gigyaNotificationManager;
     }
 
-    private static final String LOG_TAG = "TFARemoteMessageHandler";
 
     @Override
     public void handleRemoteMessage(@NonNull HashMap<String, String> remoteMessage) {
+
+        if (remoteMessage.containsKey("gigyaAssertion")) {
+            // This remote message is not relevant for this library instance.
+            return;
+        }
 
         /*
         Create/Update notification channel.

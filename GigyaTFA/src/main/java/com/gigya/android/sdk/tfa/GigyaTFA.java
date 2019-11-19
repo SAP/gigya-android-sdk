@@ -23,14 +23,15 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
+import com.gigya.android.sdk.push.IGigyaPushCustomizer;
+import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
-import com.gigya.android.sdk.tfa.push.ITFARemoteMessageHandler;
-import com.gigya.android.sdk.tfa.push.TFAPushCustomizer;
 import com.gigya.android.sdk.tfa.push.TFARemoteMessageHandler;
-import com.gigya.android.sdk.tfa.push.TFARemoteMessageLocalReceiver;
+import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
+import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
@@ -50,7 +51,7 @@ public class GigyaTFA {
             container.bind(GigyaTFA.class, GigyaTFA.class, true);
             container.bind(ITFABusinessApiService.class, TFABusinessApiService.class, true);
             container.bind(ITFAPersistenceService.class, TFAPersistenceService.class, true);
-            container.bind(ITFARemoteMessageHandler.class, TFARemoteMessageHandler.class, true);
+            container.bind(IRemoteMessageHandler.class, TFARemoteMessageHandler.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaTFA.class);
@@ -69,12 +70,10 @@ public class GigyaTFA {
     private final ITFAPersistenceService _persistenceService;
     private final IGigyaNotificationManager _gigyaNotificationManager;
 
-    private TFAPushCustomizer _tfaPushCustomizer = new TFAPushCustomizer();
-
     protected GigyaTFA(Context context,
                        ITFABusinessApiService businessApiService,
                        ITFAPersistenceService persistenceService,
-                       ITFARemoteMessageHandler remoteMessageHandler,
+                       IRemoteMessageHandler remoteMessageHandler,
                        IGigyaNotificationManager gigyaNotificationManager) {
         _context = context;
         _businessApiService = businessApiService;
@@ -90,17 +89,42 @@ public class GigyaTFA {
         Register remote message receiver to handle TFA push messages.
          */
         LocalBroadcastManager.getInstance(context).registerReceiver(
-                new TFARemoteMessageLocalReceiver(remoteMessageHandler),
+                new RemoteMessageLocalReceiver(remoteMessageHandler),
                 new IntentFilter(com.gigya.android.sdk.GigyaDefinitions.Broadcasts.INTENT_ACTION_REMOTE_MESSAGE)
         );
     }
 
     /**
+     * default push customizer instance.
+     */
+    private IGigyaPushCustomizer _tfaPushCustomizer = new IGigyaPushCustomizer() {
+        @Override
+        public int getSmallIcon() {
+            return android.R.drawable.ic_dialog_info;
+        }
+
+        @Override
+        public int getApproveActionIcon() {
+            return 0;
+        }
+
+        @Override
+        public int getDenyActionIcon() {
+            return 0;
+        }
+
+        @Override
+        public Class getCustomActionActivity() {
+            return PushTFAActivity.class;
+        }
+    };
+
+    /**
      * Optional setter for TFA push notification customization.
      *
-     * @param customizer TFAPushCustomizer instance for available notification customization options.
+     * @param customizer custom IGigyaPushCustomizer interface for available notification customization options.
      */
-    public void setPushCustomizer(TFAPushCustomizer customizer) {
+    public void setPushCustomizer(IGigyaPushCustomizer customizer) {
         _tfaPushCustomizer = customizer;
     }
 
