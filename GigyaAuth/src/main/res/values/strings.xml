@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">GigyaAuth</string>
 
+    <!-- TFA notification channel -->
+    <string name="auth_channel_name">Gigya auth channel</string>
+    <string name="auth_channel_description">Gigya auth channel is used for applying an additional login security layer for your application.</string>
+
 </resources>
 

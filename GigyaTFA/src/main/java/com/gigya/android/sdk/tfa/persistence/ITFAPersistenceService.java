@@ -1,13 +1,8 @@
 package com.gigya.android.sdk.tfa.persistence;
 
-import android.support.annotation.Nullable;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 
-public interface ITFAPersistenceService {
-
-    void setPushToken(String pushToken);
-
-    @Nullable
-    String getPushToken();
+public interface ITFAPersistenceService extends IPersistenceService {
 
     void updateOptInState(boolean enabled);
 

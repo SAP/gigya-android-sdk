@@ -12,17 +12,6 @@ public class TFAPersistenceService extends PersistenceService implements ITFAPer
     }
 
     @Override
-    public void setPushToken(String pushToken) {
-        getPrefs().edit().putString(PREFS_PUSH_TOKEN, pushToken).apply();
-    }
-
-    @Nullable
-    @Override
-    public String getPushToken() {
-        return getPrefs().getString(PREFS_PUSH_TOKEN, null);
-    }
-
-    @Override
     public void updateOptInState(boolean enabled) {
         getPrefs().edit().putBoolean(PREFS_PUSH_TFA_OPT_IN, enabled).apply();
     }
@@ -38,11 +27,6 @@ public class TFAPersistenceService extends PersistenceService implements ITFAPer
     }
 
     //region KEYS
-
-    /*
-     * Push token key.
-     */
-    private static final String PREFS_PUSH_TOKEN = "GS_PUSH_TOKEN";
 
     /*
      * Push opt-in state.

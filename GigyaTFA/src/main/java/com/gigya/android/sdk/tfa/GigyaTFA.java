@@ -325,29 +325,6 @@ public class GigyaTFA {
     }
 
     /**
-     * Update device information in server.
-     * Device information includes: platform, manufacturer, os & push token.
-     *
-     * @param newPushToken New provided push token.
-     */
-    public void updateDeviceInfoForPushTFA(@NonNull final String newPushToken) {
-        _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
-            @Override
-            public void onSuccess(GigyaApiResponse obj) {
-                GigyaLogger.debug(LOG_TAG, "Successfully update push token. Persisting new token");
-
-                // Persist new token. This will allow to correctly monitor any token changes.
-                _persistenceService.setPushToken(newPushToken);
-            }
-
-            @Override
-            public void onError(GigyaError error) {
-                GigyaLogger.debug(LOG_TAG, "Failed to update device info.");
-            }
-        });
-    }
-
-    /**
      * Return the current session encryption type.
      */
     public String getSessionEncryption() {

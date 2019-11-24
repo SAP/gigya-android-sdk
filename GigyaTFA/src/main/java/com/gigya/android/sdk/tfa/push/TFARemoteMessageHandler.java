@@ -27,9 +27,6 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
     private static final String LOG_TAG = "TFARemoteMessageHandler";
 
     final private ITFAPersistenceService _psService;
-    final private IGigyaNotificationManager _gigyaNotificationManager;
-
-    private IGigyaPushCustomizer _customizer;
 
     @Override
     public void setPushCustomizer(IGigyaPushCustomizer customizer) {
@@ -37,17 +34,22 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
     }
 
     public TFARemoteMessageHandler(Context context, ITFAPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
-        super(context);
+        super(context, gigyaNotificationManager);
         _psService = psService;
-        _gigyaNotificationManager = gigyaNotificationManager;
+    }
+
+    @Override
+    protected boolean remoteMessageMatchesHandlerContext(HashMap<String, String> remoteMessage) {
+        return remoteMessage.containsKey("gigyaAssertion");
     }
 
 
     @Override
     public void handleRemoteMessage(@NonNull HashMap<String, String> remoteMessage) {
 
-        if (remoteMessage.containsKey("gigyaAssertion")) {
+        if (!remoteMessageMatchesHandlerContext(remoteMessage)) {
             // This remote message is not relevant for this library instance.
+            GigyaLogger.debug(LOG_TAG, "handleRemoteMessage: remote message not relevant for tfa service.");
             return;
         }
 
