@@ -28,7 +28,6 @@ public class GigyaDefinitions {
         // Push
         public static final String API_TFA_PUSH_OPT_IN = "accounts.tfa.push.optin";
         public static final String API_TFA_PUSH_VERIFY = "accounts.tfa.push.verify";
-        public static final String API_TFA_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
         public static final String API_TFA_SEND_VERIFICATION = "accounts.tfa.push.sendVerification";
     }
     
@@ -58,19 +57,6 @@ public class GigyaDefinitions {
 
         public static final String SMS = "sms";
         public static final String VOICE = "voice";
-    }
-
-    public static class PushMode {
-
-        @Retention(RetentionPolicy.SOURCE)
-        @StringDef({OPT_IN, VERIFY, CANCEL})
-
-        public @interface Mode {
-        }
-
-        public static final String OPT_IN = "optin";
-        public static final String VERIFY = "verify";
-        public static final String CANCEL = "cancel";
     }
 
 }

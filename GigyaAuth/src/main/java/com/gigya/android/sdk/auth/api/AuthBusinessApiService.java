@@ -64,6 +64,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
+        GigyaLogger.error(LOG_TAG, "Feature currently unavailable.");
 
     }
 

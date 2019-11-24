@@ -8,10 +8,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.push.RemoteMessageHandler;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
-import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 
@@ -22,11 +22,10 @@ import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_ACTION
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.PUSH_TFA_CONTENT_INTENT_REQUEST_CODE;
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
-public class TFARemoteMessageHandler implements IRemoteMessageHandler {
+public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRemoteMessageHandler {
 
     private static final String LOG_TAG = "TFARemoteMessageHandler";
 
-    final private Context _context;
     final private ITFAPersistenceService _psService;
     final private IGigyaNotificationManager _gigyaNotificationManager;
 
@@ -38,7 +37,7 @@ public class TFARemoteMessageHandler implements IRemoteMessageHandler {
     }
 
     public TFARemoteMessageHandler(Context context, ITFAPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
-        _context = context;
+        super(context);
         _psService = psService;
         _gigyaNotificationManager = gigyaNotificationManager;
     }
@@ -68,11 +67,11 @@ public class TFARemoteMessageHandler implements IRemoteMessageHandler {
         }
 
         switch (pushMode) {
-            case GigyaDefinitions.PushMode.OPT_IN:
-            case GigyaDefinitions.PushMode.VERIFY:
+            case com.gigya.android.sdk.GigyaDefinitions.PushMode.OPT_IN:
+            case com.gigya.android.sdk.GigyaDefinitions.PushMode.VERIFY:
                 notifyWith(pushMode, remoteMessage);
                 break;
-            case GigyaDefinitions.PushMode.CANCEL:
+            case com.gigya.android.sdk.GigyaDefinitions.PushMode.CANCEL:
                 cancel(remoteMessage);
                 break;
             default:
@@ -81,21 +80,8 @@ public class TFARemoteMessageHandler implements IRemoteMessageHandler {
         }
     }
 
-    /**
-     * Attempt to cancel a displayed notification given a unique identification.
-     */
-    private void cancel(HashMap<String, String> data) {
-        final String gigyaAssertion = data.get("gigyaAssertion");
-        int notificationId = 0;
-        if (gigyaAssertion != null) {
-            notificationId = Math.abs(gigyaAssertion.hashCode());
-        }
-        GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
-        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);
-        notificationManager.cancel(notificationId);
-    }
-
-    private void notifyWith(String mode, HashMap<String, String> data) {
+    @Override
+    protected void notifyWith(String mode, HashMap<String, String> data) {
         // Fetch the data.
         final String title = data.get("title");
         final String body = data.get("body");

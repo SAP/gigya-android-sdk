@@ -16,7 +16,6 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
 import com.gigya.android.sdk.tfa.models.CompleteVerificationModel;
 import com.gigya.android.sdk.tfa.models.InitTFAModel;
-import com.gigya.android.sdk.utils.DeviceUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,19 +103,4 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
         params.put("verificationToken", verificationToken);
         send(GigyaDefinitions.API.API_TFA_PUSH_VERIFY, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
     }
-
-    @Override
-    public void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        if (!_sessionService.isValid()) {
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
-            return;
-        }
-        final Map<String, Object> params = new HashMap<>();
-        params.put("platform", "android");
-        params.put("man", DeviceUtils.getManufacturer());
-        params.put("os", DeviceUtils.getOsVersion());
-        params.put("pushToken", pushToken);
-        send(GigyaDefinitions.API.API_TFA_UPDATE_DEVICE, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
-    }
-
 }

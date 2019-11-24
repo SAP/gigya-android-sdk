@@ -18,6 +18,7 @@ import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
@@ -724,6 +725,24 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
         send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.GET, TFAProvidersModel.class, callback);
+    }
+
+    //endregion
+
+    //region AUTH RELATED
+
+    @Override
+    public void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            return;
+        }
+        final Map<String, Object> params = new HashMap<>();
+        params.put("platform", "android");
+        params.put("man", DeviceUtils.getManufacturer());
+        params.put("os", DeviceUtils.getOsVersion());
+        params.put("pushToken", pushToken);
+        send(GigyaDefinitions.API.API_AUTH_UPDATE_DEVICE, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
     }
 
     //endregion

@@ -124,8 +124,8 @@ public class VolleyNetworkProvider extends NetworkProvider {
         if (!_blockedQueue.isEmpty()) {
             Iterator it = _blockedQueue.iterator();
             while (it.hasNext()) {
-                final VolleyNetworkRequest request = (VolleyNetworkRequest) it.next();
-                final String requestTag = (String) request.getTag();
+                final HttpVolleyTask task = (HttpVolleyTask) it.next();
+                final String requestTag = task.request.getTag();
                 if (requestTag.equals(tag)) {
                     it.remove();
                 }

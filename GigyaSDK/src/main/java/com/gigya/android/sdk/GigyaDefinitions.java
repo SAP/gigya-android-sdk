@@ -42,6 +42,8 @@ public class GigyaDefinitions {
         public static final String API_NOTIFY_SOCIAL_LOGIN = "accounts.notifySocialLogin";
         public static final String API_REMOVE_CONNECTION = "socialize.removeConnection";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
+
+        public static final String API_AUTH_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
     }
 
     public static class SessionEncryption {
@@ -183,6 +185,19 @@ public class GigyaDefinitions {
         public static final String TIMEZONE = "timezone";
         public static final String LIKES = "likes";
         public static final String SAMLDATA = "samlData";
+    }
+
+    public static class PushMode {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({OPT_IN, VERIFY, CANCEL})
+
+        public @interface Mode {
+        }
+
+        public static final String OPT_IN = "optin";
+        public static final String VERIFY = "verify";
+        public static final String CANCEL = "cancel";
     }
 
 }
