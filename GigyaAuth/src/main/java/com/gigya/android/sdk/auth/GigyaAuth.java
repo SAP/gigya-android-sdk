@@ -3,6 +3,7 @@ package com.gigya.android.sdk.auth;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Gigya;
@@ -105,6 +106,9 @@ public class GigyaAuth {
         _authPushCustomizer = customizer;
     }
 
+    public void verifyAuthPush(@NonNull final String vToken) {
+
+    }
 
 
 }

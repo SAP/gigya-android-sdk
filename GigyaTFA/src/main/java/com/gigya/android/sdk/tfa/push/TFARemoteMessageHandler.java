@@ -8,10 +8,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.push.RemoteMessageHandler;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
+import com.gigya.android.sdk.push.RemoteMessageHandler;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 
@@ -34,7 +34,7 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
     }
 
     public TFARemoteMessageHandler(Context context, ITFAPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
-        super(context, gigyaNotificationManager);
+        super(context, gigyaNotificationManager, psService);
         _psService = psService;
     }
 
@@ -77,14 +77,15 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
                 cancel(remoteMessage);
                 break;
             default:
-                GigyaLogger.debug(LOG_TAG, "Push mode not supported. Notification is ignored");
+                GigyaLogger.error(LOG_TAG, "Push mode not supported. Notification is ignored");
                 break;
         }
     }
 
     @Override
     protected void notifyWith(String mode, HashMap<String, String> data) {
-        // Fetch the data.
+
+        // Parse notification fields.
         final String title = data.get("title");
         final String body = data.get("body");
         final String gigyaAssertion = data.get("gigyaAssertion");
@@ -95,7 +96,7 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         // the unique notification id will be the hash code of the gigyaAssertion field.
         int notificationId = 0;
         if (gigyaAssertion != null) {
-            notificationId = Math.abs(gigyaAssertion.hashCode());
+            notificationId = Math.abs(gigyaAssertion.hashCode()); /* gigyaAssertion will act as notification id */
         }
 
         GigyaLogger.debug(LOG_TAG, "verificationToken: " + verificationToken);
@@ -155,13 +156,6 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         // Notify.
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);
         notificationManager.notify(notificationId, builder.build());
-    }
-
-    /**
-     * Check if the current session is encrypted using a biometric key.
-     */
-    private boolean isDefaultEncryptedSession() {
-        return _psService.getSessionEncryptionType().equals(com.gigya.android.sdk.GigyaDefinitions.SessionEncryption.DEFAULT);
     }
 
 }

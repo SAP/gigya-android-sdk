@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">GigyaAuth</string>
 
+    <string name="auth_approve">Approve</string>
+    <string name="auth_deny">Deny</string>
+
+    <!-- TFA intent filter actions -->
+    <string name="auth_action_approve">com.gigya.android.sdk.auth.push_approve</string>
+    <string name="auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
+
     <!-- TFA notification channel -->
     <string name="auth_channel_name">Gigya auth channel</string>
     <string name="auth_channel_description">Gigya auth channel is used for applying an additional login security layer for your application.</string>
