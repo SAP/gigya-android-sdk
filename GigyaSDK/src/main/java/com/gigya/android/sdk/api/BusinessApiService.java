@@ -41,7 +41,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IApiService _apiService;
     final private IApiRequestFactory _reqFactory;
     final private IProviderFactory _providerFactory;
-    final private IPersistenceService _persistenceService;
+    final protected IPersistenceService _persistenceService;
     final private IInterruptionResolverFactory _interruptionsHandler;
 
     public BusinessApiService(ISessionService sessionService,

@@ -31,6 +31,8 @@ public class RemoteMessageLocalReceiver extends BroadcastReceiver {
             return;
         }
 
+        GigyaLogger.debug(LOG_TAG, "onReceive: routing message to handler");
+
         _messageHandler.handleRemoteMessage(remoteMessage);
     }
 

@@ -24,10 +24,10 @@ public class AuthPushReceiver extends BroadcastReceiver {
             return;
         }
 
+        // Make sure to cancel the notification.
         final int notificationId = intent.getIntExtra("notificationId", 0);
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.cancel(notificationId);
-
 
         // Fetch push mode from intent extras. Mandatory.
         final String mode = intent.getStringExtra("mode");
@@ -42,6 +42,7 @@ public class AuthPushReceiver extends BroadcastReceiver {
             GigyaLogger.error(LOG_TAG, "Action not available. Action ignored. Flow is broken");
             return;
         }
+
         GigyaLogger.debug(LOG_TAG, "onReceive action: " + action);
 
         switch (mode) {

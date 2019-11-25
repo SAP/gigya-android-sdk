@@ -25,12 +25,12 @@ import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
+import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
 import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.TFARemoteMessageHandler;
-import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
 import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
@@ -69,6 +69,7 @@ public class GigyaTFA {
     private final ITFABusinessApiService _businessApiService;
     private final ITFAPersistenceService _persistenceService;
     private final IGigyaNotificationManager _gigyaNotificationManager;
+    private final IRemoteMessageHandler _remoteMessageHandler;
 
     protected GigyaTFA(Context context,
                        ITFABusinessApiService businessApiService,
@@ -78,12 +79,33 @@ public class GigyaTFA {
         _context = context;
         _businessApiService = businessApiService;
         _persistenceService = persistenceService;
+        _remoteMessageHandler = remoteMessageHandler;
         _gigyaNotificationManager = gigyaNotificationManager;
 
         /*
         Update push notification customization options.
          */
-        remoteMessageHandler.setPushCustomizer(_tfaPushCustomizer);
+        _remoteMessageHandler.setPushCustomizer(new IGigyaPushCustomizer() {
+            @Override
+            public int getSmallIcon() {
+                return android.R.drawable.ic_dialog_info;
+            }
+
+            @Override
+            public int getApproveActionIcon() {
+                return 0;
+            }
+
+            @Override
+            public int getDenyActionIcon() {
+                return 0;
+            }
+
+            @Override
+            public Class getCustomActionActivity() {
+                return PushTFAActivity.class;
+            }
+        });
 
         /*
         Register remote message receiver to handle TFA push messages.
@@ -95,37 +117,12 @@ public class GigyaTFA {
     }
 
     /**
-     * default push customizer instance.
-     */
-    private IGigyaPushCustomizer _tfaPushCustomizer = new IGigyaPushCustomizer() {
-        @Override
-        public int getSmallIcon() {
-            return android.R.drawable.ic_dialog_info;
-        }
-
-        @Override
-        public int getApproveActionIcon() {
-            return 0;
-        }
-
-        @Override
-        public int getDenyActionIcon() {
-            return 0;
-        }
-
-        @Override
-        public Class getCustomActionActivity() {
-            return PushTFAActivity.class;
-        }
-    };
-
-    /**
      * Optional setter for TFA push notification customization.
      *
      * @param customizer custom IGigyaPushCustomizer interface for available notification customization options.
      */
     public void setPushCustomizer(IGigyaPushCustomizer customizer) {
-        _tfaPushCustomizer = customizer;
+        _remoteMessageHandler.setPushCustomizer(customizer);
     }
 
     /*
@@ -227,20 +224,27 @@ public class GigyaTFA {
      * @param gigyaCallback Request callback.
      */
     public void optInForPushTFA(@NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "optInForPushTFA: action selected");
+
         // Device info is required.
         if (_deviceInfo == null) {
+            GigyaLogger.debug(LOG_TAG, "optInForPushTFA: device info unavailable - generate.");
+
             generateDeviceInfo(new Runnable() {
                 @Override
                 public void run() {
+                    GigyaLogger.debug(LOG_TAG, "optInForPushTFA: device info generated = " + _deviceInfo);
                     _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
                 }
             }, new Runnable() {
                 @Override
                 public void run() {
+                    GigyaLogger.error(LOG_TAG, "optInForPushTFA: Failed to generate device info.");
                     gigyaCallback.onError(GigyaError.unauthorizedUser());
                 }
             });
         } else {
+            GigyaLogger.debug(LOG_TAG, "optInForPushTFA: with device info = " + _deviceInfo);
             _businessApiService.optIntoPush(_deviceInfo, gigyaCallback);
         }
     }
@@ -260,6 +264,8 @@ public class GigyaTFA {
      * @param verificationToken Provided verification token.
      */
     public void verifyOptInForPushTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+        GigyaLogger.debug(LOG_TAG, "verifyOptInForPushTFA: with gigyaAssertion = " + gigyaAssertion + ", verificationToken = " + verificationToken);
+
         _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
@@ -297,6 +303,8 @@ public class GigyaTFA {
      * @param verificationToken Provided verification token to identify device.
      */
     public void approveLoginForPushTFA(@NonNull String gigyaAssertion, @NonNull String verificationToken) {
+        GigyaLogger.debug(LOG_TAG, "approveLoginForPushTFA: with gigyaAssertion = " + gigyaAssertion + ", verificationToken = " + verificationToken);
+
         _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {

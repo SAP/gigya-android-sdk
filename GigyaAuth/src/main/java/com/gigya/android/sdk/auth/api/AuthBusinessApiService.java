@@ -10,10 +10,10 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.auth.GigyaDefinitions;
+import com.gigya.android.sdk.auth.persistence.IAuthPersistenceService;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
@@ -29,7 +29,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
                                   IApiService apiService,
                                   IApiRequestFactory requestFactory,
                                   IProviderFactory providerFactory,
-                                  IPersistenceService persistenceService,
+                                  IAuthPersistenceService persistenceService,
                                   IInterruptionResolverFactory interruptionsHandler) {
         super(sessionService, accountService, apiService, requestFactory, providerFactory, persistenceService, interruptionsHandler);
     }
@@ -37,6 +37,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
     @Override
     public void registerDevice(@NonNull final String deviceInfo, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "registerDevice: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
@@ -50,6 +51,9 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
 
                     @Override
                     public void onSuccess(GigyaApiResponse model) {
+
+                        ((IAuthPersistenceService) _persistenceService).updateAuthPushState(true);
+
                         gigyaCallback.onSuccess(model);
                     }
 
@@ -63,16 +67,21 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
     @Override
     public void unregisterDevice(@NonNull GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "unregisterDevice: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
-        GigyaLogger.error(LOG_TAG, "Feature currently unavailable.");
+
+        ((IAuthPersistenceService) _persistenceService).updateAuthPushState(false);
+
+        GigyaLogger.error(LOG_TAG, "unregisterDevice: Feature currently unavailable.");
 
     }
 
     @Override
     public void verifyPush(@NonNull String vToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "verifyPush: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }

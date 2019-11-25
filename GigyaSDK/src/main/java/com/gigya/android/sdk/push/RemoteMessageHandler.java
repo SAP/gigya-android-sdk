@@ -10,17 +10,17 @@ import java.util.HashMap;
 
 public abstract class RemoteMessageHandler implements IRemoteMessageHandler {
 
-    final protected Context _context;
+    protected final Context _context;
 
-    final protected IGigyaNotificationManager _gigyaNotificationManager;
+    protected final IGigyaNotificationManager _gigyaNotificationManager;
 
-    final protected IPersistenceService _persistenceService;
+    private final IPersistenceService _persistenceService;
 
     protected IGigyaPushCustomizer _customizer;
 
     private static final String LOG_TAG = "GigyaRemoteMessageHandler";
 
-    protected RemoteMessageHandler(Context context,IGigyaNotificationManager gigyaNotificationManager, IPersistenceService persistenceService) {
+    protected RemoteMessageHandler(Context context, IGigyaNotificationManager gigyaNotificationManager, IPersistenceService persistenceService) {
         _context = context;
         _gigyaNotificationManager = gigyaNotificationManager;
         _persistenceService = persistenceService;

@@ -40,6 +40,7 @@ public class TFAPushReceiver extends BroadcastReceiver {
             GigyaLogger.error(LOG_TAG, "Action not available. Action ignored. Flow is broken");
             return;
         }
+
         GigyaLogger.debug(LOG_TAG, "onReceive action: " + action);
 
         switch (mode) {
@@ -47,15 +48,15 @@ public class TFAPushReceiver extends BroadcastReceiver {
             case GigyaDefinitions.PushMode.VERIFY:
                 if (isDenyAction(context, action)) {
                     // Redundant.
-                    GigyaLogger.debug(LOG_TAG, "Opt-In mode. User chose to deny. Flow will not complete.");
+                    GigyaLogger.debug(LOG_TAG, "onReceive: User chose to deny. Flow will not complete.");
                 } else if (isApproveAction(context, action)) {
-                    GigyaLogger.debug(LOG_TAG, "Opt-In mode. User chose to approve. Complete Opt-In flow.");
+                    GigyaLogger.debug(LOG_TAG, "onReceive: User chose to approve. Move forward with flow.");
 
                     // Fetch tokens.
                     final String gigyaAssertion = intent.getStringExtra("gigyaAssertion");
                     final String verificationToken = intent.getStringExtra("verificationToken");
 
-                    GigyaLogger.debug(LOG_TAG, "Action for vt: " + verificationToken);
+                    GigyaLogger.debug(LOG_TAG, "Action for vToken: " + verificationToken);
 
                     // Continue flow.
                     if (mode.equals(GigyaDefinitions.PushMode.OPT_IN)) {

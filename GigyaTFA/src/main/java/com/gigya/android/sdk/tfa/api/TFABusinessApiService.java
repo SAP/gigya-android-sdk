@@ -3,6 +3,7 @@ package com.gigya.android.sdk.tfa.api;
 import android.support.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.BusinessApiService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -38,6 +39,7 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
     @Override
     public void optIntoPush(@NonNull final String deviceInfo, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "optIntoPush: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
@@ -69,6 +71,7 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
     @Override
     public void finalizePushOptIn(@NonNull final String gigyaAssertion, @NonNull String verificationToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "finalizePushOptIn: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }
@@ -96,6 +99,7 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
     @Override
     public void verifyPush(@NonNull String gigyaAssertion, @NonNull String verificationToken, @NonNull GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "verifyPush: session is invalid");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
             return;
         }

@@ -34,6 +34,7 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -56,6 +57,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         initDrawer()
+
+        GigyaTFA.getInstance().setPushCustomizer(object : IGigyaPushCustomizer {
+
+            override fun getCustomActionActivity(): Class<*> = BiometricPushTFAActivity::class.java
+
+            override fun getDenyActionIcon(): Int  = 0
+
+            override fun getSmallIcon(): Int = android.R.drawable.ic_dialog_info
+
+            override fun getApproveActionIcon(): Int  = 0
+
+        })
     }
 
     override fun onStart() {
