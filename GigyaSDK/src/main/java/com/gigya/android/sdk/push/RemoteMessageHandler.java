@@ -14,7 +14,7 @@ public abstract class RemoteMessageHandler implements IRemoteMessageHandler {
 
     protected final IGigyaNotificationManager _gigyaNotificationManager;
 
-    private final IPersistenceService _persistenceService;
+    protected final IPersistenceService _persistenceService;
 
     protected IGigyaPushCustomizer _customizer;
 

@@ -10,10 +10,10 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.auth.GigyaDefinitions;
-import com.gigya.android.sdk.auth.persistence.IAuthPersistenceService;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
@@ -29,7 +29,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
                                   IApiService apiService,
                                   IApiRequestFactory requestFactory,
                                   IProviderFactory providerFactory,
-                                  IAuthPersistenceService persistenceService,
+                                  IPersistenceService persistenceService,
                                   IInterruptionResolverFactory interruptionsHandler) {
         super(sessionService, accountService, apiService, requestFactory, providerFactory, persistenceService, interruptionsHandler);
     }
@@ -51,11 +51,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
 
                     @Override
                     public void onSuccess(GigyaApiResponse model) {
-
-                        ((IAuthPersistenceService) _persistenceService).updateAuthPushState(true);
-
                         GigyaLogger.debug(LOG_TAG, "registerDevice: successfully registered device information");
-
                         gigyaCallback.onSuccess(model);
                     }
 

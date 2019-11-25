@@ -21,12 +21,11 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.auth.api.AuthBusinessApiService;
 import com.gigya.android.sdk.auth.api.IAuthBusinessApiService;
-import com.gigya.android.sdk.auth.persistence.AuthPersistenceService;
-import com.gigya.android.sdk.auth.persistence.IAuthPersistenceService;
 import com.gigya.android.sdk.auth.push.AuthRemoteMessageHandler;
 import com.gigya.android.sdk.auth.ui.PushAuthActivity;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
@@ -53,7 +52,6 @@ public class GigyaAuth {
             container.bind(GigyaAuth.class, GigyaAuth.class, true);
             container.bind(IAuthBusinessApiService.class, AuthBusinessApiService.class, true);
             container.bind(IRemoteMessageHandler.class, AuthRemoteMessageHandler.class, true);
-            container.bind(IAuthPersistenceService.class, AuthPersistenceService.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaAuth.class);
@@ -71,12 +69,12 @@ public class GigyaAuth {
     private final IGigyaNotificationManager _gigyaNotificationManager;
     private final IAuthBusinessApiService _authBusinessApiService;
     private final IRemoteMessageHandler _remoteMessageHandler;
-    private final IAuthPersistenceService _persistenceService;
+    private final IPersistenceService _persistenceService;
 
     protected GigyaAuth(Context context,
                         IAuthBusinessApiService authBusinessApiService,
                         IRemoteMessageHandler remoteMessageHandler,
-                        IAuthPersistenceService persistenceService,
+                        IPersistenceService persistenceService,
                         IGigyaNotificationManager gigyaNotificationManager) {
         _context = context;
         _gigyaNotificationManager = gigyaNotificationManager;
@@ -85,7 +83,7 @@ public class GigyaAuth {
         _remoteMessageHandler = remoteMessageHandler;
 
         /*
-        Update push notification customization options.
+        Set default customization.
          */
         _remoteMessageHandler.setPushCustomizer(new IGigyaPushCustomizer() {
             @Override
@@ -104,7 +102,9 @@ public class GigyaAuth {
             }
 
             @Override
-            public Class getCustomActionActivity() { return PushAuthActivity.class; }
+            public Class getCustomActionActivity() {
+                return PushAuthActivity.class;
+            }
         });
 
         /*
@@ -238,8 +238,7 @@ public class GigyaAuth {
      * @param activity Current activity. Activity context must be provided.
      */
     public void checkNotificationsPermissionsRequired(final Activity activity) {
-        final boolean deviceRegisteredForPushTFA = _persistenceService.isRegisteredForAuthPush();
-        if (!pushAuthEnabled() && deviceRegisteredForPushTFA) {
+        if (!pushAuthEnabled()) {
 
             GigyaLogger.debug(LOG_TAG, "checkNotificationsPermissionsRequired: Push permission is required but not enabled. notify client");
 

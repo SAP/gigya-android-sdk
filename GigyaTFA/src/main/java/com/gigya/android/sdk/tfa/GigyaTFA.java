@@ -21,6 +21,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
@@ -28,8 +29,6 @@ import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
-import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
-import com.gigya.android.sdk.tfa.persistence.TFAPersistenceService;
 import com.gigya.android.sdk.tfa.push.TFARemoteMessageHandler;
 import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 
@@ -50,7 +49,6 @@ public class GigyaTFA {
 
             container.bind(GigyaTFA.class, GigyaTFA.class, true);
             container.bind(ITFABusinessApiService.class, TFABusinessApiService.class, true);
-            container.bind(ITFAPersistenceService.class, TFAPersistenceService.class, true);
             container.bind(IRemoteMessageHandler.class, TFARemoteMessageHandler.class, true);
 
             try {
@@ -67,13 +65,13 @@ public class GigyaTFA {
 
     private final Context _context;
     private final ITFABusinessApiService _businessApiService;
-    private final ITFAPersistenceService _persistenceService;
+    private final IPersistenceService _persistenceService;
     private final IGigyaNotificationManager _gigyaNotificationManager;
     private final IRemoteMessageHandler _remoteMessageHandler;
 
     protected GigyaTFA(Context context,
                        ITFABusinessApiService businessApiService,
-                       ITFAPersistenceService persistenceService,
+                       IPersistenceService persistenceService,
                        IRemoteMessageHandler remoteMessageHandler,
                        IGigyaNotificationManager gigyaNotificationManager) {
         _context = context;
@@ -83,7 +81,7 @@ public class GigyaTFA {
         _gigyaNotificationManager = gigyaNotificationManager;
 
         /*
-        Update push notification customization options.
+        Set default customization.
          */
         _remoteMessageHandler.setPushCustomizer(new IGigyaPushCustomizer() {
             @Override
@@ -182,8 +180,7 @@ public class GigyaTFA {
      * @param activity Current activity. Activity context must be provided.
      */
     public void checkNotificationsPermissionsRequired(final Activity activity) {
-        final boolean deviceRegisteredForPushTFA = _persistenceService.isOptInForPushTFA();
-        if (!pushTFAEnabled() && deviceRegisteredForPushTFA) {
+        if (!pushTFAEnabled()) {
 
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
@@ -270,9 +267,6 @@ public class GigyaTFA {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 GigyaLogger.debug(LOG_TAG, "verifyOptInForPushTFA: Opt-In verification flow completed");
-
-                // Update shared preferences.
-                _persistenceService.updateOptInState(true);
 
                 // Notify success.
                 _gigyaNotificationManager.notifyWith(

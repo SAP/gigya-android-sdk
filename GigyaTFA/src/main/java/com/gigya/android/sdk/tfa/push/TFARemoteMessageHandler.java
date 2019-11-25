@@ -8,12 +8,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageHandler;
 import com.gigya.android.sdk.tfa.R;
-import com.gigya.android.sdk.tfa.persistence.ITFAPersistenceService;
 
 import java.util.HashMap;
 
@@ -26,16 +26,13 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
 
     private static final String LOG_TAG = "TFARemoteMessageHandler";
 
-    final private ITFAPersistenceService _psService;
-
     @Override
     public void setPushCustomizer(IGigyaPushCustomizer customizer) {
         _customizer = customizer;
     }
 
-    public TFARemoteMessageHandler(Context context, ITFAPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
+    public TFARemoteMessageHandler(Context context, IPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
         super(context, gigyaNotificationManager, psService);
-        _psService = psService;
     }
 
     @Override
