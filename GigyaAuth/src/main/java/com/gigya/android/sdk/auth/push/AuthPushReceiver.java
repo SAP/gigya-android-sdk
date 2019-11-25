@@ -69,7 +69,6 @@ public class AuthPushReceiver extends BroadcastReceiver {
                 GigyaLogger.error(LOG_TAG, "Push mode not supported. Action ignored. Flow is broken");
                 break;
         }
-
     }
 
     private boolean isDenyAction(Context context, String action) {

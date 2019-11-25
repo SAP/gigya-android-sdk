@@ -61,6 +61,7 @@ dependencies {
     implementation project(path: ':GigyaSDK')
     implementation project(path: ':GigyaTFA')
     implementation project(path: ':GigyaBiometric')
+    implementation project(path: ':GigyaAuth')
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'

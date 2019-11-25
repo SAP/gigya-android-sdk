@@ -269,7 +269,7 @@ public class GigyaTFA {
         _businessApiService.finalizePushOptIn(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
-                GigyaLogger.error(LOG_TAG, "Opt-In verification flow completed");
+                GigyaLogger.debug(LOG_TAG, "verifyOptInForPushTFA: Opt-In verification flow completed");
 
                 // Update shared preferences.
                 _persistenceService.updateOptInState(true);
@@ -284,7 +284,7 @@ public class GigyaTFA {
 
             @Override
             public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "Failed to complete TFA opt in verification");
+                GigyaLogger.error(LOG_TAG, "verifyOptInForPushTFA: Failed to complete TFA opt in verification");
 
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(
@@ -308,7 +308,7 @@ public class GigyaTFA {
         _businessApiService.verifyPush(gigyaAssertion, verificationToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
-                GigyaLogger.error(LOG_TAG, "Successfully verified push");
+                GigyaLogger.debug(LOG_TAG, "approveLoginForPushTFA: Successfully verified push");
 
                 // Notify success.
                 _gigyaNotificationManager.notifyWith(
@@ -320,7 +320,7 @@ public class GigyaTFA {
 
             @Override
             public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "Failed to verify push");
+                GigyaLogger.error(LOG_TAG, "approveLoginForPushTFA: Failed to verify push");
 
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(

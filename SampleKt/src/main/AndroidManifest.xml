@@ -89,6 +89,13 @@
             android:taskAffinity=""
             android:theme="@style/Theme.AppCompat.Translucent" />
 
+        <activity
+            android:name="com.gigya.android.sdk.auth.ui.PushAuthActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Translucent" />
+
         <activity android:name=".ui.WebBridgeTestActivity" />
 
 
@@ -117,6 +124,15 @@
             <intent-filter>
                 <action android:name="@string/tfa_action_approve" />
                 <action android:name="@string/tfa_action_deny" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.gigya.android.sdk.auth.push.AuthPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="@string/auth_action_approve" />
+                <action android:name="@string/auth_action_deny" />
             </intent-filter>
         </receiver>
 

@@ -54,11 +54,15 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
 
                         ((IAuthPersistenceService) _persistenceService).updateAuthPushState(true);
 
+                        GigyaLogger.debug(LOG_TAG, "registerDevice: successfully registered device information");
+
                         gigyaCallback.onSuccess(model);
                     }
 
                     @Override
                     public void onError(GigyaError error) {
+                        GigyaLogger.error(LOG_TAG, "registerDevice: failed to register device information");
+
                         gigyaCallback.onError(error);
                     }
                 });
@@ -72,10 +76,9 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
             return;
         }
 
-        ((IAuthPersistenceService) _persistenceService).updateAuthPushState(false);
+        GigyaLogger.error(LOG_TAG, "unregisterDevice: Feature currently unavailable");
 
-        GigyaLogger.error(LOG_TAG, "unregisterDevice: Feature currently unavailable.");
-
+        //((IAuthPersistenceService) _persistenceService).updateAuthPushState(false);
     }
 
     @Override
@@ -95,11 +98,13 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
 
                     @Override
                     public void onSuccess(GigyaApiResponse model) {
+                        GigyaLogger.debug(LOG_TAG, "verifyPush: successfully verified push authentication request");
                         gigyaCallback.onSuccess(model);
                     }
 
                     @Override
                     public void onError(GigyaError error) {
+                        GigyaLogger.error(LOG_TAG, "verifyPush: failed to verify push authentication request with error " + error.getErrorCode());
                         gigyaCallback.onError(error);
                     }
                 });

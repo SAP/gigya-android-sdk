@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">GigyaAuth</string>
 
+    <string name="auth_push_activity_alert_title">Remote login authentication</string>
+    <string name="auth_push_activity_alert_message">Approve remote login request?</string>
+
+
     <string name="auth_approve">Approve</string>
     <string name="auth_deny">Deny</string>
 

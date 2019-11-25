@@ -10,8 +10,8 @@ public class GigyaDefinitions {
     public static class API {
 
         // Push
-        public static final String API_AUTH_DEVICE_REGISTER = "accounts.auth.devices.register";
-        public static final String API_AUTH_DEVICE_UNREGISTER = "accounts.auth.devices.unregister";
+        public static final String API_AUTH_DEVICE_REGISTER = "accounts.devices.register";
+        public static final String API_AUTH_DEVICE_UNREGISTER = "accounts.devices.unregister";
         public static final String API_AUTH_PUSH_VERIFY = "accounts.auth.push.verify";
 
     }

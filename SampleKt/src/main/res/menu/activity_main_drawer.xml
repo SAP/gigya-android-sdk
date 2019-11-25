@@ -53,6 +53,10 @@
                     android:id="@+id/action_push_tfa_opt_in"
                     android:title="@string/opt_in_for_push_tfa" />
 
+                <item
+                    android:id="@+id/action_push_auth_register"
+                    android:title="Register for push authentication"/>
+
             </menu>
         </item>
 

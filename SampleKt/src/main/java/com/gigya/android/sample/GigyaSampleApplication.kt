@@ -79,5 +79,10 @@ class GigyaSampleApplication : Application() {
         Eu site testing.
          */
         //Gigya.getInstance(MyAccount::class.java).init("3_1pjil0H2GoDmHPAAMsqY24BdoNNAqBEFO4n461JnkbarkP2DBKoOpFzaxekXt3kt", "eu1.gigya.com")
+
+        /*
+        Auth
+         */
+        Gigya.getInstance(MyAccount::class.java).init("3_fkRaJs5vQuVjkb9Z1He22lHMUcJAwfZMUDvIRQ08Jhnk82yAWR5ZapM44N332hy9", "us1-st1.gigya.com")
     }
 }

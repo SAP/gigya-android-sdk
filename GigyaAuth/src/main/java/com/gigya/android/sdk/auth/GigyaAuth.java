@@ -24,6 +24,7 @@ import com.gigya.android.sdk.auth.api.IAuthBusinessApiService;
 import com.gigya.android.sdk.auth.persistence.AuthPersistenceService;
 import com.gigya.android.sdk.auth.persistence.IAuthPersistenceService;
 import com.gigya.android.sdk.auth.push.AuthRemoteMessageHandler;
+import com.gigya.android.sdk.auth.ui.PushAuthActivity;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.push.GigyaFirebaseMessagingService;
@@ -103,9 +104,7 @@ public class GigyaAuth {
             }
 
             @Override
-            public Class getCustomActionActivity() {
-                return null;
-            }
+            public Class getCustomActionActivity() { return PushAuthActivity.class; }
         });
 
         /*
@@ -137,6 +136,9 @@ public class GigyaAuth {
                         return;
                     }
                     _deviceInfo = _gigyaNotificationManager.getDeviceInfo(token);
+
+                    GigyaLogger.debug(LOG_TAG, "generateDeviceInfo: " + _deviceInfo);
+
                     completionHandler.run();
                 }
             });
@@ -166,9 +168,11 @@ public class GigyaAuth {
                 public void run() {
                     _authBusinessApiService.registerDevice(_deviceInfo, gigyaCallback);
                 }
-            }, new Runnable() {
+            }, new Runnable() { /* Error handler */
                 @Override
                 public void run() {
+                    GigyaLogger.error(LOG_TAG, "registerForAuthPush: Failed to register auth push due to missing device info.");
+
                     gigyaCallback.onError(GigyaError.unauthorizedUser());
                 }
             });
@@ -186,6 +190,8 @@ public class GigyaAuth {
         _authBusinessApiService.verifyPush(vToken, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.debug(LOG_TAG, "verifyAuthPush: Successfully verified push");
+
                 _gigyaNotificationManager.notifyWith(
                         _context,
                         _context.getString(R.string.auth_login_approval_success_title),
@@ -195,6 +201,8 @@ public class GigyaAuth {
 
             @Override
             public void onError(GigyaError error) {
+                GigyaLogger.error(LOG_TAG, "verifyAuthPush: Failed to verify push");
+
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(
                         _context,

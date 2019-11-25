@@ -15,6 +15,7 @@ import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageHandler;
 import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.HashMap;
 
@@ -38,7 +39,9 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
 
     @Override
     protected boolean remoteMessageMatchesHandlerContext(HashMap<String, String> remoteMessage) {
-        return remoteMessage.containsKey("AuthChallenge") && remoteMessage.containsKey("vToken");
+        return remoteMessage.containsKey("type")
+                && ObjectUtils.safeEquals(remoteMessage.get("type"), "AuthChallenge")
+                && remoteMessage.containsKey("vToken");
     }
 
     @Override
@@ -97,7 +100,7 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
 
         final Intent intent = new Intent(_context, _customizer.getCustomActionActivity());
         intent.putExtra("mode", mode);
-        intent.putExtra("verificationToken", verificationToken);
+        intent.putExtra("vToken", verificationToken);
         intent.putExtra("notificationId", notificationId);
         // We don't want the annoying enter animation.
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
@@ -123,7 +126,7 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
             denyIntent.putExtra("mode", mode);
             denyIntent.putExtra("vToken", verificationToken);
             denyIntent.putExtra("notificationId", notificationId);
-            denyIntent.setAction(_context.getString(R.string.auth_action_approve));
+            denyIntent.setAction(_context.getString(R.string.auth_action_deny));
             final PendingIntent denyPendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_AUTH_CONTENT_ACTION_REQUEST_CODE, denyIntent,
                             PendingIntent.FLAG_CANCEL_CURRENT);
