@@ -13,16 +13,20 @@ public interface IGigyaPushCustomizer {
     /**
      * Optional override.
      * Define the notification approve action icon.
+     * Note: These icons will only display until Android Nougat.
      *
      * @return Icon reference.
+     * @see {https://android-developers.googleblog.com/2016/06/notifications-in-android-n.html} for more information.
      */
     int getApproveActionIcon();
 
     /**
      * Optional override.
      * Define the notification deny action icon.
+     * Note: These icons will only display until Android Nougat.
      *
      * @return Icon reference.
+     * @see {https://android-developers.googleblog.com/2016/06/notifications-in-android-n.html} for more information.
      */
     int getDenyActionIcon();
 
