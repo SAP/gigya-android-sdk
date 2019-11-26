@@ -215,7 +215,8 @@ public class GigyaAuth {
 
     /**
      * Check if push notifications are enabled for application.
-     * For Android >= 0 check if push TFA notification channel is enabled.
+     *
+     * For Android >= Oreo check if push TFA notification channel is enabled.
      *
      * @return True if enabled.
      */

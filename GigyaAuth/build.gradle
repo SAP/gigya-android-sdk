@@ -85,7 +85,10 @@ android.libraryVariants.all { variant ->
             from variant.javaCompileProvider.get().destinationDir
             destinationDir = file(outDir)
             include(
-                    'com/gigya/android/sdk/**'
+                    'com/gigya/android/sdk/auth/*.java',
+                    'com/gigya/android/sdk/auth/api/*.java',
+                    'com/gigya/android/sdk/auth/push/*.java',
+                    'com/gigya/android/sdk/auth/ui/*.java'
             )
             manifest {
                 from sharedManifest
