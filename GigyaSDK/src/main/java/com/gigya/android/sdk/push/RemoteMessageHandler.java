@@ -33,13 +33,11 @@ public abstract class RemoteMessageHandler implements IRemoteMessageHandler {
     /**
      * Attempt to cancel a displayed notification given a unique identification.
      */
-    protected void cancel(HashMap<String, String> data) {
-        final String gigyaAssertion = data.get("gigyaAssertion");
-        int notificationId = 0;
-        if (gigyaAssertion != null) {
-            notificationId = Math.abs(gigyaAssertion.hashCode());
+    protected void cancel(int notificationId) {
+        if (notificationId == 0) {
+            return;
         }
-        GigyaLogger.debug(LOG_TAG, "Cancel push received. Cancelling push approval notification");
+        GigyaLogger.debug(LOG_TAG, "Cancel notification with id = " + notificationId);
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(_context);
         notificationManager.cancel(notificationId);
     }

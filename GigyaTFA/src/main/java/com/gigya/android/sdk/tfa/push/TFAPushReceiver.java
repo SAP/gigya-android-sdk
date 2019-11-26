@@ -47,9 +47,11 @@ public class TFAPushReceiver extends BroadcastReceiver {
             case GigyaDefinitions.PushMode.OPT_IN:
             case GigyaDefinitions.PushMode.VERIFY:
                 if (isDenyAction(context, action)) {
+
                     // Redundant.
                     GigyaLogger.debug(LOG_TAG, "onReceive: User chose to deny. Flow will not complete.");
                 } else if (isApproveAction(context, action)) {
+
                     GigyaLogger.debug(LOG_TAG, "onReceive: User chose to approve. Move forward with flow.");
 
                     // Fetch tokens.

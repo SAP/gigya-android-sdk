@@ -45,29 +45,28 @@ public class AuthPushReceiver extends BroadcastReceiver {
 
         GigyaLogger.debug(LOG_TAG, "onReceive action: " + action);
 
-        switch (mode) {
-            case GigyaDefinitions.PushMode.VERIFY:
-                if (isDenyAction(context, action)) {
-                    // Redundant.
-                    GigyaLogger.debug(LOG_TAG, "onReceive: deny action will dismiss the flow.");
-                } else {
-                    GigyaLogger.debug(LOG_TAG, "onReceive: approve action selected.");
+        if (GigyaDefinitions.PushMode.VERIFY.equals(mode)) {
+            if (isDenyAction(context, action)) {
 
-                    final String verificationToken = intent.getStringExtra("vToken");
-                    if (verificationToken == null) {
-                        GigyaLogger.error(LOG_TAG, "onReceive: failed to parse verification token");
-                        return;
-                    }
+                // Redundant.
+                GigyaLogger.debug(LOG_TAG, "onReceive: deny action will dismiss the flow.");
+            } else if (isApproveAction(context, action)) {
 
-                    /*
-                    Call verification action.
-                     */
-                    GigyaAuth.getInstance().verifyAuthPush(verificationToken);
+                GigyaLogger.debug(LOG_TAG, "onReceive: approve action selected.");
+
+                final String verificationToken = intent.getStringExtra("vToken");
+                if (verificationToken == null) {
+                    GigyaLogger.error(LOG_TAG, "onReceive: failed to parse verification token");
+                    return;
                 }
-                break;
-            default:
-                GigyaLogger.error(LOG_TAG, "Push mode not supported. Action ignored. Flow is broken");
-                break;
+
+                /*
+                Call verification action.
+                */
+                GigyaAuth.getInstance().verifyAuthPush(verificationToken);
+            }
+        } else {
+            GigyaLogger.error(LOG_TAG, "Push mode not supported. Action ignored. Flow is broken");
         }
     }
 

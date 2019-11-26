@@ -69,7 +69,12 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
 
         switch (pushMode) {
             case GigyaDefinitions.PushMode.CANCEL:
-                cancel(remoteMessage);
+                final String vToken = remoteMessage.get("vToken");
+                if (vToken == null) {
+                    GigyaLogger.error(LOG_TAG, "handleRemoteMessage: cannot cancel notification due to missing notification id.");
+                    return;
+                }
+                cancel(Math.abs(vToken.hashCode()));
                 break;
             case GigyaDefinitions.PushMode.VERIFY:
                 notifyWith(pushMode, remoteMessage);

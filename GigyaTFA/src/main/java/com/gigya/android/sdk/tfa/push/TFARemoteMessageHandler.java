@@ -71,7 +71,12 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
                 notifyWith(pushMode, remoteMessage);
                 break;
             case com.gigya.android.sdk.GigyaDefinitions.PushMode.CANCEL:
-                cancel(remoteMessage);
+                final String gigyaAssertion = remoteMessage.get("gigyaAssertion");
+                if (gigyaAssertion == null) {
+                    GigyaLogger.error(LOG_TAG, "handleRemoteMessage: cannot cancel notification due to missing notification id.");
+                    return;
+                }
+                cancel(Math.abs(gigyaAssertion.hashCode()));
                 break;
             default:
                 GigyaLogger.error(LOG_TAG, "Push mode not supported. Notification is ignored");

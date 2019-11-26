@@ -25,6 +25,7 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     final private static String LOG_TAG = "GigyaMessagingService";
 
     public static final String EXTRA_REMOTE_MESSAGE_DATA = "extra_remote_message_data";
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -37,9 +38,11 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 
         GigyaLogger.debug(LOG_TAG, "onMessageReceived: " + remoteMessage.getData().toString());
 
-        final Intent routingIntent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_REMOTE_MESSAGE).putExtra(
-                EXTRA_REMOTE_MESSAGE_DATA, /* Parcelable */ new HashMap<>(remoteMessage.getData())
-        );
+        final Intent routingIntent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_REMOTE_MESSAGE)
+                .putExtra(
+                        EXTRA_REMOTE_MESSAGE_DATA,
+                        /* Serializable */ new HashMap<>(remoteMessage.getData())
+                );
         LocalBroadcastManager.getInstance(this).sendBroadcast(routingIntent);
     }
 
