@@ -215,7 +215,7 @@ public class GigyaAuth {
 
     /**
      * Check if push notifications are enabled for application.
-     *
+     * <p>
      * For Android >= Oreo check if push TFA notification channel is enabled.
      *
      * @return True if enabled.
@@ -235,13 +235,17 @@ public class GigyaAuth {
      * Check if device is registered for push TFA & notifications permission is available.
      * If not. Will display a information dialog allowing the user to open the notifications application settings in order
      * to enable them.
+     * Note: It is recommended to call this method when the activity context is attached.
      *
      * @param activity Current activity. Activity context must be provided.
      */
-    public void checkNotificationsPermissionsRequired(final Activity activity) {
+    public void registerForPushNotifications(final Activity activity) {
+        if (activity.isFinishing()) {
+            return;
+        }
         if (!pushAuthEnabled()) {
 
-            GigyaLogger.debug(LOG_TAG, "checkNotificationsPermissionsRequired: Push permission is required but not enabled. notify client");
+            GigyaLogger.debug(LOG_TAG, "registerForPushNotifications: Push permission is required but not enabled. notify client");
 
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
@@ -267,7 +271,7 @@ public class GigyaAuth {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
-                            GigyaLogger.debug(LOG_TAG, "checkNotificationsPermissionsRequired: deny clicked.");
+                            GigyaLogger.debug(LOG_TAG, "registerForPushNotifications: deny clicked.");
                             dialog.dismiss();
                         }
                     }).create();

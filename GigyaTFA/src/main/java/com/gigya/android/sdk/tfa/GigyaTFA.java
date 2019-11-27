@@ -34,6 +34,7 @@ import com.gigya.android.sdk.tfa.ui.PushTFAActivity;
 
 import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 
+@SuppressWarnings("Convert2Lambda")
 public class GigyaTFA {
 
     private static final String VERSION = "1.0.3";
@@ -173,48 +174,6 @@ public class GigyaTFA {
     }
 
     /**
-     * Check if device is registered for push TFA & notifications permission is available.
-     * If not. Will display a information dialog allowing the user to open the notifications application settings in order
-     * to enable them.
-     *
-     * @param activity Current activity. Activity context must be provided.
-     */
-    public void checkNotificationsPermissionsRequired(final Activity activity) {
-        if (!pushTFAEnabled()) {
-
-            // Show dialog informing the user that he needs to enable push notifications.
-            AlertDialog alert = new AlertDialog.Builder(activity)
-                    .setTitle(R.string.tfa_push_notifications_alert_title)
-                    .setMessage(R.string.tfa_push_notifications_alert_message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            GigyaLogger.debug(LOG_TAG, "approve clicked");
-
-                            Intent intent = new Intent();
-                            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                            //for Android 5-7
-                            intent.putExtra("app_package", activity.getPackageName());
-                            intent.putExtra("app_uid", activity.getApplicationInfo().uid);
-                            // for Android 8 and above
-                            intent.putExtra("android.provider.extra.APP_PACKAGE", activity.getPackageName());
-                            activity.startActivity(intent);
-                            dialog.dismiss();
-                        }
-                    }).setNegativeButton(R.string.tfa_no_thanks, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            GigyaLogger.debug(LOG_TAG, "deny clicked");
-                            dialog.dismiss();
-                        }
-                    }).create();
-            alert.show();
-        }
-    }
-
-    /**
      * Request to Opt-In to push Two Factor Authentication.
      * This is the first of two stages of the Opt-In process.
      *
@@ -335,4 +294,50 @@ public class GigyaTFA {
 
 
     //endregion
+
+    /**
+     * Check if device is registered for push TFA & notifications permission is available.
+     * If not. Will display a information dialog allowing the user to open the notifications application settings in order
+     * to enable them.
+     * Note: It is recommended to call this method when the activity context is attached.
+     *
+     * @param activity Current activity. Activity context must be provided.
+     */
+    public void registerForRemoteNotifications(final Activity activity) {
+        if (activity.isFinishing()) {
+            return;
+        }
+        if (!pushTFAEnabled()) {
+
+            // Show dialog informing the user that he needs to enable push notifications.
+            AlertDialog alert = new AlertDialog.Builder(activity)
+                    .setTitle(R.string.tfa_push_notifications_alert_title)
+                    .setMessage(R.string.tfa_push_notifications_alert_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            GigyaLogger.debug(LOG_TAG, "approve clicked");
+
+                            Intent intent = new Intent();
+                            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                            //for Android 5-7
+                            intent.putExtra("app_package", activity.getPackageName());
+                            intent.putExtra("app_uid", activity.getApplicationInfo().uid);
+                            // for Android 8 and above
+                            intent.putExtra("android.provider.extra.APP_PACKAGE", activity.getPackageName());
+                            activity.startActivity(intent);
+                            dialog.dismiss();
+                        }
+                    }).setNegativeButton(R.string.tfa_no_thanks, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            GigyaLogger.debug(LOG_TAG, "deny clicked");
+                            dialog.dismiss();
+                        }
+                    }).create();
+            alert.show();
+        }
+    }
 }

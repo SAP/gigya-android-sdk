@@ -13,6 +13,7 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageHandler;
+import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.tfa.R;
 
 import java.util.HashMap;
@@ -31,8 +32,8 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         _customizer = customizer;
     }
 
-    public TFARemoteMessageHandler(Context context, IPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
-        super(context, gigyaNotificationManager, psService);
+    public TFARemoteMessageHandler(Context context, ISessionService sessionService, IPersistenceService psService, IGigyaNotificationManager gigyaNotificationManager) {
+        super(context, sessionService, gigyaNotificationManager, psService);
     }
 
     @Override
@@ -68,7 +69,12 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         switch (pushMode) {
             case com.gigya.android.sdk.GigyaDefinitions.PushMode.OPT_IN:
             case com.gigya.android.sdk.GigyaDefinitions.PushMode.VERIFY:
-                notifyWith(pushMode, remoteMessage);
+                if (isSessionValidForRemoteNotifications()) {
+                    /*
+                    Only when session is valid opt-in & verify notifications are allowed.
+                     */
+                    notifyWith(pushMode, remoteMessage);
+                }
                 break;
             case com.gigya.android.sdk.GigyaDefinitions.PushMode.CANCEL:
                 final String gigyaAssertion = remoteMessage.get("gigyaAssertion");

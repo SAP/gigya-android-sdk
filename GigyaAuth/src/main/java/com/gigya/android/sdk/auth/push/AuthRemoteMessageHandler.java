@@ -14,6 +14,7 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageHandler;
+import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.tfa.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -33,8 +34,8 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
         _customizer = customizer;
     }
 
-    public AuthRemoteMessageHandler(Context context, IGigyaNotificationManager gigyaNotificationManager, IPersistenceService persistenceService) {
-        super(context, gigyaNotificationManager, persistenceService);
+    public AuthRemoteMessageHandler(Context context, ISessionService sessionService,  IGigyaNotificationManager gigyaNotificationManager, IPersistenceService persistenceService) {
+        super(context, sessionService, gigyaNotificationManager, persistenceService);
     }
 
     @Override
@@ -77,7 +78,12 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
                 cancel(Math.abs(vToken.hashCode()));
                 break;
             case GigyaDefinitions.PushMode.VERIFY:
-                notifyWith(pushMode, remoteMessage);
+                if (isSessionValidForRemoteNotifications()) {
+                    /*
+                    Only when session is valid opt-in & verify notifications are allowed.
+                     */
+                    notifyWith(pushMode, remoteMessage);
+                }
                 break;
             default:
                 GigyaLogger.error(LOG_TAG, "Push mode not supported. Notification is ignored");

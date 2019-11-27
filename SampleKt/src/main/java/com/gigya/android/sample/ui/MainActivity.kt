@@ -94,10 +94,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
-        GigyaTFA.getInstance().checkNotificationsPermissionsRequired(this)
+        GigyaTFA.getInstance().registerForRemoteNotifications(this)
 
         /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
-        GigyaAuth.getInstance().checkNotificationsPermissionsRequired(this)
+        GigyaAuth.getInstance().registerForPushNotifications(this)
     }
 
     override fun onPause() {
