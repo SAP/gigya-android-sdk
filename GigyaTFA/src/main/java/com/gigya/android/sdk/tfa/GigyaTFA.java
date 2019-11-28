@@ -230,8 +230,8 @@ public class GigyaTFA {
                 // Notify success.
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.tfa_opt_in_approval_success_title),
-                        _context.getString(R.string.tfa_opt_in_approval_success_body),
+                        _context.getString(R.string.gig_tfa_opt_in_approval_success_title),
+                        _context.getString(R.string.gig_tfa_opt_in_approval_success_body),
                         TFA_CHANNEL_ID);
             }
 
@@ -242,8 +242,8 @@ public class GigyaTFA {
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.tfa_opt_in_approval_success_title),
-                        _context.getString(R.string.tfa_opt_in_approval_error_body),
+                        _context.getString(R.string.gig_tfa_opt_in_approval_success_title),
+                        _context.getString(R.string.gig_tfa_opt_in_approval_error_body),
                         TFA_CHANNEL_ID);
             }
         });
@@ -266,8 +266,8 @@ public class GigyaTFA {
                 // Notify success.
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.tfa_login_approval_success_title),
-                        _context.getString(R.string.tfa_login_approval_success_body),
+                        _context.getString(R.string.gig_tfa_login_approval_success_title),
+                        _context.getString(R.string.gig_tfa_login_approval_success_body),
                         TFA_CHANNEL_ID);
             }
 
@@ -278,7 +278,7 @@ public class GigyaTFA {
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.tfa_login_approval_success_title),
+                        _context.getString(R.string.gig_tfa_login_approval_success_title),
                         _context.getString(R.string.tfa_login_approval_error_body),
                         TFA_CHANNEL_ID);
             }
@@ -311,10 +311,10 @@ public class GigyaTFA {
 
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
-                    .setTitle(R.string.tfa_push_notifications_alert_title)
-                    .setMessage(R.string.tfa_push_notifications_alert_message)
+                    .setTitle(R.string.gig_tfa_push_notifications_alert_title)
+                    .setMessage(R.string.gig_tfa_push_notifications_alert_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.gig_tfa_approve, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             GigyaLogger.debug(LOG_TAG, "approve clicked");
@@ -329,7 +329,7 @@ public class GigyaTFA {
                             activity.startActivity(intent);
                             dialog.dismiss();
                         }
-                    }).setNegativeButton(R.string.tfa_no_thanks, new DialogInterface.OnClickListener() {
+                    }).setNegativeButton(R.string.gig_tfa_no_thanks, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 

@@ -46,17 +46,17 @@ public class PushAuthActivity extends AppCompatActivity {
         }
         // Show alert fragment.
         AlertDialog alert = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.auth_push_activity_alert_title))
-                .setMessage(R.string.auth_push_activity_alert_message)
+                .setTitle(getString(R.string.gig_auth_push_activity_alert_title))
+                .setMessage(R.string.gig_auth_push_activity_alert_message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.auth_approve, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.gig_auth_approve, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "approve clicked");
                         onApprove(extras);
                         dialog.dismiss();
                     }
-                }).setNegativeButton(R.string.auth_deny, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.gig_auth_deny, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "deny clicked");

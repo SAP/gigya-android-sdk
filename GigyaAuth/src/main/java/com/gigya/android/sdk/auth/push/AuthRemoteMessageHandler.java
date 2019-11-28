@@ -57,8 +57,8 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
         Create/Update notification channel.
          */
         _gigyaNotificationManager.createNotificationChannelIfNeeded(_context,
-                _context.getString(R.string.auth_channel_name),
-                _context.getString(R.string.auth_channel_description),
+                _context.getString(R.string.gig_auth_channel_name),
+                _context.getString(R.string.gig_auth_channel_description),
                 AUTH_CHANNEL_ID
         );
 
@@ -137,7 +137,7 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
             denyIntent.putExtra("mode", mode);
             denyIntent.putExtra("vToken", verificationToken);
             denyIntent.putExtra("notificationId", notificationId);
-            denyIntent.setAction(_context.getString(R.string.auth_action_deny));
+            denyIntent.setAction(_context.getString(R.string.gig_auth_action_deny));
             final PendingIntent denyPendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_AUTH_CONTENT_ACTION_REQUEST_CODE, denyIntent,
                             PendingIntent.FLAG_CANCEL_CURRENT);
@@ -147,14 +147,14 @@ public class AuthRemoteMessageHandler extends RemoteMessageHandler implements IR
             approveIntent.putExtra("mode", mode);
             approveIntent.putExtra("vToken", verificationToken);
             approveIntent.putExtra("notificationId", notificationId);
-            approveIntent.setAction(_context.getString(R.string.auth_action_approve));
+            approveIntent.setAction(_context.getString(R.string.gig_auth_action_approve));
             final PendingIntent approvePendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_AUTH_CONTENT_ACTION_REQUEST_CODE, approveIntent,
                             PendingIntent.FLAG_CANCEL_CURRENT);
 
             builder
-                    .addAction(_customizer.getDenyActionIcon(), _context.getString(R.string.auth_deny), denyPendingIntent)
-                    .addAction(_customizer.getApproveActionIcon(), _context.getString(R.string.auth_approve), approvePendingIntent);
+                    .addAction(_customizer.getDenyActionIcon(), _context.getString(R.string.gig_auth_deny), denyPendingIntent)
+                    .addAction(_customizer.getApproveActionIcon(), _context.getString(R.string.gig_auth_approve), approvePendingIntent);
         }
 
         // Notify.

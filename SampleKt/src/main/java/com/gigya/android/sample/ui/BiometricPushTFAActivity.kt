@@ -42,9 +42,9 @@ class BiometricPushTFAActivity : PushTFAActivity() {
                 }
                 biometric.unlock(this,
                         GigyaPromptInfo(
-                                getString(R.string.tfa_biometric_locked_session_title),
-                                getString(R.string.tfa_biometric_locked_session_subtitle),
-                                getString(R.string.tfa_biometric_locked_session_description)
+                                getString(R.string.gig_tfa_biometric_locked_session_title),
+                                getString(R.string.gig_tfa_biometric_locked_session_subtitle),
+                                getString(R.string.gig_tfa_biometric_locked_session_description)
                         ),
                         object : IGigyaBiometricCallback {
                             override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {

@@ -47,17 +47,17 @@ public class PushTFAActivity extends AppCompatActivity {
         }
         // Show alert fragment.
         AlertDialog alert = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.tfa_title))
-                .setMessage(R.string.tfa_message)
+                .setTitle(getString(R.string.gig_tfa_title))
+                .setMessage(R.string.gig_tfa_message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.tfa_approve, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.gig_tfa_approve, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "approve clicked");
                         onApprove(extras);
                         dialog.dismiss();
                     }
-                }).setNegativeButton(R.string.tfa_deny, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.gig_tfa_deny, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GigyaLogger.debug(LOG_TAG, "deny clicked");

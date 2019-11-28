@@ -194,8 +194,8 @@ public class GigyaAuth {
 
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.auth_login_approval_success_title),
-                        _context.getString(R.string.auth_login_approval_success_body),
+                        _context.getString(R.string.gig_auth_login_approval_success_title),
+                        _context.getString(R.string.gig_auth_login_approval_success_body),
                         AUTH_CHANNEL_ID);
             }
 
@@ -206,8 +206,8 @@ public class GigyaAuth {
                 // Notify error.
                 _gigyaNotificationManager.notifyWith(
                         _context,
-                        _context.getString(R.string.auth_login_approval_success_title),
-                        _context.getString(R.string.auth_login_approval_error_body),
+                        _context.getString(R.string.gig_auth_login_approval_success_title),
+                        _context.getString(R.string.gig_auth_login_approval_error_body),
                         AUTH_CHANNEL_ID);
             }
         });
@@ -249,10 +249,10 @@ public class GigyaAuth {
 
             // Show dialog informing the user that he needs to enable push notifications.
             AlertDialog alert = new AlertDialog.Builder(activity)
-                    .setTitle(R.string.auth_push_notifications_alert_title)
-                    .setMessage(R.string.auth_push_notifications_alert_message)
+                    .setTitle(R.string.gig_auth_push_notifications_alert_title)
+                    .setMessage(R.string.gig_auth_push_notifications_alert_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.auth_approve, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.gig_auth_approve, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             GigyaLogger.debug(LOG_TAG, "approve clicked");
@@ -267,7 +267,7 @@ public class GigyaAuth {
                             activity.startActivity(intent);
                             dialog.dismiss();
                         }
-                    }).setNegativeButton(R.string.auth_no_thanks, new DialogInterface.OnClickListener() {
+                    }).setNegativeButton(R.string.gig_auth_no_thanks, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 

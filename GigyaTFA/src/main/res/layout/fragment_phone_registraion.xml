@@ -27,7 +27,7 @@
             android:layout_margin="16dp"
             android:layout_toStartOf="@id/fpr_progress"
             android:layout_toLeftOf="@id/fpr_progress"
-            android:text="@string/tfa_register_phone_number"
+            android:text="@string/gig_tfa_register_phone_number"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:hint="@string/tfa_phone_number" />
+                android:hint="@string/gig_tfa_phone_number" />
 
         </LinearLayout>
 
@@ -73,7 +73,7 @@
                 android:id="@+id/fpr_verification_title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tfa_submit_verification_code"
+                android:text="@string/gig_tfa_submit_verification_code"
                 android:textSize="18sp" />
 
             <EditText
@@ -81,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/tfa_verification_code" />
+                android:hint="@string/gig_tfa_verification_code" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -98,7 +98,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/tfa_remember_this_device" />
+                    android:text="@string/gig_tfa_remember_this_device" />
 
             </LinearLayout>
 
@@ -117,7 +117,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_register"
+            android:text="@string/gig_tfa_register"
             tools:ignore="UnusedAttribute" />
 
         <Button
@@ -133,7 +133,7 @@
             android:layout_toLeftOf="@id/fpr_action_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_dismiss"
+            android:text="@string/gig_tfa_dismiss"
             tools:ignore="UnusedAttribute" />
     </RelativeLayout>
 

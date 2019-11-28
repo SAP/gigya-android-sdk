@@ -55,8 +55,8 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         Create/Update notification channel.
          */
         _gigyaNotificationManager.createNotificationChannelIfNeeded(_context,
-                _context.getString(R.string.tfa_channel_name),
-                _context.getString(R.string.tfa_channel_description),
+                _context.getString(R.string.gig_tfa_channel_name),
+                _context.getString(R.string.gig_tfa_channel_description),
                 TFA_CHANNEL_ID
         );
 
@@ -140,7 +140,7 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
             denyIntent.putExtra("gigyaAssertion", gigyaAssertion);
             denyIntent.putExtra("verificationToken", verificationToken);
             denyIntent.putExtra("notificationId", notificationId);
-            denyIntent.setAction(_context.getString(R.string.tfa_action_deny));
+            denyIntent.setAction(_context.getString(R.string.gig_tfa_action_deny));
             final PendingIntent denyPendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
                             PendingIntent.FLAG_CANCEL_CURRENT);
@@ -151,14 +151,14 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
             approveIntent.putExtra("gigyaAssertion", gigyaAssertion);
             approveIntent.putExtra("verificationToken", verificationToken);
             approveIntent.putExtra("notificationId", notificationId);
-            approveIntent.setAction(_context.getString(R.string.tfa_action_approve));
+            approveIntent.setAction(_context.getString(R.string.gig_tfa_action_approve));
             final PendingIntent approvePendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
                             PendingIntent.FLAG_CANCEL_CURRENT);
 
             builder
-                    .addAction(_customizer.getDenyActionIcon(), _context.getString(R.string.tfa_deny), denyPendingIntent)
-                    .addAction(_customizer.getApproveActionIcon(), _context.getString(R.string.tfa_approve), approvePendingIntent);
+                    .addAction(_customizer.getDenyActionIcon(), _context.getString(R.string.gig_tfa_deny), denyPendingIntent)
+                    .addAction(_customizer.getApproveActionIcon(), _context.getString(R.string.gig_tfa_approve), approvePendingIntent);
         }
 
         // Notify.

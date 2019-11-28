@@ -75,11 +75,11 @@ public class TFAPushReceiver extends BroadcastReceiver {
     }
 
     private boolean isDenyAction(Context context, String action) {
-        return ObjectUtils.safeEquals(action, context.getString(R.string.tfa_action_deny));
+        return ObjectUtils.safeEquals(action, context.getString(R.string.gig_tfa_action_deny));
     }
 
     private boolean isApproveAction(Context context, String action) {
-        return ObjectUtils.safeEquals(action, context.getString(R.string.tfa_action_approve));
+        return ObjectUtils.safeEquals(action, context.getString(R.string.gig_tfa_action_approve));
     }
 
 }

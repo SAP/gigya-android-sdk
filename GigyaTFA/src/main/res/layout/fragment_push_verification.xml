@@ -25,7 +25,7 @@
             android:layout_margin="16dp"
             android:layout_toStartOf="@id/fpuv_progress"
             android:layout_toLeftOf="@id/fpuv_progress"
-            android:text="@string/tfa_verify_push"
+            android:text="@string/gig_tfa_verify_push"
             android:textSize="18sp" />
 
         <TextView
@@ -38,7 +38,7 @@
             android:layout_alignEnd="@id/fpuv_progress"
             android:layout_alignRight="@id/fpuv_progress"
             android:layout_marginTop="8dp"
-            android:text="@string/tfa_push_verification_message" />
+            android:text="@string/gig_tfa_push_verification_message" />
 
         <Button
             android:id="@+id/fpuv_dismiss_button"
@@ -51,7 +51,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_dismiss" />
+            android:text="@string/gig_tfa_dismiss" />
 
 
     </RelativeLayout>
