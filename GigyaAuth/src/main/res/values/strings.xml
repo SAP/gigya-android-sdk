@@ -13,16 +13,16 @@
     <string name="auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
 
     <!-- TFA notification channel -->
-    <string name="auth_channel_name">Gigya auth channel</string>
-    <string name="auth_channel_description">Gigya auth channel is used for applying an additional login security layer for your application.</string>
+    <string name="auth_channel_name">Push Authentication</string>
+    <string name="auth_channel_description">Displays a notification used to authenticate you.</string>
 
     <string name="auth_push_notifications_alert_title">Push notifications disabled</string>
     <string name="auth_push_notifications_alert_message">This device is registered to use Push authentication.\nYou will need to enable push notifications to allow this device to approve login requests.</string>
     <string name="auth_no_thanks">No thanks</string>
 
-    <string name="auth_login_approval_success_title">Verify push authentication</string>
+    <string name="auth_login_approval_success_title">Confirm to authenticate</string>
     <string name="auth_login_approval_success_body">Successfully authenticated login request</string>
-    <string name="auth_login_approval_error_body">Error authenticating login request</string>
+    <string name="auth_login_approval_error_body">Could not authenticate</string>
 
 </resources>
 
