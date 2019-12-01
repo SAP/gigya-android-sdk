@@ -21,7 +21,7 @@
     <string name="gig_tfa_opt_in_approval_error_body">Failed to register device for push TFA</string>
     <string name="gig_tfa_login_approval_success_title">Verify push TFA</string>
     <string name="gig_tfa_login_approval_success_body">Successfully authenticated login request</string>
-    <string name="tfa_login_approval_error_body">Error authenticating login request</string>
+    <string name="gig_login_approval_error_body">Error authenticating login request</string>
 
 
     <!-- Biometric restriction -->

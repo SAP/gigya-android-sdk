@@ -279,7 +279,7 @@ public class GigyaTFA {
                 _gigyaNotificationManager.notifyWith(
                         _context,
                         _context.getString(R.string.gig_tfa_login_approval_success_title),
-                        _context.getString(R.string.tfa_login_approval_error_body),
+                        _context.getString(R.string.gig_login_approval_error_body),
                         TFA_CHANNEL_ID);
             }
         });
