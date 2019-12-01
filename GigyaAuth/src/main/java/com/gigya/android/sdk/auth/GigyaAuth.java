@@ -135,6 +135,10 @@ public class GigyaAuth {
                         errorHandler.run();
                         return;
                     }
+
+                    // Updating push token in prefs.
+                    _persistenceService.setPushToken(token);
+
                     _deviceInfo = _gigyaNotificationManager.getDeviceInfo(token);
 
                     GigyaLogger.debug(LOG_TAG, "generateDeviceInfo: " + _deviceInfo);
