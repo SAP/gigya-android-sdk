@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="@string/tfa_verify_phone_number"
+            android:text="@string/gig_tfa_verify_phone_number"
             android:textSize="18sp" />
 
         <ProgressBar
@@ -50,7 +50,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_send_code" />
+            android:text="@string/gig_tfa_send_code" />
 
         <Button
             android:id="@+id/fpv_dismiss_button"
@@ -65,7 +65,7 @@
             android:layout_toLeftOf="@id/fpv_send_code_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_dismiss" />
+            android:text="@string/gig_tfa_dismiss" />
 
         <LinearLayout
             android:id="@+id/fpv_verification_layout"
@@ -84,7 +84,7 @@
                 android:id="@+id/fpv_verification_title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tfa_submit_verification_code"
+                android:text="@string/gig_tfa_submit_verification_code"
                 android:textSize="18sp" />
 
             <EditText
@@ -92,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/tfa_verification_code" />
+                android:hint="@string/gig_tfa_verification_code" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -108,7 +108,7 @@
                     android:layout_marginBottom="16dp"
                     android:background="@android:color/transparent"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:text="@string/tfa_verify" />
+                    android:text="@string/gig_tfa_verify" />
 
             </RelativeLayout>
 

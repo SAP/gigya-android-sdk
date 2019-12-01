@@ -1,10 +1,14 @@
 package com.gigya.android.sdk;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
@@ -14,6 +18,7 @@ import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
@@ -561,16 +566,25 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
-     * Show Comments ScreenSets.
+     * Update device information in server.
+     * Device information includes: platform, manufacturer, os & push token.
+     * Use this method manually if your flow requires to update the push service token.
+     * Additional device info is generated at runtime.
      *
-     * @param params              Comments ScreenSet flow parameters.
-     * @param fullScreen          Show in fullscreen mode.
-     * @param gigyaPluginCallback Plugin callback.
+     * @param newPushToken New provided push token.
      */
-    // Not available in version 4.0.*
-    private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
-        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
+    public void updateDeviceInfo(@NonNull final String newPushToken) {
+        _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.debug(LOG_TAG, "Successfully update push token. Persisting new token");
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.debug(LOG_TAG, "Failed to update device info.");
+            }
+        });
     }
 
     /**

@@ -16,6 +16,7 @@ import com.gigya.android.sdk.GigyaDefinitions.Providers.*
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
@@ -307,6 +308,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun pushTFAOptIn(success: () -> Unit, error: (GigyaError?) -> Unit) {
         GigyaTFA.getInstance().optInForPushTFA(object : GigyaCallback<GigyaApiResponse>() {
 
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                success()
+            }
+
+            override fun onError(error: GigyaError?) {
+                error(error)
+            }
+
+        })
+    }
+
+    //endregion
+
+    //region PUSH AUTH
+
+    fun pushAuthRegister(success: () -> Unit, error: (GigyaError?) -> Unit) {
+        GigyaAuth.getInstance().registerForAuthPush(object: GigyaCallback<GigyaApiResponse>() {
             override fun onSuccess(obj: GigyaApiResponse?) {
                 success()
             }

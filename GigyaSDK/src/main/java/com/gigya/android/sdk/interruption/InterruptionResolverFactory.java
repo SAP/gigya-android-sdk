@@ -44,7 +44,7 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                         .bind(GigyaLoginCallback.class, loginCallback);
 
         final int errorCode = apiResponse.getErrorCode();
-        GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode);
+        GigyaLogger.debug(LOG_TAG, "resolve: with errorCode = " + errorCode + " callID: " + apiResponse.getCallId());
 
         try {
             switch (errorCode) {

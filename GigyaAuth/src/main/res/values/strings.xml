@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">GigyaAuth</string>
+
+    <string name="gig_auth_push_activity_alert_title">Push Authentication</string>
+    <string name="gig_auth_push_activity_alert_message">Confirm to authenticate?</string>
+
+    <string name="gig_auth_approve">Approve</string>
+    <string name="gig_auth_deny">Deny</string>
+
+    <string name="gig_auth_action_approve">com.gigya.android.sdk.auth.push_approve</string>
+    <string name="gig_auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
+
+    <string name="gig_auth_channel_name">Push Authentication</string>
+    <string name="gig_auth_channel_description">Displays a notification used to authenticate you.</string>
+
+    <string name="gig_auth_push_notifications_alert_title">Push notifications disabled</string>
+    <string name="gig_auth_push_notifications_alert_message">This device is registered to use Push authentication.\nYou will need to enable push notifications to allow this device to approve login requests.</string>
+    <string name="gig_auth_no_thanks">No thanks</string>
+
+    <string name="gig_auth_login_approval_success_title">Confirm to authenticate</string>
+    <string name="gig_auth_login_approval_success_body">Successfully authenticated login request</string>
+    <string name="gig_auth_login_approval_error_body">Could not authenticate</string>
+
+</resources>
+

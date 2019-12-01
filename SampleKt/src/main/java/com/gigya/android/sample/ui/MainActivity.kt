@@ -27,6 +27,7 @@ import com.gigya.android.sample.ui.fragment.InputDialog
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
@@ -34,6 +35,7 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -56,6 +58,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         initDrawer()
+
+        GigyaTFA.getInstance().setPushCustomizer(object : IGigyaPushCustomizer {
+
+            override fun getCustomActionActivity(): Class<*> = BiometricPushTFAActivity::class.java
+
+            override fun getDenyActionIcon(): Int  = 0
+
+            override fun getSmallIcon(): Int = android.R.drawable.ic_dialog_info
+
+            override fun getApproveActionIcon(): Int  = 0
+
+        })
     }
 
     override fun onStart() {
@@ -80,7 +94,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
-        GigyaTFA.getInstance().checkNotificationsPermissionsRequired(this)
+        GigyaTFA.getInstance().registerForRemoteNotifications(this)
+
+        /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
+        GigyaAuth.getInstance().registerForPushNotifications(this)
     }
 
     override fun onPause() {
@@ -217,6 +234,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_screen_sets -> showRAAS()
             R.id.action_forgot_password -> onForgotPassword()
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
+            R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> {
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
             }
@@ -650,13 +668,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     /**
-     * Opt-in to use TFA push.
+     * Opt-in to use TFA push. (TFA library required)
      */
     private fun optInForPushTFA() {
         if (viewModel!!.isLoggedIn()) {
             viewModel?.pushTFAOptIn(
                     success = {
                         response_text_view.snackbar("Approve opt-in notification to complete TFA push registration")
+                    },
+                    error = { possibleError ->
+                        possibleError?.let { error -> onError(error) }
+                    }
+            )
+        } else {
+            response_text_view.snackbar("An active session is required")
+        }
+    }
+
+    /**
+     * Register for push authentication. (Auth library required)
+     */
+    private fun registerForPushAuthentication() {
+        if (viewModel!!.isLoggedIn()) {
+            viewModel?.pushAuthRegister(
+                    success = {
+                        response_text_view.snackbar("Successfully registered for push authentication")
                     },
                     error = { possibleError ->
                         possibleError?.let { error -> onError(error) }

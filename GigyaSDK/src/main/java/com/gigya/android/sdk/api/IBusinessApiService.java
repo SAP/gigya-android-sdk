@@ -49,4 +49,6 @@ public interface IBusinessApiService<A> {
     void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
 
     void getTFAProviders(final String regToken, final GigyaCallback<TFAProvidersModel> callback);
+
+    void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 }

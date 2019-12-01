@@ -2,6 +2,7 @@ package com.gigya.android.sdk.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 
@@ -187,6 +188,17 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getStringSet(key, defValue);
     }
 
+    @Override
+    public void setPushToken(String pushToken) {
+        getPrefs().edit().putString(PREFS_PUSH_TOKEN, pushToken).apply();
+    }
+
+    @Nullable
+    @Override
+    public String getPushToken() {
+        return getPrefs().getString(PREFS_PUSH_TOKEN, null);
+    }
+
     //endregion
 
     //region KEYS
@@ -220,6 +232,11 @@ public class PersistenceService implements IPersistenceService {
      * Value key for biometric cipher iv spec.
      */
     public static final String PREFS_KEY_IV_SPEC = "IV_fingerprint";
+
+    /*
+     * Push token key.
+     */
+    private static final String PREFS_PUSH_TOKEN = "GS_PUSH_TOKEN";
 
     //endregion
 }
