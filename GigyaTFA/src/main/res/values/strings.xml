@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">GigyaTFA</string>
 
+    <!-- TFA intent filter actions -->
+    <string name="gig_tfa_action_approve">com.gigya.android.sdk.tfa.push_approve</string>
+    <string name="gig_tfa_action_deny">com.gigya.android.sdk.tfa.push_deny</string>
+
     <!-- Push related -->
     <string name="gig_tfa_title">TFA title</string>
     <string name="gig_tfa_message">TFA message</string>
@@ -11,10 +15,6 @@
     <string name="gig_tfa_channel_name">TFA Authorization</string>
     <string name="gig_tfa_channel_description">TFA Authorization channel is used for applying an additional two factor authentication security layer for your application.</string>
 
-    <!-- TFA intent filter actions -->
-    <string name="gig_tfa_action_approve">com.gigya.android.sdk.tfa.push_approve</string>
-    <string name="gig_tfa_action_deny">com.gigya.android.sdk.tfa.push_deny</string>
-
     <!-- Local notifications strings -->
     <string name="gig_tfa_opt_in_approval_success_title">Opt-In for push TFA</string>
     <string name="gig_tfa_opt_in_approval_success_body">This device is now registered for push TFA</string>
@@ -22,7 +22,6 @@
     <string name="gig_tfa_login_approval_success_title">Verify push TFA</string>
     <string name="gig_tfa_login_approval_success_body">Successfully authenticated login request</string>
     <string name="gig_login_approval_error_body">Error authenticating login request</string>
-
 
     <!-- Biometric restriction -->
     <string name="gig_tfa_biometric_locked_session_title">Unlock session</string>

@@ -24,6 +24,7 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
 
     private static final String LOG_TAG = "AuthBusinessApiService";
 
+    @SuppressWarnings("unchecked")
     public AuthBusinessApiService(ISessionService sessionService,
                                   IAccountService accountService,
                                   IApiService apiService,

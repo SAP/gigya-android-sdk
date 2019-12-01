@@ -122,8 +122,8 @@
             android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="@string/tfa_action_approve" />
-                <action android:name="@string/tfa_action_deny" />
+                <action android:name="@string/gig_tfa_action_approve" />
+                <action android:name="@string/gig_tfa_action_deny" />
             </intent-filter>
         </receiver>
 
@@ -131,8 +131,8 @@
             android:name="com.gigya.android.sdk.auth.push.AuthPushReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="@string/auth_action_approve" />
-                <action android:name="@string/auth_action_deny" />
+                <action android:name="@string/gig_auth_action_approve" />
+                <action android:name="@string/gig_auth_action_deny" />
             </intent-filter>
         </receiver>
 

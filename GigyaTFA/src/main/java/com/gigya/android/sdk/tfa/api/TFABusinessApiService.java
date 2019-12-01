@@ -26,6 +26,7 @@ public class TFABusinessApiService extends BusinessApiService implements ITFABus
 
     private static final String LOG_TAG = "TFABusinessApiService";
 
+    @SuppressWarnings("unchecked")
     public TFABusinessApiService(ISessionService sessionService,
                                  IAccountService accountService,
                                  IApiService apiService,

@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">GigyaAuth</string>
 
+    <!-- Auth intent filter actions -->
+    <string name="gig_auth_action_approve">com.gigya.android.sdk.auth.push_approve</string>
+    <string name="gig_auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
+
     <string name="gig_auth_push_activity_alert_title">Push Authentication</string>
     <string name="gig_auth_push_activity_alert_message">Confirm to authenticate?</string>
 
     <string name="gig_auth_approve">Approve</string>
     <string name="gig_auth_deny">Deny</string>
-
-    <string name="gig_auth_action_approve">com.gigya.android.sdk.auth.push_approve</string>
-    <string name="gig_auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
 
     <string name="gig_auth_channel_name">Push Authentication</string>
     <string name="gig_auth_channel_description">Displays a notification used to authenticate you.</string>
