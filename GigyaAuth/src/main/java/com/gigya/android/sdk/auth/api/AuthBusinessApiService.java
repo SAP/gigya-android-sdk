@@ -13,7 +13,6 @@ import com.gigya.android.sdk.auth.GigyaDefinitions;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 
@@ -30,9 +29,8 @@ public class AuthBusinessApiService extends BusinessApiService implements IAuthB
                                   IApiService apiService,
                                   IApiRequestFactory requestFactory,
                                   IProviderFactory providerFactory,
-                                  IPersistenceService persistenceService,
                                   IInterruptionResolverFactory interruptionsHandler) {
-        super(sessionService, accountService, apiService, requestFactory, providerFactory, persistenceService, interruptionsHandler);
+        super(sessionService, accountService, apiService, requestFactory, providerFactory, interruptionsHandler);
     }
 
     @Override

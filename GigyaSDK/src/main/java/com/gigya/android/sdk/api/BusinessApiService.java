@@ -12,7 +12,6 @@ import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
@@ -41,7 +40,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     final private IApiService _apiService;
     final private IApiRequestFactory _reqFactory;
     final private IProviderFactory _providerFactory;
-    final protected IPersistenceService _persistenceService;
     final private IInterruptionResolverFactory _interruptionsHandler;
 
     public BusinessApiService(ISessionService sessionService,
@@ -49,14 +47,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                               IApiService apiService,
                               IApiRequestFactory requestFactory,
                               IProviderFactory providerFactory,
-                              IPersistenceService persistenceService,
                               IInterruptionResolverFactory interruptionsHandler) {
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
         _reqFactory = requestFactory;
         _providerFactory = providerFactory;
-        _persistenceService = persistenceService;
         _interruptionsHandler = interruptionsHandler;
     }
 
@@ -748,13 +744,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         params.put("pushToken", pushToken);
         send(GigyaDefinitions.API.API_AUTH_UPDATE_DEVICE, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onSuccess(GigyaApiResponse obj) {
-
-                // Persist new token. This will allow to correctly monitor any token changes.
-                _persistenceService.setPushToken(pushToken);
-
-                gigyaCallback.onSuccess(obj);
-            }
+            public void onSuccess(GigyaApiResponse obj) { gigyaCallback.onSuccess(obj); }
 
             @Override
             public void onError(GigyaError error) {
