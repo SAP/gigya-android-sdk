@@ -2,6 +2,8 @@ package com.gigya.android.sdk.session;
 
 public interface ISessionVerificationService {
 
+    void updateInterval();
+
     void registerActivityLifecycleCallbacks();
 
     void start();
@@ -9,4 +11,5 @@ public interface ISessionVerificationService {
     void stop();
 
     long getInitialDelay();
+
 }

@@ -8,6 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.ApiService;
@@ -50,13 +51,32 @@ public class SessionVerificationService implements ISessionVerificationService {
         _apiService = apiService;
         _requestFactory = requestFactory;
 
-        // Set verification interval.
-        _verificationInterval = TimeUnit.MINUTES.toMillis(_config.getSessionVerificationInterval());
+        /*
+        Add a setSession interception in order to make sure that the service starts when a new
+        Session is being set.
+         */
+        _sessionService.addInterceptor(new GigyaInterceptor("VERIFY_LOGIN") {
+            @Override
+            public void intercept() {
+                updateInterval();
+                if (_sessionService.isValid() && _verificationInterval != 0) {
+                    restart();
+                }
+            }
+        });
     }
 
     private long _verificationInterval;
     private long _lastRequestTimestamp = 0;
     private Timer _timer;
+
+    @Override
+    public void updateInterval() {
+        /*
+        Update the current interval as set in the configuration.
+         */
+        _verificationInterval = TimeUnit.SECONDS.toMillis(_config.getSessionVerificationInterval());
+    }
 
     @Override
     public void registerActivityLifecycleCallbacks() {
@@ -73,11 +93,14 @@ public class SessionVerificationService implements ISessionVerificationService {
             @Override
             public void onActivityStarted(Activity activity) {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
+
                     // App enters foreground
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
                     if (_sessionService.isValid()) {
                         // Will start session countdown timer if the current session contains an expiration time.
                         _sessionService.startSessionCountdownTimerIfNeeded();
+                        // Make sure interval is updated correctly.
+                        updateInterval();
                         // Session verification is only relevant when user is logged in.
                         start();
                     }
@@ -127,7 +150,7 @@ public class SessionVerificationService implements ISessionVerificationService {
             GigyaLogger.debug(LOG_TAG, "start: Verification interval is 0. Verification flow irrelevant");
             return;
         }
-        GigyaLogger.debug(LOG_TAG, "start: Verification interval is " + TimeUnit.MILLISECONDS.toMinutes(_verificationInterval) + " minutes");
+        GigyaLogger.debug(LOG_TAG, "start: Verification interval is " + TimeUnit.MILLISECONDS.toSeconds(_verificationInterval) + " seconds");
         if (_timer == null) {
             _timer = new Timer();
         }
@@ -175,6 +198,11 @@ public class SessionVerificationService implements ISessionVerificationService {
         System.gc();
     }
 
+    private void restart() {
+        stop();
+        start();
+    }
+
     /**
      * get the initial timer delay.
      *
@@ -218,7 +246,8 @@ public class SessionVerificationService implements ISessionVerificationService {
         _sessionService.clear(true);
         _accountService.invalidateAccount();
         // Send "session invalid" local broadcast & flush the timer.
-        LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));
+        LocalBroadcastManager.getInstance(_context)
+                .sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));
         stop();
     }
 }

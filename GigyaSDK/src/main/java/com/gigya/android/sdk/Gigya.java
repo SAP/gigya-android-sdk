@@ -44,7 +44,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.0.6";
+    public static final String VERSION = "4.0.7";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -151,9 +151,11 @@ public class Gigya<T extends GigyaAccount> {
         _container = container;
 
         // Setup sdk
-        _sessionVerificationService.registerActivityLifecycleCallbacks();
         _sessionService.load();
         init(false);
+
+        // Must be registered following the init call. Dependent on full parsed config.
+        _sessionVerificationService.registerActivityLifecycleCallbacks();
     }
 
     //region INITIALIZE
