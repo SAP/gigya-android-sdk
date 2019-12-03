@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.auth.GigyaAuth;
-import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.auth.R;
 
 /**
  * Activity used in conjunction with the GigyaMessagingService in order to apply custom message actions.

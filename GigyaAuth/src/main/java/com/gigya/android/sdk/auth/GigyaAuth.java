@@ -31,7 +31,7 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
-import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.auth.R;
 
 import static com.gigya.android.sdk.auth.GigyaDefinitions.AUTH_CHANNEL_ID;
 

@@ -9,7 +9,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.auth.GigyaAuth;
-import com.gigya.android.sdk.tfa.R;
+import com.gigya.android.sdk.auth.R;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
 public class AuthPushReceiver extends BroadcastReceiver {
