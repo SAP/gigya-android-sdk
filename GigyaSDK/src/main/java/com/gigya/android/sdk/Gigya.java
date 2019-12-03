@@ -1,14 +1,10 @@
 package com.gigya.android.sdk;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
@@ -307,9 +303,19 @@ public class Gigya<T extends GigyaAccount> {
      * This will clean all session related data persistence.
      */
     public void logout() {
+        logout(null);
+    }
+
+    /**
+     * Logout of Gigya services.
+     * This will clean all session related data persistence.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void logout(GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "logout: ");
 
-        _businessApiService.logout(null);
+        _businessApiService.logout(gigyaCallback);
 
         _sessionService.clear(true);
 
