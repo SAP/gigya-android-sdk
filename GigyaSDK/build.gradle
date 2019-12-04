@@ -108,7 +108,7 @@ android.libraryVariants.all { variant ->
         task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
             baseName androidJarName
             from variant.javaCompileProvider.get().destinationDir
-            from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
+           // from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
             destinationDir = file(outDir)
             include(
                     'com/gigya/android/sdk/**'

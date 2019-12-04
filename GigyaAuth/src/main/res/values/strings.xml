@@ -6,7 +6,7 @@
     <string name="gig_auth_action_deny">com.gigya.android.sdk.auth.push_deny</string>
 
     <string name="gig_auth_push_activity_alert_title">Push Authentication</string>
-    <string name="gig_auth_push_activity_alert_message">Confirm to authenticate?</string>
+    <string name="gig_auth_push_activity_alert_message">Approve to log in to your account</string>
 
     <string name="gig_auth_approve">Approve</string>
     <string name="gig_auth_deny">Deny</string>
