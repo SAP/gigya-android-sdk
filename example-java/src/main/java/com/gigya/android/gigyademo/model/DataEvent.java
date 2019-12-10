@@ -34,6 +34,8 @@ public class DataEvent {
     public static final int ROUTE_TFA_PROVIDER_SELECTION = 4;
     public static final int ROUTE_TFA_REGISTER_PHONE = 5;
     public static final int ROUTE_TFA_VERIFY_PHONE = 6;
-    public static final int ROUTE_AUTH_DEVICE_REGISTER = 7;
-    public static final int ROUTE_PENDING_REGISTRATION = 8;
+    public static final int ROUTE_TFA_REGISTER_TOTP = 7;
+    public static final int ROUTE_TFA_VERIFY_TOTP = 8;
+    public static final int ROUTE_AUTH_DEVICE_REGISTER = 9;
+    public static final int ROUTE_PENDING_REGISTRATION = 10;
 }

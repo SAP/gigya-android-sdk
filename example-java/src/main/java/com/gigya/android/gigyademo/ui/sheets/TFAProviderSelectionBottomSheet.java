@@ -78,7 +78,17 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
                                         null)
                 );
             } else if (id == R.id.totp_tfa) {
-
+                mViewModel.getDataRouter().postValue(
+                        mSourceError == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION
+                                ?
+                                new DataEvent(
+                                        DataEvent.ROUTE_TFA_REGISTER_TOTP,
+                                        null)
+                                :
+                                new DataEvent(
+                                        DataEvent.ROUTE_TFA_VERIFY_TOTP,
+                                        null)
+                );
             }
             dismiss();
         });

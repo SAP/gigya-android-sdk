@@ -21,6 +21,8 @@ import com.gigya.android.gigyademo.ui.sheets.PendingRegistrationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAPhoneRegistrationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAPhoneVerificationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAProviderSelectionBottomSheet;
+import com.gigya.android.sdk.tfa.ui.TFATOTPRegistrationFragment;
+import com.gigya.android.sdk.tfa.ui.TFATOTPVerificationFragment;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
@@ -91,6 +93,10 @@ public class LoginActivity extends AbstractActivity {
             case DataEvent.ROUTE_FORGOT_PASSWORD_EMAIL_SENT:
                 centerToastWith("Email sent.");
                 break;
+            case DataEvent.ROUTE_PENDING_REGISTRATION:
+                final PendingRegistrationBottomSheet pedingRegistrationBottomSheet = PendingRegistrationBottomSheet.newInstance();
+                pedingRegistrationBottomSheet.show(getSupportFragmentManager(), PendingRegistrationBottomSheet.TAG);
+                break;
             case DataEvent.ROUTE_TFA_PROVIDER_SELECTION:
                 final TFAProviderSelectionBottomSheet providerSelectionBottomSheet = TFAProviderSelectionBottomSheet
                         .newInstance(
@@ -106,11 +112,24 @@ public class LoginActivity extends AbstractActivity {
                 final TFAPhoneVerificationBottomSheet phoneVerificationBottomSheet = TFAPhoneVerificationBottomSheet.newInstance();
                 phoneVerificationBottomSheet.show(getSupportFragmentManager(), TFAPhoneVerificationBottomSheet.TAG);
                 break;
-            case DataEvent.ROUTE_PENDING_REGISTRATION:
-                final PendingRegistrationBottomSheet pedingRegistrationBottomSheet = PendingRegistrationBottomSheet.newInstance();
-                pedingRegistrationBottomSheet.show(getSupportFragmentManager(), PendingRegistrationBottomSheet.TAG);
+            case DataEvent.ROUTE_TFA_REGISTER_TOTP:
+                /*
+                Using provided TFA user interface. A selection callback is available using "setSelectionCallback" method for
+                additional flow control.
+                 */
+                TFATOTPRegistrationFragment tfatotpRegistrationFragment = TFATOTPRegistrationFragment.newInstance();
+                tfatotpRegistrationFragment.setResolverFactory(mViewModel.getTFAResolverFactory());
+                tfatotpRegistrationFragment.show(getSupportFragmentManager(), "TFATOTPRegistrationFragment");
                 break;
-
+            case DataEvent.ROUTE_TFA_VERIFY_TOTP:
+                /*
+                Using provided TFA user interface. A selection callback is available using "setSelectionCallback" method for
+                additional flow control.
+                 */
+                TFATOTPVerificationFragment tfatotpVerificationFragment = TFATOTPVerificationFragment.newInstance();
+                tfatotpVerificationFragment.setResolverFactory(mViewModel.getTFAResolverFactory());
+                tfatotpVerificationFragment.show(getSupportFragmentManager(), "TFATOTPVerificationFragment");
+                break;
         }
         dataRoute.setObserved(true);
     };
