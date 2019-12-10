@@ -1,1 +1,1 @@
-include ':SampleKt', ':GigyaSDK', ':GigyaBiometric', ':GigyaTFA', ':GigyaAuth', ':example-java'
+include ':example-kotlin', ':GigyaSDK', ':GigyaBiometric', ':GigyaTFA', ':GigyaAuth', ':example-java'
