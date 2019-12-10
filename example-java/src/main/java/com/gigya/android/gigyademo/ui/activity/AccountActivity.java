@@ -22,7 +22,7 @@ import com.gigya.android.gigyademo.model.DataEvent;
 import com.gigya.android.gigyademo.model.ErrorEvent;
 import com.squareup.picasso.Picasso;
 
-public class AccountActivity extends AppCompatActivity {
+public class AccountActivity extends AbstractActivity {
 
     private AccountViewModel mViewModel;
 
@@ -71,9 +71,7 @@ public class AccountActivity extends AppCompatActivity {
         switch (event.getAction()) {
             case DataEvent.ROUTE_AUTH_DEVICE_REGISTER:
                 updateLoginProgress(false);
-                Toast toast = Toast.makeText(this, "Device successfully registered for push message authentication service", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                centerToastWith("Device successfully registered for push message authentication service");
                 break;
             case DataEvent.ROUTE_GET_ACCOUNT_INFO:
                 updateLoginProgress(false);
@@ -107,6 +105,8 @@ public class AccountActivity extends AppCompatActivity {
                 }
                 final String accountEmail = customAccount.getProfile().getEmail();
                 mAccountEmailTextView.setText(accountEmail);
+
+                centerToastWith("Account successfully loaded");
                 break;
         }
         event.setObserved(true);
@@ -121,10 +121,7 @@ public class AccountActivity extends AppCompatActivity {
             return;
         }
         Log.e("AccountActivity", event.getError().getLocalizedMessage());
-        Toast.makeText(
-                AccountActivity.this,
-                "Login error occurred. Quick call Gigya support!!!!!",
-                Toast.LENGTH_SHORT).show();
+        centerToastWith("Login error occurred. Quick call Gigya support!!!!!");
         event.setObserved(true);
     };
 

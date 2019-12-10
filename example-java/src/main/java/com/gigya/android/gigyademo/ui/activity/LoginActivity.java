@@ -5,14 +5,12 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.gigya.android.gigyademo.R;
 import com.gigya.android.gigyademo.model.DataEvent;
@@ -21,12 +19,13 @@ import com.gigya.android.gigyademo.ui.sheets.DemoSiteChangeBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.ForgotPasswordBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.PendingRegistrationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAPhoneRegistrationBottomSheet;
+import com.gigya.android.gigyademo.ui.sheets.TFAPhoneVerificationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAProviderSelectionBottomSheet;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AbstractActivity {
 
     private LoginViewModel mViewModel;
 
@@ -80,25 +79,32 @@ public class LoginActivity extends AppCompatActivity {
         }
         switch (dataRoute.getAction()) {
             case DataEvent.ROUTE_OPERATION_CANCELED:
-                Toast.makeText(this, "Operation canceled", Toast.LENGTH_SHORT).show();
+                centerToastWith("Operation canceled");
                 updateLoginProgress(false);
                 break;
             case DataEvent.ROUTE_LOGIN_SUCCESS:
                 updateLoginProgress(false);
-                Toast.makeText(LoginActivity.this, "Login Success! Woohoooo!!!!", Toast.LENGTH_SHORT).show();
+                centerToastWith("Login Success! Woohoooo!!!!");
                 startActivity(new Intent(this, AccountActivity.class));
                 finish();
                 break;
             case DataEvent.ROUTE_FORGOT_PASSWORD_EMAIL_SENT:
-                Toast.makeText(LoginActivity.this, "Email sent.", Toast.LENGTH_SHORT).show();
+                centerToastWith("Email sent.");
                 break;
             case DataEvent.ROUTE_TFA_PROVIDER_SELECTION:
-                final TFAProviderSelectionBottomSheet providerSelectionBottomSheet = TFAProviderSelectionBottomSheet.newInstance();
+                final TFAProviderSelectionBottomSheet providerSelectionBottomSheet = TFAProviderSelectionBottomSheet
+                        .newInstance(
+                                (Integer) dataRoute.getData()
+                        );
                 providerSelectionBottomSheet.show(getSupportFragmentManager(), TFAProviderSelectionBottomSheet.TAG);
                 break;
             case DataEvent.ROUTE_TFA_REGISTER_PHONE:
                 final TFAPhoneRegistrationBottomSheet phoneRegistrationBottomSheet = TFAPhoneRegistrationBottomSheet.newInstance();
                 phoneRegistrationBottomSheet.show(getSupportFragmentManager(), TFAPhoneRegistrationBottomSheet.TAG);
+                break;
+            case DataEvent.ROUTE_TFA_VERIFY_PHONE:
+                final TFAPhoneVerificationBottomSheet phoneVerificationBottomSheet = TFAPhoneVerificationBottomSheet.newInstance();
+                phoneVerificationBottomSheet.show(getSupportFragmentManager(), TFAPhoneVerificationBottomSheet.TAG);
                 break;
             case DataEvent.ROUTE_PENDING_REGISTRATION:
                 final PendingRegistrationBottomSheet pedingRegistrationBottomSheet = PendingRegistrationBottomSheet.newInstance();
@@ -222,11 +228,7 @@ public class LoginActivity extends AppCompatActivity {
         final String username = mUserName.getText().toString().trim();
         final String password = mPassword.getText().toString().trim();
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-            Toast.makeText(
-                    this,
-                    "Missing input field... This application will explode in 3...2...1...",
-                    Toast.LENGTH_SHORT)
-                    .show();
+            centerToastWith("Missing input field... This application will explode in 3...2...1...");
             return false;
         }
         return true;

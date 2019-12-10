@@ -9,6 +9,7 @@ import android.widget.RadioGroup;
 
 import com.gigya.android.gigyademo.R;
 import com.gigya.android.gigyademo.model.DataEvent;
+import com.gigya.android.sdk.network.GigyaError;
 
 /**
  * Bottom sheet dialog used for available TFA providers.
@@ -20,10 +21,16 @@ import com.gigya.android.gigyademo.model.DataEvent;
  */
 public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
 
+    private int mSourceError;
+
     public static final String TAG = "TFAProviderSelectionBottomSheet";
 
-    public static TFAProviderSelectionBottomSheet newInstance() {
-        return new TFAProviderSelectionBottomSheet();
+    public static TFAProviderSelectionBottomSheet newInstance(int sourceError) {
+        final Bundle args = new Bundle();
+        args.putInt("sourceError", sourceError);
+        final TFAProviderSelectionBottomSheet sheet = new TFAProviderSelectionBottomSheet();
+        sheet.setArguments(args);
+        return sheet;
     }
 
     @Override
@@ -35,6 +42,10 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setCancelable(false);
+
+        if (getArguments() != null) {
+            mSourceError = getArguments().getInt("sourceError");
+        }
     }
 
     @Override
@@ -50,12 +61,21 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
 
         final Button submitButton = view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(buttonView -> {
+            if (mSourceError == 0) {
+                return;
+            }
             final int id = rg.getCheckedRadioButtonId();
             if (id == R.id.phone_tfa) {
                 mViewModel.getDataRouter().postValue(
-                        new DataEvent(
-                                DataEvent.ROUTE_TFA_REGISTER_PHONE,
-                                null)
+                        mSourceError == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION
+                                ?
+                                new DataEvent(
+                                        DataEvent.ROUTE_TFA_REGISTER_PHONE,
+                                        null)
+                                :
+                                new DataEvent(
+                                        DataEvent.ROUTE_TFA_VERIFY_PHONE,
+                                        null)
                 );
             } else if (id == R.id.totp_tfa) {
 
