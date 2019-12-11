@@ -38,14 +38,14 @@ public class SMSRetrieverReceiver extends BroadcastReceiver {
                     switch (status.getStatusCode()) {
                         case CommonStatusCodes.SUCCESS:
                             final String message = extras.getString(SmsRetriever.EXTRA_SMS_MESSAGE, "");
-                            if (TextUtils.isEmpty(message)) {
+                            if (!TextUtils.isEmpty(message)) {
                                 /*
                                 Note:
                                 Pattern used here is specifically set in the site RBA sms configuration.
                                 If your message setup is different, parsing the code will fail. Or crash. Or blow up. Whatever.
                                  */
-                                final String code = message.split(":")[1].trim().split("\n\n\n")[0].trim();
-                                mCallback.onMessageCodeReceived(code);
+                                final String vc = message.split("\n")[1].split(":")[1].trim();
+                                mCallback.onMessageCodeReceived(vc);
                             }
                             break;
                         case CommonStatusCodes.TIMEOUT:
