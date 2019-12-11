@@ -5,11 +5,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.gigya.android.gigyademo.R;
 import com.gigya.android.gigyademo.model.DataEvent;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.tfa.GigyaDefinitions;
+
+import java.util.List;
 
 /**
  * Bottom sheet dialog used for available TFA providers.
@@ -22,6 +27,7 @@ import com.gigya.android.sdk.network.GigyaError;
 public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
 
     private int mSourceError;
+    private List<TFAProviderModel> mProviders;
 
     public static final String TAG = "TFAProviderSelectionBottomSheet";
 
@@ -31,6 +37,10 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
         final TFAProviderSelectionBottomSheet sheet = new TFAProviderSelectionBottomSheet();
         sheet.setArguments(args);
         return sheet;
+    }
+
+    public void setProviders(List<TFAProviderModel> list) {
+        mProviders = list;
     }
 
     @Override
@@ -58,6 +68,7 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
         });
 
         final RadioGroup rg = view.findViewById(R.id.selection_group);
+        setVisibleProviders(view);
 
         final Button submitButton = view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(buttonView -> {
@@ -92,5 +103,24 @@ public class TFAProviderSelectionBottomSheet extends AbstractLoginBottomSheet {
             }
             dismiss();
         });
+    }
+
+    private void setVisibleProviders(View view) {
+        final RadioButton totpB = view.findViewById(R.id.totp_tfa);
+        final RadioButton phoneB = view.findViewById(R.id.phone_tfa);
+
+        if (mSourceError == GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION) {
+            TFAProviderModel model = mProviders.get(0);
+            if (model.getName().equals(GigyaDefinitions.TFAProvider.TOTP)) {
+                totpB.setVisibility(View.VISIBLE);
+                totpB.setChecked(true);
+            } else if (model.getName().equals(GigyaDefinitions.TFAProvider.PHONE)) {
+                phoneB.setVisibility(View.VISIBLE);
+                phoneB.setChecked(true);
+            }
+        } else {
+            totpB.setVisibility(View.VISIBLE);
+            phoneB.setVisibility(View.VISIBLE);
+        }
     }
 }

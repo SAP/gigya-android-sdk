@@ -5,16 +5,13 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gigya.android.gigyademo.R;
 import com.gigya.android.gigyademo.model.CustomAccount;
@@ -29,7 +26,7 @@ public class AccountActivity extends AbstractActivity {
     // Ui references.
     private ImageView mAccountImageView;
     private TextView mAccountNameTextView, mAccountEmailTextView;
-    private Button mLogoutButton, mRegisterForPushAuthButton;
+    private Button mLogoutButton, mRegisterForPushAuthButton, mPushTFAOptInButton;
     private ProgressBar mAccountProgress;
 
     @Override
@@ -135,8 +132,12 @@ public class AccountActivity extends AbstractActivity {
         if (mRegisterForPushAuthButton == null) {
             mRegisterForPushAuthButton = findViewById(R.id.register_device_button);
         }
+        if (mPushTFAOptInButton == null) {
+            mPushTFAOptInButton = findViewById(R.id.push_tfa_opt_in_button);
+        }
         mLogoutButton.setEnabled(mViewModel.isLoggedIn());
         mRegisterForPushAuthButton.setEnabled(mViewModel.isLoggedIn());
+        mPushTFAOptInButton.setEnabled(mViewModel.isLoggedIn());
     }
 
     /*
@@ -152,7 +153,7 @@ public class AccountActivity extends AbstractActivity {
     /**
      * Call to refresh account information.
      */
-    public void onAccountRefreshClick(View clickView) {
+    public void onAccountRefreshClick(final View clickView) {
         updateLoginProgress(true);
         mViewModel.getUpdatedAccountInformation();
     }
@@ -162,14 +163,14 @@ public class AccountActivity extends AbstractActivity {
      *
      * @param clickView
      */
-    public void onAccountInfoScreenSetClick(View clickView) {
+    public void onAccountInfoScreenSetClick(final View clickView) {
         mViewModel.showAccountInfoScreenSet();
     }
 
     /**
      * Logout of current active session.
      */
-    public void onLogoutClick(View clickView) {
+    public void onLogoutClick(final View clickView) {
         mViewModel.logoutOfGigyaAccount();
         evaluateSessionStateUI();
 
@@ -180,5 +181,10 @@ public class AccountActivity extends AbstractActivity {
     public void onRegisterForPushAuth(final View clickView) {
         updateLoginProgress(true);
         mViewModel.registerForPushAuthentication();
+    }
+
+    public void onOptInForPushTFA(final View clickView) {
+        updateLoginProgress(true);
+        mViewModel.optInForPushTFA();
     }
 }

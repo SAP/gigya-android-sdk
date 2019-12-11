@@ -90,9 +90,9 @@ public class AccountViewModel extends AndroidViewModel {
 
     /**
      * Registering both TFA & authentication library.
-     *
+     * <p>
      * todo link to auth wiki section.
-     *
+     * <p>
      * todo link to TFA wiki section.
      *
      * @param activityInstance Current activity instance.
@@ -116,15 +116,36 @@ public class AccountViewModel extends AndroidViewModel {
 
             @Override
             public void onError(GigyaError gigyaError) {
-                /*
-                Error may be recoverable recoverable. Override additional callbacks if needed.
-                */
                 mErrorRouter.postValue(
                         new ErrorEvent(
                                 gigyaError
                         )
                 );
             }
+        });
+    }
+
+    void optInForPushTFA() {
+        GigyaTFA.getInstance().optInForPushTFA(new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse response) {
+                mDataRouter.postValue(
+                        new DataEvent(
+                                DataEvent.ROUTE_OPT_IN_FOR_PUSH_TFA,
+                                response
+                        )
+                );
+            }
+
+            @Override
+            public void onError(GigyaError gigyaError) {
+                mErrorRouter.postValue(
+                        new ErrorEvent(
+                                gigyaError
+                        )
+                );
+            }
+
         });
     }
 }

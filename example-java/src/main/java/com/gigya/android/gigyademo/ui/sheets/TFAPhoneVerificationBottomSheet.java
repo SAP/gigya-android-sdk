@@ -161,6 +161,7 @@ public class TFAPhoneVerificationBottomSheet extends AbstractLoginBottomSheet im
 
         final Button submitButton = view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(buttonView -> {
+            dismissKeyboardFor(mVerificationCodeInputLayout.getWindowToken());
             if (mVerifyCodeResolver != null && mVerificationCodeInputLayout.getEditText() != null) {
                 final String verificationCode = mVerificationCodeInputLayout.getEditText().getText().toString().trim();
                 updateProgress(true);

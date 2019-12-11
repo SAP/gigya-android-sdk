@@ -181,4 +181,20 @@
         app:layout_constraintEnd_toEndOf="@id/guide_end"
         app:layout_constraintStart_toStartOf="@id/guide_start" />
 
+    <Button
+        android:id="@+id/push_tfa_opt_in_button"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/shape_button"
+        android:enabled="false"
+        android:onClick="onOptInForPushTFA"
+        android:text="Opt-In for Push TFA"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/register_device_button"
+        app:layout_constraintEnd_toEndOf="@id/guide_end"
+        app:layout_constraintStart_toStartOf="@id/guide_start" />
+
 </android.support.constraint.ConstraintLayout>

@@ -5,12 +5,12 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 
 import com.gigya.android.gigyademo.R;
 import com.gigya.android.gigyademo.model.CustomAccount;
 import com.gigya.android.gigyademo.model.DataEvent;
 import com.gigya.android.gigyademo.model.ErrorEvent;
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -24,6 +24,8 @@ import com.gigya.android.sdk.network.GigyaError;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class LoginViewModel extends AndroidViewModel {
 
@@ -59,16 +61,6 @@ public class LoginViewModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    public String getActiveApiKey() {
-        try {
-            final Config config = Gigya.getContainer().get(Config.class);
-            return config.getApiKey();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return getApplication().getString(R.string.default_api_key);
-    }
-
     /**
      * Change the demo site configuration.
      * 1 - Default.
@@ -78,22 +70,25 @@ public class LoginViewModel extends AndroidViewModel {
      * @param selectedViewId Selection view (RadionButton id).
      */
     public void changeSiteConfiguration(int selectedViewId) {
+        String apiKey;
         switch (selectedViewId) {
             case R.id.pending_registration_button:
-                Gigya.getInstance(CustomAccount.class)
-                        .init(getApplication().getString(R.string.force_pending_registration_api_key));
+                apiKey = getApplication().getString(R.string.force_pending_registration_api_key);
                 break;
             case R.id.rba_level_20_button:
-                Gigya.getInstance(CustomAccount.class)
-                        .init(getApplication().getString(R.string.rba_20_api_key));
+                apiKey = getApplication().getString(R.string.rba_20_api_key);
                 break;
             default:
-                Gigya.getInstance(CustomAccount.class)
-                        .init(getApplication().getString(R.string.default_api_key));
+                apiKey = getApplication().getString(R.string.default_api_key);
                 break;
         }
-        mGigya = Gigya.getInstance(CustomAccount.class);
+        Gigya.getInstance(CustomAccount.class).init(apiKey);
+        /*
+        Updating key in shared preferences to allow the app to restart with the same key.
+         */
+        getApplication().getSharedPreferences("demo", MODE_PRIVATE).edit().putString("savedKey", apiKey).apply();
     }
+
 
     /**
      * Begin simple login procedure using username & password.
@@ -164,7 +159,9 @@ public class LoginViewModel extends AndroidViewModel {
                         mDataRouter.postValue(
                                 new DataEvent(
                                         DataEvent.ROUTE_TFA_PROVIDER_SELECTION,
-                                        GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION
+                                        new Pair<>(GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION,
+                                                inactiveProviders)
+
                                 )
                         );
                     }
@@ -177,7 +174,8 @@ public class LoginViewModel extends AndroidViewModel {
                         mDataRouter.postValue(
                                 new DataEvent(
                                         DataEvent.ROUTE_TFA_PROVIDER_SELECTION,
-                                        GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION
+                                        new Pair<>(GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_VERIFICATION,
+                                                activeProviders)
                                 )
                         );
                     }

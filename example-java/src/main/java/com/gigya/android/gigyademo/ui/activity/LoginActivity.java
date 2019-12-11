@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,8 +22,11 @@ import com.gigya.android.gigyademo.ui.sheets.PendingRegistrationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAPhoneRegistrationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAPhoneVerificationBottomSheet;
 import com.gigya.android.gigyademo.ui.sheets.TFAProviderSelectionBottomSheet;
+import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel;
 import com.gigya.android.sdk.tfa.ui.TFATOTPRegistrationFragment;
 import com.gigya.android.sdk.tfa.ui.TFATOTPVerificationFragment;
+
+import java.util.List;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
@@ -94,14 +98,16 @@ public class LoginActivity extends AbstractActivity {
                 centerToastWith("Email sent.");
                 break;
             case DataEvent.ROUTE_PENDING_REGISTRATION:
-                final PendingRegistrationBottomSheet pedingRegistrationBottomSheet = PendingRegistrationBottomSheet.newInstance();
-                pedingRegistrationBottomSheet.show(getSupportFragmentManager(), PendingRegistrationBottomSheet.TAG);
+                final PendingRegistrationBottomSheet pendingRegistrationBottomSheet = PendingRegistrationBottomSheet.newInstance();
+                pendingRegistrationBottomSheet.show(getSupportFragmentManager(), PendingRegistrationBottomSheet.TAG);
                 break;
             case DataEvent.ROUTE_TFA_PROVIDER_SELECTION:
+                final Pair pair = (Pair) dataRoute.getData();
                 final TFAProviderSelectionBottomSheet providerSelectionBottomSheet = TFAProviderSelectionBottomSheet
                         .newInstance(
-                                (Integer) dataRoute.getData()
+                                (Integer) pair.first
                         );
+                providerSelectionBottomSheet.setProviders((List<TFAProviderModel>) pair.second);
                 providerSelectionBottomSheet.show(getSupportFragmentManager(), TFAProviderSelectionBottomSheet.TAG);
                 break;
             case DataEvent.ROUTE_TFA_REGISTER_PHONE:

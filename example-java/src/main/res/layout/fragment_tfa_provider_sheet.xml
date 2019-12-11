@@ -77,12 +77,14 @@
 
         <RadioButton
             android:id="@+id/phone_tfa"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Phone (SMS)" />
 
         <RadioButton
             android:id="@+id/totp_tfa"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

@@ -112,6 +112,7 @@ public class TFAPhoneRegistrationBottomSheet extends AbstractLoginBottomSheet im
 
         final Button registerButton = view.findViewById(R.id.register_button);
         registerButton.setOnClickListener(buttonView -> {
+            dismissKeyboardFor(mPhoneNumberInputLayout.getWindowToken());
             if (mRegisterPhoneResolver != null && mPhoneNumberInputLayout.getEditText() != null) {
                 final String selectedPhoneNumber = mPhoneNumberInputLayout.getEditText().getText().toString().trim();
                 updateProgress(true);
@@ -138,6 +139,7 @@ public class TFAPhoneRegistrationBottomSheet extends AbstractLoginBottomSheet im
 
         final Button submitButton = view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(buttonView -> {
+            dismissKeyboardFor(mVerificationCodeInputLayout.getWindowToken());
             if (mVerifyCodeResolver != null && mVerificationCodeInputLayout.getEditText() != null) {
                 final String verificationCode = mVerificationCodeInputLayout.getEditText().getText().toString().trim();
                 updateProgress(true);

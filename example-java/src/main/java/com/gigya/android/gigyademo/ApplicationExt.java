@@ -31,7 +31,18 @@ public class ApplicationExt extends Application {
         {https://developers.gigya.com/display/GD/Android+SDK+v4#AndroidSDKv4-BasicIntegration}
          */
         Gigya.setApplication(this);
-        Gigya.getInstance(CustomAccount.class);
+
+        /*
+        The demo application contains various demo api keys that are liked to sites with different configurations.
+        To allow the app to run smoothly every time you will chose to change it we will save it in the preferences so
+        the next time the app will restart it will remain liked to the same site.
+         */
+        final String apiKeyFromPrefs = getSharedPreferences("demo", MODE_PRIVATE).getString("savedKey", null);
+        if (apiKeyFromPrefs != null) {
+            Gigya.getInstance(CustomAccount.class).init(apiKeyFromPrefs);
+        } else {
+            Gigya.getInstance(CustomAccount.class);
+        }
 
         /*
         Determine your application signature. Used for Google's SMS Retriever flow.
