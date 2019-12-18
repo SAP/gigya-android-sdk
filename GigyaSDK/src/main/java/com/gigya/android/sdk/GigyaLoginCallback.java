@@ -3,11 +3,11 @@ package com.gigya.android.sdk;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver;
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver;
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel;
-import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.util.List;

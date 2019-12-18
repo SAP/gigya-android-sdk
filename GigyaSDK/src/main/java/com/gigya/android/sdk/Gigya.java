@@ -14,6 +14,7 @@ import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
@@ -22,6 +23,7 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +40,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "Android_4.0.3";
+    public static final String VERSION = "4.0.7";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -117,17 +119,20 @@ public class Gigya<T extends GigyaAccount> {
     final private IInterruptionResolverFactory _interruptionResolverFactory;
     final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
+    final private IoCContainer _container;
 
-    protected Gigya(@NonNull Application context,
-                    Config config,
-                    ConfigFactory configFactory,
-                    ISessionService sessionService,
-                    IAccountService<T> accountService,
-                    IBusinessApiService<T> businessApiService,
-                    ISessionVerificationService sessionVerificationService,
-                    IInterruptionResolverFactory interruptionsHandler,
-                    IPresenter<T> presenter,
-                    IProviderFactory providerFactory) {
+    protected Gigya(
+            @NonNull Application context,
+            Config config,
+            ConfigFactory configFactory,
+            ISessionService sessionService,
+            IAccountService<T> accountService,
+            IBusinessApiService<T> businessApiService,
+            ISessionVerificationService sessionVerificationService,
+            IInterruptionResolverFactory interruptionsHandler,
+            IPresenter<T> presenter,
+            IProviderFactory providerFactory,
+            IoCContainer container) {
         // Setup dependencies.
         _context = context;
         _config = config;
@@ -139,11 +144,14 @@ public class Gigya<T extends GigyaAccount> {
         _interruptionResolverFactory = interruptionsHandler;
         _presenter = presenter;
         _providerFactory = providerFactory;
+        _container = container;
 
         // Setup sdk
-        _sessionVerificationService.registerActivityLifecycleCallbacks();
         _sessionService.load();
-        init();
+        init(false);
+
+        // Must be registered following the init call. Dependent on full parsed config.
+        _sessionVerificationService.registerActivityLifecycleCallbacks();
     }
 
     //region INITIALIZE
@@ -156,7 +164,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey Client API-KEY.
      */
     @SuppressWarnings("unused")
-    public void init(String apiKey) {
+    public void init(@NonNull String apiKey) {
         init(apiKey, DEFAULT_API_DOMAIN);
     }
 
@@ -166,10 +174,10 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiKey    Client API-KEY
      * @param apiDomain Request Domain.
      */
-    public void init(String apiKey, String apiDomain) {
+    public void init(@NonNull String apiKey, @NonNull String apiDomain) {
         // Override existing configuration when applied explicitly.
         _config.updateWith(apiKey, apiDomain);
-        init();
+        init(true);
     }
 
     /**
@@ -179,7 +187,7 @@ public class Gigya<T extends GigyaAccount> {
      * - parse application manifest meta data tags.
      * For explicit setting see {@link #init(String, String)} method.
      */
-    private void init() {
+    private void init(boolean explicit) {
         // Will load configuration fields only if none have yet to be set.
         if (_config.getApiKey() == null) {
             // Try to from assets JSON file,
@@ -192,9 +200,11 @@ public class Gigya<T extends GigyaAccount> {
             _accountService.nextAccountInvalidationTimestamp();
         }
 
-        if (_config.getApiKey() == null || _config.getApiKey().isEmpty()) {
-            GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
-            throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+        if (explicit) {
+            if (_config.getApiKey() == null || _config.getApiKey().isEmpty()) {
+                GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+                throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
+            }
         }
     }
 
@@ -241,7 +251,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        _businessApiService.send(api, params, RestAdapter.POST, GigyaApiResponse.class, gigyaCallback);
+        _businessApiService.send(api, params, RestAdapter.HttpMethod.GET.intValue(), GigyaApiResponse.class, gigyaCallback);
     }
 
     /**
@@ -272,6 +282,16 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Manually set the current session.
+     * Setting a session manually will update the current session persistence state and login state.
+     *
+     * @param session SessionInfo instance.
+     */
+    public void setSession(@NonNull SessionInfo session) {
+        _sessionService.setSession(session);
+    }
+
+    /**
      * Check if we currently have a valid session.
      */
     public boolean isLoggedIn() {
@@ -283,9 +303,19 @@ public class Gigya<T extends GigyaAccount> {
      * This will clean all session related data persistence.
      */
     public void logout() {
+        logout(null);
+    }
+
+    /**
+     * Logout of Gigya services.
+     * This will clean all session related data persistence.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void logout(GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "logout: ");
 
-        _businessApiService.logout(null);
+        _businessApiService.logout(gigyaCallback);
 
         _sessionService.clear(true);
 
@@ -311,7 +341,6 @@ public class Gigya<T extends GigyaAccount> {
         final Map<String, Object> params = new TreeMap<>();
         params.put("loginID", loginId);
         params.put("password", password);
-        params.put("include", "profile,data,subscriptions,preferences");
         login(params, gigyaCallback);
     }
 
@@ -323,7 +352,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void login(@NonNull Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with params = " + params.toString());
-        params.put("include", "profile,data,subscriptions,preferences");
         _businessApiService.login(params, gigyaLoginCallback);
     }
 
@@ -397,7 +425,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(T account, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: ");
-
         _businessApiService.setAccount(account, gigyaCallback);
     }
 
@@ -409,7 +436,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccount(Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "setAccount: with params");
-
         _businessApiService.setAccount(params, gigyaCallback);
     }
 
@@ -421,7 +447,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
-
         _businessApiService.verifyLogin(UID, gigyaCallback);
     }
 
@@ -461,8 +486,21 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void forgotPassword(String loginId, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "forgotPassword: with " + loginId);
-        _businessApiService.forgotPassword(loginId, gigyaCallback);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginId);
+        forgotPassword(params, gigyaCallback);
+    }
+
+    /**
+     * Send a reset email password to verified email attached to the users loginId.
+     *
+     * @param params        Parameter map.
+     * @param gigyaCallback Response listener callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.resetPassword+REST">accounts.resetPassword REST</a> for available parameters.
+     */
+    public void forgotPassword(@NonNull Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "forgotPassword: with given parameters " + params.toString());
+        _businessApiService.forgotPassword(params, gigyaCallback);
     }
 
     /**
@@ -473,7 +511,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
-
         _businessApiService.addConnection(socialProvider, loginCallback);
     }
 
@@ -485,7 +522,6 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
-
         _businessApiService.removeConnection(socialProvider, gigyaCallback);
     }
 
@@ -538,16 +574,41 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
-     * Show Comments ScreenSets.
+     * Update device information in server.
+     * Device information includes: platform, manufacturer, os & push token.
+     * Use this method manually if your flow requires to update the push service token.
+     * Additional device info is generated at runtime.
      *
-     * @param params              Comments ScreenSet flow parameters.
-     * @param fullScreen          Show in fullscreen mode.
-     * @param gigyaPluginCallback Plugin callback.
+     * @param newPushToken New provided push token.
      */
-    // Not available in version 4.0.0.
-    private void showComments(Map<String, Object> params, boolean fullScreen, final GigyaPluginCallback<T> gigyaPluginCallback) {
-        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_COMMENTS + ", with parameters:\n" + params.toString());
-        _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_COMMENTS, fullScreen, params, gigyaPluginCallback);
+    public void updateDeviceInfo(@NonNull final String newPushToken) {
+        _businessApiService.updateDevice(newPushToken, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                GigyaLogger.debug(LOG_TAG, "Successfully update push token. Persisting new token");
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.debug(LOG_TAG, "Failed to update device info.");
+            }
+        });
+    }
+
+    /**
+     * Create an new instance of the GigyaWebBridge.
+     *
+     * @return GigyaWebBridge instance.
+     */
+    @SuppressWarnings("unchecked")
+    public IGigyaWebBridge<T> createWebBridge() {
+        try {
+            return _container.get(IGigyaWebBridge.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
+        }
+        return null;
     }
 
     //endregion

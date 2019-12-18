@@ -34,4 +34,6 @@ public class DeviceUtils {
     public static String getOsVersion() {
         return Build.VERSION.RELEASE;
     }
+
+
 }

@@ -18,6 +18,7 @@ public class GigyaDefinitions {
         // ACTIONS
         public static final String INTENT_ACTION_SESSION_EXPIRED = "intent_action_session_expired";
         public static final String INTENT_ACTION_SESSION_INVALID = "intent_action_session_invalid";
+        public static final String INTENT_ACTION_REMOTE_MESSAGE = "intent_action_remote_message";
     }
 
     /**
@@ -41,6 +42,8 @@ public class GigyaDefinitions {
         public static final String API_NOTIFY_SOCIAL_LOGIN = "accounts.notifySocialLogin";
         public static final String API_REMOVE_CONNECTION = "socialize.removeConnection";
         public static final String API_TFA_GET_PROVIDERS = "accounts.tfa.getProviders";
+
+        public static final String API_AUTH_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
     }
 
     public static class SessionEncryption {
@@ -78,7 +81,7 @@ public class GigyaDefinitions {
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({AMAZON, BLOGGER, FACEBOOK, FOURSQUARE, GOOGLE, INSTAGRAM, KAKAO, LINE, LINKEDIN, WECHAT,
                 LIVEDOOR, MESSENGER, MIXI, NAVER, NETLOG, ODNOKLASSNIKI, ORANGE_FRANCE, PAYPALOAUTH, TENCENT_QQ, RENREN, SINA_WEIBO,
-                SPICEWORKS, TWITTER, VKONTAKTE, WECHAT, WORDPRESS, XING, YAHOO, YAHOO_JAPAN})
+                SPICEWORKS, TWITTER, VKONTAKTE, WECHAT, WORDPRESS, XING, YAHOO, YAHOO_JAPAN, APPLE})
         public @interface SocialProvider {
         }
 
@@ -86,7 +89,7 @@ public class GigyaDefinitions {
         public static final String BLOGGER = "blogger";
         public static final String FACEBOOK = "facebook";
         public static final String FOURSQUARE = "foursquare";
-        public static final String GOOGLE = "googleplus";
+        public static final String GOOGLE = "google";
         public static final String INSTAGRAM = "Instagram";
         public static final String KAKAO = "kakao";
         public static final String LINE = "line";
@@ -110,6 +113,7 @@ public class GigyaDefinitions {
         public static final String XING = "xing";
         public static final String YAHOO = "yahoo";
         public static final String YAHOO_JAPAN = "Yahoo Japan";
+        public static final String APPLE = "apple";
     }
 
     public static class AccountIncludes {
@@ -181,6 +185,19 @@ public class GigyaDefinitions {
         public static final String TIMEZONE = "timezone";
         public static final String LIKES = "likes";
         public static final String SAMLDATA = "samlData";
+    }
+
+    public static class PushMode {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({OPT_IN, VERIFY, CANCEL})
+
+        public @interface Mode {
+        }
+
+        public static final String OPT_IN = "optin";
+        public static final String VERIFY = "verify";
+        public static final String CANCEL = "cancel";
     }
 
 }

@@ -3,6 +3,8 @@ package com.gigya.android.sdk.network.adapter;
 import android.os.AsyncTask;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 
 import java.io.BufferedReader;
@@ -21,19 +23,24 @@ public class HttpNetworkProvider extends NetworkProvider {
 
     private Queue<HttpTask> _queue = new ConcurrentLinkedQueue<>();
 
+    public HttpNetworkProvider(IApiRequestFactory requestFactory) {
+        super(requestFactory);
+    }
+
     @Override
     public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         if (_blocked) {
-            _queue.add(new HttpTask(new GigyaNetworkAsyncTask(networkCallbacks), request));
+            _queue.add(new HttpTask(_requestFactory, new GigyaNetworkAsyncTask(networkCallbacks), request));
             return;
         }
         // If not blocked send the request.
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(request);
+        _requestFactory.sign(request);
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
         _blocked = true;
     }
 
@@ -43,7 +50,11 @@ public class HttpNetworkProvider extends NetworkProvider {
         if (_queue.isEmpty()) {
             return;
         }
+
         HttpTask queued = _queue.poll();
+        // Requests need to be re-signed when released from the blocking queue.
+        _requestFactory.sign(queued.getRequest());
+
         while (queued != null) {
             queued.run();
             queued = _queue.poll();
@@ -73,11 +84,12 @@ public class HttpNetworkProvider extends NetworkProvider {
     private static class AsyncResult {
         private int code;
         private String result;
+        private String date;
 
-
-        AsyncResult(int code, String result) {
+        AsyncResult(int code, String result, String date) {
             this.code = code;
             this.result = result;
+            this.date = date;
         }
 
         public int getCode() {
@@ -86,20 +98,32 @@ public class HttpNetworkProvider extends NetworkProvider {
     }
 
     private static class HttpTask {
+
         private GigyaNetworkAsyncTask asyncTask;
         private GigyaApiRequest request;
+        private IApiRequestFactory requestFactory;
 
-        HttpTask(GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
+        public GigyaApiRequest getRequest() {
+            return request;
+        }
+
+        public void setRequest(GigyaApiRequest request) {
+            this.request = request;
+        }
+
+        HttpTask(IApiRequestFactory requestFactory, GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
+            this.requestFactory = requestFactory;
             this.asyncTask = asyncTask;
             this.request = request;
         }
 
         void run() {
-            this.asyncTask.execute(this.request);
+            final GigyaApiHttpRequest signedRequest = this.requestFactory.sign(request);
+            this.asyncTask.execute(signedRequest);
         }
     }
 
-    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiRequest, Void, AsyncResult> {
+    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiHttpRequest, Void, AsyncResult> {
 
         private IRestAdapterCallback networkCallbacks;
 
@@ -108,8 +132,8 @@ public class HttpNetworkProvider extends NetworkProvider {
         }
 
         @Override
-        protected AsyncResult doInBackground(GigyaApiRequest... gigyaApiRequests) {
-            GigyaApiRequest request = gigyaApiRequests[0];
+        protected AsyncResult doInBackground(GigyaApiHttpRequest... gigyaApiRequests) {
+            GigyaApiHttpRequest request = gigyaApiRequests[0];
             if (request != null) {
                 HttpURLConnection connection = null;
                 OutputStreamWriter outputStreamWriter = null;
@@ -122,9 +146,9 @@ public class HttpNetworkProvider extends NetworkProvider {
                     connection.setConnectTimeout(10000);
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("connection", "close");
-                    // TODO: 02/04/2019 ENUM!!!!!
-                    connection.setRequestMethod(request.getMethod() == 0 ? "GET" : "POST");
-                    if (request.getMethod() == 1) {
+
+                    connection.setRequestMethod(request.getHttpMethod().intValue() == 0 ? "GET" : "POST");
+                    if (request.getHttpMethod().intValue() == 1) {
                         connection.setDoOutput(true);
                         outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
                         outputStreamWriter.write(request.getEncodedParams());
@@ -145,7 +169,10 @@ public class HttpNetworkProvider extends NetworkProvider {
                     while ((line = bufferedReader.readLine()) != null) {
                         response.append(line);
                     }
-                    return new AsyncResult(responseStatusCode, response.toString());
+
+                    final String dateHeader = connection.getHeaderField("Date");
+
+                    return new AsyncResult(responseStatusCode, response.toString(), dateHeader);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 } finally {
@@ -178,6 +205,7 @@ public class HttpNetworkProvider extends NetworkProvider {
                 networkCallbacks.onError(GigyaError.generalError());
                 return;
             }
+
             boolean badRequest = asyncResult.getCode() >= HttpURLConnection.HTTP_BAD_REQUEST;
             if (badRequest) {
                 // Generate gigya error.
@@ -185,7 +213,8 @@ public class HttpNetworkProvider extends NetworkProvider {
                 networkCallbacks.onError(gigyaError);
                 return;
             }
-            networkCallbacks.onResponse(asyncResult.result);
+
+            networkCallbacks.onResponse(asyncResult.result, asyncResult.date);
         }
     }
 

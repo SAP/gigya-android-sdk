@@ -18,8 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
@@ -30,28 +28,6 @@ import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.R;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.ui.Presenter;
-
-import org.json.JSONArray;
-
-import java.util.Locale;
-
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 @SuppressLint("ValidFragment")
 public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A> {
@@ -111,7 +87,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     //region LIFE CYCLE
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,12 +94,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         // Parse arguments.
         if (getArguments() != null) {
             _obfuscation = getArguments().getBoolean(Presenter.ARG_OBFUSCATE, false);
-
-            /* When using GigyaPluginPresenter.ARG_STYLE_SHOW_FULL_SCREEN option the style attribute will be ignored. */
-            final boolean fullScreen = getArguments().getBoolean(Presenter.ARG_STYLE_SHOW_FULL_SCREEN, false);
-            if (fullScreen) {
-                setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-            }
         }
     }
 
@@ -153,7 +122,6 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     final boolean fullScreen = args.getBoolean(Presenter.ARG_STYLE_SHOW_FULL_SCREEN, false);
                     if (fullScreen) {
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     }
                 }
             }
@@ -172,6 +140,14 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.gigya_fragment_webview, container, false);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (_gigyaWebBridge != null) {
+            _gigyaWebBridge.detachFrom(_webView);
+        }
+        super.onDestroyView();
     }
 
     @Override
@@ -214,125 +190,98 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         // Setting up a custom veb view client to handle WebView interaction.
         _webView.setWebViewClient(_webViewClient);
         _webView.setWebChromeClient(_fileChooserClient);
-        _webView.addJavascriptInterface(_JSInterface, "__gigAPIAdapterSettings");
 
+       attachBridge();
+    }
+
+    private void attachBridge() {
+        if (_pluginCallback == null) {
+            GigyaLogger.error(LOG_TAG, "Plugin callback is mandatory - cannot remain null.");
+            return;
+        }
         // Web bridge.
-        _gigyaWebBridge.withObfuscation(_obfuscation);
-        _gigyaWebBridge.setInvocationCallback(new IBridgeCallbacks<A>() {
-            @Override
-            public void invokeCallback(final String invocation) {
-                if (_webView != null) {
-                    _webView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (android.os.Build.VERSION.SDK_INT > 18) {
-                                _webView.evaluateJavascript(invocation, new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        GigyaLogger.debug("evaluateJavascript Callback", value);
-                                    }
-                                });
-                            } else {
-                                _webView.loadUrl(invocation);
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onPluginEvent(final GigyaPluginEvent event, String containerID) {
-                if (!containerID.equals("pluginContainer")) {
-                    return;
-                }
-                final @PluginEventDef.PluginEvent String eventName = event.getEvent();
-                if (eventName == null) {
-                    return;
-                }
-                _webView.post(new Runnable() {
+        _gigyaWebBridge.attachTo(
+                _webView,
+                new GigyaPluginCallback<A>() {
                     @Override
-                    public void run() {
-                        switch (eventName) {
-                            case BEFORE_SCREEN_LOAD:
-                                _progressBar.setVisibility(View.VISIBLE);
-                                _pluginCallback.onBeforeScreenLoad(event);
-                                break;
-                            case LOAD:
-                                _progressBar.setVisibility(View.INVISIBLE);
-                                break;
-                            case AFTER_SCREEN_LOAD:
-                                _progressBar.setVisibility(View.INVISIBLE);
-                                _pluginCallback.onAfterScreenLoad(event);
-                                break;
-                            case FIELD_CHANGED:
-                                _pluginCallback.onFieldChanged(event);
-                                break;
-                            case BEFORE_VALIDATION:
-                                _pluginCallback.onBeforeValidation(event);
-                                break;
-                            case AFTER_VALIDATION:
-                                break;
-                            case BEFORE_SUBMIT:
-                                _pluginCallback.onBeforeSubmit(event);
-                                break;
-                            case SUBMIT:
-                                _pluginCallback.onSubmit(event);
-                                break;
-                            case AFTER_SUBMIT:
-                                _pluginCallback.onAfterSubmit(event);
-                                break;
-                            case HIDE:
-                                final String reason = (String) event.getEventMap().get("reason");
-                                _pluginCallback.onHide(event, reason);
-                                if (getActivity() != null) {
-                                    getActivity().onBackPressed();
-                                }
-                                break;
-                            case ERROR:
-                                _pluginCallback.onError(event);
-                                break;
-                            default:
-                                break;
+                    public void onError(GigyaPluginEvent event) {
+                        _pluginCallback.onError(event);
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        _pluginCallback.onCanceled();
+                    }
+
+                    @Override
+                    public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeValidation(event);
+                    }
+
+                    @Override
+                    public void onAfterValidation(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterValidation(event);
+                    }
+
+                    @Override
+                    public void onBeforeSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeSubmit(event);
+                    }
+
+                    @Override
+                    public void onSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onSubmit(event);
+                    }
+
+                    @Override
+                    public void onAfterSubmit(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterSubmit(event);
+                    }
+
+                    @Override
+                    public void onBeforeScreenLoad(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onBeforeScreenLoad(event);
+                    }
+
+                    @Override
+                    public void onAfterScreenLoad(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onAfterScreenLoad(event);
+                    }
+
+                    @Override
+                    public void onFieldChanged(@NonNull GigyaPluginEvent event) {
+                        _pluginCallback.onFieldChanged(event);
+                    }
+
+                    @Override
+                    public void onHide(@NonNull GigyaPluginEvent event, String reason) {
+                        _pluginCallback.onHide(event, reason);
+                        if (getActivity() != null) {
+                            getActivity().onBackPressed();
                         }
                     }
-                });
-            }
 
-            @Override
-            public void onPluginAuthEvent(final @PluginAuthEventDef.PluginAuthEvent String method, @Nullable final A accountObj) {
-                _webView.post(new Runnable() {
                     @Override
-                    public void run() {
-                        switch (method) {
-                            case LOGIN_STARTED:
-                                _progressBar.setVisibility(View.VISIBLE);
-                                break;
-                            case LOGIN:
-                                _progressBar.setVisibility(View.INVISIBLE);
-                                if (accountObj != null) {
-                                    _pluginCallback.onLogin(accountObj);
-                                }
-                                break;
-                            case LOGOUT:
-                                _pluginCallback.onLogout();
-                                break;
-                            case ADD_CONNECTION:
-                                _pluginCallback.onConnectionAdded();
-                                break;
-                            case REMOVE_CONNECTION:
-                                _pluginCallback.onConnectionRemoved();
-                                break;
-                            case CANCELED:
-                                _progressBar.setVisibility(View.INVISIBLE);
-                                _pluginCallback.onCanceled();
-                                break;
-                            default:
-                                break;
-                        }
+                    public void onLogin(@NonNull A accountObj) {
+                        _pluginCallback.onLogin(accountObj);
                     }
-                });
-            }
-        });
+
+                    @Override
+                    public void onLogout() {
+                        _pluginCallback.onLogout();
+                    }
+
+                    @Override
+                    public void onConnectionAdded() {
+                        _pluginCallback.onConnectionAdded();
+                    }
+
+                    @Override
+                    public void onConnectionRemoved() {
+                        _pluginCallback.onConnectionRemoved();
+                    }
+                },
+                _progressBar);
     }
 
     @Override
@@ -403,42 +352,4 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     startActivity(browserIntent);
                 }
             });
-
-    /*
-    Define the JavaScript interface.
-     */
-    private Object _JSInterface = new Object() {
-
-        private static final String ADAPTER_NAME = "mobile";
-
-        @JavascriptInterface
-        public String getAPIKey() {
-            return _config.getApiKey();
-        }
-
-        @JavascriptInterface
-        public String getAdapterName() {
-            return ADAPTER_NAME;
-        }
-
-        @JavascriptInterface
-        public String getObfuscationStrategy() {
-            return _obfuscation ? "base64" : "";
-        }
-
-        @JavascriptInterface
-        public String getFeatures() {
-            JSONArray features = new JSONArray();
-            for (GigyaWebBridge.Feature feature : GigyaWebBridge.Feature.values()) {
-                features.put(feature.toString().toLowerCase(Locale.ROOT));
-            }
-            return features.toString();
-        }
-
-        @JavascriptInterface
-        public boolean sendToMobile(String action, String method, String queryStringParams) {
-            return _gigyaWebBridge.invoke(action, method, queryStringParams);
-        }
-
-    };
 }

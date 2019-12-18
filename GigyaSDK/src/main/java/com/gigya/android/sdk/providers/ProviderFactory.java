@@ -3,7 +3,6 @@ package com.gigya.android.sdk.providers;
 import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.provider.FacebookProvider;
@@ -72,6 +71,8 @@ public class ProviderFactory implements IProviderFactory {
         return null;
     }
 
+    private static final String LEGACY_GOOGLE_IDENTIFIER = "googleplus";
+
     private Class getProviderClass(String providerName) {
         if (providerName != null) {
             switch (providerName) {
@@ -81,6 +82,7 @@ public class ProviderFactory implements IProviderFactory {
                     }
                     break;
                 case GOOGLE:
+                case LEGACY_GOOGLE_IDENTIFIER:
                     if (GoogleProvider.isAvailable(_context)) {
                         return GoogleProvider.class;
                     }

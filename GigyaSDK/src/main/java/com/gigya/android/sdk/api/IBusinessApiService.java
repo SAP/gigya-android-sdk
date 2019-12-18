@@ -40,7 +40,7 @@ public interface IBusinessApiService<A> {
 
     void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback);
 
-    void forgotPassword(String loginId, final GigyaCallback<GigyaApiResponse> callback);
+    void forgotPassword(Map<String, Object> params, final GigyaCallback<GigyaApiResponse> callback);
 
     void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
 
@@ -49,4 +49,6 @@ public interface IBusinessApiService<A> {
     void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
 
     void getTFAProviders(final String regToken, final GigyaCallback<TFAProvidersModel> callback);
+
+    void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
 }

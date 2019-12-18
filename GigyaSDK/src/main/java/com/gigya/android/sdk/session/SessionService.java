@@ -198,7 +198,7 @@ public class SessionService implements ISessionService {
     @Override
     public boolean isValid() {
         boolean valid = _sessionInfo != null && _sessionInfo.isValid();
-        if (_sessionWillExpireIn > 0) {
+        if (valid && _sessionWillExpireIn > 0) {
             valid = System.currentTimeMillis() < _sessionWillExpireIn;
         }
         return valid;
@@ -343,7 +343,7 @@ public class SessionService implements ISessionService {
             @Override
             public void onTick(long millisUntilFinished) {
                 // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
-                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
+                //GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
             }
 
             @Override

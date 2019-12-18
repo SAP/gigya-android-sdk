@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;

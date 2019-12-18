@@ -3,13 +3,22 @@ package com.gigya.android.network;
 import android.content.Context;
 
 import com.android.volley.toolbox.Volley;
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.GigyaApiRequestFactory;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.encryption.ISecureKey;
+import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.NetworkProvider;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.network.adapter.VolleyNetworkProvider;
+import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.persistence.PersistenceService;
+import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.SessionService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +49,9 @@ public class RestAdapterTest {
     private Context mContext;
 
     @Mock
+    Config mConfig;
+
+    @Mock
     IRestAdapter _restAdapter;
 
     @Mock
@@ -53,13 +65,17 @@ public class RestAdapterTest {
         when(Volley.newRequestQueue(mContext)).thenReturn(null);
 
         container = new IoCContainer();
+        container.bind(Context.class, mContext);
+        container.bind(Config.class, mConfig);
+        container.bind(IPersistenceService.class, PersistenceService.class, false);
+        container.bind(ISecureKey.class, SessionKey.class, false);
+        container.bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, false);
+        container.bind(ISessionService.class, SessionService.class, true);
+        container.bind(IRestAdapter.class, RestAdapter.class, true);
     }
 
     @Test
     public void testNewInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Arrange
-        container.bind(Context.class, mContext);
-        container.bind(IRestAdapter.class, RestAdapter.class, true);
         // Act
         IRestAdapter adapter = container.get(IRestAdapter.class);
         // Assert
@@ -68,9 +84,6 @@ public class RestAdapterTest {
 
     @Test
     public void testNewVolleyInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Arrange
-        container.bind(Context.class, mContext);
-        container.bind(IRestAdapter.class, RestAdapter.class, true);
         // Act
         IRestAdapter adapter = container.get(IRestAdapter.class);
         final String providerType = adapter.getProviderType();
@@ -82,8 +95,6 @@ public class RestAdapterTest {
     @Test
     public void testNewHttpInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
-        container.bind(Context.class, mContext);
-        container.bind(IRestAdapter.class, RestAdapter.class, true);
         mockStatic(VolleyNetworkProvider.class);
         when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
         // Act
@@ -97,8 +108,6 @@ public class RestAdapterTest {
     @Test
     public void testSend() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
-        container.bind(Context.class, mContext);
-        container.bind(IRestAdapter.class, RestAdapter.class, true);
         IRestAdapter adapter = container.get(IRestAdapter.class);
         Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
         doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
@@ -116,8 +125,7 @@ public class RestAdapterTest {
 
     @Test
     public void testSendBlocking() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        container.bind(Context.class, mContext);
-        container.bind(IRestAdapter.class, RestAdapter.class, true);
+        // Arrange
         IRestAdapter adapter = container.get(IRestAdapter.class);
         Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
         doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));

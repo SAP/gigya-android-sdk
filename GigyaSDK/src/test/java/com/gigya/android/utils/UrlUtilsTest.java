@@ -12,6 +12,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("ALL")
 public class UrlUtilsTest {
@@ -27,6 +28,14 @@ public class UrlUtilsTest {
         assertNotNull(outpout);
         assertFalse(outpout.equals(""));
         assertEquals(outpout, encodedString);
+    }
+
+    @Test
+    public void test_urlEncodeWithNullValue() {
+        // Act
+        final String outpout = UrlUtils.urlEncode(null);
+        // Assert
+        assertNull(outpout);
     }
 
     @Test

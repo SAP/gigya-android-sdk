@@ -59,9 +59,13 @@ public class FileUtils {
         Bundle metaData = getMetaData();
         if (metaData == null) {
             return null;
-        }
-        else {
-            return (String) metaData.get(fieldName);
+        } else {
+            // Avoiding hard coded values and not string references to cause class cast exceptions.
+            if (metaData.get(fieldName) instanceof String)
+                return (String) metaData.get(fieldName);
+            else if (metaData.get(fieldName) instanceof Float || metaData.get(fieldName) instanceof Integer) {
+                return String.valueOf(fieldName);
+            } else return null;
         }
     }
 

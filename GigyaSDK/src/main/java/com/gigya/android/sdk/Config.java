@@ -9,6 +9,7 @@ public class Config {
     private int accountCacheTime;
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
+    private Long serverOffset;
 
     //region UPDATE
 
@@ -103,6 +104,14 @@ public class Config {
 
     public void setSessionVerificationInterval(int sessionVerificationInterval) {
         this.sessionVerificationInterval = sessionVerificationInterval;
+    }
+
+    public Long getServerOffset() {
+        return serverOffset;
+    }
+
+    public void setServerOffset(Long serverOffset) {
+        this.serverOffset = serverOffset;
     }
 
     //endregion

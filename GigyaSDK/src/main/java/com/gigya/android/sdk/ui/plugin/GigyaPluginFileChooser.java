@@ -1,12 +1,10 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -19,10 +17,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
 

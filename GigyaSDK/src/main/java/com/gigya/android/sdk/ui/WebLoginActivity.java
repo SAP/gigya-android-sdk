@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.view.KeyEvent;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -85,7 +84,7 @@ public class WebLoginActivity extends Activity {
             // resultCode (Will always be 0 == Activity.RESULT_CANCELED). Therefore in order to determine when the user
             // actually dismissed the browser we will use this short countdown timer as the onNewIntentCall should trigger
             // immediately.
-            _cancelResultTimer = new CountDownTimer(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(1)) {
+            _cancelResultTimer = new CountDownTimer(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1)) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {

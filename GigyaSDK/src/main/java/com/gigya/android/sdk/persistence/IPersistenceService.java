@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.persistence;
 
+import android.support.annotation.Nullable;
+
 import com.gigya.android.sdk.GigyaDefinitions;
 
 import java.util.Set;
@@ -35,4 +37,9 @@ public interface IPersistenceService {
     void add(String key, Object element);
 
     Long getLong(String key, Long defValue);
+
+    void setPushToken(String pushToken);
+
+    @Nullable
+    String getPushToken();
 }

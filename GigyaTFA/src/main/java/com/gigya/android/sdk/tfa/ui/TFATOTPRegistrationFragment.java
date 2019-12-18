@@ -26,13 +26,13 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
     private static final String LOG_TAG = "TFATOTPRegistrationFragment";
 
     @Nullable
-    RegisterTOTPResolver _registerTotpResolver;
+    protected RegisterTOTPResolver _registerTotpResolver;
 
-    private ProgressBar _progressBar, _qrImageProgressBar;
-    private ImageView _qrImageView;
-    private Button _registerButton, _dismissButton;
-    private EditText _verificationCodeEditText;
-    private CheckBox _rememberDeviceCheckbox;
+    protected ProgressBar _progressBar, _qrImageProgressBar;
+    protected ImageView _qrImageView;
+    protected Button _registerButton, _dismissButton;
+    protected EditText _verificationCodeEditText;
+    protected CheckBox _rememberDeviceCheckbox;
 
     private Bitmap _qrImage;
 
@@ -53,7 +53,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
         initFlow();
     }
 
-    private void initUI(View view) {
+    protected void initUI(View view) {
         _progressBar = view.findViewById(R.id.ftpr_progress);
         _qrImageProgressBar = view.findViewById(R.id.ftpr_qr_code_image_progress);
         _qrImageView = view.findViewById(R.id.ftpr_qr_code_image);
@@ -63,7 +63,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
         _rememberDeviceCheckbox = view.findViewById(R.id.ftpr_remember_device_checkbox);
     }
 
-    private void setActions() {
+    protected void setActions() {
         _dismissButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,7 +75,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
         });
     }
 
-    private void initFlow() {
+    protected void initFlow() {
         if (_resolverFactory == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
@@ -124,7 +124,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
         return BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
     }
 
-    private void updateToVerificationState(final IVerifyTOTPResolver verifyTOTPResolver) {
+    protected void updateToVerificationState(final IVerifyTOTPResolver verifyTOTPResolver) {
         // Click action for register is now viable.
         _registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +148,7 @@ public class TFATOTPRegistrationFragment extends BaseTFAFragment {
                                 _progressBar.setVisibility(View.INVISIBLE);
                                 // Clear input text.
                                 _verificationCodeEditText.setText("");
-                                _verificationCodeEditText.setError(getString(R.string.tfa_invalid_verification_code));
+                                _verificationCodeEditText.setError(getString(R.string.gig_tfa_invalid_verification_code));
                             }
 
                             @Override

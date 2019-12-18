@@ -5,17 +5,22 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Environment;
 
 import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -28,6 +33,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Environment.class})
 public class FileUtilsTest {
 
     @Mock
@@ -112,5 +119,18 @@ public class FileUtilsTest {
         // Assert
         assertNotNull(mockMetaDataString);
         assertEquals("MOCK", mockMetaDataString);
+    }
+
+    @Test
+    public void test_createImageFile() {
+        try {
+            // Act
+            File testFile = FileUtils.createImageFile();
+            // Assert
+            assertNotNull(testFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

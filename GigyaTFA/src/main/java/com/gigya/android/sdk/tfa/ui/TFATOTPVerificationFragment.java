@@ -15,11 +15,11 @@ import com.gigya.android.sdk.tfa.resolvers.totp.VerifyTOTPResolver;
 public class TFATOTPVerificationFragment extends BaseTFAFragment {
 
     @Nullable
-    VerifyTOTPResolver _verifyTOTPResolver;
+    protected VerifyTOTPResolver _verifyTOTPResolver;
 
-    private ProgressBar _progressBar;
-    private EditText _verificationCodeEditText;
-    private Button _verifyButton, _dismissButton;
+    protected ProgressBar _progressBar;
+    protected EditText _verificationCodeEditText;
+    protected Button _verifyButton, _dismissButton;
 
     public static TFATOTPVerificationFragment newInstance() {
         return new TFATOTPVerificationFragment();
@@ -37,14 +37,14 @@ public class TFATOTPVerificationFragment extends BaseTFAFragment {
         initFlow();
     }
 
-    private void initUI(View view) {
+    protected void initUI(View view) {
         _progressBar = view.findViewById(R.id.ftpv_progress);
         _verificationCodeEditText = view.findViewById(R.id.ftpv_verification_code_edit_text);
         _dismissButton = view.findViewById(R.id.ftpv_dismiss_button);
         _verifyButton = view.findViewById(R.id.ftpv_verify_button);
     }
 
-    private void setActions() {
+    protected void setActions() {
         _dismissButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +56,7 @@ public class TFATOTPVerificationFragment extends BaseTFAFragment {
         });
     }
 
-    private void initFlow() {
+    protected void initFlow() {
         if (_resolverFactory == null) {
             if (_selectionCallback != null) {
                 _selectionCallback.onError(GigyaError.cancelledOperation());
@@ -96,7 +96,7 @@ public class TFATOTPVerificationFragment extends BaseTFAFragment {
                                 _progressBar.setVisibility(View.INVISIBLE);
                                 // Clear input text.
                                 _verificationCodeEditText.setText("");
-                                _verificationCodeEditText.setError(getString(R.string.tfa_invalid_verification_code));
+                                _verificationCodeEditText.setError(getString(R.string.gig_tfa_invalid_verification_code));
                             }
 
                             @Override

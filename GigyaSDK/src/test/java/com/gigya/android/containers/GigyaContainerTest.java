@@ -6,7 +6,6 @@ import android.content.Context;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.containers.GigyaContainer;
-import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import org.junit.Test;

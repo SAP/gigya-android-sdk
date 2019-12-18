@@ -79,7 +79,7 @@ public class AuthUtilsTest {
             put("ApiKey", "someApiKey");
         }};
         // Act
-        AuthUtils.addAuthenticationParameters(sessionSecret, httpMethod, MOCK_URL, params);
+        AuthUtils.addAuthenticationParameters(sessionSecret, httpMethod, MOCK_URL, params, 0L);
         // Assert
         assertNotNull(params.get("timestamp"));
         final String timestamp = (String) params.get("timestamp");

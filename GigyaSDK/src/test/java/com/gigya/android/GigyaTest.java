@@ -6,12 +6,15 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.session.SessionService;
 import com.gigya.android.sdk.ui.IPresenter;
+import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
+import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.google.gson.Gson;
 
 import org.junit.Before;
@@ -22,9 +25,12 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.reflect.InvocationTargetException;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -55,12 +61,14 @@ public class GigyaTest {
     @Mock
     IProviderFactory _providerFactory;
 
+    @Mock
+    IoCContainer _container;
+
     @InjectMocks
     Gigya gigya;
 
     @Before
     public void setup() {
-
     }
 
     @Test
@@ -86,5 +94,16 @@ public class GigyaTest {
         final boolean isLoggedIn = gigya.isLoggedIn();
         // Assert
         assertTrue(isLoggedIn);
+    }
+
+    @Test
+    public void test_createWebBridge() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        // Arrange
+        GigyaWebBridge mockWb = mock(GigyaWebBridge.class);
+        when(_container.get(IGigyaWebBridge.class)).thenReturn(mockWb);
+        // Act
+        IGigyaWebBridge wb = gigya.createWebBridge();
+        // Assert
+        assertNotNull(wb);
     }
 }

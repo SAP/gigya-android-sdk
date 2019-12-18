@@ -23,6 +23,8 @@ import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
+import com.gigya.android.sdk.push.GigyaNotificationManager;
+import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
@@ -58,6 +60,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
+                .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
                 .bind(IoCContainer.class, this);
     }
 }

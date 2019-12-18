@@ -25,7 +25,7 @@
             android:layout_margin="16dp"
             android:layout_toStartOf="@id/ftpr_progress"
             android:layout_toLeftOf="@id/ftpr_progress"
-            android:text="@string/tfa_register_authenticator"
+            android:text="@string/gig_tfa_register_authenticator"
             android:textSize="18sp" />
 
         <FrameLayout
@@ -62,7 +62,7 @@
             android:layout_marginRight="16dp"
             android:layout_toEndOf="@id/ftpr_qr_layout"
             android:layout_toRightOf="@id/ftpr_qr_layout"
-            android:hint="@string/tfa_verification_code" />
+            android:hint="@string/gig_tfa_verification_code" />
 
         <TextView
             android:id="@+id/ftpr_verification_title_text"
@@ -74,7 +74,7 @@
             android:layout_alignEnd="@id/ftpr_verification_code_edit_text"
             android:layout_alignRight="@id/ftpr_verification_code_edit_text"
             android:layout_marginBottom="8dp"
-            android:text="@string/tfa_submit_verification_code"
+            android:text="@string/gig_tfa_submit_verification_code"
             android:textSize="14sp" />
 
         <LinearLayout
@@ -98,7 +98,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:text="@string/tfa_remember_this_device"
+                android:text="@string/gig_tfa_remember_this_device"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
@@ -116,7 +116,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_register" />
+            android:text="@string/gig_tfa_register" />
 
         <Button
             android:id="@+id/ftpr_dismiss_button"
@@ -131,7 +131,7 @@
             android:layout_toLeftOf="@id/ftpr_action_button"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:text="@string/tfa_dismiss" />
+            android:text="@string/gig_tfa_dismiss" />
 
     </RelativeLayout>
 
