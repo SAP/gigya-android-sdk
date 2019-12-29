@@ -319,6 +319,8 @@ public class Gigya<T extends GigyaAccount> {
 
         _sessionService.clear(true);
 
+        _sessionVerificationService.stop();
+
         // Clear presenter related data (cookies).
         _presenter.clearOnLogout();
 
