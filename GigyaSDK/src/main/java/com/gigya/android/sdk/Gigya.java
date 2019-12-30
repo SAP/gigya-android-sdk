@@ -527,6 +527,17 @@ public class Gigya<T extends GigyaAccount> {
         _businessApiService.removeConnection(socialProvider, gigyaCallback);
     }
 
+    /**
+     * Login to with social provider when the provider session is available (obtained via specific provider login process).
+     *
+     * @param params             Parameter map.
+     * @param gigyaLoginCallback Response listener callback.
+     */
+    public void notifySocialLogin(@NonNull Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
+        GigyaLogger.debug(LOG_TAG, "notifySocialLogin: with parameters: " + params.toString());
+        _businessApiService.notifyNativeSocialLogin(params, gigyaLoginCallback, null);
+    }
+
     //endregion
 
     //region NATIVE LOGIN
