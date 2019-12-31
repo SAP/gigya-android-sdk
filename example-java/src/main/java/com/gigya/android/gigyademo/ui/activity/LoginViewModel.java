@@ -259,7 +259,8 @@ public class LoginViewModel extends AndroidViewModel {
                         mDataRouter.postValue(
                                 new DataEvent(
                                         DataEvent.ROUTE_TFA_PROVIDER_SELECTION,
-                                        GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION
+                                        new Pair<>(GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION,
+                                                inactiveProviders)
                                 )
                         );
                     }
@@ -272,7 +273,8 @@ public class LoginViewModel extends AndroidViewModel {
                         mDataRouter.postValue(
                                 new DataEvent(
                                         DataEvent.ROUTE_TFA_PROVIDER_SELECTION,
-                                        GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION
+                                        new Pair<>(GigyaError.Codes.ERROR_ACCOUNT_PENDING_VERIFICATION,
+                                                activeProviders)
                                 )
                         );
                     }
