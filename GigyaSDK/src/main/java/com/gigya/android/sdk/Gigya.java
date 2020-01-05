@@ -319,6 +319,8 @@ public class Gigya<T extends GigyaAccount> {
 
         _sessionService.clear(true);
 
+        _sessionVerificationService.stop();
+
         // Clear presenter related data (cookies).
         _presenter.clearOnLogout();
 
@@ -523,6 +525,17 @@ public class Gigya<T extends GigyaAccount> {
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
         _businessApiService.removeConnection(socialProvider, gigyaCallback);
+    }
+
+    /**
+     * Login to with social provider when the provider session is available (obtained via specific provider login process).
+     *
+     * @param params             Parameter map.
+     * @param gigyaLoginCallback Response listener callback.
+     */
+    public void notifySocialLogin(@NonNull Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
+        GigyaLogger.debug(LOG_TAG, "notifySocialLogin: with parameters: " + params.toString());
+        _businessApiService.notifyNativeSocialLogin(params, gigyaLoginCallback, null);
     }
 
     //endregion

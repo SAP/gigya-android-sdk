@@ -176,6 +176,7 @@ public class AccountActivity extends AbstractActivity {
 
         // Start the login activity again.
         startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     public void onRegisterForPushAuth(final View clickView) {
