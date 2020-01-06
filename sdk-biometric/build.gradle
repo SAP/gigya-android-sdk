@@ -4,9 +4,9 @@ def androidVersion = file('version.txt').text
 
 ext {
     outDir = "${projectDir}/dist"
-    androidJarName = "gigya-android-sdk-auth${androidVersion}"
-    androidDocName = "gigya-android-sdk-auth${androidVersion}-javadoc"
-    androidSrcName = "gigya-android-sdk-auth${androidVersion}-source"
+    androidJarName = "gigya-android-sdk-biometric${androidVersion}"
+    androidDocName = "gigya-android-sdk-biometric${androidVersion}-javadoc"
+    androidSrcName = "gigya-android-sdk-biometric${androidVersion}-source"
     sharedManifest = manifest {
         attributes(
                 'Implementation-Vendor': 'SAP Gigya INC.',
@@ -21,9 +21,10 @@ android {
     buildToolsVersion build_versions.build_tools
 
     defaultConfig {
-        minSdkVersion build_versions.min_sdk_auth
+        minSdkVersion build_versions.min_sdk_biometric
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-auth-${androidVersion}"
+        archivesBaseName = "gigya-android-biometric-${androidVersion}"
+        vectorDrawables.useSupportLibrary = true
     }
 
     compileOptions {
@@ -38,11 +39,11 @@ android {
         }
 
         release {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
@@ -54,14 +55,12 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
 
-    testImplementation project(path: ':GigyaSDK')
+    testImplementation project(path: ':sdk-core')
 
-    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.android.support:design:28.0.0'
 
-    compileOnly project(path: ':GigyaSDK')
-    compileOnly 'com.google.firebase:firebase-messaging:18.0.0'
+    compileOnly project(path: ':sdk-core')
 }
 
 // Task for building release Jar/sources/JavaDocs.
@@ -83,12 +82,9 @@ android.libraryVariants.all { variant ->
         task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
             baseName androidJarName
             from variant.javaCompileProvider.get().destinationDir
-            destinationDir = file(outDir)
+            destinationDirectory = file(outDir)
             include(
-                    'com/gigya/android/sdk/auth/*.java',
-                    'com/gigya/android/sdk/auth/api/*.java',
-                    'com/gigya/android/sdk/auth/push/*.java',
-                    'com/gigya/android/sdk/auth/ui/*.java'
+                    'com/gigya/android/sdk/**'
             )
             manifest {
                 from sharedManifest
@@ -101,7 +97,9 @@ android.libraryVariants.all { variant ->
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
             destinationDir = new File("${outDir}/${androidDocName}")
             include(
-                    'com/gigya/android/sdk/auth/*.java',
+                    'com/gigya/android/sdk/biometric/*.java',
+                    'com/gigya/android/sdk/biometric/v23/*.java',
+                    'com/gigya/android/sdk/biometric/v28/*.java',
             )
             failOnError = false
         }

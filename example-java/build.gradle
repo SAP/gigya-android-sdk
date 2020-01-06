@@ -61,12 +61,11 @@ dependencies {
     //noinspection LifecycleAnnotationProcessorWithJava8
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
 
-
-    implementation files('libs/gigya-android-sdk-4.0.6.aar')
-    implementation files('libs/gigya-android-biometric-1.0.1.arr')
-    implementation files('libs/gigya-android-tfa-1.0.3.aar')
-    implementation files('libs/gigya-android-auth-1.0.0.aar')
-
+    implementation project(path: ':sdk-core')
+    implementation project(path: ':sdk-tfa')
+    implementation project(path: ':sdk-biometric')
+    implementation project(path: ':sdk-auth')
+    
     implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation 'com.facebook.android:facebook-android-sdk:5.5.0'

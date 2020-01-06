@@ -4,9 +4,9 @@ def androidVersion = file('version.txt').text
 
 ext {
     outDir = "${projectDir}/dist"
-    androidJarName = "gigya-android-sdk-biometric${androidVersion}"
-    androidDocName = "gigya-android-sdk-biometric${androidVersion}-javadoc"
-    androidSrcName = "gigya-android-sdk-biometric${androidVersion}-source"
+    androidJarName = "gigya-android-sdk-${androidVersion}"
+    androidDocName = "gigya-android-sdk-${androidVersion}-javadoc"
+    androidSrcName = "gigya-android-sdk-${androidVersion}-source"
     sharedManifest = manifest {
         attributes(
                 'Implementation-Vendor': 'SAP Gigya INC.',
@@ -21,10 +21,11 @@ android {
     buildToolsVersion build_versions.build_tools
 
     defaultConfig {
-        minSdkVersion build_versions.min_sdk_biometric
+        //noinspection MinSdkTooLow
+        minSdkVersion build_versions.min_sdk_core
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-biometric-${androidVersion}"
-        vectorDrawables.useSupportLibrary = true
+
+        archivesBaseName = "gigya-android-sdk-${androidVersion}"
     }
 
     compileOptions {
@@ -35,18 +36,29 @@ android {
     buildTypes {
 
         debug {
+            //testCoverageEnabled true
             debuggable true
         }
 
         release {
             debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
 }
 
 dependencies {
+
     // Test implementations.
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.json:json:20141113'
@@ -54,14 +66,28 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+    testImplementation 'org.apache.httpcomponents:httpcore:4.4.11'
+    testImplementation 'org.apache.httpcomponents:httpclient:4.5.9'
+    testImplementation 'com.android.volley:volley:1.1.1'
+    testImplementation project(path: ':sdk-tfa')
+    testImplementation project(path: ':sdk-biometric')
 
-    testImplementation project(path: ':GigyaSDK')
-
+    // Implementations.
+    //noinspection GradleCompatible,GradleDependency
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
-    compileOnly project(path: ':GigyaSDK')
+    // Compile only libraries. Not included in packaged JAR file.
+    compileOnly files('libs/line-sdk-4.0.10.aar')
+    compileOnly 'com.facebook.android:facebook-android-sdk:5.5.0'
+    compileOnly 'com.google.android.gms:play-services-auth:16.0.1'
+    compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.3'
+    compileOnly 'com.android.volley:volley:1.1.1'
+
+    compileOnly 'com.google.firebase:firebase-messaging:18.0.0'
 }
+
+
 
 // Task for building release Jar/sources/JavaDocs.
 android.libraryVariants.all { variant ->
@@ -82,7 +108,8 @@ android.libraryVariants.all { variant ->
         task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
             baseName androidJarName
             from variant.javaCompileProvider.get().destinationDir
-            destinationDirectory = file(outDir)
+           // from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
+            destinationDir = file(outDir)
             include(
                     'com/gigya/android/sdk/**'
             )
@@ -97,9 +124,28 @@ android.libraryVariants.all { variant ->
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
             destinationDir = new File("${outDir}/${androidDocName}")
             include(
-                    'com/gigya/android/sdk/biometric/*.java',
-                    'com/gigya/android/sdk/biometric/v23/*.java',
-                    'com/gigya/android/sdk/biometric/v28/*.java',
+                    'com/gigya/android/sdk/*.java',
+                    'com/gigya/android/sdk/account/*.java',
+                    'com/gigya/android/sdk/account/models/*.java',
+                    'com/gigya/android/sdk/api/*.java',
+                    'com/gigya/android/sdk/api/models/*.java',
+                    'com/gigya/android/sdk/containers/*.java',
+                    'com/gigya/android/sdk/encryption/*.java',
+                    'com/gigya/android/sdk/interruption/*.java',
+                    'com/gigya/android/sdk/interruption/link/*.java',
+                    'com/gigya/android/sdk/interruption/link/models/*.java',
+                    'com/gigya/android/sdk/interruption/tfa/*.java',
+                    'com/gigya/android/sdk/interruption/tfa/modeks/*.java',
+                    'com/gigya/android/sdk/network/*.java',
+                    'com/gigya/android/sdk/network/adapter/*.java',
+                    'com/gigya/android/sdk/persistence/*.java',
+                    'com/gigya/android/sdk/providers/*.java',
+                    'com/gigya/android/sdk/providers/provider/*.java',
+                    'com/gigya/android/sdk/session/*.java',
+                    'com/gigya/android/sdk/ui/*.java',
+                    'com/gigya/android/sdk/ui/plugin/*.java',
+                    'com/gigya/android/sdk/ui/provider/*.java',
+                    'com/gigya/android/sdk/utils/*.java'
             )
             failOnError = false
         }
@@ -124,3 +170,4 @@ android.libraryVariants.all { variant ->
         }
     }
 }
+
