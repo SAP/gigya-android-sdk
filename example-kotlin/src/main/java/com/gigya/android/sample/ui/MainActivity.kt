@@ -35,6 +35,7 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -236,7 +237,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
             R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> {
-                startActivity(Intent(this, WebBridgeTestActivity::class.java))
+                //startActivity(Intent(this, WebBridgeTestActivity::class.java))
+                GigyaNss.showScreenSet(this)
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)

@@ -62,6 +62,7 @@ dependencies {
     implementation project(path: ':sdk-tfa')
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-auth')
+    implementation project(path: ':sdk-nss')
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'

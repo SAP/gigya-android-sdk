@@ -1,0 +1,69 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+def androidVersion = file('version.txt').text
+
+ext {
+    outDir = "${projectDir}/dist"
+    androidJarName = "gigya-android-sdk-nss${androidVersion}"
+    androidDocName = "gigya-android-sdk-nss${androidVersion}-javadoc"
+    androidSrcName = "gigya-android-sdk-nss${androidVersion}-source"
+    sharedManifest = manifest {
+        attributes(
+                'Implementation-Vendor': 'SAP Gigya INC.',
+                'Implementation-Title': 'Gigya Android SDK',
+                'Implementation-Version': androidVersion
+        )
+    }
+}
+
+android {
+    compileSdkVersion build_versions.target_sdk
+    buildToolsVersion build_versions.build_tools
+
+    defaultConfig {
+        minSdkVersion build_versions.min_sdk_nss
+        targetSdkVersion build_versions.target_sdk
+        archivesBaseName = "gigya-android-nss-${androidVersion}"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+
+        debug {
+            debuggable true
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+dependencies {
+    // Test implementations.
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.json:json:20141113'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
+    testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
+    testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+    testImplementation project(path: ':sdk-core')
+
+    compileOnly project(path: ':sdk-core')
+
+    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'
+    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:1.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+
+

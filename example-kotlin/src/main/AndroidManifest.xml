@@ -98,6 +98,11 @@
 
         <activity android:name=".ui.WebBridgeTestActivity" />
 
+        <activity
+            android:name="com.gigya.android.sdk.nss.NativeScreenSetsActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Line integration -->
         <meta-data
@@ -118,6 +123,7 @@
         <meta-data
             android:name="googleClientId"
             android:value="@string/google_client_id" />
+
         <receiver
             android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
             android:exported="false">
