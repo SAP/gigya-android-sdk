@@ -15,6 +15,11 @@ android {
         versionName "1.4.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        ndk {
+            // Filter for architectures supported by Flutter.
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
 
     signingConfigs {
@@ -36,6 +41,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
 
         debug {

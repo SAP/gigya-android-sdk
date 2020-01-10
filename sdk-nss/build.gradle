@@ -46,11 +46,6 @@ android {
     }
 }
 
-configurations {
-    includeAars // define new configuration
-}
-
-
 dependencies {
     // Test implementations.
     testImplementation 'junit:junit:4.12'
@@ -69,30 +64,8 @@ dependencies {
     // Flutter engine.
     debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'
     releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:1.0'
-
-    includeAars 'com.gigya.native_screensets_engine:flutter_debug:1.0' // the needed AAR(s) is/are here
 }
 
-//project.afterEvaluate {
-//    def isAndroidLibraryProject = project.plugins.hasPlugin('com.android.library')
-//    if(isAndroidLibraryProject) {
-//        task copyDeps(type:Copy) {
-//            from configurations.includeAars {
-//                include '**/*.aar'
-//            }
-//            into "./build/intermediates/packaged-classes/release/libs" // this folder gets packaged inside the AAR
-//        }
-//        mergeReleaseJniLibFolders.dependsOn copyDeps // only this stage worked for me - neither earlier, nor later
-//
-//        task copyDebugDeps(type:Copy) {
-//            from configurations.includeAars {
-//                include '**/*.aar'
-//            }
-//            into "./build/intermediates/packaged-classes/debug/libs"
-//        }
-//        mergeDebugJniLibFolders.dependsOn copyDebugDeps
-//    }
-//}
 
 
 
