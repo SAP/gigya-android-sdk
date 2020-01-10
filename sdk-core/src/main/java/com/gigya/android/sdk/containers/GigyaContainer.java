@@ -55,12 +55,12 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
                 .bind(IProviderFactory.class, ProviderFactory.class, false)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
-                .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
+                .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IoCContainer.class, this);
     }
 }

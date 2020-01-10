@@ -11,6 +11,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -21,8 +22,11 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
@@ -83,6 +87,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     final private ISessionService _sessionService;
     final private IBusinessApiService<A> _businessApiService;
     final private IAccountService<A> _accountService;
+    final private ISessionVerificationService _sessionVerificationService;
+    final private IProviderFactory _providerFactory;
 
     private GigyaPluginFragment.IBridgeCallbacks<A> _invocationCallback;
     private boolean _obfuscation = false;
@@ -90,11 +96,15 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     public GigyaWebBridge(Config config,
                           ISessionService sessionService,
                           IBusinessApiService<A> businessApiService,
-                          IAccountService<A> accountService) {
+                          IAccountService<A> accountService,
+                          ISessionVerificationService sessionVerificationService,
+                          IProviderFactory providerFactory) {
         _config = config;
         _sessionService = sessionService;
         _businessApiService = businessApiService;
         _accountService = accountService;
+        _sessionVerificationService = sessionVerificationService;
+        _providerFactory = providerFactory;
     }
 
     @Override
@@ -311,6 +321,12 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         if (response.getErrorCode() == 0) {
                             invokeWebViewCallback(callbackId, response.asJson());
                             _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
+
+                            // Cleaning up.
+                            _sessionService.clear(true);
+                            _providerFactory.logoutFromUsedSocialProviders();
+                            _sessionVerificationService.stop();
+
                         } else {
                             onError(GigyaError.fromResponse(response));
                         }
