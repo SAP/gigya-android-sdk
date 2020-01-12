@@ -1,17 +1,20 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
@@ -26,7 +29,6 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
@@ -83,6 +85,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         }
     }
 
+    final private Context _context;
     final private Config _config;
     final private ISessionService _sessionService;
     final private IBusinessApiService<A> _businessApiService;
@@ -93,12 +96,14 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     private GigyaPluginFragment.IBridgeCallbacks<A> _invocationCallback;
     private boolean _obfuscation = false;
 
-    public GigyaWebBridge(Config config,
+    public GigyaWebBridge(Context context,
+                          Config config,
                           ISessionService sessionService,
                           IBusinessApiService<A> businessApiService,
                           IAccountService<A> accountService,
                           ISessionVerificationService sessionVerificationService,
                           IProviderFactory providerFactory) {
+        _context = context;
         _config = config;
         _sessionService = sessionService;
         _businessApiService = businessApiService;
@@ -326,6 +331,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                             _sessionService.clear(true);
                             _providerFactory.logoutFromUsedSocialProviders();
                             _sessionVerificationService.stop();
+                            clearCookies();
 
                         } else {
                             onError(GigyaError.fromResponse(response));
@@ -337,6 +343,16 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         invokeWebViewCallback(callbackId, error.getData());
                     }
                 });
+    }
+
+    private void clearCookies() {
+        CookieManager cookieManager = CookieManager.getInstance();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.flush();
+        } else {
+            CookieSyncManager.createInstance(_context);
+            cookieManager.removeAllCookie();
+        }
     }
 
     /*
