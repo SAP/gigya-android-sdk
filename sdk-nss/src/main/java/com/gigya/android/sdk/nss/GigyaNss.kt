@@ -7,16 +7,22 @@ object GigyaNss {
 
     private const val SUPPORTED_DEVICE_ARCHITECTURE = "ARM"
 
+    // Communication channels.
+    const val CHANNEL_PLATFORM = "gigya_nss_engine/method/platform"
+    const val CHANNEL_LOGIC = "gigya_nss_engine/method/logic"
+    const val CHANNEL_SDK = "gigya_nss_engine/method/sdk"
+    const val CHANNEL_EVENT = "gigya_nss_engine/event/set"
+
     /**
      * Check supported architectures.
      * The native screensets engine supports only "ARM" architectures as a direct result of using the Flutter framework.
      */
     @SuppressLint("DefaultLocale")
-    fun isSupportedDeviceArchitecture(): Boolean =
-            when (System.getProperty("os.arch")?.substring(0, 3)?.toUpperCase()) {
-                SUPPORTED_DEVICE_ARCHITECTURE -> true
-                else -> false
-            }
+    fun isSupportedDeviceArchitecture(): Boolean = true
+//            when (System.getProperty("os.arch")?.substring(0, 3)?.toUpperCase()) {
+//                SUPPORTED_DEVICE_ARCHITECTURE -> true
+//                else -> false
+//            }
 
     /**
      * ...
