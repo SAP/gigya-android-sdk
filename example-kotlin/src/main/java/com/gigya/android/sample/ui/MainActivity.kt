@@ -238,7 +238,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> {
                 //startActivity(Intent(this, WebBridgeTestActivity::class.java))
-                GigyaNss.showScreenSet(this)
+                GigyaNss.showScreenSet(this, true)
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)

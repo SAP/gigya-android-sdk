@@ -14,10 +14,10 @@ class NativeScreenSetsActivity : FlutterActivity() {
 
         const val FLUTTER_ENGINE_ID = "nss_engine_id"
 
-        fun launch(context: Context) {
-            context.startActivity(
-                    NSSEngineIntentBuilder().build(context)
-            )
+        fun launch(context: Context, materialOnly: Boolean) {
+            val intent = NSSEngineIntentBuilder().build(context)
+            intent.putExtra("materialOnly", materialOnly)
+            context.startActivity(intent)
         }
     }
 
@@ -47,18 +47,25 @@ class NativeScreenSetsActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        var materialOnly = true
+        intent.extras?.let { bundle ->
+            materialOnly = bundle.getBoolean("materialOnly", true)
+        }
+
         // Register main method channel & method handler.
         MethodChannel(
                 flutterEngine!!.dartExecutor.binaryMessenger,
-                GigyaNss.CHANNEL_PLATFORM
-        ).setMethodCallHandler {  call, result ->
+                GigyaNss.CHANNEL_PLATFORM)
+                .setMethodCallHandler { call, result ->
 
-            GigyaLogger.debug(LOG_TAG, "Method = ${call.method}")
+                    GigyaLogger.debug(LOG_TAG, "Method = ${call.method}")
 
-            when(call.method) {
-                "infraInit" -> result.success("Hello world!")
-            }
-        }
+                    when (call.method) {
+                        "engineInit" -> result.success(
+                                mapOf("responseId" to "engineInit", "platformAware" to materialOnly)
+                        )
+                    }
+                }
     }
 
     //endregion
