@@ -2,11 +2,14 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import android.os.Bundle
-import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.nss.channels.MainPlatformChannelHandler
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class NativeScreenSetsActivity : FlutterActivity() {
+
+    lateinit var mainPlatformChannelHandler: MainPlatformChannelHandler
 
     companion object {
 
@@ -14,9 +17,11 @@ class NativeScreenSetsActivity : FlutterActivity() {
 
         const val FLUTTER_ENGINE_ID = "nss_engine_id"
 
-        fun launch(context: Context, materialOnly: Boolean) {
+        const val PLATFORM_AWARE = "platformAware"
+
+        fun launch(context: Context, platformAware: Boolean) {
             val intent = NSSEngineIntentBuilder().build(context)
-            intent.putExtra("materialOnly", materialOnly)
+            intent.putExtra(PLATFORM_AWARE, platformAware)
             context.startActivity(intent)
         }
     }
@@ -42,30 +47,33 @@ class NativeScreenSetsActivity : FlutterActivity() {
 
     //endregion
 
+    //region Flutter engine
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        initMainPlatformChannel(flutterEngine)
+    }
+
+    /**
+     * Open main communication method channel.
+     */
+    private fun initMainPlatformChannel(flutterEngine: FlutterEngine) {
+        val mainChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_PLATFORM)
+        mainPlatformChannelHandler = MainPlatformChannelHandler()
+        mainChannel.setMethodCallHandler(mainPlatformChannelHandler)
+    }
+
+    //endregion
+
     //region Lifecycle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var materialOnly = true
+        var platformAware = true
         intent.extras?.let { bundle ->
-            materialOnly = bundle.getBoolean("materialOnly", true)
+            platformAware = bundle.getBoolean(PLATFORM_AWARE, true)
         }
-
-        // Register main method channel & method handler.
-        MethodChannel(
-                flutterEngine!!.dartExecutor.binaryMessenger,
-                GigyaNss.CHANNEL_PLATFORM)
-                .setMethodCallHandler { call, result ->
-
-                    GigyaLogger.debug(LOG_TAG, "Method = ${call.method}")
-
-                    when (call.method) {
-                        "engineInit" -> result.success(
-                                mapOf("responseId" to "engineInit", "platformAware" to materialOnly)
-                        )
-                    }
-                }
+        mainPlatformChannelHandler.platformAware = platformAware
     }
 
     //endregion

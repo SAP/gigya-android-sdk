@@ -28,6 +28,7 @@ object GigyaNss {
     /*
     Only ARM based architectures are supported.
      */
+    //TODO Make sure all relevant architecture are added.
     private val SUPPORTED_DEVICE_ARCHITECTURES = arrayListOf("armv7l", "aarch64", "arm64-v8a", "armeabi-v7a")
 
     /**
@@ -47,9 +48,9 @@ object GigyaNss {
      * @return Whether this call is supported. If device architecture does not support the use of the native screensets feature,
      * this function will return FALSE. Consider using the core SDK screensets feature in this case to provide a fallback implementation.
      */
-    fun showScreenSet(launcher: Activity, materialOnly: Boolean): Boolean = when (isSupportedDeviceArchitecture()) {
+    fun showScreenSet(launcher: Activity, platformAware: Boolean): Boolean = when (isSupportedDeviceArchitecture()) {
         true -> {
-            NativeScreenSetsActivity.launch(launcher, materialOnly)
+            NativeScreenSetsActivity.launch(launcher, platformAware)
             true
         }
         else -> false
