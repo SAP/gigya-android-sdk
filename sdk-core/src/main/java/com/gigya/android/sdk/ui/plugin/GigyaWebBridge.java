@@ -542,9 +542,6 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
             @Override
             public void onPluginEvent(final GigyaPluginEvent event, final String containerID) {
-                if (!containerID.equals("pluginContainer")) {
-                    return;
-                }
                 final @PluginEventDef.PluginEvent String eventName = event.getEvent();
                 if (eventName == null) {
                     return;
