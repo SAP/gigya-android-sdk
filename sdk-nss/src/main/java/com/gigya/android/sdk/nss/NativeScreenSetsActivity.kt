@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Context
-import android.os.Bundle
 import com.gigya.android.sdk.nss.channels.MainPlatformChannelHandler
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,7 +8,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class NativeScreenSetsActivity : FlutterActivity() {
 
-    lateinit var mainPlatformChannelHandler: MainPlatformChannelHandler
+    private lateinit var mainPlatformChannelHandler: MainPlatformChannelHandler
 
     companion object {
 
@@ -17,11 +16,8 @@ class NativeScreenSetsActivity : FlutterActivity() {
 
         const val FLUTTER_ENGINE_ID = "nss_engine_id"
 
-        const val PLATFORM_AWARE = "platformAware"
-
-        fun launch(context: Context, platformAware: Boolean) {
+        fun launch(context: Context) {
             val intent = NSSEngineIntentBuilder().build(context)
-            intent.putExtra(PLATFORM_AWARE, platformAware)
             context.startActivity(intent)
         }
     }
@@ -60,20 +56,6 @@ class NativeScreenSetsActivity : FlutterActivity() {
         val mainChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_PLATFORM)
         mainPlatformChannelHandler = MainPlatformChannelHandler()
         mainChannel.setMethodCallHandler(mainPlatformChannelHandler)
-    }
-
-    //endregion
-
-    //region Lifecycle
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        var platformAware = true
-        intent.extras?.let { bundle ->
-            platformAware = bundle.getBoolean(PLATFORM_AWARE, true)
-        }
-        mainPlatformChannelHandler.platformAware = platformAware
     }
 
     //endregion

@@ -7,14 +7,12 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainPlatformChannelHandler: MethodChannel.MethodCallHandler {
 
-    var platformAware: Boolean = false
-
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
 
         GigyaLogger.debug(NativeScreenSetsActivity.LOG_TAG, "Method = ${call.method}")
 
         when (call.method) {
-            "engineInit" -> result.success(mapOf("responseId" to "engineInit", "platformAware" to platformAware))
+            "engineInit" -> result.success(mapOf("responseId" to "engineInit"))
         }
     }
 }

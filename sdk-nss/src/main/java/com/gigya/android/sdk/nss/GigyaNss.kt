@@ -36,7 +36,7 @@ object GigyaNss {
      * The native screensets engine supports only "ARM" architectures as a direct result of using the Flutter framework.
      */
     @SuppressLint("DefaultLocale")
-    fun isSupportedDeviceArchitecture(): Boolean {
+    private fun isSupportedDeviceArchitecture(): Boolean {
         System.getProperty("os.arch")?.let { arch ->
             if (SUPPORTED_DEVICE_ARCHITECTURES.contains(arch)) return true
         }
@@ -48,9 +48,9 @@ object GigyaNss {
      * @return Whether this call is supported. If device architecture does not support the use of the native screensets feature,
      * this function will return FALSE. Consider using the core SDK screensets feature in this case to provide a fallback implementation.
      */
-    fun showScreenSet(launcher: Activity, platformAware: Boolean): Boolean = when (isSupportedDeviceArchitecture()) {
+    fun showScreenSet(launcher: Activity): Boolean = when (isSupportedDeviceArchitecture()) {
         true -> {
-            NativeScreenSetsActivity.launch(launcher, platformAware)
+            NativeScreenSetsActivity.launch(launcher)
             true
         }
         else -> false
