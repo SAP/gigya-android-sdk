@@ -2,8 +2,15 @@ package com.gigya.android.sdk.nss
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Application
+import android.content.Context
+import com.gigya.android.sdk.Gigya
 
 object GigyaNss {
+
+    private val mAppContext: Context by lazy<Context> {
+      Gigya.getContainer().get(Application::class.java)
+    }
 
     /**
      * Main communication method channel with the Flutter engine (initialization etc.)
@@ -55,4 +62,19 @@ object GigyaNss {
         }
         else -> false
     }
+
+    private var mScreenSetsBuilder: ScreenSetsBuilder? = null
+
+    fun loadFromAssets(withPath: String): ScreenSetsBuilder {
+        if (mScreenSetsBuilder == null) {
+            mScreenSetsBuilder = ScreenSetsBuilder(mAppContext)
+        }
+        mScreenSetsBuilder!!.assetPath = withPath
+        return mScreenSetsBuilder!!
+    }
+
+    fun show(launcherContext: Context, screenId: String) {
+
+    }
+
 }
