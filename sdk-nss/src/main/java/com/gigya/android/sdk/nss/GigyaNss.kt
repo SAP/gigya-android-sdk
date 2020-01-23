@@ -8,6 +8,8 @@ object GigyaNss {
         NssBuilder()
     }
 
+    const val FLUTTER_ENGINE_ID = "nss_engine_id"
+
     /**
      * Main communication method channel with the Flutter engine (initialization etc.)
      */
