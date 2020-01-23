@@ -23,7 +23,8 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="nav_api_reference">Api reference</string>
     <string name="nav_native_login">Show native login options</string>
-    <string name="nav_show_screen_sets">Show screen sets</string>
+    <string name="nav_show_screen_sets">Show screensets</string>
+    <string name="nav_show_native_screen_sets">Show native screensets</string>
     <string name="nav_forgot_password">Forgot password</string>
     <string name="nav_verify_login">Verify Login</string>
     <string name="nav_set_account_info">Set Account</string>

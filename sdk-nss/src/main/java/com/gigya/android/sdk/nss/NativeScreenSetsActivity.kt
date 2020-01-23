@@ -16,11 +16,36 @@ class NativeScreenSetsActivity : FlutterActivity() {
 
         const val FLUTTER_ENGINE_ID = "nss_engine_id"
 
-        fun launch(context: Context) {
+        private const val EXTRA_INITIAL_ROUTE = "extra_initial_route"
+
+        private const val EXTRA_MARKUP = "extra_markup"
+
+        fun start(context: Context, markup: String, initialRoute: String) {
             val intent = NSSEngineIntentBuilder().build(context)
+            intent.putExtra(EXTRA_INITIAL_ROUTE, initialRoute)
+            intent.putExtra(EXTRA_MARKUP, markup)
             context.startActivity(intent)
         }
     }
+
+
+    //region Flutter engine
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        initMainPlatformChannel(flutterEngine)
+    }
+
+    /**
+     * Open main communication method channel.
+     */
+    private fun initMainPlatformChannel(flutterEngine: FlutterEngine) {
+        val mainChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_PLATFORM)
+        mainPlatformChannelHandler = MainPlatformChannelHandler()
+        mainChannel.setMethodCallHandler(mainPlatformChannelHandler)
+    }
+
+    //endregion
+
 
     //region Extensions
 
@@ -42,22 +67,4 @@ class NativeScreenSetsActivity : FlutterActivity() {
             )
 
     //endregion
-
-    //region Flutter engine
-
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        initMainPlatformChannel(flutterEngine)
-    }
-
-    /**
-     * Open main communication method channel.
-     */
-    private fun initMainPlatformChannel(flutterEngine: FlutterEngine) {
-        val mainChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_PLATFORM)
-        mainPlatformChannelHandler = MainPlatformChannelHandler()
-        mainChannel.setMethodCallHandler(mainPlatformChannelHandler)
-    }
-
-    //endregion
-
 }

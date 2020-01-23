@@ -3,9 +3,8 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import java.io.IOException
 
-data class ScreenSetsBuilder(val context: Context,
-                             var assetPath: String? = null,
-                             var resultHandler: ResultHandler? = null) {
+data class NssBuilder(var assetPath: String? = null,
+                      var resultHandler: ResultHandler? = null) {
 
     interface ResultHandler {
 
@@ -19,11 +18,17 @@ data class ScreenSetsBuilder(val context: Context,
         null
     }
 
-    fun show(launcherContext: Context, screenId: String) {
+    fun show(launcherContext: Context, initialRoute: String, handler: ResultHandler) {
+        resultHandler = handler
         // Try to load from assets as a the default action.
         assetPath?.apply {
             val jsonAsset = loadJsonFromAssets(launcherContext, assetPath!!)
-            jsonAsset?.apply { } ?: applyError("Failed to load provided asset")
+            jsonAsset?.apply {
+                NativeScreenSetsActivity.start(
+                        launcherContext,
+                        markup = jsonAsset,
+                        initialRoute = initialRoute)
+            } ?: applyError("Failed to load provided asset")
         } ?: applyError("Asset path not available")
     }
 
