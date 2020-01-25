@@ -35,6 +35,8 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.GigyaNss
+import com.gigya.android.sdk.nss.NssBuilder
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -63,11 +65,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun getCustomActionActivity(): Class<*> = BiometricPushTFAActivity::class.java
 
-            override fun getDenyActionIcon(): Int  = 0
+            override fun getDenyActionIcon(): Int = 0
 
             override fun getSmallIcon(): Int = android.R.drawable.ic_dialog_info
 
-            override fun getApproveActionIcon(): Int  = 0
+            override fun getApproveActionIcon(): Int = 0
 
         })
     }
@@ -237,6 +239,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> {
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
+            }
+            R.id.action_show_native_screen_sets -> {
+                GigyaNss
+                        .loadFromAssets("nss_markup_mock.json")
+                        .show(this, "login", object : NssBuilder.ResultHandler {
+
+                            override fun onError(cause: String) {
+                                toast(cause)
+                            }
+                        })
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)

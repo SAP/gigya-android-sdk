@@ -21,6 +21,13 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url '/Users/i501740/Developer/gigya-native-screensets-engine/build/host/outputs/repo'
+        }
+        maven {
+            url 'http://download.flutter.io'
+        }
+        mavenCentral()
     }
 }
 

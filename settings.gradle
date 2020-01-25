@@ -1,1 +1,1 @@
-include ':example-kotlin', ':sdk-core', ':sdk-biometric', ':sdk-tfa', ':sdk-auth', ':example-java'
+include ':example-kotlin', ':sdk-core', ':sdk-biometric', ':sdk-tfa', ':sdk-auth', ':sdk-nss', ':example-java'
