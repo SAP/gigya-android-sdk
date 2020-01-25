@@ -13,13 +13,16 @@ import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
 import com.linecorp.linesdk.LineApiResponse;
+import com.linecorp.linesdk.Scope;
 import com.linecorp.linesdk.api.LineApiClient;
 import com.linecorp.linesdk.api.LineApiClientBuilder;
+import com.linecorp.linesdk.auth.LineAuthenticationParams;
 import com.linecorp.linesdk.auth.LineLoginApi;
 import com.linecorp.linesdk.auth.LineLoginResult;
 
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
@@ -74,7 +77,13 @@ public class LineProvider extends Provider {
                     activity.finish();
                     return;
                 }
-                final Intent loginIntent = LineLoginApi.getLoginIntent(activity, lineChannelID);
+
+                Intent loginIntent = LineLoginApi.getLoginIntent(
+                        activity,
+                        lineChannelID,
+                        new LineAuthenticationParams.Builder()
+                                .scopes(Arrays.asList(Scope.PROFILE))
+                                .build());
                 activity.startActivityForResult(loginIntent, REQUEST_CODE);
             }
 
@@ -88,7 +97,7 @@ public class LineProvider extends Provider {
                                 // Fail login.
                                 return;
                             }
-                            final String accessToken = result.getLineCredential().getAccessToken().getAccessToken();
+                            final String accessToken = result.getLineCredential().getAccessToken().getTokenString();
                             onLoginSuccess(loginParams, getProviderSessions(accessToken, -1, null), loginMode);
                             break;
                         case CANCEL:

@@ -15,6 +15,7 @@ android {
         versionName "1.4.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -57,6 +58,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation project(path: ':sdk-core')
     implementation project(path: ':sdk-tfa')
@@ -85,7 +87,7 @@ dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:5.5.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.3'
-    implementation files('libs/line-sdk-4.0.10.aar')
+    implementation 'com.linecorp:linesdk:5.0.1'
 
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-messaging:18.0.0'
