@@ -11,24 +11,9 @@ object GigyaNss {
     const val FLUTTER_ENGINE_ID = "nss_engine_id"
 
     /**
-     * Main communication method channel with the Flutter engine (initialization etc.)
+     * Main communication method channel with the Flutter engine. (initialization etc)
      */
     const val CHANNEL_PLATFORM = "gigya_nss_engine/method/platform"
-
-    /**
-     * SDK actions method channel.
-     */
-    const val CHANNEL_SDK = "gigya_nss_engine/method/sdk"
-
-    /**
-     * Optional custom logic method channel. Used to apply custom logic on screenset events.
-     */
-    const val CHANNEL_LOGIC = "gigya_nss_engine/method/logic"
-
-    /**
-     * Screensets stream event channel.
-     */
-    const val CHANNEL_EVENT = "gigya_nss_engine/event/set"
 
     /*
     Only ARM based architectures are supported.
@@ -50,8 +35,14 @@ object GigyaNss {
 
     //region Host interface
 
-    fun loadFromAssets(withPath: String): NssBuilder {
-        mBuilder.assetPath = withPath
+    /**
+     * Load markup JSON file from assets folder.
+     * @param withName Asset JSON file name.
+     * @return NssBuilder instance.
+     */
+    fun loadFromAssets(withName: String): NssBuilder {
+        mBuilder.clear()
+        mBuilder.assetPath = withName
         return mBuilder
     }
 
