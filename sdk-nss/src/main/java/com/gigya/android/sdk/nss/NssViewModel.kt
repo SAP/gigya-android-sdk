@@ -1,3 +1,4 @@
+                throw RuntimeException("Unable to fetch markup from assets")
 package com.gigya.android.sdk.nss
 
 import com.gigya.android.sdk.GigyaLogger

@@ -71,6 +71,7 @@ data class NssBuilder(var assetPath: String? = null,
         resultHandler = handler
         // Try to load from assets as a the default action.
         assetPath?.apply {
+
             val jsonAsset = loadJsonFromAssets(launcherContext, assetPath!!)
             jsonAsset.guard {
                 throw RuntimeException("Failed to parse JSON File from assets folder")
