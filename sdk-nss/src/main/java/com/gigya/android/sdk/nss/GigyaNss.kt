@@ -13,7 +13,7 @@ object GigyaNss {
     /**
      * Main communication method channel with the Flutter engine. (initialization etc)
      */
-    const val CHANNEL_PLATFORM = "gigya_nss_engine/method/platform"
+    const val CHANNEL_MAIN = "gigya_nss_engine/method/main"
 
     /*
     Only ARM based architectures are supported.
@@ -38,7 +38,7 @@ object GigyaNss {
     /**
      * Load markup JSON file from assets folder.
      * @param withName Asset JSON file name.
-     * @return NssBuilder instance.
+     * @return NssBuilder instance. Use builder response to continue to flow.
      */
     fun loadFromAssets(withName: String): NssBuilder {
         mBuilder.clear()

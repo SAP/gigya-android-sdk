@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka-android'
 
 def androidVersion = file('version.txt').text
 
@@ -44,6 +45,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/javadoc"
+    }
 }
 
 dependencies {
@@ -60,6 +66,7 @@ dependencies {
 
     // Core SDK.
     compileOnly project(path: ':sdk-core')
+    compileOnly 'com.google.code.gson:gson:2.8.5'
 
     // Flutter engine.
     debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'

@@ -3,11 +3,10 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
 import java.io.IOException
 
 data class NssBuilder(var assetPath: String? = null,
-                      var resultHandler: ResultHandler? = null) {
+                      var resultHandler: ResultHandler? = null) : NssObject() {
 
     private var flutterEngine: FlutterEngine? = null
 
@@ -65,14 +64,18 @@ data class NssBuilder(var assetPath: String? = null,
         resultHandler = handler
         // Try to load from assets as a the default action.
         assetPath?.apply {
+
             val jsonAsset = loadJsonFromAssets(launcherContext, assetPath!!)
-            jsonAsset?.apply {
-                NativeScreenSetsActivity.start(
-                        launcherContext,
-                        flutterEngine != null,
-                        markup = jsonAsset,
-                        initialRoute = initialRoute)
-            } ?: applyError("Failed to load provided asset")
+            jsonAsset.guard {
+                throw RuntimeException("Failed to parse JSON File from assets folder")
+            }
+
+            // Start NssActivity using assets provided markup.
+            NssActivity.start(
+                    launcherContext,
+                    flutterEngine != null,
+                    markup = jsonAsset!!,
+                    initialRoute = initialRoute)
         } ?: applyError("Asset path not available")
     }
 
