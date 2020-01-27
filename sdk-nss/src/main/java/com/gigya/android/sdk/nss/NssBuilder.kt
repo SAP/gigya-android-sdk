@@ -1,13 +1,18 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Context
+import com.gigya.android.sdk.GigyaLogger
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
 import java.io.IOException
 
 data class NssBuilder(var assetPath: String? = null,
-                      var resultHandler: ResultHandler? = null) {
+                      var resultHandler: ResultHandler? = null) : NssObject() {
+
+    companion object {
+
+        const val LOG_TAG = "NssBuilder"
+    }
 
     private var flutterEngine: FlutterEngine? = null
 
@@ -27,8 +32,9 @@ data class NssBuilder(var assetPath: String? = null,
     /**
      * Load markup file from assets folder given filename/path.
      */
-    private fun loadJsonFromAssets(context: Context, path: String) = try {
-        context.assets.open(path).bufferedReader().use { it.readText() }
+    private fun loadJsonFromAssets(context: Context, fileName: String) = try {
+        GigyaLogger.debug(LOG_TAG, "loadJsonFromAssets() with fileName $fileName")
+        context.assets.open(fileName).bufferedReader().use { it.readText() }
     } catch (ioException: IOException) {
         ioException.printStackTrace()
         null
@@ -66,13 +72,16 @@ data class NssBuilder(var assetPath: String? = null,
         // Try to load from assets as a the default action.
         assetPath?.apply {
             val jsonAsset = loadJsonFromAssets(launcherContext, assetPath!!)
-            jsonAsset?.apply {
-                NativeScreenSetsActivity.start(
-                        launcherContext,
-                        flutterEngine != null,
-                        markup = jsonAsset,
-                        initialRoute = initialRoute)
-            } ?: applyError("Failed to load provided asset")
+            jsonAsset.guard {
+                throw RuntimeException("Failed to parse JSON File from assets folder")
+            }
+
+            // Start NssActivity using assets provided markup.
+            NssActivity.start(
+                    launcherContext,
+                    flutterEngine != null,
+                    markup = jsonAsset!!,
+                    initialRoute = initialRoute)
         } ?: applyError("Asset path not available")
     }
 

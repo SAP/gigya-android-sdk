@@ -3,18 +3,14 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.gigya.android.sdk.nss.channels.MainPlatformChannelHandler
+import com.gigya.android.sdk.GigyaLogger
 import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterMain
 
-class NativeScreenSetsActivity : FlutterActivity() {
+class NssActivity : FlutterActivity() {
 
-    private val mainPlatformChannelHandler: MainPlatformChannelHandler by lazy {
-        MainPlatformChannelHandler()
-    }
+    lateinit var mViewModel: NssViewModel
 
     companion object {
 
@@ -41,22 +37,18 @@ class NativeScreenSetsActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initMainPlatformChannel(flutterEngine!!)
+        mViewModel = NssProvider.provideViewModel()
+        mViewModel.mMarkup = intent?.extras?.getString(EXTRA_MARKUP)
+        mViewModel.registerMainChannel(flutterEngine!!)
 
-        // Execute the engine's "launch" method. Making sure that the main platform channel is already initialized
+        GigyaLogger.debug(LOG_TAG, "Main channel registered, Executing engine main")
+
+        // Execute the engine's "main" method. Making sure that the main platform channel is already initialized
         // in the native side. Avoid signal -6 crash.
         flutterEngine!!.dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint(
                 FlutterMain.findAppBundlePath(),
-                "launch")
+                "main")
         )
-    }
-
-    /**
-     * Open main communication method channel.
-     */
-    private fun initMainPlatformChannel(flutterEngine: FlutterEngine) {
-        val mainChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_PLATFORM)
-        mainChannel.setMethodCallHandler(mainPlatformChannelHandler)
     }
 
     //region Extensions
@@ -64,18 +56,18 @@ class NativeScreenSetsActivity : FlutterActivity() {
     /**
      * Wrapper inner class for attaching activity to a cached Flutter engine.
      */
-    class NSSCachedEngineIntentBuilder :
+    internal class NSSCachedEngineIntentBuilder :
             FlutterActivity.CachedEngineIntentBuilder(
-                    NativeScreenSetsActivity::class.java,
+                    NssActivity::class.java,
                     GigyaNss.FLUTTER_ENGINE_ID
             )
 
     /**
      * Wrapper inner class for initializing a new Flutter engine.
      */
-    class NSSEngineIntentBuilder :
+    internal class NSSEngineIntentBuilder :
             FlutterActivity.NewEngineIntentBuilder(
-                    NativeScreenSetsActivity::class.java
+                    NssActivity::class.java
             )
 
     //endregion
