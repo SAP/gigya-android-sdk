@@ -1,8 +1,8 @@
 {
   "platformAware": false,
   "markup": {
-    "screens": [
-      {
+    "screens": {
+      "login": {
         "id": "login",
         "appBar": {
           "textKey": "login"
@@ -27,7 +27,7 @@
           }
         ]
       },
-      {
+      "register": {
         "id": "register",
         "appBar": {
           "textKey": "register"
@@ -52,6 +52,6 @@
           }
         ]
       }
-    ]
+    }
   }
 }
