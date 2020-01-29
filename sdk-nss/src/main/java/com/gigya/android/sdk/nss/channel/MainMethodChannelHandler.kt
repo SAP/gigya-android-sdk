@@ -17,7 +17,7 @@ class MainMethodChannelHandler(private val onInitFromAssets: () -> (HashMap<Stri
         GigyaLogger.debug(LOG_TAG, "Method = ${call.method}")
 
         when (call.method) {
-            MainChannelCall.INIT.method -> {
+            MainChannelCall.IGNITE.method -> {
                 onInitFromAssets()?.let { mappedMarkup ->
                     result.success(mappedMarkup)
                 } ?: GigyaLogger.error(LOG_TAG, "Failed to initialize markup from asset file")
@@ -26,6 +26,6 @@ class MainMethodChannelHandler(private val onInitFromAssets: () -> (HashMap<Stri
     }
 
     internal enum class MainChannelCall(val method: String) {
-        INIT("initialize")
+        IGNITE("ignition")
     }
 }
