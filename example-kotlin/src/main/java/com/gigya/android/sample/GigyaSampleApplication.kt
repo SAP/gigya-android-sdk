@@ -2,11 +2,14 @@ package com.gigya.android.sample
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import android.webkit.WebView
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.persistence.IPersistenceService
+import com.gigya.android.sdk.session.SessionService
 
 /**
  * Application extender class.
@@ -28,8 +31,15 @@ class GigyaSampleApplication : Application() {
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         Gigya.setApplication(this)
+
+        val sessionExpiration = Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration
+
         // Initialization with implicit configuration & myAccountLiveData scheme.
-        Gigya.getInstance(MyAccount::class.java)
+        val gigya = Gigya.getInstance(MyAccount::class.java)
+
+        if (gigya.isLoggedIn &&  sessionExpiration != 0L && sessionExpiration < System.currentTimeMillis()) {
+            Gigya.getInstance(MyAccount::class.java).logout()
+        }
 
         val signatureHelper = AppSignatureHelper(this)
         GigyaLogger.debug("GigyaSampleApplication SIG", signatureHelper.getAppSignatures().toString())
