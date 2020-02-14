@@ -142,7 +142,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         final Map<String, Object> settings = new HashMap<>();
         UrlUtils.parseUrlParameters(settings, (String) data.get("settings"));
 
-        final Feature feature = Feature.valueOf(action.toUpperCase());
+        final Feature feature = Feature.valueOf(action.toUpperCase(Locale.ROOT));
         final String callbackId = (String) data.get("callbackID");
 
         switch (feature) {

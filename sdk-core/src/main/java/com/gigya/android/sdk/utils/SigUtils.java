@@ -7,6 +7,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import javax.crypto.Mac;
@@ -28,15 +29,15 @@ public class SigUtils {
             normalizedUrl.append(u.getProtocol().toLowerCase());
             normalizedUrl.append("://");
             normalizedUrl.append(u.getHost().toLowerCase());
-            if ((u.getProtocol().toUpperCase().equals("HTTP") && u.getPort() != 80 && u.getPort() != -1)
-                    || (u.getProtocol().toUpperCase().equals("HTTPS") && u.getPort() != 443 && u.getPort() != -1)) {
+            if ((u.getProtocol().toUpperCase(Locale.ROOT).equals("HTTP") && u.getPort() != 80 && u.getPort() != -1)
+                    || (u.getProtocol().toUpperCase(Locale.ROOT).equals("HTTPS") && u.getPort() != 443 && u.getPort() != -1)) {
                 normalizedUrl.append(':');
                 normalizedUrl.append(u.getPort());
             }
             normalizedUrl.append(u.getPath());
 
             String baseSignature = new StringBuilder()
-                    .append(httpMethod.toUpperCase())
+                    .append(httpMethod.toUpperCase(Locale.ROOT))
                     .append("&")
                     .append(UrlUtils.urlEncode(normalizedUrl.toString()))
                     .append("&")
