@@ -26,18 +26,18 @@ public class SigUtils {
             StringBuilder normalizedUrl = new StringBuilder();
             java.net.URL u = new java.net.URL(url);
 
-            normalizedUrl.append(u.getProtocol().toLowerCase());
+            normalizedUrl.append(u.getProtocol().toLowerCase(Locale.ENGLISH));
             normalizedUrl.append("://");
-            normalizedUrl.append(u.getHost().toLowerCase());
-            if ((u.getProtocol().toUpperCase(Locale.ROOT).equals("HTTP") && u.getPort() != 80 && u.getPort() != -1)
-                    || (u.getProtocol().toUpperCase(Locale.ROOT).equals("HTTPS") && u.getPort() != 443 && u.getPort() != -1)) {
+            normalizedUrl.append(u.getHost().toLowerCase(Locale.ENGLISH));
+            if ((u.getProtocol().toUpperCase(Locale.ENGLISH).equals("HTTP") && u.getPort() != 80 && u.getPort() != -1)
+                    || (u.getProtocol().toUpperCase(Locale.ENGLISH).equals("HTTPS") && u.getPort() != 443 && u.getPort() != -1)) {
                 normalizedUrl.append(':');
                 normalizedUrl.append(u.getPort());
             }
             normalizedUrl.append(u.getPath());
 
             String baseSignature = new StringBuilder()
-                    .append(httpMethod.toUpperCase(Locale.ROOT))
+                    .append(httpMethod.toUpperCase(Locale.ENGLISH))
                     .append("&")
                     .append(UrlUtils.urlEncode(normalizedUrl.toString()))
                     .append("&")
