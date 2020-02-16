@@ -328,6 +328,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                             _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
 
                             // Cleaning up.
+                            _sessionService.cancelSessionCountdownTimer();
                             _sessionService.clear(true);
                             _providerFactory.logoutFromUsedSocialProviders();
                             _sessionVerificationService.stop();

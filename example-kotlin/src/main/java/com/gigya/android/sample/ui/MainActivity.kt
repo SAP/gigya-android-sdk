@@ -136,6 +136,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         else -> ""
                     }
                     displayErrorAlert("Alert", message)
+                    onClear()
                 }
             }
         }
@@ -841,9 +842,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    override fun onLoginWith(username: String, password: String) {
+    override fun onLoginWith(username: String, password: String, exp: Int) {
         onLoading()
-        viewModel?.login(username, password,
+        viewModel?.login(username, password, exp,
                 success = { json -> onJsonResult(json) },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }

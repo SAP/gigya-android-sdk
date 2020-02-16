@@ -32,14 +32,14 @@ class GigyaSampleApplication : Application() {
 
         Gigya.setApplication(this)
 
-        val sessionExpiration = Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration
+        //val sessionExpiration = Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration
 
         // Initialization with implicit configuration & myAccountLiveData scheme.
-        val gigya = Gigya.getInstance(MyAccount::class.java)
+        Gigya.getInstance(MyAccount::class.java)
 
-        if (gigya.isLoggedIn &&  sessionExpiration != 0L && sessionExpiration < System.currentTimeMillis()) {
-            Gigya.getInstance(MyAccount::class.java).logout()
-        }
+        //if (gigya.isLoggedIn &&  sessionExpiration != 0L && sessionExpiration < System.currentTimeMillis()) {
+        //    Gigya.getInstance(MyAccount::class.java).logout()
+        //}
 
         val signatureHelper = AppSignatureHelper(this)
         GigyaLogger.debug("GigyaSampleApplication SIG", signatureHelper.getAppSignatures().toString())

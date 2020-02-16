@@ -9,6 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
+import com.gigya.android.sdk.BuildConfig;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaInterceptor;
@@ -174,6 +175,7 @@ public class SessionService implements ISessionService {
      */
     @Override
     public void setSession(SessionInfo sessionInfo) {
+        GigyaLogger.debug(LOG_TAG, "setSession: ");
         _sessionInfo = sessionInfo;
         save(sessionInfo); // Will only work for "DEFAULT" encryption.
         // Apply interceptions
@@ -181,7 +183,12 @@ public class SessionService implements ISessionService {
 
         // Check session expiration.
         if (_sessionInfo.getExpirationTime() > 0) {
-            _sessionWillExpireIn = System.currentTimeMillis() + (_sessionInfo.getExpirationTime() * 1000);
+
+            // Determine when the session will expire and persist it.
+            long willExpireIn = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(_sessionInfo.getExpirationTime());
+            _psService.setSessionExpiration(willExpireIn);
+
+            // Start live countdown when the app is idle.
             startSessionCountdownTimerIfNeeded();
         }
     }
@@ -198,8 +205,9 @@ public class SessionService implements ISessionService {
     @Override
     public boolean isValid() {
         boolean valid = _sessionInfo != null && _sessionInfo.isValid();
-        if (valid && _sessionWillExpireIn > 0) {
-            valid = System.currentTimeMillis() < _sessionWillExpireIn;
+        final long willExpireIn = _psService.getSessionExpiration();
+        if (valid && willExpireIn > 0) {
+            valid = System.currentTimeMillis() < willExpireIn;
         }
         return valid;
     }
@@ -244,7 +252,7 @@ public class SessionService implements ISessionService {
         }
     }
 
-    //region LEGACY SESSION
+    //region LEGACY SESSION (Obsolete)
 
     private boolean isLegacySession() {
         final String legacyTokenKey = "session.Token";
@@ -274,8 +282,6 @@ public class SessionService implements ISessionService {
 
     //region SESSION EXPIRATION
 
-    private long _sessionWillExpireIn = 0;
-
     private CountDownTimer _sessionLifeCountdownTimer;
 
     /**
@@ -283,7 +289,10 @@ public class SessionService implements ISessionService {
      */
     @Override
     public void cancelSessionCountdownTimer() {
-        if (_sessionLifeCountdownTimer != null) _sessionLifeCountdownTimer.cancel();
+        if (_sessionLifeCountdownTimer != null) {
+            _sessionLifeCountdownTimer.cancel();
+            _sessionLifeCountdownTimer = null;
+        }
     }
 
     /**
@@ -303,11 +312,24 @@ public class SessionService implements ISessionService {
      */
     @Override
     public void refreshSessionExpiration() {
+        GigyaLogger.debug(LOG_TAG, "refreshSessionExpiration: ");
         // Get session expiration if exists.
-        _sessionWillExpireIn = _psService.getSessionExpiration();
+        final long willExpireIn = _psService.getSessionExpiration();
         // Check if already passed. Reset if so.
-        if (_sessionWillExpireIn > 0 && _sessionWillExpireIn < System.currentTimeMillis()) {
-            _psService.setSessionExpiration(_sessionWillExpireIn = 0);
+        if (willExpireIn > 0 && willExpireIn < System.currentTimeMillis()) {
+
+            // Session was set to expire. Time has passed. Session needs to be invalidated.
+            _psService.setSessionExpiration(0);
+
+            GigyaLogger.debug(LOG_TAG, "refreshSessionExpiration: Session expired. Clearing session");
+            // Clear the session from heap & persistence.
+            clear(true);
+            // Send "session expired" local broadcast. This broadcast can "only" be caught if a receiver is set in the manifest
+            // or registered in the application level.
+            LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
+        } else if (willExpireIn > 0) {
+            // Will start session countdown timer if the current session contains an expiration time.
+            startSessionCountdownTimerIfNeeded();
         }
     }
 
@@ -316,18 +338,17 @@ public class SessionService implements ISessionService {
      */
     @Override
     public void startSessionCountdownTimerIfNeeded() {
+        GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: ");
+        long now = System.currentTimeMillis();
+        long willExpireIn = _psService.getSessionExpiration();
+        long delta = willExpireIn - now;
+
         if (_sessionInfo == null) {
             return;
         }
-        if (_sessionInfo.isValid() && _sessionWillExpireIn > 0) {
-            // Session is set to expire.
-            final long timeUntilSessionExpires = _sessionWillExpireIn - System.currentTimeMillis();
-            GigyaLogger.debug(LOG_TAG, "startSessionCountdownTimerIfNeeded: Session is set to expire in: "
-                    + (timeUntilSessionExpires / 1000) + " start countdown timer");
-            // Just in case.
-            if (timeUntilSessionExpires > 0) {
-                startSessionCountdown(timeUntilSessionExpires);
-            }
+        if (_sessionInfo.isValid() && willExpireIn > 0) {
+            // Trigger session expiration countdown timer.
+            startSessionCountdown(delta);
         }
     }
 
@@ -338,18 +359,22 @@ public class SessionService implements ISessionService {
      * @param future Number of milliseconds to count down.
      */
     private void startSessionCountdown(long future) {
+        GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session is set to expire in: "
+                + TimeUnit.MILLISECONDS.toSeconds(future) + "seconds");
+
+        // Cancel timer.
         cancelSessionCountdownTimer();
         _sessionLifeCountdownTimer = new CountDownTimer(future, TimeUnit.SECONDS.toMillis(1)) {
             @Override
             public void onTick(long millisUntilFinished) {
-                // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOG_CAT!!!!!
-                //GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Seconds remaining until session will expire = " + millisUntilFinished / 1000);
+                // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOGCAT!!!!!
+                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: " + TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + " seconds remaining until session will expire");
             }
 
             @Override
             public void onFinish() {
                 GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session expiration countdown done! Session is invalid");
-                _psService.setSessionExpiration(_sessionWillExpireIn = 0);
+                _psService.setSessionExpiration(0);
                 // Clear the session from heap & persistence.
                 clear(true);
                 // Send "session expired" local broadcast.

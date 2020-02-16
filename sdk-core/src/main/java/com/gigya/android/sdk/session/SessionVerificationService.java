@@ -97,8 +97,6 @@ public class SessionVerificationService implements ISessionVerificationService {
                     // App enters foreground
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
                     if (_sessionService.isValid()) {
-                        // Will start session countdown timer if the current session contains an expiration time.
-                        _sessionService.startSessionCountdownTimerIfNeeded();
                         // Make sure interval is updated correctly.
                         updateInterval();
                         // Session verification is only relevant when user is logged in.
