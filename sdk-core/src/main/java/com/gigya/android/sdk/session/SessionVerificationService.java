@@ -94,13 +94,15 @@ public class SessionVerificationService implements ISessionVerificationService {
             public void onActivityStarted(Activity activity) {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
                     // App enters foreground
+
+                    _sessionService.refreshSessionExpiration();
+
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground started");
                     if (_sessionService.isValid()) {
                         // Make sure interval is updated correctly.
                         updateInterval();
                         // Session verification is only relevant when user is logged in.
                         start();
-
                     }
                 }
             }
@@ -109,7 +111,6 @@ public class SessionVerificationService implements ISessionVerificationService {
             public void onActivityResumed(Activity activity) {
                 if (activityReferences == 1 && !isActivityChangingConfigurations) {
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground resumed");
-                    _sessionService.refreshSessionExpiration();
                 }
             }
 
@@ -117,9 +118,7 @@ public class SessionVerificationService implements ISessionVerificationService {
             public void onActivityPaused(Activity activity) {
                 // Stub.
                 if (activityReferences == 1 && !isActivityChangingConfigurations) {
-                    // Make sure to cancel the session expiration countdown timer (if live).
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background paused");
-                    _sessionService.cancelSessionCountdownTimer();
                 }
             }
 
@@ -130,6 +129,8 @@ public class SessionVerificationService implements ISessionVerificationService {
                     // App enters background
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background stopped");
                     stop();
+
+                    _sessionService.cancelSessionCountdownTimer();
                 }
             }
 

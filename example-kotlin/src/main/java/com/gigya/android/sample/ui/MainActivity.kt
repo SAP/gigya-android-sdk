@@ -93,6 +93,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
         if (viewModel!!.isLoggedIn()) {
             onGetAccount()
+        } else {
+            onClear()
         }
 
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
