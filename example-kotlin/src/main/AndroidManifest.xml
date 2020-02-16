@@ -50,7 +50,7 @@
                 <!-- Accepts URIs that begin with "gigya://gsapi.applicationId/login_result” -->
                 <data
                     android:host="gsapi"
-                    android:pathPrefix="/${applicationId}/login_result"
+                    android:pathPrefix="/com.gigya.android.sample/login_result"
                     android:scheme="gigya" />
             </intent-filter>
         </activity>
@@ -151,6 +151,5 @@
         </service>
 
     </application>
-
 
 </manifest>

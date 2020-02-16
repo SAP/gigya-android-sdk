@@ -3,6 +3,7 @@ package com.gigya.android.sdk.session;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -147,8 +148,6 @@ public class SessionService implements ISessionService {
                     final Config dynamicConfig = gson.fromJson(decryptedSession, Config.class);
                     _config.updateWith(dynamicConfig);
                     _sessionInfo = sessionInfo;
-                    // Refresh expiration. If any.
-                    refreshSessionExpiration();
                 } catch (Exception eex) {
                     eex.printStackTrace();
                 }
@@ -324,8 +323,7 @@ public class SessionService implements ISessionService {
             GigyaLogger.debug(LOG_TAG, "refreshSessionExpiration: Session expired. Clearing session");
             // Clear the session from heap & persistence.
             clear(true);
-            // Send "session expired" local broadcast. This broadcast can "only" be caught if a receiver is set in the manifest
-            // or registered in the application level.
+
             LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
         } else if (willExpireIn > 0) {
             // Will start session countdown timer if the current session contains an expiration time.
@@ -360,7 +358,7 @@ public class SessionService implements ISessionService {
      */
     private void startSessionCountdown(long future) {
         GigyaLogger.debug(LOG_TAG, "startSessionCountdown: Session is set to expire in: "
-                + TimeUnit.MILLISECONDS.toSeconds(future) + "seconds");
+                + TimeUnit.MILLISECONDS.toSeconds(future) + " seconds");
 
         // Cancel timer.
         cancelSessionCountdownTimer();
