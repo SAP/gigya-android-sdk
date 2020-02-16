@@ -154,7 +154,6 @@ public class WebLoginProvider extends Provider {
         final TreeMap<String, Object> serverParams = new TreeMap<>();
         final String provider = ((String) loginParams.get("provider"));
         if (provider != null) {
-            provider.toLowerCase(Locale.ENGLISH);
             final String xperm = (String) loginParams.get(provider + "ExtraPermissions");
             if (xperm != null) {
                 loginParams.remove(provider + "ExtraPermissions");
