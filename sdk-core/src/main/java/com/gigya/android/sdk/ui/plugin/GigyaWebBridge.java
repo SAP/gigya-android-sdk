@@ -142,7 +142,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         final Map<String, Object> settings = new HashMap<>();
         UrlUtils.parseUrlParameters(settings, (String) data.get("settings"));
 
-        final Feature feature = Feature.valueOf(action.toUpperCase());
+        final Feature feature = Feature.valueOf(action.toUpperCase(Locale.ENGLISH));
         final String callbackId = (String) data.get("callbackID");
 
         switch (feature) {
@@ -508,7 +508,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             public String getFeatures() {
                 JSONArray features = new JSONArray();
                 for (GigyaWebBridge.Feature feature : GigyaWebBridge.Feature.values()) {
-                    features.put(feature.toString().toLowerCase(Locale.ROOT));
+                    features.put(feature.toString().toLowerCase(Locale.ENGLISH));
                 }
                 return features.toString();
             }

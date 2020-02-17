@@ -20,6 +20,7 @@ import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.json.JSONObject;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -153,7 +154,6 @@ public class WebLoginProvider extends Provider {
         final TreeMap<String, Object> serverParams = new TreeMap<>();
         final String provider = ((String) loginParams.get("provider"));
         if (provider != null) {
-            provider.toLowerCase();
             final String xperm = (String) loginParams.get(provider + "ExtraPermissions");
             if (xperm != null) {
                 loginParams.remove(provider + "ExtraPermissions");

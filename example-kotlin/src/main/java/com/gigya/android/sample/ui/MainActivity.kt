@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun getApproveActionIcon(): Int = 0
 
         })
+
+        //changeLocale("tr")
     }
 
     override fun onStart() {
@@ -982,4 +984,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
+    private fun changeLocale(identifier: String) {
+
+        val configuration = resources.configuration
+        val newLocale = Locale(identifier)
+        Locale.setDefault(newLocale)
+        configuration.setLocale(newLocale)
+        val context = createConfigurationContext(configuration)
+    }
 }
