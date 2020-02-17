@@ -97,7 +97,7 @@ public class SessionVerificationService implements ISessionVerificationService {
 
                     _sessionService.refreshSessionExpiration();
 
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground started");
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground started first activity");
                     if (_sessionService.isValid()) {
                         // Make sure interval is updated correctly.
                         updateInterval();
@@ -109,17 +109,12 @@ public class SessionVerificationService implements ISessionVerificationService {
 
             @Override
             public void onActivityResumed(Activity activity) {
-                if (activityReferences == 1 && !isActivityChangingConfigurations) {
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground resumed");
-                }
+                //Stub.
             }
 
             @Override
             public void onActivityPaused(Activity activity) {
                 // Stub.
-                if (activityReferences == 1 && !isActivityChangingConfigurations) {
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background paused");
-                }
             }
 
             @Override
@@ -127,7 +122,7 @@ public class SessionVerificationService implements ISessionVerificationService {
                 isActivityChangingConfigurations = activity.isChangingConfigurations();
                 if (--activityReferences == 0 && !isActivityChangingConfigurations) {
                     // App enters background
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background stopped");
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background stopped first activity");
                     stop();
 
                     _sessionService.cancelSessionCountdownTimer();

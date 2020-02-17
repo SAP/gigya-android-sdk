@@ -323,8 +323,6 @@ public class SessionService implements ISessionService {
             GigyaLogger.debug(LOG_TAG, "refreshSessionExpiration: Session expired. Clearing session");
             // Clear the session from heap & persistence.
             clear(true);
-
-            LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
         } else if (willExpireIn > 0) {
             // Will start session countdown timer if the current session contains an expiration time.
             startSessionCountdownTimerIfNeeded();
@@ -366,7 +364,7 @@ public class SessionService implements ISessionService {
             @Override
             public void onTick(long millisUntilFinished) {
                 // KEEP THIS LOG COMMENTED TO AVOID SPAMMING LOGCAT!!!!!
-                GigyaLogger.debug(LOG_TAG, "startSessionCountdown: " + TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + " seconds remaining until session will expire");
+                //GigyaLogger.debug(LOG_TAG, "startSessionCountdown: " + TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + " seconds remaining until session will expire");
             }
 
             @Override

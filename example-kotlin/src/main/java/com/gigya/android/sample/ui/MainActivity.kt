@@ -137,8 +137,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> "Your session is invalid"
                         else -> ""
                     }
-                    displayErrorAlert("Alert", message)
-                    onClear()
+                    runOnUiThread {
+                        displayErrorAlert("Alert", message)
+                        onClear()
+                    }
                 }
             }
         }
@@ -944,6 +946,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         response_text_view.text = ""
         empty_response_text.visible()
         invalidateOptionsMenu()
+        fingerprint_lock_fab.hide()
     }
 
     //endregion
