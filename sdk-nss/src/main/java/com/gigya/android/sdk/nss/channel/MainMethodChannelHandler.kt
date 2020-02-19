@@ -5,7 +5,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 
-class MainMethodChannelHandler(private val onInitFromAssets: () -> (HashMap<String, Any>?)) : MethodChannel.MethodCallHandler {
+class MainMethodChannelHandler(private val onInitFromAssets: () -> (String?)) : MethodChannel.MethodCallHandler {
 
     companion object {
 
@@ -18,8 +18,8 @@ class MainMethodChannelHandler(private val onInitFromAssets: () -> (HashMap<Stri
 
         when (call.method) {
             MainChannelCall.IGNITE.method -> {
-                onInitFromAssets()?.let { mappedMarkup ->
-                    result.success(mappedMarkup)
+                onInitFromAssets()?.let { markup ->
+                    result.success(markup)
                 } ?: GigyaLogger.error(LOG_TAG, "Failed to initialize markup from asset file")
             }
         }

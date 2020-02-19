@@ -1,39 +1,58 @@
 package com.gigya.android.sdk.nss
 
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.channel.ApiMethodChannelHandler
 import com.gigya.android.sdk.nss.channel.MainMethodChannelHandler
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.gigya.android.sdk.nss.coordinator.NssCoordinator
+import com.gigya.android.sdk.nss.coordinator.NssCoordinatorFactory
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import java.lang.reflect.Type
 
-class NssViewModel : NssObject() {
+class NssViewModel<T : GigyaAccount>(private val markup: String) {
 
     companion object {
 
         const val LOG_TAG = "NssViewModel"
     }
 
-    var mMarkup: String? = null
+    /**
+     * Main flow [NssCoordinator] which encapsulates the entire flow.
+     * The main coordinator can instantiate additional inline coordinators.
+     */
+    var mCoordinator: NssCoordinator<T>? = null
+
+    fun registerMethodChannels(engine: FlutterEngine) {
+        // Register main channel.
+        MethodChannel(engine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_MAIN)
+                .setMethodCallHandler(mMainMethodChannelHandler)
+
+        // Register AP channel.
+        MethodChannel(engine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_API)
+                .setMethodCallHandler(mApiMethodChannelHandler)
+    }
 
     private val mMainMethodChannelHandler: MainMethodChannelHandler by lazy {
         MainMethodChannelHandler(onInitFromAssets = {
-            mMarkup.guard {
-                throw RuntimeException("Unable to fetch markup from assets")
-            }
-
             GigyaLogger.debug(LOG_TAG, "Markup available - convert to map for channel init")
-
-            val type: Type = object : TypeToken<HashMap<String, Any>>() {}.type
-            val map: HashMap<String, Any> = Gson().fromJson(mMarkup!!, type)
-            map
-
+            markup
         })
     }
 
-    fun registerMainChannel(forEngine: FlutterEngine) {
-        val mainChannel = MethodChannel(forEngine.dartExecutor.binaryMessenger, GigyaNss.CHANNEL_MAIN)
-        mainChannel.setMethodCallHandler(mMainMethodChannelHandler)
+    private val mApiMethodChannelHandler: ApiMethodChannelHandler by lazy {
+        ApiMethodChannelHandler(onApiRequested = { method, arguments, result ->
+            if (mCoordinator == null) {
+                mCoordinator = NssCoordinatorFactory.createFor(method, whenComplete = { action ->
+                    coordinatorCompleted(withAction = action)
+                })
+            }
+            mCoordinator?.onNext(method, arguments, result)
+        })
     }
+
+    private fun coordinatorCompleted(withAction: String) {
+        // Dispose coordinator.
+        mCoordinator = null
+    }
+
 }

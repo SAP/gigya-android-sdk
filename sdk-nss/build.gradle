@@ -64,8 +64,10 @@ dependencies {
     
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    // Core SDK.
+    // Gigya SDKs.
     compileOnly project(path: ':sdk-core')
+    compileOnly project(path: ':sdk-tfa')
+    compileOnly project(path: ':sdk-auth')
     compileOnly 'com.google.code.gson:gson:2.8.5'
 
     // Flutter engine.
