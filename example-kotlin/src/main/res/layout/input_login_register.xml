@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     app:layout_constrainedWidth="false">
 
     <android.support.v7.widget.AppCompatTextView
@@ -94,6 +95,7 @@
         android:layout_marginTop="16dp"
         android:text="Session expiration:"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintStart_toStartOf="@id/login_register_sheet_title"
         app:layout_constraintTop_toBottomOf="@id/login_register_sheet_password_input" />
 
@@ -102,6 +104,7 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constrainedHeight="true"
         app:layout_constraintStart_toStartOf="@id/login_register_session_exp_title"
         app:layout_constraintTop_toBottomOf="@id/login_register_session_exp_title">
@@ -110,6 +113,7 @@
             android:id="@+id/login_register_session_exp_input_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="0"
             android:inputType="numberDecimal"
             android:textSize="14sp" />
 

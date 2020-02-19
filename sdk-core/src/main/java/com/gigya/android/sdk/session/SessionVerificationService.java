@@ -93,12 +93,12 @@ public class SessionVerificationService implements ISessionVerificationService {
             @Override
             public void onActivityStarted(Activity activity) {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
-
                     // App enters foreground
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground");
+
+                    _sessionService.refreshSessionExpiration();
+
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Foreground started first activity");
                     if (_sessionService.isValid()) {
-                        // Will start session countdown timer if the current session contains an expiration time.
-                        _sessionService.startSessionCountdownTimerIfNeeded();
                         // Make sure interval is updated correctly.
                         updateInterval();
                         // Session verification is only relevant when user is logged in.
@@ -109,7 +109,7 @@ public class SessionVerificationService implements ISessionVerificationService {
 
             @Override
             public void onActivityResumed(Activity activity) {
-                // Stub. Can track the current resumed activity.
+                //Stub.
             }
 
             @Override
@@ -122,10 +122,10 @@ public class SessionVerificationService implements ISessionVerificationService {
                 isActivityChangingConfigurations = activity.isChangingConfigurations();
                 if (--activityReferences == 0 && !isActivityChangingConfigurations) {
                     // App enters background
-                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background");
-                    // Make sure to cancel the session expiration countdown timer (if live).
-                    _sessionService.cancelSessionCountdownTimer();
+                    GigyaLogger.info(LOG_TAG, "Application lifecycle - Background stopped first activity");
                     stop();
+
+                    _sessionService.cancelSessionCountdownTimer();
                 }
             }
 

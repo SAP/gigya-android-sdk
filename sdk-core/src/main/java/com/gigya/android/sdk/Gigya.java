@@ -317,6 +317,7 @@ public class Gigya<T extends GigyaAccount> {
 
         _businessApiService.logout(gigyaCallback);
 
+        _sessionService.cancelSessionCountdownTimer();
         _sessionService.clear(true);
 
         _sessionVerificationService.stop();

@@ -95,6 +95,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
         if (viewModel!!.isLoggedIn()) {
             onGetAccount()
+        } else {
+            onClear()
         }
 
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
@@ -137,7 +139,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> "Your session is invalid"
                         else -> ""
                     }
-                    displayErrorAlert("Alert", message)
+                    runOnUiThread {
+                        displayErrorAlert("Alert", message)
+                        onClear()
+                    }
                 }
             }
         }
@@ -843,9 +848,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    override fun onLoginWith(username: String, password: String) {
+    override fun onLoginWith(username: String, password: String, exp: Int) {
         onLoading()
-        viewModel?.login(username, password,
+        viewModel?.login(username, password, exp,
                 success = { json -> onJsonResult(json) },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
@@ -943,6 +948,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         response_text_view.text = ""
         empty_response_text.visible()
         invalidateOptionsMenu()
+        fingerprint_lock_fab.hide()
     }
 
     //endregion
