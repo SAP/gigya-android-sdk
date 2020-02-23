@@ -45,9 +45,9 @@ class NssViewModel<T : GigyaAccount>(private val markup: String, private val fin
                     add(flowId, flow!!)
                     true
                 },
-                onFinish = {
+                onDismiss = {
                     GigyaLogger.debug(LOG_TAG, "onFinish received from engine.")
-                    finish
+                    finish()
                 }
         )
     }
