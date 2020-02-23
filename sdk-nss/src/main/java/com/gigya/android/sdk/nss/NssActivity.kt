@@ -3,8 +3,10 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.utils.guard
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.view.FlutterMain
@@ -43,7 +45,7 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
             throw RuntimeException("Missing markup. Please provide markup on activity instantiation")
         }
 
-        mViewModel = NssViewModelProviders.provideViewModel(markup!!)
+        mViewModel = NssViewModelProviders.provideViewModel(markup!!, finish = { onFinishReceived() })
 
         flutterEngine.guard {
             throw RuntimeException("NSS engine failed to initialize!")
@@ -59,6 +61,14 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
                 FlutterMain.findAppBundlePath(),
                 "main")
         )
+    }
+
+    /**
+     * Engine notified that the main flow/work has ended.
+     * Dismiss/destroy the activity.
+     */
+    private fun onFinishReceived() {
+        finish()
     }
 
     //region Extensions

@@ -5,6 +5,7 @@
     "screens": {
       "login": {
         "id": "login",
+        "flow": "login",
         "appBar": {
           "textKey": "login"
         },
@@ -12,7 +13,7 @@
         "children": [
           {
             "type": "label",
-            "textKey": "login with site creds:"
+            "textKey": "login with site credentials:"
           },
           {
             "id": "loginID",
@@ -29,10 +30,18 @@
             "textKey": "Submit",
             "api": "accounts.login"
           }
-        ]
+        ],
+        "routing": {
+          "routes": {
+            "success": {
+              "route": "dismiss"
+            }
+          }
+        }
       },
       "register": {
         "id": "register",
+        "flow": "registration",
         "appBar": {
           "textKey": "Register"
         },
@@ -40,7 +49,7 @@
         "children": [
           {
             "type": "label",
-            "textKey": "Register with site creds:"
+            "textKey": "Register with site credentials:"
           },
           {
             "id": "email",
@@ -57,7 +66,14 @@
             "textKey": "Submit",
             "api": "accounts.register"
           }
-        ]
+        ],
+        "routing": {
+          "routes": {
+            "success": {
+              "route": "dismiss"
+            }
+          }
+        }
       }
     }
   }

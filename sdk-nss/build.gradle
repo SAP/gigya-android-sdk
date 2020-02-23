@@ -61,6 +61,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
     testImplementation project(path: ':sdk-core')
+    testImplementation 'com.google.code.gson:gson:2.8.5'
     
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 

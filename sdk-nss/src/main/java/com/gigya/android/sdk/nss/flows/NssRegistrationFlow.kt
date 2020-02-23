@@ -1,15 +1,17 @@
-package com.gigya.android.sdk.nss.coordinator
+package com.gigya.android.sdk.nss.flows
 
+import android.util.Log
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.nss.refine
+import com.gigya.android.sdk.nss.utils.refine
+import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssRegistrationCoordinator<T : GigyaAccount>(override val whenComplete: (withAction: String) -> Unit) : NssCoordinator<T>(whenComplete) {
+class NssRegistrationFlow<T : GigyaAccount>(override val id: String) : NssFlow<T>(id) {
 
     companion object {
 
@@ -28,10 +30,8 @@ class NssRegistrationCoordinator<T : GigyaAccount>(override val whenComplete: (w
                     this.register(arguments, object : GigyaLoginCallback<T>() {
 
                         override fun onSuccess(obj: T) {
-                            val serializedObject = obj.serializeToMap()
+                            val serializedObject = obj.serializeToMap(gson)
                             result.success(serializedObject)
-
-                            onComplete()
                         }
 
                         override fun onError(error: GigyaError?) {
@@ -43,15 +43,15 @@ class NssRegistrationCoordinator<T : GigyaAccount>(override val whenComplete: (w
                     })
                 }
             }
+            else -> {
+                // Flow cannot handle method.8
+                Log.e("GigyaError", "Current flow cannot handle this request. Verify your flow ids are correct")
+            }
         }
     }
 
-    override fun onComplete() {
-        whenComplete("")
-    }
-
     override fun onDispose() {
-        
+
     }
 
 

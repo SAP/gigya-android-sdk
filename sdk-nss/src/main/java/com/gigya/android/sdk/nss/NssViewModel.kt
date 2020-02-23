@@ -4,23 +4,18 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.ApiMethodChannelHandler
 import com.gigya.android.sdk.nss.channel.MainMethodChannelHandler
-import com.gigya.android.sdk.nss.coordinator.NssCoordinator
-import com.gigya.android.sdk.nss.coordinator.NssCoordinatorFactory
+import com.gigya.android.sdk.nss.coordinator.NssCoordinatorContainer
+import com.gigya.android.sdk.nss.flows.NssFlowFactory
+import com.gigya.android.sdk.nss.utils.guard
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class NssViewModel<T : GigyaAccount>(private val markup: String) {
+class NssViewModel<T : GigyaAccount>(private val markup: String, private val finish: () -> Unit) : NssCoordinatorContainer<T>() {
 
     companion object {
 
         const val LOG_TAG = "NssViewModel"
     }
-
-    /**
-     * Main flow [NssCoordinator] which encapsulates the entire flow.
-     * The main coordinator can instantiate additional inline coordinators.
-     */
-    var mCoordinator: NssCoordinator<T>? = null
 
     fun registerMethodChannels(engine: FlutterEngine) {
         // Register main channel.
@@ -33,26 +28,36 @@ class NssViewModel<T : GigyaAccount>(private val markup: String) {
     }
 
     private val mMainMethodChannelHandler: MainMethodChannelHandler by lazy {
-        MainMethodChannelHandler(onInitFromAssets = {
-            GigyaLogger.debug(LOG_TAG, "Markup available - convert to map for channel init")
-            markup
-        })
+        MainMethodChannelHandler(
+                onInitFromAssets = {
+                    GigyaLogger.debug(LOG_TAG, "Markup available - convert to map for channel init")
+                    markup
+                },
+                onFlowRequested = { flowId ->
+                    flowId.guard {
+                        throw RuntimeException("Failed to inject flowId. Flow coordination is mandatory.")
+                    }
+
+                    val flow = NssFlowFactory.createFor<T>(flowId!!).guard {
+                        throw RuntimeException("Failed to initialize flow")
+                    }
+
+                    add(flowId, flow!!)
+                    true
+                },
+                onFinish = {
+                    GigyaLogger.debug(LOG_TAG, "onFinish received from engine.")
+                    finish
+                }
+        )
     }
 
     private val mApiMethodChannelHandler: ApiMethodChannelHandler by lazy {
-        ApiMethodChannelHandler(onApiRequested = { method, arguments, result ->
-            if (mCoordinator == null) {
-                mCoordinator = NssCoordinatorFactory.createFor(method, whenComplete = { action ->
-                    coordinatorCompleted(withAction = action)
+        ApiMethodChannelHandler(
+                onApiRequested = { method, arguments, result ->
+                    getCurrent()?.onNext(method, arguments, result)
                 })
-            }
-            mCoordinator?.onNext(method, arguments, result)
-        })
     }
 
-    private fun coordinatorCompleted(withAction: String) {
-        // Dispose coordinator.
-        mCoordinator = null
-    }
 
 }

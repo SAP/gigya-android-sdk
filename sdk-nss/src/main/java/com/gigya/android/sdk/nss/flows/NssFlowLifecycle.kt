@@ -1,12 +1,10 @@
-package com.gigya.android.sdk.nss.coordinator
+package com.gigya.android.sdk.nss.flows
 
 import io.flutter.plugin.common.MethodChannel
 
-interface NasCoordinatorLifecycle {
+interface NssFlowLifecycle {
 
     fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result)
-
-    fun onComplete()
 
     fun onDispose()
 }

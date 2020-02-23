@@ -7,9 +7,9 @@ class NssViewModelProviders {
     companion object {
 
         /**
-         * Provide a new instance of the NssActivityViewModel
+         * Provide a new instance of the NssActivityViewModel.
          */
-        fun <T : GigyaAccount> provideViewModel(markup: String) = NssViewModel<T>(markup)
+        fun <T : GigyaAccount> provideViewModel(markup: String, finish: () -> Unit) = NssViewModel<T>(markup, finish)
 
     }
 }
