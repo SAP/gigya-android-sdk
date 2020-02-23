@@ -1,11 +1,15 @@
 package com.gigya.android.sdk.nss.channel
 
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 
-class MainMethodChannelHandler(private val onInitFromAssets: () -> (String?)) : MethodChannel.MethodCallHandler {
+class MainMethodChannelHandler(
+        private val onInitFromAssets: () -> (String?),
+        private val onFlowRequested: (String?) -> (Boolean),
+        private val onDismiss: () -> Unit) : MethodChannel.MethodCallHandler {
 
     companion object {
 
@@ -22,10 +26,22 @@ class MainMethodChannelHandler(private val onInitFromAssets: () -> (String?)) : 
                     result.success(markup)
                 } ?: GigyaLogger.error(LOG_TAG, "Failed to initialize markup from asset file")
             }
+            MainChannelCall.FLOW.method -> {
+                call.arguments.refine<Map<String, String>> {
+                    val added = onFlowRequested(this["flowId"])
+                    result.success(added)
+                }
+            }
+            MainChannelCall.DISMISS.method -> {
+                onDismiss()
+                // No need to return a value to the channel in this case.
+                // This method should dismiss the engine.
+            }
+
         }
     }
 
     internal enum class MainChannelCall(val method: String) {
-        IGNITE("ignition")
+        IGNITE("ignition"), FLOW("flow"), DISMISS("dismiss")
     }
 }

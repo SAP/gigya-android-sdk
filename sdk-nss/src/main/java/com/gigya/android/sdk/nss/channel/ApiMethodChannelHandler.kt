@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.nss.channel
 
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.nss.refine
+import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 

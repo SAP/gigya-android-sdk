@@ -248,7 +248,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
             }
             R.id.action_show_native_screen_sets -> {
-                GigyaNss<MyAccount>()
+                GigyaNss
                         .loadFromAssets("nss_markup_mock.json")
                         .show(this, "login", object : NssBuilder.ResultHandler {
 

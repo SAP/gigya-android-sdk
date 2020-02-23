@@ -3,11 +3,12 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.utils.guard
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import java.io.IOException
 
-data class NssBuilder<T : GigyaAccount>(var assetPath: String? = null, var resultHandler: ResultHandler? = null) {
+data class NssBuilder(var assetPath: String? = null, var resultHandler: ResultHandler? = null) {
 
     companion object {
 
@@ -38,30 +39,6 @@ data class NssBuilder<T : GigyaAccount>(var assetPath: String? = null, var resul
     } catch (ioException: IOException) {
         ioException.printStackTrace()
         null
-    }
-
-    /**
-     * Use a cached engine.
-     * Using a cached engine will improve screensets performance. Note that with a cached engine,
-     * until manually killed, the engine will continue to run in the background.
-     */
-    fun cacheEngine(context: Context): NssBuilder<T> {
-        // Creating a new instance of the Flutter engine to be cached.
-        flutterEngine = FlutterEngine(context)
-
-        // Cache engine instance.
-        FlutterEngineCache
-                .getInstance()
-                .put(GigyaNss.FLUTTER_ENGINE_ID, flutterEngine)
-        return this
-    }
-
-    /**
-     * Flush currently cached screensets engine.
-     */
-    fun flushCachedEngine() {
-        flutterEngine?.destroy()
-        flutterEngine = null
     }
 
     /**
