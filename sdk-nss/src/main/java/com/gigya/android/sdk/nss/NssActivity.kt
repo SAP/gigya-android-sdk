@@ -64,7 +64,7 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
     }
 
     /**
-     * Engine notified that the main flow/work has ended.
+//     * Engine notified that the main flow/work has ended.
      * Dismiss/destroy the activity.
      */
     private fun onFinishReceived() {

@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainMethodChannelHandler(
         private val onInitFromAssets: () -> (String?),
         private val onFlowRequested: (String?) -> (Boolean),
-        private val onFinish: () -> Unit) : MethodChannel.MethodCallHandler {
+        private val onDismiss: () -> Unit) : MethodChannel.MethodCallHandler {
 
     companion object {
 
@@ -32,8 +32,8 @@ class MainMethodChannelHandler(
                     result.success(added)
                 }
             }
-            MainChannelCall.FINISH.method -> {
-                onFinish
+            MainChannelCall.DISMISS.method -> {
+                onDismiss()
                 // No need to return a value to the channel in this case.
                 // This method should dismiss the engine.
             }
@@ -42,6 +42,6 @@ class MainMethodChannelHandler(
     }
 
     internal enum class MainChannelCall(val method: String) {
-        IGNITE("ignition"), FLOW("flow"), FINISH("finish")
+        IGNITE("ignition"), FLOW("flow"), DISMISS("dismiss")
     }
 }

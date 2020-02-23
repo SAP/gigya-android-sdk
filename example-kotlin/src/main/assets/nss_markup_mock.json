@@ -1,10 +1,21 @@
 {
   "platformAware": false,
   "markup": {
-    "initialRoute": "register",
+    "initialRoute" : "register",
+    "routing": {
+      "login": {
+        "routes": {
+          "success": "dismiss"
+        }
+      },
+      "register": {
+        "routes" : {
+          "success": "dismiss"
+        }
+      }
+    },
     "screens": {
       "login": {
-        "id": "login",
         "flow": "login",
         "appBar": {
           "textKey": "login"
@@ -30,17 +41,9 @@
             "textKey": "Submit",
             "api": "accounts.login"
           }
-        ],
-        "routing": {
-          "routes": {
-            "success": {
-              "route": "dismiss"
-            }
-          }
-        }
+        ]
       },
       "register": {
-        "id": "register",
         "flow": "registration",
         "appBar": {
           "textKey": "Register"
@@ -66,14 +69,17 @@
             "textKey": "Submit",
             "api": "accounts.register"
           }
-        ],
-        "routing": {
-          "routes": {
-            "success": {
-              "route": "dismiss"
-            }
+        ]
+      },
+      "test": {
+        "flow": "test",
+        "stack": "vertical",
+        "children": [
+          {
+            "type": "label",
+            "textKey": "Test routing widget"
           }
-        }
+        ]
       }
     }
   }
