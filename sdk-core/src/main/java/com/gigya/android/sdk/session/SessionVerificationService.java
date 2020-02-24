@@ -241,6 +241,11 @@ public class SessionVerificationService implements ISessionVerificationService {
      * 2. Broadcast a local event to notify that the session is invalid.
      */
     private void notifyInvalidSession() {
+        stop();
+        if (!_sessionService.isValid()) {
+            GigyaLogger.debug(LOG_TAG, "notifyInvalidSession: Session is invalid. Only stopping timer");
+            return;
+        }
         GigyaLogger.debug(LOG_TAG, "notifyInvalidSession: Invalidating session and cached account. Trigger local broadcast");
         // Clear current session & cached account.
         _sessionService.clear(true);
@@ -248,6 +253,5 @@ public class SessionVerificationService implements ISessionVerificationService {
         // Send "session invalid" local broadcast & flush the timer.
         LocalBroadcastManager.getInstance(_context)
                 .sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID));
-        stop();
     }
 }
