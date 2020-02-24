@@ -10,7 +10,11 @@ import com.gigya.android.sdk.nss.utils.guard
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class NssViewModel<T : GigyaAccount>(private val markup: String, private val finish: () -> Unit) : NssCoordinatorContainer<T>() {
+class NssViewModel<T : GigyaAccount> : NssCoordinatorContainer<T>() {
+
+    var markup: String? = null
+    var finish: () -> Unit? = { }
+    var initialRoute: String? = null
 
     companion object {
 
@@ -29,11 +33,11 @@ class NssViewModel<T : GigyaAccount>(private val markup: String, private val fin
 
     private val mMainMethodChannelHandler: MainMethodChannelHandler by lazy {
         MainMethodChannelHandler(
-                onInitFromAssets = {
+                onRequestMarkup = {
                     GigyaLogger.debug(LOG_TAG, "Markup available - convert to map for channel init")
                     markup
                 },
-                onFlowRequested = { flowId ->
+                onRequestFlow = { flowId ->
                     flowId.guard {
                         throw RuntimeException("Failed to inject flowId. Flow coordination is mandatory.")
                     }
@@ -45,7 +49,7 @@ class NssViewModel<T : GigyaAccount>(private val markup: String, private val fin
                     add(flowId, flow!!)
                     true
                 },
-                onDismiss = {
+                onRequestDismiss = {
                     GigyaLogger.debug(LOG_TAG, "onFinish received from engine.")
                     finish()
                 }

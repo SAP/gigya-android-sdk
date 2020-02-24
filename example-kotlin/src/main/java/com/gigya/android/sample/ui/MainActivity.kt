@@ -36,7 +36,7 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
-import com.gigya.android.sdk.nss.NssBuilder
+import com.gigya.android.sdk.nss.Nss
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun getApproveActionIcon(): Int = 0
 
         })
+
+        GigyaNss.register()
 
         //changeLocale("tr")
     }
@@ -249,13 +251,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_show_native_screen_sets -> {
                 GigyaNss
-                        .loadFromAssets("nss_markup_mock.json")
-                        .show(this, "login", object : NssBuilder.ResultHandler {
-
-                            override fun onError(cause: String) {
-                                toast(cause)
-                            }
-                        })
+                        .load("nss_markup_mock.json")
+                        .show(this)
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
