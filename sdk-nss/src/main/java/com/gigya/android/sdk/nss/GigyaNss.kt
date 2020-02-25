@@ -3,6 +3,11 @@ package com.gigya.android.sdk.nss
 import android.annotation.SuppressLint
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.containers.IoCContainer
+import com.gigya.android.sdk.nss.channel.ApiMethodChannel
+import com.gigya.android.sdk.nss.channel.MainMethodChannel
+import com.gigya.android.sdk.nss.flows.NssFlowFactory
+import com.gigya.android.sdk.nss.flows.NssLoginFlow
+import com.gigya.android.sdk.nss.flows.NssRegistrationFlow
 
 object GigyaNss {
 
@@ -34,7 +39,12 @@ object GigyaNss {
     val dependenciesContainer: IoCContainer = Gigya.getContainer()
 
     fun register() {
-        dependenciesContainer.bind(NssViewModel::class.java, NssViewModel::class.java, false)
+        dependenciesContainer.bind(MainMethodChannel::class.java, MainMethodChannel::class.java, false)
+                .bind(ApiMethodChannel::class.java, ApiMethodChannel::class.java, false)
+                .bind(NssRegistrationFlow::class.java, NssRegistrationFlow::class.java, false)
+                .bind(NssLoginFlow::class.java, NssLoginFlow::class.java, false)
+                .bind(NssFlowFactory::class.java, NssFlowFactory::class.java, false)
+                .bind(NssViewModel::class.java, NssViewModel::class.java, true)
     }
 
     //region Host interface

@@ -8,27 +8,31 @@ import java.io.IOException
 class Nss private constructor(
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val handler: ResultHandler?) {
+        private val events: NssEvents?) {
 
     companion object {
 
         const val LOG_TAG = "NssBuilder"
     }
 
-    interface ResultHandler {
-
-        fun onError(cause: String)
-    }
-
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
-            var handler: ResultHandler? = null) {
+            var events: NssEvents? = null) {
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
-        fun handler(handler: ResultHandler) = apply { this.handler = handler }
-        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, handler).show(launcherContext)
+        fun events(events: NssEvents) = apply {
+            this.events = events
+            this.events?.let {
+                // Injecting the events callback to the singleton view model.
+                val viewModel = GigyaNss.dependenciesContainer.get(NssViewModel::class.java)
+                viewModel.events = events
+            }
+        }
+
+        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, events)
+                .show(launcherContext)
     }
 
     /**
@@ -65,7 +69,11 @@ class Nss private constructor(
      * Notify error using available result handler.
      */
     @Suppress("SameParameterValue")
-    private fun applyError(cause: String) = handler?.onError(cause)
+    private fun applyError(cause: String) = events?.onException(cause)
 
+    interface ResultHandler {
+
+        fun onError(cause: String)
+    }
 
 }

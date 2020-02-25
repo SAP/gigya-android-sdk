@@ -13,7 +13,7 @@ import io.flutter.view.FlutterMain
 
 class NssActivity<T : GigyaAccount> : FlutterActivity() {
 
-    private lateinit var mViewModel: NssViewModel<T>
+    private var mViewModel: NssViewModel<T>? = null
 
     companion object {
 
@@ -48,20 +48,20 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
 
         GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
             mViewModel = this
-            mViewModel.markup = markup
-            mViewModel.finish = {
+            mViewModel!!.markup = markup
+            mViewModel!!.finish = {
                 onFinishReceived()
             }
 
             // Add optional initial route.
             val initial = intent?.extras?.getString(EXTRA_INITIAL_ROUTE)
             initial?.let { route ->
-                mViewModel.initialRoute = route
+                mViewModel!!.initialRoute = route
             }
         }
 
-        // Register channels.
-        mViewModel.registerMethodChannels(flutterEngine!!)
+        // Load channels.
+        mViewModel?.loadChannels(flutterEngine!!)
 
         GigyaLogger.debug(LOG_TAG, "Registered nss method channels.")
         // Execute the engine's "main" method. Making sure that the main platform channel is already initialized
@@ -78,6 +78,11 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
      */
     private fun onFinishReceived() {
         finish()
+    }
+
+    override fun onDestroy() {
+        mViewModel?.dispose()
+        super.onDestroy()
     }
 
     //region Extensions

@@ -1,7 +1,7 @@
 {
   "platformAware": false,
   "markup": {
-    "initialRoute" : "register",
+    "initialRoute" : "login",
     "routing": {
       "login": {
         "routes": {

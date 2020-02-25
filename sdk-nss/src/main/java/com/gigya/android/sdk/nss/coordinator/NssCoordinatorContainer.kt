@@ -22,4 +22,8 @@ open class NssCoordinatorContainer<T : GigyaAccount> {
     fun get(id: String): NssFlow<T>? = mFlowMap[id]
 
     fun getCurrent(): NssFlow<T>? = mFlowMap[mCurrentFlow]
+
+    fun clear() {
+        mFlowMap.clear()
+    }
 }
