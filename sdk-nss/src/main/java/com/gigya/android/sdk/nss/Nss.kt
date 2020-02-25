@@ -2,32 +2,33 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.utils.guard
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.FlutterEngineCache
 import java.io.IOException
 
-data class NssBuilder(var assetPath: String? = null, var resultHandler: ResultHandler? = null) {
+class Nss private constructor(
+        private val assetPath: String?,
+        private val initialRoute: String?,
+        private val handler: ResultHandler?) {
 
     companion object {
 
         const val LOG_TAG = "NssBuilder"
     }
 
-    private var flutterEngine: FlutterEngine? = null
-
     interface ResultHandler {
 
         fun onError(cause: String)
     }
 
-    /**
-     * Clear builder data.
-     */
-    fun clear() {
-        assetPath = null
-        resultHandler = null
+    data class Builder(
+            var assetPath: String? = null,
+            var initialRoute: String? = null,
+            var handler: ResultHandler? = null) {
+
+        fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
+        fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
+        fun handler(handler: ResultHandler) = apply { this.handler = handler }
+        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, handler).show(launcherContext)
     }
 
     /**
@@ -44,20 +45,17 @@ data class NssBuilder(var assetPath: String? = null, var resultHandler: ResultHa
     /**
      * Show screensets.
      */
-    fun show(launcherContext: Context, initialRoute: String, handler: ResultHandler) {
-        resultHandler = handler
-        // Try to load from assets as a the default action.
+    fun show(launcherContext: Context) {
         assetPath?.apply {
-
-            val jsonAsset = loadJsonFromAssets(launcherContext, assetPath!!)
+            val jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
             jsonAsset.guard {
+                GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
 
             // Start NssActivity using assets provided markup.
             NssActivity.start(
                     launcherContext,
-                    flutterEngine != null,
                     markup = jsonAsset!!,
                     initialRoute = initialRoute)
         } ?: applyError("Asset path not available")
@@ -66,7 +64,8 @@ data class NssBuilder(var assetPath: String? = null, var resultHandler: ResultHa
     /**
      * Notify error using available result handler.
      */
-    private fun applyError(cause: String) = resultHandler?.onError(cause)
+    @Suppress("SameParameterValue")
+    private fun applyError(cause: String) = handler?.onError(cause)
 
 
 }

@@ -1,6 +1,8 @@
 package com.gigya.android.sdk.nss
 
 import android.annotation.SuppressLint
+import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.containers.IoCContainer
 
 object GigyaNss {
 
@@ -29,18 +31,21 @@ object GigyaNss {
         return false
     }
 
+    val dependenciesContainer: IoCContainer = Gigya.getContainer()
+
+    fun register() {
+        dependenciesContainer.bind(NssViewModel::class.java, NssViewModel::class.java, false)
+    }
+
     //region Host interface
 
     /**
      * Load markup JSON file from assets folder.
-     * @param withName Asset JSON file name.
-     * @return NssBuilder instance. Use builder response to continue to flow.
+     * @param withAsset Asset JSON file name.
+     * @return  Nss.Builder instance. Use builder response to continue to flow.
      */
-    fun loadFromAssets(withName: String): NssBuilder {
-        val builder = NssBuilder()
-        builder.clear()
-        builder.assetPath = withName
-        return builder
+    fun load(withAsset: String): Nss.Builder {
+        return Nss.Builder().assetPath(withAsset)
     }
 
     //endregion

@@ -4,12 +4,13 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 
 class MainMethodChannelHandler(
-        private val onInitFromAssets: () -> (String?),
-        private val onFlowRequested: (String?) -> (Boolean),
-        private val onDismiss: () -> Unit) : MethodChannel.MethodCallHandler {
+        private val onRequestMarkup: () -> (String?),
+        private val onRequestFlow: (String?) -> (Boolean),
+        private val onRequestDismiss: () -> Unit) : MethodChannel.MethodCallHandler {
 
     companion object {
 
@@ -21,19 +22,19 @@ class MainMethodChannelHandler(
         GigyaLogger.debug(LOG_TAG, "Method = ${call.method}")
 
         when (call.method) {
-            MainChannelCall.IGNITE.method -> {
-                onInitFromAssets()?.let { markup ->
+            MainChannelCall.IGNITION.lowerCase() -> {
+                onRequestMarkup()?.let { markup ->
                     result.success(markup)
                 } ?: GigyaLogger.error(LOG_TAG, "Failed to initialize markup from asset file")
             }
-            MainChannelCall.FLOW.method -> {
+            MainChannelCall.FLOW.lowerCase() -> {
                 call.arguments.refine<Map<String, String>> {
-                    val added = onFlowRequested(this["flowId"])
+                    val added = onRequestFlow(this["flowId"])
                     result.success(added)
                 }
             }
-            MainChannelCall.DISMISS.method -> {
-                onDismiss()
+            MainChannelCall.DISMISS.lowerCase() -> {
+                onRequestDismiss()
                 // No need to return a value to the channel in this case.
                 // This method should dismiss the engine.
             }
@@ -41,7 +42,9 @@ class MainMethodChannelHandler(
         }
     }
 
-    internal enum class MainChannelCall(val method: String) {
-        IGNITE("ignition"), FLOW("flow"), DISMISS("dismiss")
+    internal enum class MainChannelCall {
+        IGNITION, FLOW, DISMISS;
+
+        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
     }
 }

@@ -114,9 +114,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-
-                Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration =
-                        System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(obj.sessionInfo!!.expirationTime)
             }
 
             override fun onError(error: GigyaError?) {
@@ -146,9 +143,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
-
-                Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration =
-                        System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(obj.sessionInfo!!.expirationTime)
             }
 
             override fun onError(error: GigyaError?) {

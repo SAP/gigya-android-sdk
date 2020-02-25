@@ -3,10 +3,10 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.utils.guard
+import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.view.FlutterMain
@@ -22,17 +22,14 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
         // Extras.
         private const val EXTRA_INITIAL_ROUTE = "extra_initial_route"
         private const val EXTRA_MARKUP = "extra_markup"
-        private const val EXTRA_CACHE_ENGINE = "extra_cache_engine"
 
-        fun start(context: Context, withCachedEngine: Boolean = false, markup: String, initialRoute: String) {
-            val intent: Intent = if (withCachedEngine) {
-                NSSCachedEngineIntentBuilder().build(context)
-            } else {
-                NSSEngineIntentBuilder().build(context)
+        fun start(context: Context, markup: String, initialRoute: String?) {
+            val intent: Intent =
+                    NSSEngineIntentBuilder().build(context)
+            initialRoute?.let {
+                intent.putExtra(EXTRA_INITIAL_ROUTE, it)
             }
-            intent.putExtra(EXTRA_INITIAL_ROUTE, initialRoute)
             intent.putExtra(EXTRA_MARKUP, markup)
-            intent.putExtra(EXTRA_CACHE_ENGINE, withCachedEngine)
             context.startActivity(intent)
         }
     }
@@ -45,10 +42,22 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
             throw RuntimeException("Missing markup. Please provide markup on activity instantiation")
         }
 
-        mViewModel = NssViewModelProviders.provideViewModel(markup!!, finish = { onFinishReceived() })
-
         flutterEngine.guard {
             throw RuntimeException("NSS engine failed to initialize!")
+        }
+
+        GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
+            mViewModel = this
+            mViewModel.markup = markup
+            mViewModel.finish = {
+                onFinishReceived()
+            }
+
+            // Add optional initial route.
+            val initial = intent?.extras?.getString(EXTRA_INITIAL_ROUTE)
+            initial?.let { route ->
+                mViewModel.initialRoute = route
+            }
         }
 
         // Register channels.
@@ -64,7 +73,7 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
     }
 
     /**
-//     * Engine notified that the main flow/work has ended.
+     * Engine notified that the main flow/work has ended.
      * Dismiss/destroy the activity.
      */
     private fun onFinishReceived() {
