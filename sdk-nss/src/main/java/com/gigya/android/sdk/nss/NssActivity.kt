@@ -8,6 +8,8 @@ import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.view.FlutterMain
 
@@ -24,8 +26,7 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
         private const val EXTRA_MARKUP = "extra_markup"
 
         fun start(context: Context, markup: String, initialRoute: String?) {
-            val intent: Intent =
-                    NSSEngineIntentBuilder().build(context)
+            val intent: Intent = NSSCachedEngineIntentBuilder().build(context)
             initialRoute?.let {
                 intent.putExtra(EXTRA_INITIAL_ROUTE, it)
             }
@@ -64,12 +65,10 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
         mViewModel?.loadChannels(flutterEngine!!)
 
         GigyaLogger.debug(LOG_TAG, "Registered nss method channels.")
-        // Execute the engine's "main" method. Making sure that the main platform channel is already initialized
-        // in the native side. Avoid signal -6 crash.
-        flutterEngine!!.dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint(
-                FlutterMain.findAppBundlePath(),
-                "main")
-        )
+    }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
     }
 
     /**
@@ -82,6 +81,9 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
 
     override fun onDestroy() {
         mViewModel?.dispose()
+        flutterEngine?.destroy()
+        FlutterEngineCache
+                .getInstance().remove(GigyaNss.FLUTTER_ENGINE_ID)
         super.onDestroy()
     }
 

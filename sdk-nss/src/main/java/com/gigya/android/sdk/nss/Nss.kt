@@ -2,8 +2,15 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import com.gigya.android.sdk.nss.utils.guard
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.FlutterEngineCache
+import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.view.FlutterMain
+import org.json.JSONObject
 import java.io.IOException
+import java.util.*
 
 class Nss private constructor(
         private val assetPath: String?,
@@ -19,6 +26,16 @@ class Nss private constructor(
             var assetPath: String? = null,
             var initialRoute: String? = null,
             var events: NssEvents? = null) {
+
+        init {
+            if (!FlutterEngineCache
+                            .getInstance().contains(GigyaNss.FLUTTER_ENGINE_ID)) {
+                val engine = FlutterEngine(GigyaNss.dependenciesContainer.get(Context::class.java))
+                val ignitionChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
+                ignitionChannel.initChannel(engine.dartExecutor.binaryMessenger)
+                FlutterEngineCache.getInstance().put(GigyaNss.FLUTTER_ENGINE_ID, engine)
+            }
+        }
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
@@ -51,17 +68,35 @@ class Nss private constructor(
      */
     fun show(launcherContext: Context) {
         assetPath?.apply {
-            val jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
+            var jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
             jsonAsset.guard {
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
 
-            // Start NssActivity using assets provided markup.
-            NssActivity.start(
-                    launcherContext,
-                    markup = jsonAsset!!,
-                    initialRoute = initialRoute)
+            val mainChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
+            mainChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    MainCall.IGNITION.lowerCase() -> {
+                        initialRoute?.let {
+                            jsonAsset = JSONObject(jsonAsset).put("initialRoute", it).toString()
+                        }
+                        result.success(jsonAsset)
+                    }
+                    MainCall.READY_FOR_DISPLAY.lowerCase() -> {
+                        NssActivity.start(
+                                launcherContext,
+                                markup = jsonAsset!!,
+                                initialRoute = initialRoute)
+                    }
+                }
+            }
+
+            FlutterEngineCache.getInstance().get(GigyaNss.FLUTTER_ENGINE_ID)
+                    ?.dartExecutor?.executeDartEntrypoint(DartExecutor.DartEntrypoint(
+                    FlutterMain.findAppBundlePath(),
+                    "main")
+            )
         } ?: applyError("Asset path not available")
     }
 
@@ -74,6 +109,12 @@ class Nss private constructor(
     interface ResultHandler {
 
         fun onError(cause: String)
+    }
+
+    internal enum class MainCall {
+        IGNITION, READY_FOR_DISPLAY;
+
+        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
     }
 
 }

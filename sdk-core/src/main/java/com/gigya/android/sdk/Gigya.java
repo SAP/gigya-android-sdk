@@ -408,7 +408,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
-     * Request account info given comma separated array of include parameters & comma separated array of profile extra fields.
+     * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
      *
      * @param include            String[]  array.
      * @param profileExtraFields String[] array.
@@ -589,7 +589,7 @@ public class Gigya<T extends GigyaAccount> {
 
     /**
      * Update device information in server.
-     * Device information includes: platform, manufacturer, os & push token.
+     * Device information includes: platform, manufacturer, os and push token.
      * Use this method manually if your flow requires to update the push service token.
      * Additional device info is generated at runtime.
      *

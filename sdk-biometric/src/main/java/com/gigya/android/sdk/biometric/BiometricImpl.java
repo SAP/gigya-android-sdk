@@ -263,7 +263,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
      *
      * @param cipher Encryption state cipher.
      * @param plain  Plain JSON string session.
-     * @return Pair of encrypted session & ivSpec.
+     * @return Pair of encrypted session and ivSpec.
      * @throws Exception Various crypto optional exceptions.
      */
     private Pair<String, String> encryptBiometricString(Cipher cipher, String plain) throws Exception {

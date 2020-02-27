@@ -2,7 +2,7 @@ package com.gigya.android.sdk.nss
 
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.ApiMethodChannel
-import com.gigya.android.sdk.nss.channel.MainMethodChannel
+import com.gigya.android.sdk.nss.channel.ScreenMethodChannel
 import com.gigya.android.sdk.nss.channel.setMethodChannelHandler
 import com.gigya.android.sdk.nss.coordinator.NssCoordinatorContainer
 import com.gigya.android.sdk.nss.flows.NssFlow
@@ -14,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.*
 
 class NssViewModel<T : GigyaAccount>(
-        private val mainChannel: MainMethodChannel,
+        private val screenChannel: ScreenMethodChannel,
         private val apiChannel: ApiMethodChannel,
         private val flowFactory: NssFlowFactory<T>)
     : NssCoordinatorContainer<T>() {
@@ -35,29 +35,23 @@ class NssViewModel<T : GigyaAccount>(
     }
 
     fun loadChannels(engine: FlutterEngine) {
-
-        mainChannel.initChannel(engine.dartExecutor.binaryMessenger)
-        mainChannel.setMethodChannelHandler(mMainMethodChannelHandler)
+        screenChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        screenChannel.setMethodChannelHandler(mScreenMethodChannelHandler)
 
         apiChannel.initChannel(engine.dartExecutor.binaryMessenger)
         apiChannel.setMethodChannelHandler(mApiMethodChannelHandler)
     }
 
-    internal enum class MainCall {
-        IGNITION, FLOW, DISMISS;
+    internal enum class ScreenCall {
+        FLOW, DISMISS;
 
         fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
     }
 
-    private val mMainMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+    private val mScreenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
-                MainCall.IGNITION.lowerCase() -> {
-                    markup?.let {
-                        result.success(it)
-                    } ?: events?.onException("Markup unavailable?!")
-                }
-                MainCall.FLOW.lowerCase() -> {
+                ScreenCall.FLOW.lowerCase() -> {
                     call.arguments.refine<Map<String, String>> {
                         val flowId = this["flowId"]
                         val flow = flowFactory.createFor(flowId!!).guard {
@@ -69,7 +63,7 @@ class NssViewModel<T : GigyaAccount>(
                         }
                     }
                 }
-                MainCall.DISMISS.lowerCase() -> {
+                ScreenCall.DISMISS.lowerCase() -> {
                     clear()
                     finish()
                 }

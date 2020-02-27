@@ -236,7 +236,7 @@ public class GigyaAuth {
     }
 
     /**
-     * Check if device is registered for push TFA & notifications permission is available.
+     * Check if device is registered for push TFA and notifications permission is available.
      * If not. Will display a information dialog allowing the user to open the notifications application settings in order
      * to enable them.
      * Note: It is recommended to call this method when the activity context is attached.
