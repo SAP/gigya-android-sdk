@@ -19,6 +19,6 @@ class NssFlowFactory<T : GigyaAccount>(private val businessApiService: IBusiness
     }
 
     internal enum class Flow(val identifier: String) {
-        REGISTRATION("registration"), LOGIN("login")
+        REGISTRATION("register"), LOGIN("login")
     }
 }

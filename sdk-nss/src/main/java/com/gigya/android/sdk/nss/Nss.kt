@@ -2,40 +2,29 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
 import com.gigya.android.sdk.nss.utils.guard
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.view.FlutterMain
 import org.json.JSONObject
 import java.io.IOException
-import java.util.*
 
 class Nss private constructor(
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val events: NssEvents?) {
+        private val events: NssEvents?) : NssEngineCoordinator {
 
     companion object {
 
         const val LOG_TAG = "NssBuilder"
     }
 
+    init {
+        initializeEngine()
+    }
+
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
             var events: NssEvents? = null) {
-
-        init {
-            if (!FlutterEngineCache
-                            .getInstance().contains(GigyaNss.FLUTTER_ENGINE_ID)) {
-                val engine = FlutterEngine(GigyaNss.dependenciesContainer.get(Context::class.java))
-                val ignitionChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
-                ignitionChannel.initChannel(engine.dartExecutor.binaryMessenger)
-                FlutterEngineCache.getInstance().put(GigyaNss.FLUTTER_ENGINE_ID, engine)
-            }
-        }
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
@@ -44,7 +33,7 @@ class Nss private constructor(
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
                 val viewModel = GigyaNss.dependenciesContainer.get(NssViewModel::class.java)
-                viewModel.events = events
+                viewModel.mEvent = events
             }
         }
 
@@ -73,30 +62,15 @@ class Nss private constructor(
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
-
-            val mainChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
-            mainChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
-                when (call.method) {
-                    MainCall.IGNITION.lowerCase() -> {
-                        initialRoute?.let {
-                            jsonAsset = JSONObject(jsonAsset).put("initialRoute", it).toString()
-                        }
-                        result.success(jsonAsset)
-                    }
-                    MainCall.READY_FOR_DISPLAY.lowerCase() -> {
-                        NssActivity.start(
-                                launcherContext,
-                                markup = jsonAsset!!,
-                                initialRoute = initialRoute)
-                    }
-                }
+            initialRoute?.let {
+                // CAMBINA.
+                jsonAsset = JSONObject(jsonAsset).put("initialRoute", it).toString()
             }
 
-            FlutterEngineCache.getInstance().get(GigyaNss.FLUTTER_ENGINE_ID)
-                    ?.dartExecutor?.executeDartEntrypoint(DartExecutor.DartEntrypoint(
-                    FlutterMain.findAppBundlePath(),
-                    "main")
-            )
+            NssActivity.start(
+                    launcherContext,
+                    markup = jsonAsset!!)
+
         } ?: applyError("Asset path not available")
     }
 
@@ -109,12 +83,6 @@ class Nss private constructor(
     interface ResultHandler {
 
         fun onError(cause: String)
-    }
-
-    internal enum class MainCall {
-        IGNITION, READY_FOR_DISPLAY;
-
-        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
     }
 
 }

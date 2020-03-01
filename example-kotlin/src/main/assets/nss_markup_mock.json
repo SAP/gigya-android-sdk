@@ -1,21 +1,15 @@
 {
   "platformAware": false,
   "markup": {
-    "initialRoute" : "login",
-    "routing": {
-      "login": {
-        "routes": {
-          "success": "dismiss"
-        }
-      },
-      "register": {
-        "routes" : {
-          "success": "dismiss"
-        }
-      }
+    "initialRoute" : "register",
+    "defaultRouting": {
+      "success" : "dismiss"
     },
     "screens": {
       "login": {
+        "routing" : {
+          "success": "dismiss"
+        },
         "flow": "login",
         "appBar": {
           "textKey": "login"
@@ -44,7 +38,10 @@
         ]
       },
       "register": {
-        "flow": "registration",
+        "routing" : {
+          "success": "dismiss"
+        },
+        "flow": "register",
         "appBar": {
           "textKey": "Register"
         },

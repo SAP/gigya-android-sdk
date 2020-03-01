@@ -14,8 +14,6 @@ object GigyaNss {
 
     val dependenciesContainer: IoCContainer = Gigya.getContainer()
 
-    const val FLUTTER_ENGINE_ID = "nss_engine_id"
-
     // Only ARM based architectures are supported.
     //TODO Make sure all relevant architecture are added.
     private val SUPPORTED_DEVICE_ARCHITECTURES = arrayListOf("armv7l", "aarch64", "arm64-v8a", "armeabi-v7a")
@@ -31,7 +29,6 @@ object GigyaNss {
         }
         return false
     }
-
 
     fun register() {
         dependenciesContainer

@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_native_screen_sets -> {
                 GigyaNss
                         .load("nss_markup_mock.json")
-                        .initialRoute("register")
+                        .initialRoute("login")
                         .events(object : NssEvents() {
 
                             override fun onException(cause: String) {

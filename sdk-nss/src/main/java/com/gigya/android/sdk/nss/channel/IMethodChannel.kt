@@ -13,3 +13,7 @@ internal interface IMethodChannel {
 internal fun IMethodChannel.setMethodChannelHandler(handler: MethodChannel.MethodCallHandler) {
     flutterMethodChannel?.setMethodCallHandler(handler)
 }
+
+internal fun IMethodChannel.dispose() {
+    flutterMethodChannel = null
+}
