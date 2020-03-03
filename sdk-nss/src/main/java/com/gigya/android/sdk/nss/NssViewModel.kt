@@ -20,7 +20,6 @@ class NssViewModel<T : GigyaAccount>(
         private val mFlowFactory: NssFlowFactory<T>)
     : NssCoordinatorContainer<T>() {
 
-    var mMarkup: String? = null
     var mFinish: () -> Unit? = { }
     var mEvent: NssEvents? = null
 
@@ -30,7 +29,6 @@ class NssViewModel<T : GigyaAccount>(
     }
 
     internal fun dispose() {
-        mMarkup = null
         mEvent = null
         mScreenChannel.dispose()
         mApiChannel.dispose()

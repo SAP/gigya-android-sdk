@@ -20,8 +20,20 @@ inline fun <I, reified O> I.convert(gson: Gson): O {
     return gson.fromJson(json, object : TypeToken<O>() {}.type)
 }
 
+inline fun <K, reified V> String.serialize(gson: Gson): Map<K, V> {
+    return gson.fromJson(this, object : TypeToken<Map<K, V>>() {}.type)
+}
+
 inline fun <reified T> Any?.refine(block: T.() -> Unit) {
     if (this is T) {
         block()
+    }
+}
+
+inline fun <reified T> Any?.refine(block: T.() -> Unit, ex: () -> Unit) {
+    if (this is T) {
+        block()
+    } else {
+        ex()
     }
 }

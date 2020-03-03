@@ -13,6 +13,7 @@ import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
 import java.util.*
+import kotlin.collections.HashMap
 
 class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
 
@@ -28,9 +29,9 @@ class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
         private const val EXTRA_INITIAL_ROUTE = "extra_initial_route"
         private const val EXTRA_MARKUP = "extra_markup"
 
-        fun start(context: Context, markup: String) {
+        fun start(context: Context, markup: Map<String, Any>) {
             val intent: Intent = Intent(context, NssActivity::class.java)
-            intent.putExtra(EXTRA_MARKUP, markup)
+            intent.putExtra(EXTRA_MARKUP, HashMap(markup))
             context.startActivity(intent)
         }
     }
@@ -39,7 +40,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.nss_activity)
 
-        val markup = intent?.extras?.getString(EXTRA_MARKUP)
+        val markup = intent?.extras?.getSerializable(EXTRA_MARKUP)
         markup.guard {
             throw RuntimeException("Missing markup. Please provide markup on activity instantiation")
         }
@@ -51,7 +52,6 @@ class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
 
         GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
             mViewModel = this
-            mViewModel!!.mMarkup = markup
             mViewModel!!.mFinish = {
                 onFinishReceived()
             }
@@ -99,6 +99,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
      */
     private fun onFinishReceived() {
         mViewModel?.dispose()
+        mViewModel = null
         finish()
     }
 

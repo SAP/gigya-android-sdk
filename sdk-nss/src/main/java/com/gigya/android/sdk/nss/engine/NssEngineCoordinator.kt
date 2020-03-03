@@ -34,7 +34,6 @@ interface NssEngineCoordinator {
         if (!existsInTempCache()) {
             val engine = newEngine()
             registerIgnitionChannel(engine)
-            registerIgnitionChannel(engine)
             addToTempCache(engine)
         }
     }

@@ -3,7 +3,10 @@ package com.gigya.android.sdk.nss
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
-import com.gigya.android.sdk.nss.utils.guard
+import com.gigya.android.sdk.nss.utils.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
 import java.io.IOException
 
@@ -11,6 +14,8 @@ class Nss private constructor(
         private val assetPath: String?,
         private val initialRoute: String?,
         private val events: NssEvents?) : NssEngineCoordinator {
+
+    val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
     companion object {
 
@@ -57,21 +62,33 @@ class Nss private constructor(
      */
     fun show(launcherContext: Context) {
         assetPath?.apply {
-            var jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
+            val jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
             jsonAsset.guard {
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
-            initialRoute?.let {
-                // CAMBINA.
-                jsonAsset = JSONObject(jsonAsset).put("initialRoute", it).toString()
-            }
 
             NssActivity.start(
                     launcherContext,
-                    markup = jsonAsset!!)
+                    markup = mapAsset(jsonAsset!!))
 
         } ?: applyError("Asset path not available")
+    }
+
+    private fun mapAsset(jsonAsset: String) : Map<String, Any> {
+        val jsonMap = jsonAsset.serialize<String, Any>(gson)
+        jsonMap["markup"].guard {
+            throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")
+        }
+        jsonMap["markup"].refine<MutableMap<String, Any>> {
+            initialRoute?.let {
+                this.put("initialRoute", it)
+            }
+            if (!this.containsKey("initialRoute")) {
+                throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
+            }
+        }
+        return jsonMap
     }
 
     /**
@@ -79,10 +96,4 @@ class Nss private constructor(
      */
     @Suppress("SameParameterValue")
     private fun applyError(cause: String) = events?.onException(cause)
-
-    interface ResultHandler {
-
-        fun onError(cause: String)
-    }
-
 }
