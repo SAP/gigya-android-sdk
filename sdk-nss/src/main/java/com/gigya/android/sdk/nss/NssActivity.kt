@@ -2,74 +2,95 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
+import android.transition.Slide
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.view.FlutterMain
+import java.util.*
+import kotlin.collections.HashMap
 
-class NssActivity<T : GigyaAccount> : FlutterActivity() {
+class NssActivity<T : GigyaAccount> : FragmentActivity(), NssEngineCoordinator {
 
-    private lateinit var mViewModel: NssViewModel<T>
+    private var mViewModel: NssViewModel<T>? = null
 
     companion object {
 
         const val LOG_TAG = "NativeScreenSetsActivity"
 
+        const val FRAGMENT_ENTER_ANIMATION_DURATION = 450L
+
         // Extras.
         private const val EXTRA_INITIAL_ROUTE = "extra_initial_route"
         private const val EXTRA_MARKUP = "extra_markup"
 
-        fun start(context: Context, markup: String, initialRoute: String?) {
-            val intent: Intent =
-                    NSSEngineIntentBuilder().build(context)
-            initialRoute?.let {
-                intent.putExtra(EXTRA_INITIAL_ROUTE, it)
-            }
-            intent.putExtra(EXTRA_MARKUP, markup)
+        fun start(context: Context, markup: Map<String, Any>) {
+            val intent: Intent = Intent(context, NssActivity::class.java)
+            intent.putExtra(EXTRA_MARKUP, HashMap(markup))
             context.startActivity(intent)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.nss_activity)
 
-        val markup = intent?.extras?.getString(EXTRA_MARKUP)
+        val markup = intent?.extras?.getSerializable(EXTRA_MARKUP)
         markup.guard {
             throw RuntimeException("Missing markup. Please provide markup on activity instantiation")
         }
 
-        flutterEngine.guard {
+        val engine = getNssEngine()
+        engine.guard {
             throw RuntimeException("NSS engine failed to initialize!")
         }
 
         GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
             mViewModel = this
-            mViewModel.markup = markup
-            mViewModel.finish = {
+            mViewModel!!.mFinish = {
                 onFinishReceived()
-            }
-
-            // Add optional initial route.
-            val initial = intent?.extras?.getString(EXTRA_INITIAL_ROUTE)
-            initial?.let { route ->
-                mViewModel.initialRoute = route
             }
         }
 
-        // Register channels.
-        mViewModel.registerMethodChannels(flutterEngine!!)
+        // Load channels.
+        mViewModel?.loadChannels(engine!!)
 
         GigyaLogger.debug(LOG_TAG, "Registered nss method channels.")
-        // Execute the engine's "main" method. Making sure that the main platform channel is already initialized
-        // in the native side. Avoid signal -6 crash.
-        flutterEngine!!.dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint(
-                FlutterMain.findAppBundlePath(),
-                "main")
-        )
+
+        val fragment = getEngineFragment()
+        fragment.guard {
+            throw RuntimeException("Failed to initialize flutter fragment")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val slide = Slide()
+            slide.duration = FRAGMENT_ENTER_ANIMATION_DURATION
+            fragment.enterTransition = slide
+        }
+
+        // Register ignition channel.
+        val ignitionChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
+        ignitionChannel.initChannel(engine!!.dartExecutor.binaryMessenger)
+        ignitionChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
+            GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
+            when (call.method) {
+                IgnitionCall.IGNITION.lowerCase() -> {
+                    result.success(markup)
+                }
+                IgnitionCall.READY_FOR_DISPLAY.lowerCase() -> {
+                    supportFragmentManager.beginTransaction()
+                            .add(R.id.nss_main_frame, fragment)
+                            .commit()
+                }
+            }
+        }
+
+        engineExecuteMain()
     }
 
     /**
@@ -77,27 +98,20 @@ class NssActivity<T : GigyaAccount> : FlutterActivity() {
      * Dismiss/destroy the activity.
      */
     private fun onFinishReceived() {
+        mViewModel?.dispose()
+        mViewModel = null
         finish()
     }
 
-    //region Extensions
+    override fun onDestroy() {
+        disposeEngine();
+        super.onDestroy()
+    }
 
-    /**
-     * Wrapper inner class for attaching activity to a cached Flutter engine.
-     */
-    internal class NSSCachedEngineIntentBuilder :
-            FlutterActivity.CachedEngineIntentBuilder(
-                    NssActivity::class.java,
-                    GigyaNss.FLUTTER_ENGINE_ID
-            )
+    internal enum class IgnitionCall {
+        IGNITION, READY_FOR_DISPLAY;
 
-    /**
-     * Wrapper inner class for initializing a new Flutter engine.
-     */
-    internal class NSSEngineIntentBuilder :
-            FlutterActivity.NewEngineIntentBuilder(
-                    NssActivity::class.java
-            )
+        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
+    }
 
-    //endregion
 }

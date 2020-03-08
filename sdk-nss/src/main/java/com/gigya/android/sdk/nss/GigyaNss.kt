@@ -3,17 +3,16 @@ package com.gigya.android.sdk.nss
 import android.annotation.SuppressLint
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.containers.IoCContainer
+import com.gigya.android.sdk.nss.channel.ApiMethodChannel
+import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import com.gigya.android.sdk.nss.channel.ScreenMethodChannel
+import com.gigya.android.sdk.nss.flows.NssFlowFactory
+import com.gigya.android.sdk.nss.flows.NssLoginFlow
+import com.gigya.android.sdk.nss.flows.NssRegistrationFlow
 
 object GigyaNss {
 
-    const val FLUTTER_ENGINE_ID = "nss_engine_id"
-
-    // Main communication method channel with the Flutter engine. (initialization etc)
-    const val CHANNEL_MAIN = "gigya_nss_engine/method/main"
-
-    // API communication method channel with the Flutter engine.
-    const val CHANNEL_API = "gigya_nss_engine/method/api"
-
+    val dependenciesContainer: IoCContainer = Gigya.getContainer()
 
     // Only ARM based architectures are supported.
     //TODO Make sure all relevant architecture are added.
@@ -31,10 +30,15 @@ object GigyaNss {
         return false
     }
 
-    val dependenciesContainer: IoCContainer = Gigya.getContainer()
-
     fun register() {
-        dependenciesContainer.bind(NssViewModel::class.java, NssViewModel::class.java, false)
+        dependenciesContainer
+                .bind(IgnitionMethodChannel::class.java, IgnitionMethodChannel::class.java, true)
+                .bind(ApiMethodChannel::class.java, ApiMethodChannel::class.java, true)
+                .bind(ScreenMethodChannel::class.java, ScreenMethodChannel::class.java, true)
+                .bind(NssRegistrationFlow::class.java, NssRegistrationFlow::class.java, false)
+                .bind(NssLoginFlow::class.java, NssLoginFlow::class.java, false)
+                .bind(NssFlowFactory::class.java, NssFlowFactory::class.java, false)
+                .bind(NssViewModel::class.java, NssViewModel::class.java, true)
     }
 
     //region Host interface

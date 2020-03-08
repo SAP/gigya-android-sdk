@@ -2,33 +2,48 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.nss.utils.guard
+import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
+import com.gigya.android.sdk.nss.utils.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import org.json.JSONObject
 import java.io.IOException
 
 class Nss private constructor(
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val handler: ResultHandler?) {
+        private val events: NssEvents?) : NssEngineCoordinator {
+
+    val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
     companion object {
 
         const val LOG_TAG = "NssBuilder"
     }
 
-    interface ResultHandler {
-
-        fun onError(cause: String)
+    init {
+        initializeEngine()
     }
 
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
-            var handler: ResultHandler? = null) {
+            var events: NssEvents? = null) {
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
-        fun handler(handler: ResultHandler) = apply { this.handler = handler }
-        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, handler).show(launcherContext)
+        fun events(events: NssEvents) = apply {
+            this.events = events
+            this.events?.let {
+                // Injecting the events callback to the singleton view model.
+                val viewModel = GigyaNss.dependenciesContainer.get(NssViewModel::class.java)
+                viewModel.mEvent = events
+            }
+        }
+
+        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, events)
+                .show(launcherContext)
     }
 
     /**
@@ -53,19 +68,32 @@ class Nss private constructor(
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
 
-            // Start NssActivity using assets provided markup.
             NssActivity.start(
                     launcherContext,
-                    markup = jsonAsset!!,
-                    initialRoute = initialRoute)
+                    markup = mapAsset(jsonAsset!!))
+
         } ?: applyError("Asset path not available")
+    }
+
+    private fun mapAsset(jsonAsset: String) : Map<String, Any> {
+        val jsonMap = jsonAsset.serialize<String, Any>(gson)
+        jsonMap["markup"].guard {
+            throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")
+        }
+        jsonMap["markup"].refine<MutableMap<String, Any>> {
+            initialRoute?.let {
+                this.put("initialRoute", it)
+            }
+            if (!this.containsKey("initialRoute")) {
+                throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
+            }
+        }
+        return jsonMap
     }
 
     /**
      * Notify error using available result handler.
      */
     @Suppress("SameParameterValue")
-    private fun applyError(cause: String) = handler?.onError(cause)
-
-
+    private fun applyError(cause: String) = events?.onException(cause)
 }

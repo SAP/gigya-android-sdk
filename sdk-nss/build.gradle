@@ -72,8 +72,8 @@ dependencies {
     compileOnly 'com.google.code.gson:gson:2.8.5'
 
     // Flutter engine.
-    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'
-    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:1.0'
+    debugApi 'com.gigya.native_screensets_engine:flutter_debug:1.0'
+    releaseApi 'com.gigya.native_screensets_engine:flutter_release:1.0'
 }
 
 

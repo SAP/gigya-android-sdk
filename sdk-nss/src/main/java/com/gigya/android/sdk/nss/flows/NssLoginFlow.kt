@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.nss.flows
 
-import android.util.Log
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
@@ -9,18 +8,19 @@ import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssRegistrationFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) : NssFlow<T>(bApi) {
+class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) : NssFlow<T>(bApi) {
 
     companion object {
-        const val LOG_TAG = "NssRegistrationFlow"
+        const val LOG_TAG = "NssLoginFlow"
     }
 
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {
         when (method) {
-            "accounts.register" -> {
-                GigyaLogger.debug(LOG_TAG, "Starting registration flow with $method call")
+            "accounts.login" -> {
+                GigyaLogger.debug(LOG_TAG, "Starting login flow with $method call")
 
-                bApi.register(arguments, object : GigyaLoginCallback<T>() {
+                bApi.login(arguments, object : GigyaLoginCallback<T>() {
+
                     override fun onSuccess(obj: T) {
                         val serializedObject = obj.serializeToMap(gson)
                         result.success(serializedObject)
@@ -33,10 +33,7 @@ class NssRegistrationFlow<T : GigyaAccount>(override val bApi: IBusinessApiServi
                     }
 
                 })
-            }
-            else -> {
-                // Flow cannot handle method.8
-                Log.e("GigyaError", "Current flow cannot handle this request. Verify your flow ids are correct")
+
             }
         }
     }
@@ -44,6 +41,4 @@ class NssRegistrationFlow<T : GigyaAccount>(override val bApi: IBusinessApiServi
     override fun onDispose() {
         // Stub.
     }
-
-
 }

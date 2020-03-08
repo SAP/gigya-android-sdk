@@ -36,7 +36,7 @@ import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
-import com.gigya.android.sdk.nss.Nss
+import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -252,6 +252,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_native_screen_sets -> {
                 GigyaNss
                         .load("nss_markup_mock.json")
+                        .initialRoute("login")
+                        .events(object : NssEvents() {
+
+                            override fun onException(cause: String) {
+                                // Handle nss exception here.
+                            }
+
+                        })
                         .show(this)
             }
         }
