@@ -243,7 +243,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         }
 
         // Invoking login started (custom event) in order to show the web view progress bar.
-        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN_STARTED, null);
+        if (_invocationCallback != null) {
+            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN_STARTED, null);
+        }
 
         _businessApiService.login(
                 providerName,
@@ -254,7 +256,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest: onSuccess with:\n" + account.toString());
                         String invocation = "{\"errorCode\":" + account.getErrorCode() + ",\"userInfo\":" + new Gson().toJson(account) + "}";
                         invokeWebViewCallback(callbackId, invocation);
-                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
+                        if (_invocationCallback != null) {
+                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
+                        }
                     }
 
                     @Override
@@ -265,7 +269,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                     @Override
                     public void onOperationCanceled() {
                         invokeWebViewCallback(callbackId, GigyaError.cancelledOperation().getData());
-                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.CANCELED, null);
+                        if (_invocationCallback != null) {
+                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.CANCELED, null);
+                        }
                     }
                 });
     }
@@ -273,7 +279,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     @Override
     public void onPluginEvent(Map<String, Object> params) {
         final String containerId = (String) params.get("sourceContainerID");
-        if (containerId != null) {
+        if (containerId != null && _invocationCallback != null) {
             _invocationCallback.onPluginEvent(new GigyaPluginEvent(params), containerId);
         }
     }
@@ -299,7 +305,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 final SessionInfo newSession = response.getField("sessionInfo", SessionInfo.class);
                                 _sessionService.setSession(newSession);
                                 _accountService.setAccount(response.asJson());
-                                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
+                                if (_invocationCallback != null) {
+                                    _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
+                                }
                             }
                             invokeWebViewCallback(callbackId, response.asJson());
                         } else {
@@ -325,7 +333,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                     public void onSuccess(GigyaApiResponse response) {
                         if (response.getErrorCode() == 0) {
                             invokeWebViewCallback(callbackId, response.asJson());
-                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
+                            if (_invocationCallback != null) {
+                                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGOUT, null);
+                            }
 
                             // Cleaning up.
                             _sessionService.cancelSessionCountdownTimer();
@@ -368,7 +378,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                     public void onSuccess(GigyaApiResponse response) {
                         if (response.getErrorCode() == 0) {
                             invokeWebViewCallback(callbackId, response.asJson());
-                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.REMOVE_CONNECTION, null);
+                            if (_invocationCallback != null) {
+                                _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.REMOVE_CONNECTION, null);
+                            }
                         } else {
                             onError(GigyaError.fromResponse(response));
                         }
@@ -393,7 +405,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                     @Override
                     public void onSuccess(A response) {
                         getUserInfoAndInvoke(callbackId);
-                        _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.ADD_CONNECTION, response);
+                        if (_invocationCallback != null) {
+                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.ADD_CONNECTION, response);
+                        }
                     }
 
                     @Override
