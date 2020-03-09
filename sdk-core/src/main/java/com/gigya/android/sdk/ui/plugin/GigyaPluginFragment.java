@@ -34,7 +34,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     private static final String LOG_TAG = "GigyaPluginFragment";
 
-    private static final String BASE_URL = "http://www.gigya.com";
+    private static final String BASE_URL = "https://www.gigya.com";
     private static final String MIME_TYPE = "text/html";
     private static final String ENCODING = "utf-8";
 
