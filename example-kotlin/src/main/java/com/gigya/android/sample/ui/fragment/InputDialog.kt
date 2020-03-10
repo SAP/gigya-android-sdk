@@ -38,7 +38,7 @@ class InputDialog : DialogFragment() {
         fun onAnonymousInput(input: String)
         fun onLoginWithProvider(provider: String)
         fun onRegisterWith(username: String, password: String, exp: Int)
-        fun onLoginWith(username: String, password: String)
+        fun onLoginWith(username: String, password: String, exp: Int)
         fun onUpdateAccountWith(comment: String)
         fun onUpdateAccountWith(field: String, value: String, forPendingRegistration: Boolean)
         fun onAddConnection(provider: String)
@@ -183,7 +183,7 @@ class InputDialog : DialogFragment() {
             }
         }
 
-        if (type == MainInputType.REGISTER) {
+        if (type == MainInputType.REGISTER || type == MainInputType.LOGIN) {
             login_register_session_exp_title.visible()
             login_register_session_exp_input.visible()
         }
@@ -193,7 +193,8 @@ class InputDialog : DialogFragment() {
             val password = login_register_sheet_password_edit.text.toString().trim()
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                 if (type == MainInputType.LOGIN) {
-                    resultCallback.onLoginWith(username, password)
+                    val sessionExp = login_register_session_exp_input_edit.text.toString().trim().toInt()
+                    resultCallback.onLoginWith(username, password, sessionExp)
                 } else if (type == MainInputType.REGISTER) {
                     val sessionExp = login_register_session_exp_input_edit.text.toString().trim().toInt()
                     resultCallback.onRegisterWith(username, password, sessionExp)

@@ -2,7 +2,7 @@
 <network-security-config>
 
     <!-- IF setting a custom network security configuration this must be added. Manifest tag will be ignored -->
-    <base-config cleartextTrafficPermitted="true" />
+    <base-config cleartextTrafficPermitted="false" />
 
     <debug-overrides>
         <trust-anchors>

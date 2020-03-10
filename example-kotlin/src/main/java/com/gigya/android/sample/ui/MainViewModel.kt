@@ -22,9 +22,11 @@ import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.persistence.IPersistenceService
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -73,7 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         linkAccountsResolver?.linkToSocial(provider)
     }
 
-    private var pendingRegistrationResolver : IPendingRegistrationResolver? = null
+    private var pendingRegistrationResolver: IPendingRegistrationResolver? = null
 
     fun onResolvePendingRegistrationWithMissingData(field: String, value: String) {
         val params = mutableMapOf<String, Any>()
@@ -104,9 +106,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Login using loginID & password.
      */
-    fun login(loginID: String, password: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+    fun login(loginID: String, password: String, exp: Int, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        gigya.login(loginID, password, object : GigyaLoginCallback<MyAccount>() {
+        val params = mutableMapOf("loginID" to loginID, "password" to password, "sessionExpiration" to exp)
+        gigya.login(params, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
@@ -211,7 +214,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setAccount(field: String, value: String, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         val params = mutableMapOf<String, Any>()
         params[field] = value
-        gigya.setAccount(params, object: GigyaCallback<MyAccount>() {
+        gigya.setAccount(params, object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
@@ -324,7 +327,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //region PUSH AUTH
 
     fun pushAuthRegister(success: () -> Unit, error: (GigyaError?) -> Unit) {
-        GigyaAuth.getInstance().registerForAuthPush(object: GigyaCallback<GigyaApiResponse>() {
+        GigyaAuth.getInstance().registerForAuthPush(object : GigyaCallback<GigyaApiResponse>() {
             override fun onSuccess(obj: GigyaApiResponse?) {
                 success()
             }

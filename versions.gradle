@@ -9,6 +9,6 @@ build_versions.min_sdk_core = 14
 build_versions.min_sdk_biometric = 23
 build_versions.min_sdk_tfa = 16
 build_versions.min_sdk_auth = 16
-build_versions.min_sdk_app = 24
+build_versions.min_sdk_app = 25
 build_versions.build_tools = "28.0.3"
 ext.build_versions = build_versions

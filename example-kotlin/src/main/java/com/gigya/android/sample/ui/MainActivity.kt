@@ -35,6 +35,8 @@ import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.GigyaNss
+import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -63,13 +65,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun getCustomActionActivity(): Class<*> = BiometricPushTFAActivity::class.java
 
-            override fun getDenyActionIcon(): Int  = 0
+            override fun getDenyActionIcon(): Int = 0
 
             override fun getSmallIcon(): Int = android.R.drawable.ic_dialog_info
 
-            override fun getApproveActionIcon(): Int  = 0
+            override fun getApproveActionIcon(): Int = 0
 
         })
+
+        GigyaNss.register()
+
+        //changeLocale("tr")
     }
 
     override fun onStart() {
@@ -91,6 +97,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /* If we are already logged in - get myAccountLiveData info and update relevant myAccountLiveData UI (drawer header). */
         if (viewModel!!.isLoggedIn()) {
             onGetAccount()
+        } else {
+            onClear()
         }
 
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
@@ -133,7 +141,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> "Your session is invalid"
                         else -> ""
                     }
-                    displayErrorAlert("Alert", message)
+                    runOnUiThread {
+                        displayErrorAlert("Alert", message)
+                        onClear()
+                    }
                 }
             }
         }
@@ -237,6 +248,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> {
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
+            }
+            R.id.action_show_native_screen_sets -> {
+                GigyaNss
+                        .load("nss_markup_mock.json")
+                        .initialRoute("login")
+                        .events(object : NssEvents() {
+
+                            override fun onException(cause: String) {
+                                // Handle nss exception here.
+                            }
+
+                        })
+                        .show(this)
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -829,9 +853,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    override fun onLoginWith(username: String, password: String) {
+    override fun onLoginWith(username: String, password: String, exp: Int) {
         onLoading()
-        viewModel?.login(username, password,
+        viewModel?.login(username, password, exp,
                 success = { json -> onJsonResult(json) },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
@@ -929,6 +953,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         response_text_view.text = ""
         empty_response_text.visible()
         invalidateOptionsMenu()
+        fingerprint_lock_fab.hide()
     }
 
     //endregion
@@ -970,4 +995,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //endregion
 
+    private fun changeLocale(identifier: String) {
+
+        val configuration = resources.configuration
+        val newLocale = Locale(identifier)
+        Locale.setDefault(newLocale)
+        configuration.setLocale(newLocale)
+        val context = createConfigurationContext(configuration)
+    }
 }

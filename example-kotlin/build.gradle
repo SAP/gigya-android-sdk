@@ -11,10 +11,16 @@ android {
         applicationId "com.gigya.android.sample"
         minSdkVersion build_versions.min_sdk_app
         targetSdkVersion build_versions.target_sdk
-        versionCode 4000
-        versionName "1.4.0.0"
+        versionCode 4080
+        versionName "1.4.0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+
+        ndk {
+            // Filter for architectures supported by Flutter.
+//            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
 
     signingConfigs {
@@ -36,6 +42,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
 
         debug {
@@ -57,11 +64,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:multidex:1.0.3'
 
-    implementation project(path: ':GigyaSDK')
-    implementation project(path: ':GigyaTFA')
-    implementation project(path: ':GigyaBiometric')
-    implementation project(path: ':GigyaAuth')
+    implementation project(path: ':sdk-core')
+    implementation project(path: ':sdk-tfa')
+    implementation project(path: ':sdk-biometric')
+    implementation project(path: ':sdk-auth')
+    implementation project(path: ':sdk-nss')
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
@@ -85,7 +94,7 @@ dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:5.5.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.3'
-    implementation files('libs/line-sdk-4.0.10.aar')
+    implementation 'com.linecorp:linesdk:5.0.1'
 
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-messaging:18.0.0'

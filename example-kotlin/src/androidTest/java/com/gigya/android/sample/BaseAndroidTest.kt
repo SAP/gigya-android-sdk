@@ -89,7 +89,7 @@ abstract class BaseAndroidTest {
     }
 
     /**
-     * Find click & return the relevant navigation menu item.
+     * Find click and return the relevant navigation menu item.
      */
     fun clickOnMenuItem(item: Int): ViewInteraction {
         val navigationMenuItemView = onView(
