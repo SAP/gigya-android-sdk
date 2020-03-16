@@ -1,0 +1,47 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:1:1-16:12
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:1:1-16:12
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:1:1-16:12
+	package
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:2:5-46
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:1:11-69
+uses-permission#android.permission.USE_BIOMETRIC
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:4:5-72
+	android:name
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:4:22-69
+uses-permission#android.permission.USE_FINGERPRINT
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:5:5-74
+	android:name
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:5:22-71
+uses-permission#android.permission.VIBRATE
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:6:5-66
+	android:name
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:6:22-63
+permission#${applicationId}.RESTRICT_ACCESS
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:8:5-10:58
+	android:protectionLevel
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:9:9-44
+	android:name
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:10:9-56
+application
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:12:5-14:11
+	android:label
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml:13:9-41
+uses-sdk
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaBiometric\src\main\AndroidManifest.xml
