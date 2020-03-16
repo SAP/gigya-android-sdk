@@ -1,21 +1,21 @@
 package com.gigya.android.sdk.nss
 
+import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.channel.ApiMethodChannel
-import com.gigya.android.sdk.nss.channel.ScreenMethodChannel
-import com.gigya.android.sdk.nss.channel.dispose
-import com.gigya.android.sdk.nss.channel.setMethodChannelHandler
+import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.coordinator.NssCoordinatorContainer
 import com.gigya.android.sdk.nss.flows.NssFlow
 import com.gigya.android.sdk.nss.flows.NssFlowFactory
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
+import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class NssViewModel<T : GigyaAccount>(
         private val mScreenChannel: ScreenMethodChannel,
         private val mApiChannel: ApiMethodChannel,
+        private val mLogChannel: LogMethodChannel,
         private val mFlowFactory: NssFlowFactory<T>)
     : NssCoordinatorContainer<T>() {
 
@@ -39,6 +39,24 @@ class NssViewModel<T : GigyaAccount>(
 
         mApiChannel.initChannel(engine.dartExecutor.binaryMessenger)
         mApiChannel.setMethodChannelHandler(mApiMethodChannelHandler)
+
+        mLogChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        mLogChannel.setMethodChannelHandler(mLogMethodChannelHandler)
+    }
+
+    private val mLogMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+        MethodChannel.MethodCallHandler { call, _ ->
+            call.arguments.refined<Map<String, String>> { logMap ->
+                when (call.method) {
+                    LogMethodChannel.LogCall.DEBUG.lowerCase() -> {
+                        GigyaLogger.debug(logMap["tag"], logMap["message"])
+                    }
+                    LogMethodChannel.LogCall.ERROR.lowerCase() -> {
+                        GigyaLogger.error(logMap["tag"], logMap["message"])
+                    }
+                }
+            }
+        }
     }
 
     private val mScreenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
@@ -50,8 +68,8 @@ class NssViewModel<T : GigyaAccount>(
                         val flow = mFlowFactory.createFor(flowId!!).guard {
                             mEvent?.onException("Failed to initialize flow")
                         }
-                        flow.refine<NssFlow<T>> {
-                            add(flowId, this)
+                        flow.refined<NssFlow<T>> {
+                            add(flowId, it)
                             result.success(true)
                         }
                     }

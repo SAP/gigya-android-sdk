@@ -5,6 +5,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.containers.IoCContainer
 import com.gigya.android.sdk.nss.channel.ApiMethodChannel
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import com.gigya.android.sdk.nss.channel.LogMethodChannel
 import com.gigya.android.sdk.nss.channel.ScreenMethodChannel
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.flows.NssFlowFactory
@@ -37,6 +38,7 @@ object GigyaNss {
                 .bind(IgnitionMethodChannel::class.java, IgnitionMethodChannel::class.java, true)
                 .bind(ApiMethodChannel::class.java, ApiMethodChannel::class.java, true)
                 .bind(ScreenMethodChannel::class.java, ScreenMethodChannel::class.java, true)
+                .bind(LogMethodChannel::class.java, LogMethodChannel::class.java, true)
                 .bind(NssRegistrationFlow::class.java, NssRegistrationFlow::class.java, false)
                 .bind(NssLoginFlow::class.java, NssLoginFlow::class.java, false)
                 .bind(NssFlowFactory::class.java, NssFlowFactory::class.java, false)
