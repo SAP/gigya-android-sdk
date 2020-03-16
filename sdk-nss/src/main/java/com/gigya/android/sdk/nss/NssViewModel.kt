@@ -12,7 +12,6 @@ import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import java.util.*
 
 class NssViewModel<T : GigyaAccount>(
         private val mScreenChannel: ScreenMethodChannel,
@@ -42,16 +41,10 @@ class NssViewModel<T : GigyaAccount>(
         mApiChannel.setMethodChannelHandler(mApiMethodChannelHandler)
     }
 
-    internal enum class ScreenCall {
-        FLOW, DISMISS;
-
-        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
-    }
-
     private val mScreenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
-                ScreenCall.FLOW.lowerCase() -> {
+                ScreenMethodChannel.ScreenCall.FLOW.lowerCase() -> {
                     call.arguments.refine<Map<String, String>> {
                         val flowId = this["flowId"]
                         val flow = mFlowFactory.createFor(flowId!!).guard {
@@ -63,7 +56,7 @@ class NssViewModel<T : GigyaAccount>(
                         }
                     }
                 }
-                ScreenCall.DISMISS.lowerCase() -> {
+                ScreenMethodChannel.ScreenCall.DISMISS.lowerCase() -> {
                     clear()
                     mFinish()
                 }

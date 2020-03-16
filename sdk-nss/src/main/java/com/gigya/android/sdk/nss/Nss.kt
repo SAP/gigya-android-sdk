@@ -2,20 +2,21 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
-import com.gigya.android.sdk.nss.engine.NssEngineCoordinator
+import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.*
+import com.gigya.android.sdk.utils.FileUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import org.json.JSONObject
 import java.io.IOException
 
 class Nss private constructor(
+        private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val events: NssEvents?) : NssEngineCoordinator {
+        private val events: NssEvents?) {
 
-    val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
+    private val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
     companion object {
 
@@ -23,7 +24,7 @@ class Nss private constructor(
     }
 
     init {
-        initializeEngine()
+        engineLifeCycle.initializeEngine()
     }
 
     data class Builder(
@@ -42,7 +43,11 @@ class Nss private constructor(
             }
         }
 
-        fun show(launcherContext: Context) = Nss(assetPath, initialRoute, events)
+        fun show(launcherContext: Context) = Nss(
+                GigyaNss.dependenciesContainer.get(NssEngineLifeCycle::class.java),
+                assetPath,
+                initialRoute,
+                events)
                 .show(launcherContext)
     }
 
@@ -51,7 +56,7 @@ class Nss private constructor(
      */
     private fun loadJsonFromAssets(context: Context, fileName: String) = try {
         GigyaLogger.debug(LOG_TAG, "loadJsonFromAssets() with fileName $fileName")
-        context.assets.open(fileName).bufferedReader().use { it.readText() }
+        FileUtils.assetJsonFileToString(context, fileName)
     } catch (ioException: IOException) {
         ioException.printStackTrace()
         null
@@ -68,14 +73,12 @@ class Nss private constructor(
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
 
-            NssActivity.start(
-                    launcherContext,
-                    markup = mapAsset(jsonAsset!!))
+            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!))
 
         } ?: applyError("Asset path not available")
     }
 
-    private fun mapAsset(jsonAsset: String) : Map<String, Any> {
+    private fun mapAsset(jsonAsset: String): Map<String, Any> {
         val jsonMap = jsonAsset.serialize<String, Any>(gson)
         jsonMap["markup"].guard {
             throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")

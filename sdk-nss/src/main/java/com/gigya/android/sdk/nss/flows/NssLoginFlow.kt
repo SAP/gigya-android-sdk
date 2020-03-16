@@ -5,6 +5,8 @@ import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.utils.guard
+import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
@@ -15,11 +17,15 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
     }
 
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {
-        when (method) {
-            "accounts.login" -> {
-                GigyaLogger.debug(LOG_TAG, "Starting login flow with $method call")
+        super.onNext(method, arguments, result)
+        if (method == "submit") {
+            arguments?.get("params")?.guard {
+                throw RuntimeException("Submission of flow requires argument parameters!")
+            }
 
-                bApi.login(arguments, object : GigyaLoginCallback<T>() {
+            arguments!!["params"].refined<MutableMap<String, Any>> { params ->
+                GigyaLogger.debug(LOG_TAG, "Starting login flow with $method call")
+                bApi.login(params, object : GigyaLoginCallback<T>() {
 
                     override fun onSuccess(obj: T) {
                         val serializedObject = obj.serializeToMap(gson)
@@ -33,9 +39,9 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
                     }
 
                 })
-
             }
         }
+
     }
 
     override fun onDispose() {

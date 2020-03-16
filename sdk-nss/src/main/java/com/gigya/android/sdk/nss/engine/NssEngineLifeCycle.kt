@@ -2,6 +2,7 @@ package com.gigya.android.sdk.nss.engine
 
 import android.content.Context
 import com.gigya.android.sdk.nss.GigyaNss
+import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import io.flutter.embedding.android.FlutterFragment
 import io.flutter.embedding.android.FlutterView
@@ -10,7 +11,7 @@ import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.view.FlutterMain
 
-interface NssEngineCoordinator {
+open class NssEngineLifeCycle {
 
     companion object {
         const val FLUTTER_ENGINE_ID = "nss_engine_id"
@@ -30,7 +31,7 @@ interface NssEngineCoordinator {
 
     fun getNssEngine(): FlutterEngine? = FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)
 
-    fun initializeEngine() {
+    open fun initializeEngine() {
         if (!existsInTempCache()) {
             val engine = newEngine()
             registerIgnitionChannel(engine)
@@ -59,5 +60,9 @@ interface NssEngineCoordinator {
                 .transparencyMode(FlutterView.TransparencyMode.transparent)
                 .shouldAttachEngineToActivity(true)
                 .build()
+    }
+
+    open fun show(context: Context, markup: Map<String, Any>?) {
+        NssActivity.start(context, markup)
     }
 }

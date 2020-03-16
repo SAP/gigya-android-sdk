@@ -10,7 +10,7 @@
         "routing": {
           "success": "dismiss"
         },
-        "action": "login",
+        "flow": "login",
         "appBar": {
           "textKey": "login"
         },
@@ -21,18 +21,19 @@
             "textKey": "login with site credentials:"
           },
           {
-            "bind": "loginID",
+            "id": "loginID",
             "type": "email",
             "textKey": "Email"
           },
           {
-            "bind": "password",
+            "id": "password",
             "type": "password",
             "textKey": "Password"
           },
           {
             "type": "submit",
-            "textKey": "Submit"
+            "textKey": "Submit",
+            "api": "accounts.login"
           }
         ]
       },
@@ -40,7 +41,7 @@
         "routing": {
           "success": "dismiss"
         },
-        "action": "register",
+        "flow": "register",
         "appBar": {
           "textKey": "Register"
         },
@@ -51,18 +52,19 @@
             "textKey": "Register with site credentials:"
           },
           {
-            "bind": "email",
+            "id": "email",
             "type": "email",
             "textKey": "Email"
           },
           {
-            "bind": "password",
+            "id": "password",
             "type": "password",
             "textKey": "Password"
           },
           {
             "type": "submit",
-            "textKey": "Submit"
+            "textKey": "Submit",
+            "api": "accounts.register"
           }
         ]
       }

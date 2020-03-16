@@ -181,7 +181,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Request new account info with extra fields.
      */
     fun getAccountWithExtraFields(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
-        gigya.getAccount(arrayOf(PROFILE, DATA, SUBSCRIPTIONS), arrayOf(LANGUAGES), object : GigyaCallback<MyAccount>() {
+        gigya.getAccount(arrayOf("all"), arrayOf(LANGUAGES), object : GigyaCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
                 success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))

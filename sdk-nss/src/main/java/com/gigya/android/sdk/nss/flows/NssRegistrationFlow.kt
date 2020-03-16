@@ -13,9 +13,11 @@ class NssRegistrationFlow<T : GigyaAccount>(override val bApi: IBusinessApiServi
 
     companion object {
         const val LOG_TAG = "NssRegistrationFlow"
+        const val SUBMIT_API = "accounts.register"
     }
 
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {
+        super.onNext(method, arguments, result)
         when (method) {
             "accounts.register" -> {
                 GigyaLogger.debug(LOG_TAG, "Starting registration flow with $method call")
