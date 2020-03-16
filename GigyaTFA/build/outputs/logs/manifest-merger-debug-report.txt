@@ -1,0 +1,25 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml:1:1-2:43
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml:1:1-2:43
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml:1:1-2:43
+	package
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml:2:5-40
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml:1:11-69
+uses-sdk
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+		ADDED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml
+		INJECTED from D:\dvlp\git\gigya-android-sdk-v2\GigyaTFA\src\main\AndroidManifest.xml

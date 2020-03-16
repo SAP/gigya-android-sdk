@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">977811956095-nb5h5kf2ve2vgf5f4s75901lvlumaoj5.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://gigya-sdk-v2-1546766892216.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">977811956095</string>
+    <string name="google_api_key" translatable="false">AIzaSyBs8Be9xFscB4tpfX_F6t11CTR9fzAbV64</string>
+    <string name="google_app_id" translatable="false">1:977811956095:android:1868dbdea7b45397</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBs8Be9xFscB4tpfX_F6t11CTR9fzAbV64</string>
+    <string name="google_storage_bucket" translatable="false">gigya-sdk-v2-1546766892216.appspot.com</string>
+    <string name="project_id" translatable="false">gigya-sdk-v2-1546766892216</string>
+</resources>
