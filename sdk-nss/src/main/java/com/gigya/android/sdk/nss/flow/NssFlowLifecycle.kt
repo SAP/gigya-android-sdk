@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.nss.flows
+package com.gigya.android.sdk.nss.flow
 
 import io.flutter.plugin.common.MethodChannel
 

@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.nss.flows
+package com.gigya.android.sdk.nss.flow
 
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
