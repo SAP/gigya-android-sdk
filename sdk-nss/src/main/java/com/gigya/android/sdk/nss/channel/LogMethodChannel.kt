@@ -12,9 +12,7 @@ class LogMethodChannel : IMethodChannel {
         flutterMethodChannel = MethodChannel(messenger, "gigya_nss_engine/method/log")
     }
 
-    internal enum class LogCall {
-        DEBUG, ERROR;
-
-        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
+    internal enum class LogCall(val identifier: String) {
+        DEBUG("debug"), ERROR("error");
     }
 }

@@ -8,7 +8,7 @@
     "screens": {
       "login": {
         "routing": {
-          "success": "dismiss"
+          "success": "accountUpdate"
         },
         "action": "login",
         "appBar": {
@@ -59,6 +59,30 @@
             "bind": "password",
             "type": "password",
             "textKey": "Password"
+          },
+          {
+            "type": "submit",
+            "textKey": "Submit"
+          }
+        ]
+      },
+      "accountUpdate" : {
+        "routing": {
+          "success": "dismiss"
+        },
+        "action": "account",
+        "appBar": {
+          "textKey": "Account Information"
+        },
+        "stack": "vertical",
+        "children": [
+          {
+            "bind": "profile.firstName",
+            "type": "label"
+          },
+          {
+            "bind": "profile.lastName",
+            "type": "input"
           },
           {
             "type": "submit",

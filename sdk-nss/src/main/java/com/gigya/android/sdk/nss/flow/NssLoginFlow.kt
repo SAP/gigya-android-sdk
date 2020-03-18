@@ -16,6 +16,11 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
         const val LOG_TAG = "NssLoginFlow"
     }
 
+    override fun initialize(result: MethodChannel.Result) {
+        GigyaLogger.debug(LOG_TAG, "Explicit flow initialization ")
+        result.success(mapOf<String, Any>())
+    }
+
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {
         super.onNext(method, arguments, result)
         if (method == "submit") {
@@ -34,7 +39,11 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
 
                     override fun onError(error: GigyaError?) {
                         error?.let {
-                            result.error(it.errorCode.toString(), it.localizedMessage, it.data)
+                            result.error(
+                                    it.errorCode.toString(),
+                                    it.localizedMessage,
+                                    it.data
+                            )
                         }
                     }
 

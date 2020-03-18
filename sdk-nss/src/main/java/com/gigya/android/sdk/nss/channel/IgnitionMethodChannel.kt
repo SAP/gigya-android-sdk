@@ -12,9 +12,7 @@ class IgnitionMethodChannel : IMethodChannel {
         flutterMethodChannel = MethodChannel(messenger, "gigya_nss_engine/method/ignition")
     }
 
-    internal enum class IgnitionCall {
-        IGNITION, READY_FOR_DISPLAY;
-
-        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
+    internal enum class IgnitionCall(val identifier: String) {
+        IGNITION("ignition"), READY_FOR_DISPLAY("ready_for_display")
     }
 }

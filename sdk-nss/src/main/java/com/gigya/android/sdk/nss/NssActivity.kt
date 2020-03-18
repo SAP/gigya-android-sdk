@@ -84,10 +84,10 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         ignitionChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
             GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
             when (call.method) {
-                IgnitionMethodChannel.IgnitionCall.IGNITION.lowerCase() -> {
+                IgnitionMethodChannel.IgnitionCall.IGNITION.identifier -> {
                     result.success(markup)
                 }
-                IgnitionMethodChannel.IgnitionCall.READY_FOR_DISPLAY.lowerCase() -> {
+                IgnitionMethodChannel.IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
                         supportFragmentManager.beginTransaction()
                                 .replace(R.id.nss_main_frame, fragment!!)

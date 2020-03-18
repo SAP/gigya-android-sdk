@@ -14,11 +14,14 @@ class NssFlowFactory<T : GigyaAccount>(private val businessApiService: IBusiness
             Flow.LOGIN.identifier -> {
                 GigyaNss.dependenciesContainer.get(NssLoginFlow::class.java)
             }
+            Flow.ACCOUNT.identifier -> {
+                GigyaNss.dependenciesContainer.get(NssAccountFlow::class.java)
+            }
             else -> null
         }
     }
 
     internal enum class Flow(val identifier: String) {
-        REGISTRATION("register"), LOGIN("login")
+        REGISTRATION("register"), LOGIN("login"), ACCOUNT("account")
     }
 }

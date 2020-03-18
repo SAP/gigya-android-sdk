@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.nss.flows
 
-import android.util.Log
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
@@ -15,6 +14,11 @@ class NssRegistrationFlow<T : GigyaAccount>(override val bApi: IBusinessApiServi
     companion object {
         const val LOG_TAG = "NssRegistrationFlow"
         const val SUBMIT_API = "accounts.register"
+    }
+
+    override fun initialize(result: MethodChannel.Result) {
+        GigyaLogger.debug(NssLoginFlow.LOG_TAG, "Explicit flow initialization ")
+        result.success(mapOf<String, Any>())
     }
 
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {

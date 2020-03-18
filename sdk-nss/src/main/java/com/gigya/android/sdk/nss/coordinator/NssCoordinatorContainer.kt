@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.nss.coordinator
 
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.flows.NssFlow
+import com.gigya.android.sdk.nss.flow.NssFlow
 
 open class NssCoordinatorContainer<T : GigyaAccount> {
 
@@ -9,21 +9,21 @@ open class NssCoordinatorContainer<T : GigyaAccount> {
 
     private var mCurrentFlow: String? = null
 
-    fun add(id: String, flow: NssFlow<T>) {
+    fun addFlow(id: String, flow: NssFlow<T>) {
         mFlowMap[id] = flow
         mCurrentFlow = id
     }
 
-    fun remove(id: String) {
+    fun removeFlow(id: String) {
         mFlowMap.remove(id)
         mCurrentFlow = mFlowMap.keys.last()
     }
 
-    fun get(id: String): NssFlow<T>? = mFlowMap[id]
+    fun getFlowWith(id: String): NssFlow<T>? = mFlowMap[id]
 
-    fun getCurrent(): NssFlow<T>? = mFlowMap[mCurrentFlow]
+    fun getCurrentFlow(): NssFlow<T>? = mFlowMap[mCurrentFlow]
 
-    fun clear() {
+    fun clearCoordinatorContainer() {
         mFlowMap.clear()
     }
 }

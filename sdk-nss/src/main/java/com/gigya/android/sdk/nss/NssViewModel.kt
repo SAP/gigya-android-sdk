@@ -4,13 +4,13 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.coordinator.NssCoordinatorContainer
-import com.gigya.android.sdk.nss.flows.NssFlow
-import com.gigya.android.sdk.nss.flows.NssFlowFactory
+import com.gigya.android.sdk.nss.flow.NssFlow
+import com.gigya.android.sdk.nss.flow.NssFlowFactory
 import com.gigya.android.sdk.nss.utils.guard
-import com.gigya.android.sdk.nss.utils.refine
 import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.lang.ref.WeakReference
 
 class NssViewModel<T : GigyaAccount>(
         private val mScreenChannel: ScreenMethodChannel,
@@ -20,7 +20,7 @@ class NssViewModel<T : GigyaAccount>(
     : NssCoordinatorContainer<T>() {
 
     var mFinish: () -> Unit? = { }
-    var mEvent: NssEvents? = null
+    var mEvent: WeakReference<NssEvents<T>>? = null
 
     companion object {
 
@@ -28,7 +28,7 @@ class NssViewModel<T : GigyaAccount>(
     }
 
     internal fun dispose() {
-        mEvent = null
+        mEvent?.clear()
         mScreenChannel.dispose()
         mApiChannel.dispose()
     }
@@ -48,10 +48,10 @@ class NssViewModel<T : GigyaAccount>(
         MethodChannel.MethodCallHandler { call, _ ->
             call.arguments.refined<Map<String, String>> { logMap ->
                 when (call.method) {
-                    LogMethodChannel.LogCall.DEBUG.lowerCase() -> {
+                    LogMethodChannel.LogCall.DEBUG.identifier -> {
                         GigyaLogger.debug(logMap["tag"], logMap["message"])
                     }
-                    LogMethodChannel.LogCall.ERROR.lowerCase() -> {
+                    LogMethodChannel.LogCall.ERROR.identifier -> {
                         GigyaLogger.error(logMap["tag"], logMap["message"])
                     }
                 }
@@ -62,20 +62,20 @@ class NssViewModel<T : GigyaAccount>(
     private val mScreenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
-                ScreenMethodChannel.ScreenCall.FLOW.lowerCase() -> {
-                    call.arguments.refine<Map<String, String>> {
-                        val flowId = this["flowId"]
-                        val flow = mFlowFactory.createFor(flowId!!).guard {
-                            mEvent?.onException("Failed to initialize flow")
-                        }
-                        flow.refined<NssFlow<T>> {
-                            add(flowId, it)
-                            result.success(true)
-                        }
+                ScreenMethodChannel.ScreenCall.FLOW.identifier -> {
+                    call.arguments.refined<Map<String, String>> { map ->
+                        val flowId = map["flowId"]
+                        mFlowFactory.createFor(flowId!!)
+                                .guard {
+                                    mEvent?.get()?.onException("Failed to create flow object")
+                                }.refined<NssFlow<T>> { flow ->
+                                    addFlow(flowId, flow)
+                                    flow.initialize(result)
+                                }
                     }
                 }
-                ScreenMethodChannel.ScreenCall.DISMISS.lowerCase() -> {
-                    clear()
+                ScreenMethodChannel.ScreenCall.DISMISS.identifier -> {
+                    clearCoordinatorContainer()
                     mFinish()
                 }
             }
@@ -84,8 +84,8 @@ class NssViewModel<T : GigyaAccount>(
 
     private val mApiMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
-            call.arguments.refine<Map<String, Any>> {
-                getCurrent()?.onNext(call.method, this, result)
+            call.arguments.refined<Map<String, Any>> { args ->
+                getCurrentFlow()?.onNext(call.method, args, result)
             }
         }
     }
