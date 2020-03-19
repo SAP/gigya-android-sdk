@@ -15,7 +15,7 @@ import com.gigya.android.sdk.nss.utils.refine
 
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
-    private var mViewModel: NssViewModel<T>? = null
+    private var mViewModel: NssFlowViewModel<T>? = null
 
     private var isDisplayed = false
 
@@ -55,7 +55,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
             throw RuntimeException("NSS engine failed to initialize!")
         }
 
-        GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
+        GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refine<NssFlowViewModel<T>> {
             mViewModel = this
             mViewModel!!.mFinish = {
                 onFinishReceived()

@@ -3,24 +3,23 @@ package com.gigya.android.sdk.nss
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.*
-import com.gigya.android.sdk.nss.coordinator.NssCoordinatorContainer
+import com.gigya.android.sdk.nss.flow.NssFlowCoordinator
 import com.gigya.android.sdk.nss.flow.NssFlow
 import com.gigya.android.sdk.nss.flow.NssFlowFactory
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import java.lang.ref.WeakReference
 
-class NssViewModel<T : GigyaAccount>(
+class NssFlowViewModel<T : GigyaAccount>(
         private val mScreenChannel: ScreenMethodChannel,
         private val mApiChannel: ApiMethodChannel,
         private val mLogChannel: LogMethodChannel,
         private val mFlowFactory: NssFlowFactory<T>)
-    : NssCoordinatorContainer<T>() {
+    : NssFlowCoordinator<T>() {
 
     var mFinish: () -> Unit? = { }
-    var mEvent: WeakReference<NssEvents<T>>? = null
+    var mEvent: NssEvents<T>? = null
 
     companion object {
 
@@ -28,11 +27,14 @@ class NssViewModel<T : GigyaAccount>(
     }
 
     internal fun dispose() {
-        mEvent?.clear()
+        mEvent = null
         mScreenChannel.dispose()
         mApiChannel.dispose()
     }
 
+    /**
+     * Register Flutter engine specific communication channels used for Nss usage.
+     */
     fun loadChannels(engine: FlutterEngine) {
         mScreenChannel.initChannel(engine.dartExecutor.binaryMessenger)
         mScreenChannel.setMethodChannelHandler(mScreenMethodChannelHandler)
@@ -67,7 +69,7 @@ class NssViewModel<T : GigyaAccount>(
                         val flowId = map["flowId"]
                         mFlowFactory.createFor(flowId!!)
                                 .guard {
-                                    mEvent?.get()?.onException("Failed to create flow object")
+                                    mEvent?.onException("Failed to create flow object")
                                 }.refined<NssFlow<T>> { flow ->
                                     addFlow(flowId, flow)
                                     flow.initialize(result)

@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.nss
 
-import android.annotation.SuppressLint
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.containers.IoCContainer
 import com.gigya.android.sdk.nss.channel.ApiMethodChannel
@@ -18,14 +17,13 @@ object GigyaNss {
     val dependenciesContainer: IoCContainer = Gigya.getContainer()
 
     // Only ARM based architectures are supported.
-    //TODO Make sure all relevant architecture are added.
     private val SUPPORTED_DEVICE_ARCHITECTURES = arrayListOf("armv7l", "aarch64", "arm64-v8a", "armeabi-v7a")
 
     /**
      * The native screensets engine supports only "ARM" architectures as a direct result of using the Flutter framework.
      * This method will check and verify that the feature is available for this specific device.
+     * Do not use this method for testing on x86 emulator instances.
      */
-    @SuppressLint("DefaultLocale")
     fun isSupportedDeviceArchitecture(): Boolean {
         System.getProperty("os.arch")?.let { arch ->
             if (SUPPORTED_DEVICE_ARCHITECTURES.contains(arch)) return true
@@ -33,6 +31,10 @@ object GigyaNss {
         return false
     }
 
+    /**
+     * Register Nss dependencies.
+     * This method must be called prior to first use of the library.
+     */
     fun register() {
         dependenciesContainer
                 .bind(NssEngineLifeCycle::class.java, NssEngineLifeCycle::class.java, false)
@@ -44,10 +46,8 @@ object GigyaNss {
                 .bind(NssLoginFlow::class.java, NssLoginFlow::class.java, false)
                 .bind(NssAccountFlow::class.java, NssAccountFlow::class.java, false)
                 .bind(NssFlowFactory::class.java, NssFlowFactory::class.java, false)
-                .bind(NssViewModel::class.java, NssViewModel::class.java, true)
+                .bind(NssFlowViewModel::class.java, NssFlowViewModel::class.java, true)
     }
-
-    //region Host interface
 
     /**
      * Load markup JSON file from assets folder.
@@ -57,7 +57,5 @@ object GigyaNss {
     fun load(withAsset: String): Nss.Builder {
         return Nss.Builder().assetPath(withAsset)
     }
-
-    //endregion
 
 }
