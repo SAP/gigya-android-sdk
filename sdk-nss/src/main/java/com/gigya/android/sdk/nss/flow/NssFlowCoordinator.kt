@@ -1,9 +1,8 @@
-package com.gigya.android.sdk.nss.coordinator
+package com.gigya.android.sdk.nss.flow
 
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.flow.NssFlow
 
-open class NssCoordinatorContainer<T : GigyaAccount> {
+open class NssFlowCoordinator<T : GigyaAccount> {
 
     private val mFlowMap = linkedMapOf<String, NssFlow<T>>()
 
