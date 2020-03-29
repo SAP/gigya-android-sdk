@@ -12,9 +12,7 @@ class ScreenMethodChannel : IMethodChannel {
         flutterMethodChannel = MethodChannel(messenger, "gigya_nss_engine/method/screen")
     }
 
-    internal enum class ScreenCall {
-        FLOW, DISMISS;
-
-        fun lowerCase() = this.name.toLowerCase(Locale.ENGLISH)
+    internal enum class ScreenCall(val identifier: String) {
+        FLOW("flow"), DISMISS("dismiss")
     }
 }

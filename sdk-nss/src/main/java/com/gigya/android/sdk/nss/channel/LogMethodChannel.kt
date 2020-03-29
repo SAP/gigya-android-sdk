@@ -4,15 +4,15 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
 
-class IgnitionMethodChannel : IMethodChannel {
+class LogMethodChannel : IMethodChannel {
 
     override var flutterMethodChannel: MethodChannel? = null
 
     override fun initChannel(messenger: BinaryMessenger) {
-        flutterMethodChannel = MethodChannel(messenger, "gigya_nss_engine/method/ignition")
+        flutterMethodChannel = MethodChannel(messenger, "gigya_nss_engine/method/log")
     }
 
-    internal enum class IgnitionCall(val identifier: String) {
-        IGNITION("ignition"), READY_FOR_DISPLAY("ready_for_display")
+    internal enum class LogCall(val identifier: String) {
+        DEBUG("debug"), ERROR("error");
     }
 }

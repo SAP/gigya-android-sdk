@@ -30,12 +30,6 @@ inline fun <reified T> Any?.refine(block: T.() -> Unit) {
     }
 }
 
-inline fun <reified T> Any?.refined(block: (T) -> Unit) {
-    if (this is T) {
-        block(this)
-    }
-}
-
 inline fun <reified T> Any?.refine(block: T.() -> Unit, ex: () -> Unit) {
     if (this is T) {
         block()
@@ -43,3 +37,18 @@ inline fun <reified T> Any?.refine(block: T.() -> Unit, ex: () -> Unit) {
         ex()
     }
 }
+
+inline fun <reified T> Any?.refined(block: (T) -> Unit) {
+    if (this is T) {
+        block(this)
+    }
+}
+
+inline fun <reified T> Any?.refined(block: (T) -> Unit, ex: () -> Unit) {
+    if (this is T) {
+        block(this)
+    } else {
+        ex()
+    }
+}
+

@@ -15,7 +15,7 @@ import com.gigya.android.sdk.nss.utils.refine
 
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
-    private var mViewModel: NssViewModel<T>? = null
+    private var mViewModel: NssFlowViewModel<T>? = null
 
     private var isDisplayed = false
 
@@ -55,7 +55,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
             throw RuntimeException("NSS engine failed to initialize!")
         }
 
-        GigyaNss.dependenciesContainer.get(NssViewModel::class.java).refine<NssViewModel<T>> {
+        GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refine<NssFlowViewModel<T>> {
             mViewModel = this
             mViewModel!!.mFinish = {
                 onFinishReceived()
@@ -84,10 +84,10 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         ignitionChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
             GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
             when (call.method) {
-                IgnitionMethodChannel.IgnitionCall.IGNITION.lowerCase() -> {
+                IgnitionMethodChannel.IgnitionCall.IGNITION.identifier -> {
                     result.success(markup)
                 }
-                IgnitionMethodChannel.IgnitionCall.READY_FOR_DISPLAY.lowerCase() -> {
+                IgnitionMethodChannel.IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
                         supportFragmentManager.beginTransaction()
                                 .replace(R.id.nss_main_frame, fragment!!)

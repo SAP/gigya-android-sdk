@@ -1,4 +1,4 @@
-package com.gigya.android.sdk.nss.flows
+package com.gigya.android.sdk.nss.flow
 
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaLoginCallback
@@ -14,6 +14,11 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
 
     companion object {
         const val LOG_TAG = "NssLoginFlow"
+    }
+
+    override fun initialize(result: MethodChannel.Result) {
+        GigyaLogger.debug(LOG_TAG, "Explicit flow initialization ")
+        result.success(mapOf<String, Any>())
     }
 
     override fun onNext(method: String, arguments: Map<String, Any>?, result: MethodChannel.Result) {
@@ -34,7 +39,11 @@ class NssLoginFlow<T : GigyaAccount>(override val bApi: IBusinessApiService<T>) 
 
                     override fun onError(error: GigyaError?) {
                         error?.let {
-                            result.error(it.errorCode.toString(), it.localizedMessage, it.data)
+                            result.error(
+                                    it.errorCode.toString(),
+                                    it.localizedMessage,
+                                    it.data
+                            )
                         }
                     }
 

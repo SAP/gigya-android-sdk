@@ -2,8 +2,12 @@ package com.gigya.android.sdk.nss
 
 import android.content.Context
 import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
-import com.gigya.android.sdk.nss.utils.*
+import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
+import com.gigya.android.sdk.nss.utils.guard
+import com.gigya.android.sdk.nss.utils.refined
+import com.gigya.android.sdk.nss.utils.serialize
 import com.gigya.android.sdk.utils.FileUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -14,7 +18,7 @@ class Nss private constructor(
         private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val events: NssEvents?) {
+        private val events: NssEvents<*>?) {
 
     private val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
@@ -30,16 +34,17 @@ class Nss private constructor(
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
-            var events: NssEvents? = null) {
+            var events: NssEvents<*>? = null) {
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
-        fun events(events: NssEvents) = apply {
+        fun <T : GigyaAccount> events(events: NssEvents<T>) = apply {
             this.events = events
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
-                val viewModel = GigyaNss.dependenciesContainer.get(NssViewModel::class.java)
-                viewModel.mEvent = events
+                GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
+                    viewModel.mEvent = events
+                }
             }
         }
 
@@ -63,7 +68,7 @@ class Nss private constructor(
     }
 
     /**
-     * Show screensets.
+     * Show native screensets.
      */
     fun show(launcherContext: Context) {
         assetPath?.apply {
@@ -80,17 +85,18 @@ class Nss private constructor(
 
     private fun mapAsset(jsonAsset: String): Map<String, Any> {
         val jsonMap = jsonAsset.serialize<String, Any>(gson)
-        jsonMap["markup"].guard {
-            throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")
-        }
-        jsonMap["markup"].refine<MutableMap<String, Any>> {
-            initialRoute?.let {
-                this.put("initialRoute", it)
-            }
-            if (!this.containsKey("initialRoute")) {
-                throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
-            }
-        }
+        jsonMap["markup"]
+                .guard {
+                    throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")
+                }
+                .refined<MutableMap<String, Any>> { map ->
+                    initialRoute?.let {
+                        map.put("initialRoute", it)
+                    }
+                    if (!map.containsKey("initialRoute")) {
+                        throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
+                    }
+                }
         return jsonMap
     }
 
