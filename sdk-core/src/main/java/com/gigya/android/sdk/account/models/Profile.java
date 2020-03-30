@@ -65,7 +65,7 @@ public class Profile {
     @Nullable
     private String name;
     @Nullable
-    private String nickName;
+    private String nickname;
     @Nullable
     private OidcData oidcData;
     @Nullable
@@ -369,12 +369,12 @@ public class Profile {
     }
 
     @Nullable
-    public String getNickName() {
-        return nickName;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setNickName(@Nullable String nickName) {
-        this.nickName = nickName;
+    public void setNickname(@Nullable String nickname) {
+        this.nickname = nickname;
     }
 
     @Nullable
