@@ -108,7 +108,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun login(loginID: String, password: String, exp: Int, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        val params = mutableMapOf("loginID" to loginID, "password" to password, "sessionExpiration" to exp)
+        val params = mapOf("loginID" to loginID, "password" to password, "sessionExpiration" to exp)
         gigya.login(params, object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {

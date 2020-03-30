@@ -2,6 +2,7 @@ package com.gigya.android.sdk.ui.plugin;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,10 +28,11 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.R;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.Presenter;
 
 @SuppressLint("ValidFragment")
-public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A> {
+public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A>, HostActivity.OnBackPressListener {
 
     private static final String LOG_TAG = "GigyaPluginFragment";
 
@@ -87,16 +89,39 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     //region LIFE CYCLE
 
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof HostActivity) {
+            ((HostActivity) context).addBackPressListener(this);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        if (getContext() instanceof HostActivity) {
+            ((HostActivity) getContext()).removeBackPressListener(this);
+        }
+        super.onDetach();
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Parse arguments.
         if (getArguments() != null) {
             _obfuscation = getArguments().getBoolean(Presenter.ARG_OBFUSCATE, false);
         }
     }
 
+    @Override
+    public boolean onBackPressed() {
+        if (_pluginCallback != null) {
+            _pluginCallback.onCanceled();
+        }
+        return true;
+    }
 
     @NonNull
     @Override
@@ -191,7 +216,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _webView.setWebViewClient(_webViewClient);
         _webView.setWebChromeClient(_fileChooserClient);
 
-       attachBridge();
+        attachBridge();
     }
 
     private void attachBridge() {
