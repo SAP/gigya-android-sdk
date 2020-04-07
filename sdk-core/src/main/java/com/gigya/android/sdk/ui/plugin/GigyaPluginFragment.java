@@ -282,7 +282,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     public void onHide(@NonNull GigyaPluginEvent event, String reason) {
                         _pluginCallback.onHide(event, reason);
                         if (getActivity() != null) {
-                            getActivity().onBackPressed();
+                            getActivity().finish();
                         }
                     }
 

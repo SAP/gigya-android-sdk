@@ -129,10 +129,9 @@ public class HostActivity extends AppCompatActivity {
             super.onBackPressed();
         }
         for (OnBackPressListener listener : backPressHandlerList) {
-            if (!listener.onBackPressed()) {
-                super.onBackPressed();
-            }
+            listener.onBackPressed();
         }
+        super.onBackPressed();
     }
 
     //endregion
