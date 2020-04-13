@@ -253,10 +253,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 GigyaNss
                         .load("nss_markup_mock.json")
                         .initialRoute("login")
-                        .events(object : NssEvents() {
+                        .events(object : NssEvents<MyAccount>() {
 
                             override fun onException(cause: String) {
                                 // Handle nss exception here.
+                            }
+
+                            override fun onCancel() {
+                                // Handle cancel event if needed.
+                            }
+
+                            override fun onLogin(accountObj: MyAccount) {
+                                // Handle login event here if needed.
                             }
 
                         })
