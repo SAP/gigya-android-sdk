@@ -7,4 +7,6 @@ import java.util.Map;
 public interface IPendingRegistrationResolver {
 
     void setAccount(@NonNull final Map<String, Object> params);
+
+    String getRegToken();
 }

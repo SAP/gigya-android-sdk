@@ -52,6 +52,15 @@ public class GigyaApiResponse {
     }
 
     /**
+     * Get Map formatted of the current response.
+     *
+     * @return Mapped response data.
+     */
+    public Map<String, Object> asMap() {
+        return this.mapped;
+    }
+
+    /**
      * Optional parsing of the current response with generic given type. Uses GSON as the parsing engine.
      *
      * @param clazz Requested type for parsing.

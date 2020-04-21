@@ -13,6 +13,6 @@ class ScreenMethodChannel : IMethodChannel {
     }
 
     internal enum class ScreenCall(val identifier: String) {
-        FLOW("flow"), DISMISS("dismiss")
+        ACTION("action"), DISMISS("dismiss")
     }
 }

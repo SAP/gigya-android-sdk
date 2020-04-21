@@ -7,10 +7,11 @@ import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import com.gigya.android.sdk.nss.channel.LogMethodChannel
 import com.gigya.android.sdk.nss.channel.ScreenMethodChannel
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
-import com.gigya.android.sdk.nss.flow.NssAccountFlow
-import com.gigya.android.sdk.nss.flow.NssFlowFactory
-import com.gigya.android.sdk.nss.flow.NssLoginFlow
-import com.gigya.android.sdk.nss.flow.NssRegistrationFlow
+import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction
+import com.gigya.android.sdk.nss.bloc.action.NssActionFactory
+import com.gigya.android.sdk.nss.bloc.action.NssLoginAction
+import com.gigya.android.sdk.nss.bloc.action.NssRegistrationAction
+import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 
 object GigyaNss {
 
@@ -42,10 +43,11 @@ object GigyaNss {
                 .bind(ApiMethodChannel::class.java, ApiMethodChannel::class.java, true)
                 .bind(ScreenMethodChannel::class.java, ScreenMethodChannel::class.java, true)
                 .bind(LogMethodChannel::class.java, LogMethodChannel::class.java, true)
-                .bind(NssRegistrationFlow::class.java, NssRegistrationFlow::class.java, false)
-                .bind(NssLoginFlow::class.java, NssLoginFlow::class.java, false)
-                .bind(NssAccountFlow::class.java, NssAccountFlow::class.java, false)
-                .bind(NssFlowFactory::class.java, NssFlowFactory::class.java, false)
+                .bind(NssFlowManager::class.java, NssFlowManager::class.java, false)
+                .bind(NssRegistrationAction::class.java, NssRegistrationAction::class.java, false)
+                .bind(NssLoginAction::class.java, NssLoginAction::class.java, false)
+                .bind(NssSetAccountAction::class.java, NssSetAccountAction::class.java, false)
+                .bind(NssActionFactory::class.java, NssActionFactory::class.java, false)
                 .bind(NssFlowViewModel::class.java, NssFlowViewModel::class.java, true)
     }
 

@@ -88,7 +88,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
 
     // Uncomment if you want to use Google Volley to send http requests.
-    implementation 'com.android.volley:volley:1.1.1'
+    //implementation 'com.android.volley:volley:1.1.1'
 
     // Social libs
     implementation 'com.facebook.android:facebook-android-sdk:5.5.0'
