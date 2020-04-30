@@ -5,6 +5,7 @@ import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.action.NssAction
 import com.gigya.android.sdk.nss.bloc.action.NssActionFactory
 import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
@@ -32,6 +33,8 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     private var activeResolver: INssResolver? = null
     private var mainFlowCallback: GigyaLoginCallback<T>? = null
 
+    var nssEvents: NssEvents<T>? = null
+
     override fun getMainFlowCallback(): GigyaLoginCallback<T>? = mainFlowCallback
 
     override fun getCurrentResult(): MethodChannel.Result? = activeChannelResult
@@ -45,6 +48,9 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 disposeResolver()
                 val serializedObject = obj.serializeToMap(gson)
                 activeChannelResult?.success(serializedObject)
+
+                // Propagate Nss event.
+                nssEvents?.onLogin(obj)
             }
 
             override fun onError(error: GigyaError?) {
@@ -54,12 +60,19 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                             gigyaError.localizedMessage,
                             gigyaError.data
                     )
+
+                    // Propagate Nss error.
+                    nssEvents?.onError(gigyaError)
                 }
             }
 
             override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
                 activeResolver = NssResolver(resolver)
                 activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+
+                // Propagate Nss error. Resolver applied. User should not handle error in host code if applied
+                // markup is responsible got interruption.
+                nssEvents?.onError(GigyaError.fromResponse(response))
             }
 
         }

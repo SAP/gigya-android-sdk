@@ -2,8 +2,6 @@ package com.gigya.android.sdk.nss
 
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.bloc.action.NssAction
-import com.gigya.android.sdk.nss.bloc.action.NssActionFactory
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.utils.guard
@@ -12,13 +10,17 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class NssFlowViewModel<T : GigyaAccount>(
-        private val mScreenChannel: ScreenMethodChannel,
-        private val mApiChannel: ApiMethodChannel,
-        private val mLogChannel: LogMethodChannel,
-        private val mFlowManager: NssFlowManager<T>) {
+        private val screenChannel: ScreenMethodChannel,
+        private val apiChannel: ApiMethodChannel,
+        private val logChannel: LogMethodChannel,
+        private val flowManager: NssFlowManager<T>) {
 
-    var mFinish: () -> Unit? = { }
-    var mEvent: NssEvents<T>? = null
+    var finishClosure: () -> Unit? = { }
+    var nssEvents: NssEvents<T>? = null
+        set(value) {
+            field = value
+            flowManager.nssEvents = value
+        }
 
     companion object {
 
@@ -26,26 +28,27 @@ class NssFlowViewModel<T : GigyaAccount>(
     }
 
     internal fun dispose() {
-        mEvent = null
-        mScreenChannel.dispose()
-        mApiChannel.dispose()
+        nssEvents = null
+        screenChannel.dispose()
+        logChannel.dispose()
+        apiChannel.dispose()
     }
 
     /**
      * Register Flutter engine specific communication channels used for Nss usage.
      */
     fun loadChannels(engine: FlutterEngine) {
-        mScreenChannel.initChannel(engine.dartExecutor.binaryMessenger)
-        mScreenChannel.setMethodChannelHandler(mScreenMethodChannelHandler)
+        screenChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        screenChannel.setMethodChannelHandler(screenMethodChannelHandler)
 
-        mApiChannel.initChannel(engine.dartExecutor.binaryMessenger)
-        mApiChannel.setMethodChannelHandler(mApiMethodChannelHandler)
+        apiChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        apiChannel.setMethodChannelHandler(apiMethodChannelHandler)
 
-        mLogChannel.initChannel(engine.dartExecutor.binaryMessenger)
-        mLogChannel.setMethodChannelHandler(mLogMethodChannelHandler)
+        logChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        logChannel.setMethodChannelHandler(logMethodChannelHandler)
     }
 
-    private val mLogMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+    private val logMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, _ ->
             call.arguments.refined<Map<String, String>> { logMap ->
                 when (call.method) {
@@ -60,7 +63,7 @@ class NssFlowViewModel<T : GigyaAccount>(
         }
     }
 
-    private val mScreenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+    private val screenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
                 ScreenMethodChannel.ScreenCall.ACTION.identifier -> {
@@ -70,21 +73,27 @@ class NssFlowViewModel<T : GigyaAccount>(
                             GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
                             throw RuntimeException("Missing action if in screen action initializer. Unable to generate the correct action")
                         }
-                        mFlowManager.setCurrent(actionId!!, result)
+                        flowManager.setCurrent(actionId!!, result)
                     }
                 }
                 ScreenMethodChannel.ScreenCall.DISMISS.identifier -> {
-                    mFlowManager.dispose()
-                    mFinish()
+                    flowManager.dispose()
+                    finishClosure()
+                }
+                ScreenMethodChannel.ScreenCall.CANCEL.identifier -> {
+                    // Pass a cancel event to main Nss events interface.
+                    nssEvents?.onCancel()
+                    flowManager.dispose()
+                    finishClosure()
                 }
             }
         }
     }
 
-    private val mApiMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+    private val apiMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             call.arguments.refined<MutableMap<String, Any>> { args ->
-                mFlowManager.onNext(call.method, args, result)
+                flowManager.onNext(call.method, args, result)
             }
         }
     }
