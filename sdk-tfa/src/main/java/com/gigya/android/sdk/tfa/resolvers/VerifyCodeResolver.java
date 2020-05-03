@@ -58,6 +58,7 @@ public class VerifyCodeResolver<A extends GigyaAccount> extends TFAResolver<A> i
         params.put("regToken", getRegToken());
         params.put("gigyaAssertion", _gigyaAssertion);
         params.put("providerAssertion", providerAssertion);
+        params.put("tempDevice", true);
         if (rememberDevice) {
             params.put("tempDevice", false);
         }

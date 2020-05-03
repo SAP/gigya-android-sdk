@@ -37,7 +37,7 @@ import static com.gigya.android.sdk.tfa.GigyaDefinitions.TFA_CHANNEL_ID;
 @SuppressWarnings("Convert2Lambda")
 public class GigyaTFA {
 
-    private static final String VERSION = "1.0.3";
+    private static final String VERSION = "1.0.4";
 
     private static final String LOG_TAG = "GigyaTFA";
 
