@@ -443,8 +443,10 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             return;
         }
         if (!_sessionService.isValid()) {
-            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
-            gigyaCallback.onError(GigyaError.unauthorizedUser());
+            if (params != null && !params.containsKey("regToken")) {
+                GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
         }
         // Fetch caching relevant fields from parameter map (if exist) null fields are viable.
         final String include = params != null ? (String) params.get("include") : null;

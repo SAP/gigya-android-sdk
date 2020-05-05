@@ -15,7 +15,7 @@ import com.gigya.android.sdk.nss.utils.refine
 
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
-    private var mViewModel: NssFlowViewModel<T>? = null
+    private var viewModel: NssFlowViewModel<T>? = null
 
     private var isDisplayed = false
 
@@ -56,14 +56,14 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         }
 
         GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refine<NssFlowViewModel<T>> {
-            mViewModel = this
-            mViewModel!!.mFinish = {
+            viewModel = this
+            viewModel!!.finishClosure = {
                 onFinishReceived()
             }
         }
 
         // Load channels.
-        mViewModel?.loadChannels(engine!!)
+        viewModel?.loadChannels(engine!!)
 
         GigyaLogger.debug(LOG_TAG, "Registered nss method channels.")
 
@@ -106,8 +106,8 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
      * Dismiss/destroy the activity.
      */
     private fun onFinishReceived() {
-        mViewModel?.dispose()
-        mViewModel = null
+        viewModel?.dispose()
+        viewModel = null
         finish()
     }
 

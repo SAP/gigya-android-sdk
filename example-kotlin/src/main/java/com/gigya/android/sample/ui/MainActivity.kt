@@ -251,11 +251,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_show_native_screen_sets -> {
                 GigyaNss
-                        .load("nss_markup_mock.json")
-                        .initialRoute("login")
+                        .load("nss_markup_30_04_20.json")
+                        .initialRoute("register")
                         .events(object : NssEvents<MyAccount>() {
 
-                            override fun onException(cause: String) {
+                            override fun onError(error: GigyaError) {
                                 // Handle nss exception here.
                             }
 

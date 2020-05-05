@@ -15,4 +15,5 @@ class LogMethodChannel : IMethodChannel {
     internal enum class LogCall(val identifier: String) {
         DEBUG("debug"), ERROR("error");
     }
+
 }
