@@ -25,7 +25,7 @@ object GigyaNss {
      * This method will check and verify that the feature is available for this specific device.
      * Do not use this method for testing on x86 emulator instances.
      */
-    fun isSupportedDeviceArchitecture(): Boolean {
+    fun isSupported(): Boolean {
         System.getProperty("os.arch")?.let { arch ->
             if (SUPPORTED_DEVICE_ARCHITECTURES.contains(arch)) return true
         }

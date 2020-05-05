@@ -588,6 +588,22 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Show Gigya ScreenSets flow using the PluginFragment.
+     * UI will be presented via WebView.
+     *
+     * @param screensSet          Main ScreensSet group identifier
+     * @param obfuscate           Obfuscate WebBridge data.
+     * @param fullScreen          Show in fullscreen mode.
+     * @param params              ScreensSet flow parameters.
+     * @param gigyaPluginCallback Plugin callback.
+     */
+    public void showScreenSet(final String screensSet, boolean obfuscate, boolean fullScreen, @NonNull final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
+        params.put("screenSet", screensSet);
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
+        _presenter.showPlugin(obfuscate, GigyaPluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
+    }
+
+    /**
      * Update device information in server.
      * Device information includes: platform, manufacturer, os and push token.
      * Use this method manually if your flow requires to update the push service token.
