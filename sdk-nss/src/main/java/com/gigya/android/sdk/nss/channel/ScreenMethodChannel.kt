@@ -2,7 +2,6 @@ package com.gigya.android.sdk.nss.channel
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import java.util.*
 
 class ScreenMethodChannel : IMethodChannel {
 

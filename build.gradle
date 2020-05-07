@@ -29,7 +29,7 @@ allprojects {
             url '../sdk-nss-engine/host/outputs/repo'
         }
         maven {
-            url 'http://download.flutter.io'
+            url 'https://storage.googleapis.com/download.flutter.io'
         }
         mavenCentral()
     }

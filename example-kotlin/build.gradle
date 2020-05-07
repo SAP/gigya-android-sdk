@@ -74,8 +74,9 @@ dependencies {
 
 //    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'
 //    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:1.0'
-    debugCompileOnly 'com.gigya.native_screensets_engine:flutter_debug:+'
-    releaseCompileOnly 'com.gigya.native_screensets_engine:flutter_release:+'
+    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:+'
+    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:+'
+
 
 
     //noinspection GradleCompatible

@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.nss.bloc.action
 
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.nss.GigyaNss
 
 class NssActionFactory {
 

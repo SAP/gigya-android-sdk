@@ -2,7 +2,6 @@ package com.gigya.android.sdk.nss.engine
 
 import android.content.Context
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import io.flutter.embedding.android.FlutterFragment
