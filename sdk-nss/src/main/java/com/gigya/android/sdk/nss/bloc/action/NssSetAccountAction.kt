@@ -5,9 +5,7 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
-import com.gigya.android.sdk.interruption.PendingRegistrationResolver
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.nss.Nss
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.bloc.flow.NssResolver
 import com.gigya.android.sdk.nss.utils.guard

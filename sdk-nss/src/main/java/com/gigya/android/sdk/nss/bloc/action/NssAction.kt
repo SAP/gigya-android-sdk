@@ -7,12 +7,14 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 
-abstract class NssAction<T : GigyaAccount> : INssAction {
+abstract class NssAction<T : GigyaAccount>() : INssAction {
 
     companion object {
         const val submit = "submit"
         const val api = "api"
     }
+
+    var actionId: String? = null
 
     var flowDelegate: INssFlowDelegate<*>? = null
 

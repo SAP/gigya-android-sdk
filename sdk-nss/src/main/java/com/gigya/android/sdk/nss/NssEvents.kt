@@ -5,7 +5,7 @@ import com.gigya.android.sdk.network.GigyaError
 
 abstract class NssEvents<T : GigyaAccount> {
 
-    open fun onError(error: GigyaError) {
+    open fun onError(screenId: String, error: GigyaError) {
         // Stub.
     }
 
@@ -13,7 +13,7 @@ abstract class NssEvents<T : GigyaAccount> {
         // Stub.
     }
 
-    open fun onLogin(accountObj: T) {
+    open fun onScreenSuccess(screenId: String, action: String, accountObj: T) {
         // Stub.
     }
 }

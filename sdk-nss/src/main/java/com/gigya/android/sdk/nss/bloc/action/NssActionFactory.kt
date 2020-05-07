@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.nss.bloc.action
 
-import com.gigya.android.sdk.nss.GigyaNss
+import com.gigya.android.sdk.Gigya
 
 class NssActionFactory {
 
@@ -10,18 +10,20 @@ class NssActionFactory {
         const val setAccount = "setAccount"
     }
 
-    fun get(action: String): NssAction<*>? {
-        return when (action) {
+    fun get(actionId: String): NssAction<*>? {
+        val action = when (actionId) {
             register -> {
-                GigyaNss.dependenciesContainer.get(NssRegistrationAction::class.java)
+                Gigya.getContainer().get(NssRegistrationAction::class.java)
             }
             login -> {
-                GigyaNss.dependenciesContainer.get(NssLoginAction::class.java)
+                Gigya.getContainer().get(NssLoginAction::class.java)
             }
             setAccount -> {
-                GigyaNss.dependenciesContainer.get(NssSetAccountAction::class.java)
+                Gigya.getContainer().get(NssSetAccountAction::class.java)
             }
             else -> null
         }
+        action!!.actionId = actionId
+        return action
     }
 }

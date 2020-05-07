@@ -73,8 +73,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         })
 
-        GigyaNss.register()
-
         //changeLocale("tr")
     }
 
@@ -250,21 +248,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
             }
             R.id.action_show_native_screen_sets -> {
-                GigyaNss
-                        .load("nss_markup_30_04_20.json")
+                GigyaNss.getInstance()
+                        .load("gigya-nss-example.json")
                         .initialRoute("register")
                         .events(object : NssEvents<MyAccount>() {
 
-                            override fun onError(error: GigyaError) {
+                            override fun onError(screenId: String, error: GigyaError) {
                                 // Handle nss exception here.
+                                GigyaLogger.debug("NSS", "onError")
                             }
 
                             override fun onCancel() {
                                 // Handle cancel event if needed.
+                                GigyaLogger.debug("NSS", "onCancel")
                             }
 
-                            override fun onLogin(accountObj: MyAccount) {
+                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
                                 // Handle login event here if needed.
+                                GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                             }
 
                         })
