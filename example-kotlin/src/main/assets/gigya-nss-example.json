@@ -9,7 +9,6 @@
   "screens": {
     "login": {
       "routing": {
-        "onPendingRegistration": "account-update",
         "onSuccess": "_dismiss"
       },
       "action": "login",
@@ -24,12 +23,12 @@
         },
         {
           "bind": "loginID",
-          "type": "email",
+          "type": "emailInput",
           "textKey": "Email"
         },
         {
           "bind": "password",
-          "type": "password",
+          "type": "passwordInput",
           "textKey": "Password"
         },
         {
@@ -40,7 +39,6 @@
     },
     "register": {
       "routing": {
-        "onPendingRegistration": "account-update",
         "onSuccess": "_dismiss"
       },
       "action": "register",
@@ -55,12 +53,12 @@
         },
         {
           "bind": "email",
-          "type": "email",
+          "type": "emailInput",
           "textKey": "Email"
         },
         {
           "bind": "password",
-          "type": "password",
+          "type": "passwordInput",
           "textKey": "Password"
         },
         {
@@ -70,20 +68,15 @@
           "children": [
             {
               "bind": "profile.firstName",
-              "type": "input",
+              "type": "textInput",
               "textKey": "First name"
             },
             {
               "bind": "profile.lastName",
-              "type": "input",
+              "type": "textInput",
               "textKey": "Last name"
             }
           ]
-        },
-        {
-          "bind": "profile.zip",
-          "type": "input",
-          "textKey": "Zipcode"
         },
         {
           "bind": "data.terms",
@@ -108,27 +101,27 @@
       "children": [
         {
           "bind": "profile.firstName",
-          "type": "input",
+          "type": "textInput",
           "textKey": "First name"
         },
         {
           "bind": "profile.lastName",
-          "type": "input",
+          "type": "textInput",
           "textKey": "Last name"
         },
         {
           "bind": "profile.email",
-          "type": "input",
+          "type": "textInput",
           "textKey": "Email"
         },
         {
           "bind": "profile.zip",
-          "type": "input",
+          "type": "textInput",
           "textKey": "Zipcode"
         },
         {
           "bind": "profile.country",
-          "type": "input",
+          "type": "textInput",
           "textKey": "Country"
         },
         {

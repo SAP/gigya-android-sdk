@@ -70,7 +70,6 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                     // Propagate Nss error.
                     nssEvents?.onError(
                             activeScreen!!,
-                            activeAction!!.actionId!!,
                             gigyaError
                     )
                 }
@@ -84,7 +83,6 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 // markup is responsible got interruption.
                 nssEvents?.onError(
                         activeScreen!!,
-                        activeAction!!.actionId!!,
                         GigyaError.fromResponse(response)
                 )
             }

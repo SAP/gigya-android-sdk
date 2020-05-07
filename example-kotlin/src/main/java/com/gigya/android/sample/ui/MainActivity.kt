@@ -12,7 +12,6 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.gigya.android.sample.R
@@ -250,11 +249,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_show_native_screen_sets -> {
                 GigyaNss.getInstance()
-                        .load("nss_markup_30_04_20.json")
+                        .load("gigya-nss-example.json")
                         .initialRoute("register")
                         .events(object : NssEvents<MyAccount>() {
 
-                            override fun onError(screenId: String, action: String, error: GigyaError) {
+                            override fun onError(screenId: String, error: GigyaError) {
                                 // Handle nss exception here.
                                 GigyaLogger.debug("NSS", "onError")
                             }

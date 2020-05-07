@@ -72,11 +72,9 @@ dependencies {
     implementation project(path: ':sdk-auth')
     implementation project(path: ':sdk-nss')
 
-//    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:1.0'
-//    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:1.0'
-    debugImplementation 'com.gigya.native_screensets_engine:flutter_debug:+'
-    releaseImplementation 'com.gigya.native_screensets_engine:flutter_release:+'
-
+    // Nss engine.
+    debugImplementation 'com.gigya.nss.engine:flutter_debug:+'
+    releaseImplementation 'com.gigya.nss.engine:flutter_release:+'
 
 
     //noinspection GradleCompatible

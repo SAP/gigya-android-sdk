@@ -5,7 +5,7 @@ import com.gigya.android.sdk.network.GigyaError
 
 abstract class NssEvents<T : GigyaAccount> {
 
-    open fun onError(screenId: String, action: String, error: GigyaError) {
+    open fun onError(screenId: String, error: GigyaError) {
         // Stub.
     }
 
