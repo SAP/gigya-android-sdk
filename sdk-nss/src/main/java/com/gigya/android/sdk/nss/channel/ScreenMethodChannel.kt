@@ -2,7 +2,6 @@ package com.gigya.android.sdk.nss.channel
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import java.util.*
 
 class ScreenMethodChannel : IMethodChannel {
 
@@ -13,6 +12,6 @@ class ScreenMethodChannel : IMethodChannel {
     }
 
     internal enum class ScreenCall(val identifier: String) {
-        FLOW("flow"), DISMISS("dismiss")
+        ACTION("action"), DISMISS("_dismiss"), CANCEL("_cancel")
     }
 }

@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Context
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
@@ -42,14 +43,14 @@ class Nss private constructor(
             this.events = events
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
-                GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
-                    viewModel.mEvent = events
+                Gigya.getContainer().get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
+                    viewModel.nssEvents = events
                 }
             }
         }
 
         fun show(launcherContext: Context) = Nss(
-                GigyaNss.dependenciesContainer.get(NssEngineLifeCycle::class.java),
+                Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
                 initialRoute,
                 events)
@@ -80,29 +81,23 @@ class Nss private constructor(
 
             engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!))
 
-        } ?: applyError("Asset path not available")
+        } ?: throw RuntimeException("Asset path not available")
     }
 
     private fun mapAsset(jsonAsset: String): Map<String, Any> {
         val jsonMap = jsonAsset.serialize<String, Any>(gson)
-        jsonMap["markup"]
-                .guard {
-                    throw RuntimeException("Markup scheme incorrect - missing \"markup\" field")
-                }
+        jsonMap.guard {
+            throw RuntimeException("Markup parsing error")
+        }
                 .refined<MutableMap<String, Any>> { map ->
-                    initialRoute?.let {
-                        map.put("initialRoute", it)
+                    @Suppress("UNCHECKED_CAST") val routingMap: MutableMap<String, Any> = map["routing"] as MutableMap<String, Any>
+                    initialRoute?.let { userDefinedInitialRoute ->
+                        routingMap["initial"] = userDefinedInitialRoute
                     }
-                    if (!map.containsKey("initialRoute")) {
+                    if (!routingMap.containsKey("initial")) {
                         throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
                     }
                 }
         return jsonMap
     }
-
-    /**
-     * Notify error using available result handler.
-     */
-    @Suppress("SameParameterValue")
-    private fun applyError(cause: String) = events?.onException(cause)
 }

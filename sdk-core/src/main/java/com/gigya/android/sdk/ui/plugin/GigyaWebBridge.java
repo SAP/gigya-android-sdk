@@ -113,8 +113,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     }
 
     @Override
-    public void withObfuscation(boolean obfuscation) {
+    public IGigyaWebBridge<A> withObfuscation(boolean obfuscation) {
         _obfuscation = obfuscation;
+        return this;
     }
 
     @Override
@@ -447,11 +448,11 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String obfuscate(String string, boolean quote) {
-        if (_obfuscation) {
+        if (_obfuscation && string != null) {
             // by default, using obfuscation strategy of base64
             try {
                 byte[] data = string.getBytes("UTF-8");
-                String base64 = Base64.encodeToString(data, Base64.DEFAULT);
+                String base64 = Base64.encodeToString(data, Base64.NO_WRAP);
                 if (quote) {
                     return "\"" + base64 + "\"";
                 } else {
@@ -466,9 +467,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
     @SuppressWarnings("CharsetObjectCanBeUsed")
     private String deobfuscate(String base64String) {
-        if (_obfuscation) {
+        if (_obfuscation && base64String != null) {
             try {
-                byte[] data = Base64.decode(base64String, Base64.DEFAULT);
+                byte[] data = Base64.decode(base64String, Base64.NO_WRAP);
                 return new String(data, "UTF-8");
             } catch (Exception ex) {
                 ex.printStackTrace();

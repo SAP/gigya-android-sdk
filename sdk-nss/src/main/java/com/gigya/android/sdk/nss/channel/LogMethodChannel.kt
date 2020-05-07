@@ -2,7 +2,6 @@ package com.gigya.android.sdk.nss.channel
 
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import java.util.*
 
 class LogMethodChannel : IMethodChannel {
 
@@ -15,4 +14,5 @@ class LogMethodChannel : IMethodChannel {
     internal enum class LogCall(val identifier: String) {
         DEBUG("debug"), ERROR("error");
     }
+
 }

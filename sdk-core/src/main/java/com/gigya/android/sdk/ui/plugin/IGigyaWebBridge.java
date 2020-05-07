@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface IGigyaWebBridge<A extends GigyaAccount> {
 
-    void withObfuscation(boolean obfuscation);
+    IGigyaWebBridge<A> withObfuscation(boolean obfuscation);
 
     void setInvocationCallback(@NonNull GigyaPluginFragment.IBridgeCallbacks<A> invocationCallback);
 

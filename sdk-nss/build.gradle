@@ -76,9 +76,9 @@ dependencies {
     compileOnly project(path: ':sdk-auth')
     compileOnly 'com.google.code.gson:gson:2.8.5'
 
-    // Flutter engine.
-    debugApi 'com.gigya.native_screensets_engine:flutter_debug:1.0'
-    releaseApi 'com.gigya.native_screensets_engine:flutter_release:1.0'
+    // Nss engine.
+    debugCompileOnly 'com.gigya.nss.engine:flutter_debug:+'
+    releaseCompileOnly 'com.gigya.nss.engine:flutter_release:+'
 }
 
 

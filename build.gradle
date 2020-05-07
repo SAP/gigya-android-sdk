@@ -26,10 +26,10 @@ allprojects {
         google()
         jcenter()
         maven {
-            url '/Users/i501740/Developer/gigya-native-screensets-engine/build/host/outputs/repo'
+            url '../sdk-nss-engine/host/outputs/repo'
         }
         maven {
-            url 'http://download.flutter.io'
+            url 'https://storage.googleapis.com/download.flutter.io'
         }
         mavenCentral()
     }

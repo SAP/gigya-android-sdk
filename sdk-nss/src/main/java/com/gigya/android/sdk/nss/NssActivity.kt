@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.transition.Slide
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
@@ -15,7 +16,7 @@ import com.gigya.android.sdk.nss.utils.refine
 
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
-    private var mViewModel: NssFlowViewModel<T>? = null
+    private var viewModel: NssFlowViewModel<T>? = null
 
     private var isDisplayed = false
 
@@ -43,7 +44,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.nss_activity)
 
-        engineLifeCycle = GigyaNss.dependenciesContainer.get(NssEngineLifeCycle::class.java)
+        engineLifeCycle = Gigya.getContainer().get(NssEngineLifeCycle::class.java)
 
         val markup = intent?.extras?.getSerializable(EXTRA_MARKUP)
         markup.guard {
@@ -55,15 +56,15 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
             throw RuntimeException("NSS engine failed to initialize!")
         }
 
-        GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refine<NssFlowViewModel<T>> {
-            mViewModel = this
-            mViewModel!!.mFinish = {
+        Gigya.getContainer().get(NssFlowViewModel::class.java).refine<NssFlowViewModel<T>> {
+            viewModel = this
+            viewModel!!.finishClosure = {
                 onFinishReceived()
             }
         }
 
         // Load channels.
-        mViewModel?.loadChannels(engine!!)
+        viewModel?.loadChannels(engine!!)
 
         GigyaLogger.debug(LOG_TAG, "Registered nss method channels.")
 
@@ -79,7 +80,7 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         }
 
         // Register ignition channel.
-        val ignitionChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
+        val ignitionChannel = Gigya.getContainer().get(IgnitionMethodChannel::class.java)
         ignitionChannel.initChannel(engine!!.dartExecutor.binaryMessenger)
         ignitionChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
             GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
@@ -106,8 +107,8 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
      * Dismiss/destroy the activity.
      */
     private fun onFinishReceived() {
-        mViewModel?.dispose()
-        mViewModel = null
+        viewModel?.dispose()
+        viewModel = null
         finish()
     }
 
