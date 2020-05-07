@@ -69,11 +69,12 @@ class NssFlowViewModel<T : GigyaAccount>(
                 ScreenMethodChannel.ScreenCall.ACTION.identifier -> {
                     call.arguments.refined<Map<String, String>> { map ->
                         val actionId = map["actionId"]
+                        val screenId = map["screenId"]
                         actionId.guard {
                             GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
                             throw RuntimeException("Missing action if in screen action initializer. Unable to generate the correct action")
                         }
-                        flowManager.setCurrent(actionId!!, result)
+                        flowManager.setCurrent(actionId!!, screenId!!, result)
                     }
                 }
                 ScreenMethodChannel.ScreenCall.DISMISS.identifier -> {

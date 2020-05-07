@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.nss.engine
 
 import android.content.Context
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
@@ -18,14 +19,14 @@ open class NssEngineLifeCycle {
         const val DART_ENTRY_POINT = "main"
     }
 
-    private fun newEngine() = FlutterEngine(GigyaNss.dependenciesContainer.get(Context::class.java))
+    private fun newEngine() = FlutterEngine(Gigya.getContainer().get(Context::class.java))
 
     private fun existsInTempCache() = FlutterEngineCache.getInstance().contains(FLUTTER_ENGINE_ID)
 
     private fun addToTempCache(engine: FlutterEngine) = FlutterEngineCache.getInstance().put(FLUTTER_ENGINE_ID, engine)
 
     private fun registerIgnitionChannel(engine: FlutterEngine) {
-        val ignitionChannel = GigyaNss.dependenciesContainer.get(IgnitionMethodChannel::class.java)
+        val ignitionChannel = Gigya.getContainer().get(IgnitionMethodChannel::class.java)
         ignitionChannel.initChannel(engine.dartExecutor.binaryMessenger)
     }
 

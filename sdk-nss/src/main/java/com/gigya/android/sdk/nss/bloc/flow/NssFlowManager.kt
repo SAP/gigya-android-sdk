@@ -22,12 +22,15 @@ interface INssFlowDelegate<T : GigyaAccount> {
     fun getCurrentResult(): MethodChannel.Result?
 
     fun getResolver(): INssResolver?
+
+    fun getActiveScreen(): String?
 }
 
 class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFactory) : INssFlowDelegate<T> {
 
     private var gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
+    private var activeScreen: String? = null
     private var activeAction: NssAction<*>? = null
     private var activeChannelResult: MethodChannel.Result? = null
     private var activeResolver: INssResolver? = null
@@ -50,7 +53,10 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 activeChannelResult?.success(serializedObject)
 
                 // Propagate Nss event.
-                nssEvents?.onLogin(obj)
+                nssEvents?.onScreenSuccess(
+                        activeScreen!!,
+                        activeAction!!.actionId!!,
+                        obj)
             }
 
             override fun onError(error: GigyaError?) {
@@ -62,7 +68,11 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                     )
 
                     // Propagate Nss error.
-                    nssEvents?.onError(gigyaError)
+                    nssEvents?.onError(
+                            activeScreen!!,
+                            activeAction!!.actionId!!,
+                            gigyaError
+                    )
                 }
             }
 
@@ -72,13 +82,18 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
 
                 // Propagate Nss error. Resolver applied. User should not handle error in host code if applied
                 // markup is responsible got interruption.
-                nssEvents?.onError(GigyaError.fromResponse(response))
+                nssEvents?.onError(
+                        activeScreen!!,
+                        activeAction!!.actionId!!,
+                        GigyaError.fromResponse(response)
+                )
             }
 
         }
     }
 
-    fun setCurrent(action: String, result: MethodChannel.Result) {
+    fun setCurrent(action: String, screenId: String, result: MethodChannel.Result) {
+        activeScreen = screenId
         activeAction = actionFactory.get(action)
         activeAction?.flowDelegate = this
         activeAction?.initialize(result)
@@ -99,4 +114,6 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
         activeAction = null
         activeChannelResult = null
     }
+
+    override fun getActiveScreen(): String? = activeScreen
 }

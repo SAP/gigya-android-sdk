@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.gigya.android.sample.R
@@ -72,8 +73,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun getApproveActionIcon(): Int = 0
 
         })
-
-        GigyaNss.register()
 
         //changeLocale("tr")
     }
@@ -250,21 +249,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(Intent(this, WebBridgeTestActivity::class.java))
             }
             R.id.action_show_native_screen_sets -> {
-                GigyaNss
+                GigyaNss.getInstance()
                         .load("nss_markup_30_04_20.json")
                         .initialRoute("register")
                         .events(object : NssEvents<MyAccount>() {
 
-                            override fun onError(error: GigyaError) {
+                            override fun onError(screenId: String, action: String, error: GigyaError) {
                                 // Handle nss exception here.
+                                GigyaLogger.debug("NSS", "onError")
                             }
 
                             override fun onCancel() {
                                 // Handle cancel event if needed.
+                                GigyaLogger.debug("NSS", "onCancel")
                             }
 
-                            override fun onLogin(accountObj: MyAccount) {
+                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
                                 // Handle login event here if needed.
+                                GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                             }
 
                         })

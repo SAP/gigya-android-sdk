@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Context
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
@@ -42,14 +43,14 @@ class Nss private constructor(
             this.events = events
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
-                GigyaNss.dependenciesContainer.get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
+                Gigya.getContainer().get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
                     viewModel.nssEvents = events
                 }
             }
         }
 
         fun show(launcherContext: Context) = Nss(
-                GigyaNss.dependenciesContainer.get(NssEngineLifeCycle::class.java),
+                Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
                 initialRoute,
                 events)
