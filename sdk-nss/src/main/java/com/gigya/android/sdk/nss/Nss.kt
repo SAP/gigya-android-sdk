@@ -43,7 +43,7 @@ class Nss private constructor(
             this.events = events
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
-                Gigya.getContainer().get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
+                Gigya.getContainer().get(NssViewModel::class.java).refined<NssViewModel<T>> { viewModel ->
                     viewModel.nssEvents = events
                 }
             }

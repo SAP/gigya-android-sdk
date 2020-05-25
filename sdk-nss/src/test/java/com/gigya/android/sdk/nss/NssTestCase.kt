@@ -13,7 +13,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(FileUtils::class, GigyaNss::class, NssEngineLifeCycle::class, NssFlowViewModel::class, GigyaContainer::class)
+@PrepareForTest(FileUtils::class, GigyaNss::class, NssEngineLifeCycle::class, NssViewModel::class, GigyaContainer::class)
 abstract class NssTestCase {
 
     @Mock
@@ -26,7 +26,7 @@ abstract class NssTestCase {
     protected val container: GigyaContainer? = null
 
     @Mock
-    protected val viewModel: NssFlowViewModel<*>? = null
+    protected val viewModel: NssViewModel<*>? = null
 
     @Before
     fun prepareMocks() {
@@ -36,7 +36,7 @@ abstract class NssTestCase {
         val field = PowerMockito.field(GigyaNss::class.java, "dependenciesContainer")
         field.set(GigyaNss::class.java, container)
 
-        PowerMockito.`when`(container?.get(NssFlowViewModel::class.java)).thenReturn(viewModel)
+        PowerMockito.`when`(container?.get(NssViewModel::class.java)).thenReturn(viewModel)
         PowerMockito.`when`(container?.get(NssEngineLifeCycle::class.java)).thenReturn(engineLifeCycle)
 
         PowerMockito.doNothing().`when`(engineLifeCycle)?.initializeEngine()
