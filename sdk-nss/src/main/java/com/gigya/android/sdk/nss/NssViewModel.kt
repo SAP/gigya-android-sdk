@@ -92,7 +92,7 @@ class NssViewModel<T : GigyaAccount>(
                 }
                 ScreenMethodChannel.ScreenCall.LINK.identifier -> {
                     call.arguments.refined<Map<String, String>> { map ->
-                        val uri = Uri.parse(map["link"])
+                        val uri = Uri.parse(map["url"])
                         val intent = Intent(Intent.ACTION_VIEW, uri)
                         intentAction(intent)
                     }

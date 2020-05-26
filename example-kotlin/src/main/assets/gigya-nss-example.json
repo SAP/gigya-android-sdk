@@ -1,7 +1,7 @@
 {
   "platformAware": false,
   "routing": {
-    "initial": "register",
+    "initial": "login",
     "default": {
       "onSuccess": "_dismiss"
     }
@@ -9,36 +9,85 @@
   "screens": {
     "login": {
       "routing": {
+        "onPendingRegistration": "account-update",
         "onSuccess": "_dismiss"
       },
       "action": "login",
       "appBar": {
-        "textKey": "login"
+        "textKey": "Login",
+        "style": {
+          "fontColor": "white",
+          "background": "blue"
+        }
       },
       "stack": "vertical",
+      "style": {
+        "background": "https://image.freepik.com/free-vector/abstract-galaxy-background_1199-247.jpg"
+      },
       "children": [
         {
           "type": "label",
-          "textKey": "login in with your email and password:"
+          "textKey": "login in with your email and password:",
+          "style": {
+            "padding": 50,
+            "fontSize": 50,
+            "fontColor": "#BCBCBC",
+            "fontWeight": 1
+          }
         },
         {
           "bind": "loginID",
           "type": "emailInput",
-          "textKey": "Email"
+          "textKey": "Email",
+          "style": {
+            "borderColor": "white",
+            "borderSize": 1,
+            "fontColor": "white",
+            "cornerRadius": 10
+          }
         },
         {
           "bind": "password",
           "type": "passwordInput",
-          "textKey": "Password"
+          "textKey": "Password",
+          "style": {
+            "borderColor": "white",
+            "borderSize": 1,
+            "fontColor": "white",
+            "cornerRadius": 10
+          }
+        },
+        {
+          "type": "label",
+          "style": {
+            "fontColor": "white",
+            "padding": [
+              10,
+              20,
+              10,
+              10
+            ]
+          },
+          "textKey": "By logging in you are bound to [us](https://www.google.com)"
         },
         {
           "type": "submit",
-          "textKey": "Submit"
+          "textKey": "Submit",
+          "style": {
+            "background": "#000000",
+            "padding": 50,
+            "fontSize": 50,
+            "fontColor": "#BCBCBC",
+            "fontWeight": 1,
+            "elevation": 2,
+            "cornerRadius": 10
+          }
         }
       ]
     },
     "register": {
       "routing": {
+        "onPendingRegistration": "account-update",
         "onSuccess": "_dismiss"
       },
       "action": "register",
@@ -84,12 +133,50 @@
           "textKey": "i have read and understood the terms of use"
         },
         {
+          "type": "dropdown",
+          "bind": "data.favGuitar",
+          "options": [
+            {
+              "default": true,
+              "value": "PRS",
+              "textKey": "Paul Reed Smith"
+            },
+            {
+              "value": "Rubato",
+              "textKey": "Rubato"
+            },
+            {
+              "value": "Parker",
+              "textKey": "Parker Guitars"
+            }
+          ]
+        },
+        {
+          "type": "radio",
+          "bind": "data.favGuitar",
+          "options": [
+            {
+              "default": true,
+              "value": "PRS",
+              "textKey": "Paul Reed Smith"
+            },
+            {
+              "value": "Rubato",
+              "textKey": "Rubato"
+            },
+            {
+              "value": "Parker",
+              "textKey": "Parker Guitars"
+            }
+          ]
+        },
+        {
           "type": "submit",
           "textKey": "Submit"
         }
       ]
     },
-    "account-update" : {
+    "account-update": {
       "routing": {
         "onSuccess": "_dismiss"
       },
