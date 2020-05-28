@@ -250,7 +250,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_native_screen_sets -> {
                 GigyaNss.getInstance()
                         .load("gigya-nss-example.json")
-                        .initialRoute("register")
+                        .initialRoute("login")
                         .events(object : NssEvents<MyAccount>() {
 
                             override fun onError(screenId: String, error: GigyaError) {

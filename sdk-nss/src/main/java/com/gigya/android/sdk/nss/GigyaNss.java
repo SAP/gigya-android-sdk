@@ -40,7 +40,7 @@ public class GigyaNss {
             container.bind(NssLoginAction.class, NssLoginAction.class, false);
             container.bind(NssSetAccountAction.class, NssSetAccountAction.class, false);
             container.bind(NssActionFactory.class, NssActionFactory.class, false);
-            container.bind(NssFlowViewModel.class, NssFlowViewModel.class, true);
+            container.bind(NssViewModel.class, NssViewModel.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaNss.class);

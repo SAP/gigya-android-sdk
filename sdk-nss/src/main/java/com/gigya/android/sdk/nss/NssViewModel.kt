@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.nss
 
+import android.content.Intent
+import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
@@ -9,13 +11,14 @@ import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class NssFlowViewModel<T : GigyaAccount>(
+class NssViewModel<T : GigyaAccount>(
         private val screenChannel: ScreenMethodChannel,
         private val apiChannel: ApiMethodChannel,
         private val logChannel: LogMethodChannel,
         private val flowManager: NssFlowManager<T>) {
 
     var finishClosure: () -> Unit? = { }
+    var intentAction: (Intent) -> Unit? = { }
     var nssEvents: NssEvents<T>? = null
         set(value) {
             field = value
@@ -86,6 +89,13 @@ class NssFlowViewModel<T : GigyaAccount>(
                     nssEvents?.onCancel()
                     flowManager.dispose()
                     finishClosure()
+                }
+                ScreenMethodChannel.ScreenCall.LINK.identifier -> {
+                    call.arguments.refined<Map<String, String>> { map ->
+                        val uri = Uri.parse(map["url"])
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        intentAction(intent)
+                    }
                 }
             }
         }
