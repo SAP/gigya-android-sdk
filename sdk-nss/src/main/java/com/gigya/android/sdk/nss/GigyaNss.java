@@ -18,7 +18,7 @@ import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle;
 
 public class GigyaNss {
 
-    private static final String VERSION = "0.1";
+    private static final String VERSION = "0.2";
 
     private static final String LOG_TAG = "GigyaNss";
 
@@ -30,7 +30,7 @@ public class GigyaNss {
             IoCContainer container = Gigya.getContainer();
 
             container.bind(GigyaNss.class, GigyaNss.class, true);
-            container.bind(NssEngineLifeCycle.class, NssEngineLifeCycle.class,false);
+            container.bind(NssEngineLifeCycle.class, NssEngineLifeCycle.class, false);
             container.bind(IgnitionMethodChannel.class, IgnitionMethodChannel.class, true);
             container.bind(ApiMethodChannel.class, ApiMethodChannel.class, true);
             container.bind(ScreenMethodChannel.class, ScreenMethodChannel.class, true);
@@ -57,7 +57,7 @@ public class GigyaNss {
     private String[] SUPPORTED_DEVICE_ARCHITECTURES = {"armv7l", "aarch64", "arm64-v8a", "armeabi-v7a"};
 
     /**
-     * The native screensets engine supports only "ARM" architectures as a direct result of using the Flutter framework.
+     * The native screen-sets engine supports only "ARM" architectures as a direct result of using the Flutter framework.
      * This method will check and verify that the feature is available for this specific device.
      * Do not use this method for testing on x86 emulator instances.
      */
@@ -75,10 +75,15 @@ public class GigyaNss {
 
     /**
      * Load markup JSON file from assets folder.
-     * @param withAsset Asset JSON file name.
-     * @return  Nss.Builder instance. Use builder response to continue to flow.
+     *
+     * @param withAsset Asset JSON file name. Do not add .JSON prefix.
+     * @return Nss.Builder instance. Use builder response to continue to flow.
      */
-    public Nss.Builder load(String withAsset)  {
+    public Nss.Builder load(String withAsset) {
+        if (withAsset.endsWith(".json")) {
+            withAsset = withAsset.substring(0, withAsset.length() - 5);
+            GigyaLogger.debug(LOG_TAG, "Load with asset" + withAsset);
+        }
         return new Nss.Builder().assetPath(withAsset);
     }
 }

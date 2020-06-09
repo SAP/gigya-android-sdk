@@ -249,7 +249,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_show_native_screen_sets -> {
                 GigyaNss.getInstance()
-                        .load("gigya-nss-example.json")
+                        .load("gigya-nss-example")
                         .initialRoute("login")
                         .events(object : NssEvents<MyAccount>() {
 

@@ -14,11 +14,7 @@
       },
       "action": "login",
       "appBar": {
-        "textKey": "Login",
-        "style": {
-          "fontColor": "white",
-          "background": "blue"
-        }
+        "textKey": "Login"
       },
       "stack": "vertical",
       "style": {
@@ -27,12 +23,10 @@
       "children": [
         {
           "type": "label",
+          "theme": "title",
           "textKey": "login in with your email and password:",
           "style": {
-            "padding": 50,
-            "fontSize": 50,
-            "fontColor": "#BCBCBC",
-            "fontWeight": 1
+            "fontColor": "white"
           }
         },
         {
@@ -42,7 +36,6 @@
           "style": {
             "borderColor": "white",
             "borderSize": 1,
-            "fontColor": "white",
             "cornerRadius": 10
           }
         },
@@ -53,7 +46,6 @@
           "style": {
             "borderColor": "white",
             "borderSize": 1,
-            "fontColor": "white",
             "cornerRadius": 10
           }
         },
@@ -63,7 +55,7 @@
             "fontColor": "white",
             "padding": [
               10,
-              20,
+              10,
               10,
               10
             ]
@@ -73,15 +65,7 @@
         {
           "type": "submit",
           "textKey": "Submit",
-          "style": {
-            "background": "#000000",
-            "padding": 50,
-            "fontSize": 50,
-            "fontColor": "#BCBCBC",
-            "fontWeight": 1,
-            "elevation": 2,
-            "cornerRadius": 10
-          }
+          "theme": "flatButton"
         }
       ]
     },

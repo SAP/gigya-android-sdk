@@ -11,6 +11,9 @@ import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.view.FlutterMain
 
+/**
+ * Flutter engine lifecycle helper.
+ */
 open class NssEngineLifeCycle {
 
     companion object {
@@ -31,6 +34,9 @@ open class NssEngineLifeCycle {
 
     fun getNssEngine(): FlutterEngine? = FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)
 
+    /**
+     * Initialize a new Flutter engine.
+     */
     open fun initializeEngine() {
         if (!existsInTempCache()) {
             val engine = newEngine()
@@ -39,6 +45,9 @@ open class NssEngineLifeCycle {
         }
     }
 
+    /**
+     * Execute main Flutter engine Dart entry point.
+     */
     fun engineExecuteMain() {
         FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)?.dartExecutor?.executeDartEntrypoint(
                 DartExecutor.DartEntrypoint(
@@ -48,6 +57,9 @@ open class NssEngineLifeCycle {
         )
     }
 
+    /**
+     * Destroy and remove current Flutter engine from cache.
+     */
     fun disposeEngine() {
         val engine = FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)
         engine?.destroy()
@@ -55,6 +67,9 @@ open class NssEngineLifeCycle {
                 .getInstance().remove(FLUTTER_ENGINE_ID)
     }
 
+    /**
+     * Get current Flutter engine fragment using the cached engine.
+     */
     fun getEngineFragment(): FlutterFragment {
         return FlutterFragment.withCachedEngine(FLUTTER_ENGINE_ID)
                 .transparencyMode(FlutterView.TransparencyMode.transparent)
