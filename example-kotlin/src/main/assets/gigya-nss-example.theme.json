@@ -1,8 +1,8 @@
 {
-  "primaryColor": "red",
+  "primaryColor": "blue",
   "secondaryColor": "white",
-  "textColor": "white",
-  "enabledColor": "green",
+  "textColor": "black",
+  "enabledColor": "blue",
   "disabledColor": "grey",
   "errorColor": "red",
   "title": {
@@ -10,14 +10,18 @@
     "fontSize": 22
   },
   "subtitle": {
-    "fontSize": 18,
+    "fontSize": 16,
     "fontWeight": 6
+  },
+  "input": {
+    "margin": 5
   },
   "flatButton": {
     "fontSize": 14,
     "fontColor": "white",
     "fontWeight": 6,
-    "elevation": 0,
+    "elevation": 2,
+    "background": "blue",
     "size": [
       220,
       44
@@ -28,10 +32,11 @@
     "fontColor": "white",
     "fontWeight": 4,
     "elevation": 4,
-    "background": "red",
+    "background": "blue",
     "size": [
-      220,
-      44
+      300,
+      40
     ]
   }
 }
+

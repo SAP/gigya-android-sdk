@@ -1,7 +1,7 @@
 {
   "platformAware": false,
   "routing": {
-    "initial": "login",
+    "initial": "register",
     "default": {
       "onSuccess": "_dismiss"
     }
@@ -16,56 +16,45 @@
       "appBar": {
         "textKey": "Login"
       },
-      "stack": "vertical",
-      "style": {
-        "background": "https://image.freepik.com/free-vector/abstract-galaxy-background_1199-247.jpg"
-      },
       "children": [
         {
-          "type": "label",
-          "theme": "title",
-          "textKey": "login in with your email and password:",
+          "type": "container",
+          "stack": "horizontal",
+          "alignment": "start",
           "style": {
-            "fontColor": "white"
-          }
+            "margin": 0
+          },
+          "children": [
+            {
+              "type": "label",
+              "textKey": "login in with your email and password:",
+              "theme": "subtitle"
+            }
+          ]
         },
         {
           "bind": "loginID",
           "type": "emailInput",
           "textKey": "Email",
-          "style": {
-            "borderColor": "white",
-            "borderSize": 1,
-            "cornerRadius": 10
-          }
+          "theme": "input"
         },
         {
           "bind": "password",
           "type": "passwordInput",
           "textKey": "Password",
-          "style": {
-            "borderColor": "white",
-            "borderSize": 1,
-            "cornerRadius": 10
-          }
+          "theme": "input"
         },
         {
           "type": "label",
+          "textKey": "I don't have an account. [Register](register)",
           "style": {
-            "fontColor": "white",
-            "padding": [
-              10,
-              10,
-              10,
-              10
-            ]
-          },
-          "textKey": "By logging in you are bound to [us](https://www.google.com)"
+            "margin": [0, 24, 0, 16]
+          }
         },
         {
           "type": "submit",
           "textKey": "Submit",
-          "theme": "flatButton"
+          "theme": "raisedButton"
         }
       ]
     },
@@ -81,82 +70,72 @@
       "stack": "vertical",
       "children": [
         {
-          "type": "label",
-          "textKey": "Register with site credentials:"
+          "type": "container",
+          "stack": "horizontal",
+          "alignment": "start",
+          "style": {
+            "margin": 0
+          },
+          "children": [
+            {
+              "type": "label",
+              "textKey": "Register with your email and password:"
+            }
+          ]
         },
         {
           "bind": "email",
           "type": "emailInput",
-          "textKey": "Email"
-        },
-        {
-          "bind": "password",
-          "type": "passwordInput",
-          "textKey": "Password"
+          "textKey": "Email",
+          "theme": "input"
         },
         {
           "type": "container",
           "stack": "horizontal",
           "alignment": "start",
+          "style": {
+            "margin": 0
+          },
           "children": [
             {
               "bind": "profile.firstName",
               "type": "textInput",
-              "textKey": "First name"
+              "textKey": "First name",
+              "theme": "input"
             },
             {
               "bind": "profile.lastName",
               "type": "textInput",
-              "textKey": "Last name"
+              "textKey": "Last name",
+              "theme": "input"
             }
           ]
+        },
+        {
+          "bind": "password",
+          "type": "passwordInput",
+          "textKey": "Password",
+          "theme": "input"
+        },
+        {
+          "type": "label",
+          "textKey": "Already registered?  [Login](login)",
+          "style": {
+            "margin": [0, 26, 0, 16]
+          }
         },
         {
           "bind": "data.terms",
           "type": "checkbox",
-          "textKey": "i have read and understood the terms of use"
-        },
-        {
-          "type": "dropdown",
-          "bind": "data.favGuitar",
-          "options": [
-            {
-              "default": true,
-              "value": "PRS",
-              "textKey": "Paul Reed Smith"
-            },
-            {
-              "value": "Rubato",
-              "textKey": "Rubato"
-            },
-            {
-              "value": "Parker",
-              "textKey": "Parker Guitars"
-            }
-          ]
-        },
-        {
-          "type": "radio",
-          "bind": "data.favGuitar",
-          "options": [
-            {
-              "default": true,
-              "value": "PRS",
-              "textKey": "Paul Reed Smith"
-            },
-            {
-              "value": "Rubato",
-              "textKey": "Rubato"
-            },
-            {
-              "value": "Parker",
-              "textKey": "Parker Guitars"
-            }
-          ]
+          "textKey": "I have read and understood the terms of use",
+          "style": {
+            "margin": 0
+          }
         },
         {
           "type": "submit",
-          "textKey": "Submit"
+          "textKey": "Submit",
+          "theme": "raisedButton"
         }
       ]
     },
@@ -173,31 +152,34 @@
         {
           "bind": "profile.firstName",
           "type": "textInput",
-          "textKey": "First name"
+          "textKey": "First name",
+          "theme": "input"
         },
         {
           "bind": "profile.lastName",
           "type": "textInput",
-          "textKey": "Last name"
+          "textKey": "Last name",
+          "theme": "input"
         },
         {
           "bind": "profile.email",
           "type": "textInput",
-          "textKey": "Email"
+          "textKey": "Email",
+          "theme": "input"
         },
         {
           "bind": "profile.zip",
           "type": "textInput",
-          "textKey": "Zipcode"
-        },
-        {
-          "bind": "profile.country",
-          "type": "textInput",
-          "textKey": "Country"
+          "textKey": "Zipcode",
+          "theme": "input"
         },
         {
           "type": "submit",
-          "textKey": "Submit"
+          "textKey": "Submit",
+          "theme": "raisedButton",
+          "style": {
+            "margin": [0, 100, 0, 0]
+          }
         }
       ]
     }
