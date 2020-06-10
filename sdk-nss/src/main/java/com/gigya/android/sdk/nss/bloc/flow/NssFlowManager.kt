@@ -90,6 +90,9 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
         }
     }
 
+    /**
+     * Update the current action.
+     */
     fun setCurrent(action: String, screenId: String, result: MethodChannel.Result) {
         activeScreen = screenId
         activeAction = actionFactory.get(action)
@@ -97,11 +100,18 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
         activeAction?.initialize(result)
     }
 
+    /**
+     * Handle next action request.
+     */
     fun onNext(method: String, params: MutableMap<String, Any>, result: MethodChannel.Result) {
         activeChannelResult = result
         activeAction?.onNext(method, params)
     }
 
+    /**
+     * Nullify the current active resolver.
+     * Only one resolver is active per flow.
+     */
     private fun disposeResolver() {
         activeResolver = null;
     }

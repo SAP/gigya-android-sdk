@@ -89,6 +89,7 @@ class Nss private constructor(
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
+            // Load asset theme file.
             val themeAsset = loadJsonFromAssets(launcherContext, "$assetPath$THEME_SUFFIX")
             engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset))
 

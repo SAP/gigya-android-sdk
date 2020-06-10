@@ -14,6 +14,11 @@ import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
 
+/**
+ * Nss main activity.
+ * To assure correct markup injection flow, the activity will initiate the Flutter engine
+ * within a FlutterFragment.
+ */
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
     private var viewModel: NssViewModel<T>? = null
@@ -105,6 +110,9 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         engineLifeCycle?.engineExecuteMain()
     }
 
+    /**
+     * Handle specific intent actions requested by the engine.
+     */
     private fun onIntentAction(intent: Intent) {
         startActivity(intent)
     }

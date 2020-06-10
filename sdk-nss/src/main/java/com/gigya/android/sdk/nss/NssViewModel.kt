@@ -94,6 +94,7 @@ class NssViewModel<T : GigyaAccount>(
                     call.arguments.refined<Map<String, String>> { map ->
                         val uri = Uri.parse(map["url"])
                         val intent = Intent(Intent.ACTION_VIEW, uri)
+                        // Forward intent action to activity in order to open browser URL.
                         intentAction(intent)
                     }
                 }
