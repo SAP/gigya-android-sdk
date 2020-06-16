@@ -24,7 +24,8 @@
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,31 +42,7 @@
             android:name="com.gigya.android.sdk.ui.WebLoginActivity"
             android:allowTaskReparenting="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.AppCompat.Translucent">
-            <intent-filter android:label="web_login_redirect">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "gigya://gsapi.applicationId/login_result” -->
-                <data
-                    android:host="gsapi"
-                    android:pathPrefix="/com.gigya.android.sample/login_result"
-                    android:scheme="gigya" />
-            </intent-filter>
-        </activity>
-
-        <!--<meta-data-->
-        <!--android:name="apiKey"-->
-        <!--android:value="3_l7zxNcj4vhu8tLzYafUnKDSA4VsOVNzR4VnclcC6VKsXXmQdq950uC-zY7Vsu9RC" />-->
-
-        <!--<meta-data-->
-        <!--android:name="accountCacheTime"-->
-        <!--android:value="1" />-->
-
-        <!--<meta-data-->
-        <!--android:name="sessionVerificationInterval"-->
-        <!--android:value="5" />-->
+            android:theme="@style/Theme.AppCompat.Translucent" />
 
         <!-- Facebook integration -->
         <activity
@@ -102,13 +79,7 @@
             android:name="com.gigya.android.sdk.nss.NssActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
-
-<!--            <meta-data-->
-<!--                android:name="io.flutter.embedding.android.SplashScreenDrawable"-->
-<!--                android:resource="@drawable/ns_splash" />-->
-
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Line integration -->
         <meta-data
