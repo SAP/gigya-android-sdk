@@ -26,6 +26,9 @@ allprojects {
         google()
         jcenter()
         maven {
+            // NOTE: This is a dynamic link to the native screen-sets (NSS) engine folder.
+            // Update the local path to match you engine location in order to safely
+            // compile when using NSS references.
             url '../sdk-nss-engine/host/outputs/repo'
         }
         maven {
@@ -37,4 +40,13 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+    subprojects.each {
+        it.afterEvaluate {
+            def cleanTask = it.tasks.findByName('clean')
+            if (cleanTask) {
+                dependsOn(cleanTask)
+            }
+        }
+    }
 }
+
