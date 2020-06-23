@@ -85,7 +85,7 @@ public class WebLoginActivity extends Activity {
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setLoadsImagesAutomatically(true);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setUseWideViewPort(true);
+        webView.getSettings().setUseWideViewPort(false);
         webView.setWebViewClient(new WebViewClient() {
 
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
