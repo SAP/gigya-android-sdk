@@ -48,6 +48,7 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
 
         final String template =
                 "<head>" +
+                        "<link rel=\"icon\" href=\"data:,\">" +
                         "<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />" +
                         "<script>" +
                         "function onJSException(ex) {" +

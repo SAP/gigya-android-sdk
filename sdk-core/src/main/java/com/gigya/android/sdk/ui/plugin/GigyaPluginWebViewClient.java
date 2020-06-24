@@ -10,6 +10,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.ui.Presenter;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -18,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GigyaPluginWebViewClient extends WebViewClient {
+
+    final private static String LOG_TAG = "GigyaPluginWebViewClient";
 
     final private IGigyaPluginWebViewClientInteractions _interactions;
 
@@ -53,7 +56,8 @@ public class GigyaPluginWebViewClient extends WebViewClient {
         eventMap.put("errorCode", error.getErrorCode());
         eventMap.put("description", error.getDescription());
         eventMap.put("dismiss", true);
-        _interactions.onPageError(new GigyaPluginEvent(eventMap));
+        GigyaLogger.debug(LOG_TAG, "onReceivedError: " + eventMap.toString());
+        //_interactions.onPageError(new GigyaPluginEvent(eventMap));
     }
 
     private void overrideUrlLoad(final Uri uri) {

@@ -1,0 +1,42 @@
+{
+  "primaryColor": "blue",
+  "secondaryColor": "white",
+  "textColor": "black",
+  "enabledColor": "blue",
+  "disabledColor": "grey",
+  "errorColor": "red",
+  "title": {
+    "fontWeight": "bold",
+    "fontSize": 22
+  },
+  "subtitle": {
+    "fontSize": 16,
+    "fontWeight": 6
+  },
+  "input": {
+    "margin": 5
+  },
+  "flatButton": {
+    "fontSize": 14,
+    "fontColor": "white",
+    "fontWeight": 6,
+    "elevation": 2,
+    "background": "blue",
+    "size": [
+      220,
+      44
+    ]
+  },
+  "raisedButton": {
+    "fontSize": 14,
+    "fontColor": "white",
+    "fontWeight": 4,
+    "elevation": 4,
+    "background": "blue",
+    "size": [
+      300,
+      40
+    ]
+  }
+}
+

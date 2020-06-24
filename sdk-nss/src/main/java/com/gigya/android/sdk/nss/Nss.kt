@@ -15,6 +15,13 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
 
+/**
+ * Main NSS builder class.
+ * Starting up the Nss engine requires specific parameters and will throw a RuntimeException in the
+ * event of:
+ * 1 - Malformed JSON markup.
+ * 2 - Missing initialRoute parameter.
+ */
 class Nss private constructor(
         private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
@@ -26,6 +33,7 @@ class Nss private constructor(
     companion object {
 
         const val LOG_TAG = "NssBuilder"
+        const val THEME_SUFFIX = ".theme.json"
     }
 
     init {
@@ -43,7 +51,7 @@ class Nss private constructor(
             this.events = events
             this.events?.let {
                 // Injecting the events callback to the singleton view model.
-                Gigya.getContainer().get(NssFlowViewModel::class.java).refined<NssFlowViewModel<T>> { viewModel ->
+                Gigya.getContainer().get(NssViewModel::class.java).refined<NssViewModel<T>> { viewModel ->
                     viewModel.nssEvents = events
                 }
             }
@@ -59,9 +67,11 @@ class Nss private constructor(
 
     /**
      * Load markup file from assets folder given filename/path.
+     * @param context Application/Available context.
+     * @param fileName Asset file name.
      */
     private fun loadJsonFromAssets(context: Context, fileName: String) = try {
-        GigyaLogger.debug(LOG_TAG, "loadJsonFromAssets() with fileName $fileName")
+        GigyaLogger.debug(LOG_TAG, "loadJsonFromAssets() with fileName $fileName.json")
         FileUtils.assetJsonFileToString(context, fileName)
     } catch (ioException: IOException) {
         ioException.printStackTrace()
@@ -69,22 +79,29 @@ class Nss private constructor(
     }
 
     /**
-     * Show native screensets.
+     * Show native screen-sets.
+     * @param launcherContext Root activity context.
      */
     fun show(launcherContext: Context) {
         assetPath?.apply {
-            val jsonAsset = loadJsonFromAssets(launcherContext, assetPath)
+            val jsonAsset = loadJsonFromAssets(launcherContext, "$assetPath.json")
             jsonAsset.guard {
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
-
-            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!))
+            // Load asset theme file.
+            val themeAsset = loadJsonFromAssets(launcherContext, "$assetPath$THEME_SUFFIX")
+            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset))
 
         } ?: throw RuntimeException("Asset path not available")
     }
 
-    private fun mapAsset(jsonAsset: String): Map<String, Any> {
+    /**
+     * Map JSON assets.
+     * @param jsonAsset Main JSON markup asset.
+     * @param themeAsset Optional theme markup asset.
+     */
+    private fun mapAsset(jsonAsset: String, themeAsset: String? = null): Map<String, Any> {
         val jsonMap = jsonAsset.serialize<String, Any>(gson)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
@@ -96,6 +113,12 @@ class Nss private constructor(
                     }
                     if (!routingMap.containsKey("initial")) {
                         throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
+                    }
+                    // Add optional theme map.
+                    themeAsset?.let {
+                        val themeMap = it.serialize<String, Any>(gson)
+                        GigyaLogger.debug(LOG_TAG, "Adding parsed theme map to JSON markup")
+                        map["theme"] = themeMap
                     }
                 }
         return jsonMap

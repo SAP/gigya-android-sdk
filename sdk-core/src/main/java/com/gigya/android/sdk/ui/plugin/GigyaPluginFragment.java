@@ -283,7 +283,9 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                             @Override
                             public void onHide(@NonNull GigyaPluginEvent event, String reason) {
                                 _pluginCallback.onHide(event, reason);
-                                if (getActivity() != null) {
+                                final boolean isFinal = isFlowFinalized(event);
+                                if (getActivity() != null && isFinal) {
+                                    // Force finish the Host activity only when flow is marked as finalized.
                                     getActivity().finish();
                                 }
                             }
@@ -309,6 +311,19 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                             }
                         },
                         _progressBar);
+
+
+    }
+
+    boolean isFlowFinalized(GigyaPluginEvent event) {
+        Object parameter = event.getEventMap().get("isFlowFinalized");
+        if (parameter == null) return false;
+        if (parameter instanceof String) {
+            return Boolean.parseBoolean((String) parameter);
+        } else if (parameter instanceof Boolean) {
+            return (boolean) parameter;
+        }
+        return false;
     }
 
     @Override
