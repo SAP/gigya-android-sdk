@@ -34,6 +34,7 @@ class Nss private constructor(
 
         const val LOG_TAG = "NssBuilder"
         const val THEME_SUFFIX = ".theme.json"
+        const val LOCALIZATION_SUFFIX = ".i18n.json"
     }
 
     init {
@@ -89,9 +90,12 @@ class Nss private constructor(
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
+
             // Load asset theme file.
             val themeAsset = loadJsonFromAssets(launcherContext, "$assetPath$THEME_SUFFIX")
-            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset))
+            val localizationAsset = loadJsonFromAssets(launcherContext, "$assetPath$LOCALIZATION_SUFFIX")
+
+            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset, localizationAsset))
 
         } ?: throw RuntimeException("Asset path not available")
     }
@@ -101,7 +105,7 @@ class Nss private constructor(
      * @param jsonAsset Main JSON markup asset.
      * @param themeAsset Optional theme markup asset.
      */
-    private fun mapAsset(jsonAsset: String, themeAsset: String? = null): Map<String, Any> {
+    private fun mapAsset(jsonAsset: String, themeAsset: String? = null, localizationAsset: String? = null): Map<String, Any> {
         val jsonMap = jsonAsset.serialize<String, Any>(gson)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
@@ -119,6 +123,13 @@ class Nss private constructor(
                         val themeMap = it.serialize<String, Any>(gson)
                         GigyaLogger.debug(LOG_TAG, "Adding parsed theme map to JSON markup")
                         map["theme"] = themeMap
+                    }
+
+                    // Add optional localization map.
+                    localizationAsset?.let {
+                        val localMap = it.serialize<String, Any>(gson)
+                        GigyaLogger.debug(LOG_TAG, "Adding parsed localization map to JSON markup")
+                        map["i18n"] = localMap
                     }
                 }
         return jsonMap
