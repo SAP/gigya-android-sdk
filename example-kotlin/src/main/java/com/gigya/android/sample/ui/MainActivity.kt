@@ -251,6 +251,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 GigyaNss.getInstance()
                         .load("gigya-nss-example")
                         .initialRoute("login")
+                        .lang("es")
                         .events(object : NssEvents<MyAccount>() {
 
                             override fun onError(screenId: String, error: GigyaError) {
