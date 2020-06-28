@@ -26,6 +26,7 @@ class Nss private constructor(
         private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
         private val initialRoute: String?,
+        private val lang: String?,
         private val events: NssEvents<*>?) {
 
     private val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
@@ -44,10 +45,12 @@ class Nss private constructor(
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
+            var lang: String? = null,
             var events: NssEvents<*>? = null) {
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
+        fun lang(language: String) = apply { this.lang = language }
         fun <T : GigyaAccount> events(events: NssEvents<T>) = apply {
             this.events = events
             this.events?.let {
@@ -62,6 +65,7 @@ class Nss private constructor(
                 Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
                 initialRoute,
+                lang,
                 events)
                 .show(launcherContext)
     }
@@ -130,6 +134,10 @@ class Nss private constructor(
                         val localMap = it.serialize<String, Any>(gson)
                         GigyaLogger.debug(LOG_TAG, "Adding parsed localization map to JSON markup")
                         map["i18n"] = localMap
+                        // Add default language is relevant only when an additional localization JSON map as been provided.
+                        lang?.let { localizationLanguage ->
+                            map["lang"] = localizationLanguage
+                        }
                     }
                 }
         return jsonMap
