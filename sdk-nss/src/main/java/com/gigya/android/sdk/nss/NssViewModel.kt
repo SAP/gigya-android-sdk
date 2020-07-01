@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.bloc.SchemaHelper
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
@@ -15,7 +16,9 @@ class NssViewModel<T : GigyaAccount>(
         private val screenChannel: ScreenMethodChannel,
         private val apiChannel: ApiMethodChannel,
         private val logChannel: LogMethodChannel,
-        private val flowManager: NssFlowManager<T>) {
+        private val flowManager: NssFlowManager<T>,
+        private val schemaHelper: SchemaHelper<T>
+) {
 
     var finishClosure: () -> Unit? = { }
     var intentAction: (Intent) -> Unit? = { }
@@ -108,6 +111,10 @@ class NssViewModel<T : GigyaAccount>(
                 flowManager.onNext(call.method, args, result)
             }
         }
+    }
+
+    fun loadSchema(result: MethodChannel.Result) {
+        schemaHelper.getSchema(result)
     }
 
 }

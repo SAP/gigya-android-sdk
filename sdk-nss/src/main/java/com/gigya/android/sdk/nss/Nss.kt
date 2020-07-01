@@ -26,7 +26,7 @@ class Nss private constructor(
         private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
         private val initialRoute: String?,
-        private val lang: String?,
+        private val lang: String? = "_default",
         private val events: NssEvents<*>?) {
 
     private val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()

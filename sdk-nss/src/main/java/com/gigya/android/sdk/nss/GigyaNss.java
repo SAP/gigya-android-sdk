@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.nss.bloc.SchemaHelper;
 import com.gigya.android.sdk.nss.bloc.action.NssActionFactory;
 import com.gigya.android.sdk.nss.bloc.action.NssLoginAction;
 import com.gigya.android.sdk.nss.bloc.action.NssRegistrationAction;
@@ -41,6 +42,7 @@ public class GigyaNss {
             container.bind(NssSetAccountAction.class, NssSetAccountAction.class, false);
             container.bind(NssActionFactory.class, NssActionFactory.class, false);
             container.bind(NssViewModel.class, NssViewModel.class, true);
+            container.bind(SchemaHelper.class, SchemaHelper.class, false);
 
             try {
                 _sharedInstance = container.get(GigyaNss.class);

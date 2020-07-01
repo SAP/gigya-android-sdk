@@ -1,50 +1,5 @@
 {
-  "i18n": {
-    "_default": {
-      "login": "Login",
-      "login-title": "login in with your email and password:",
-      "login-no-account+link": "I don't have an account. [Register](register)",
-      "register": "Register",
-      "register-title": "Register with your email and password:",
-      "register-already+link": "Already registered? [Login](login)",
-      "register-terms+link": "I have read and understood these [terms of use](https://www.google.com)",
-      "account-information": "Account Information",
-      "account-custom-title": "Update account special fields",
-      "account-custom-rubato": "Rubato Guitars",
-      "account-custom-parker": "Parker Guitars",
-      "error-required-field": "This field is required",
-      "error-invalid-email": "Invalid email format",
-      "error-invalid-format": "Invalid format",
-      "common-email": "Email",
-      "common-password": "Password",
-      "common-submit": "Submit",
-      "common-first-name": "First Name",
-      "common-last-name": "Last Name",
-      "common-zip": "Zipcode"
-    },
-    "es": {
-      "login": "Iniciar sesión",
-      "login-title": "inicie sesión con su correo electrónico y contraseña:",
-      "login-no-account+link": "No tengo una cuenta [Registrarse](register)",
-      "register": "Registrarse",
-      "register-title": "Regístrese con su correo electrónico y contraseña:",
-      "register-already+link": "¿Ya registrado? [Iniciar sesión](login)",
-      "register-terms+link": "He leído y entiendo estos [términos de uso](https://www.google.com)",
-      "account-information": "Información de la cuenta",
-      "account-custom-title": "Actualizar campos especiales de cuenta",
-      "account-custom-rubato": "Guitarras Rubato",
-      "account-custom-parker": "Guitarras Parker",
-      "error-required-field": "este campo es requerido",
-      "error-invalid-email": "Formato de correo inválido",
-      "error-invalid-format": "Formato inválido",
-      "common-email": "Email",
-      "common-password": "Contraseña",
-      "common-submit": "Enviar",
-      "common-first-name": "Nombre de pila",
-      "common-last-name": "Apellido",
-      "common-zip": "Código postal"
-    }
-  },
+  "useSchemaValidations": true,
   "routing": {
     "initial": "login",
     "default": {
@@ -55,7 +10,7 @@
     "login": {
       "routing": {
         "onPendingRegistration": "account-update",
-        "onSuccess": "_dismiss"
+        "onSuccess": "account-update"
       },
       "action": "login",
       "appBar": {
@@ -89,7 +44,7 @@
             },
             "regex": {
               "enabled": true,
-              "value": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
+              "format": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
               "errorKey": "error-invalid-email"
             }
           }
@@ -98,18 +53,7 @@
           "bind": "password",
           "type": "passwordInput",
           "textKey": "common-password",
-          "theme": "input",
-          "validations": {
-            "required": {
-              "enabled": true,
-              "errorKey": "error-required-field"
-            },
-            "regex": {
-              "enabled": true,
-              "value": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@%#$&*~]).{8,}",
-              "errorKey": "error-invalid-format"
-            }
-          }
+          "theme": "input"
         },
         {
           "type": "label",
@@ -159,7 +103,18 @@
           "bind": "email",
           "type": "emailInput",
           "textKey": "common-email",
-          "theme": "input"
+          "theme": "input",
+          "validations": {
+            "required": {
+              "enabled": true,
+              "errorKey": "error-required-field"
+            },
+            "regex": {
+              "enabled": true,
+              "format": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
+              "errorKey": "error-invalid-email"
+            }
+          }
         },
         {
           "type": "container",
@@ -187,7 +142,18 @@
           "bind": "password",
           "type": "passwordInput",
           "textKey": "common-password",
-          "theme": "input"
+          "theme": "input",
+          "validations": {
+            "required": {
+              "enabled": true,
+              "errorKey": "error-required-field"
+            },
+            "regex": {
+              "enabled": true,
+              "format": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@%#$&*~]).{8,}",
+              "errorKey": "error-invalid-format"
+            }
+          }
         },
         {
           "type": "label",
@@ -249,6 +215,17 @@
           "type": "textInput",
           "textKey": "common-zip",
           "theme": "input"
+        },
+        {
+          "bind": "data.rescueString",
+          "type": "textInput",
+          "textKey": "common-rescueString",
+          "theme": "input"
+        },
+        {
+          "type": "checkbox",
+          "bind": "data.marketingNotifications",
+          "textKey": "account_marketing_notifications_selection"
         },
         {
           "type": "submit",

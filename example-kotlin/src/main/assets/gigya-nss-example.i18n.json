@@ -11,6 +11,7 @@
     "account-custom-title": "Update account special fields",
     "account-custom-rubato": "Rubato Guitars",
     "account-custom-parker": "Parker Guitars",
+    "account_marketing_notifications_selection": "I agree to receive marketing communications",
     "error-required-field": "This field is required",
     "error-invalid-email": "Invalid email format",
     "error-invalid-format": "Invalid format",
@@ -19,7 +20,8 @@
     "common-submit": "Submit",
     "common-first-name": "First Name",
     "common-last-name": "Last Name",
-    "common-zip": "Zipcode"
+    "common-zip": "Zipcode",
+    "common-rescueString": "My rescue code"
   },
   "es": {
     "login": "Iniciar sesión",
@@ -33,6 +35,7 @@
     "account-custom-title": "Actualizar campos especiales de cuenta",
     "account-custom-rubato": "Guitarras Rubato",
     "account-custom-parker": "Guitarras Parker",
+    "account_marketing_notifications_selection": "Acepto recibir comunicaciones de marketing",
     "error-required-field": "este campo es requerido",
     "error-invalid-email": "Formato de correo inválido",
     "error-invalid-format": "Formato inválido",
@@ -41,6 +44,7 @@
     "common-submit": "Enviar",
     "common-first-name": "Nombre de pila",
     "common-last-name": "Apellido",
-    "common-zip": "Código postal"
+    "common-zip": "Código postal",
+    "common-rescueString": "Mi código de rescate"
   }
 }
