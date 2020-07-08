@@ -33,7 +33,7 @@
           ]
         },
         {
-          "bind": "loginID",
+          "bind": "#loginID",
           "type": "emailInput",
           "textKey": "common-email",
           "theme": "input",
@@ -50,10 +50,16 @@
           }
         },
         {
-          "bind": "password",
+          "bind": "#password",
           "type": "passwordInput",
           "textKey": "common-password",
-          "theme": "input"
+          "theme": "input",
+          "validations": {
+            "required": {
+              "enabled": true,
+              "errorKey": "error-password-required"
+            }
+          }
         },
         {
           "type": "label",
@@ -100,7 +106,7 @@
           ]
         },
         {
-          "bind": "email",
+          "bind": "#email",
           "type": "emailInput",
           "textKey": "common-email",
           "theme": "input",
@@ -139,7 +145,7 @@
           ]
         },
         {
-          "bind": "password",
+          "bind": "#password",
           "type": "passwordInput",
           "textKey": "common-password",
           "theme": "input",
@@ -208,7 +214,12 @@
           "bind": "profile.email",
           "type": "textInput",
           "textKey": "common-email",
-          "theme": "input"
+          "theme": "input",
+          "validations": {
+            "regex": {
+              "errorKey": "error-invalid-email"
+            }
+          }
         },
         {
           "bind": "profile.zip",
@@ -220,7 +231,13 @@
           "bind": "data.rescueString",
           "type": "textInput",
           "textKey": "common-rescueString",
-          "theme": "input"
+          "parseAs": "string",
+          "theme": "input",
+          "validations": {
+            "regex": {
+              "errorKey": "error-invalid-rescueString"
+            }
+          }
         },
         {
           "type": "checkbox",
