@@ -79,8 +79,20 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 activeResolver = NssResolver(resolver)
                 activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
 
-                // Propagate Nss error. Resolver applied. User should not handle error in host code if applied
-                // markup is responsible got interruption.
+                // Propagate Nss error. Resolver applied. User should not handle error in host code if applied.
+                // Markup is responsible for interruption. handling
+                nssEvents?.onError(
+                        activeScreen!!,
+                        GigyaError.fromResponse(response)
+                )
+            }
+
+            override fun onPendingVerification(response: GigyaApiResponse, regToken: String?) {
+                activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+
+                // Propagate Nss error. No resolver available for specific interruption.
+                // Markup is responsible for interruption handling although this specific error breaks any flow.
+                // onPendingVerification == pending email verification error.
                 nssEvents?.onError(
                         activeScreen!!,
                         GigyaError.fromResponse(response)
