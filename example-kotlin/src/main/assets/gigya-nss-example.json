@@ -10,13 +10,72 @@
     "login": {
       "routing": {
         "onPendingRegistration": "account-update",
-        "onSuccess": "account-update"
+        "onSuccess": "_dismiss"
       },
       "action": "login",
       "appBar": {
         "textKey": "login"
       },
       "children": [
+        {
+          "type": "container",
+          "stack": "horizontal",
+          "alignment": "start",
+          "style": {
+            "margin": 0
+          },
+          "children": [
+            {
+              "type": "label",
+              "textKey": "login-social-title",
+              "theme": "subtitle"
+            }
+          ]
+        },
+        {
+          "type": "socialLoginButton",
+          "provider": "facebook",
+          "textKey": "social-sign-in-facebook",
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
+        },
+        {
+          "type": "socialLoginButton",
+          "provider": "google",
+          "iconEnabled": false,
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
+        },
+        {
+          "type": "socialLoginButton",
+          "provider": "wechat",
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
+        },
         {
           "type": "container",
           "stack": "horizontal",
@@ -37,6 +96,10 @@
           "type": "emailInput",
           "textKey": "common-email",
           "theme": "input",
+          "style": {
+            "cornerRadius": 5,
+            "borderSize": 1
+          },
           "validations": {
             "required": {
               "enabled": true,
@@ -54,10 +117,19 @@
           "type": "passwordInput",
           "textKey": "common-password",
           "theme": "input",
+          "style": {
+            "cornerRadius": 5,
+            "borderSize": 1
+          },
           "validations": {
             "required": {
               "enabled": true,
-              "errorKey": "error-password-required"
+              "errorKey": "error-required-field"
+            },
+            "regex": {
+              "enabled": true,
+              "format": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@%#$&*~]).{8,}",
+              "errorKey": "error-invalid-format"
             }
           }
         },
@@ -76,7 +148,10 @@
         {
           "type": "submit",
           "textKey": "common-submit",
-          "theme": "raisedButton"
+          "theme": "raisedButton",
+          "style": {
+            "cornerRadius": 5
+          }
         }
       ]
     },
@@ -109,18 +184,7 @@
           "bind": "#email",
           "type": "emailInput",
           "textKey": "common-email",
-          "theme": "input",
-          "validations": {
-            "required": {
-              "enabled": true,
-              "errorKey": "error-required-field"
-            },
-            "regex": {
-              "enabled": true,
-              "format": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
-              "errorKey": "error-invalid-email"
-            }
-          }
+          "theme": "input"
         },
         {
           "type": "container",
@@ -148,18 +212,7 @@
           "bind": "#password",
           "type": "passwordInput",
           "textKey": "common-password",
-          "theme": "input",
-          "validations": {
-            "required": {
-              "enabled": true,
-              "errorKey": "error-required-field"
-            },
-            "regex": {
-              "enabled": true,
-              "format": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@%#$&*~]).{8,}",
-              "errorKey": "error-invalid-format"
-            }
-          }
+          "theme": "input"
         },
         {
           "type": "label",
@@ -182,9 +235,46 @@
           }
         },
         {
+          "type": "label",
+          "textKey": "register-or",
+          "style": {
+            "fontSize": 16,
+            "margin": [
+              0,
+              4,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "socialLoginGrid",
+          "providers": [
+            "facebook",
+            "google",
+            "wechat",
+            "yahoo",
+            "linkedin"
+          ],
+          "columns": 4,
+          "style": {
+            "cornerRadius": 6,
+            "fontSize": 14,
+            "fontColor": "black",
+            "fontWeight": "bold"
+          }
+        },
+        {
           "type": "submit",
           "textKey": "common-submit",
-          "theme": "raisedButton"
+          "theme": "raisedButton",
+          "style": {
+            "size": [
+              280,
+              44
+            ],
+            "cornerRadius": 6
+          }
         }
       ]
     },
@@ -214,12 +304,7 @@
           "bind": "profile.email",
           "type": "textInput",
           "textKey": "common-email",
-          "theme": "input",
-          "validations": {
-            "regex": {
-              "errorKey": "error-invalid-email"
-            }
-          }
+          "theme": "input"
         },
         {
           "bind": "profile.zip",
@@ -231,13 +316,7 @@
           "bind": "data.rescueString",
           "type": "textInput",
           "textKey": "common-rescueString",
-          "parseAs": "string",
-          "theme": "input",
-          "validations": {
-            "regex": {
-              "errorKey": "error-invalid-rescueString"
-            }
-          }
+          "theme": "input"
         },
         {
           "type": "checkbox",

@@ -77,7 +77,7 @@ open class NssEngineLifeCycle {
                 .build()
     }
 
-    open fun show(context: Context, markup: Map<String, Any>?) {
+    open fun show(context: Context, markup: Map<String, Any>) {
         NssActivity.start(context, markup)
     }
 }

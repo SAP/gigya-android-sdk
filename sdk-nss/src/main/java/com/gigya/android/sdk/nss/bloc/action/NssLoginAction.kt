@@ -8,7 +8,7 @@ import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.plugin.common.MethodChannel
 
-class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>() {
+class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
 
     companion object {
         const val LOG_TAG = "NssLoginAction"
@@ -24,7 +24,9 @@ class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiServ
             GigyaLogger.error(LOG_TAG, "Action flow delegate not set")
         }
 
+        // Call super to make sure "api" & "social" are covered.
         super.onNext(method, arguments)
+
         if (method == submit) {
             GigyaLogger.debug(LOG_TAG, "Starting login flow with $method call")
             flowDelegate!!.refined<INssFlowDelegate<T>> {

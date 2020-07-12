@@ -5,6 +5,7 @@ import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
+import com.gigya.android.sdk.nss.bloc.action.NssAction
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
@@ -72,7 +73,9 @@ class NssViewModel<T : GigyaAccount>(
     private val screenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
+                // Screen initiated with action call.
                 ScreenMethodChannel.ScreenCall.ACTION.identifier -> {
+                    GigyaLogger.debug(LOG_TAG, "screen action")
                     call.arguments.refined<Map<String, String>> { map ->
                         val actionId = map["actionId"]
                         val screenId = map["screenId"]
@@ -83,17 +86,23 @@ class NssViewModel<T : GigyaAccount>(
                         flowManager.setCurrent(actionId!!, screenId!!, result)
                     }
                 }
+                // Screen initiated with dismiss call.
                 ScreenMethodChannel.ScreenCall.DISMISS.identifier -> {
+                    GigyaLogger.debug(LOG_TAG, "screen dismiss")
                     flowManager.dispose()
                     finishClosure()
                 }
+                // Screen initiated with cancel call.
                 ScreenMethodChannel.ScreenCall.CANCEL.identifier -> {
+                    GigyaLogger.debug(LOG_TAG, "screen action")
                     // Pass a cancel event to main Nss events interface.
                     nssEvents?.onCancel()
                     flowManager.dispose()
                     finishClosure()
                 }
+                // Screen initiated an external link call.
                 ScreenMethodChannel.ScreenCall.LINK.identifier -> {
+                    GigyaLogger.debug(LOG_TAG, "screen link")
                     call.arguments.refined<Map<String, String>> { map ->
                         val uri = Uri.parse(map["url"])
                         val intent = Intent(Intent.ACTION_VIEW, uri)

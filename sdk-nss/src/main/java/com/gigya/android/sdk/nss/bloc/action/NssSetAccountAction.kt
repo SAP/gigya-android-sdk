@@ -13,7 +13,7 @@ import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>() {
+class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
 
     companion object {
         const val LOG_TAG = "NssAccountFlow"
