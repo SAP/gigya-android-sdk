@@ -250,7 +250,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_native_screen_sets -> {
                 GigyaNss.getInstance()
                         .load("gigya-nss-example")
-                        .initialRoute("register")
+                        .initialRoute("login")
 //                        .lang("es")
                         .events(object : NssEvents<MyAccount>() {
 
@@ -788,7 +788,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             GigyaNss.getInstance()
                     .load("gigya-nss-example")
                     .initialRoute("account-update")
-                    .lang("es")
+//                    .lang("es")
                     .events(object : NssEvents<MyAccount>() {
 
                         override fun onError(screenId: String, error: GigyaError) {

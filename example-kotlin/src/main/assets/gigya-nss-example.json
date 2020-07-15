@@ -10,7 +10,7 @@
     "login": {
       "routing": {
         "onPendingRegistration": "account-update",
-        "onSuccess": "_dismiss"
+        "onSuccess": "account-update"
       },
       "action": "login",
       "appBar": {
@@ -50,7 +50,6 @@
         {
           "type": "socialLoginButton",
           "provider": "google",
-          "iconEnabled": false,
           "style": {
             "margin": [
               4,
@@ -64,7 +63,7 @@
         },
         {
           "type": "socialLoginButton",
-          "provider": "wechat",
+          "provider": "linkedin",
           "style": {
             "margin": [
               4,
@@ -97,7 +96,7 @@
           "textKey": "common-email",
           "theme": "input",
           "style": {
-            "cornerRadius": 5,
+            "cornerRadius": 10,
             "borderSize": 1
           },
           "validations": {
@@ -118,19 +117,8 @@
           "textKey": "common-password",
           "theme": "input",
           "style": {
-            "cornerRadius": 5,
+            "cornerRadius": 10,
             "borderSize": 1
-          },
-          "validations": {
-            "required": {
-              "enabled": true,
-              "errorKey": "error-required-field"
-            },
-            "regex": {
-              "enabled": true,
-              "format": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@%#$&*~]).{8,}",
-              "errorKey": "error-invalid-format"
-            }
           }
         },
         {
@@ -254,14 +242,20 @@
             "google",
             "wechat",
             "yahoo",
-            "linkedin"
+            "linkedin",
+            "twitter",
+            "apple",
+            "line",
+            "amazon"
           ],
-          "columns": 4,
+          "columns": 3,
           "style": {
             "cornerRadius": 6,
             "fontSize": 14,
             "fontColor": "black",
-            "fontWeight": "bold"
+            "fontWeight": "bold",
+            "elevation" : 2,
+            "indicatorColor": "grey"
           }
         },
         {
@@ -321,7 +315,18 @@
         {
           "type": "checkbox",
           "bind": "data.marketingNotifications",
-          "textKey": "account_marketing_notifications_selection"
+          "textKey": "account_marketing_notifications_selection",
+          "style": {
+            "margin": [0, 12, 0, 0]
+          }
+        },
+        {
+          "type": "checkbox",
+          "bind": "data.formatTrue",
+          "textKey": "Testing format true field",
+          "style": {
+            "margin": 0
+          }
         },
         {
           "type": "submit",
@@ -330,7 +335,7 @@
           "style": {
             "margin": [
               0,
-              100,
+              22,
               0,
               0
             ]

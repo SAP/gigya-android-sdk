@@ -6,4 +6,5 @@ data class MyData(var subscribe: Boolean?,
                   var comment: String?,
                   var favGuitar: String?,
                   var rescueString: String?,
-                  var marketingNotifications: Boolean? = false)
+                  var marketingNotifications: Boolean? = false,
+                  var formatTrue: Boolean? = false)
