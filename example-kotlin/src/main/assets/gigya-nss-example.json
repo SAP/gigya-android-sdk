@@ -1,7 +1,7 @@
 {
-  "platformAware": false,
+  "useSchemaValidations": true,
   "routing": {
-    "initial": "register",
+    "initial": "login",
     "default": {
       "onSuccess": "_dismiss"
     }
@@ -10,11 +10,11 @@
     "login": {
       "routing": {
         "onPendingRegistration": "account-update",
-        "onSuccess": "_dismiss"
+        "onSuccess": "account-update"
       },
       "action": "login",
       "appBar": {
-        "textKey": "Login"
+        "textKey": "login"
       },
       "children": [
         {
@@ -27,34 +27,119 @@
           "children": [
             {
               "type": "label",
-              "textKey": "login in with your email and password:",
+              "textKey": "login-social-title",
               "theme": "subtitle"
             }
           ]
         },
         {
-          "bind": "loginID",
-          "type": "emailInput",
-          "textKey": "Email",
-          "theme": "input"
+          "type": "socialLoginButton",
+          "provider": "facebook",
+          "textKey": "social-sign-in-facebook",
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
         },
         {
-          "bind": "password",
+          "type": "socialLoginButton",
+          "provider": "google",
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
+        },
+        {
+          "type": "socialLoginButton",
+          "provider": "linkedin",
+          "style": {
+            "margin": [
+              4,
+              0,
+              4,
+              0
+            ],
+            "cornerRadius": 5,
+            "elevation": 0
+          }
+        },
+        {
+          "type": "container",
+          "stack": "horizontal",
+          "alignment": "start",
+          "style": {
+            "margin": 0
+          },
+          "children": [
+            {
+              "type": "label",
+              "textKey": "login-title",
+              "theme": "subtitle"
+            }
+          ]
+        },
+        {
+          "bind": "#loginID",
+          "type": "emailInput",
+          "textKey": "common-email",
+          "theme": "input",
+          "style": {
+            "cornerRadius": 10,
+            "borderSize": 1
+          },
+          "validations": {
+            "required": {
+              "enabled": true,
+              "errorKey": "error-required-field"
+            },
+            "regex": {
+              "enabled": true,
+              "format": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
+              "errorKey": "error-invalid-email"
+            }
+          }
+        },
+        {
+          "bind": "#password",
           "type": "passwordInput",
-          "textKey": "Password",
-          "theme": "input"
+          "textKey": "common-password",
+          "theme": "input",
+          "style": {
+            "cornerRadius": 10,
+            "borderSize": 1
+          }
         },
         {
           "type": "label",
-          "textKey": "I don't have an account. [Register](register)",
+          "textKey": "login-no-account+link",
           "style": {
-            "margin": [0, 24, 0, 16]
+            "margin": [
+              0,
+              24,
+              0,
+              16
+            ]
           }
         },
         {
           "type": "submit",
-          "textKey": "Submit",
-          "theme": "raisedButton"
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "cornerRadius": 5
+          }
         }
       ]
     },
@@ -79,14 +164,14 @@
           "children": [
             {
               "type": "label",
-              "textKey": "Register with your email and password:"
+              "textKey": "register-title"
             }
           ]
         },
         {
-          "bind": "email",
+          "bind": "#email",
           "type": "emailInput",
-          "textKey": "Email",
+          "textKey": "common-email",
           "theme": "input"
         },
         {
@@ -100,42 +185,90 @@
             {
               "bind": "profile.firstName",
               "type": "textInput",
-              "textKey": "First name",
+              "textKey": "common-first-name",
               "theme": "input"
             },
             {
               "bind": "profile.lastName",
               "type": "textInput",
-              "textKey": "Last name",
+              "textKey": "common-last-name",
               "theme": "input"
             }
           ]
         },
         {
-          "bind": "password",
+          "bind": "#password",
           "type": "passwordInput",
-          "textKey": "Password",
+          "textKey": "common-password",
           "theme": "input"
         },
         {
           "type": "label",
-          "textKey": "Already registered?  [Login](login)",
+          "textKey": "register-already+link",
           "style": {
-            "margin": [0, 26, 0, 16]
+            "margin": [
+              0,
+              26,
+              0,
+              16
+            ]
           }
         },
         {
           "bind": "data.terms",
           "type": "checkbox",
-          "textKey": "I have read and understood the terms of use",
+          "textKey": "register-terms+link",
           "style": {
             "margin": 0
           }
         },
         {
+          "type": "label",
+          "textKey": "register-or",
+          "style": {
+            "fontSize": 16,
+            "margin": [
+              0,
+              4,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "socialLoginGrid",
+          "providers": [
+            "facebook",
+            "google",
+            "wechat",
+            "yahoo",
+            "linkedin",
+            "twitter",
+            "apple",
+            "line",
+            "amazon"
+          ],
+          "columns": 3,
+          "style": {
+            "cornerRadius": 6,
+            "fontSize": 14,
+            "fontColor": "black",
+            "fontWeight": "bold",
+            "elevation" : 2,
+            "indicatorColor": "grey"
+          }
+        },
+        {
           "type": "submit",
-          "textKey": "Submit",
-          "theme": "raisedButton"
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "size": [
+              280,
+              44
+            ],
+            "cornerRadius": 6
+          }
         }
       ]
     },
@@ -145,40 +278,124 @@
       },
       "action": "setAccount",
       "appBar": {
-        "textKey": "Account Information"
+        "textKey": "account-information"
       },
       "stack": "vertical",
       "children": [
         {
           "bind": "profile.firstName",
           "type": "textInput",
-          "textKey": "First name",
+          "textKey": "common-first-name",
           "theme": "input"
         },
         {
           "bind": "profile.lastName",
           "type": "textInput",
-          "textKey": "Last name",
+          "textKey": "common-last-name",
           "theme": "input"
         },
         {
           "bind": "profile.email",
           "type": "textInput",
-          "textKey": "Email",
+          "textKey": "common-email",
           "theme": "input"
         },
         {
           "bind": "profile.zip",
           "type": "textInput",
-          "textKey": "Zipcode",
+          "textKey": "common-zip",
           "theme": "input"
         },
         {
+          "bind": "data.rescueString",
+          "type": "textInput",
+          "textKey": "common-rescueString",
+          "theme": "input"
+        },
+        {
+          "type": "checkbox",
+          "bind": "data.marketingNotifications",
+          "textKey": "account_marketing_notifications_selection",
+          "style": {
+            "margin": [0, 12, 0, 0]
+          }
+        },
+        {
+          "type": "checkbox",
+          "bind": "data.formatTrue",
+          "textKey": "Testing format true field",
+          "style": {
+            "margin": 0
+          }
+        },
+        {
           "type": "submit",
-          "textKey": "Submit",
+          "textKey": "common-submit",
           "theme": "raisedButton",
           "style": {
-            "margin": [0, 100, 0, 0]
+            "margin": [
+              0,
+              22,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    "account-custom": {
+      "routing": {
+        "onSuccess": "_dismiss"
+      },
+      "action": "setAccount",
+      "appBar": {
+        "textKey": "account-information"
+      },
+      "stack": "vertical",
+      "children": [
+        {
+          "type": "label",
+          "textKey": "account-custom-title",
+          "theme": "title"
+        },
+        {
+          "type": "radio",
+          "bind": "data.favGuitar",
+          "style": {
+            "margin": [
+              16,
+              30,
+              16,
+              0
+            ]
+          },
+          "options": [
+            {
+              "default": true,
+              "value": "PRS",
+              "textKey": "Paul Reed Smith"
+            },
+            {
+              "value": "Rubato",
+              "textKey": "account-custom-rubato"
+            },
+            {
+              "value": "Parker",
+              "textKey": "account-custom-parker"
+            }
+          ]
+        },
+        {
+          "type": "submit",
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "margin": [
+              0,
+              50,
+              0,
+              0
+            ]
           }
         }
       ]

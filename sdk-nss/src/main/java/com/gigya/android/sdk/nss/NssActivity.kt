@@ -10,6 +10,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel.IgnitionCall
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
@@ -93,16 +94,19 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         ignitionChannel.flutterMethodChannel?.setMethodCallHandler { call, result ->
             GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
             when (call.method) {
-                IgnitionMethodChannel.IgnitionCall.IGNITION.identifier -> {
+                IgnitionCall.IGNITION.identifier -> {
                     result.success(markup)
                 }
-                IgnitionMethodChannel.IgnitionCall.READY_FOR_DISPLAY.identifier -> {
+                IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
                         supportFragmentManager.beginTransaction()
                                 .replace(R.id.nss_main_frame, fragment!!)
                                 .commit()
                         isDisplayed = true
                     }
+                }
+                IgnitionCall.SCHEMA.identifier -> {
+                    viewModel?.loadSchema(result)
                 }
             }
         }

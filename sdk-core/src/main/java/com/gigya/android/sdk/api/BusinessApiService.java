@@ -446,6 +446,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             if (params != null && !params.containsKey("regToken")) {
                 GigyaLogger.error(LOG_TAG, "Action requires a valid session");
                 gigyaCallback.onError(GigyaError.unauthorizedUser());
+                return;
             }
         }
         // Fetch caching relevant fields from parameter map (if exist) null fields are viable.

@@ -5,10 +5,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
-import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
-import com.gigya.android.sdk.nss.utils.guard
-import com.gigya.android.sdk.nss.utils.refined
-import com.gigya.android.sdk.nss.utils.serialize
+import com.gigya.android.sdk.nss.utils.*
 import com.gigya.android.sdk.utils.FileUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -26,14 +23,17 @@ class Nss private constructor(
         private val engineLifeCycle: NssEngineLifeCycle,
         private val assetPath: String?,
         private val initialRoute: String?,
+        private val lang: String? = "_default",
         private val events: NssEvents<*>?) {
 
-    private val gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
+    private val gson: Gson = GsonBuilder()
+            .registerTypeAdapter(object : TypeToken<Map<String, Any>>() {}.type, NssJsonDeserializer()).create()
 
     companion object {
 
         const val LOG_TAG = "NssBuilder"
         const val THEME_SUFFIX = ".theme.json"
+        const val LOCALIZATION_SUFFIX = ".i18n.json"
     }
 
     init {
@@ -43,10 +43,12 @@ class Nss private constructor(
     data class Builder(
             var assetPath: String? = null,
             var initialRoute: String? = null,
+            var lang: String? = null,
             var events: NssEvents<*>? = null) {
 
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
+        fun lang(language: String) = apply { this.lang = language }
         fun <T : GigyaAccount> events(events: NssEvents<T>) = apply {
             this.events = events
             this.events?.let {
@@ -61,6 +63,7 @@ class Nss private constructor(
                 Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
                 initialRoute,
+                lang,
                 events)
                 .show(launcherContext)
     }
@@ -89,9 +92,12 @@ class Nss private constructor(
                 GigyaLogger.error(LOG_TAG, "Failed to parse JSON asset")
                 throw RuntimeException("Failed to parse JSON File from assets folder")
             }
+
             // Load asset theme file.
             val themeAsset = loadJsonFromAssets(launcherContext, "$assetPath$THEME_SUFFIX")
-            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset))
+            val localizationAsset = loadJsonFromAssets(launcherContext, "$assetPath$LOCALIZATION_SUFFIX")
+
+            engineLifeCycle.show(launcherContext, mapAsset(jsonAsset!!, themeAsset, localizationAsset))
 
         } ?: throw RuntimeException("Asset path not available")
     }
@@ -101,8 +107,8 @@ class Nss private constructor(
      * @param jsonAsset Main JSON markup asset.
      * @param themeAsset Optional theme markup asset.
      */
-    private fun mapAsset(jsonAsset: String, themeAsset: String? = null): Map<String, Any> {
-        val jsonMap = jsonAsset.serialize<String, Any>(gson)
+    private fun mapAsset(jsonAsset: String, themeAsset: String? = null, localizationAsset: String? = null): Map<String, Any> {
+        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object: TypeToken<Map<String, Any>>() {}.type)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
         }
@@ -119,6 +125,17 @@ class Nss private constructor(
                         val themeMap = it.serialize<String, Any>(gson)
                         GigyaLogger.debug(LOG_TAG, "Adding parsed theme map to JSON markup")
                         map["theme"] = themeMap
+                    }
+
+                    // Add optional localization map.
+                    localizationAsset?.let {
+                        val localMap = it.serialize<String, Any>(gson)
+                        GigyaLogger.debug(LOG_TAG, "Adding parsed localization map to JSON markup")
+                        map["i18n"] = localMap
+                        // Add default language is relevant only when an additional localization JSON map as been provided.
+                        lang?.let { localizationLanguage ->
+                            map["lang"] = localizationLanguage
+                        }
                     }
                 }
         return jsonMap
