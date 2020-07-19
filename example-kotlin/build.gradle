@@ -70,7 +70,8 @@ dependencies {
     implementation project(path: ':sdk-tfa')
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-auth')
-    implementation project(path: ':sdk-nss')
+//    implementation project(path: ':sdk-nss')
+    implementation 'com.github.SAP:gigya-android-sdk:nss-v0.3.0'
 
     // Nss engine.
     debugImplementation 'com.gigya.nss.engine:flutter_debug:+'

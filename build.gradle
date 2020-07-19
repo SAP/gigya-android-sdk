@@ -25,6 +25,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         maven {
             // NOTE: This is a dynamic link to the native screen-sets (NSS) engine folder.
             // Update the local path to match you engine location in order to safely
@@ -34,7 +35,7 @@ allprojects {
         maven {
             url 'https://storage.googleapis.com/download.flutter.io'
         }
-        mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 
