@@ -11,7 +11,3 @@
 /captures
 .externalNativeBuild
 
-gradlew
-
-gradlew.bat
-/sdk-nss-engine/host/
