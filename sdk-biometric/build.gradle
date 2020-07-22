@@ -23,7 +23,7 @@ android {
     defaultConfig {
         minSdkVersion build_versions.min_sdk_biometric
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-biometric-${androidVersion}"
+        archivesBaseName = "gigya-android-biometric"
         vectorDrawables.useSupportLibrary = true
     }
 
