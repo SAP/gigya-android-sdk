@@ -31,6 +31,7 @@ class GigyaSampleApplication : Application() {
         Log.d("GigyaSampleApplication", Gigya.VERSION)
 
         Gigya.setApplication(this)
+        Gigya.secureSdkActivities(true)
 
         //val sessionExpiration = Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration
 

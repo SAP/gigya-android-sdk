@@ -25,6 +25,7 @@ import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,14 @@ public class Gigya<T extends GigyaAccount> {
             CONTAINER = new GigyaContainer();
         }
         return CONTAINER;
+    }
+
+    public static void secureSdkActivities(boolean secure) {
+        try {
+            getContainer().get(Config.class).setSecureActivities(secure);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static void setApplication(Application appContext) {
