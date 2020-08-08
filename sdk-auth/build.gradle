@@ -23,7 +23,7 @@ android {
     defaultConfig {
         minSdkVersion build_versions.min_sdk_auth
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-auth-${androidVersion}"
+        archivesBaseName = "gigya-android-auth"
     }
 
     compileOptions {
