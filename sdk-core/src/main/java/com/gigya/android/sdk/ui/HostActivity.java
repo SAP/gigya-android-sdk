@@ -8,8 +8,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+
+import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +40,22 @@ public class HostActivity extends AppCompatActivity {
         return _lifecycleCallbacks;
     }
 
+    private void secureIfNeeded() {
+        try {
+            final boolean secureActivity = Gigya.getContainer().get(Config.class).isSecureActivities();
+            if (secureActivity) {
+                // Apply Secure flag.
+                UiUtils.secureActivity(getWindow());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        secureIfNeeded();
 
         _mainFrame = new FrameLayout(this);
         addProgressBar();
