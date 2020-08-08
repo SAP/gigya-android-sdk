@@ -10,8 +10,15 @@ The core Android SDK requires SDK 14 and above.
 For Biometric capabilities, SDK 23 and above is required.
 
 ## Download and Installation
-* Clone the repo.
-* Build the project using Gradle.
+
+Gigya Available SDK libraries:
+(Core)[]
+(Biometric)[]
+(Authentication)[]
+(Two factor authentication)[]
+(Native screen-sets)[]
+
+Follow instruction for each library in order to apply them to your application.
 
 ## Configuration
 None

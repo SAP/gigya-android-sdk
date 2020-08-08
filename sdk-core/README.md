@@ -610,180 +610,123 @@ mGigya.getAccount(new GigyaLoginCallback<MyAccount>() {
 In order to improve the end-user's experience by avoiding unnecessary network requests, the SDK caches the current account data for a period
 of 5 minutes (by default).
 
-The account cache property can be set via the JSON configuration file or by adding a meta-data tag as show in the initializationsection of the
+The account cache property can be set via the JSON configuration file or by adding a meta-data tag as show in the initialization section of the
 document.
 
 To bypass the account's caching:
+Provide true when requesting a new account.
 
-#### Java
-
-```
+```java
 mGigya.getAccount(true, new GigyaLoginCallback<MyAccount>() {
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
 });
 ```
 ### Set Account
 
 The SDK provides two options for updating a user account data.
+**Using getAccount requires you to have a valid session.**
 
-```
-Using getAccount requires you to have a valid session.
-```
-```
-Provide true when requesting a new account.
-```
-
+**Provide true when requesting a new account.**
+ 
 Case 1, Update the account using the setAccount method providing an updated account object.
 
 Manually setting the current session.
 
+**The SDK provides an interface for manually managing the current session state using the following command:**
+
+```java
+mGigya.setSession(currentSession /*A manually provided instance of the SessionInfo.java class */);
 ```
-The SDK provides an interface for manually managing the current session state using the following command:
-```
-```
-mGigya.setSession(currentSession /*A manually provided instance of the
-SessionInfo.java class */);
-```
+
 This option is useful when your client application is handling the session state on its own. This method will overwrite the current session state
 using the currently used encryption type.
 
-#### Java
-
-##### /*
-
-```
+```java
+/*
 Using live data to keep track of account object changes.
 */
-mGigya.setAccount(myAccountLiveData.getValue(), new
-GigyaLoginCallback<MyAccount>() {
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
+mGigya.setAccount(myAccountLiveData.getValue(), new GigyaLoginCallback<MyAccount>() {
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
 });
 ```
 Case 2, Update the account using the setAccount method. Providing the update parameters requested.
 
-#### Java
+**Using setAccount requires you to have a valid session.**
 
-```
-Using setAccount requires you to have a valid session.
-```
-```
 In order to avoid unnecessary errors, please make sure that the fields you trying to update are marked as userModify in the site's
 schema.
 You can verify this using Gigya's Admin Console, in your site's Schema Editor page under the Settings panel.
-```
-```
-As stated in the setAccountInfo REST preferences, complex objects should be serialized into JSON format.
-```
 
-##### /*
+**As stated in the setAccountInfo REST preferences, complex objects should be serialized into JSON format.**
 
-```
+```java
+/*
 Creating a map of requested update fields
 */
 final Map<String, Object> profile = new HashMap<>();
 profile.put("age", 25);
 profile.put("firstName", "John");
-```
-```
+
 /*
 Adding profile object to updated parameters. Using GSON to format the
 data before sending.
 */
 final Map<String, Object> params = new HashMap<>();
 params.put("profile", new Gson().toJson(profile));
-```
-```
+
 mGigya.setAccount(params, new GigyaLoginCallback<MyAccount>() {
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
 });
 ```
+
 ## Using Screen-Sets
 
 Screen-Sets, as one of Gigya's most powerful features, are available also in your mobile app!
-
 The SDK provides a simple interface for using & displaying screen-sets via the PluginFragment and the GigyaPluginCallback components.
 
 ### ShowScreenSets method
 
 Using screen-sets is available using the "showScreenSet" method of the Gigya interface.
 
-#### Java
+**Here is an example of using the SDK's showScreenSet method using the default "Registration-Login" screen set.**
 
-```
-Here is an example of using the SDK's showScreenSet method using the default "Registration-Login" screen set.
-```
-
-##### /*
-
-```
+```java
+/*
 Showing "Registration-Login" screen set in a dialog mode. Overriding
 only the onLogin method to be notified when logging in event was fired.
 */
-mGigya.showScreenSets("Default-RegistrationLogin", false, null, new
-GigyaPluginCallback<MyAccount>() {
-```
-```
-@Override
-public void onLogin(@NonNull MyAccount accountObj) {
-// Login success.
-}
+mGigya.showScreenSets("Default-RegistrationLogin", false, null, new GigyaPluginCallback<MyAccount>() {
+    @Override
+    public void onLogin(@NonNull MyAccount accountObj) {
+    // Login success.
+    }
 });
 ```
-## GigyaPluginCallback Class
 
-This callback class is an abstract class which is aligned to all optional plugin events fired by the screen-sets plugin. In addition, convenience
-methods, such as onLogin and onLogout, are also available for override.
-
-Here is the callback to its extent. Overriding all methods is optional.
-
-```
-final GigyaPluginCallback<MyAccount> pluginCallback = new
-GigyaPluginCallback<MyAccount>() {
-```
-```
-@Override
-public void onError(GigyaPluginEvent event) {
-super.onError(event);
-}
-```
-```
-@Override
-public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
-super.onBeforeValidation(event);
-}
-```
-```
-@Override
-public void onBeforeSubmit(@NonNull GigyaPluginEvent event) {
-```
-```
 The showScreenSets method available parameters include:
 All parameters that the web screen-sets plugin can receive.
 Optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
@@ -791,75 +734,94 @@ Customizing the look & feel of the PluginFragment is recommended.
 It can be done by simply copying the gigya_plugin_fragment.xml file from the SDKs source code to your application res/layout folder
 directory.
 Once copied you will be able to change & customize the layout to your choosing (with some restrictions of course).
-```
+
 ```
 Keep in mind that you cannot remove any element or change any existing element id. Doing so could result in unexpected crashes, as
 the SDK will still expect these elements to be presented.
 ```
 
-super.onBeforeSubmit(event);
-}
 
-@Override
-public void onSubmit(@NonNull GigyaPluginEvent event) {
-super.onSubmit(event);
-}
+## GigyaPluginCallback Class
 
-@Override
-public void onAfterSubmit(@NonNull GigyaPluginEvent event) {
-super.onAfterSubmit(event);
-}
+This callback class is an abstract class which is aligned to all optional plugin events fired by the screen-sets plugin. In addition, convenience
+methods, such as onLogin and onLogout, are also available for override.
 
-@Override
-public void onBeforeScreenLoad(@NonNull GigyaPluginEvent event) {
-super.onBeforeScreenLoad(event);
-}
+**Here is the callback to its extent. Overriding all methods is optional.**
 
-@Override
-public void onAfterScreenLoad(@NonNull GigyaPluginEvent event) {
-super.onAfterScreenLoad(event);
-}
+```java
+final GigyaPluginCallback<MyAccount> pluginCallback = new GigyaPluginCallback<MyAccount>() {
+    
+    @Override
+    public void onError(GigyaPluginEvent event) {
+        super.onError(event);
+    } 
 
-@Override
-public void onFieldChanged(@NonNull GigyaPluginEvent event) {
-super.onFieldChanged(event);
-}
+    @Override
+    public void onBeforeValidation(@NonNull GigyaPluginEvent event) {
+        super.onBeforeValidation(event);
+    }
+   
+     super.onBeforeSubmit(event);
+        super.onBeforeSubmit(event);
+    }
 
-@Override
-public void onHide(@NonNull GigyaPluginEvent event, String reason) {
-super.onHide(event, reason);
-}
+    @Override
+    public void onSubmit(@NonNull GigyaPluginEvent event) {
+        super.onSubmit(event);
+    }
 
-@Override
-public void onLogin(@NonNull MyAccount accountObj) {
-super.onLogin(accountObj);
-}
+    @Override
+    public void onAfterSubmit(@NonNull GigyaPluginEvent event) {
+        super.onAfterSubmit(event);
+    }
 
-@Override
-public void onLogout() {
-super.onLogout();
-}
+    @Override
+    public void onBeforeScreenLoad(@NonNull GigyaPluginEvent event) {
+        super.onBeforeScreenLoad(event);
+    }
 
-@Override
-public void onConnectionAdded() {
-super.onConnectionAdded();
-}
+    @Override
+    public void onAfterScreenLoad(@NonNull GigyaPluginEvent event) {
+        super.onAfterScreenLoad(event);
+    }
 
-@Override
-public void onConnectionRemoved() {
+    @Override
+    public void onFieldChanged(@NonNull GigyaPluginEvent event) {
+        super.onFieldChanged(event);
+    }   
 
+    @Override
+    public void onHide(@NonNull GigyaPluginEvent event, String reason) {
+        super.onHide(event, reason);
+    }
 
-```
-super.onConnectionRemoved();
-}
+    @Override
+    public void onLogin(@NonNull MyAccount accountObj) {
+        super.onLogin(accountObj);
+    }
+
+    @Override
+    public void onLogout() {
+        super.onLogout();
+    }
+
+    @Override
+    public void onConnectionAdded() {
+        super.onConnectionAdded();
+    }
+
+    @Override
+    public void onConnectionRemoved() {         
+        super.onConnectionRemoved();
+    }
 };
 ```
+
 ## Business APIs
 
 The Gigya SDK provides popular built-in flows for fluent development.
 
 Currently available:
-
 ```
 login
 register
@@ -871,6 +833,7 @@ forgotPassword
 addConnection
 removeConnection
 ```
+
 ### Interruptions
 
 Some flows can be "interrupted" due to certain Site policies.
@@ -878,7 +841,6 @@ For example, when trying to register but Two Factor Authentication is required -
 that will require the end user to setup a TFA method before being able to complete the registration flow.
 
 Interruptions map:
-
 ```
 The plugin callback is also typed to the current Account schema.
 ```
@@ -886,7 +848,6 @@ The plugin callback is also typed to the current Account schema.
 Business APIs are provided in order to give you an easier interface. If a more detailed and customized use is required, you can still use
 the generic Gigya.send interface for all request purposes.
 ```
-
 The SDK's Business APIs are design to help to easily develop a friendly way to face and resolve those interruptions in order to get the end user
 logged in and still complying to the site's policies.
 
@@ -898,7 +859,6 @@ The SDK will expose a resolver object for supported interruptions in order to gi
 flow that they were triggered.
 
 The current supported interruption flows are:
-
 ```
 Account linking
 TFA registration
@@ -906,27 +866,21 @@ TFA verification
 ```
 #### Interruptions handling - Account linking example
 
-We will start with a simple register request for an email address that is already regisered:
+We will start with a simple register request for an email address that is already registered:
 
-```
-All interruption flows are implemented in the provided Sample project.
-```
+**All interruption flows are implemented in the provided Sample project.**
 
-```
-mGigya.register("EMAIL-ADDRESS-ALREADY-REGISTERED", "PASSWORD", new
-GigyaLoginCallback<MyAccount>() {
-```
-```
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
+```java
+mGigya.register("EMAIL-ADDRESS-ALREADY-REGISTERED", "PASSWORD", new GigyaLoginCallback<MyAccount>() {
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
 });
 ```
 As expected we will receive an error which indicates that this login identifier already exists in the system (errorCode 403043 ).
@@ -938,43 +892,36 @@ Luckily, the SDK can handle this interruption for us:
 
 To do so, in our our GigyaLoginCallback we will override the onConflictingAccounts method:
 
-```
-mGigya.register("EMAIL-ID-ALREADY-REGISTERED", "PASSWORD", new
-GigyaLoginCallback<MyAccount>() {
-```
-```
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
-```
-```
-@Override
-public void onConflictingAccounts(@NonNull GigyaApiResponse response,
-@NonNull GigyaLinkAccountsResolver resolver) {
-```
-```
-}
+```java
+mGigya.register("EMAIL-ID-ALREADY-REGISTERED", "PASSWORD", new GigyaLoginCallback<MyAccount>() {
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
+
+    @Override
+    public void onConflictingAccounts(@NonNull GigyaApiResponse response,
+    @NonNull GigyaLinkAccountsResolver resolver) {
+
+    }
 });
 ```
-While the response parameter contains the original response from the register API call (accounts.register), the resolver object (of type GigyaLinkA
-ccountsResolver) already contains all we need in order to complete the flow:
+
+While the response parameter contains the original response from the register API call (accounts.register), the resolver object
+ (of type GigyaLinkAccountsResolver) already contains all we need in order to complete the flow:
 
 We can get the conflicting accounts from it and try to link the account to them.
 
-
-```
+```java
 final ConflictingAccounts accounts = resolver.getConflictingAccounts();
 final List<String> providers = accounts.getLoginProviders();
 final String loginID = accounts.getLoginID();
-```
-```
+
 /*
 In this example the providers list contains one "site" provider. Therefore
 we are now able to try and resolve the flow.
@@ -982,8 +929,8 @@ we are now able to try and resolve the flow.
 resolver.linkToSite(loginID,
 "PASSWORD-REQUIRED-TO-VERIFY-THE-ORIGINAL-ACCOUNT");
 ```
-Trying the resolve the flow will now try to login with the original conflicted account and link both accounts.
 
+Trying the resolve the flow will now try to login with the original conflicted account and link both accounts.
 If the operation was successful, the original GigyaLoginCallback will be notified and the flow will be directed to its original onSuccess method.
 
 ## Session Features
@@ -993,98 +940,68 @@ If the operation was successful, the original GigyaLoginCallback will be notifie
 Starting a new session via register or login is also available with a fixed time span expiration constraint.
 
 For example:
-
-#### Java
-
-```
 In order to provide the end user with a fluid experience some UI intervention is recommended. Example for this can be found in the
 Sample application.
-```
 
-##### /*
-
-```
+```java
+/*
 Adding a 10 minutes session expiration constraint.
 */
 final Map<String, Object> params = new HashMap<>();
 params.put("sessionExpiration", 10);
-```
-```
-mGigya.register("EMAIL", "PASSWORD", params, new
-GigyaLoginCallback<MyAccount>() {
-@Override
-public void onSuccess(MyAccount obj) {
-// Success
-}
-```
-```
-@Override
-public void onError(GigyaError error) {
-// Fail
-}
+
+mGigya.register("EMAIL", "PASSWORD", params, new GigyaLoginCallback<MyAccount>() {
+    @Override
+    public void onSuccess(MyAccount obj) {
+    // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+    // Fail
+    }
 });
 ```
 When the session expires, the SDK will notify about it via broadcast.
-
 In order to be notified of session changes, you will need to register a broadcast receiver in your Activity, for example:
 
-#### Java
-
-
-```
-final BroadcastReceiver sessionLifecycleReceiver = new
-BroadcastReceiver() {
-@Override
-public void onReceive(Context context, Intent intent) {
-final String action = intent.getAction();
-if (action == null) {
-return;
-}
-String message;
-switch (action) {
-case
-GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED:
-message = "Your session has expired";
-break;
-case
-GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID:
-message = "Your session is invalid";
-break;
-}
-}
+```java
+final BroadcastReceiver sessionLifecycleReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        final String action = intent.getAction();
+        if (action == null) {
+            return;
+        }
+        String message;
+        switch (action) {
+            case GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED:
+                message = "Your session has expired";
+                break;
+            case GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID:
+                message = "Your session is invalid";
+                break;
+        }
+    }
 };
-```
-```
+
 @Override
 protected void onResume() {
-super.onResume();
-final IntentFilter intentFilter = new IntentFilter();
-```
-```
-intentFilter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION
-_EXPIRED);
-```
-```
-intentFilter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION
-_INVALID);
-```
-```
-LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycl
-eReceiver, filter);
+    super.onResume();
+    final IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED);
+    intentFilter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID);
+    LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver, filter);
 }
-```
-```
+
 @Override
 protected void onPause() {
-```
-```
-LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecy
-cleReceiver);
-super.onPause();
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver);
+    super.onPause();
 }
 ```
-For session expiration updates use INTENT_ACTION_SESSION_EXPIRED action.
 
+For session expiration updates use INTENT_ACTION_SESSION_EXPIRED action.
 
 ### Verify Login Interval - Session validation
 
@@ -1096,15 +1013,14 @@ For example, this can be used to invalidate a user's session if the version of t
 When using session verification, the client application will be informed, via local broadcast, if the automatic verification fails. This will allow your
 application to perform the necessary logic in order to re-authenticate the user.
 
-Updating the AndroidManidest.xml file:
+Updating the *AndroidManifest.xml* file:
 
-```
+```xml
 <meta-data
 android:name="sessionVerificationInterval"
 android:value=60 /> // The verification call interval in seconds.
 ```
 Adding this meta-data tag will cause the SDK to perform a periodic session validation according to provided value (in seconds).
-
 When a session changes state, the verification call will fail and the SDK will invalidate the current session and broadcast an event locally.
 
 ## Using the GigyaWebBridge explicitly.
@@ -1113,244 +1029,50 @@ You are able to use the GigyaWebBridge.java class explicitly in order to attach 
 Attaching the GigyaWebBridge will allow you to add Gigya's session management you your custom web implementation. Special cases include
 uses of SAML & captcha implementations. The following snippet demonstrates the basic implementation of the GigyaWebBridge.
 
-```
-Session validation calls will only occur while the application is in the foreground.
-```
+**Session validation calls will only occur while the application is in the foreground.**
 
-```
+```kotlin
 private var _webBridge: IGigyaWebBridge<MyAccount>? = null
-```
-```
+
 /*
 Make sure you enable javascript for your WebView instance.
 */
 val webSettings = web_view.settings
 webSettings.javaScriptEnabled = true
-```
-```
+
 /*
 Generate a new GigyaWebBridge instance.
 */
 _webBridge = Gigya.getInstance(MyAccount::class.java).createWebBridge()
-```
-##### /*
 
-```
+/*
 Attach newly create GigyaWebBridge to WebView instance.
 */
 _webBridge?.attachTo(web_view, object: GigyaPluginCallback<MyAccount>() {
-```
-```
-// Implement any optional callback you require.
-```
-```
-override fun onLogin(accountObj: MyAccount) {
-// Logged in.
-}
-```
-```
-}, progress_indicator /* Optional progress indicator view to be displayed
-on loading events */)
-```
-```
+
+    // Implement any optional callback you require.```
+    override fun onLogin(accountObj: MyAccount) {
+    // Logged in.
+    }
+}, progress_indicator /* Optional progress indicator view to be displayed on loading events */)
+
 /*
 Make sure to attach the GigyaWebBridge to your WebViewClient instance.
 */
 web_view.webViewClient = (object: WebViewClient() {
-```
-```
-override fun shouldOverrideUrlLoading(view: WebView?, request:
-WebResourceRequest?): Boolean {
-val uri = request?.url
-val uriString = uri.toString()
-return _webBridge?.invoke(uriString) ?: false
-}
+override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+    val uri = request?.url
+    val uriString = uri.toString()
+    return _webBridge?.invoke(uriString) ?: false
+    }
 })
 ```
-It is recommended that you also detach the GigyaWebBridge from your WebView instance.
 
+It is recommended that you also detach the GigyaWebBridge from your WebView instance.
 Make sure you implement it in the appropriate lifecycle callback.
 
-```
+```kotlin
 _webBridge?.detachFrom(web_view)
-```
-
-```
-1.
-2.
-```
-## Biometric Authentication
-
-### End User & Biometric Authentication
-
-The supported end user flow for the biometric authentication feature is:
-
-```
-End user logs in
-End user opts in to biometric authentication
-This will require the end user to verify his fingerprint
-The app is locked or being cleared from memory
-End user is required to unlock the app in order to restore his session
-This will require the end user to verify his fingerprint
-End user opts out of biometric authentication
-```
-Biometric fingerprint support is available for devices running Android Marshmallow and above.
-
-In order to add fingerprint authentication to your application you will need to include the Gigya Biometric library in your application's dependencies.
-
-Download the biometric library and copy it to your applications libs/ folder.
-
-Then add the following line to your application's build.gradle file:
-
-```
-implementation files('libs/Gigya-android-biometric-1.0.1.aar')
-```
-```
-// In addition you will need to add this dependency as well.
-implementation 'com.android.support.design:28.0.0'
-```
-The Android SDK v4 differs from the previous releases in the way that is handles the UI prompt for you.
-
-It Utilizes Google's biometric prompt class on Android devices running Android Pie (and above).
-
-On Android devices that run any other version below Pie (M, N, O) - a custom prompt will be shown.
-
-It is not longer possible to customize the biometric prompt.
-
-### Authentication flow
-
-In order to use biometric fingerprint authentication, several rules must apply:
-
-```
-The device has a fingerprint sensor available.
-A minimum of 1 fingerprint already enrolled in the device.
-```
-If one of the above rules isn't satisfied, the biometric feature availability will return false.
-
-```
-GigyaBiometric biometric = GigyaBiometric.getInstance();
-final boolean available = biometric.isAvailable(); // WILL BE false.
-```
-Available authentication methods:
-
-```
-Opt-In - Opts-in the existing session to use fingerprint authentication.
-Opt-Out - Opts-out the existing session from using fingerprint authentication.
-```
-```
-The biometric fingerprint feature is a security encryption on top of an existing session of your app, therefore, calling any biometric
-operations requires a valid session.
-```
-```
-Relevant permissions are already requested in the library manifest.
-android.permission.USE_FINGERPRINT
-android.permission.USE_BIOMETRIC
-```
-
-```
-Lock - Locks the existing session until unlocking it. No authentication based actions can be done while the session is locked.
-Unlock - Unlocks the session so the user can continue to make authentication based actions.
-```
-Example of fingerprint authentication flow:
-
-#### Java
-
-##### /*
-
-```
-Reference biometric interface.
-*/
-final GigyaBiometric biometric = GigyaBiometric.getInstance();
-if (!biometric.isAvailable()) {
-return;
-}
-```
-```
-/*
-Generate a prompt info class
-*/
-final GigyaPromptInfo info = new GigyaPromptInfo(
-"PROMPT-TITLE",
-"PROMPT-SUBTITLE",
-"PROMPT-DESCRIPTION-OPTIONAL"
-);
-```
-```
-/*
-Use authentication action
-*/
-biometric.optIn(this, info, new IGigyaBiometricCallback() {
-@Override
-public void onBiometricOperationSuccess(@NonNull
-GigyaBiometric.Action action) {
-// Action success.
-}
-```
-```
-@Override
-public void onBiometricOperationFailed(String reason) {
-// Action failed with provided reason.
-}
-```
-```
-@Override
-public void onBiometricOperationCanceled() {
-// Action canceled by user.
-}
-});
-```
-
-### GigyaPromptInfo Class
-
-A helper class used for adding biometric prompt display data.
-
-### IGigyaBiometricCallback Interface class
-
-Biometric authentication action callback that provides the result interface given a biometric prompt action.
-
-```
-final IGigyaBiometricCallback biometricCallback = new
-IGigyaBiometricCallback() {
-@Override
-public void onBiometricOperationSuccess(@NonNull GigyaBiometric.Action
-action) {
-// Action success. Available actions are OPT_IN, OPT_OUT, LOCK,
-UNLOCK.
-}
-```
-```
-@Override
-public void onBiometricOperationFailed(String reason) {
-// Action failed with provided reason.
-}
-```
-```
-@Override
-public void onBiometricOperationCanceled() {
-// Action canceled by user.
-}
-};
-```
-## FAQ
-
-### General
-
-```
-What is the minimum SDK supported by Gigya's Android SDK (v4)?
-Gigya Android SDK requires SDK 14 and above.
-Gigya Android Biometric requires SDK 23 and above.
-Is Gigya's Android SDK v4 compatible with older version releases?
-Upgrading application from v3 to v4 is supported. Migration of your application code is required.
-```
-### Biometric
-
-```
-Is the fingerprint saved in the application?
-No. Gigya's Android SDK uses the device's enrolled fingerprint.
-Can I use fingerprint authentication before the user logs in?
-No. Fingerprint authentication acts as an additional layer of security that can be added in addition to the current existing session encryption.
-Do I need to develop a custom UI for the fingerprint authentication flow?
-No. Biometric prompt is provided for you for all supported operating systems.
 ```
 
 ## Caveats
