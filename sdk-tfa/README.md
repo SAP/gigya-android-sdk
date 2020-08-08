@@ -50,7 +50,7 @@ gigyaTotp
 ## Initialization
 
 In order to use Two Factor Authentication for your site please please read:
-(Risk Based Authentication)[https://developers.gigya.com/display/GD/Risk+Based+Authentication]
+[Risk Based Authentication](https://developers.gigya.com/display/GD/Risk+Based+Authentication)
 
 ```
 String resource ids have changed with this revision (v1.0.3). If you have previously used the provided UI elements and overridden their
@@ -675,7 +675,7 @@ Example taken from the provided sample application:
 
 ## Additional Information
 
-(Risk Based Authentication)[https://developers.gigya.com/display/GD/Risk+Based+Authentication]
+[Risk Based Authentication](https://developers.gigya.com/display/GD/Risk+Based+Authentication)
 
 ## Known Issues
 None
