@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.transition.Slide
+import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
@@ -14,6 +15,7 @@ import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel.IgnitionCall
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
+import com.gigya.android.sdk.utils.UiUtils
 
 /**
  * Nss main activity.
@@ -46,8 +48,21 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         }
     }
 
+    private fun secureIfNeeded() {
+        try {
+            val secureActivity = Gigya.getContainer().get(Config::class.java).isSecureActivities
+            if (secureActivity) {
+                // Apply Secure flag.
+                UiUtils.secureActivity(window)
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        secureIfNeeded()
         setContentView(R.layout.nss_activity)
 
         engineLifeCycle = Gigya.getContainer().get(NssEngineLifeCycle::class.java)
