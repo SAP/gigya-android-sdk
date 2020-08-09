@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
@@ -237,16 +238,7 @@ public class SessionVerificationService implements ISessionVerificationService {
         }
         GigyaLogger.error(LOG_TAG, "evaluateVerifyLoginError: error = " + errorCode + " session invalid -> invalidate & notify");
 
-        String regToken = null;
-        try {
-            final JSONObject jo = new JSONObject(error.getData());
-            regToken = jo.getString("regToken");
-            GigyaLogger.debug(LOG_TAG, "evaluateVerifyLoginError: regToken = " + regToken);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        notifyInvalidSession(regToken);
+        notifyInvalidSession(error.getData());
     }
 
     /**
@@ -254,7 +246,7 @@ public class SessionVerificationService implements ISessionVerificationService {
      * 1. Clear saved session & invalidate cached account.
      * 2. Broadcast a local event to notify that the session is invalid.
      */
-    private void notifyInvalidSession(@Nullable String regToken) {
+    private void notifyInvalidSession(@Nullable String data) {
         stop();
         if (!_sessionService.isValid()) {
             GigyaLogger.debug(LOG_TAG, "notifyInvalidSession: Session is invalid. Only stopping timer");
@@ -268,10 +260,20 @@ public class SessionVerificationService implements ISessionVerificationService {
         _sessionService.clear(true);
         _accountService.invalidateAccount();
 
+        String regToken = null;
+        try {
+            final JSONObject jo = new JSONObject(data);
+            regToken = jo.getString("regToken");
+            GigyaLogger.debug(LOG_TAG, "evaluateVerifyLoginError: regToken = " + regToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // Send "session invalid" local broadcast & flush the timer.
         Intent intent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID);
         // Add "regToken" value to intent if available.
         if (regToken != null) {
+            intent.putExtra("rawError", data);
             intent.putExtra("regToken", regToken);
         }
 
