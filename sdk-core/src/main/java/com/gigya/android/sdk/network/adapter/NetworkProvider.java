@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.network.adapter;
 
+import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 
@@ -14,6 +15,8 @@ public abstract class NetworkProvider {
     public boolean _blocked = false;
 
     public abstract void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
+
+    public abstract void addToQueueUnsigned(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
 
     public abstract void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks);
 

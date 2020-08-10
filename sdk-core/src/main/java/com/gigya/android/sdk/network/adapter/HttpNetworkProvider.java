@@ -38,6 +38,11 @@ public class HttpNetworkProvider extends NetworkProvider {
     }
 
     @Override
+    public void addToQueueUnsigned(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.unsigned(request));
+    }
+
+    @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         _requestFactory.sign(request);
         new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));

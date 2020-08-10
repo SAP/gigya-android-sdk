@@ -6,6 +6,7 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.*
+import com.gigya.android.sdk.reporting.IReportingService
 import com.gigya.android.sdk.utils.FileUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -108,7 +109,7 @@ class Nss private constructor(
      * @param themeAsset Optional theme markup asset.
      */
     private fun mapAsset(jsonAsset: String, themeAsset: String? = null, localizationAsset: String? = null): Map<String, Any> {
-        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object: TypeToken<Map<String, Any>>() {}.type)
+        var jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object : TypeToken<Map<String, Any>>() {}.type)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
         }
@@ -138,6 +139,6 @@ class Nss private constructor(
                         }
                     }
                 }
-        return jsonMap
+        return jsonMap!!
     }
 }
