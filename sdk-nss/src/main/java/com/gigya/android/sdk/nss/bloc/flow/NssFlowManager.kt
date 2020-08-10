@@ -6,6 +6,7 @@ import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.NssEvents
+import com.gigya.android.sdk.nss.bloc.GigyaNssCallback
 import com.gigya.android.sdk.nss.bloc.action.NssAction
 import com.gigya.android.sdk.nss.bloc.action.NssActionFactory
 import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
@@ -17,7 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 
 interface INssFlowDelegate<T : GigyaAccount> {
 
-    fun getMainFlowCallback(): GigyaLoginCallback<T>?
+    fun getMainFlowCallback(): GigyaNssCallback<T, GigyaApiResponse>?
 
     fun getCurrentResult(): MethodChannel.Result?
 
@@ -34,18 +35,31 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     private var activeAction: NssAction<*>? = null
     private var activeChannelResult: MethodChannel.Result? = null
     private var activeResolver: INssResolver? = null
-    private var mainFlowCallback: GigyaLoginCallback<T>? = null
+    private var mainFlowCallback: GigyaNssCallback<T, GigyaApiResponse>? = null
 
     var nssEvents: NssEvents<T>? = null
 
-    override fun getMainFlowCallback(): GigyaLoginCallback<T>? = mainFlowCallback
+    override fun getMainFlowCallback(): GigyaNssCallback<T, GigyaApiResponse>? = mainFlowCallback
 
     override fun getCurrentResult(): MethodChannel.Result? = activeChannelResult
 
     override fun getResolver(): INssResolver? = activeResolver
 
     init {
-        mainFlowCallback = object : GigyaLoginCallback<T>() {
+        mainFlowCallback = object : GigyaNssCallback<T, GigyaApiResponse>() {
+
+            override fun onGenericResponse(res: GigyaApiResponse?) {
+                res.let {
+                    val serializedObject = it.serializeToMap(gson)
+                    activeChannelResult?.success(serializedObject)
+
+                    // Propagate Nss event.
+                    nssEvents?.onScreenSuccess(
+                            activeScreen!!,
+                            activeAction!!.actionId!!,
+                            null)
+                }
+            }
 
             override fun onSuccess(obj: T) {
                 disposeResolver()

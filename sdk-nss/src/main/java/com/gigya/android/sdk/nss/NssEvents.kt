@@ -13,7 +13,7 @@ abstract class NssEvents<T : GigyaAccount> {
         // Stub.
     }
 
-    open fun onScreenSuccess(screenId: String, action: String, accountObj: T) {
+    open fun onScreenSuccess(screenId: String, action: String, accountObj: T?) {
         // Stub.
     }
 }
