@@ -96,4 +96,14 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         // Return a new instance of a signed REST request.
         return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams);
     }
+
+    @Override
+    public GigyaApiHttpRequest unsigned(GigyaApiRequest request) {
+        if (!request.getParams().containsKey("apiKey")) {
+            request.getParams().put("apiKey", _config.getApiKey());
+        }
+        final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
+
+        return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams);
+    }
 }
