@@ -7,6 +7,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.nss.bloc.SchemaHelper;
 import com.gigya.android.sdk.nss.bloc.action.NssActionFactory;
+import com.gigya.android.sdk.nss.bloc.action.NssForgotPasswordAction;
 import com.gigya.android.sdk.nss.bloc.action.NssLoginAction;
 import com.gigya.android.sdk.nss.bloc.action.NssRegistrationAction;
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction;
@@ -41,6 +42,7 @@ public class GigyaNss {
             container.bind(NssLoginAction.class, NssLoginAction.class, false);
             container.bind(NssSetAccountAction.class, NssSetAccountAction.class, false);
             container.bind(NssActionFactory.class, NssActionFactory.class, false);
+            container.bind(NssForgotPasswordAction.class, NssForgotPasswordAction.class, false);
             container.bind(NssViewModel.class, NssViewModel.class, true);
             container.bind(SchemaHelper.class, SchemaHelper.class, false);
 

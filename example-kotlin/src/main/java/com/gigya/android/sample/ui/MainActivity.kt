@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 GigyaLogger.debug("NSS", "onCancel")
                             }
 
-                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
+                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
                                 // Handle login event here if needed.
                                 GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                             }
@@ -806,7 +806,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             GigyaLogger.debug("NSS", "onCancel")
                         }
 
-                        override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
+                        override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
                             // Handle login event here if needed.
                             GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                         }
