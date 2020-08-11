@@ -144,7 +144,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.error(LOG_TAG, "logOut: Success");
+                GigyaLogger.debug(LOG_TAG, "logOut: Success");
                 if (gigyaCallback != null) {
                     gigyaCallback.onSuccess(response);
                 }
