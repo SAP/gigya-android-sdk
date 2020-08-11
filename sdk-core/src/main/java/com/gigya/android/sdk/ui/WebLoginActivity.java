@@ -10,15 +10,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.view.WindowManager;
+import android.webkit.URLUtil;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.R;
+import com.gigya.android.sdk.containers.GigyaContainer;
+import com.gigya.android.sdk.utils.UiUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,26 +62,90 @@ public class WebLoginActivity extends Activity {
         context.startActivity(intent);
     }
 
+    /**
+     * Validate incoming _uri extra parameter according to allowed format.
+     */
+    private boolean failedValidation() {
+        GigyaLogger.debug(LOG_TAG, "failedValidation: uri = " + _uri);
+        if (_uri == null) {
+            return false;
+        }
+        final Map<String, Object> parameters = UrlUtils.parseUrlParameters(_uri);
+        GigyaLogger.debug(LOG_TAG, "failedValidation: parsed parameters = " + parameters.toString());
+        try {
+            final Uri uri = Uri.parse(_uri);
+            if (!uri.getScheme().equals("https")) {
+                return true;
+            }
+
+            final String host = uri.getHost();
+            if (!host.equals("socialize." + Gigya.getContainer().get(Config.class).getApiDomain())) {
+                return true;
+            }
+
+            final String path = uri.getPath();
+            if ((!path.equals("/socialize.login")) && (!path.equals("/socialize.addConnection"))) {
+                return true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return true;
+        }
+        return false;
+    }
+
+    private void secureIfNeeded() {
+        try {
+            final boolean secureActivity = Gigya.getContainer().get(Config.class).isSecureActivities();
+            if (secureActivity) {
+                // Apply Secure flag.
+                UiUtils.secureActivity(getWindow());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        secureIfNeeded();
         setContentView(R.layout.gigya_activity_web_provider);
 
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            _webLoginLifecycleCallbacksId = getIntent().getIntExtra(EXTRA_LIFECYCLE_CALLBACK_ID, -1);
-            _uri = getIntent().getStringExtra(EXTRA_URI);
-            if (_webLoginLifecycleCallbacksId == -1) {
-                finish();
-                return;
-            }
-            if (_uri == null) {
-                finish();
-                return;
-            }
-            // Reference the callback using static getter from the Presenter. Same as the HostActivity.
-            _webLoginLifecycleCallbacks = Presenter.getWebLoginCallback(_webLoginLifecycleCallbacksId);
+        if (getIntent() == null) {
+            GigyaLogger.debug(LOG_TAG, "Intent null");
+            finish();
+            return;
         }
+        if (getIntent().getExtras() == null) {
+            GigyaLogger.debug(LOG_TAG, "Intent extras null");
+            finish();
+            return;
+        }
+
+        _webLoginLifecycleCallbacksId = getIntent().getIntExtra(EXTRA_LIFECYCLE_CALLBACK_ID, -1);
+        if (_webLoginLifecycleCallbacksId == -1) {
+            GigyaLogger.debug(LOG_TAG, "web_login_lifecycle_callback null");
+            finish();
+            return;
+        }
+
+        _uri = getIntent().getStringExtra(EXTRA_URI);
+        if (_uri == null) {
+            GigyaLogger.debug(LOG_TAG, "web_login_uri null");
+            finish();
+            return;
+        }
+
+        if (failedValidation()) {
+            GigyaLogger.error(LOG_TAG, "Failed to validate URL. Exiting activity");
+            finish();
+            return;
+        }
+
+        // Reference the callback using static getter from the Presenter. Same as the HostActivity.
+        _webLoginLifecycleCallbacks = Presenter.getWebLoginCallback(_webLoginLifecycleCallbacksId);
 
         // Now that we have the callback.
 
