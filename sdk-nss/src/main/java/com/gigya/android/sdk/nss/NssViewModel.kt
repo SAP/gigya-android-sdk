@@ -6,6 +6,7 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
 import com.gigya.android.sdk.nss.bloc.action.NssAction
+import com.gigya.android.sdk.nss.bloc.data.DataResolver
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
@@ -15,10 +16,12 @@ import io.flutter.plugin.common.MethodChannel
 
 class NssViewModel<T : GigyaAccount>(
         private val screenChannel: ScreenMethodChannel,
+        private val dataChannel: DataMethodChannel,
         private val apiChannel: ApiMethodChannel,
         private val logChannel: LogMethodChannel,
         private val flowManager: NssFlowManager<T>,
-        private val schemaHelper: SchemaHelper<T>
+        private val schemaHelper: SchemaHelper<T>,
+        private val dataResolver: DataResolver
 ) {
 
     var finishClosure: () -> Unit? = { }
@@ -53,6 +56,9 @@ class NssViewModel<T : GigyaAccount>(
 
         logChannel.initChannel(engine.dartExecutor.binaryMessenger)
         logChannel.setMethodChannelHandler(logMethodChannelHandler)
+
+        dataChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        dataChannel.setMethodChannelHandler(dataMethodChannelHandler)
     }
 
     private val logMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
@@ -110,6 +116,14 @@ class NssViewModel<T : GigyaAccount>(
                         intentAction(intent)
                     }
                 }
+            }
+        }
+    }
+
+    private val dataMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+        MethodChannel.MethodCallHandler { call, result ->
+            call.arguments.refined<MutableMap<String, Any>> { args ->
+                dataResolver.handleDataRequest(call.method, args, result)
             }
         }
     }

@@ -296,6 +296,23 @@
       "stack": "vertical",
       "children": [
         {
+          "type": "image",
+          "url": "passport",
+          "style": {
+            "cornerRadius": 40,
+            "margin": [
+              0,
+              20,
+              0,
+              10
+            ],
+            "size": [
+              80,
+              80
+            ]
+          }
+        },
+        {
           "bind": "profile.firstName",
           "type": "textInput",
           "textKey": "common-first-name",
@@ -366,6 +383,24 @@
       },
       "stack": "vertical",
       "children": [
+        {
+          "type": "image",
+          "url": "https://www.w3schools.com/howto/img_avatar.png",
+          "style": {
+            "cornerRadius": 40,
+            "elevation": 4,
+            "margin": [
+              0,
+              20,
+              0,
+              10
+            ],
+            "size": [
+              80,
+              80
+            ]
+          }
+        },
         {
           "type": "label",
           "textKey": "account-custom-title",
