@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Biometric SDK
 
 ## Description
 Gigya's Android Biometric SDK library provides a Java interface for applying biometric authentication to your active session.

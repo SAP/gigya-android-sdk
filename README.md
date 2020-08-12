@@ -12,11 +12,11 @@ For Biometric capabilities, SDK 23 and above is required.
 ## Download and Installation
 
 Gigya Available SDK libraries:
-* [Core](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-core/README.md)
-* [Biometric](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-biometric/README.md)
-* [Authentication](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-auth/README.md)
-* [Two factor authentication](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-tfa/README.md)
-* [Native screen-sets](https://github.com/SAP/gigya-nSS/blob/master/README.md)
+* [Core](https://sap.github.io/gigya-android-sdk/sdk-core/)
+* [Biometric](https://sap.github.io/gigya-android-sdk/sdk-biometric/)
+* [Authentication](https://sap.github.io/gigya-android-sdk/sdk-auth/)
+* [Two factor authentication](https://sap.github.io/gigya-android-sdk/sdk-tfa/)
+* [Native screen-sets](https://sap.github.io/gigya-nSS/)
 
 Follow instruction for each library in order to apply them to your application.
 
