@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Authentication SDK
 
 ## Description
 Gigya's Android Authentication SDK library provides a Java interface for applying additional authentication options.
