@@ -11,7 +11,7 @@ import com.gigya.android.sdk.nss.bloc.action.NssForgotPasswordAction;
 import com.gigya.android.sdk.nss.bloc.action.NssLoginAction;
 import com.gigya.android.sdk.nss.bloc.action.NssRegistrationAction;
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction;
-import com.gigya.android.sdk.nss.bloc.data.DataResolver;
+import com.gigya.android.sdk.nss.bloc.data.NssDataResolver;
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager;
 import com.gigya.android.sdk.nss.channel.ApiMethodChannel;
 import com.gigya.android.sdk.nss.channel.DataMethodChannel;
@@ -48,7 +48,7 @@ public class GigyaNss {
             container.bind(NssForgotPasswordAction.class, NssForgotPasswordAction.class, false);
             container.bind(NssViewModel.class, NssViewModel.class, true);
             container.bind(SchemaHelper.class, SchemaHelper.class, false);
-            container.bind(DataResolver.class, DataResolver.class, true);
+            container.bind(NssDataResolver.class, NssDataResolver.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaNss.class);

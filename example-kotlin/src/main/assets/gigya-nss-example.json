@@ -298,6 +298,7 @@
         {
           "type": "image",
           "url": "passport",
+          "fallback": "https://www.w3schools.com/howto/img_avatar.png",
           "style": {
             "cornerRadius": 40,
             "margin": [
