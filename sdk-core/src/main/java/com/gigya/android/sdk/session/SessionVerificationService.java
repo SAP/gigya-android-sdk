@@ -284,7 +284,7 @@ public class SessionVerificationService implements ISessionVerificationService {
      * Perform a logout call to insure session is invalidated on server side as well.
      */
     private void logout() {
-        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.HttpMethod.GET);
+        final GigyaApiRequest request = _requestFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
