@@ -260,7 +260,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        _businessApiService.send(api, params, RestAdapter.HttpMethod.GET.intValue(), GigyaApiResponse.class, gigyaCallback);
+        _businessApiService.send(api, params, RestAdapter.HttpMethod.POST.intValue(), GigyaApiResponse.class, gigyaCallback);
     }
 
     /**
