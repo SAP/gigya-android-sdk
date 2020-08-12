@@ -16,7 +16,7 @@ Gigya Available SDK libraries:
 * [Biometric](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-biometric/README.md)
 * [Authentication](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-auth/README.md)
 * [Two factor authentication](https://github.com/SAP/gigya-android-sdk/blob/master/sdk-tfa/README.md)
-* Native screen-sets
+* [Native screen-sets](https://github.com/SAP/gigya-nSS/blob/master/README.md)
 
 Follow instruction for each library in order to apply them to your application.
 
