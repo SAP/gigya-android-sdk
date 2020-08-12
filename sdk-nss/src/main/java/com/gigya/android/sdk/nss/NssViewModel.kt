@@ -5,8 +5,7 @@ import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
-import com.gigya.android.sdk.nss.bloc.action.NssAction
-import com.gigya.android.sdk.nss.bloc.data.DataResolver
+import com.gigya.android.sdk.nss.bloc.data.NssDataResolver
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
@@ -21,7 +20,7 @@ class NssViewModel<T : GigyaAccount>(
         private val logChannel: LogMethodChannel,
         private val flowManager: NssFlowManager<T>,
         private val schemaHelper: SchemaHelper<T>,
-        private val dataResolver: DataResolver
+        private val nssDataResolver: NssDataResolver
 ) {
 
     var finishClosure: () -> Unit? = { }
@@ -61,6 +60,9 @@ class NssViewModel<T : GigyaAccount>(
         dataChannel.setMethodChannelHandler(dataMethodChannelHandler)
     }
 
+    /**
+     * Handle engine logging options.
+     */
     private val logMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, _ ->
             call.arguments.refined<Map<String, String>> { logMap ->
@@ -76,6 +78,9 @@ class NssViewModel<T : GigyaAccount>(
         }
     }
 
+    /**
+     * Handle engine screen actions.
+     */
     private val screenMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
@@ -120,14 +125,20 @@ class NssViewModel<T : GigyaAccount>(
         }
     }
 
+    /**
+     * Handle specific engine component data requests.
+     */
     private val dataMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             call.arguments.refined<MutableMap<String, Any>> { args ->
-                dataResolver.handleDataRequest(call.method, args, result)
+                nssDataResolver.handleDataRequest(call.method, args, result)
             }
         }
     }
 
+    /**
+     * Handle engine API requests.
+     */
     private val apiMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             call.arguments.refined<MutableMap<String, Any>> { args ->
@@ -136,6 +147,9 @@ class NssViewModel<T : GigyaAccount>(
         }
     }
 
+    /**
+     * Load site schema.
+     */
     fun loadSchema(result: MethodChannel.Result) {
         schemaHelper.getSchema(result)
     }
