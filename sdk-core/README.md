@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Core SDK
 
 ## Description
 Gigya's Android Core SDK library provides a Java interface for Gigya's API - It allows simplified integration and usage within your Android application

@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Two Factor Authentication SDK
 
 ## Description
 Gigya's Android Two Factor Authentication (TFA) SDK library provides a Java interface for applying two factor authentication flows.
