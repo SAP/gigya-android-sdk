@@ -59,7 +59,7 @@ public class Gigya<T extends GigyaAccount> {
         return CONTAINER;
     }
 
-    public static void secureSdkActivities(boolean secure) {
+    public static void secureActivityWindow(boolean secure) {
         try {
             getContainer().get(Config.class).setSecureActivities(secure);
         } catch (Exception ex) {
