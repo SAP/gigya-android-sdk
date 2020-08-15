@@ -10,7 +10,7 @@ public class Config {
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
     private Long serverOffset;
-    private boolean secureActivities  = false;
+    private boolean secureActivityWindow  = false;
 
     //region UPDATE
 
@@ -116,11 +116,11 @@ public class Config {
     }
 
     public boolean isSecureActivities() {
-        return secureActivities;
+        return secureActivityWindow;
     }
 
     public void setSecureActivities(boolean secureActivities) {
-        this.secureActivities = secureActivities;
+        this.secureActivityWindow = secureActivities;
     }
 
     //endregion
