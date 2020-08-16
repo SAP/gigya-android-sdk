@@ -72,7 +72,7 @@ activities.
 /*
 Default is set to false.
 */
-Gigya.secureSdkActivities(true);
+Gigya.secureActivityWindow(true);
 ```
 
 ## Initialization
