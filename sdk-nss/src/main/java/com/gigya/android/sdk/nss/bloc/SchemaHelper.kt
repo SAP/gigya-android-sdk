@@ -18,7 +18,7 @@ class SchemaHelper<T : GigyaAccount>(private val businessApi: IBusinessApiServic
     fun getSchema(result: MethodChannel.Result) {
         businessApi.send("accounts.getSchema",
                 null,
-                RestAdapter.HttpMethod.GET.intValue(),
+                RestAdapter.HttpMethod.POST.intValue(),
                 GigyaApiResponse::class.java,
                 object : GigyaCallback<GigyaApiResponse>() {
                     override fun onSuccess(obj: GigyaApiResponse?) {
