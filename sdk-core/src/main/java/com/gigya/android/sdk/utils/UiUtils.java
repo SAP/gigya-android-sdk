@@ -4,8 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 
 public class UiUtils {
 
@@ -21,6 +27,15 @@ public class UiUtils {
      */
     public static float pixelsToDp(float px, Context context) {
         return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    /**
+     * Apply secure flag to given window (Activity).
+     */
+    public static void secureActivity(Window window) {
+        if (window != null) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        }
     }
 
     /**

@@ -139,12 +139,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.HttpMethod.GET);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGOUT, null, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
 
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.error(LOG_TAG, "logOut: Success");
+                GigyaLogger.debug(LOG_TAG, "logOut: Success");
                 if (gigyaCallback != null) {
                     gigyaCallback.onSuccess(response);
                 }
@@ -495,7 +495,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             gigyaCallback.onError(GigyaError.unauthorizedUser());
         }
-        final Map<String, Object> params = _accountService.calculateDiff(new Gson(), _accountService.getAccount(), updatedAccount);
+        final Map<String, Object> params = _accountService.calculateDiff(_accountService.getAccount(), updatedAccount);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_SET_ACCOUNT_INFO, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override

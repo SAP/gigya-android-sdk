@@ -40,7 +40,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.2.0";
+    public static final String VERSION = "4.2.1";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -56,6 +56,20 @@ public class Gigya<T extends GigyaAccount> {
             CONTAINER = new GigyaContainer();
         }
         return CONTAINER;
+    }
+
+    /**
+     * Use this flag when you want to apply FLAG_SECURE to all SDK activities.
+     * These include the screen-set running HostActivity and the WebLoginActivity used for
+     * social login flows.
+     * Default is FALSE.
+     */
+    public static void secureActivityWindow(boolean secure) {
+        try {
+            getContainer().get(Config.class).setSecureActivities(secure);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static void setApplication(Application appContext) {
@@ -251,7 +265,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param gigyaCallback Response listener callback.
      */
     public void send(String api, Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        _businessApiService.send(api, params, RestAdapter.HttpMethod.GET.intValue(), GigyaApiResponse.class, gigyaCallback);
+        _businessApiService.send(api, params, RestAdapter.HttpMethod.POST.intValue(), GigyaApiResponse.class, gigyaCallback);
     }
 
     /**
