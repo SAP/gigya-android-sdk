@@ -136,8 +136,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     invalidateOptionsMenu()
                     val message: String = when (intent_action) {
                         GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED -> "Your session has expired"
-                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> "Your session is invalid"
+                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> {"Your session is invalid"}
                         else -> ""
+                    }
+                    if (intent_action == GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID) {
+                        // We can fetch the "regToken" value for additional flows.
+                        val regToken: String = intent.getStringExtra("regToken")
+                        GigyaLogger.debug("MainActivity", "regToken = $regToken")
                     }
                     runOnUiThread {
                         displayErrorAlert("Alert", message)
@@ -264,7 +269,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 GigyaLogger.debug("NSS", "onCancel")
                             }
 
-                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
+                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
                                 // Handle login event here if needed.
                                 GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                             }
@@ -801,7 +806,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             GigyaLogger.debug("NSS", "onCancel")
                         }
 
-                        override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount) {
+                        override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
                             // Handle login event here if needed.
                             GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                         }

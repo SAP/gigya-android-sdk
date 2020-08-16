@@ -27,5 +27,5 @@ public interface IAccountService<A extends GigyaAccount> {
 
     void updateExtendedParametersRequest(String include, String profileExtraFields);
 
-    Map<String, Object> calculateDiff(Gson gson, A cachedAccount, A updatedAccount);
+    Map<String, Object> calculateDiff(A cachedAccount, A updatedAccount);
 }

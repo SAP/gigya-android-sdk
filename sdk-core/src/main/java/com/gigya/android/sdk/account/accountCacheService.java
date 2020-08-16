@@ -2,10 +2,17 @@ package com.gigya.android.sdk.account;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.utils.CustomGSONDeserializer;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -126,15 +133,19 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
      */
     @SuppressWarnings({"ConstantConditions"})
     @Override
-    public Map<String, Object> calculateDiff(Gson gson, A cachedAccount, A updatedAccount) {
+    public Map<String, Object> calculateDiff(A cachedAccount, A updatedAccount) {
+
+        final Gson gson = new GsonBuilder().registerTypeAdapter(new TypeToken<Map<String, Object>>() {
+        }.getType(), new CustomGSONDeserializer()).create();
+
         /* Map updated account object to JSON -> Map. */
         final String updatedJson = gson.toJson(updatedAccount);
-        Map<String, Object> updatedMap = gson.fromJson(updatedJson, new TypeToken<HashMap<String, Object>>() {
+        Map<String, Object> updatedMap = gson.fromJson(updatedJson, new TypeToken<Map<String, Object>>() {
         }.getType());
 
         /* Map original account object to JSON -> Map. */
         final String originalJson = gson.toJson(cachedAccount);
-        Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<HashMap<String, Object>>() {
+        Map<String, Object> originalMap = gson.fromJson(originalJson, new TypeToken<Map<String, Object>>() {
         }.getType());
 
         /* Calculate objectDifference. */

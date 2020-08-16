@@ -10,7 +10,7 @@
     "login": {
       "routing": {
         "onPendingRegistration": "account-update",
-        "onSuccess": "account-update"
+        "onSuccess": "_dismiss"
       },
       "action": "login",
       "appBar": {
@@ -119,6 +119,19 @@
           "style": {
             "cornerRadius": 10,
             "borderSize": 1
+          }
+        },
+        {
+          "type": "label",
+          "textKey": "forgot-password+link",
+          "style": {
+            "fontSize": 14,
+            "margin": [
+              0,
+              4,
+              0,
+              8
+            ]
           }
         },
         {
@@ -283,6 +296,24 @@
       "stack": "vertical",
       "children": [
         {
+          "type": "image",
+          "url": "passport",
+          "fallback": "https://www.w3schools.com/howto/img_avatar.png",
+          "style": {
+            "cornerRadius": 40,
+            "margin": [
+              0,
+              20,
+              0,
+              10
+            ],
+            "size": [
+              80,
+              80
+            ]
+          }
+        },
+        {
           "bind": "profile.firstName",
           "type": "textInput",
           "textKey": "common-first-name",
@@ -354,6 +385,24 @@
       "stack": "vertical",
       "children": [
         {
+          "type": "image",
+          "url": "https://www.w3schools.com/howto/img_avatar.png",
+          "style": {
+            "cornerRadius": 40,
+            "elevation": 4,
+            "margin": [
+              0,
+              20,
+              0,
+              10
+            ],
+            "size": [
+              80,
+              80
+            ]
+          }
+        },
+        {
           "type": "label",
           "textKey": "account-custom-title",
           "theme": "title"
@@ -396,6 +445,70 @@
               0,
               0
             ]
+          }
+        }
+      ]
+    },
+    "forgot-password": {
+      "routing": {
+        "onSuccess": "_dismiss"
+      },
+      "action": "forgotPassword",
+      "appBar": {
+        "textKey": "forgot-password-title"
+      },
+      "stack": "vertical",
+      "children": [
+        {
+          "type": "label",
+          "textKey": "forgot-password-custom-title",
+          "theme": "subtitle"
+        },
+        {
+          "bind": "#loginID",
+          "type": "emailInput",
+          "textKey": "common-email",
+          "theme": "input",
+          "style": {
+            "cornerRadius": 5,
+            "borderSize": 1
+          },
+          "validations": {
+            "required": {
+              "enabled": true,
+              "errorKey": "error-required-field"
+            },
+            "regex": {
+              "enabled": true,
+              "format": "^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\\.[a-zA-Z]+",
+              "errorKey": "error-invalid-email"
+            }
+          }
+        },
+        {
+          "type": "label",
+          "textKey": "forgot-password-back-to-login",
+          "style": {
+            "margin": [
+              0,
+              26,
+              0,
+              16
+            ]
+          }
+        },
+        {
+          "type": "submit",
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "margin": [
+              0,
+              40,
+              0,
+              0
+            ],
+            "cornerRadius": 5
           }
         }
       ]

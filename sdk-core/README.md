@@ -64,12 +64,24 @@ android:theme="@style/Theme.AppCompat.Translucent">
 </activity>
 ```
 
+**Securing SDK activities with FLAG_SECURE**
+If required by the host application, in order to add *FLAG_SECURE* to all SDK specific activities,
+you are able to add the following flag. This will not allow the device to take screenshots of the relevant
+activities.
+```java
+/*
+Default is set to false.
+*/
+Gigya.secureActivityWindow(true);
+```
+
 ## Initialization
 **In order to initialize the SDK please add the following lines in your Application extension class**
 ```java
 // Attaching the application context reference.
 Gigya.setApplication(this);
 ```
+
 ### Implicit initialization
 The SDK will implicitly initialize itself according to one of the following:
 

@@ -168,7 +168,7 @@ public class ApiService implements IApiService {
         final GigyaApiRequest request = _reqFactory.create(
                 GigyaDefinitions.API.API_GET_SDK_CONFIG,
                 params,
-                RestAdapter.HttpMethod.GET);
+                RestAdapter.HttpMethod.POST);
         // Set request as anonymous! Will not go through if will include timestamp, nonce & signature.
         request.setAnonymous(true);
         send(request, true, new IApiServiceResponse() {
