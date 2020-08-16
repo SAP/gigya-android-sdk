@@ -25,7 +25,6 @@ import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +40,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.2.0";
+    public static final String VERSION = "4.2.1";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -59,6 +58,12 @@ public class Gigya<T extends GigyaAccount> {
         return CONTAINER;
     }
 
+    /**
+     * Use this flag when you want to apply FLAG_SECURE to all SDK activities.
+     * These include the screen-set running HostActivity and the WebLoginActivity used for
+     * social login flows.
+     * Default is FALSE.
+     */
     public static void secureActivityWindow(boolean secure) {
         try {
             getContainer().get(Config.class).setSecureActivities(secure);
