@@ -17,7 +17,7 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the tfa library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-biometric-1.0.4.aar')
+implementation files('libs/gigya-android-tfa-1.0.4.aar')
 ```
 
 -Or-
