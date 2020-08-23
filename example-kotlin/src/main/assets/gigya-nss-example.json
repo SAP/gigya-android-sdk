@@ -296,14 +296,15 @@
       "stack": "vertical",
       "children": [
         {
-          "type": "image",
-          "url": "passport",
-          "fallback": "https://www.w3schools.com/howto/img_avatar.png",
+          "type": "profilePhoto",
+          "allowUpload": true,
+          "default": "https://www.w3schools.com/howto/img_avatar.png",
           "style": {
             "cornerRadius": 40,
+            "elevation": 4,
             "margin": [
               0,
-              20,
+              22,
               0,
               10
             ],

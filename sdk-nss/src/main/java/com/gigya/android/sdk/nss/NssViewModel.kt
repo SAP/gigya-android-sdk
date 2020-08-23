@@ -1,10 +1,12 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
+import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction
 import com.gigya.android.sdk.nss.bloc.data.NssDataResolver
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
@@ -12,6 +14,7 @@ import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.lang.ref.WeakReference
 
 class NssViewModel<T : GigyaAccount>(
         private val screenChannel: ScreenMethodChannel,
@@ -24,7 +27,10 @@ class NssViewModel<T : GigyaAccount>(
 ) {
 
     var finishClosure: () -> Unit? = { }
-    var intentAction: (Intent) -> Unit? = { }
+
+    lateinit var intentAction: (Intent) -> Unit?
+    lateinit var intentActionForResult: (Intent, Int) -> Unit?
+
     var nssEvents: NssEvents<T>? = null
         set(value) {
             field = value
@@ -130,9 +136,52 @@ class NssViewModel<T : GigyaAccount>(
      */
     private val dataMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
-            call.arguments.refined<MutableMap<String, Any>> { args ->
-                nssDataResolver.handleDataRequest(call.method, args, result)
+            when (call.method) {
+                "image_resource" -> {
+                    call.arguments.refined<MutableMap<String, Any>> { args ->
+                        nssDataResolver.fetchImageResource(args, result)
+                    }
+                }
+                "pick_image" -> {
+                    flowManager.activeAction.refined<NssSetAccountAction<T>> {
+                        // Set reference to active data result.
+                        it.profileImageResult = result
+                    }
+                    // Need to save a reference to the result in order to correctly process
+                    // the activity result for this action.
+                    intentActionForResult(nssDataResolver.imageSelectionIntent(), 1666)
+                }
             }
+        }
+    }
+
+    /**
+     * Cancel event triggered from image selection flow.
+     */
+    fun cancelImageRequest() {
+        flowManager.activeAction.refined<NssSetAccountAction<T>> {
+            // Set reference to active data result.
+            it.profileImageResult?.success(null)
+        }
+    }
+
+    /**
+     * Handle engine image request request from Uri.
+     */
+    fun handleDynamicImageUri(uri: Uri) {
+        val data = nssDataResolver.getBitmapDataFromUri(uri)
+        data?.let {
+            flowManager.activeAction?.onNext(NssSetAccountAction.setProfilePhoto, mutableMapOf("data" to data))
+        }
+    }
+
+    /**
+     * Handle engine image request from bitmap.
+     */
+    fun handleDynamicImageBitmap(bitmap: Bitmap) {
+        val data = nssDataResolver.getBitmapData(bitmap)
+        data?.let {
+            flowManager.activeAction?.onNext(NssSetAccountAction.setProfilePhoto, mutableMapOf("data" to data))
         }
     }
 
