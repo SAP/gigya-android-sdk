@@ -41,9 +41,14 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
     var publishPhotoOnSubmit = false
 
     /**
+     * Using a temporary image update result.
+     */
+    var profileImageResult: MethodChannel.Result? = null
+
+    /**
      * Action may use a resolver as part of a registration/login flow.
      */
-    var pendingRegistrationResolver: IPendingRegistrationResolver? = null
+    private var pendingRegistrationResolver: IPendingRegistrationResolver? = null
 
     override fun initialize(result: MethodChannel.Result) {
         val params = mutableMapOf<String, Any>(
@@ -95,8 +100,6 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
             }
         }
     }
-
-    var profileImageResult: MethodChannel.Result? = null
 
     /**
      * Submit account form. Update the account data.
@@ -179,5 +182,10 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
                 publishPhotoOnSubmit = false
             }
         })
+    }
+
+    override fun dispose() {
+        super.dispose()
+        profileImageResult = null;
     }
 }
