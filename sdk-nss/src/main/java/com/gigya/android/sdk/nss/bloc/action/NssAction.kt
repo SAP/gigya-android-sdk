@@ -54,4 +54,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
         }
     }
 
+    open fun dispose() {
+        // Use for specific action data disposal.
+    }
 }
