@@ -28,7 +28,10 @@
             {
               "type": "label",
               "textKey": "login-social-title",
-              "theme": "subtitle"
+              "theme": "title",
+              "style": {
+                "margin": 16
+              }
             }
           ]
         },
@@ -38,10 +41,10 @@
           "textKey": "social-sign-in-facebook",
           "style": {
             "margin": [
-              4,
-              0,
-              4,
-              0
+              16,
+              2,
+              16,
+              2
             ],
             "cornerRadius": 5,
             "elevation": 0
@@ -52,10 +55,10 @@
           "provider": "google",
           "style": {
             "margin": [
-              4,
-              0,
-              4,
-              0
+              16,
+              2,
+              16,
+              2
             ],
             "cornerRadius": 5,
             "elevation": 0
@@ -66,10 +69,10 @@
           "provider": "linkedin",
           "style": {
             "margin": [
-              4,
-              0,
-              4,
-              0
+              16,
+              2,
+              16,
+              2
             ],
             "cornerRadius": 5,
             "elevation": 0
@@ -79,14 +82,14 @@
           "type": "container",
           "stack": "horizontal",
           "alignment": "start",
-          "style": {
-            "margin": 0
-          },
           "children": [
             {
               "type": "label",
               "textKey": "login-title",
-              "theme": "subtitle"
+              "theme": "subtitle",
+              "style": {
+                "margin": 16
+              }
             }
           ]
         },
@@ -96,8 +99,12 @@
           "textKey": "common-email",
           "theme": "input",
           "style": {
-            "cornerRadius": 10,
-            "borderSize": 1
+            "margin": [
+              16,
+              2,
+              16,
+              2
+            ]
           },
           "validations": {
             "required": {
@@ -117,8 +124,12 @@
           "textKey": "common-password",
           "theme": "input",
           "style": {
-            "cornerRadius": 10,
-            "borderSize": 1
+            "margin": [
+              16,
+              4,
+              16,
+              4
+            ]
           }
         },
         {
@@ -151,7 +162,8 @@
           "textKey": "common-submit",
           "theme": "raisedButton",
           "style": {
-            "cornerRadius": 5
+            "cornerRadius": 5,
+            "size": [200, 44]
           }
         }
       ]
@@ -267,7 +279,7 @@
             "fontSize": 14,
             "fontColor": "black",
             "fontWeight": "bold",
-            "elevation" : 2,
+            "elevation": 2,
             "indicatorColor": "grey"
           }
         },
@@ -296,14 +308,15 @@
       "stack": "vertical",
       "children": [
         {
-          "type": "image",
-          "url": "passport",
-          "fallback": "https://www.w3schools.com/howto/img_avatar.png",
+          "type": "profilePhoto",
+          "allowUpload": true,
+          "default": "https://www.w3schools.com/howto/img_avatar.png",
           "style": {
             "cornerRadius": 40,
+            "elevation": 4,
             "margin": [
               0,
-              20,
+              22,
               0,
               10
             ],
@@ -348,7 +361,12 @@
           "bind": "data.marketingNotifications",
           "textKey": "account_marketing_notifications_selection",
           "style": {
-            "margin": [0, 12, 0, 0]
+            "margin": [
+              0,
+              12,
+              0,
+              0
+            ]
           }
         },
         {

@@ -1,21 +1,25 @@
 {
-  "primaryColor": "blue",
-  "secondaryColor": "white",
-  "textColor": "black",
-  "enabledColor": "blue",
-  "disabledColor": "grey",
-  "errorColor": "red",
-  "customTheme": {
+  "theme": {
+    "primaryColor": "blue",
+    "secondaryColor": "white",
+    "textColor": "black",
+    "enabledColor": "blue",
+    "disabledColor": "grey",
+    "errorColor": "red"
+  },
+  "customThemes": {
     "title": {
       "fontWeight": "bold",
       "fontSize": 22
     },
     "subtitle": {
-      "fontSize": 16,
+      "fontSize": 18,
       "fontWeight": 6
     },
     "input": {
-      "margin": 5
+      "cornerRadius": 22,
+      "borderSize": 1,
+      "borderColor": "#c1c1c1"
     },
     "flatButton": {
       "fontSize": 14,
