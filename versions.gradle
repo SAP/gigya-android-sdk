@@ -11,4 +11,5 @@ build_versions.min_sdk_tfa = 16
 build_versions.min_sdk_auth = 16
 build_versions.min_sdk_app = 25
 build_versions.build_tools = "28.0.3"
+build_versions.min_sdk_nss = 16
 ext.build_versions = build_versions
