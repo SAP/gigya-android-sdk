@@ -330,31 +330,46 @@
           "bind": "profile.firstName",
           "type": "textInput",
           "textKey": "common-first-name",
-          "theme": "input"
+          "theme": "input",
+          "style": {
+            "margin": [16, 4, 16, 4]
+          }
         },
         {
           "bind": "profile.lastName",
           "type": "textInput",
           "textKey": "common-last-name",
-          "theme": "input"
+          "theme": "input",
+          "style": {
+            "margin": [16, 4, 16, 4]
+          }
         },
         {
           "bind": "profile.email",
           "type": "textInput",
           "textKey": "common-email",
-          "theme": "input"
+          "theme": "input",
+          "style": {
+            "margin": [16, 4, 16, 4]
+          }
         },
         {
           "bind": "profile.zip",
           "type": "textInput",
           "textKey": "common-zip",
-          "theme": "input"
+          "theme": "input",
+          "style": {
+            "margin": [16, 4, 16, 4]
+          }
         },
         {
           "bind": "data.rescueString",
           "type": "textInput",
           "textKey": "common-rescueString",
-          "theme": "input"
+          "theme": "input",
+          "style": {
+            "margin": [16, 4, 16, 4]
+          }
         },
         {
           "type": "checkbox",
@@ -382,11 +397,12 @@
           "textKey": "common-submit",
           "theme": "raisedButton",
           "style": {
+            "size": [200, 44],
             "margin": [
               0,
               22,
               0,
-              0
+              10
             ]
           }
         }
