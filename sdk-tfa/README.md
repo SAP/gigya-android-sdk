@@ -24,7 +24,7 @@ implementation files('libs/gigya-android-tfa-1.0.4.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk-tfa:tfa-v1.0.4'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-tfa:tfa-v1.0.4'
 ```
 
 **In addition you will need to add this dependency as well.**
