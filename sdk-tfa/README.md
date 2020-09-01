@@ -24,7 +24,7 @@ implementation files('libs/gigya-android-biometric-1.0.4.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk:tfa-v1.0.4'
+implementation 'com.github.SAP:gigya-android-sdk-tfa:tfa-v1.0.4'
 ```
 
 **In addition you will need to add this dependency as well.**
@@ -403,7 +403,6 @@ public void onMessageReceived(RemoteMessage remoteMessage) {
 }
 ```
 
-#Step 2#
 Adding the TFAPushReceiver & the relevant content activity
 The push TFA notification contains a content pending intent (setContentIntent) which will trigger an Activity to open in order to
 handle the notification content. You will have to declare that activity in your AndroidManifest.xml. The Android SDK already
