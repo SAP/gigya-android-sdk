@@ -1,7 +1,9 @@
 package com.gigya.android.sdk.nss
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
@@ -25,18 +27,13 @@ import com.gigya.android.sdk.utils.UiUtils
 class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
     private var viewModel: NssViewModel<T>? = null
-
     private var isDisplayed = false
-
     private var engineLifeCycle: NssEngineLifeCycle? = null
 
     companion object {
 
         const val LOG_TAG = "NativeScreenSetsActivity"
-
         const val FRAGMENT_ENTER_ANIMATION_DURATION = 450L
-
-        // Extras.
         private const val EXTRA_MARKUP = "extra_markup"
 
         fun start(context: Context, markup: Map<String, Any>?) {
@@ -82,8 +79,11 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
             viewModel!!.finishClosure = {
                 onFinishReceived()
             }
-            viewModel!!.intentAction = {
-                onIntentAction(it)
+            viewModel!!.intentAction = { intent ->
+                startActivity(intent)
+            }
+            viewModel!!.intentActionForResult = { intent, requestCode ->
+                startActivityForResult(intent, requestCode)
             }
         }
 
@@ -129,11 +129,27 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
         engineLifeCycle?.engineExecuteMain()
     }
 
-    /**
-     * Handle specific intent actions requested by the engine.
-     */
-    private fun onIntentAction(intent: Intent) {
-        startActivity(intent)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (resultCode) {
+            Activity.RESULT_CANCELED -> {
+                viewModel?.cancelImageRequest()
+            }
+            Activity.RESULT_OK -> {
+                if (requestCode == 1666) {
+                    // Resolve image selection from available image Uri.
+                    data?.data?.let { uri ->
+                        viewModel?.handleDynamicImageUri(uri)
+                        return
+                    }
+                    // Resolve image capture from camera using bitmap data.
+                    data?.extras!!["data"]?.let { bitmap ->
+                        viewModel?.handleDynamicImageBitmap(bitmap as Bitmap)
+                        return
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -147,8 +163,8 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        // Make sure we dispose the engine on activity destroy.
         engineLifeCycle?.disposeEngine()
         super.onDestroy()
     }
-
 }

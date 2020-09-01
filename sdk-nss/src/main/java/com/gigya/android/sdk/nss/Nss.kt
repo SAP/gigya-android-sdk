@@ -124,7 +124,8 @@ class Nss private constructor(
                     themeAsset?.let {
                         val themeMap = it.serialize<String, Any>(gson)
                         GigyaLogger.debug(LOG_TAG, "Adding parsed theme map to JSON markup")
-                        map["theme"] = themeMap
+                        map["theme"] = themeMap["theme"] as Map<String, Any>
+                        map["customThemes"] = themeMap["customThemes"] as Map<String, Any>
                     }
 
                     // Add optional localization map.

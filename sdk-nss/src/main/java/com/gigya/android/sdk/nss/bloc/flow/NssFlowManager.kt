@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.nss.bloc.flow
 
-import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
@@ -32,7 +31,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     private var gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
     private var activeScreen: String? = null
-    private var activeAction: NssAction<*>? = null
+    var activeAction: NssAction<*>? = null
     private var activeChannelResult: MethodChannel.Result? = null
     private var activeResolver: INssResolver? = null
     private var mainFlowCallback: GigyaNssCallback<T, GigyaApiResponse>? = null
@@ -121,6 +120,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
      */
     fun setCurrent(action: String, screenId: String, result: MethodChannel.Result) {
         activeScreen = screenId
+        activeAction?.dispose()
         activeAction = actionFactory.get(action)
         activeAction?.flowDelegate = this
         activeAction?.initialize(result)
@@ -129,7 +129,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     /**
      * Handle next action request.
      */
-    fun onNext(method: String, params: MutableMap<String, Any>, result: MethodChannel.Result) {
+    fun onNext(method: String, params: MutableMap<String, Any>, result: MethodChannel.Result?) {
         activeChannelResult = result
         activeAction?.onNext(method, params)
     }
