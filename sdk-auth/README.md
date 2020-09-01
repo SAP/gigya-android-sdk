@@ -24,7 +24,7 @@ implementation files('libs/gigya-android-auth-1.0.0.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk-auth:auth-v1.0.0'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-auth:auth-v1.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
