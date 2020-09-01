@@ -28,7 +28,7 @@ implementation files('libs/gigya-android-biometric-1.0.1.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk:bio-v1.0.0'
+implementation 'com.github.SAP:gigya-android-sdk-biometric:bio-v1.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
