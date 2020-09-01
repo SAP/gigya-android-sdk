@@ -22,7 +22,7 @@ import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle;
 
 public class GigyaNss {
 
-    private static final String VERSION = "0.3.0";
+    private static final String VERSION = "1.0.0";
 
     private static final String LOG_TAG = "GigyaNss";
 
