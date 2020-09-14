@@ -175,16 +175,21 @@ public class SessionVerificationService implements ISessionVerificationService {
                     _apiService.send(request, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {
-                            if (response.getErrorCode() == 0) {
-                                GigyaLogger.debug(LOG_TAG, "verifyLogin success");
+                            if (response == null) {
+                                GigyaLogger.error(LOG_TAG, "Verify login unhandled error: null response");
                             } else {
-                                evaluateVerifyLoginError(GigyaError.fromResponse(response));
+                                if (response.getErrorCode() == 0) {
+                                    GigyaLogger.debug(LOG_TAG, "verifyLogin success");
+                                } else {
+                                    evaluateVerifyLoginError(GigyaError.fromResponse(response));
+                                }
                             }
                         }
 
                         @Override
                         public void onApiError(GigyaError gigyaError) {
-                            evaluateVerifyLoginError(gigyaError);
+                            // Ignore validation error.
+                            GigyaLogger.error(LOG_TAG, "Verify login unhandled error: " + gigyaError.toString());
                         }
                     });
                 }
