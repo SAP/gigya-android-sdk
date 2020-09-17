@@ -88,16 +88,17 @@ public class SessionVerificationService implements ISessionVerificationService {
         _context.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 
             private int activityReferences = 0;
+            private int startedActivityReferences = 0;
             private boolean isActivityChangingConfigurations = false;
 
             @Override
             public void onActivityCreated(Activity activity, Bundle bundle) {
-                // Stub.
+                ++activityReferences;
             }
 
             @Override
             public void onActivityStarted(Activity activity) {
-                if (++activityReferences == 1 && !isActivityChangingConfigurations) {
+                if (++startedActivityReferences == 1 && !isActivityChangingConfigurations) {
                     // App enters foreground
 
                     _sessionService.refreshSessionExpiration();
@@ -125,7 +126,7 @@ public class SessionVerificationService implements ISessionVerificationService {
             @Override
             public void onActivityStopped(Activity activity) {
                 isActivityChangingConfigurations = activity.isChangingConfigurations();
-                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                if (--startedActivityReferences == 0 && !isActivityChangingConfigurations) {
                     // App enters background
                     GigyaLogger.info(LOG_TAG, "Application lifecycle - Background stopped first activity");
                     stop();
