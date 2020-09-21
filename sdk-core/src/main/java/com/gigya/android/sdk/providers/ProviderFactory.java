@@ -130,13 +130,21 @@ public class ProviderFactory implements IProviderFactory {
             try {
                 Class providerClass = getProviderClass(optional);
                 if (_container.isBound(providerClass)) {
+<<<<<<< HEAD
                     IProvider provider = (IProvider) _container.get(providerClass);
+=======
+                    IProvider provider = (IProvider) _container.get(getProviderClass(optional));
+>>>>>>> develop
                     if (provider != null) {
                         providers.add(provider);
                     }
                 }
             } catch (Exception e) {
+<<<<<<< HEAD
                 GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+=======
+                GigyaLogger.error(LOG_TAG,"getUsedSocialProviders: " e.getLocalizedMessage());
+>>>>>>> develop
             }
         }
         return providers;
