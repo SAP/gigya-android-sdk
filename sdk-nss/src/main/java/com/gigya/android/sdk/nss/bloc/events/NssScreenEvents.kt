@@ -4,12 +4,20 @@ abstract class NssScreenEvents {
 
     open fun screenDidLoad() {}
 
-    open fun routeFrom(screen: ScreenEventsModel) {}
+    open fun routeFrom(screen: ScreenEventsModel) {
+        screen.`continue`();
+    }
 
-    open fun routeTo(screen: ScreenEventsModel) {}
+    open fun routeTo(screen: ScreenEventsModel) {
+        screen.`continue`();
+    }
 
-    open fun submit(screen: ScreenEventsModel) {}
+    open fun submit(screen: ScreenEventsModel) {
+        screen.`continue`();
+    }
 
-    open fun fieldDidChange(screen: ScreenEventsModel, field: FieldEventModel) {}
+    open fun fieldDidChange(screen: ScreenEventsModel, field: FieldEventModel) {
+        screen.`continue`();
+    }
 
 }
