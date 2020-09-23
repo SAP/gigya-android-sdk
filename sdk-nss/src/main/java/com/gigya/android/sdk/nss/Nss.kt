@@ -4,6 +4,8 @@ import android.content.Context
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
+import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.*
 import com.gigya.android.sdk.utils.FileUtils
@@ -59,6 +61,10 @@ class Nss private constructor(
             }
         }
 
+        fun eventsFor(screenId: String, handler: NssScreenEvents) = apply {
+            Gigya.getContainer().get(ScreenEventsManager::class.java).addFor(screenId, handler)
+        }
+
         fun show(launcherContext: Context) = Nss(
                 Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
@@ -108,7 +114,7 @@ class Nss private constructor(
      * @param themeAsset Optional theme markup asset.
      */
     private fun mapAsset(jsonAsset: String, themeAsset: String? = null, localizationAsset: String? = null): Map<String, Any> {
-        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object: TypeToken<Map<String, Any>>() {}.type)
+        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object : TypeToken<Map<String, Any>>() {}.type)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
         }
@@ -120,6 +126,7 @@ class Nss private constructor(
                     if (!routingMap.containsKey("initial")) {
                         throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
                     }
+
                     // Add optional theme map.
                     themeAsset?.let {
                         val themeMap = it.serialize<String, Any>(gson)

@@ -37,6 +37,7 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
+import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -809,6 +810,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             // Handle login event here if needed.
                             GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
                         }
+
+                    })
+                    .eventsFor("login", object: NssScreenEvents() {
 
                     })
                     .show(this)

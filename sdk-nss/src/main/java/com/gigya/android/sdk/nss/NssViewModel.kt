@@ -8,22 +8,27 @@ import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction
 import com.gigya.android.sdk.nss.bloc.data.NssDataResolver
+import com.gigya.android.sdk.nss.bloc.events.FieldEventModel
+import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
+import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
+import com.gigya.android.sdk.nss.bloc.events.ScreenEventsModel
 import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import java.lang.ref.WeakReference
 
 class NssViewModel<T : GigyaAccount>(
         private val screenChannel: ScreenMethodChannel,
         private val dataChannel: DataMethodChannel,
         private val apiChannel: ApiMethodChannel,
         private val logChannel: LogMethodChannel,
+        private val eventsChannel: EventsMethodChannel,
         private val flowManager: NssFlowManager<T>,
         private val schemaHelper: SchemaHelper<T>,
-        private val nssDataResolver: NssDataResolver
+        private val nssDataResolver: NssDataResolver,
+        val screenEventsManager: ScreenEventsManager
 ) {
 
     var finishClosure: () -> Unit? = { }
@@ -47,6 +52,7 @@ class NssViewModel<T : GigyaAccount>(
         screenChannel.dispose()
         logChannel.dispose()
         apiChannel.dispose()
+        screenEventsManager.dispose()
     }
 
     /**
@@ -64,6 +70,9 @@ class NssViewModel<T : GigyaAccount>(
 
         dataChannel.initChannel(engine.dartExecutor.binaryMessenger)
         dataChannel.setMethodChannelHandler(dataMethodChannelHandler)
+
+        eventsChannel.initChannel(engine.dartExecutor.binaryMessenger)
+        eventsChannel.setMethodChannelHandler(eventsMethodChannelHandler)
     }
 
     /**
@@ -152,6 +161,51 @@ class NssViewModel<T : GigyaAccount>(
                     intentActionForResult(nssDataResolver.imageSelectionIntent(), 1666)
                 }
             }
+        }
+    }
+
+    /**
+     * Handle engine custom event requests.
+     */
+    private val eventsMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
+        MethodChannel.MethodCallHandler { call, result ->
+            val sid = call.argument<String>("sid")
+            if (sid != null) {
+                val events: NssScreenEvents? = screenEventsManager.eventsFor(sid)
+                if (events != null) {
+                    val screenModel = ScreenEventsModel()
+                    screenModel.engineResponse = result
+                    screenModel.data = call.argument("data") ?: mutableMapOf()
+                    when (call.method) {
+                        "screenDidLoad" -> {
+                            events.screenDidLoad()
+                            result.success(null)
+                        }
+                        "routeFrom" -> {
+                            screenModel.previousRoute = call.argument("pid") ?: ""
+                            events.routeFrom(screenModel)
+                        }
+                        "routeTo" -> {
+                            screenModel.nextRoute = call.argument("nid") ?: ""
+                            events.routeTo(screenModel)
+                        }
+                        "submit" -> {
+                            events.submit(screenModel)
+                        }
+                        "fieldDidChange" -> {
+                            val fieldModel = FieldEventModel(
+                                    screenModel.data["field"] as String,
+                                    screenModel.data["from"] as String?,
+                                    screenModel.data["to"] as String?
+                            )
+                            events.fieldDidChange(screenModel, fieldModel)
+                        }
+                    }
+                    return@MethodCallHandler
+                }
+                return@MethodCallHandler
+            }
+            screenEventsManager.disposeResult(result)
         }
     }
 
