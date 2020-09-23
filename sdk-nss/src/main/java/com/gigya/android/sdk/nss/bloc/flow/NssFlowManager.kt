@@ -74,7 +74,6 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
 
             override fun onOperationCanceled() {
                 // Send operation canceled event.
-                nssEvents?.onCancel()
                 activeChannelResult?.error("200001", // Operation canceled error.
                         "error-operation-canceled",
                         null
