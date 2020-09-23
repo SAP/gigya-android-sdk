@@ -48,9 +48,26 @@ class Nss private constructor(
             var lang: String? = null,
             var events: NssEvents<*>? = null) {
 
+        /**
+         * Specify the JSON markup asset file.
+         * NOTE: .json suffix is not required.
+         */
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
+
+        /**
+         * Sets the initial route of the screen-sets.
+         */
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
+
+        /**
+         * Allow localization.
+         * NOTE: Make sure you have specified the right locale tag in your markup.
+         */
         fun lang(language: String) = apply { this.lang = language }
+
+        /**
+         * Implement engine general events callback.
+         */
         fun <T : GigyaAccount> events(events: NssEvents<T>) = apply {
             this.events = events
             this.events?.let {
@@ -61,10 +78,17 @@ class Nss private constructor(
             }
         }
 
+        /**
+         * Add a custom screen event. Some of these events are intercepting events.
+         * Data can be manipulated before specific engine task is completed.
+         */
         fun eventsFor(screenId: String, handler: NssScreenEvents) = apply {
             Gigya.getContainer().get(ScreenEventsManager::class.java).addFor(screenId, handler)
         }
 
+        /**
+         * Show the screen-sets engine.
+         */
         fun show(launcherContext: Context) = Nss(
                 Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,

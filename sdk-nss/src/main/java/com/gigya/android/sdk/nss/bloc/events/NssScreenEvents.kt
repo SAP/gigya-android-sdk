@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.nss.bloc.events
 
-abstract class NssScreenEvents() {
+abstract class NssScreenEvents {
 
     open fun screenDidLoad() {}
 
@@ -10,6 +10,6 @@ abstract class NssScreenEvents() {
 
     open fun submit(screen: ScreenEventsModel) {}
 
-    open fun fieldDidChange(screen: ScreenEventsModel, field: FieldEventModel) { }
+    open fun fieldDidChange(screen: ScreenEventsModel, field: FieldEventModel) {}
 
 }
