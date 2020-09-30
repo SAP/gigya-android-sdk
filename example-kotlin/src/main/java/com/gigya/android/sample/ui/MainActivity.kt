@@ -37,8 +37,7 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
-import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
-import com.gigya.android.sdk.nss.bloc.events.ScreenEventsModel
+import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -743,13 +742,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 
                 })
-                .eventsFor("login", object: NssScreenEvents() {
+                .eventsFor("login", object : NssScreenEvents() {
 
                     override fun screenDidLoad() {
-                        GigyaLogger.debug("NssEvents", "screen did load for login");
+                        GigyaLogger.debug("NssEvents", "screen did load for login")
                     }
 
+                    override fun routeFrom(screen: ScreenRouteFromModel) {
+                        GigyaLogger.debug("NssEvents", "routeFrom: from: " + screen.previousRoute())
+                        super.routeFrom(screen)
+                    }
 
+                    override fun routeTo(screen: ScreenRouteToModel) {
+                        GigyaLogger.debug("NssEvents", "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData().toString())
+                        super.routeTo(screen)
+                    }
+
+                    override fun submit(screen: ScreenSubmitModel) {
+                        GigyaLogger.debug("NssEvents", "submit: data: " + screen.screenData().toString())
+                        super.submit(screen)
+                    }
+
+                    override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
+                        GigyaLogger.debug("NssEvents", "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal)
+                        super.fieldDidChange(screen, field)
+                    }
 
                 })
                 .show(this)
@@ -773,8 +790,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
-                }
-                , cancel = { response_text_view.snackbar("Request cancelled") }
+                }, cancel = { response_text_view.snackbar("Request cancelled") }
         )
     }
 
