@@ -182,11 +182,11 @@ class NssViewModel<T : GigyaAccount>(
                             result.success(null)
                         }
                         "routeFrom" -> {
-                            screenModel.previousRoute = call.argument("pid") ?: ""
+                            screenModel.pr = call.argument("pid") ?: ""
                             events.routeFrom(screenModel)
                         }
                         "routeTo" -> {
-                            screenModel.nextRoute = call.argument("nid") ?: ""
+                            screenModel.nr = call.argument("nid") ?: ""
                             events.routeTo(screenModel)
                         }
                         "submit" -> {
