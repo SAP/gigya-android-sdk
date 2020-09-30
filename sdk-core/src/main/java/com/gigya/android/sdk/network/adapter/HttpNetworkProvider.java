@@ -2,6 +2,7 @@ package com.gigya.android.sdk.network.adapter;
 
 import android.os.AsyncTask;
 
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -174,7 +176,12 @@ public class HttpNetworkProvider extends NetworkProvider {
 
                     return new AsyncResult(responseStatusCode, response.toString(), dateHeader);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    // Check for host not found exception.
+                    if (ex instanceof UnknownHostException) {
+                        return new AsyncResult(400106, null, null);
+                    } else {
+                        ex.printStackTrace();
+                    }
                 } finally {
                     if (outputStreamWriter != null) {
                         try {
@@ -206,8 +213,16 @@ public class HttpNetworkProvider extends NetworkProvider {
                 return;
             }
 
-            boolean badRequest = asyncResult.getCode() >= HttpURLConnection.HTTP_BAD_REQUEST;
+            final boolean badRequest = asyncResult.getCode() >= HttpURLConnection.HTTP_BAD_REQUEST;
             if (badRequest) {
+                final boolean noNetworkRequest = asyncResult.getCode() == 400106;
+                if (noNetworkRequest) {
+                    final GigyaError noNetworkError = new GigyaError(400106, "User is not connected to the required network or to any network", null);
+                    GigyaLogger.debug("GigyaApiResponse", "No network error");
+                    networkCallbacks.onError(noNetworkError);
+                    return;
+                }
+
                 // Generate gigya error.
                 final GigyaError gigyaError = new GigyaError(asyncResult.code, asyncResult.result, null);
                 networkCallbacks.onError(gigyaError);
