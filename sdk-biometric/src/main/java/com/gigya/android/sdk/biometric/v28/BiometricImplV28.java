@@ -84,7 +84,7 @@ public class BiometricImplV28 extends BiometricImpl {
                 @Override
                 public void onAuthenticationFailed() {
                     super.onAuthenticationFailed();
-                    callback.onBiometricOperationCanceled();
+                    callback.onBiometricOperationFailed("Fingerprint recognition failed");
                 }
             });
         } else {
