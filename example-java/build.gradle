@@ -51,15 +51,15 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     //noinspection GradleCompatible
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
     //noinspection GradleCompatible
-    implementation 'com.android.support:cardview-v7:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     //noinspection LifecycleAnnotationProcessorWithJava8
-    annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+    annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.0.0'
 
     implementation project(path: ':sdk-core')
     implementation project(path: ':sdk-tfa')

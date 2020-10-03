@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -20,7 +20,6 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
-import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;

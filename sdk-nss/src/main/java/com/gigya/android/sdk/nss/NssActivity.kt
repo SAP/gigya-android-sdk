@@ -6,7 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.FragmentActivity
 import android.transition.Slide
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
@@ -25,7 +25,7 @@ import com.gigya.android.sdk.utils.UiUtils
  * To assure correct markup injection flow, the activity will initiate the Flutter engine
  * within a FlutterFragment.
  */
-class NssActivity<T : GigyaAccount> : FragmentActivity() {
+class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
     private var viewModel: NssViewModel<T>? = null
     private var isDisplayed = false

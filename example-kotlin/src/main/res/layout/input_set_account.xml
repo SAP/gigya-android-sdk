@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/set_account_sheet_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/set_account_sheet_field_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -29,15 +29,15 @@
         app:layout_constraintStart_toStartOf="@id/set_account_sheet_title"
         app:layout_constraintTop_toBottomOf="@id/set_account_sheet_title">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/set_account_sheet_field_edit"
             android:layout_width="match_parent"
             android:textSize="14sp"
             android:layout_height="wrap_content" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/set_account_sheet_value_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -49,15 +49,15 @@
         app:layout_constraintStart_toStartOf="@id/set_account_sheet_title"
         app:layout_constraintTop_toBottomOf="@id/set_account_sheet_field_input">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/set_account_sheet_value_edit"
             android:layout_width="match_parent"
             android:textSize="14sp"
             android:layout_height="wrap_content" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/set_account_sheet_send_button"
         android:layout_width="wrap_content"
         app:layout_constrainedWidth="true"
@@ -74,4 +74,4 @@
         app:layout_constraintTop_toBottomOf="@id/set_account_sheet_value_input"
         app:layout_constrainedHeight="true"/>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

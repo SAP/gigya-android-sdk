@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.tfa.resolvers.phone;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.tfa.GigyaDefinitions;
 
