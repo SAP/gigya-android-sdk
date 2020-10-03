@@ -8,10 +8,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 import android.view.View;
-import android.view.WindowManager;
-import android.webkit.URLUtil;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -21,11 +19,9 @@ import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.R;
-import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.utils.UiUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 

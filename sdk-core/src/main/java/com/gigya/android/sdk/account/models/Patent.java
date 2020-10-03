@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.account.models;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class Patent {
 
