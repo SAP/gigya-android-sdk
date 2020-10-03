@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.ui.Presenter;
 

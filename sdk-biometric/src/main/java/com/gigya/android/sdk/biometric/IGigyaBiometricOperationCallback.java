@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.biometric;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public interface IGigyaBiometricOperationCallback {
 

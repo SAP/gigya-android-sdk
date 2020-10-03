@@ -1,17 +1,17 @@
 package com.gigya.android.sample.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.navigation.NavigationView
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.core.view.GravityCompat
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.gigya.android.sample.R
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val filter = IntentFilter()
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
-        LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 filter)
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
         val biometric = GigyaBiometric.getInstance()
         if (biometric.isLocked) {
             onClear()

@@ -3,8 +3,8 @@ package com.gigya.android.sdk;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;

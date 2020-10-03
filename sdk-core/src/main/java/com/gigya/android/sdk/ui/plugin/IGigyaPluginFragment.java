@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 
 import com.gigya.android.sdk.GigyaPluginCallback;

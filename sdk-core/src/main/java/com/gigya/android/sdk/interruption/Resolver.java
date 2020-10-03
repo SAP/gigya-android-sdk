@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.interruption;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
