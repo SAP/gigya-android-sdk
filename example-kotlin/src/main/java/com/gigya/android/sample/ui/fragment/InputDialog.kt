@@ -111,6 +111,8 @@ class InputDialog : DialogFragment() {
                 R.id.domain_au1 -> "au1.gigya.com"
                 R.id.domain_il1 -> "il1.gigya.com"
                 R.id.domain_il5 -> "il5.gigya.com"
+                R.id.domain_ru1 -> "ru1.gigya.com"
+                R.id.domain_cn1 -> "cn1.gigya-api.cn"
                 else -> ""
             }
 
