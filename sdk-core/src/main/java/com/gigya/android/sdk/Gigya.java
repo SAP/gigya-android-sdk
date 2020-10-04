@@ -40,7 +40,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.2.2";
+    public static final String VERSION = "4.2.3";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -299,7 +299,7 @@ public class Gigya<T extends GigyaAccount> {
      * Manually set the current session.
      * Setting a session manually will update the current session persistence state and login state.
      *
-     * @param session SessionInfo instance.
+     * @param session SessionInfo instaØce.
      */
     public void setSession(@NonNull SessionInfo session) {
         _sessionService.setSession(session);
@@ -333,6 +333,9 @@ public class Gigya<T extends GigyaAccount> {
 
         _sessionService.cancelSessionCountdownTimer();
         _sessionService.clear(true);
+
+        // Make sure account cache is also cleared.
+        _accountService.invalidateAccount();
 
         _sessionVerificationService.stop();
 

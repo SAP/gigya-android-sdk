@@ -180,6 +180,15 @@ public class VolleyNetworkProvider extends NetworkProvider {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        // Check for host not found exception.
+                        if (error instanceof com.android.volley.NoConnectionError) {
+                            final GigyaError noNetworkError = new GigyaError(400106, "User is not connected to the required network or to any network", null);
+                            GigyaLogger.debug("GigyaApiResponse", "No network error");
+                            if (networkCallbacks != null) {
+                                networkCallbacks.onError(noNetworkError);
+                            }
+                            return;
+                        }
                         int errorCode = 0;
                         if (error.networkResponse != null) {
                             errorCode = error.networkResponse.statusCode;
