@@ -127,7 +127,7 @@ public class GigyaBiometricPromptV23 extends BottomSheetDialog implements View.O
      * Do on authentication failure.
      */
     void onAuthenticationFailed() {
-        onAuthenticationError(-1, null);
+        onAuthenticationError(-1, "Fingerprint recognition failed");
     }
 
     /**
