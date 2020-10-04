@@ -15,6 +15,7 @@ import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
@@ -85,8 +86,7 @@ public class ProviderFactory implements IProviderFactory {
                 case LEGACY_GOOGLE_IDENTIFIER:
                     if (GoogleProvider.isAvailable(_context)) {
                         return GoogleProvider.class;
-                    }
-                    else {
+                    } else {
                         GigyaLogger.error(LOG_TAG, "Missing google auth library implementation");
                         throw new RuntimeException("Google auth library implementation is a required dependency." +
                                 " Please make sure it is correctly implemented in your build.gradle file.\n" +
@@ -122,16 +122,21 @@ public class ProviderFactory implements IProviderFactory {
 
     private final String[] _optionalBoundProviders = new String[]{GOOGLE, FACEBOOK, LINE, WECHAT};
 
+    @SuppressWarnings("rawtypes")
     private ArrayList<IProvider> getUsedSocialProviders() {
         ArrayList<IProvider> providers = new ArrayList<>();
+
         for (String optional : _optionalBoundProviders) {
             try {
-                IProvider provider = (IProvider) _container.get(getProviderClass(optional));
-                if (provider != null) {
-                    providers.add(provider);
+                Class providerClass = getProviderClass(optional);
+                if (_container.isBound(providerClass)) {
+                    IProvider provider = (IProvider) _container.get(providerClass);
+                    if (provider != null) {
+                        providers.add(provider);
+                    }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
             }
         }
         return providers;

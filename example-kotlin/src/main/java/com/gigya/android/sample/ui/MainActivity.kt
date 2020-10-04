@@ -37,6 +37,7 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
+import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -136,7 +137,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     invalidateOptionsMenu()
                     val message: String = when (intent_action) {
                         GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED -> "Your session has expired"
-                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> {"Your session is invalid"}
+                        GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID -> {
+                            "Your session is invalid"
+                        }
                         else -> ""
                     }
                     if (intent_action == GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID) {
@@ -249,34 +252,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_forgot_password -> onForgotPassword()
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
             R.id.action_push_auth_register -> registerForPushAuthentication()
-            R.id.action_web_bridge_test -> {
-                startActivity(Intent(this, WebBridgeTestActivity::class.java))
-            }
-            R.id.action_show_native_screen_sets -> {
-                GigyaNss.getInstance()
-                        .load("gigya-nss-example")
-                        .initialRoute("login")
-//                        .lang("es")
-                        .events(object : NssEvents<MyAccount>() {
-
-                            override fun onError(screenId: String, error: GigyaError) {
-                                // Handle nss exception here.
-                                GigyaLogger.debug("NSS", "onError")
-                            }
-
-                            override fun onCancel() {
-                                // Handle cancel event if needed.
-                                GigyaLogger.debug("NSS", "onCancel")
-                            }
-
-                            override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
-                                // Handle login event here if needed.
-                                GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
-                            }
-
-                        })
-                        .show(this)
-            }
+            R.id.action_web_bridge_test -> startActivity(Intent(this, WebBridgeTestActivity::class.java))
+            R.id.action_show_native_screen_sets -> showNativeScreenSets()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -742,6 +719,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun showNativeScreenSets() {
+        GigyaNss.getInstance()
+                .load("gigya-nss-example")
+                .initialRoute("login")
+                //.lang("es")
+                .events(object : NssEvents<MyAccount>() {
+
+                    override fun onError(screenId: String, error: GigyaError) {
+                        // Handle nss exception here.
+                        GigyaLogger.debug("NSS", "onError")
+                    }
+
+                    override fun onCancel() {
+                        // Handle cancel event if needed.
+                        GigyaLogger.debug("NSS", "onCancel")
+                    }
+
+                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
+                        // Handle login event here if needed.
+                        GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
+                    }
+
+                })
+                .eventsFor("login", object : NssScreenEvents() {
+
+                    override fun screenDidLoad() {
+                        GigyaLogger.debug("NssEvents", "screen did load for login")
+                    }
+
+                    override fun routeFrom(screen: ScreenRouteFromModel) {
+                        GigyaLogger.debug("NssEvents", "routeFrom: from: " + screen.previousRoute())
+                        super.routeFrom(screen)
+                    }
+
+                    override fun routeTo(screen: ScreenRouteToModel) {
+                        GigyaLogger.debug("NssEvents", "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData().toString())
+                        super.routeTo(screen)
+                    }
+
+                    override fun submit(screen: ScreenSubmitModel) {
+                        GigyaLogger.debug("NssEvents", "submit: data: " + screen.screenData().toString())
+                        super.submit(screen)
+                    }
+
+                    override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
+                        GigyaLogger.debug("NssEvents", "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal)
+                        super.fieldDidChange(screen, field)
+                    }
+
+                })
+                .show(this)
+    }
+
     //endregion
 
     //region UI PRESENTATION
@@ -760,8 +790,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
-                }
-                , cancel = { response_text_view.snackbar("Request cancelled") }
+                }, cancel = { response_text_view.snackbar("Request cancelled") }
         )
     }
 
@@ -790,28 +819,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showAccountDetails() {
         drawer_layout.closeDrawer(GravityCompat.START)
 //        if (GigyaNss.getInstance().isSupported) {
-            GigyaNss.getInstance()
-                    .load("gigya-nss-example")
-                    .initialRoute("account-update")
-                    .events(object : NssEvents<MyAccount>() {
+        GigyaNss.getInstance()
+                .load("gigya-nss-example")
+                .initialRoute("account-update")
+                .events(object : NssEvents<MyAccount>() {
 
-                        override fun onError(screenId: String, error: GigyaError) {
-                            // Handle nss exception here.
-                            GigyaLogger.debug("NSS", "onError")
-                        }
+                    override fun onError(screenId: String, error: GigyaError) {
+                        // Handle nss exception here.
+                        GigyaLogger.debug("NSS", "onError")
+                    }
 
-                        override fun onCancel() {
-                            // Handle cancel event if needed.
-                            GigyaLogger.debug("NSS", "onCancel")
-                        }
+                    override fun onCancel() {
+                        // Handle cancel event if needed.
+                        GigyaLogger.debug("NSS", "onCancel")
+                    }
 
-                        override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
-                            // Handle login event here if needed.
-                            GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
-                        }
+                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
+                        // Handle login event here if needed.
+                        GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
+                    }
 
-                    })
-                    .show(this)
+                })
+                .eventsFor("login", object : NssScreenEvents() {
+
+                })
+                .show(this)
 //        } else {
 //            viewModel?.showAccountDetails(
 //                    onUpdated = {

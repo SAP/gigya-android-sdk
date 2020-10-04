@@ -4,6 +4,8 @@ import android.content.Context
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
+import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.*
 import com.gigya.android.sdk.utils.FileUtils
@@ -46,9 +48,26 @@ class Nss private constructor(
             var lang: String? = null,
             var events: NssEvents<*>? = null) {
 
+        /**
+         * Specify the JSON markup asset file.
+         * NOTE: .json suffix is not required.
+         */
         fun assetPath(assetPath: String) = apply { this.assetPath = assetPath }
+
+        /**
+         * Sets the initial route of the screen-sets.
+         */
         fun initialRoute(initialRoute: String) = apply { this.initialRoute = initialRoute }
+
+        /**
+         * Allow localization.
+         * NOTE: Make sure you have specified the right locale tag in your markup.
+         */
         fun lang(language: String) = apply { this.lang = language }
+
+        /**
+         * Implement engine general events callback.
+         */
         fun <T : GigyaAccount> events(events: NssEvents<T>) = apply {
             this.events = events
             this.events?.let {
@@ -59,6 +78,17 @@ class Nss private constructor(
             }
         }
 
+        /**
+         * Add a custom screen event. Some of these events are intercepting events.
+         * Data can be manipulated before specific engine task is completed.
+         */
+        fun eventsFor(screenId: String, handler: NssScreenEvents) = apply {
+            Gigya.getContainer().get(ScreenEventsManager::class.java).addFor(screenId, handler)
+        }
+
+        /**
+         * Show the screen-sets engine.
+         */
         fun show(launcherContext: Context) = Nss(
                 Gigya.getContainer().get(NssEngineLifeCycle::class.java),
                 assetPath,
@@ -108,7 +138,7 @@ class Nss private constructor(
      * @param themeAsset Optional theme markup asset.
      */
     private fun mapAsset(jsonAsset: String, themeAsset: String? = null, localizationAsset: String? = null): Map<String, Any> {
-        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object: TypeToken<Map<String, Any>>() {}.type)
+        val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object : TypeToken<Map<String, Any>>() {}.type)
         jsonMap.guard {
             throw RuntimeException("Markup parsing error")
         }
@@ -120,6 +150,7 @@ class Nss private constructor(
                     if (!routingMap.containsKey("initial")) {
                         throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
                     }
+
                     // Add optional theme map.
                     themeAsset?.let {
                         val themeMap = it.serialize<String, Any>(gson)
