@@ -99,6 +99,13 @@
             android:text="ru1" />
 
         <RadioButton
+            android:id="@+id/domain_cn1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="cn1"/>
+
+        <RadioButton
             android:id="@+id/domain_il1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
