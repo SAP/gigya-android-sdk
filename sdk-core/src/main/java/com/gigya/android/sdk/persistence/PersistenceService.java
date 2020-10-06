@@ -2,6 +2,7 @@ package com.gigya.android.sdk.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;

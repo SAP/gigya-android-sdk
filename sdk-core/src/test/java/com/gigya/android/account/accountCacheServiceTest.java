@@ -7,7 +7,6 @@ import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.utils.ObjectUtils;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 import org.junit.Before;

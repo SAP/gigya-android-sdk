@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.push;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 public interface IGigyaNotificationManager {

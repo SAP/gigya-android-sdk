@@ -15,7 +15,6 @@ import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;

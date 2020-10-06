@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.biometric;
 
 import android.app.Activity;
+
 import androidx.annotation.NonNull;
 
 public interface IBiometricImpl {

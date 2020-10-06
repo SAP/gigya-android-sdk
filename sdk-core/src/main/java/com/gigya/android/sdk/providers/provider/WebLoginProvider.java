@@ -20,7 +20,6 @@ import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.json.JSONObject;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 

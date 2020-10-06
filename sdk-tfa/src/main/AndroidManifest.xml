@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gigya.android.sdk.tfa" />
+<manifest package="com.gigya.android.sdk.tfa" />

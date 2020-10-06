@@ -3,6 +3,7 @@ package com.gigya.android.sdk.providers.provider;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 

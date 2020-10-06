@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.utils;
 
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 
 public class DeviceUtils {
