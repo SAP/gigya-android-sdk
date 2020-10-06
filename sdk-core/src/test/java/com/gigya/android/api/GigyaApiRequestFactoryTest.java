@@ -106,52 +106,8 @@ public class GigyaApiRequestFactoryTest {
         assertNotNull(httpRequest);
         assertEquals("TestAPI", request.getApi());
         assertEquals(RestAdapter.POST, request.getMethod().intValue());
-        assertEquals("ApiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=Android_" + Gigya.VERSION + "&targetEnv=mobile",
+        assertEquals("apiKey=3_eP-lTMvtVwgjBCKCWPgYfeWH4xVkD5Rga15I7aoVvo-S_J5ZRBLg9jLDgJvDJZag&format=json&httpStatusCodes=false&sdk=Android_" + Gigya.VERSION + "&targetEnv=mobile",
                 httpRequest.getEncodedParams());
-    }
-
-
-    @Test
-    public void testCreatePOSTWithoutValidSession() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Arrange
-        when(_config.getApiDomain()).thenReturn("us1.gigya.com");
-        when(_sessionService.isValid()).thenReturn(true);
-        when(_sessionService.getSession()).thenReturn(_sessionInfo);
-        when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
-        // Act
-        final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.GET);
-        final GigyaApiHttpRequest httpRequest = factory.sign(request);
-
-        // Assert
-        assertNotNull(request);
-        assertNotNull(httpRequest);
-        assertEquals("TestAPI", request.getApi());
-        assertEquals(RestAdapter.GET, request.getMethod().intValue());
-        assertNull(httpRequest.getEncodedParams());
-        assertTrue(httpRequest.getUrl().contains("https://TestAPI.us1.gigya.com/TestAPI?format=json&httpStatusCodes=false"));
-    }
-
-    @Test
-    public void testCreateGETWithoutValidSession() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Arrange
-        when(_config.getApiDomain()).thenReturn("us1.gigya.com");
-        when(_config.getApiKey()).thenReturn(StaticMockFactory.API_KEY);
-        when(_sessionService.isValid()).thenReturn(false);
-        when(_sessionService.getSession()).thenReturn(_sessionInfo);
-        when(_sessionInfo.getSessionToken()).thenReturn(StaticMockFactory.getMockToken());
-        // Act
-        final IApiRequestFactory factory = container.get(IApiRequestFactory.class);
-        final GigyaApiRequest request = factory.create("TestAPI", params, RestAdapter.HttpMethod.GET);
-        final GigyaApiHttpRequest httpRequest = factory.sign(request);
-
-        // Assert
-        assertNotNull(request);
-        assertNotNull(httpRequest);
-        assertEquals("TestAPI", request.getApi());
-        assertEquals(RestAdapter.GET, request.getMethod().intValue());
-        assertNull(httpRequest.getEncodedParams());
-        assertTrue(httpRequest.getUrl().contains("ApiKey=" + StaticMockFactory.API_KEY));
     }
 
 }
