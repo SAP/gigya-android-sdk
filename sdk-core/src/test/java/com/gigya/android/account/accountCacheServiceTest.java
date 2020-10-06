@@ -120,8 +120,8 @@ public class accountCacheServiceTest extends BaseGigyaTest {
         updateAccount.setActive(false);
         updateAccountWithRegToken.setUID(null);
         // Act
-        final Map map1 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccount);
-        final Map map2 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccountWithRegToken);
+        final Map map1 = cAccountCacheService.calculateDiff(cachedAccount, updateAccount);
+        final Map map2 = cAccountCacheService.calculateDiff(cachedAccount, updateAccountWithRegToken);
         // Assert map1
         assertNotNull(map1);
         assertEquals(3, map1.size());
