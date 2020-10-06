@@ -67,6 +67,7 @@ dependencies {
     testImplementation 'org.apache.httpcomponents:httpcore:4.4.11'
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.9'
     testImplementation 'com.android.volley:volley:1.1.1'
+    testImplementation 'com.google.code.gson:gson:2.8.6'
     testImplementation project(path: ':sdk-tfa')
     testImplementation project(path: ':sdk-biometric')
 
