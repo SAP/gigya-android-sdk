@@ -1,6 +1,7 @@
 package com.gigya.android.gigyademo.ui.activity;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.annotation.NonNull;
@@ -315,6 +316,14 @@ public class LoginViewModel extends AndroidViewModel {
                                         gigyaError
                                 )
                         );
+                    }
+
+                    @Override
+                    public void onOperationCanceled() {
+                        mDataRouter.postValue(new DataEvent(
+                                DataEvent.ROUTE_OPERATION_CANCELED,
+                                null
+                        ));
                     }
                 });
     }
