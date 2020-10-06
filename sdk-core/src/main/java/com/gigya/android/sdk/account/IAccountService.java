@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.account;
 
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.google.gson.Gson;
 
 import java.util.Map;
 

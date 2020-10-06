@@ -3,6 +3,7 @@ package com.gigya.android.sdk;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.utils.FileUtils;

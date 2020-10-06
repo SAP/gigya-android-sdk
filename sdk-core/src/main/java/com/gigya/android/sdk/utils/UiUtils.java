@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
-import androidx.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Window;

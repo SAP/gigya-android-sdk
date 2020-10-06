@@ -1,20 +1,21 @@
 package com.gigya.android.sdk.biometric;
 
 import android.content.Context;
+import android.util.Base64;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
-import android.util.Base64;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.GigyaInterceptor;
-import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
+import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 

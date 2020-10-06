@@ -6,13 +6,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
 import android.transition.Slide
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel.IgnitionCall
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
