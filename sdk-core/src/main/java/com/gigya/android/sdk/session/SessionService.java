@@ -4,10 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
-import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;

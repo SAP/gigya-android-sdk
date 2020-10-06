@@ -2,8 +2,9 @@ package com.gigya.android.sdk.ui.plugin;
 
 
 import android.os.Bundle;
-import androidx.fragment.app.FragmentTransaction;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;

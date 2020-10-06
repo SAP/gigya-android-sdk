@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
@@ -14,6 +12,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaError;

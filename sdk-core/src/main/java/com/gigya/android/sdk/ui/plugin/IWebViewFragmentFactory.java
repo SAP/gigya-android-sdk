@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.ui.plugin;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLoginCallback;

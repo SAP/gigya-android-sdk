@@ -1,12 +1,13 @@
 package com.gigya.android.sdk.tfa.ui;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.tfa.R;
 

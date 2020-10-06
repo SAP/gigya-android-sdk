@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +11,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.GigyaError;
