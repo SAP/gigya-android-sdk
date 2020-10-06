@@ -85,86 +85,11 @@ dependencies {
 
 }
 
-
-// Task for building release Jar/sources/JavaDocs.
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    if (name == 'release') {
-
-        task createOutputDirs() {
-            file(outDir).mkdir()
-        }
-        createOutputDirs.outputs.dir files(
-                file(outDir),
-                buildDir
-        )
-        task removeOutputDirs() {
-            delete outDir, buildDir
-        }
-
-        task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
-            baseName androidJarName
-            from variant.javaCompileProvider.get().destinationDir
-            // from { configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) } }
-            destinationDir = file(outDir)
-            include(
-                    'com/gigya/android/sdk/**'
-            )
-            manifest {
-                from sharedManifest
-            }
-        }
-
-        task createAndroidJavadoc(type: Javadoc) {
-            source = project.android.sourceSets.main.java.srcDirs
-            options.linkSource true
-            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-            destinationDir = new File("${outDir}/${androidDocName}")
-            include(
-                    'com/gigya/android/sdk/*.java',
-                    'com/gigya/android/sdk/account/*.java',
-                    'com/gigya/android/sdk/account/models/*.java',
-                    'com/gigya/android/sdk/api/*.java',
-                    'com/gigya/android/sdk/api/models/*.java',
-                    'com/gigya/android/sdk/containers/*.java',
-                    'com/gigya/android/sdk/encryption/*.java',
-                    'com/gigya/android/sdk/interruption/*.java',
-                    'com/gigya/android/sdk/interruption/link/*.java',
-                    'com/gigya/android/sdk/interruption/link/models/*.java',
-                    'com/gigya/android/sdk/interruption/tfa/*.java',
-                    'com/gigya/android/sdk/interruption/tfa/modeks/*.java',
-                    'com/gigya/android/sdk/network/*.java',
-                    'com/gigya/android/sdk/network/adapter/*.java',
-                    'com/gigya/android/sdk/persistence/*.java',
-                    'com/gigya/android/sdk/providers/*.java',
-                    'com/gigya/android/sdk/providers/provider/*.java',
-                    'com/gigya/android/sdk/session/*.java',
-                    'com/gigya/android/sdk/ui/*.java',
-                    'com/gigya/android/sdk/ui/plugin/*.java',
-                    'com/gigya/android/sdk/ui/provider/*.java',
-                    'com/gigya/android/sdk/utils/*.java'
-            )
-            failOnError = false
-        }
-
-        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompileProvider) {
-            from 'src'
-            def sourceDir = new File("${outDir}/${androidSrcName}")
-            sourceDir.mkdir()
-            into sourceDir
-        }
-
-        task createPropertiesFile(dependsOn: [createAndroidJar, createAndroidJavadoc, createAndroidSrc]) {
-            File propertiesFile = new File("${outDir}/${androidJarName}.jar.properties")
-            doLast {
-                propertiesFile.text = "src=${androidSrcName}\n"
-                propertiesFile.text += "doc=${androidDocName}"
-            }
-        }
-
-        task release(dependsOn: createPropertiesFile) {
-            println 'Release: Done'
-        }
-    }
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    destinationDir = file("../javadoc/core")
+    failOnError false
 }
+
 

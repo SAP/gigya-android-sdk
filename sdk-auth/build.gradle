@@ -61,65 +61,10 @@ dependencies {
     compileOnly project(path: ':sdk-core')
 }
 
-// Task for building release Jar/sources/JavaDocs.
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    if (name == 'release') {
 
-        task createOutputDirs() {
-            file(outDir).mkdir()
-        }
-        createOutputDirs.outputs.dir files(
-                file(outDir),
-                buildDir
-        )
-        task removeOutputDirs() {
-            delete outDir, buildDir
-        }
-
-        task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
-            baseName androidJarName
-            from variant.javaCompileProvider.get().destinationDir
-            destinationDir = file(outDir)
-            include(
-                    'com/gigya/android/sdk/auth/*.java',
-                    'com/gigya/android/sdk/auth/api/*.java',
-                    'com/gigya/android/sdk/auth/push/*.java',
-                    'com/gigya/android/sdk/auth/ui/*.java'
-            )
-            manifest {
-                from sharedManifest
-            }
-        }
-
-        task createAndroidJavadoc(type: Javadoc) {
-            source = project.android.sourceSets.main.java.srcDirs
-            options.linkSource true
-            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-            destinationDir = new File("${outDir}/${androidDocName}")
-            include(
-                    'com/gigya/android/sdk/auth/*.java',
-            )
-            failOnError = false
-        }
-
-        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompileProvider) {
-            from 'src'
-            def sourceDir = new File("${outDir}/${androidSrcName}")
-            sourceDir.mkdir()
-            into sourceDir
-        }
-
-        task createPropertiesFile(dependsOn: [createAndroidJar, createAndroidJavadoc, createAndroidSrc]) {
-            File propertiesFile = new File("${outDir}/${androidJarName}.jar.properties")
-            doLast {
-                propertiesFile.text = "src=${androidSrcName}\n"
-                propertiesFile.text += "doc=${androidDocName}"
-            }
-        }
-
-        task release(dependsOn: createPropertiesFile) {
-            println 'Release: Done'
-        }
-    }
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    destinationDir = file("../javadoc/auth")
+    failOnError false
 }
