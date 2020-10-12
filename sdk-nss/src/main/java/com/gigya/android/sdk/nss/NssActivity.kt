@@ -113,10 +113,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
                 }
                 IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
-                        supportFragmentManager.beginTransaction()
-                                .replace(R.id.nss_main_frame, fragment!!)
-                                .commit()
-                        isDisplayed = true
+
                     }
                 }
                 IgnitionCall.SCHEMA.identifier -> {
@@ -126,6 +123,11 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
         }
 
         engineLifeCycle?.engineExecuteMain()
+
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.nss_main_frame, fragment!!)
+                .commit()
+        isDisplayed = true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

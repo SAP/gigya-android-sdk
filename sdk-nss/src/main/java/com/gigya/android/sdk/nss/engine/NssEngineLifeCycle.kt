@@ -5,7 +5,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import io.flutter.embedding.android.FlutterFragment
-import io.flutter.embedding.android.FlutterView
+import io.flutter.embedding.android.TransparencyMode
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -61,10 +61,7 @@ open class NssEngineLifeCycle {
      * Destroy and remove current Flutter engine from cache.
      */
     fun disposeEngine() {
-        val engine = FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)
-        engine?.destroy()
-        FlutterEngineCache
-                .getInstance().remove(FLUTTER_ENGINE_ID)
+        FlutterEngineCache.getInstance().remove(FLUTTER_ENGINE_ID)
     }
 
     /**
@@ -72,7 +69,7 @@ open class NssEngineLifeCycle {
      */
     fun getEngineFragment(): FlutterFragment {
         return FlutterFragment.withCachedEngine(FLUTTER_ENGINE_ID)
-                .transparencyMode(FlutterView.TransparencyMode.transparent)
+                .transparencyMode(TransparencyMode.transparent)
                 .shouldAttachEngineToActivity(true)
                 .build()
     }
