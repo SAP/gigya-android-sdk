@@ -38,7 +38,7 @@ import static com.gigya.android.sdk.auth.GigyaDefinitions.AUTH_CHANNEL_ID;
 @SuppressWarnings("Convert2Lambda")
 public class GigyaAuth {
 
-    private static final String VERSION = "1.0.0";
+    private static final String VERSION = "2.0.0";
 
     private static final String LOG_TAG = "GigyaAuth";
 
