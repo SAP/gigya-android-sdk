@@ -1,17 +1,13 @@
 apply plugin: 'com.android.library'
 
-def androidVersion = file('version.txt').text
+def libVersion = "2.0.0"
 
 ext {
-    outDir = "${projectDir}/dist"
-    androidJarName = "gigya-android-sdk-tfa${androidVersion}"
-    androidDocName = "gigya-android-sdk-tfa${androidVersion}-javadoc"
-    androidSrcName = "gigya-android-sdk-tfa${androidVersion}-source"
     sharedManifest = manifest {
         attributes(
                 'Implementation-Vendor': 'SAP Gigya INC.',
                 'Implementation-Title': 'Gigya Android SDK',
-                'Implementation-Version': androidVersion
+                'Implementation-Version': libVersion
         )
     }
 }
@@ -23,7 +19,8 @@ android {
     defaultConfig {
         minSdkVersion build_versions.min_sdk_tfa
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-tfa"
+
+        archivesBaseName = "gigya-android-tfa-v${libVersion}"
     }
 
     compileOptions {
