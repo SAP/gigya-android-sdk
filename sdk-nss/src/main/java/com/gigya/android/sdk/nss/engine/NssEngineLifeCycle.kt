@@ -2,6 +2,7 @@ package com.gigya.android.sdk.nss.engine
 
 import android.content.Context
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.nss.IgnitionData
 import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import io.flutter.embedding.android.FlutterFragment
@@ -74,7 +75,10 @@ open class NssEngineLifeCycle {
                 .build()
     }
 
-    open fun show(context: Context, markup: Map<String, Any>) {
-        NssActivity.start(context, markup)
+    /**
+     * Display engine activity.
+     */
+    open fun show(context: Context, data: IgnitionData) {
+        NssActivity.start(context, data)
     }
 }

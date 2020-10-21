@@ -721,7 +721,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showNativeScreenSets() {
         GigyaNss.getInstance()
-                .load("gigya-nss-example")
+//                .loadFromAssets("gigya-nss-example")
+                .load("DEFAULT")
                 .initialRoute("login")
                 //.lang("es")
                 .events(object : NssEvents<MyAccount>() {
@@ -820,7 +821,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.closeDrawer(GravityCompat.START)
 //        if (GigyaNss.getInstance().isSupported) {
         GigyaNss.getInstance()
-                .load("gigya-nss-example")
+                .loadFromAssets("gigya-nss-example")
                 .initialRoute("account-update")
                 .events(object : NssEvents<MyAccount>() {
 
