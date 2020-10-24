@@ -203,7 +203,6 @@ class NssViewModel<T : GigyaAccount>(
                             events.fieldDidChange(screenModel, fieldModel)
                         }
                     }
-                    screenEventsManager.disposeResult(result)
                     return@MethodCallHandler
                 }
                 screenEventsManager.disposeResult(result)
