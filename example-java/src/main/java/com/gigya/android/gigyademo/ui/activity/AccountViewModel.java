@@ -2,9 +2,9 @@ package com.gigya.android.gigyademo.ui.activity;
 
 import android.app.Activity;
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.gigyademo.model.CustomAccount;
 import com.gigya.android.gigyademo.model.DataEvent;

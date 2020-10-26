@@ -1,17 +1,13 @@
 apply plugin: 'com.android.library'
 
-def androidVersion = file('version.txt').text
+def libVersion = "2.0.0"
 
 ext {
-    outDir = "${projectDir}/dist"
-    androidJarName = "gigya-android-sdk-biometric${androidVersion}"
-    androidDocName = "gigya-android-sdk-biometric${androidVersion}-javadoc"
-    androidSrcName = "gigya-android-sdk-biometric${androidVersion}-source"
     sharedManifest = manifest {
         attributes(
                 'Implementation-Vendor': 'SAP Gigya INC.',
                 'Implementation-Title': 'Gigya Android SDK',
-                'Implementation-Version': androidVersion
+                'Implementation-Version': libVersion
         )
     }
 }
@@ -23,7 +19,9 @@ android {
     defaultConfig {
         minSdkVersion build_versions.min_sdk_biometric
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-biometric"
+
+        archivesBaseName = "gigya-android-biometric-v${libVersion}"
+
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -47,80 +45,24 @@ android {
 }
 
 dependencies {
-    // Test implementations.
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.json:json:20141113'
-    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'org.json:json:20180813'
+    testImplementation 'androidx.test:core:1.3.0'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
-
     testImplementation project(path: ':sdk-core')
 
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
+    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    compileOnly 'com.google.android.material:material:1.2.1'
 
     compileOnly project(path: ':sdk-core')
 }
 
-// Task for building release Jar/sources/JavaDocs.
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    if (name == 'release') {
 
-        task createOutputDirs() {
-            file(outDir).mkdir()
-        }
-        createOutputDirs.outputs.dir files(
-                file(outDir),
-                buildDir
-        )
-        task removeOutputDirs() {
-            delete outDir, buildDir
-        }
-
-        task createAndroidJar(type: Jar, dependsOn: variant.javaCompileProvider) {
-            baseName androidJarName
-            from variant.javaCompileProvider.get().destinationDir
-            destinationDirectory = file(outDir)
-            include(
-                    'com/gigya/android/sdk/**'
-            )
-            manifest {
-                from sharedManifest
-            }
-        }
-
-        task createAndroidJavadoc(type: Javadoc) {
-            source = project.android.sourceSets.main.java.srcDirs
-            options.linkSource true
-            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-            destinationDir = new File("${outDir}/${androidDocName}")
-            include(
-                    'com/gigya/android/sdk/biometric/*.java',
-                    'com/gigya/android/sdk/biometric/v23/*.java',
-                    'com/gigya/android/sdk/biometric/v28/*.java',
-            )
-            failOnError = false
-        }
-
-        task createAndroidSrc(type: Copy, dependsOn: variant.javaCompileProvider) {
-            from 'src'
-            def sourceDir = new File("${outDir}/${androidSrcName}")
-            sourceDir.mkdir()
-            into sourceDir
-        }
-
-        task createPropertiesFile(dependsOn: [createAndroidJar, createAndroidJavadoc, createAndroidSrc]) {
-            File propertiesFile = new File("${outDir}/${androidJarName}.jar.properties")
-            doLast {
-                propertiesFile.text = "src=${androidSrcName}\n"
-                propertiesFile.text += "doc=${androidDocName}"
-            }
-        }
-
-        task release(dependsOn: createPropertiesFile) {
-            println 'Release: Done'
-        }
-    }
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    destinationDir = file("../javadoc/biometric")
+    failOnError false
 }

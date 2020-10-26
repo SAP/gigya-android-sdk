@@ -15,7 +15,7 @@ class NssBuilderTestCase : NssTestCase() {
     @Test
     @Throws(RuntimeException::class)
     fun testNssBuilder_FailWitJSONParseException() {
-        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, null)
+        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, mapOf())
         PowerMockito.`when`(FileUtils.assetJsonFileToString(context, "whatever")).thenReturn(null)
 
         expectedException.expect(RuntimeException::class.java)
@@ -28,7 +28,7 @@ class NssBuilderTestCase : NssTestCase() {
     @Test
     @Throws(RuntimeException::class)
     fun testNssBuilder_FailWithMarkupSerializeException() {
-        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, null)
+        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, mapOf())
         PowerMockito.`when`(FileUtils.assetJsonFileToString(context, "whatever")).thenReturn("{}")
 
         expectedException.expect(RuntimeException::class.java)
@@ -44,7 +44,7 @@ class NssBuilderTestCase : NssTestCase() {
                 "nss_markup_mock_no_initial_route.json"),
                 "UTF-8")
 
-        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, null)
+        PowerMockito.doNothing().`when`(engineLifeCycle)?.show(context!!, mapOf())
         PowerMockito.`when`(FileUtils.assetJsonFileToString(context, "whatever")).thenReturn(json)
 
         expectedException.expect(RuntimeException::class.java)

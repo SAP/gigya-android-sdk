@@ -140,24 +140,6 @@ public class GigyaApiRequestFactoryTest {
     }
 
     @Test
-    public void testAnonymousRequest() {
-        // Arrange
-        final Map<String, Object> params = new HashMap<>();
-        when(_config.getApiKey()).thenReturn("mockAPIKey");
-        when(_sessionService.isValid()).thenReturn(false);
-
-        // Act
-        final GigyaApiRequest request = _factory.create("accounts.getAccountInfo", params, RestAdapter.HttpMethod.POST);
-        final GigyaApiHttpRequest httpRequest = _factory.sign(request);
-
-        // Assert
-        assertNotNull(request);
-        assertNotNull(httpRequest);
-        assertNotNull(httpRequest.getEncodedParams());
-        assertTrue(httpRequest.getEncodedParams().contains("ApiKey=mockAPIKey"));
-    }
-
-    @Test
     public void testAuthenticatedRequest() {
         // Arrange
         final Map<String, Object> params = new HashMap<>();

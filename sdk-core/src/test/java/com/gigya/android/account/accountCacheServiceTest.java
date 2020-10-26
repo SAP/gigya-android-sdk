@@ -7,7 +7,6 @@ import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.accountCacheService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.utils.ObjectUtils;
-import com.google.gson.Gson;
 
 import org.json.JSONObject;
 import org.junit.Before;
@@ -120,8 +119,8 @@ public class accountCacheServiceTest extends BaseGigyaTest {
         updateAccount.setActive(false);
         updateAccountWithRegToken.setUID(null);
         // Act
-        final Map map1 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccount);
-        final Map map2 = cAccountCacheService.calculateDiff(new Gson(), cachedAccount, updateAccountWithRegToken);
+        final Map map1 = cAccountCacheService.calculateDiff(cachedAccount, updateAccount);
+        final Map map2 = cAccountCacheService.calculateDiff(cachedAccount, updateAccountWithRegToken);
         // Assert map1
         assertNotNull(map1);
         assertEquals(3, map1.size());

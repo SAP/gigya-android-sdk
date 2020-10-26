@@ -3,18 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka-android'
 
-def androidVersion = file('version.txt').text
+def libVersion = "1.1.0"
 
 ext {
-    outDir = "${projectDir}/dist"
-    androidJarName = "gigya-android-sdk-nss${androidVersion}"
-    androidDocName = "gigya-android-sdk-nss${androidVersion}-javadoc"
-    androidSrcName = "gigya-android-sdk-nss${androidVersion}-source"
     sharedManifest = manifest {
         attributes(
                 'Implementation-Vendor': 'SAP Gigya INC.',
                 'Implementation-Title': 'Gigya Android SDK',
-                'Implementation-Version': androidVersion
+                'Implementation-Version': libVersion
         )
     }
 }
@@ -26,7 +22,8 @@ android {
     defaultConfig {
         minSdkVersion build_versions.min_sdk_nss
         targetSdkVersion build_versions.target_sdk
-        archivesBaseName = "gigya-android-nss"
+
+        archivesBaseName = "gigya-android-nss-v${libVersion}"
     }
 
     compileOptions {
@@ -53,32 +50,28 @@ android {
 }
 
 dependencies {
-    // Test implementations.
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.json:json:20141113'
-    testImplementation 'androidx.test:core:1.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.json:json:20180813'
+    testImplementation 'androidx.test:core:1.3.0'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
-
+    testImplementation group: 'commons-io', name: 'commons-io', version: '2.6'
     testImplementation project(path: ':sdk-core')
 
-    testImplementation 'com.google.code.gson:gson:2.8.5'
-    testImplementation group: 'commons-io', name: 'commons-io', version: '2.6'
-
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compileOnly 'com.google.code.gson:gson:2.8.6'
+    compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Gigya SDKs.
     compileOnly project(path: ':sdk-core')
     compileOnly project(path: ':sdk-tfa')
     compileOnly project(path: ':sdk-auth')
-    compileOnly 'com.google.code.gson:gson:2.8.5'
 
     // Nss engine.
-    debugCompileOnly 'com.gigya.nss.engine:flutter_debug:+'
-    releaseCompileOnly 'com.gigya.nss.engine:flutter_release:+'
+    debugCompileOnly 'com.gigya.nss.engine:flutter_debug:1.1.0'
+    releaseCompileOnly 'com.gigya.nss.engine:flutter_release:1.1.0'
 }
 
 

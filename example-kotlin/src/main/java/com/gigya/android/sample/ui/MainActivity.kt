@@ -1,19 +1,18 @@
 package com.gigya.android.sample.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.displayErrorAlert
 import com.gigya.android.sample.extras.gone
@@ -41,6 +40,7 @@ import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
+import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val filter = IntentFilter()
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
-        LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 filter)
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
@@ -721,7 +721,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showNativeScreenSets() {
         GigyaNss.getInstance()
-                .load("gigya-nss-example")
+//                .loadFromAssets("gigya-nss-example")
+                .load("DEFAULT")
                 .initialRoute("login")
                 //.lang("es")
                 .events(object : NssEvents<MyAccount>() {
@@ -820,7 +821,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.closeDrawer(GravityCompat.START)
 //        if (GigyaNss.getInstance().isSupported) {
         GigyaNss.getInstance()
-                .load("gigya-nss-example")
+                .loadFromAssets("gigya-nss-example")
                 .initialRoute("account-update")
                 .events(object : NssEvents<MyAccount>() {
 

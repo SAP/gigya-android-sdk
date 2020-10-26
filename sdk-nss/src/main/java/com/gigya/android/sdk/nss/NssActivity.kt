@@ -1,18 +1,20 @@
 package com.gigya.android.sdk.nss
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
+import android.os.Handler
 import android.transition.Slide
+import android.view.View
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel.IgnitionCall
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
@@ -25,7 +27,7 @@ import com.gigya.android.sdk.utils.UiUtils
  * To assure correct markup injection flow, the activity will initiate the Flutter engine
  * within a FlutterFragment.
  */
-class NssActivity<T : GigyaAccount> : FragmentActivity() {
+class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
     private var viewModel: NssViewModel<T>? = null
     private var isDisplayed = false
@@ -35,17 +37,18 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
         const val LOG_TAG = "NativeScreenSetsActivity"
         const val FRAGMENT_ENTER_ANIMATION_DURATION = 450L
-        private const val EXTRA_MARKUP = "extra_markup"
+        private const val EXTRA_DATA = "extra_data"
 
-        fun start(context: Context, markup: Map<String, Any>?) {
+        fun start(context: Context, data: IgnitionData) {
             val intent: Intent = Intent(context, NssActivity::class.java)
-            markup?.let { map ->
-                intent.putExtra(EXTRA_MARKUP, HashMap(map))
-            }
+            intent.putExtra(EXTRA_DATA, data)
             context.startActivity(intent)
         }
     }
 
+    /**
+     * Add FLAG_SECURE to activity if specified in the Gigya interface using "secureActivityWindow" method.
+     */
     private fun secureIfNeeded() {
         try {
             val secureActivity = Gigya.getContainer().get(Config::class.java).isSecureActivities
@@ -65,9 +68,9 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
 
         engineLifeCycle = Gigya.getContainer().get(NssEngineLifeCycle::class.java)
 
-        val markup = intent?.extras?.getSerializable(EXTRA_MARKUP)
-        markup.guard {
-            throw RuntimeException("Missing markup. Please provide markup on activity instantiation")
+        val ignitionData = intent?.extras?.getParcelable<IgnitionData>(EXTRA_DATA)
+        ignitionData.guard {
+            throw RuntimeException("Missing initialization data. Please verify that at least on the the NSS loading options has been provided (asset, hosted id).")
         }
 
         val engine = engineLifeCycle?.getNssEngine()
@@ -111,23 +114,64 @@ class NssActivity<T : GigyaAccount> : FragmentActivity() {
             GigyaLogger.debug(LOG_TAG, "Ignition channel call ${call.method}")
             when (call.method) {
                 IgnitionCall.IGNITION.identifier -> {
-                    result.success(markup)
+                    // Load markup.
+                    viewModel?.loadMarkup(ignitionData!!,
+                            done = { markup ->
+                                markup?.let {
+                                    result.success(markup)
+                                }
+                            },
+                            error = { error ->
+                                viewModel?.nssEvents?.onError("", error)
+                                onBackPressed()
+                            })
+                            ?: GigyaLogger.error(LOG_TAG, "Markup not available. Please check paths (asset or hosted)");
                 }
                 IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
-                        supportFragmentManager.beginTransaction()
-                                .replace(R.id.nss_main_frame, fragment!!)
-                                .commit()
+                        // A short transformation is required to avoid engine first load Jitter.
                         isDisplayed = true
+                        applyProgressTransform()
                     }
                 }
                 IgnitionCall.SCHEMA.identifier -> {
+
                     viewModel?.loadSchema(result)
                 }
             }
         }
 
         engineLifeCycle?.engineExecuteMain()
+
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.nss_main_frame, fragment!!)
+                .commit()
+    }
+
+    private fun applyProgressTransform() {
+        val mainFrame = findViewById<View>(R.id.nss_main_frame)
+        val loadingView = findViewById<View>(R.id.nss_progress_frame)
+
+        val duration = resources.getInteger(
+                android.R.integer.config_mediumAnimTime)
+
+        mainFrame.animate()
+                .alpha(1f)
+                .setDuration(duration.toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationStart(animation: Animator?) {
+                        mainFrame.visibility = View.VISIBLE
+                    }
+                })
+
+        loadingView.animate()
+                .alpha(0f)
+                .setDuration(duration.toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationStart(animation: Animator?) {
+                        loadingView.visibility = View.GONE
+                    }
+                })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
