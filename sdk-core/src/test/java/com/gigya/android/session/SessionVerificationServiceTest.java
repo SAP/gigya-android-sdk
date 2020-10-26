@@ -35,7 +35,7 @@ public class SessionVerificationServiceTest extends BaseGigyaTest {
         // Act
         final long initialDelay = cSessionVerificationService.getInitialDelay();
         // Assert
-        assertEquals(300000, initialDelay);
+        assertEquals(0, initialDelay);
     }
 
     @Test

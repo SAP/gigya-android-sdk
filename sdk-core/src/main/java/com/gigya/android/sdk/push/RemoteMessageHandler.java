@@ -1,7 +1,8 @@
 package com.gigya.android.sdk.push;
 
 import android.content.Context;
-import android.support.v4.app.NotificationManagerCompat;
+
+import androidx.core.app.NotificationManagerCompat;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.persistence.IPersistenceService;

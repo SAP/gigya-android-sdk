@@ -5,7 +5,8 @@ import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.support.annotation.RequiresApi;
+
+import androidx.annotation.RequiresApi;
 
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;

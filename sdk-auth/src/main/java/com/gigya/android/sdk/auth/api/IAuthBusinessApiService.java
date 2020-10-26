@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.auth.api;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.api.GigyaApiResponse;

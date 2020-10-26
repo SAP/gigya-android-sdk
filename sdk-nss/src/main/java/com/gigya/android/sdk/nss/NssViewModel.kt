@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction
 import com.gigya.android.sdk.nss.bloc.data.NssDataResolver
@@ -28,7 +29,8 @@ class NssViewModel<T : GigyaAccount>(
         private val flowManager: NssFlowManager<T>,
         private val schemaHelper: SchemaHelper<T>,
         private val nssDataResolver: NssDataResolver,
-        val screenEventsManager: ScreenEventsManager
+        private val screenEventsManager: ScreenEventsManager,
+        private val nssMarkupLoader: NssMarkupLoader<T>
 ) {
 
     var finishClosure: () -> Unit? = { }
@@ -203,10 +205,24 @@ class NssViewModel<T : GigyaAccount>(
                     }
                     return@MethodCallHandler
                 }
+                screenEventsManager.disposeResult(result)
                 return@MethodCallHandler
             }
             screenEventsManager.disposeResult(result)
         }
+    }
+
+    /**
+     * Load the markup provided from NSS builder.
+     */
+    fun loadMarkup(data: IgnitionData, done: (Map<String, Any>?) -> Unit, error: (GigyaError) -> Unit) {
+        nssMarkupLoader.loadMarkupFrom(data,
+                markupLoaded = { markup ->
+                    done(markup)
+                },
+                markupFailedToLoad = { e ->
+                    error(e)
+                })
     }
 
     /**
