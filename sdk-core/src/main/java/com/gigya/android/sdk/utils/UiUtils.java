@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
-import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
 
 public class UiUtils {
 

@@ -3,8 +3,9 @@ package com.gigya.android.sdk;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
@@ -40,7 +41,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "4.2.3";
+    public static final String VERSION = "5.0.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -299,7 +300,7 @@ public class Gigya<T extends GigyaAccount> {
      * Manually set the current session.
      * Setting a session manually will update the current session persistence state and login state.
      *
-     * @param session SessionInfo instaØce.
+     * @param session SessionInfo instance.
      */
     public void setSession(@NonNull SessionInfo session) {
         _sessionService.setSession(session);

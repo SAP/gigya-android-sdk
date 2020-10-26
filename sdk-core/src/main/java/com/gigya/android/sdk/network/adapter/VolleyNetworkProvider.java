@@ -1,9 +1,10 @@
 package com.gigya.android.sdk.network.adapter;
 
 import android.content.Context;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -17,8 +18,8 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiHttpRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.utils.UrlUtils;

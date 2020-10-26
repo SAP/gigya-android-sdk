@@ -26,10 +26,10 @@ class CustomTFAPhoneRegistrationFragment : TFAPhoneRegistrationFragment() {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val client = SmsRetriever.getClient(context!!)
+        val client = SmsRetriever.getClient(context)
         val task = client.startSmsRetriever()
         task.addOnSuccessListener {
             GigyaLogger.debug("TFA", "Successfully started retriever, expect broadcast intent")

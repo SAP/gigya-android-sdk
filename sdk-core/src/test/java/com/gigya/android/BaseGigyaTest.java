@@ -3,8 +3,9 @@ package com.gigya.android;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
