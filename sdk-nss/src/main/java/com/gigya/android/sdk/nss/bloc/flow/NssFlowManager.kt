@@ -3,6 +3,7 @@ package com.gigya.android.sdk.nss.bloc.flow
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
+import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.GigyaNssCallback
@@ -24,11 +25,14 @@ interface INssFlowDelegate<T : GigyaAccount> {
     fun getResolver(): INssResolver?
 
     fun getActiveScreen(): String?
+
+    fun getGson(): Gson
 }
 
 class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFactory) : INssFlowDelegate<T> {
 
     private var gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
+    override fun getGson() = gson
 
     private var activeScreen: String? = null
     var activeAction: NssAction<*>? = null
@@ -114,6 +118,19 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 // Propagate Nss error. No resolver available for specific interruption.
                 // Markup is responsible for interruption handling although this specific error breaks any flow.
                 // onPendingVerification == pending email verification error.
+                nssEvents?.onError(
+                        activeScreen!!,
+                        GigyaError.fromResponse(response)
+                )
+            }
+
+            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
+                activeResolver = NssResolver(resolver)
+
+                activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+
+                // Propagate Nss error. Resolver applied. User should not handle error in host code if applied.
+                // Markup is responsible for interruption. handling
                 nssEvents?.onError(
                         activeScreen!!,
                         GigyaError.fromResponse(response)
