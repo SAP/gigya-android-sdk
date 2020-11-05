@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -170,6 +169,9 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     @Override
     public void onDestroyView() {
+        if (_fileChooserClient != null) {
+            _fileChooserClient.clearCachedImage();
+        }
         if (_gigyaWebBridge != null) {
             _gigyaWebBridge.detachFrom(_webView);
         }
@@ -357,21 +359,13 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     @Override
     public void evaluatePermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == GigyaPluginFileChooser.FIRE_ACCESS_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                GigyaLogger.debug(LOG_TAG, "External storage permission explicitly granted.");
-                _fileChooserClient.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            } else {
-                // Permission denied by the user.
-                GigyaLogger.debug(LOG_TAG, "External storage permission explicitly denied.");
-            }
-        }
+        // File access permission no longer needed.
     }
 
     /*
     Web View client implementations.
      */
-    private GigyaPluginWebViewClient _webViewClient = new GigyaPluginWebViewClient(
+    private final GigyaPluginWebViewClient _webViewClient = new GigyaPluginWebViewClient(
             new IGigyaPluginWebViewClientInteractions() {
 
                 @Override
