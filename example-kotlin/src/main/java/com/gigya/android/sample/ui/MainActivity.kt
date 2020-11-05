@@ -820,47 +820,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showAccountDetails() {
         drawer_layout.closeDrawer(GravityCompat.START)
 //        if (GigyaNss.getInstance().isSupported) {
-        GigyaNss.getInstance()
-                .loadFromAssets("gigya-nss-example")
-                .initialRoute("account-update")
-                .events(object : NssEvents<MyAccount>() {
-
-                    override fun onError(screenId: String, error: GigyaError) {
-                        // Handle nss exception here.
-                        GigyaLogger.debug("NSS", "onError")
-                    }
-
-                    override fun onCancel() {
-                        // Handle cancel event if needed.
-                        GigyaLogger.debug("NSS", "onCancel")
-                    }
-
-                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
-                        // Handle login event here if needed.
-                        GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
-                    }
-
-                })
-                .eventsFor("login", object : NssScreenEvents() {
-
-                })
-                .show(this)
-//        } else {
-//            viewModel?.showAccountDetails(
-//                    onUpdated = {
-//                        onClear()
-//                        response_text_view.snackbar(getString(R.string.account_updated))
-//                        onGetAccount()
-//                    },
-//                    onCanceled = {
-//                        response_text_view.snackbar("Operation canceled")
-//                    },
-//                    onError = { possibleError ->
-//                        possibleError?.let {
-//                            // We cant display an alert on top of an alert.
-//                        }
+//        GigyaNss.getInstance()
+//                .loadFromAssets("gigya-nss-example")
+//                .initialRoute("account-update")
+//                .events(object : NssEvents<MyAccount>() {
+//
+//                    override fun onError(screenId: String, error: GigyaError) {
+//                        // Handle nss exception here.
+//                        GigyaLogger.debug("NSS", "onError")
 //                    }
-//            )
+//
+//                    override fun onCancel() {
+//                        // Handle cancel event if needed.
+//                        GigyaLogger.debug("NSS", "onCancel")
+//                    }
+//
+//                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
+//                        // Handle login event here if needed.
+//                        GigyaLogger.debug("NSS", "onSuccess for screen: $screenId and action: $action")
+//                    }
+//
+//                })
+//                .eventsFor("login", object : NssScreenEvents() {
+//
+//                })
+//                .show(this)
+//        } else {
+            viewModel?.showAccountDetails(
+                    onUpdated = {
+                        onClear()
+                        response_text_view.snackbar(getString(R.string.account_updated))
+                        onGetAccount()
+                    },
+                    onCanceled = {
+                        response_text_view.snackbar("Operation canceled")
+                    },
+                    onError = { possibleError ->
+                        possibleError?.let {
+                            // We cant display an alert on top of an alert.
+                        }
+                    }
+            )
 //        }
     }
 

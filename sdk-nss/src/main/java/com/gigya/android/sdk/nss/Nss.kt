@@ -4,14 +4,11 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
 import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.refined
-import com.gigya.android.sdk.utils.FileUtils
-import java.io.IOException
 
 /**
  * Main NSS builder class.
