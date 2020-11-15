@@ -6,20 +6,27 @@ import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
+import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssForgotPasswordAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
+class NssForgotPasswordAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>,
+                                                jsEvaluator: NssJsEvaluator)
+    : NssAction<T>(businessApi, jsEvaluator) {
 
     companion object {
         const val LOG_TAG = "NssForgotPasswordAction"
     }
 
-    override fun initialize(result: MethodChannel.Result) {
+    override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         GigyaLogger.debug(NssLoginAction.LOG_TAG, "Explicit flow initialization ")
-        result.success(mapOf<String, Any>())
+
+        jsEvaluator.eval(null, expressions) { jsResult ->
+            result.success(mapOf("data" to mapOf(), "expressions" to jsEvaluator.mapExpressions(jsResult)))
+        }
     }
 
     override fun onNext(method: String, arguments: MutableMap<String, Any>?) {
@@ -34,13 +41,13 @@ class NssForgotPasswordAction<T : GigyaAccount>(private val businessApi: IBusine
             GigyaLogger.debug(NssRegistrationAction.LOG_TAG, "Password reset email requested")
             flowDelegate!!.refined<INssFlowDelegate<T>> {
                 flattenArguments(arguments)
-                businessApi.forgotPassword(arguments, object: GigyaCallback<GigyaApiResponse>() {
+                businessApi.forgotPassword(arguments, object : GigyaCallback<GigyaApiResponse>() {
                     override fun onSuccess(obj: GigyaApiResponse?) {
                         it.getMainFlowCallback()?.onGenericResponse(obj)
                     }
 
                     override fun onError(error: GigyaError?) {
-                       it.getMainFlowCallback()?.onError(error)
+                        it.getMainFlowCallback()?.onError(error)
                     }
                 })
             }

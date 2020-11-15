@@ -721,8 +721,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showNativeScreenSets() {
         GigyaNss.getInstance()
-//                .loadFromAssets("gigya-nss-example")
-                .load("DEFAULT")
+                .loadFromAssets("gigya-nss-example")
+//                .load("DEFAULT")
                 .initialRoute("login")
                 //.lang("es")
                 .events(object : NssEvents<MyAccount>() {

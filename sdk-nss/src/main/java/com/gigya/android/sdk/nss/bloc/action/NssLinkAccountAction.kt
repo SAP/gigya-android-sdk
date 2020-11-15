@@ -4,24 +4,29 @@ import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.NssResolver
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssLinkAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
+class NssLinkAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>,
+                                             jsEvaluator: NssJsEvaluator)
+    : NssAction<T>(businessApi, jsEvaluator) {
 
     companion object {
         const val LOG_TAG = "NssLinkAccountAction"
     }
 
-    override fun initialize(result: MethodChannel.Result) {
+    override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         // Inject conflicting account data back to engine.
         flowDelegate?.getResolver()?.let { nssResolver ->
             nssResolver.refined<NssResolver<LinkAccountsResolver<T>>> { linkAccountResolver ->
-                val data = linkAccountResolver.resolver.conflictingAccounts.serializeToMap(flowDelegate!!.getGson())
-                result.success(data)
+                val data = mapOf<String, Any>("conflictingAccounts" to linkAccountResolver.resolver.conflictingAccounts.serializeToMap(flowDelegate!!.getGson()))
+                jsEvaluator.eval(data, expressions) { jsResult ->
+                    result.success(mapOf("data" to data, "expressions" to jsEvaluator.mapExpressions(jsResult)))
+                }
             }
         }
     }

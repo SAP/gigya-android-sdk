@@ -135,7 +135,6 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
                     }
                 }
                 IgnitionCall.SCHEMA.identifier -> {
-
                     viewModel?.loadSchema(result)
                 }
             }

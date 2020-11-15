@@ -10,6 +10,7 @@ import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.adapter.RestAdapter
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.bloc.flow.NssResolver
 import com.gigya.android.sdk.nss.utils.guard
@@ -17,7 +18,9 @@ import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
+class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>,
+                                            jsEvaluator: NssJsEvaluator)
+    : NssAction<T>(businessApi, jsEvaluator) {
 
     companion object {
         const val LOG_TAG = "NssAccountFlow"
@@ -50,7 +53,7 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
      */
     private var pendingRegistrationResolver: IPendingRegistrationResolver? = null
 
-    override fun initialize(result: MethodChannel.Result) {
+    override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         val params = mutableMapOf<String, Any>(
                 "include" to includeAll,
                 "extraProfileFields" to extraProfileFieldsAll
@@ -65,10 +68,13 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
         businessApi.getAccount(params, object : GigyaCallback<T>() {
 
             override fun onSuccess(obj: T) {
-                val map = obj.serializeToMap(gson).guard {
+                val data = obj.serializeToMap(gson).guard {
                     throw RuntimeException("Failed to serialize account object")
                 }
-                result.success(map)
+
+                jsEvaluator.eval(data, expressions) { jsResult ->
+                    result.success(mapOf("data" to data, "expressions" to jsEvaluator.mapExpressions(jsResult)))
+                }
             }
 
             override fun onError(error: GigyaError?) {
