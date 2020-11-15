@@ -64,7 +64,7 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
                         "document.location.href = '%s://%s';" +
                         "}, %s);" +
                         "</script>" +
-                        "<script src='https://cdns." + _config.getApiDomain() + "/JS/gigya.js?apikey=%s' type='text/javascript' onLoad='onJSLoad();'>" +
+                        "<script src='https://cdns." + _config.getApiDomain() + "/JS/gigya.js?apikey=%s&lang=%s' type='text/javascript' onLoad='onJSLoad();'>" +
                         "{" +
                         "deviceType: 'mobile'" +
                         "}" +
@@ -92,6 +92,7 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
                 Presenter.Consts.ON_JS_LOAD_ERROR,
                 Presenter.Consts.JS_TIMEOUT,
                 _config.getApiKey(),
+                params.get("lang"),
                 Presenter.Consts.CONTAINER_ID,
                 "", // js script before showing the plugin
                 plugin,
