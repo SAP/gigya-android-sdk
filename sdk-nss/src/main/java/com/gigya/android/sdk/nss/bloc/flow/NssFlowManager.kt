@@ -143,12 +143,14 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     /**
      * Update the current action.
      */
-    fun setCurrent(action: String, screenId: String, result: MethodChannel.Result) {
+    fun setCurrent(action: String, screenId: String, expressions: Map<String, String>, result: MethodChannel.Result) {
         activeScreen = screenId
         activeAction?.dispose()
         activeAction = actionFactory.get(action)
         activeAction?.flowDelegate = this
-        activeAction?.initialize(result)
+
+        //TODO: Pass expressions to action on initialize.
+        activeAction?.initialize(expressions, result)
     }
 
     /**
