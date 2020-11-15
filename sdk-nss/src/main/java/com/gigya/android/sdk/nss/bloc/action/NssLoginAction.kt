@@ -3,20 +3,26 @@ package com.gigya.android.sdk.nss.bloc.action
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
+import com.gigya.android.sdk.nss.utils.serializeToMap
 import io.flutter.plugin.common.MethodChannel
 
-class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : NssAction<T>(businessApi) {
+class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>,
+                                       jsEvaluator: NssJsEvaluator)
+    : NssAction<T>(businessApi, jsEvaluator) {
 
     companion object {
         const val LOG_TAG = "NssLoginAction"
     }
 
-    override fun initialize(result: MethodChannel.Result) {
+    override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         GigyaLogger.debug(LOG_TAG, "Explicit flow initialization ")
-        result.success(mapOf<String, Any>())
+        jsEvaluator.eval(null, expressions) { jsResult ->
+            result.success(mapOf("data" to mapOf(), "expressions" to jsEvaluator.mapExpressions(jsResult)))
+        }
     }
 
     override fun onNext(method: String, arguments: MutableMap<String, Any>?) {

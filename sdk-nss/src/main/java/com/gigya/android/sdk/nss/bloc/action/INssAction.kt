@@ -4,7 +4,7 @@ import io.flutter.plugin.common.MethodChannel
 
 interface INssAction {
 
-    fun initialize(result: MethodChannel.Result)
+    fun initialize(expressions: Map<String, String>, result: MethodChannel.Result)
 
     fun onNext(method: String, arguments: MutableMap<String, Any>?)
 }

@@ -107,11 +107,13 @@ class NssViewModel<T : GigyaAccount>(
                     call.arguments.refined<Map<String, String>> { map ->
                         val actionId = map["actionId"]
                         val screenId = map["screenId"]
+                        val expressions = map["expressions"] as Map<String, String>
+
                         actionId.guard {
                             GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
                             throw RuntimeException("Missing action if in screen action initializer. Unable to generate the correct action")
                         }
-                        flowManager.setCurrent(actionId!!, screenId!!, result)
+                        flowManager.setCurrent(actionId!!, screenId!!, expressions, result)
                     }
                 }
                 // Screen initiated with dismiss call.
