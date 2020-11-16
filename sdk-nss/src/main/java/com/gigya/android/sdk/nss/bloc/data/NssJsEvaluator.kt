@@ -55,7 +55,7 @@ class NssJsEvaluator(context: Context) {
             }
 
             val jsExp = makeExpressions(expressions)
-            webView!!.evaluateJavascript("var jsExp = $jsExp; JSON.stringify(jsExp)") { evalResult ->
+            webView!!.evaluateJavascript("JSON.stringify($jsExp);") { evalResult ->
                 if (evalResult == "\"{}\"" || evalResult == "null") {
                     result("")
                     return@evaluateJavascript
@@ -70,12 +70,15 @@ class NssJsEvaluator(context: Context) {
         }
     }
 
-    private fun trimJsResult(js: String): String = js.replace("\\", "").drop(1).dropLast(1)
+    /**
+     * Trimming double stringify JS response.
+     */
+    private fun trimJsResult(js: String): String = gson.fromJson(js, String::class.java)
 
     fun mapExpressions(exp: String): Map<String, Any> {
         return when (exp.isEmpty()) {
             true -> mapOf()
-            else -> Gson().fromJson(exp, object : TypeToken<Map<String, Any>>() {}.type)
+            else -> exp.serialize(gson)
         }
     }
 

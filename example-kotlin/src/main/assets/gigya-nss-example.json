@@ -217,7 +217,12 @@
           "textKey": "common-email",
           "theme": "input",
           "style": {
-            "margin": [16, 4, 16, 4],
+            "margin": [
+              16,
+              4,
+              16,
+              4
+            ],
             "cornerRadius": 22,
             "borderSize": 1
           },
@@ -239,7 +244,12 @@
           "textKey": "common-password",
           "theme": "input",
           "style": {
-            "margin": [16, 4, 16, 4],
+            "margin": [
+              16,
+              4,
+              16,
+              4
+            ],
             "cornerRadius": 22,
             "borderSize": 1
           },
@@ -519,6 +529,19 @@
       "stack": "vertical",
       "children": [
         {
+          "type": "label",
+          "textKey": "Account linking",
+          "theme": "title",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          }
+        },
+        {
           "type": "container",
           "showIf": "conflictingAccounts.loginProviders.filter(p => p != 'site').length > 0",
           "children": [
@@ -541,7 +564,28 @@
         {
           "type": "container",
           "showIf": "conflictingAccounts.loginProviders.includes('site')",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          },
           "children": [
+            {
+              "type": "label",
+              "textKey": "Enter your account password in order to link you account",
+              "style": {
+                "fontSize": 14,
+                "margin": [
+                  16,
+                  10,
+                  16,
+                  0
+                ]
+              }
+            },
             {
               "bind": "conflictingAccounts.loginID",
               "sendAs": "loginID",
@@ -555,6 +599,14 @@
               "type": "passwordInput",
               "textKey": "common-password",
               "theme": "input",
+              "style": {
+                "margin": [
+                  0,
+                  10,
+                  0,
+                  0
+                ]
+              },
               "validations": {
                 "required": {
                   "enabled": true,
@@ -569,7 +621,7 @@
               "style": {
                 "margin": [
                   0,
-                  40,
+                  20,
                   0,
                   0
                 ],
