@@ -8,8 +8,8 @@ Gigya's Android Core library implementation.
 Android SDK 23 and above is required.
 
 ## Limitations
-The Android SDK v4.x does not currently support Gradle plugins v3.6.x.
-To avoid any AndroidX related errors and warnings, be sure to use only Gradle plugin v3.5.x.
+Following released version 2.+ the Biometric extension will require your Application to be AndroidX complient.
+For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
 
 
 **Biometric fingerprint support is available for devices running Android Marshmallow and above.**
@@ -21,19 +21,19 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the biometric library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-biometric-1.0.1.aar')
+implementation files('libs/gigya-android-biometric-2.0.0.aar')
 ```
 
 -Or-
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk-biometric:bio-v1.0.0'
+implementation 'com.github.SAP:gigya-android-sdk-biometric:bio-v2.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
 ```gradle
-implementation 'com.android.support.design:28.0.0'
+implementation 'androidx.appcompat:appcompat:1.2.0'
 ```
 The Android SDK v4 differs from the previous releases in the way that is handles the UI prompt for you.
 It Utilizes Google's biometric prompt class on Android devices running Android Pie (and above).
