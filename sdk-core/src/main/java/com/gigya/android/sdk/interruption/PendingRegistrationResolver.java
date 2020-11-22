@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.interruption;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;

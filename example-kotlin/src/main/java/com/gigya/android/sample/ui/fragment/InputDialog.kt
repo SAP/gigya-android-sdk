@@ -1,8 +1,8 @@
 package com.gigya.android.sample.ui.fragment
 
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.input_re_init.*
 import kotlinx.android.synthetic.main.input_set_account.*
 import org.jetbrains.anko.design.snackbar
 
-class InputDialog : DialogFragment() {
+class InputDialog : androidx.fragment.app.DialogFragment() {
 
     private var viewModel: MainViewModel? = null
 
@@ -111,6 +111,8 @@ class InputDialog : DialogFragment() {
                 R.id.domain_au1 -> "au1.gigya.com"
                 R.id.domain_il1 -> "il1.gigya.com"
                 R.id.domain_il5 -> "il5.gigya.com"
+                R.id.domain_ru1 -> "ru1.gigya.com"
+                R.id.domain_cn1 -> "cn1.gigya-api.cn"
                 else -> ""
             }
 

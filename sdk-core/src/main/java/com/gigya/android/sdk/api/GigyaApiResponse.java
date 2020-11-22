@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.api;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.ObjectUtils;

@@ -13,12 +13,10 @@ class NssJsonDeserializer : JsonDeserializer<Map<String, Any>> {
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Map<String, Any> {
-        GigyaLogger.debug("NssJsonDeserializer", "deserialize")
         return read(json!!) as Map<String, Any>
     }
 
     private fun read(`in`: JsonElement): Any? {
-        GigyaLogger.debug("NssJsonDeserializer", "read")
         if (`in`.isJsonArray) {
             val list: MutableList<Any?> = ArrayList()
             val arr = `in`.asJsonArray

@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.network;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.google.gson.Gson;

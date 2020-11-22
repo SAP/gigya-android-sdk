@@ -2,8 +2,8 @@ package com.gigya.android.sample.extras
 
 import android.app.Activity
 import android.os.Handler
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
