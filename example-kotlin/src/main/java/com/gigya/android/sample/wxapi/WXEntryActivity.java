@@ -3,7 +3,7 @@ package com.gigya.android.sample.wxapi;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sample.model.MyAccount;
 import com.gigya.android.sdk.Gigya;

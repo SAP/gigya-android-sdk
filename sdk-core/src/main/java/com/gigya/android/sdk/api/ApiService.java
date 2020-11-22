@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.models.GigyaConfigModel;

@@ -3,8 +3,8 @@ package com.gigya.android.sdk.network.adapter;
 import android.os.AsyncTask;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiHttpRequest;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.network.GigyaError;
 

@@ -9,6 +9,7 @@ class NssActionFactory {
         const val login = "login"
         const val setAccount = "setAccount"
         const val forgotPassword = "forgotPassword"
+        const val linkAccount = "linkAccount"
     }
 
     fun get(actionId: String): NssAction<*>? {
@@ -24,6 +25,9 @@ class NssActionFactory {
             }
             forgotPassword -> {
                 Gigya.getContainer().get(NssForgotPasswordAction::class.java)
+            }
+            linkAccount -> {
+                Gigya.getContainer().get(NssLinkAccountAction::class.java)
             }
             else -> null
         }

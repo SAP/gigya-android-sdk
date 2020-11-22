@@ -3,6 +3,7 @@ package com.gigya.android.sdk.nss.bloc.action
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
 import com.gigya.android.sdk.nss.utils.guard
@@ -11,7 +12,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 
-abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) : INssAction {
+abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>, val jsEvaluator: NssJsEvaluator) : INssAction {
 
     companion object {
         const val LOG_TAG = "NssAction"
@@ -55,6 +56,6 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
     }
 
     open fun dispose() {
-        // Use for specific action data disposal.
+        jsEvaluator.dispose()
     }
 }

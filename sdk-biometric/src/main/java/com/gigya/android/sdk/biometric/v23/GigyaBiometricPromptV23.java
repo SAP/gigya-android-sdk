@@ -8,21 +8,22 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.CancellationSignal;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.os.CancellationSignal;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
+
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.concurrent.TimeUnit;
 
