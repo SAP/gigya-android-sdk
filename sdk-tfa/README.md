@@ -8,8 +8,8 @@ Gigya's Android Core library implementation.
 Android SDK 14 and above is required.
 
 ## Limitations
-The Android SDK v4.x does not currently support Gradle plugins v3.6.x.
-To avoid any AndroidX related errors and warnings, be sure to use only Gradle plugin v3.5.x.
+Following released version 2.+ the TFA extension will require your Application to be AndroidX complient.
+For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
 
 ## Integration
 Update your gradle.build file with one of two options:
@@ -17,22 +17,23 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the tfa library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-tfa-1.0.4.aar')
+implementation files('libs/gigya-android-tfa-2.0.0.aar')
 ```
 
 -Or-
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-tfa:tfa-v1.0.4'
+implementation 'com.github.SAP:gigya-android-sdk-tfa:tfa-v2.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
 ```gradle
-implementation 'com.android.support.design:28.0.0'
+implementation 'androidx.appcompat:appcompat:1.2.0'
+
 // If using push TFA.
 implementation 'com.google.firebase:firebase-core:16.0.9'
-implementation 'com.google.firebase:firebase-messaging:18.0.0'
+implementation 'com.google.firebase:firebase-messaging:20.3.0'
 ```
 
 The Android TFA package version provides the ability to integrate native Two Factor Authentication flows within your Android application
