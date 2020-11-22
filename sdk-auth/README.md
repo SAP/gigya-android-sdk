@@ -7,8 +7,8 @@ Gigya's Android Authentication SDK library provides a Java interface for applyin
 Gigya's Android Core library implementation.
 
 ## Limitations
-The Android SDK v4.x does not currently support Gradle plugins v3.6.x.
-To avoid any AndroidX related errors and warnings, be sure to use only Gradle plugin v3.5.x.
+Following released version 2.+ the Auth extension will require your Application to be AndroidX complient.
+For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
 
 ## Integration
 
@@ -17,19 +17,19 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the auth library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-auth-1.0.0.aar')
+implementation files('libs/gigya-android-auth-2.0.0.aar')
 ```
 
 -Or-
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-auth:auth-v1.0.0'
+implementation 'com.github.SAP:gigya-android-sdk-auth:auth-v2.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
 ```gradle
-implementation 'com.android.support.design:28.0.0'
+implementation 'androidx.appcompat:appcompat:1.2.0'
 ```
 
 ## Remote Login Verification
