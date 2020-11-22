@@ -116,7 +116,6 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_register"
             tools:ignore="UnusedAttribute" />
 
@@ -132,7 +131,6 @@
             android:layout_toStartOf="@id/fpr_action_button"
             android:layout_toLeftOf="@id/fpr_action_button"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_dismiss"
             tools:ignore="UnusedAttribute" />
     </RelativeLayout>
