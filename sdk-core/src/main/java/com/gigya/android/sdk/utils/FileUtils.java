@@ -1,23 +1,19 @@
 package com.gigya.android.sdk.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.Nullable;
 
-import java.io.File;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 public class FileUtils {
-    private Context _context;
+    private final Context _context;
 
     public FileUtils(Context context) {
         _context = context;
@@ -82,18 +78,5 @@ public class FileUtils {
         is.read(buffer);
         is.close();
         return new String(buffer, "UTF-8");
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    public static File createImageFile() throws IOException {
-        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        final String imageFileName = "JPEG_" + timeStamp + "_";
-        final File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
     }
 }

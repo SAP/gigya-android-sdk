@@ -4,14 +4,24 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <ProgressBar
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center" />
-
     <FrameLayout
         android:id="@+id/nss_main_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/nss_progress_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
 
 </FrameLayout>

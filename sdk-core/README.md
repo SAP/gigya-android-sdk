@@ -8,8 +8,9 @@ life-cycle.
 Android SDK SDK 14 and above.
 
 ## Limitations
-The Android SDK v4.x does not currently support Gradle plugins v3.6.x.
-To avoid any AndroidX related errors and warnings, be sure to use only Gradle plugin v3.5.x.
+Following released version 5.+ The Core SDK will require your Application to be AndroidX complient.
+For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
+
 
 [Google GSON library](https://github.com/google/gson)
 ```gradle
@@ -20,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-4.2.2.aar')
+implementation files('libs/gigya-android-sdk-5.0.0aar')
 ```
 
 ### Implement using Jitpack
@@ -35,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v4.2.2'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.0.0'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -48,7 +49,7 @@ parent="Theme.AppCompat.NoActionBar">
 </style>
 ```
 
-**Update your *AndroidManifest.xml* file**
+**Update your *AndroidManifest.xml* file** (This is needed If you require the use of Web Screen-Sets).
 ```xml
 <activity
 android:name="com.gigya.android.sdk.ui.HostActivity"
@@ -428,10 +429,7 @@ From version 4.2.+ it is now mandatory to implement the Google auth library if u
 Note that the required client_id is the Web client id generated when you create your Google project. This should not be mistaken with
 the Android OAuth client id. Make sure that your Google project contains both.
 ```
-```
-Although Google Sign-in is not available via WebView anymore, it is not mandatory to add the Google auth library dependency. If not
-added, the SDK will use Intent.ACTION_VIEW and execute the sign in process via Chrome.
-```
+
 ### LINE
 
 The Gigya Android SDK allows you to enable LINE native login for users that have the LINE app installed.

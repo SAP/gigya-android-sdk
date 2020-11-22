@@ -3,32 +3,32 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gigya.nss.engine</groupId>
-  <artifactId>flutter_profile</artifactId>
-  <version>1.0</version>
+  <artifactId>flutter_release</artifactId>
+  <version>1.1.0</version>
   <packaging>aar</packaging>
   <dependencies>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>flutter_embedding_profile</artifactId>
-      <version>1.0.0-af51afceb8886cc11e25047523c4e0c7e1f5d408</version>
+      <artifactId>flutter_embedding_release</artifactId>
+      <version>1.0.0-2c956a31c0a3d350827aee6c56bb63337c5b4e6e</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>armeabi_v7a_profile</artifactId>
-      <version>1.0.0-af51afceb8886cc11e25047523c4e0c7e1f5d408</version>
+      <artifactId>armeabi_v7a_release</artifactId>
+      <version>1.0.0-2c956a31c0a3d350827aee6c56bb63337c5b4e6e</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>arm64_v8a_profile</artifactId>
-      <version>1.0.0-af51afceb8886cc11e25047523c4e0c7e1f5d408</version>
+      <artifactId>arm64_v8a_release</artifactId>
+      <version>1.0.0-2c956a31c0a3d350827aee6c56bb63337c5b4e6e</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>x86_64_profile</artifactId>
-      <version>1.0.0-af51afceb8886cc11e25047523c4e0c7e1f5d408</version>
+      <artifactId>x86_64_release</artifactId>
+      <version>1.0.0-2c956a31c0a3d350827aee6c56bb63337c5b4e6e</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

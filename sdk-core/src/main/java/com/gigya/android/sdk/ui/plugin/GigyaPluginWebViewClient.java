@@ -3,12 +3,13 @@ package com.gigya.android.sdk.ui.plugin;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.ui.Presenter;

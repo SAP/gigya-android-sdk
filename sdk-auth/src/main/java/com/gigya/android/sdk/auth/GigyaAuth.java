@@ -9,11 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
@@ -31,14 +32,13 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
-import com.gigya.android.sdk.auth.R;
 
 import static com.gigya.android.sdk.auth.GigyaDefinitions.AUTH_CHANNEL_ID;
 
 @SuppressWarnings("Convert2Lambda")
 public class GigyaAuth {
 
-    private static final String VERSION = "1.0.0";
+    private static final String VERSION = "2.0.0";
 
     private static final String LOG_TAG = "GigyaAuth";
 
