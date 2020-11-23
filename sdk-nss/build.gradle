@@ -23,7 +23,7 @@ android {
         minSdkVersion build_versions.min_sdk_nss
         targetSdkVersion build_versions.target_sdk
 
-        archivesBaseName = "gigya-android-nss-v${libVersion}"
+        archivesBaseName = "gigya-android-nss"
     }
 
     compileOptions {
