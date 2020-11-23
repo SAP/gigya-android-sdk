@@ -20,7 +20,7 @@ android {
         minSdkVersion build_versions.min_sdk_tfa
         targetSdkVersion build_versions.target_sdk
 
-        archivesBaseName = "gigya-android-tfa-v${libVersion}"
+        archivesBaseName = "gigya-android-tfa"
     }
 
     compileOptions {
