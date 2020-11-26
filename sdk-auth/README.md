@@ -108,6 +108,11 @@ In the case, settings are disabled the SDK will issue a notice dialog.
 GigyaAuth.getInstance().registerForPushNotifications(this /* activity context */)
 ```
 
+```
+NOTE: An authentication notification sent will not wake your device. It is required for the application to be active in order to receive 
+a notification.
+```
+
 ## The Verification Flow
 
 In order to begin the verification flow, your device needs to be registered for this service.
