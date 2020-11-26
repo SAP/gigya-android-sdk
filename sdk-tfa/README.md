@@ -477,6 +477,11 @@ GigyaTFA.getInstance().setPushCustomizer(new IGigyaPushCustomizer() {
 
 ## Push TFA Flow
 
+```
+NOTE: An authentication notification sent will not wake your device. It is required for the application to be active in order to receive 
+a notification.
+```
+
 ### Opt-In process
 
 In order for a client to opt-in to use the push TFA feature you will need to add the option to opt-in after the user have successfully logged in.
