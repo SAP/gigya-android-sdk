@@ -23,6 +23,13 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         _sessionService = sessionService;
     }
 
+    private String _sdk = "Android_" + Gigya.VERSION;
+
+    @Override
+    public void setSDK(String sdk) {
+        _sdk = sdk;
+    }
+
     /**
      * Create a new instance of the GigyaApiRequest structure.
      *
@@ -38,7 +45,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         }
 
         // Add general parameters.
-        urlParams.put("sdk", "Android_" + Gigya.VERSION);
+        urlParams.put("sdk", _sdk);
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
@@ -96,4 +103,5 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         // Return a new instance of a signed REST request.
         return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams);
     }
+
 }
