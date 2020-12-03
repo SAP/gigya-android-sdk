@@ -8,4 +8,6 @@ public interface IApiRequestFactory {
     GigyaApiRequest create(String api, Map<String, Object> params, RestAdapter.HttpMethod httpMethod);
 
     GigyaApiHttpRequest sign(GigyaApiRequest request);
+
+    void setSDK(String sdk);
 }
