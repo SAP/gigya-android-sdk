@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.reporting;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
@@ -15,6 +15,11 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Internal error reporting service used to notify critical/crashes errors.
+ * <p>
+ * Service is set to disabled by default and can be activated by demand.
+ */
 public class ReportingService implements IReportingService {
 
     private static final String LOG_TAG = "ReportingService";
@@ -27,10 +32,23 @@ public class ReportingService implements IReportingService {
         this.restAdapter = restAdapter;
     }
 
+    boolean disabled = true;
+
+    /**
+     * Turn Gigya error reporting on or off.
+     *
+     * @param active True for active.
+     */
+    @Override
+    public void setErrorReportingActive(boolean active) {
+        disabled = !active;
+    }
+
     @Override
     public void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details) {
+        if (disabled) return;
         if (sdkVersion == null) {
-            sdkVersion = "core_" + Gigya.VERSION;
+            sdkVersion = "Android_" + Gigya.VERSION;
         }
         final TreeMap<String, Object> parameters = new TreeMap<>();
         parameters.put("message", message);
@@ -42,7 +60,7 @@ public class ReportingService implements IReportingService {
 
         final String url = "https://accounts." + config.getApiDomain() + "/sdk.errorReport";
 
-        GigyaApiRequest request = new GigyaApiRequest(RestAdapter.HttpMethod.POST, url, parameters);
+        final GigyaApiRequest request = new GigyaApiRequest(RestAdapter.HttpMethod.POST, url, parameters);
         restAdapter.sendUnsigned(request, new IRestAdapterCallback() {
             @Override
             public void onResponse(String jsonResponse, String responseDateHeader) {
