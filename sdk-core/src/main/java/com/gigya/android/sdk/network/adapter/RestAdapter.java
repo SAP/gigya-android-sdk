@@ -53,6 +53,12 @@ public class RestAdapter implements IRestAdapter {
     }
 
     @Override
+    public void sendUnsigned(GigyaApiRequest apiRequest, IRestAdapterCallback requestCallbacks) {
+        _networkProvider.addToQueueUnsigned(apiRequest, requestCallbacks);
+    }
+
+
+    @Override
     public void sendBlocking(GigyaApiRequest apiRequest, IRestAdapterCallback requestCallbacks) {
         _networkProvider.sendBlocking(apiRequest, requestCallbacks);
     }

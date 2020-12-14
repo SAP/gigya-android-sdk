@@ -6,6 +6,8 @@ public interface IRestAdapter {
 
     void send(GigyaApiRequest apiRequest, boolean blocking, IRestAdapterCallback requestCallbacks);
 
+    void sendUnsigned(GigyaApiRequest apiRequest, IRestAdapterCallback requestCallbacks);
+
     void sendBlocking(GigyaApiRequest apiRequest, IRestAdapterCallback restRequestCallback);
 
     void block();
