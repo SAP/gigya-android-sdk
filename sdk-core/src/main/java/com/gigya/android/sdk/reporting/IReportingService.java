@@ -1,11 +1,14 @@
 package com.gigya.android.sdk.reporting;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 
 public interface IReportingService {
 
-    public void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details);
+    void setErrorReportingActive(boolean active);
+
+    void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details);
 }
