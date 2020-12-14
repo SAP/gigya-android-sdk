@@ -9,5 +9,7 @@ public interface IApiRequestFactory {
 
     GigyaApiHttpRequest sign(GigyaApiRequest request);
 
+    GigyaApiHttpRequest unsigned(GigyaApiRequest request);
+
     void setSDK(String sdk);
 }
