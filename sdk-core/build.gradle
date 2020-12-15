@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 
-def libVersion = "5.0.0"
+def libVersion = "5.0.1"
 
 ext {
     sharedManifest = manifest {

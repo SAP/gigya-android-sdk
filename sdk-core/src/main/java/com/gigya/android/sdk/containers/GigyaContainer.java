@@ -25,6 +25,8 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
 import com.gigya.android.sdk.push.GigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
+import com.gigya.android.sdk.reporting.IReportingService;
+import com.gigya.android.sdk.reporting.ReportingService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
@@ -46,6 +48,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ConfigFactory.class, ConfigFactory.class, false)
                 .bind(IRestAdapter.class, RestAdapter.class, true)
                 .bind(IApiService.class, ApiService.class, false)
+                .bind(IReportingService.class, ReportingService.class, true)
                 .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)
                 .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                         : SessionKeyLegacy.class, true)
