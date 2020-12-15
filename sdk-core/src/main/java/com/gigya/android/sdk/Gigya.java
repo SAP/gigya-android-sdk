@@ -19,6 +19,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
+import com.gigya.android.sdk.reporting.IReportingService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
@@ -41,7 +42,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.0.0";
+    public static final String VERSION = "5.0.1";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -68,6 +69,20 @@ public class Gigya<T extends GigyaAccount> {
     public static void secureActivityWindow(boolean secure) {
         try {
             getContainer().get(Config.class).setSecureActivities(secure);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Activate SDK error reporting (inactive by default).
+     * Reporting is used internally by the SDK to track critical errors within the SDK core flows.
+     *
+     * @param active True to activate.
+     */
+    public static void setErrorReporting(boolean active) {
+        try {
+            getContainer().get(IReportingService.class).setErrorReporting(active);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
