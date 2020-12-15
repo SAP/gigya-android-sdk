@@ -1085,6 +1085,17 @@ Make sure you implement it in the appropriate lifecycle callback.
 _webBridge?.detachFrom(web_view)
 ```
 
+## Error reporting
+
+The SDK contains an error reporting service that tracks critical SDK specific errors and reports them
+back to us.
+
+The service is disabled by default and can be activated using:
+```kotlin
+Gigya.setErrorReporting(true)
+```
+
+
 ## Caveats
 
 ### Android WebView
