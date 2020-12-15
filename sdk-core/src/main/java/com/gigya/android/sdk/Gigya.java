@@ -80,9 +80,9 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param active True to activate.
      */
-    public static void errorReportingActive(boolean active) {
+    public static void setErrorReporting(boolean active) {
         try {
-            getContainer().get(IReportingService.class).setErrorReportingActive(active);
+            getContainer().get(IReportingService.class).setErrorReporting(active);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
