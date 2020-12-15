@@ -71,7 +71,14 @@ public class VolleyNetworkProvider extends NetworkProvider {
         GigyaLogger.debug(LOG_TAG, "addToQueue: adding to queue - " + request.getApi());
 
         _requestFactory.sign(request);
-        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks, true);
+        _requestQueue.add(newRequest);
+    }
+
+    @Override
+    public void addToQueueUnsigned(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks, false);
+        // Always-non blocking.
         _requestQueue.add(newRequest);
     }
 
@@ -81,7 +88,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
         _requestQueue.getCache().clear();
 
         _requestFactory.sign(request);
-        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks);
+        VolleyNetworkRequest newRequest = createRequest(request, networkCallbacks, true);
         _requestQueue.add(newRequest);
         _blocked = true;
     }
@@ -100,7 +107,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
             // Need to resign the request.
             _requestFactory.sign(task.getRequest());
 
-            final VolleyNetworkRequest queued = createRequest(task.getRequest(), task.getNetworkCallbacks());
+            final VolleyNetworkRequest queued = createRequest(task.getRequest(), task.getNetworkCallbacks(), true);
             GigyaLogger.debug(LOG_TAG, "release: polled request  - " + queued.getUrl());
 
             _requestQueue.add(queued);
@@ -162,9 +169,9 @@ public class VolleyNetworkProvider extends NetworkProvider {
     /*
     Generate a new Volley request.
      */
-    private VolleyNetworkRequest createRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks) {
+    private VolleyNetworkRequest createRequest(final GigyaApiRequest request, final IRestAdapterCallback networkCallbacks, boolean sign) {
 
-        final GigyaApiHttpRequest signedRequest = _requestFactory.sign(request);
+        final GigyaApiHttpRequest signedRequest = sign ? _requestFactory.sign(request) : _requestFactory.unsigned(request);
 
         return new VolleyNetworkRequest(
                 request.getMethod().intValue(),
