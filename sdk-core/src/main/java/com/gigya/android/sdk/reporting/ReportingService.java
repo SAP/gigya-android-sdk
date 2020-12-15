@@ -40,7 +40,7 @@ public class ReportingService implements IReportingService {
      * @param active True for active.
      */
     @Override
-    public void setErrorReportingActive(boolean active) {
+    public void setErrorReporting(boolean active) {
         disabled = !active;
     }
 
