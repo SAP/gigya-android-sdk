@@ -4,7 +4,10 @@ import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 
-abstract class GigyaNssCallback<T: GigyaAccount, R: GigyaApiResponse> : GigyaLoginCallback<T>() {
+/**
+ * Extension of the general GigyaLoginCallback class used for NSS operations.
+ */
+abstract class GigyaNssCallback<T : GigyaAccount, R : GigyaApiResponse> : GigyaLoginCallback<T>() {
 
     abstract fun onGenericResponse(res: R?);
 }
