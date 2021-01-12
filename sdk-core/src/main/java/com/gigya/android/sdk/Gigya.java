@@ -20,12 +20,15 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
+import com.gigya.android.sdk.reporting.ISentReport;
+import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
+import com.gigya.android.sdk.utils.EnvUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,6 +92,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     public static void setApplication(Application appContext) {
+        EnvUtils.checkGson();
         getContainer()
                 .bind(Application.class, appContext)
                 .bind(Context.class, appContext);
@@ -102,6 +106,7 @@ public class Gigya<T extends GigyaAccount> {
     */
     @SuppressWarnings("unchecked")
     public static synchronized Gigya<? extends GigyaAccount> getInstance() {
+        EnvUtils.checkGson();
         if (INSTANCE == null) {
             return getInstance(GigyaAccount.class);
         }
@@ -113,6 +118,7 @@ public class Gigya<T extends GigyaAccount> {
     */
     @SuppressWarnings("unchecked")
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(@NonNull Class<V> accountClazz) {
+        EnvUtils.checkGson();
         if (INSTANCE == null) {
             IoCContainer container = getContainer();
             container.bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
@@ -120,16 +126,26 @@ public class Gigya<T extends GigyaAccount> {
             try {
                 INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
                 e.printStackTrace();
-                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
+                ReportingManager.get().runtimeException(VERSION, "core", "Error creating Gigya SDK", null,
+                        new ISentReport() {
+                            @Override
+                            public void done() {
+                                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
+                            }
+                        });
             }
         }
         // Check scheme. If already set log an error.
         final Class schema = INSTANCE.getAccountSchema();
         if (schema != accountClazz) {
-            GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
-            throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+            ReportingManager.get().runtimeException(VERSION, "core", "Scheme already set in previous initialization. SDK does not allow to override a set scheme.", null,
+                    new ISentReport() {
+                        @Override
+                        public void done() {
+                            throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
+                        }
+                    });
         }
         return INSTANCE;
     }
@@ -669,6 +685,7 @@ public class Gigya<T extends GigyaAccount> {
             return _container.get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().alert(VERSION, "core", "Unable to create new WebBridge instance");
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
         }
         return null;

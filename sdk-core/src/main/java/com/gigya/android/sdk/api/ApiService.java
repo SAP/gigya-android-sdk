@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.api;
 
 import com.gigya.android.sdk.Config;
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.models.GigyaConfigModel;
@@ -8,6 +9,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.reporting.ReportingManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,8 +64,8 @@ public class ApiService implements IApiService {
 
                 _config.setServerOffset(offset);
             } catch (Exception ex) {
-
                 GigyaLogger.error(LOG_TAG, "updateOffset: unable to update offset with exception");
+                ReportingManager.get().alert(Gigya.VERSION, "core", "ApiService: unable to update offset with exception");
                 ex.printStackTrace();
             }
         }

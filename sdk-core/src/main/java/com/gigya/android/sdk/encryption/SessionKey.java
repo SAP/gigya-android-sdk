@@ -8,7 +8,9 @@ import android.security.keystore.KeyProperties;
 
 import androidx.annotation.RequiresApi;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import java.math.BigInteger;
@@ -59,6 +61,7 @@ public class SessionKey implements ISecureKey {
             return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().alert(Gigya.VERSION, "core", "getDecryptionCipher error");
             throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex.getCause());
         }
     }
@@ -71,6 +74,7 @@ public class SessionKey implements ISecureKey {
             return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().alert(Gigya.VERSION, "core", "getDecryptionCipher error");
             throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex.getCause());
         }
     }
@@ -116,6 +120,7 @@ public class SessionKey implements ISecureKey {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().alert(Gigya.VERSION, "core", "EncryptionException: unable to get/generate encryption key");
             throw new EncryptionException("GetKey: exception" + ex.getMessage(), ex.getCause());
         }
     }
