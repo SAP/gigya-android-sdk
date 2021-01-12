@@ -9,12 +9,18 @@ import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.adapter.RestAdapter
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Helper class used for site schema specific tasks.
+ */
 class SchemaHelper<T : GigyaAccount>(private val businessApi: IBusinessApiService<T>) {
 
     companion object {
         const val LOG_TAG = "SchemaHelper"
     }
 
+    /**
+     * Fetch the updated account schema.
+     */
     fun getSchema(result: MethodChannel.Result) {
         businessApi.send("accounts.getSchema",
                 null,
