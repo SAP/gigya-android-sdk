@@ -71,8 +71,8 @@ dependencies {
     compileOnly project(path: ':sdk-auth')
 
     // Nss engine.
-    debugCompileOnly 'com.gigya.nss.engine:flutter_debug:1.1.0'
-    releaseCompileOnly 'com.gigya.nss.engine:flutter_release:1.1.0'
+    debugCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:+'
+    releaseCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:+'
 }
 
 
