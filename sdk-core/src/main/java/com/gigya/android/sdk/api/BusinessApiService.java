@@ -2,6 +2,7 @@ package com.gigya.android.sdk.api;
 
 import androidx.annotation.NonNull;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -16,6 +17,7 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
+import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.DeviceUtils;
@@ -152,6 +154,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
             @Override
             public void onApiError(GigyaError gigyaError) {
+                ReportingManager.get().alert(Gigya.VERSION, "core", "Logout request failed");
                 GigyaLogger.error(LOG_TAG, "logOut: Failed");
                 if (gigyaCallback != null) {
                     gigyaCallback.onError(gigyaError);
@@ -381,7 +384,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         params.put("regToken", regToken);
                         params.put("finalizeRegistration", true);
                     } else {
-                        GigyaLogger.error(LOG_TAG, "register: Init registration produced null regToken");
+                        ReportingManager.get().alert(Gigya.VERSION, "core", "initRegistration produced null regToken");
+                        GigyaLogger.error(LOG_TAG, "register: ionitRegistration produced null regToken");
                         gigyaLoginCallback.onError(GigyaError.generalError());
                         return;
                     }

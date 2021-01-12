@@ -34,6 +34,11 @@ public class ReportingService implements IReportingService {
 
     boolean disabled = true;
 
+    @Override
+    public boolean isActive() {
+        return !disabled;
+    }
+
     /**
      * Turn Gigya error reporting on or off.
      *
@@ -45,7 +50,7 @@ public class ReportingService implements IReportingService {
     }
 
     @Override
-    public void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details) {
+    public void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details, @Nullable final ISentReport sentCallback) {
         if (disabled) return;
         if (sdkVersion == null) {
             sdkVersion = "Android_" + Gigya.VERSION;
@@ -65,10 +70,17 @@ public class ReportingService implements IReportingService {
             @Override
             public void onResponse(String jsonResponse, String responseDateHeader) {
                 GigyaLogger.debug(LOG_TAG, "sendErrorReport: success");
+                if (sentCallback != null) {
+                    sentCallback.done();
+                }
             }
 
             @Override
             public void onError(GigyaError gigyaError) {
+                GigyaLogger.debug(LOG_TAG, "sendErrorReport: success");
+                if (sentCallback != null) {
+                    sentCallback.done();
+                }
                 GigyaLogger.debug(LOG_TAG, "sendErrorReport: fail");
             }
         });
