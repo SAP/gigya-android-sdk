@@ -17,6 +17,7 @@ import com.gigya.android.sdk.nss.bloc.flow.NssFlowManager
 import com.gigya.android.sdk.nss.channel.*
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
+import com.gigya.android.sdk.reporting.ReportingManager
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -111,7 +112,7 @@ class NssViewModel<T : GigyaAccount>(
 
                         actionId.guard {
                             GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
-                            throw RuntimeException("Missing action if in screen action initializer. Unable to generate the correct action")
+                            ReportingManager.get().alert(GigyaNss.VERSION, "nss", "Missing action if in screen action initializer")
                         }
                         flowManager.setCurrent(actionId!!, screenId!!, expressions, result)
                     }

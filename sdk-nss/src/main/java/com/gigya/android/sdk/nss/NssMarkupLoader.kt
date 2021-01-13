@@ -13,6 +13,7 @@ import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.nss.utils.serialize
+import com.gigya.android.sdk.reporting.ReportingManager
 import com.gigya.android.sdk.utils.FileUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -44,6 +45,7 @@ class NssMarkupLoader<T : GigyaAccount>(
         FileUtils.assetJsonFileToString(context, fileName)
     } catch (ioException: IOException) {
         ioException.printStackTrace()
+        ReportingManager.get().alert(GigyaNss.VERSION, "nss", "Failed to load markup asset")
         null
     }
 

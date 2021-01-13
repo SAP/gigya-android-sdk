@@ -20,6 +20,8 @@ import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel.IgnitionCall
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refine
+import com.gigya.android.sdk.reporting.ISentReport
+import com.gigya.android.sdk.reporting.ReportingManager
 import com.gigya.android.sdk.utils.UiUtils
 
 /**
@@ -70,12 +72,16 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
         val ignitionData = intent?.extras?.getParcelable<IgnitionData>(EXTRA_DATA)
         ignitionData.guard {
-            throw RuntimeException("Missing initialization data. Please verify that at least on the the NSS loading options has been provided (asset, hosted id).")
+            ReportingManager.get().runtimeException(GigyaNss.VERSION, "nss", "Missing initialization data", null) {
+                throw RuntimeException("Missing initialization data. Please verify that at least on the the NSS loading options has been provided (asset, hosted id).")
+            }
         }
 
         val engine = engineLifeCycle?.getNssEngine()
         engine.guard {
-            throw RuntimeException("NSS engine failed to initialize!")
+            ReportingManager.get().runtimeException(GigyaNss.VERSION, "nss", "NSS engine failed to initialize!", null) {
+                throw RuntimeException("NSS engine failed to initialize!")
+            }
         }
 
         Gigya.getContainer().get(NssViewModel::class.java).refine<NssViewModel<T>> {
@@ -98,7 +104,9 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
         val fragment = engineLifeCycle?.getEngineFragment()
         fragment.guard {
-            throw RuntimeException("Failed to initialize flutter fragment")
+            ReportingManager.get().runtimeException(GigyaNss.VERSION, "nss", "Failed to initialize flutter fragment", null) {
+                throw RuntimeException("Failed to initialize flutter fragment")
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

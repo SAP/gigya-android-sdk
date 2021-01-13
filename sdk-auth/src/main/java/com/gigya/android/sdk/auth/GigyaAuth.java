@@ -32,6 +32,8 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
+import com.gigya.android.sdk.reporting.ISentReport;
+import com.gigya.android.sdk.reporting.ReportingManager;
 
 import static com.gigya.android.sdk.auth.GigyaDefinitions.AUTH_CHANNEL_ID;
 
@@ -59,7 +61,12 @@ public class GigyaAuth {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya Auth library (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                throw new RuntimeException("Error creating Gigya Auth library (did you forget to Gigya.setApplication?");
+                ReportingManager.get().runtimeException(GigyaAuth.VERSION, "auth", "Error instantiating Gigya Auth SDK", null, new ISentReport() {
+                    @Override
+                    public void done() {
+                        throw new RuntimeException("Error instantiating Gigya Auth library (did you forget to Gigya.setApplication?");
+                    }
+                });
             }
         }
         return _sharedInstance;

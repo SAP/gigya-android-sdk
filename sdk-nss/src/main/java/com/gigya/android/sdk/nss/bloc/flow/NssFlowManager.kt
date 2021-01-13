@@ -148,8 +148,6 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
         activeAction?.dispose()
         activeAction = actionFactory.get(action)
         activeAction?.flowDelegate = this
-
-        //TODO: Pass expressions to action on initialize.
         activeAction?.initialize(expressions, result)
     }
 
