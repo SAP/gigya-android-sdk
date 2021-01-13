@@ -9,6 +9,7 @@ import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
+import com.gigya.android.sdk.reporting.ReportingManager;
 
 import java.security.Key;
 import java.security.KeyStore;
@@ -98,6 +99,7 @@ public class BiometricKey implements ISecureKey {
                     .build());
             return keyGenerator.generateKey();
         } catch (Exception ex) {
+            ReportingManager.get().alert(GigyaBiometric.VERSION, "biometric", "Failed to initialize biometric key");
             ex.printStackTrace();
         }
         return null;
