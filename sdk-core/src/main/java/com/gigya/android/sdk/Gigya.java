@@ -29,6 +29,7 @@ import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.utils.EnvUtils;
+import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -467,6 +468,31 @@ public class Gigya<T extends GigyaAccount> {
         GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
                 + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
         _businessApiService.getAccount(include, profileExtraFields, gigyaCallback);
+    }
+
+    /**
+     * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
+     *
+     * @param invalidateCache    Should override the account caching option. When set to true, the SDK will not cache the account object.
+     * @param include            String[]  array.
+     * @param params             Request parameter map.
+     * @param profileExtraFields String[] array.
+     * @param gigyaCallback      Response listener callback.
+     */
+    public void getAccount(final boolean invalidateCache, @Nullable Map<String, Object> params, @NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
+                + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
+        if (invalidateCache) {
+            _accountService.invalidateAccount();
+        }
+        final String includeParam = ObjectUtils.commaConcat(include);
+        final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        params.put("include", includeParam);
+        params.put("extraProfileFields", profileExtraFieldsParam);
+        _businessApiService.getAccount(params, gigyaCallback);
     }
 
     /**
