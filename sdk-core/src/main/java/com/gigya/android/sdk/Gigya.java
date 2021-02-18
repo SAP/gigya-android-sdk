@@ -20,7 +20,6 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
-import com.gigya.android.sdk.reporting.ISentReport;
 import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
@@ -128,25 +127,13 @@ public class Gigya<T extends GigyaAccount> {
                 INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
                 e.printStackTrace();
-                ReportingManager.get().runtimeException(VERSION, "core", "Error creating Gigya SDK", null,
-                        new ISentReport() {
-                            @Override
-                            public void done() {
-                                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
-                            }
-                        });
+                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
             }
         }
         // Check scheme. If already set log an error.
         final Class schema = INSTANCE.getAccountSchema();
         if (schema != accountClazz) {
-            ReportingManager.get().runtimeException(VERSION, "core", "Scheme already set in previous initialization. SDK does not allow to override a set scheme.", null,
-                    new ISentReport() {
-                        @Override
-                        public void done() {
-                            throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
-                        }
-                    });
+            throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
         }
         return INSTANCE;
     }
@@ -457,42 +444,19 @@ public class Gigya<T extends GigyaAccount> {
         _businessApiService.getAccount(params, gigyaCallback);
     }
 
-    /**
-     * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
-     *
-     * @param include            String[]  array.
-     * @param profileExtraFields String[] array.
-     * @param gigyaCallback      Response listener callback.
-     */
-    public void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
-                + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
-        _businessApiService.getAccount(include, profileExtraFields, gigyaCallback);
-    }
 
     /**
      * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
      *
-     * @param invalidateCache    Should override the account caching option. When set to true, the SDK will not cache the account object.
      * @param include            String[]  array.
-     * @param params             Request parameter map.
      * @param profileExtraFields String[] array.
      * @param gigyaCallback      Response listener callback.
      */
-    public void getAccount(final boolean invalidateCache, @Nullable Map<String, Object> params, @NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
+    @Deprecated
+    public void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
                 + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
-        if (invalidateCache) {
-            _accountService.invalidateAccount();
-        }
-        final String includeParam = ObjectUtils.commaConcat(include);
-        final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        params.put("include", includeParam);
-        params.put("extraProfileFields", profileExtraFieldsParam);
-        _businessApiService.getAccount(params, gigyaCallback);
+        _businessApiService.getAccount(include, profileExtraFields, gigyaCallback);
     }
 
     /**
@@ -711,7 +675,7 @@ public class Gigya<T extends GigyaAccount> {
             return _container.get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
-            ReportingManager.get().alert(VERSION, "core", "Unable to create new WebBridge instance");
+            ReportingManager.get().error(VERSION, "core", "Unable to create new WebBridge instance");
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
         }
         return null;

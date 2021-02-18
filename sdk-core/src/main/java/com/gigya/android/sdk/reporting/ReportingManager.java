@@ -10,6 +10,9 @@ import java.util.Map;
 
 public class ReportingManager implements IReportingManager {
 
+    private static final String PRIORITY_ERROR = "ERROR";
+    private static final String PRIORITY_INFO = "INFO";
+
     public static IReportingManager get() {
         try {
             return Gigya.getContainer().get(IReportingManager.class);
@@ -25,10 +28,6 @@ public class ReportingManager implements IReportingManager {
         this.service = service;
     }
 
-    private void addSource(Map<String, Object> map, String source) {
-        map.put("source", source);
-    }
-
     /**
      * Check if service is available.
      */
@@ -40,28 +39,24 @@ public class ReportingManager implements IReportingManager {
     }
 
     @Override
-    public void runtimeException(@Nullable String version,
-                                 @NonNull String source, String cause,
-                                 @Nullable Map<String, Object> details,
-                                 @NonNull ISentReport sentCallback) {
-        if (!serviceAvailable()) {
-            sentCallback.done();
-            return;
-        }
-        if (details == null) {
-            details = new HashMap<>();
-        }
-        addSource(details, source);
-        this.service.sendErrorReport(cause, version, details, sentCallback);
-    }
-
-    @Override
-    public void alert(@Nullable String version, @NonNull String source, String cause) {
+    public void error(@Nullable String version, @NonNull String source, String cause) {
         if (!serviceAvailable()) {
             return;
         }
         Map<String, Object> details = new HashMap<>();
-        addSource(details, source);
-        this.service.sendErrorReport(cause, version, details, null);
+        details.put("source", source);
+        details.put("priority", PRIORITY_ERROR);
+        this.service.sendErrorReport(cause, version, details);
+    }
+
+    @Override
+    public void info(String version, String source, Map<String, Object> data) {
+        if (!serviceAvailable()) {
+            return;
+        }
+        Map<String, Object> details = new HashMap<>();
+        details.put("source", source);
+        details.put("priority", PRIORITY_INFO);
+        this.service.sendErrorReport("info reporting", version, details);
     }
 }

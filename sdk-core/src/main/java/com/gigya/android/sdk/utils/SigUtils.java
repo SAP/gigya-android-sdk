@@ -49,7 +49,7 @@ public class SigUtils {
             return encodeSignature(baseSignature, secret);
         } catch (Exception ex) {
             ex.printStackTrace();
-            ReportingManager.get().alert(Gigya.VERSION, "core", "Exception while generating signature");
+            ReportingManager.get().error(Gigya.VERSION, "core", "Exception while generating signature");
             GigyaLogger.error("SigUtils", "getSignature: Exception while generating signature");
         }
         return null;

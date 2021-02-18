@@ -28,8 +28,6 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
-import com.gigya.android.sdk.reporting.ISentReport;
-import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.tfa.api.ITFABusinessApiService;
 import com.gigya.android.sdk.tfa.api.TFABusinessApiService;
 import com.gigya.android.sdk.tfa.push.TFARemoteMessageHandler;
@@ -60,12 +58,7 @@ public class GigyaTFA {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya TFA library (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                ReportingManager.get().runtimeException(GigyaTFA.VERSION, "tfa", "Error instantiating Gigya TFA SDK", null, new ISentReport() {
-                    @Override
-                    public void done() {
-                        throw new RuntimeException("Error instantiating Gigya TFA library (did you forget to Gigya.setApplication?");
-                    }
-                });
+                throw new RuntimeException("Error instantiating Gigya TFA library (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;

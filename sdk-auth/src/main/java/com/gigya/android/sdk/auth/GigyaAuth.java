@@ -19,10 +19,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.auth.api.AuthBusinessApiService;
 import com.gigya.android.sdk.auth.api.IAuthBusinessApiService;
 import com.gigya.android.sdk.auth.push.AuthRemoteMessageHandler;
+import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult;
+import com.gigya.android.sdk.auth.resolvers.OTPRegistrationResolver;
 import com.gigya.android.sdk.auth.ui.PushAuthActivity;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
@@ -32,12 +35,12 @@ import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaPushCustomizer;
 import com.gigya.android.sdk.push.IRemoteMessageHandler;
 import com.gigya.android.sdk.push.RemoteMessageLocalReceiver;
-import com.gigya.android.sdk.reporting.ISentReport;
-import com.gigya.android.sdk.reporting.ReportingManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.gigya.android.sdk.auth.GigyaDefinitions.AUTH_CHANNEL_ID;
 
-@SuppressWarnings("Convert2Lambda")
 public class GigyaAuth {
 
     private static final String VERSION = "2.0.0";
@@ -61,12 +64,7 @@ public class GigyaAuth {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya Auth library (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                ReportingManager.get().runtimeException(GigyaAuth.VERSION, "auth", "Error instantiating Gigya Auth SDK", null, new ISentReport() {
-                    @Override
-                    public void done() {
-                        throw new RuntimeException("Error instantiating Gigya Auth library (did you forget to Gigya.setApplication?");
-                    }
-                });
+                throw new RuntimeException("Error instantiating Gigya Auth library (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;
@@ -89,9 +87,7 @@ public class GigyaAuth {
         _persistenceService = persistenceService;
         _remoteMessageHandler = remoteMessageHandler;
 
-        /*
-        Set default customization.
-         */
+        // Set default customization.
         _remoteMessageHandler.setPushCustomizer(new IGigyaPushCustomizer() {
             @Override
             public int getSmallIcon() {
@@ -128,8 +124,8 @@ public class GigyaAuth {
     */
     private String _deviceInfo;
 
-    /*
-    Will generate required device information asynchronously.
+    /**
+     * Generate required device information asynchronously.
      */
     private void generateDeviceInfo(@NonNull final Runnable completionHandler, @NonNull final Runnable errorHandler) {
         final String currentPushToken = _persistenceService.getPushToken();
@@ -289,4 +285,63 @@ public class GigyaAuth {
             alert.show();
         }
     }
+
+    //region OTP
+
+    /**
+     * Authentication OTP specific interface.
+     */
+    public final IOTP otp = new IOTP() {
+
+        /**
+         * This method is used to trigger a Phone Number OTP Login flow.
+         * Returns a vToken, and sends an SMS message containing the authentication code to the user.
+         *
+         * @param phoneNumber User's phone number.
+         */
+        @Override
+        public <A extends GigyaAccount> void phoneLogin(@NonNull String phoneNumber, @NonNull GigyaOTPCallback<A> gigyaCallback) {
+            final Map<String, Object> params = new HashMap<>();
+            _authBusinessApiService.otpPhoneLogin(phoneNumber, params, gigyaCallback);
+        }
+
+        /**
+         * This method is used to trigger a Phone Number OTP Login flow.
+         * Returns a vToken, and sends an SMS message containing the authentication code to the user.
+         *
+         * @param phoneNumber User's phone number.
+         * @param params      Parameter map.
+         */
+        @Override
+        public <A extends GigyaAccount> void phoneLogin(@NonNull String phoneNumber, @NonNull Map<String, Object> params, @NonNull GigyaOTPCallback<A> gigyaCallback) {
+            _authBusinessApiService.otpPhoneLogin(phoneNumber, params, gigyaCallback);
+        }
+
+        /**
+         * This method is used to trigger a Phone Number OTP update flow.
+         * Returns a vToken, and send an SMS containing the authentication code to the user.
+         *
+         * @param phoneNumber User's phone number.
+         */
+        @Override
+        public <A extends GigyaAccount> void phoneUpdate(@NonNull String phoneNumber, @NonNull GigyaOTPCallback<A> gigyaCallback) {
+            final Map<String, Object> params = new HashMap<>();
+            _authBusinessApiService.otpPhoneUpdate(phoneNumber, params, gigyaCallback);
+        }
+
+        /**
+         * This method is used to trigger a Phone Number OTP update flow.
+         * Returns a vToken, and send an SMS containing the authentication code to the user.
+         *
+         * @param phoneNumber User's phone number.
+         * @param params      Parameter map.
+         */
+        @Override
+        public <A extends GigyaAccount> void phoneUpdate(@NonNull String phoneNumber, @NonNull Map<String, Object> params, @NonNull GigyaOTPCallback<A> gigyaCallback) {
+            _authBusinessApiService.otpPhoneUpdate(phoneNumber, params, gigyaCallback);
+        }
+
+    };
+
+    //endregion
 }

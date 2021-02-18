@@ -5,12 +5,14 @@ import androidx.annotation.NonNull;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.account.IAccountService;
+import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 
 import java.util.Map;
 
-public interface IBusinessApiService<A> {
+public interface IBusinessApiService<A extends GigyaAccount> {
 
     <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback);
 
@@ -51,4 +53,8 @@ public interface IBusinessApiService<A> {
     void getTFAProviders(final String regToken, final GigyaCallback<TFAProvidersModel> callback);
 
     void updateDevice(@NonNull String pushToken, @NonNull final GigyaCallback<GigyaApiResponse> gigyaCallback);
+
+    void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback);
+
+    IAccountService<A> getAccountService();
 }
