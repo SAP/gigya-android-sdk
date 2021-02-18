@@ -4,7 +4,6 @@ import android.content.Context
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
-import com.gigya.android.sdk.api.BusinessApiService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.api.IBusinessApiService
 import com.gigya.android.sdk.network.GigyaError
@@ -45,7 +44,7 @@ class NssMarkupLoader<T : GigyaAccount>(
         FileUtils.assetJsonFileToString(context, fileName)
     } catch (ioException: IOException) {
         ioException.printStackTrace()
-        ReportingManager.get().alert(GigyaNss.VERSION, "nss", "Failed to load markup asset")
+        ReportingManager.get().error(GigyaNss.VERSION, "nss", "Failed to load markup asset")
         null
     }
 

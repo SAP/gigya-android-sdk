@@ -45,4 +45,5 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
                                                @NonNull TFAResolverFactory resolverFactory) {
         onError(GigyaError.fromResponse(response));
     }
+
 }

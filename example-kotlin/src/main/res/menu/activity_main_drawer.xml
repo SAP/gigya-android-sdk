@@ -55,7 +55,14 @@
 
                 <item
                     android:id="@+id/action_push_auth_register"
-                    android:title="Register for push authentication"/>
+                    android:title="@string/register_for_push_authentication"/>
+
+                <item
+                    android:id="@+id/action_otp_login"
+                    android:title="@string/otp_login"/>
+                    />
+
+                />
 
             </menu>
         </item>

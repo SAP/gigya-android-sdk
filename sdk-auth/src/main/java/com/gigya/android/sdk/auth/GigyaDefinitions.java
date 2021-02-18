@@ -14,6 +14,11 @@ public class GigyaDefinitions {
         public static final String API_AUTH_DEVICE_UNREGISTER = "accounts.devices.unregister";
         public static final String API_AUTH_PUSH_VERIFY = "accounts.auth.push.verify";
 
+        // OTP
+        public static final String API_AUTH_OTP_SEND_CODE = "accounts.otp.sendCode";
+        public static final String API_AUTH_OTP_LOGIN = "accounts.otp.login";
+        public static final String API_AUTH_OTP_UPDATE = "accounts.otp.update";
+
     }
 
 }
