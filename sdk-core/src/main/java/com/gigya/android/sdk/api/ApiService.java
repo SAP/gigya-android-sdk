@@ -65,7 +65,7 @@ public class ApiService implements IApiService {
                 _config.setServerOffset(offset);
             } catch (Exception ex) {
                 GigyaLogger.error(LOG_TAG, "updateOffset: unable to update offset with exception");
-                ReportingManager.get().alert(Gigya.VERSION, "core", "ApiService: unable to update offset with exception");
+                ReportingManager.get().error(Gigya.VERSION, "core", "ApiService: unable to update offset with exception");
                 ex.printStackTrace();
             }
         }

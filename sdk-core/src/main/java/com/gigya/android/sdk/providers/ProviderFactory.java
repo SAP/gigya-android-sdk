@@ -14,8 +14,6 @@ import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
-import com.gigya.android.sdk.reporting.ISentReport;
-import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import java.util.ArrayList;
@@ -89,14 +87,9 @@ public class ProviderFactory implements IProviderFactory {
                     if (GoogleProvider.isAvailable(_context)) {
                         return GoogleProvider.class;
                     } else {
-                        ReportingManager.get().runtimeException(Gigya.VERSION, "core", "Missing google auth library implementation", null, new ISentReport() {
-                            @Override
-                            public void done() {
-                                throw new RuntimeException("Google auth library implementation is a required dependency." +
-                                        " Please make sure it is correctly implemented in your build.gradle file.\n" +
-                                        "https://developers.gigya.com/display/GD/Android+SDK+v4#AndroidSDKv4-Google");
-                            }
-                        });
+                        throw new RuntimeException("Google auth library implementation is a required dependency." +
+                                " Please make sure it is correctly implemented in your build.gradle file.\n" +
+                                "https://developers.gigya.com/display/GD/Android+SDK+v4#AndroidSDKv4-Google");
                     }
                 case LINE:
                     if (LineProvider.isAvailable(_fileUtils)) {

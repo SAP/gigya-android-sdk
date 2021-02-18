@@ -8,7 +8,6 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
 import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.reporting.ISentReport;
 import com.gigya.android.sdk.reporting.ReportingManager;
 
 import javax.crypto.Cipher;
@@ -44,12 +43,7 @@ public class GigyaBiometric {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                ReportingManager.get().runtimeException(GigyaBiometric.VERSION, "biometric", "Error instantiating Gigya Biometric SDK", null, new ISentReport() {
-                    @Override
-                    public void done() {
-                        throw new RuntimeException("Error instantiating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
-                    }
-                });
+                throw new RuntimeException("Error instantiating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;
@@ -94,12 +88,12 @@ public class GigyaBiometric {
      */
     private boolean verifyBiometricSupport(Context context) {
         if (!GigyaBiometricUtils.isSupported(context)) {
-            ReportingManager.get().alert(GigyaBiometric.VERSION, "biometric", "Fingerprint is not supported on this device. No sensor hardware was detected");
+            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "Fingerprint is not supported on this device. No sensor hardware was detected");
             GigyaLogger.error(LOG_TAG, "Fingerprint is not supported on this device. No sensor hardware was detected");
             return false;
         }
         if (!GigyaBiometricUtils.hasEnrolledFingerprints(context)) {
-            ReportingManager.get().alert(GigyaBiometric.VERSION, "biometric", "No fingerprint data available on device. Please enroll at least one fingerprint");
+            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "No fingerprint data available on device. Please enroll at least one fingerprint");
             GigyaLogger.error(LOG_TAG, "No fingerprint data available on device. Please enroll at least one fingerprint");
             return false;
         }

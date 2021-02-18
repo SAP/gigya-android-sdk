@@ -14,6 +14,5 @@ public interface IReportingService {
 
     void sendErrorReport(final @NonNull String message,
                          @Nullable String sdkVersion,
-                         @Nullable Map<String, Object> details,
-                         @Nullable ISentReport sentCallback);
+                         @Nullable Map<String, Object> details);
 }

@@ -38,7 +38,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
             socialLogin -> {
                 val provider = arguments?.get("provider") as? String
                 provider?.guard {
-                    ReportingManager.get().alert(GigyaNss.VERSION, "nss", "Social provider unavailable")
+                    ReportingManager.get().error(GigyaNss.VERSION, "nss", "Social provider unavailable")
                     GigyaLogger.error(LOG_TAG, "Social provider unavailable")
                 }
                 flowDelegate!!.refined<INssFlowDelegate<T>> {

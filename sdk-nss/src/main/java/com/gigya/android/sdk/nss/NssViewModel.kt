@@ -112,7 +112,7 @@ class NssViewModel<T : GigyaAccount>(
 
                         actionId.guard {
                             GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
-                            ReportingManager.get().alert(GigyaNss.VERSION, "nss", "Missing action if in screen action initializer")
+                            ReportingManager.get().error(GigyaNss.VERSION, "nss", "Missing action if in screen action initializer")
                         }
                         flowManager.setCurrent(actionId!!, screenId!!, expressions, result)
                     }

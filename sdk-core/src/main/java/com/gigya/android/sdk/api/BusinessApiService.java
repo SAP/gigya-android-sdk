@@ -72,7 +72,8 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _accountService.setAccount(apiResponse.asJson());
     }
 
-    private void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback) {
+    @Override
+    public void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback) {
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
@@ -88,6 +89,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 loginCallback.onSuccess(parsed);
             }
         }
+    }
+
+    @Override
+    public IAccountService<A> getAccountService() {
+        return _accountService;
     }
 
     //endregion
@@ -154,7 +160,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
             @Override
             public void onApiError(GigyaError gigyaError) {
-                ReportingManager.get().alert(Gigya.VERSION, "core", "Logout request failed");
+                ReportingManager.get().error(Gigya.VERSION, "core", "Logout request failed");
                 GigyaLogger.error(LOG_TAG, "logOut: Failed");
                 if (gigyaCallback != null) {
                     gigyaCallback.onError(gigyaError);
@@ -384,7 +390,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         params.put("regToken", regToken);
                         params.put("finalizeRegistration", true);
                     } else {
-                        ReportingManager.get().alert(Gigya.VERSION, "core", "initRegistration produced null regToken");
+                        ReportingManager.get().error(Gigya.VERSION, "core", "initRegistration produced null regToken");
                         GigyaLogger.error(LOG_TAG, "register: ionitRegistration produced null regToken");
                         gigyaLoginCallback.onError(GigyaError.generalError());
                         return;

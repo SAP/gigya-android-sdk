@@ -99,7 +99,7 @@ public class BiometricKey implements ISecureKey {
                     .build());
             return keyGenerator.generateKey();
         } catch (Exception ex) {
-            ReportingManager.get().alert(GigyaBiometric.VERSION, "biometric", "Failed to initialize biometric key");
+            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "Failed to initialize biometric key");
             ex.printStackTrace();
         }
         return null;

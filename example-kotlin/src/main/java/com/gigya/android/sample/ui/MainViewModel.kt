@@ -6,27 +6,23 @@ import androidx.lifecycle.MutableLiveData
 import android.util.Log
 import android.widget.Toast
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.GigyaCallback
-import com.gigya.android.sdk.GigyaDefinitions.AccountIncludes.*
+import com.gigya.android.sdk.*
 import com.gigya.android.sdk.GigyaDefinitions.AccountProfileExtraFields.LANGUAGES
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.CANCELED
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
-import com.gigya.android.sdk.GigyaLoginCallback
-import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
+import com.gigya.android.sdk.auth.GigyaOTPCallback
+import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
-import com.gigya.android.sdk.persistence.IPersistenceService
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import com.google.gson.GsonBuilder
-import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -341,6 +337,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //endregion
 
+    //region OTP
+
+    private var otpResolver: IGigyaOtpResult? = null
+
+    fun otpLoginByPhone(phoneNumber: String, onCodeSent: () -> Unit, success: (String) -> Unit, error: () -> Unit) {
+        GigyaAuth.getInstance().otp.phoneLogin(phoneNumber, object : GigyaOTPCallback<MyAccount>() {
+
+            override fun onSuccess(obj: MyAccount?) {
+                Log.d("socialLoginWith", "Success")
+                myAccountLiveData.value = obj
+                // Recycle the resolver.
+                otpResolver = null
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onError(error: GigyaError?) {
+                // Display error.
+                GigyaLogger.error("OTP", error?.localizedMessage)
+                error()
+            }
+
+            override fun onPendingOTPVerification(response: GigyaApiResponse, resolver: IGigyaOtpResult) {
+                otpResolver = resolver
+                onCodeSent()
+            }
+
+            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+                super.onPendingRegistration(response, resolver)
+            }
+
+        })
+    }
+
+    fun onVerifyOTPCode(code: String) {
+        otpResolver?.let { resolver ->
+            resolver.verify(code);
+        }
+    }
+
+    //endregion
+
     //region WEB VIEW
 
     /**
@@ -349,8 +386,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun socialLoginWith(success: (String) -> Unit, onIntermediateLoad: () -> Unit,
                         error: (GigyaError?) -> Unit,
                         cancel: () -> Unit) {
-        gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE), mutableMapOf()
-                , object : GigyaLoginCallback<MyAccount>() {
+        gigya.socialLoginWith(mutableListOf(FACEBOOK, GOOGLE, LINE), mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("socialLoginWith", "Success")
                 myAccountLiveData.value = obj

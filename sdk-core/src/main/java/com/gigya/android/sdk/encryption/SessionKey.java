@@ -61,7 +61,7 @@ public class SessionKey implements ISecureKey {
             return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
-            ReportingManager.get().alert(Gigya.VERSION, "core", "getDecryptionCipher error");
+            ReportingManager.get().error(Gigya.VERSION, "core", "getDecryptionCipher error");
             throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex.getCause());
         }
     }
@@ -74,7 +74,7 @@ public class SessionKey implements ISecureKey {
             return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
-            ReportingManager.get().alert(Gigya.VERSION, "core", "getDecryptionCipher error");
+            ReportingManager.get().error(Gigya.VERSION, "core", "getDecryptionCipher error");
             throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex.getCause());
         }
     }
@@ -120,7 +120,7 @@ public class SessionKey implements ISecureKey {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            ReportingManager.get().alert(Gigya.VERSION, "core", "EncryptionException: unable to get/generate encryption key");
+            ReportingManager.get().error(Gigya.VERSION, "core", "EncryptionException: unable to get/generate encryption key");
             throw new EncryptionException("GetKey: exception" + ex.getMessage(), ex.getCause());
         }
     }
