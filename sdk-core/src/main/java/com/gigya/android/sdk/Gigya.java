@@ -369,6 +369,11 @@ public class Gigya<T extends GigyaAccount> {
 
     //region BUSINESS APIS
 
+    public void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "lisAvailableLoginId: with id = " + id);
+        _businessApiService.isAvailableLoginId(id, gigyaCallback);
+    }
+
     /**
      * Login with provided id and password.
      *
@@ -379,6 +384,20 @@ public class Gigya<T extends GigyaAccount> {
     public void login(String loginId, String password, GigyaLoginCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with loginId = " + loginId);
         final Map<String, Object> params = new TreeMap<>();
+        params.put("loginID", loginId);
+        params.put("password", password);
+        login(params, gigyaCallback);
+    }
+
+    /**
+     * Login with provided id and password.
+     *
+     * @param loginId       LoginID.
+     * @param password      Login password.
+     * @param params        additional parameter map.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void login(String loginId, String password, @NonNull Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
         params.put("loginID", loginId);
         params.put("password", password);
         login(params, gigyaCallback);
@@ -444,6 +463,21 @@ public class Gigya<T extends GigyaAccount> {
         _businessApiService.getAccount(params, gigyaCallback);
     }
 
+    /**
+     * Request account info given parameters map.
+     *
+     * @param invalidateCache Should override the account caching option. When set to true, the SDK will not cache the account object.
+     * @param params          Request parameter map.
+     * @param gigyaCallback   Response listener callback.
+     */
+    public void getAccount(final boolean invalidateCache, @NonNull final Map<String, Object> params, @NonNull GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount with params:\n" + params.toString());
+        if (invalidateCache) {
+            _accountService.invalidateAccount();
+        }
+        _businessApiService.getAccount(params, gigyaCallback);
+    }
+
 
     /**
      * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
@@ -451,6 +485,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param include            String[]  array.
      * @param profileExtraFields String[] array.
      * @param gigyaCallback      Response listener callback.
+     * @deprecated Please use {@link #getAccount(boolean, Map, GigyaCallback)} method and add "include" and "extraProfileFields" accordingly.
      */
     @Deprecated
     public void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
@@ -554,6 +589,17 @@ public class Gigya<T extends GigyaAccount> {
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
         _businessApiService.addConnection(socialProvider, loginCallback);
+    }
+
+    /**
+     * Add a social connection to existing account.
+     *
+     * @param socialProvider Social provider identifier.
+     * @param loginCallback  Response listener callback.
+     */
+    public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, @NonNull Map<String, Object> params, GigyaLoginCallback<T> loginCallback) {
+        GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
+        _businessApiService.addConnection(socialProvider, params, loginCallback);
     }
 
     /**
