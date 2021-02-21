@@ -623,13 +623,26 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void addConnection(String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback) {
+        final Map<String, Object> params = new HashMap<>();
+        addConnection(socialProvider, params, gigyaLoginCallback);
+    }
+
+    /**
+     * Request to add a social network connection to existing account.
+     * Completion of this request will result in an updated login session.
+     *
+     * @param socialProvider     Requested social provider.
+     * @param params             Additional request parameters.
+     * @param gigyaLoginCallback Login response callback.
+     */
+    @Override
+    public void addConnection(String socialProvider, @NonNull Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             if (gigyaLoginCallback != null) {
                 gigyaLoginCallback.onError(GigyaError.unauthorizedUser());
             }
         }
-        final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);  // Needed for non native providers.
         IProvider provider = _providerFactory.providerFor(socialProvider, new ProviderCallback() {
             @Override
@@ -710,6 +723,31 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    /**
+     * Verify login id available for registration.
+     *
+     * @param id            LoginID parameter.
+     * @param gigyaCallback Response callback.
+     */
+    @Override
+    public void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginID", id);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_IS_AVAILABLE_LOGIN_ID, params, RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                final boolean isAvailable = response.getField("isAvailable", Boolean.class);
+                gigyaCallback.onSuccess(isAvailable);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
     //endregion
 
     //region INTERRUPTIONS RELATED
@@ -756,7 +794,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         params.put("pushToken", pushToken);
         send(GigyaDefinitions.API.API_AUTH_UPDATE_DEVICE, params, RestAdapter.POST, GigyaApiResponse.class, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onSuccess(GigyaApiResponse obj) { gigyaCallback.onSuccess(obj); }
+            public void onSuccess(GigyaApiResponse obj) {
+                gigyaCallback.onSuccess(obj);
+            }
 
             @Override
             public void onError(GigyaError error) {

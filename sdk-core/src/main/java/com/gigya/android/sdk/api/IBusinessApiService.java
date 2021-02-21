@@ -14,6 +14,8 @@ import java.util.Map;
 
 public interface IBusinessApiService<A extends GigyaAccount> {
 
+    IAccountService<A> getAccountService();
+
     <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback);
 
     void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback);
@@ -46,6 +48,8 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, final GigyaLoginCallback<A> gigyaLoginCallback);
 
+    void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, @NonNull Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback);
+
     void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback);
 
     void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
@@ -56,5 +60,5 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback);
 
-    IAccountService<A> getAccountService();
+    void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback);
 }
