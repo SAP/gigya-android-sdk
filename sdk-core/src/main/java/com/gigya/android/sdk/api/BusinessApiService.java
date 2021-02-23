@@ -1,7 +1,9 @@
 package com.gigya.android.sdk.api;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -20,6 +22,7 @@ import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.site.Policy;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -271,19 +274,27 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback) {
+        verifyLogin(UID, new HashMap<String, Object>(), gigyaCallback);
+    }
+
+    /**
+     * Request to verify the current session state.
+     *
+     * @param UID           Current user UID.
+     * @param params        Request parameters.
+     * @param gigyaCallback Response callback.
+     * @see <a href="https://developers.gigya.com/display/GD/accounts.verifyLogin+REST">accounts.verifyLogin REST</a>
+     */
+    @Override
+    public void verifyLogin(String UID, Map<String, Object> params, final GigyaCallback<A> gigyaCallback) {
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");
             if (gigyaCallback != null) {
                 gigyaCallback.onError(GigyaError.unauthorizedUser());
             }
         }
-        final Map<String, Object> params = new HashMap<>();
         if (UID != null) {
             params.put("UID", UID);
-        }
-        if (!params.containsKey("include")) {
-            // If include field is not present add default fields.
-            params.put("include", "identities-all,loginIDs,profile,email,data");
         }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_VERIFY_LOGIN, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
@@ -436,6 +447,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     @Override
+    @Deprecated
     public void getAccount(@NonNull String[] include, @NonNull String[] profileExtraFields, GigyaCallback<A> gigyaCallback) {
         final String includeParam = ObjectUtils.commaConcat(include);
         final String profileExtraFieldsParam = ObjectUtils.commaConcat(profileExtraFields);
@@ -458,13 +470,19 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 return;
             }
         }
-        // Fetch caching relevant fields from parameter map (if exist) null fields are viable.
+
+        // Check includes
         final String include = params != null ? (String) params.get("include") : null;
+
+        // Check profileExtraFields
         final String profileExtraFields = params != null ? (String) params.get("extraProfileFields") : null;
+
+
         if (_accountService.isCachedAccount(include, profileExtraFields)) {
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
+
         _accountService.updateExtendedParametersRequest(include, profileExtraFields);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
@@ -726,19 +744,63 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     /**
      * Verify login id available for registration.
      *
-     * @param id            LoginID parameter.
+     * @param loginId       LoginID parameter.
      * @param gigyaCallback Response callback.
      */
     @Override
-    public void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
+    public void isAvailableLoginId(@NonNull final String loginId, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
         final Map<String, Object> params = new HashMap<>();
-        params.put("loginID", id);
+        params.put("loginID", loginId);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_IS_AVAILABLE_LOGIN_ID, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
                 final boolean isAvailable = response.getField("isAvailable", Boolean.class);
                 gigyaCallback.onSuccess(isAvailable);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
+    /**
+     * Retrieves the schema of the Profile object and the Data object.
+     *
+     * @param params        Optional parameters.
+     * @param gigyaCallback Response callback.
+     */
+    @Override
+    public void getSchema(@Nullable Map<String, Object> params, final @NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SCHEMA, params, RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                gigyaCallback.onSuccess(response.asMap());
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
+    @Override
+    public void getPolicies(@Nullable Map<String, Object> params, @NonNull final GigyaCallback<Policy> gigyaCallback) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_POLICIES, params, RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug("sdsd", "sdsdsd");
             }
 
             @Override
