@@ -7,6 +7,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.gigya.android.sdk.account.AccountConfig;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -24,11 +25,11 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.site.Policy;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.utils.EnvUtils;
-import com.gigya.android.sdk.utils.ObjectUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -275,6 +276,21 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+    //region CONFIG
+
+    /**
+     * Set Account configuration fields
+     * <p>
+     * These configuration fields will be used by default for all relevant SDK calls.
+     *
+     * @param accountConfig AccountConfig object.
+     */
+    public void setAccountConfig(AccountConfig accountConfig) {
+        _config.setAccountConfig(accountConfig);
+    }
+
+    //endregion
+
     //region ANONYMOUS APIS
 
     /**
@@ -368,11 +384,6 @@ public class Gigya<T extends GigyaAccount> {
     //endregion
 
     //region BUSINESS APIS
-
-    public void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "lisAvailableLoginId: with id = " + id);
-        _businessApiService.isAvailableLoginId(id, gigyaCallback);
-    }
 
     /**
      * Login with provided id and password.
@@ -525,6 +536,18 @@ public class Gigya<T extends GigyaAccount> {
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
         _businessApiService.verifyLogin(UID, gigyaCallback);
+    }
+
+    /**
+     * Request verify login given account UID/
+     *
+     * @param UID           Account UID identifier.
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void verifyLogin(String UID, Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
+        _businessApiService.verifyLogin(UID, params, gigyaCallback);
     }
 
     /**
@@ -725,6 +748,57 @@ public class Gigya<T extends GigyaAccount> {
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
         }
         return null;
+    }
+
+    //endregion
+
+    //region MISC
+
+    /**
+     * This method checks whether a certain login identifier (username / email) is available.
+     * A login identifier is available if it is unique in this user management system.
+     *
+     * @param loginId       The login identifier to check if available. Can be either a username or an email address.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void isAvailableLoginId(@NonNull final String loginId, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "lisAvailableLoginId: with id = " + loginId);
+        _businessApiService.isAvailableLoginId(loginId, gigyaCallback);
+    }
+
+    /**
+     * This method retrieves the schema of the Profile object and the Data object
+     * (the site specific custom data object) in Gigya's Accounts Storage.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getSchema(@NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSchema: ");
+        _businessApiService.getSchema(null, gigyaCallback);
+    }
+
+    /**
+     * This method retrieves the schema of the Profile object and the Data object
+     * (the site specific custom data object) in Gigya's Accounts Storage.
+     *
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSchema: ");
+        _businessApiService.getSchema(params, gigyaCallback);
+    }
+
+    /**
+     * This method retrieves account policies.
+     * Please refer to the accounts.setPolicies method parameters for a detailed specification of the policies.
+     *
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getPolicies(@NonNull Map<String, Object> params, @NonNull GigyaCallback<Policy> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getPolicies: ");
+        _businessApiService.getPolicies(params, gigyaCallback);
     }
 
     //endregion
