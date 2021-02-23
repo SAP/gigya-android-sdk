@@ -1,13 +1,18 @@
 package com.gigya.android.sdk.api;
 
+import android.text.TextUtils;
+
+import com.gigya.android.sdk.account.AccountConfig;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -59,6 +64,9 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         if (ucid != null) {
             urlParams.put("ucid", ucid);
         }
+
+        // Add global configuration request parameters.
+        addAccountConfigParameters(api, params);
 
         // Generate new GigyaApiRequest entity.
         return new GigyaApiRequest(httpMethod, api, urlParams);
@@ -112,5 +120,40 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
 
         return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams);
+    }
+
+    /**
+     * Adding specific account APIs related parameters.
+     *
+     * @param api    Requested API.
+     * @param params Request provided parameter map.
+     */
+    private void addAccountConfigParameters(String api, Map<String, Object> params) {
+        final AccountConfig accountConfig = _config.getAccountConfig();
+        if (accountConfig == null) {
+            return;
+        }
+        final String accountConfigInclude = accountConfig.getInclude() != null ? TextUtils.join(",", accountConfig.getInclude()) : null;
+        final String accountConfigExtraProfileFields = accountConfig.getExtraProfileFields() != null ? TextUtils.join(",", accountConfig.getExtraProfileFields()) : null;
+        if (params == null && (accountConfigInclude != null || accountConfigExtraProfileFields != null)) {
+            params = new HashMap<>();
+        }
+        switch (api) {
+            case GigyaDefinitions.API.API_GET_ACCOUNT_INFO:
+                if (!params.containsKey("include") && accountConfigInclude != null) {
+                    params.put("include", accountConfigInclude);
+                }
+                if (!params.containsKey("extraProfileFields") && accountConfigExtraProfileFields != null) {
+                    params.put("extraProfileFields", accountConfigExtraProfileFields);
+                }
+                break;
+            case GigyaDefinitions.API.API_LOGIN:
+            case GigyaDefinitions.API.API_REGISTER:
+            case GigyaDefinitions.API.API_VERIFY_LOGIN:
+                if (!params.containsKey("include") && accountConfigInclude != null) {
+                    params.put("include", accountConfigInclude);
+                }
+                break;
+        }
     }
 }

@@ -1,16 +1,24 @@
 package com.gigya.android.sdk;
 
+import com.gigya.android.sdk.account.AccountConfig;
+import com.google.gson.annotations.SerializedName;
+
 public class Config {
 
     private String apiKey;
     private String apiDomain;
     private String gmid;
     private String ucid;
+    @Deprecated
+    // Will be removed in SDK code version 6.
     private int accountCacheTime;
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
     private Long serverOffset;
-    private boolean secureActivityWindow  = false;
+    private boolean secureActivityWindow = false;
+
+    @SerializedName("account")
+    private AccountConfig accountConfig;
 
     //region UPDATE
 
@@ -43,6 +51,9 @@ public class Config {
         }
         if (config.getUcid() != null) {
             this.ucid = config.getUcid();
+        }
+        if (config.getAccountConfig() != null) {
+            this.accountConfig = config.getAccountConfig();
         }
         return this;
     }
@@ -84,9 +95,16 @@ public class Config {
     }
 
     public int getAccountCacheTime() {
+        // Account configuration object gets priority.
+        if (accountConfig != null) {
+            return accountConfig.getCacheTime();
+        }
+        // Will be removed in SDK code version 6.
         return accountCacheTime;
     }
 
+    @Deprecated
+    // Will be removed in SDK code version 6.
     public void setAccountCacheTime(int accountCacheTime) {
         this.accountCacheTime = accountCacheTime;
     }
@@ -121,6 +139,14 @@ public class Config {
 
     public void setSecureActivities(boolean secureActivities) {
         this.secureActivityWindow = secureActivities;
+    }
+
+    public AccountConfig getAccountConfig() {
+        return accountConfig;
+    }
+
+    public void setAccountConfig(AccountConfig accountConfig) {
+        this.accountConfig = accountConfig;
     }
 
     //endregion
