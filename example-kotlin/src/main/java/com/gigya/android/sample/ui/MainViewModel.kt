@@ -134,7 +134,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun register(loginID: String, password: String, exp: Int, success: (String) -> Unit, error: (GigyaError?) -> Unit) {
         flushAccountReferences()
-        gigya.register(loginID, password, mutableMapOf<String, Any>("sessionExpiration" to exp), object : GigyaLoginCallback<MyAccount>() {
+        gigya.register(loginID, password, mutableMapOf<String, Any>("sessionExpiration" to "-2"), object : GigyaLoginCallback<MyAccount>() {
 
             override fun onSuccess(obj: MyAccount?) {
                 myAccountLiveData.value = obj
