@@ -7,7 +7,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.gigya.android.sdk.account.AccountConfig;
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -25,7 +25,6 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.site.Policy;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
@@ -283,10 +282,10 @@ public class Gigya<T extends GigyaAccount> {
      * <p>
      * These configuration fields will be used by default for all relevant SDK calls.
      *
-     * @param accountConfig AccountConfig object.
+     * @param gigyaAccountConfig AccountConfig object.
      */
-    public void setAccountConfig(AccountConfig accountConfig) {
-        _config.setAccountConfig(accountConfig);
+    public void setAccountConfig(GigyaAccountConfig gigyaAccountConfig) {
+        _config.setGigyaAccountConfig(gigyaAccountConfig);
     }
 
     //endregion
@@ -787,18 +786,6 @@ public class Gigya<T extends GigyaAccount> {
     public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getSchema: ");
         _businessApiService.getSchema(params, gigyaCallback);
-    }
-
-    /**
-     * This method retrieves account policies.
-     * Please refer to the accounts.setPolicies method parameters for a detailed specification of the policies.
-     *
-     * @param params        Additional parameters.
-     * @param gigyaCallback Response listener callback.
-     */
-    public void getPolicies(@NonNull Map<String, Object> params, @NonNull GigyaCallback<Policy> gigyaCallback) {
-        GigyaLogger.debug(LOG_TAG, "getPolicies: ");
-        _businessApiService.getPolicies(params, gigyaCallback);
     }
 
     //endregion

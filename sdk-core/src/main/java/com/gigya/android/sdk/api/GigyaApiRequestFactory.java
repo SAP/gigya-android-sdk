@@ -2,7 +2,7 @@ package com.gigya.android.sdk.api;
 
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.account.AccountConfig;
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -66,7 +66,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         }
 
         // Add global configuration request parameters.
-        addAccountConfigParameters(api, params);
+        addAccountConfigParameters(api, urlParams);
 
         // Generate new GigyaApiRequest entity.
         return new GigyaApiRequest(httpMethod, api, urlParams);
@@ -129,15 +129,12 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
      * @param params Request provided parameter map.
      */
     private void addAccountConfigParameters(String api, Map<String, Object> params) {
-        final AccountConfig accountConfig = _config.getAccountConfig();
-        if (accountConfig == null) {
+        final GigyaAccountConfig gigyaAccountConfig = _config.getGigyaAccountConfig();
+        if (gigyaAccountConfig == null) {
             return;
         }
-        final String accountConfigInclude = accountConfig.getInclude() != null ? TextUtils.join(",", accountConfig.getInclude()) : null;
-        final String accountConfigExtraProfileFields = accountConfig.getExtraProfileFields() != null ? TextUtils.join(",", accountConfig.getExtraProfileFields()) : null;
-        if (params == null && (accountConfigInclude != null || accountConfigExtraProfileFields != null)) {
-            params = new HashMap<>();
-        }
+        final String accountConfigInclude = gigyaAccountConfig.getInclude() != null ? TextUtils.join(",", gigyaAccountConfig.getInclude()) : null;
+        final String accountConfigExtraProfileFields = gigyaAccountConfig.getExtraProfileFields() != null ? TextUtils.join(",", gigyaAccountConfig.getExtraProfileFields()) : null;
         switch (api) {
             case GigyaDefinitions.API.API_GET_ACCOUNT_INFO:
                 if (!params.containsKey("include") && accountConfigInclude != null) {

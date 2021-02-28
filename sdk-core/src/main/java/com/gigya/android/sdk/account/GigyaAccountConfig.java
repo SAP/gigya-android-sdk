@@ -1,6 +1,6 @@
 package com.gigya.android.sdk.account;
 
-public class AccountConfig {
+public class GigyaAccountConfig {
 
     private int cacheTime = 0;
     private String[] include;
