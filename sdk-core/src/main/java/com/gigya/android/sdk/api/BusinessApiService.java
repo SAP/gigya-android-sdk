@@ -3,7 +3,6 @@ package com.gigya.android.sdk.api;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -22,7 +21,6 @@ import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.site.Policy;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
@@ -185,10 +183,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      */
     @Override
     public void login(Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
-        if (!params.containsKey("include")) {
-            // If include field is not present add default fields.
-            params.put("include", "profile,data,subscriptions,preferences");
-        }
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_LOGIN, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
@@ -782,25 +776,6 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
                 gigyaCallback.onSuccess(response.asMap());
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                gigyaCallback.onError(gigyaError);
-            }
-        });
-    }
-
-    @Override
-    public void getPolicies(@Nullable Map<String, Object> params, @NonNull final GigyaCallback<Policy> gigyaCallback) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_POLICIES, params, RestAdapter.HttpMethod.POST);
-        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug("sdsd", "sdsdsd");
             }
 
             @Override

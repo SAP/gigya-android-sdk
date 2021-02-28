@@ -10,7 +10,6 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
-import com.gigya.android.sdk.site.Policy;
 
 import java.util.Map;
 
@@ -67,7 +66,5 @@ public interface IBusinessApiService<A extends GigyaAccount> {
     void isAvailableLoginId(@NonNull final String id, @NonNull final GigyaCallback<Boolean> gigyaCallback);
 
     void getSchema(@Nullable Map<String, Object> params, @NonNull final GigyaCallback<Map<String, Object>> gigyaCallback);
-
-    void getPolicies(@Nullable Map<String, Object> params, @NonNull GigyaCallback<Policy> gigyaCallback);
 
 }
