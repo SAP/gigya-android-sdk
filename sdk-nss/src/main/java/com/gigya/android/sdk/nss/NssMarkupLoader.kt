@@ -1,6 +1,8 @@
 package com.gigya.android.sdk.nss
 
 import android.content.Context
+import android.telephony.TelephonyManager
+import android.util.Log
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
@@ -52,7 +54,7 @@ class NssMarkupLoader<T : GigyaAccount>(
      * Load markup from internal asset file.
      */
     @Suppress("UNCHECKED_CAST")
-    fun loadMarkupAsset(assetPath: String?, initialRoute: String?, lang: String?): Map<String, Any>? {
+    fun loadMarkupAsset(assetPath: String?, initialRoute: String?, lang: String?): MutableMap<String, Any>? {
         assetPath?.apply {
             val jsonAsset = loadJsonFromAssets(context, "$assetPath.json")
             jsonAsset.guard {
@@ -65,7 +67,7 @@ class NssMarkupLoader<T : GigyaAccount>(
             val localizationAsset = loadJsonFromAssets(context, "$assetPath$LOCALIZATION_SUFFIX")
 
             // Map available assets.
-            val jsonMap = gson.fromJson<Map<String, Any>>(jsonAsset, object : TypeToken<Map<String, Any>>() {}.type)
+            val jsonMap = gson.fromJson<MutableMap<String, Any>>(jsonAsset, object : TypeToken<Map<String, Any>>() {}.type)
             jsonMap.refined<MutableMap<String, Any>> { map ->
                 val routingMap: MutableMap<String, Any> = map["routing"] as MutableMap<String, Any>
                 initialRoute?.let { userDefinedInitialRoute ->
@@ -106,7 +108,7 @@ class NssMarkupLoader<T : GigyaAccount>(
      * Load the markup from the remote API-Key host.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun loadMarkupRemote(screenSetId: String?, lang: String, onLoad: (Map<String, Any>?) -> Unit, onLoadError: (GigyaError) -> Unit) {
+    private fun loadMarkupRemote(screenSetId: String?, lang: String, onLoad: (MutableMap<String, Any>?) -> Unit, onLoadError: (GigyaError) -> Unit) {
         screenSetId?.guard {
             throw RuntimeException("ScreenSet ID not provided - Flow invalid")
         }
@@ -116,9 +118,9 @@ class NssMarkupLoader<T : GigyaAccount>(
 
                     override fun onSuccess(obj: GigyaApiResponse?) {
                         obj?.let { response ->
-                            val markupMap =  mutableMapOf<String, Any>()
+                            val markupMap = mutableMapOf<String, Any>()
                             markupMap["lang"] = lang
-                            markupMap.putAll(response.asMap()["screenSet"] as Map<out String, Any>)
+                            markupMap.putAll(response.asMap()["screenSet"] as MutableMap<out String, Any>)
                             onLoad(markupMap)
                         }
                     }
@@ -143,15 +145,54 @@ class NssMarkupLoader<T : GigyaAccount>(
                         null -> ""
                         else -> data.lang!!
                     },
-                    markupLoaded,
+                    { markupMap ->
+                        addPlatformSettings(markupMap)
+                        markupLoaded(markupMap)
+                    },
                     markupFailedToLoad
             )
         } else if (data.asset != null) {
             val markupMap = loadMarkupAsset(data.asset, data.initialRoute, data.lang)
             markupMap?.let { map ->
+                addPlatformSettings(map)
                 markupLoaded(map)
             } ?: markupFailedToLoad(GigyaError.errorFrom("Failed to load markup asset"));
         }
     }
+
+    /**
+     * Add platform specific settings to the markup.
+     *
+     * Currently supported:
+     * 1. iso3116-2 Country code taken from device network.
+     */
+    private fun addPlatformSettings(map: MutableMap<String, Any>?) {
+        map?.let { markup ->
+            val platform = mutableMapOf<String, Any>()
+            val countryIso = detectNetworkCountry()
+            if (countryIso != null) {
+                platform["iso3166"] = countryIso
+            }
+            // Add to main markup only if has relevant data.
+            if (platform.isNotEmpty()) {
+                markup["platform"] = platform
+            }
+        }
+    }
+
+    /**
+     * Reference device network locale.
+     */
+    private fun detectNetworkCountry(): String? {
+        try {
+            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            Log.d(LOG_TAG, "detectNetworkCountry: ${telephonyManager.simCountryIso}")
+            return telephonyManager.networkCountryIso
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
 
 }

@@ -8,7 +8,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.transition.Slide
+import android.util.Log
 import android.view.View
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
