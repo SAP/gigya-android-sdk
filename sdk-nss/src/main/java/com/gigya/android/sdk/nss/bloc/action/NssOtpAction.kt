@@ -47,9 +47,9 @@ class NssOtpAction<T : GigyaAccount>(businessApi: IBusinessApiService<T>,
                     "submit" -> {
                         when (state) {
                             State.PHONE -> {
-                                val loginId: String = arguments["phone"] as? String ?: ""
-                                val params: Map<String, Any> = arguments["params"] as Map<String, Any>
-                                GigyaAuth.getInstance().otp.phoneLogin(loginId, params, object : GigyaOTPCallback<T>() {
+                                val phoneNumber: String = arguments["phoneNumber"] as? String ?: ""
+                                val params: MutableMap<String, Any> = arguments["params"] as MutableMap<String, Any>? ?: mutableMapOf()
+                                GigyaAuth.getInstance().otp.phoneLogin(phoneNumber, params, object : GigyaOTPCallback<T>() {
 
                                     override fun onSuccess(obj: T) {
                                         nssCallback.onSuccess(obj)
@@ -60,6 +60,7 @@ class NssOtpAction<T : GigyaAccount>(businessApi: IBusinessApiService<T>,
                                     }
 
                                     override fun onPendingOTPVerification(response: GigyaApiResponse, resolver: IGigyaOtpResult) {
+                                        flowDelegate!!.getCurrentResult()?.success(response.asMap())
                                         otpResolver = resolver
                                         state = State.CODE
                                     }

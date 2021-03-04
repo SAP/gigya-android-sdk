@@ -1,52 +1,4 @@
 {
-  "theme": {
-    "primaryColor": "blue",
-    "secondaryColor": "white",
-    "textColor": "black",
-    "enabledColor": "blue",
-    "disabledColor": "grey",
-    "errorColor": "red",
-    "linkColor": "blue"
-  },
-  "customThemes": {
-    "title": {
-      "fontWeight": "bold",
-      "fontSize": 18
-    },
-    "subtitle": {
-      "fontSize": 16
-    },
-    "input": {
-      "margin": [
-        16,
-        8,
-        15,
-        8
-      ]
-    },
-    "flatButton": {
-      "fontSize": 14,
-      "fontColor": "white",
-      "fontWeight": 6,
-      "elevation": 2,
-      "background": "blue",
-      "size": [
-        300,
-        44
-      ]
-    },
-    "raisedButton": {
-      "fontSize": 14,
-      "fontColor": "white",
-      "fontWeight": 4,
-      "elevation": 0,
-      "background": "blue",
-      "size": [
-        300,
-        40
-      ]
-    }
-  },
   "useSchemaValidations": false,
   "i18n": {
     "_default": {
@@ -680,6 +632,110 @@
               26,
               0,
               16
+            ]
+          }
+        },
+        {
+          "type": "submit",
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "margin": [
+              0,
+              40,
+              0,
+              0
+            ],
+            "cornerRadius": 5
+          }
+        }
+      ]
+    },
+    "phone-login": {
+      "routing": {
+        "onSuccess": "phone-verification"
+      },
+      "action": "otp",
+      "appBar": {
+        "textKey": "login"
+      },
+      "stack": "vertical",
+      "children": [
+        {
+          "type": "label",
+          "textKey": "Login with your phone number",
+          "theme": "title",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          }
+        },
+        {
+          "type": "phoneInput",
+          "bind": "phoneNumber",
+          "textKey": "enter your phone number",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              4
+            ]
+          }
+        },
+        {
+          "type": "submit",
+          "textKey": "common-submit",
+          "theme": "raisedButton",
+          "style": {
+            "margin": [
+              0,
+              40,
+              0,
+              0
+            ],
+            "cornerRadius": 5
+          }
+        }
+      ]
+    },
+    "phone-verification": {
+      "routing": {
+        "onSuccess": "_dismiss"
+      },
+      "action": "otp",
+      "appBar": {
+        "textKey": "verify SMS"
+      },
+      "stack": "vertical",
+      "children": [
+        {
+          "type": "label",
+          "textKey": "Login with your phone number",
+          "theme": "title",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          }
+        },
+        {
+          "type": "textInput",
+          "bind": "code",
+          "textKey": "Verify SMS code",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              4
             ]
           }
         },
