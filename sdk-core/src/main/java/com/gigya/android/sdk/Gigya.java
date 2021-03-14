@@ -22,6 +22,7 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
 import com.gigya.android.sdk.reporting.ReportingManager;
+import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
@@ -771,7 +772,7 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param gigyaCallback Response listener callback.
      */
-    public void getSchema(@NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+    public void getSchema(@NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getSchema: ");
         _businessApiService.getSchema(null, gigyaCallback);
     }
@@ -783,7 +784,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params        Additional parameters.
      * @param gigyaCallback Response listener callback.
      */
-    public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+    public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getSchema: ");
         _businessApiService.getSchema(params, gigyaCallback);
     }

@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class GigyaApiRequestFactory implements IApiRequestFactory {
+public class
+GigyaApiRequestFactory implements IApiRequestFactory {
 
     private static final String LOG_TAG = "GigyaApiRequestFactory";
 
