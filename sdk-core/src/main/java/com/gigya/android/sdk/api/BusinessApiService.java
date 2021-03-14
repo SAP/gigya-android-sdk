@@ -19,6 +19,7 @@ import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.reporting.ReportingManager;
+import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.DeviceUtils;
@@ -767,22 +768,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaCallback Response callback.
      */
     @Override
-    public void getSchema(@Nullable Map<String, Object> params, final @NonNull GigyaCallback<Map<String, Object>> gigyaCallback) {
+    public void getSchema(@Nullable Map<String, Object> params, final @NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
         if (params == null) {
             params = new HashMap<>();
         }
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_SCHEMA, params, RestAdapter.HttpMethod.POST);
-        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                gigyaCallback.onSuccess(response.asMap());
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                gigyaCallback.onError(gigyaError);
-            }
-        });
+        send(GigyaDefinitions.API.API_GET_SCHEMA, params, RestAdapter.HttpMethod.POST.intValue(), GigyaSchema.class, gigyaCallback);
     }
 
     //endregion
