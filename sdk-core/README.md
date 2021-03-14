@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-5.0.0aar')
+implementation files('libs/gigya-android-sdk-5.1.0aar')
 ```
 
 ### Implement using Jitpack
@@ -36,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.0.0'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.1.0'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -96,6 +96,9 @@ This will allow the SDK to parse the required configuration fields (ApiKey, ApiD
 "sessionVerificationInterval": 60
 }
 ```
+
+**DEPRECATED - Please do not use meta-data initialization**
+**Option will be removed in later version**
 **Using meta-data tags in your *AndroidManifest.xml* file**
 ```xml
 <meta-data
@@ -114,6 +117,7 @@ android:value="1"/>
 android:name="sessionVerificationInterval"
 android:value="60" />
 ```
+
  
 ### Explicit initialization
 As an alternative to implicit initialization, you can initialize the SDK explicitly:
@@ -561,6 +565,50 @@ Logging out will clear all session data from the device.
 
 ## Account Handling
 The SDK provides various account handling interfaces to simplify fetching and updating the user's data.
+
+### Setting account configuration
+In order to align all account related request we recommend that an account configuration setting will be applied.
+This is a global SDK setting and will affect all account related requests.
+
+Account configuration will include:
+ - cacheTime - The time the SDK will cache your account data until requested again to lower network usage.
+ - include - The default include fields used in every account request.
+ - extraProfileFieds - The default extra profile fields used in every account request.
+
+In order to set the account configuration use one of the following methods:
+#### Implicit settings via the *gigyaSdkConfiguration.json* file
+```json
+{
+  "apiKey": "API-KEY-HERE",
+  "apiDomain": "API-DOMAIN-HERE",
+  "accountCacheTime": 1,
+  "account": {
+    "cacheTime": 1,
+    "include": [
+      "data",
+      "profile",
+      "emails"
+    ],
+    "extraProfileFields": [
+      "languages",
+      "phones"
+    ]
+  },
+  "sessionVerificationInterval": 0
+}
+```
+
+#### Explicit setting via the Gigya instance.
+```java
+Gigya.getInstance().setAccountConfig(myAccountConfigObject)
+```
+We recommend setting this right after you initialize the SDK.
+
+**
+NOTE:
+The previous ""accountCacheTime" setting in the *gigyaSdkConfiguration.json* file will now be deprecated and is
+scheduled to be removed in later versions.
+**
 
 ### Providing A Custom Account Schema
 In your Gigya implementation you have probably extended the default Account Schema according to your business requirements:
