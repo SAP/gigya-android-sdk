@@ -50,7 +50,6 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_verify" />
 
         <Button
@@ -65,7 +64,6 @@
             android:layout_toStartOf="@id/ftpv_verify_button"
             android:layout_toLeftOf="@id/ftpv_verify_button"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_dismiss" />
     </RelativeLayout>
 </FrameLayout>

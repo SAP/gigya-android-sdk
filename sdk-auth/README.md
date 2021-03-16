@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Authentication SDK
 
 ## Description
 Gigya's Android Authentication SDK library provides a Java interface for applying additional authentication options.
@@ -17,14 +17,14 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the auth library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-auth-2.0.0.aar')
+implementation files('libs/gigya-android-auth-2.1.0.aar')
 ```
 
 -Or-
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk-auth:auth-v2.1.0'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-auth:auth-v2.1.0'
 ```
 
 **In addition you will need to add this dependency as well.**
@@ -147,6 +147,11 @@ In the case, settings are disabled the SDK will issue a notice dialog.
 
 ```java
 GigyaAuth.getInstance().registerForPushNotifications(this /* activity context */)
+```
+
+```
+NOTE: An authentication notification sent will not wake your device. It is required for the application to be active in order to receive 
+a notification.
 ```
 
 ## The Verification Flow
