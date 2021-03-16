@@ -466,19 +466,13 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         }
 
-        // Check includes
-        final String include = params != null ? (String) params.get("include") : null;
-
-        // Check profileExtraFields
-        final String profileExtraFields = params != null ? (String) params.get("extraProfileFields") : null;
-
-
-        if (_accountService.isCachedAccount(include, profileExtraFields)) {
+        // Check cached account state.
+        if (_accountService.isCachedAccount()) {
+            GigyaLogger.debug(LOG_TAG, "getAccount: Cached account used");
             gigyaCallback.onSuccess(_accountService.getAccount());
             return;
         }
 
-        _accountService.updateExtendedParametersRequest(include, profileExtraFields);
         final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_GET_ACCOUNT_INFO, params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override

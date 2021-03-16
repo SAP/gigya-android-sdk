@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -22,7 +21,6 @@ import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.fragment.*
 import com.gigya.android.sdk.Gigya
-import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.auth.GigyaAuth
@@ -243,7 +241,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_remove_connection -> onRemoveConnection()
             R.id.action_register -> onRegister()
             R.id.action_get_account_info -> onGetAccount()
-            R.id.action_get_account_info_extra -> onGetAccountWithExtraFields()
+            R.id.action_get_account_and_invalidate_cache -> getAccountAndInvalidateCache()
             R.id.action_set_account_info -> onSetAccount()
             R.id.action_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
@@ -623,13 +621,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    private fun onGetAccountWithExtraFields() {
+    private fun getAccountAndInvalidateCache() {
         if (!viewModel!!.isLoggedIn()) {
             response_text_view.snackbar(getString(R.string.not_logged_in))
             return
         }
         onLoading()
-        viewModel?.getAccountWithExtraFields(
+        viewModel?.getAccountAndInvalidateCache(
                 success = { json ->
                     onJsonResult(json)
                 },
