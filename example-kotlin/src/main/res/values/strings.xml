@@ -40,7 +40,7 @@
     <!-- Helper Strings -->
     <string name="send_request_test_no_parameters">socialize.getAvailableProviders</string>
     <string name="opt_in_for_push_tfa">Opt in for push TFA</string>
-    <string name="get_account_with_extrea_fields">Get Account (with extrea fields)</string>
+    <string name="get_account_invalidate_cache">Get Account + Invalidate cache</string>
     <string name="register_for_push_authentication">Register for push authentication</string>
     <string name="otp_login">OTP login</string>
 
