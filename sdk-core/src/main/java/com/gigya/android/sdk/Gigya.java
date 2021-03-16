@@ -7,6 +7,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -20,12 +21,15 @@ import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
+import com.gigya.android.sdk.reporting.ReportingManager;
+import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
+import com.gigya.android.sdk.utils.EnvUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +46,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.0.1";
+    public static final String VERSION = "5.1.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -89,6 +93,7 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     public static void setApplication(Application appContext) {
+        EnvUtils.checkGson();
         getContainer()
                 .bind(Application.class, appContext)
                 .bind(Context.class, appContext);
@@ -102,6 +107,7 @@ public class Gigya<T extends GigyaAccount> {
     */
     @SuppressWarnings("unchecked")
     public static synchronized Gigya<? extends GigyaAccount> getInstance() {
+        EnvUtils.checkGson();
         if (INSTANCE == null) {
             return getInstance(GigyaAccount.class);
         }
@@ -113,6 +119,7 @@ public class Gigya<T extends GigyaAccount> {
     */
     @SuppressWarnings("unchecked")
     public static synchronized <V extends GigyaAccount> Gigya<V> getInstance(@NonNull Class<V> accountClazz) {
+        EnvUtils.checkGson();
         if (INSTANCE == null) {
             IoCContainer container = getContainer();
             container.bind(GigyaAccountClass.class, new GigyaAccountClass(accountClazz));
@@ -120,7 +127,6 @@ public class Gigya<T extends GigyaAccount> {
             try {
                 INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
                 e.printStackTrace();
                 throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
             }
@@ -128,7 +134,6 @@ public class Gigya<T extends GigyaAccount> {
         // Check scheme. If already set log an error.
         final Class schema = INSTANCE.getAccountSchema();
         if (schema != accountClazz) {
-            GigyaLogger.error(LOG_TAG, "Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
             throw new RuntimeException("Scheme already set in previous initialization.\nSDK does not allow to override a set scheme.");
         }
         return INSTANCE;
@@ -271,6 +276,21 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+    //region CONFIG
+
+    /**
+     * Set Account configuration fields
+     * <p>
+     * These configuration fields will be used by default for all relevant SDK calls.
+     *
+     * @param gigyaAccountConfig AccountConfig object.
+     */
+    public void setAccountConfig(GigyaAccountConfig gigyaAccountConfig) {
+        _config.setGigyaAccountConfig(gigyaAccountConfig);
+    }
+
+    //endregion
+
     //region ANONYMOUS APIS
 
     /**
@@ -381,6 +401,20 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Login with provided id and password.
+     *
+     * @param loginId       LoginID.
+     * @param password      Login password.
+     * @param params        additional parameter map.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void login(String loginId, String password, @NonNull Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
+        params.put("loginID", loginId);
+        params.put("password", password);
+        login(params, gigyaCallback);
+    }
+
+    /**
      * Login with given parameters.
      *
      * @param params             parameters map.
@@ -441,12 +475,30 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Request account info given parameters map.
+     *
+     * @param invalidateCache Should override the account caching option. When set to true, the SDK will not cache the account object.
+     * @param params          Request parameter map.
+     * @param gigyaCallback   Response listener callback.
+     */
+    public void getAccount(final boolean invalidateCache, @NonNull final Map<String, Object> params, @NonNull GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAccount with params:\n" + params.toString());
+        if (invalidateCache) {
+            _accountService.invalidateAccount();
+        }
+        _businessApiService.getAccount(params, gigyaCallback);
+    }
+
+
+    /**
      * Request account info given comma separated array of include parameters and comma separated array of profile extra fields.
      *
      * @param include            String[]  array.
      * @param profileExtraFields String[] array.
      * @param gigyaCallback      Response listener callback.
+     * @deprecated Please use {@link #getAccount(boolean, Map, GigyaCallback)} method and add "include" and "extraProfileFields" accordingly.
      */
+    @Deprecated
     public void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, @NonNull GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getAccount with include:\n" + Arrays.toString(include)
                 + "\nand profileExtraFields:\n" + Arrays.toString(profileExtraFields));
@@ -484,6 +536,18 @@ public class Gigya<T extends GigyaAccount> {
     public void verifyLogin(String UID, GigyaCallback<T> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
         _businessApiService.verifyLogin(UID, gigyaCallback);
+    }
+
+    /**
+     * Request verify login given account UID/
+     *
+     * @param UID           Account UID identifier.
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void verifyLogin(String UID, Map<String, Object> params, GigyaCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "verifyLogin: for UID = " + UID);
+        _businessApiService.verifyLogin(UID, params, gigyaCallback);
     }
 
     /**
@@ -548,6 +612,17 @@ public class Gigya<T extends GigyaAccount> {
     public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaLoginCallback<T> loginCallback) {
         GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
         _businessApiService.addConnection(socialProvider, loginCallback);
+    }
+
+    /**
+     * Add a social connection to existing account.
+     *
+     * @param socialProvider Social provider identifier.
+     * @param loginCallback  Response listener callback.
+     */
+    public void addConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, @NonNull Map<String, Object> params, GigyaLoginCallback<T> loginCallback) {
+        GigyaLogger.debug(LOG_TAG, "addConnection: with " + socialProvider);
+        _businessApiService.addConnection(socialProvider, params, loginCallback);
     }
 
     /**
@@ -669,9 +744,49 @@ public class Gigya<T extends GigyaAccount> {
             return _container.get(IGigyaWebBridge.class);
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().error(VERSION, "core", "Unable to create new WebBridge instance");
             GigyaLogger.error(LOG_TAG, "Exception creating new WebBridge instance");
         }
         return null;
+    }
+
+    //endregion
+
+    //region MISC
+
+    /**
+     * This method checks whether a certain login identifier (username / email) is available.
+     * A login identifier is available if it is unique in this user management system.
+     *
+     * @param loginId       The login identifier to check if available. Can be either a username or an email address.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void isAvailableLoginId(@NonNull final String loginId, @NonNull final GigyaCallback<Boolean> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "lisAvailableLoginId: with id = " + loginId);
+        _businessApiService.isAvailableLoginId(loginId, gigyaCallback);
+    }
+
+    /**
+     * This method retrieves the schema of the Profile object and the Data object
+     * (the site specific custom data object) in Gigya's Accounts Storage.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getSchema(@NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSchema: ");
+        _businessApiService.getSchema(null, gigyaCallback);
+    }
+
+    /**
+     * This method retrieves the schema of the Profile object and the Data object
+     * (the site specific custom data object) in Gigya's Accounts Storage.
+     *
+     * @param params        Additional parameters.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSchema: ");
+        _businessApiService.getSchema(params, gigyaCallback);
     }
 
     //endregion

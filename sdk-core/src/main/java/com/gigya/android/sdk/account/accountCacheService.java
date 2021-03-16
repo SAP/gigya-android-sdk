@@ -39,17 +39,6 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
     private boolean _accountOverrideCache = false;
 
 
-    /*
-    Saving reference to the last "include" call parameter.
-     */
-    private String _lastRequestedInclude;
-
-    /*
-    Saving reference to the last "profileExtraFields" call parameter.
-     */
-    private String _lastRequestedProfileExtraFields;
-
-
     public accountCacheService(Config config, GigyaAccountClass<A> accountClazz) {
         _config = config;
         _accountScheme = accountClazz.getAccountClass();
@@ -82,14 +71,13 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
     }
 
     @Override
-    public boolean isCachedAccount(String include, String profileExtraFields) {
-        if (!(!_accountOverrideCache && _cachedAccount != null && System.currentTimeMillis() < _accountInvalidationTimestamp)) {
+    public boolean isCachedAccount() {
+        if (_accountOverrideCache) return false;
+        if (_cachedAccount == null) return false;
+        if (_cachedAccount != null && System.currentTimeMillis() > _accountInvalidationTimestamp) {
             return false;
         }
-        if (!ObjectUtils.nullAllowedEquals(include, _lastRequestedInclude)) {
-            return false;
-        }
-        return ObjectUtils.nullAllowedEquals(profileExtraFields, _lastRequestedProfileExtraFields);
+        return true;
     }
 
     @Override
@@ -111,13 +99,6 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
     @Override
     public void setAccountOverrideCache(boolean accountOverrideCache) {
         _accountOverrideCache = accountOverrideCache;
-    }
-
-    @Override
-    public void updateExtendedParametersRequest(String include, String profileExtraFields) {
-        // Null fields are viable.
-        _lastRequestedInclude = include;
-        _lastRequestedProfileExtraFields = profileExtraFields;
     }
 
     //region ACCOUNT SPECIFIC LOGIC

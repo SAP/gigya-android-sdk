@@ -24,13 +24,54 @@ implementation files('libs/gigya-android-auth-2.0.0.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-auth:auth-v2.0.0'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-auth:auth-v2.1.0'
 ```
 
 **In addition you will need to add this dependency as well.**
 ```gradle
 implementation 'androidx.appcompat:appcompat:1.2.0'
 ```
+
+## OTP Phone number login (v2.1.+)
+**In order to use this method you will require a minumim Gigya Core SDK version of 5.1.0.**
+
+Initiating a phone number login is available using the following flow.
+
+1. Initiate the login flow providing a phone number. This will result in a verification message to be sent to the provided
+Phone number.
+```
+GigyaAuth.getInstance().otp.phoneLogin(phoneNumber, object : GigyaOTPCallback<MyAccount>() {
+
+            override fun onSuccess(obj: MyAccount?) {
+                Log.d("OTP_TAG", "Success")
+            }
+
+            override fun onError(error: GigyaError?) {
+                Log.d("OTP_TAG", "Error")
+            }
+
+            override fun onPendingOTPVerification(response: GigyaApiResponse, resolver: IGigyaOtpResult) {
+                otpResolver = resolver // resolver used to verify the code once arrives.
+                Log.d("OTP_TAG", "Code sent")
+            }
+})
+```
+
+2. Verify the recieved code to complete login flow.
+Using the *IGigyaOtpResult* resolve class received in the *onPendingOTPVerification* callback you are now able to
+verify the code and complete the login flow. The flow will resolve in the original callback.
+```
+resolver.verify(code)
+```
+
+Updating the user phone number is also available. The flow is the same but will start with the **update** option
+rather than the **login** option.
+```
+GigyaAuth.getInstance().otp.phoneUpdate(...
+```
+
+NOTE:
+OTP phone number supports the following format +[country code][number] only.
 
 ## Remote Login Verification
 

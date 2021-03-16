@@ -16,15 +16,13 @@ public interface IAccountService<A extends GigyaAccount> {
 
     A getAccount();
 
-    boolean isCachedAccount(String include, String profileExtraFields);
+    boolean isCachedAccount();
 
     void nextAccountInvalidationTimestamp();
 
     long getNextInvalidationTimestamp();
 
     void setAccountOverrideCache(boolean accountOverrideCache);
-
-    void updateExtendedParametersRequest(String include, String profileExtraFields);
 
     Map<String, Object> calculateDiff(A cachedAccount, A updatedAccount);
 }

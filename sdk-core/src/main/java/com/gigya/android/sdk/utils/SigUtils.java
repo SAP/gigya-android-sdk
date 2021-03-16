@@ -2,7 +2,9 @@ package com.gigya.android.sdk.utils;
 
 import android.util.Base64;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.reporting.ReportingManager;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -47,6 +49,7 @@ public class SigUtils {
             return encodeSignature(baseSignature, secret);
         } catch (Exception ex) {
             ex.printStackTrace();
+            ReportingManager.get().error(Gigya.VERSION, "core", "Exception while generating signature");
             GigyaLogger.error("SigUtils", "getSignature: Exception while generating signature");
         }
         return null;

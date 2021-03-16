@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.nss;
 
 import android.annotation.SuppressLint;
+import android.telephony.TelephonyManager;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
@@ -10,6 +11,7 @@ import com.gigya.android.sdk.nss.bloc.action.NssActionFactory;
 import com.gigya.android.sdk.nss.bloc.action.NssForgotPasswordAction;
 import com.gigya.android.sdk.nss.bloc.action.NssLinkAccountAction;
 import com.gigya.android.sdk.nss.bloc.action.NssLoginAction;
+import com.gigya.android.sdk.nss.bloc.action.NssOtpAction;
 import com.gigya.android.sdk.nss.bloc.action.NssRegistrationAction;
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction;
 import com.gigya.android.sdk.nss.bloc.data.NssDataResolver;
@@ -26,7 +28,7 @@ import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle;
 
 public class GigyaNss {
 
-    private static final String VERSION = "1.1.1";
+    public static final String VERSION = "1.1.1";
 
     private static final String LOG_TAG = "GigyaNss";
 
@@ -52,6 +54,7 @@ public class GigyaNss {
             container.bind(NssRegistrationAction.class, NssRegistrationAction.class, false);
             container.bind(NssLoginAction.class, NssLoginAction.class, false);
             container.bind(NssSetAccountAction.class, NssSetAccountAction.class, false);
+            container.bind(NssOtpAction.class, NssOtpAction.class, false);
             container.bind(NssActionFactory.class, NssActionFactory.class, false);
             container.bind(NssForgotPasswordAction.class, NssForgotPasswordAction.class, false);
             container.bind(NssLinkAccountAction.class, NssLinkAccountAction.class, false);

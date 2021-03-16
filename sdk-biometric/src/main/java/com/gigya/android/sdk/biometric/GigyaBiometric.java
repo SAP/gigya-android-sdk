@@ -8,6 +8,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
 import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
 import com.gigya.android.sdk.containers.IoCContainer;
+import com.gigya.android.sdk.reporting.ReportingManager;
 
 import javax.crypto.Cipher;
 
@@ -42,7 +43,7 @@ public class GigyaBiometric {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                throw new RuntimeException("Error creating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
+                throw new RuntimeException("Error instantiating Gigya Biometric SDK (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;
@@ -87,10 +88,12 @@ public class GigyaBiometric {
      */
     private boolean verifyBiometricSupport(Context context) {
         if (!GigyaBiometricUtils.isSupported(context)) {
+            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "Fingerprint is not supported on this device. No sensor hardware was detected");
             GigyaLogger.error(LOG_TAG, "Fingerprint is not supported on this device. No sensor hardware was detected");
             return false;
         }
         if (!GigyaBiometricUtils.hasEnrolledFingerprints(context)) {
+            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "No fingerprint data available on device. Please enroll at least one fingerprint");
             GigyaLogger.error(LOG_TAG, "No fingerprint data available on device. Please enroll at least one fingerprint");
             return false;
         }
@@ -116,7 +119,7 @@ public class GigyaBiometric {
     /**
      * Opts-in the existing session to use fingerprint authentication.
      *
-     * @param activity Initiator activity.
+     * @param activity          Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
@@ -134,7 +137,7 @@ public class GigyaBiometric {
     /**
      * Opts-out the existing session from using fingerprint authentication.
      *
-     * @param activity Initiator activity.
+     * @param activity          Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
@@ -178,7 +181,7 @@ public class GigyaBiometric {
      * Unlocks the session so the user can continue to make authenticated actions.
      * Invokes the onError callback if the session is not opt-in.
      *
-     * @param activity Initiator activity.
+     * @param activity          Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */

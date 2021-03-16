@@ -34,6 +34,11 @@ public class ReportingService implements IReportingService {
 
     boolean disabled = true;
 
+    @Override
+    public boolean isActive() {
+        return !disabled;
+    }
+
     /**
      * Turn Gigya error reporting on or off.
      *

@@ -8,7 +8,11 @@ import java.util.Map;
 
 public interface IReportingService {
 
+    boolean isActive();
+
     void setErrorReporting(boolean active);
 
-    void sendErrorReport(final @NonNull String message, @Nullable String sdkVersion, @Nullable Map<String, Object> details);
+    void sendErrorReport(final @NonNull String message,
+                         @Nullable String sdkVersion,
+                         @Nullable Map<String, Object> details);
 }

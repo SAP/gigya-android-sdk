@@ -41,6 +41,8 @@ public class ConfigFactory {
         return null;
     }
 
+    // Will be removed in SDK code version 6.
+    @Deprecated
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     @Nullable
     public Config loadFromManifest() {
