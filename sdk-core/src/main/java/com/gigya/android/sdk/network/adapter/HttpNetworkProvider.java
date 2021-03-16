@@ -150,7 +150,8 @@ public class HttpNetworkProvider extends NetworkProvider {
                     URL url = new URL(request.getUrl());
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setUseCaches(false);
-                    connection.setConnectTimeout(10000);
+                    connection.setConnectTimeout(30000);
+                    connection.setReadTimeout(15000);
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("connection", "close");
 

@@ -3,11 +3,13 @@ package com.gigya.android.sdk.nss.bloc.action
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.IBusinessApiService
+import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.flow.INssFlowDelegate
 import com.gigya.android.sdk.nss.utils.NssJsonDeserializer
 import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
+import com.gigya.android.sdk.reporting.ReportingManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -36,6 +38,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
             socialLogin -> {
                 val provider = arguments?.get("provider") as? String
                 provider?.guard {
+                    ReportingManager.get().error(GigyaNss.VERSION, "nss", "Social provider unavailable")
                     GigyaLogger.error(LOG_TAG, "Social provider unavailable")
                 }
                 flowDelegate!!.refined<INssFlowDelegate<T>> {
