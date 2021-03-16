@@ -17,7 +17,7 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the auth library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-auth-2.0.0.aar')
+implementation files('libs/gigya-android-auth-2.1.0.aar')
 ```
 
 -Or-
