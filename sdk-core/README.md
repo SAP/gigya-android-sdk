@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-5.1.0aar')
+implementation files('libs/gigya-android-sdk-5.1.0.aar')
 ```
 
 ### Implement using Jitpack
