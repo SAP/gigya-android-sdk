@@ -49,7 +49,6 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_send_code" />
 
         <Button
@@ -64,7 +63,6 @@
             android:layout_toStartOf="@id/fpv_send_code_button"
             android:layout_toLeftOf="@id/fpv_send_code_button"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_dismiss" />
 
         <LinearLayout
@@ -107,7 +105,6 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
                     android:background="@android:color/transparent"
-                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:text="@string/gig_tfa_verify" />
 
             </RelativeLayout>
