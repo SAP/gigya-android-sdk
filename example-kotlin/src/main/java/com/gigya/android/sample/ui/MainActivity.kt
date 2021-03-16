@@ -19,10 +19,7 @@ import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.loadRoundImageWith
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sample.ui.fragment.BackPressListener
-import com.gigya.android.sample.ui.fragment.ConflictingAccountsDialog
-import com.gigya.android.sample.ui.fragment.CustomTFAPhoneRegistrationFragment
-import com.gigya.android.sample.ui.fragment.InputDialog
+import com.gigya.android.sample.ui.fragment.*
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaDefinitions
 import com.gigya.android.sdk.GigyaLogger
@@ -244,10 +241,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_remove_connection -> onRemoveConnection()
             R.id.action_register -> onRegister()
             R.id.action_get_account_info -> onGetAccount()
-            R.id.action_get_account_info_extra -> onGetAccountWithExtraFields()
+            R.id.action_get_account_and_invalidate_cache -> getAccountAndInvalidateCache()
             R.id.action_set_account_info -> onSetAccount()
             R.id.action_verify_login -> onVerifyLogin()
             R.id.action_native_login -> presentNativeLogin()
+            R.id.action_otp_login -> otpLogin()
             R.id.action_show_screen_sets -> showRAAS()
             R.id.action_forgot_password -> onForgotPassword()
             R.id.action_push_tfa_opt_in -> optInForPushTFA()
@@ -623,13 +621,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
-    private fun onGetAccountWithExtraFields() {
+    private fun getAccountAndInvalidateCache() {
         if (!viewModel!!.isLoggedIn()) {
             response_text_view.snackbar(getString(R.string.not_logged_in))
             return
         }
         onLoading()
-        viewModel?.getAccountWithExtraFields(
+        viewModel?.getAccountAndInvalidateCache(
                 success = { json ->
                     onJsonResult(json)
                 },
@@ -721,8 +719,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showNativeScreenSets() {
         GigyaNss.getInstance()
-                .load("DEFAULT")
-                //                .loadFromAssets("gigya-nss-example")
+//                .load("DEFAULT")
+                .loadFromAssets("gigya-nss-example")
                 .initialRoute("login")
                 //.lang("es")
                 .events(object : NssEvents<MyAccount>() {
@@ -795,6 +793,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
     }
 
+    private fun otpLogin() {
+        val dialog = CustomOTPRegistrationFragment.newInstance(object: IOTPResultCallback {
+
+            override fun onOTPResult(json: String) {
+                onJsonResult(json)
+            }
+
+        })
+        dialog.show(supportFragmentManager, "otp_login")
+    }
+
     /**
      * Registration as a service requested from navigation menu.
      */
@@ -846,21 +855,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                })
 //                .show(this)
 //        } else {
-            viewModel?.showAccountDetails(
-                    onUpdated = {
-                        onClear()
-                        response_text_view.snackbar(getString(R.string.account_updated))
-                        onGetAccount()
-                    },
-                    onCanceled = {
-                        response_text_view.snackbar("Operation canceled")
-                    },
-                    onError = { possibleError ->
-                        possibleError?.let {
-                            // We cant display an alert on top of an alert.
-                        }
+        viewModel?.showAccountDetails(
+                onUpdated = {
+                    onClear()
+                    response_text_view.snackbar(getString(R.string.account_updated))
+                    onGetAccount()
+                },
+                onCanceled = {
+                    response_text_view.snackbar("Operation canceled")
+                },
+                onError = { possibleError ->
+                    possibleError?.let {
+                        // We cant display an alert on top of an alert.
                     }
-            )
+                }
+        )
 //        }
     }
 

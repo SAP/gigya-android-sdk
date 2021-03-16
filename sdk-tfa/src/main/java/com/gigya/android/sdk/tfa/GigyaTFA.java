@@ -58,7 +58,7 @@ public class GigyaTFA {
             } catch (Exception e) {
                 GigyaLogger.error(LOG_TAG, "Error creating Gigya TFA library (did you forget to Gigya.setApplication?");
                 e.printStackTrace();
-                throw new RuntimeException("Error creating Gigya TFA library (did you forget to Gigya.setApplication?");
+                throw new RuntimeException("Error instantiating Gigya TFA library (did you forget to Gigya.setApplication?");
             }
         }
         return _sharedInstance;

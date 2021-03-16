@@ -2,6 +2,7 @@ package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 
+import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -86,7 +87,6 @@ public class ProviderFactory implements IProviderFactory {
                     if (GoogleProvider.isAvailable(_context)) {
                         return GoogleProvider.class;
                     } else {
-                        GigyaLogger.error(LOG_TAG, "Missing google auth library implementation");
                         throw new RuntimeException("Google auth library implementation is a required dependency." +
                                 " Please make sure it is correctly implemented in your build.gradle file.\n" +
                                 "https://developers.gigya.com/display/GD/Android+SDK+v4#AndroidSDKv4-Google");
