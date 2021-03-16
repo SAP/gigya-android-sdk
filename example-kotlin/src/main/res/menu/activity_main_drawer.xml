@@ -34,8 +34,8 @@
                     android:title="@string/nav_get_account_info" />
 
                 <item
-                    android:id="@+id/action_get_account_info_extra"
-                    android:title="@string/get_account_with_extrea_fields" />
+                    android:id="@+id/action_get_account_and_invalidate_cache"
+                    android:title="@string/get_account_invalidate_cache" />
 
                 <item
                     android:id="@+id/action_set_account_info"
