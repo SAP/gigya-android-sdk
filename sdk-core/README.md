@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Core SDK
 
 ## Description
 Gigya's Android Core SDK library provides a Java interface for Gigya's API - It allows simplified integration and usage within your Android application
@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-5.1.0aar')
+implementation files('libs/gigya-android-sdk-5.1.0.aar')
 ```
 
 ### Implement using Jitpack
@@ -1132,6 +1132,17 @@ Make sure you implement it in the appropriate lifecycle callback.
 ```kotlin
 _webBridge?.detachFrom(web_view)
 ```
+
+## Error reporting
+
+The SDK contains an error reporting service that tracks critical SDK specific errors and reports them
+back to us.
+
+The service is disabled by default and can be activated using:
+```kotlin
+Gigya.setErrorReporting(true)
+```
+
 
 ## Caveats
 

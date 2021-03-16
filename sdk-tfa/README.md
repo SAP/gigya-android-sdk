@@ -1,4 +1,4 @@
-# SAP CDC (Gigya) Android SDK
+# SAP CDC (Gigya) Android Two Factor Authentication SDK
 
 ## Description
 Gigya's Android Two Factor Authentication (TFA) SDK library provides a Java interface for applying two factor authentication flows.
@@ -24,7 +24,7 @@ implementation files('libs/gigya-android-tfa-2.0.0.aar')
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk-tfa:tfa-v2.0.0'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-tfa:tfa-v2.0.0'
 ```
 
 **In addition you will need to add this dependency as well.**
@@ -51,7 +51,7 @@ gigyaTotp
 ## Initialization
 
 In order to use Two Factor Authentication for your site please please read:
-(Risk Based Authentication)[https://developers.gigya.com/display/GD/Risk+Based+Authentication]
+[Risk Based Authentication](https://developers.gigya.com/display/GD/Risk+Based+Authentication)
 
 ```
 String resource ids have changed with this revision (v1.0.3). If you have previously used the provided UI elements and overridden their
@@ -477,6 +477,11 @@ GigyaTFA.getInstance().setPushCustomizer(new IGigyaPushCustomizer() {
 
 ## Push TFA Flow
 
+```
+NOTE: An authentication notification sent will not wake your device. It is required for the application to be active in order to receive 
+a notification.
+```
+
 ### Opt-In process
 
 In order for a client to opt-in to use the push TFA feature you will need to add the option to opt-in after the user have successfully logged in.
@@ -675,7 +680,7 @@ Example taken from the provided sample application:
 
 ## Additional Information
 
-(Risk Based Authentication)[https://developers.gigya.com/display/GD/Risk+Based+Authentication]
+[Risk Based Authentication](https://developers.gigya.com/display/GD/Risk+Based+Authentication)
 
 ## Known Issues
 None

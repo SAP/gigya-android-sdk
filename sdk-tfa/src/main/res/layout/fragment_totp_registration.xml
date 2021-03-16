@@ -115,7 +115,6 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_register" />
 
         <Button
@@ -130,7 +129,6 @@
             android:layout_toStartOf="@id/ftpr_action_button"
             android:layout_toLeftOf="@id/ftpr_action_button"
             android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:text="@string/gig_tfa_dismiss" />
 
     </RelativeLayout>
