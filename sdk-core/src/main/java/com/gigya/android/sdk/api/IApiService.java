@@ -7,4 +7,6 @@ public interface IApiService {
     void release();
 
     void cancel(String tag);
+
+    void getSdkConfig(final ApiService.IApiServiceResponse apiCallback);
 }
