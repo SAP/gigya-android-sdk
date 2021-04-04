@@ -21,6 +21,7 @@ import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.Key;
@@ -106,9 +107,7 @@ public class SessionService implements ISessionService {
             final JSONObject jsonObject = new JSONObject()
                     .put("sessionToken", sessionInfo == null ? null : sessionInfo.getSessionToken())
                     .put("sessionSecret", sessionInfo == null ? null : sessionInfo.getSessionSecret())
-                    .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime())
-                    .put("ucid", _config.getUcid())
-                    .put("gmid", _config.getGmid());
+                    .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime());
             final String json = jsonObject.toString();
             final SecretKey key = _secureKey.getKey();
             final String encryptedSession = encryptSession(json, key);
@@ -143,14 +142,42 @@ public class SessionService implements ISessionService {
                     Gson gson = new Gson();
                     // Parse session info.
                     final SessionInfo sessionInfo = gson.fromJson(decryptedSession, SessionInfo.class);
-                    // Parse config fields. & update main SDK config instance.
-                    final Config dynamicConfig = gson.fromJson(decryptedSession, Config.class);
-                    _config.updateWith(dynamicConfig);
+
+                    // Added in version 5.1.1.
+                    migrateEncryptedDynamicConfig(decryptedSession, sessionInfo);
+
                     _sessionInfo = sessionInfo;
                 } catch (Exception eex) {
                     eex.printStackTrace();
                 }
             }
+        }
+    }
+
+    /**
+     * Added in version 5.1.1 to allow more secure id server rotation.
+     * Removing config fields from session encryption if exist.
+     * If so. Moving them to preferences.
+     */
+    private void migrateEncryptedDynamicConfig(String decryptedSession, SessionInfo sessionInfo) {
+        try {
+            JSONObject jo = new JSONObject(decryptedSession);
+            if (!jo.has("gmid") || !jo.has("ucid")) return;
+            final String gmid = jo.optString("gmid");
+            if (!TextUtils.isEmpty(gmid)) {
+                _psService.setGmid(gmid);
+                _config.setGmid(gmid);
+            }
+            final String ucid = jo.optString("ucid");
+            if (!TextUtils.isEmpty(ucid)) {
+                _psService.setUcid(ucid);
+                _config.setUcid(ucid);
+            }
+            // Re-save session.
+            save(sessionInfo);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            GigyaLogger.error(LOG_TAG, "migrateEncryptedDynamicConfig failed");
         }
     }
 
@@ -224,18 +251,6 @@ public class SessionService implements ISessionService {
             // Remove session data. Update encryption to DEFAULT.
             _psService.removeSession();
             _psService.setSessionEncryptionType(GigyaDefinitions.SessionEncryption.DEFAULT);
-
-            // Make sure to keep reference to GMID & UCID if available.
-            if (_config.getGmid() != null && _config.getUcid() != null) {
-                try {
-                    // Encrypt again & save.
-                    final JSONObject jsonObject = new JSONObject().put("ucid", _config.getUcid()).put("gmid", _config.getGmid());
-                    final String encryptedSession = encryptSession(jsonObject.toString(), _secureKey.getKey());
-                    _psService.setSession(encryptedSession);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
