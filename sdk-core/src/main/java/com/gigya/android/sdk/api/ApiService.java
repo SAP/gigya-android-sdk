@@ -9,6 +9,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.reporting.ReportingManager;
 
 import java.text.SimpleDateFormat;
@@ -27,13 +28,16 @@ public class ApiService implements IApiService {
     final private Config _config;
     final private IRestAdapter _adapter;
     final private IApiRequestFactory _reqFactory;
+    final private IPersistenceService _psService;
 
     public ApiService(Config config,
                       IRestAdapter adapter,
-                      IApiRequestFactory reqFactory) {
+                      IApiRequestFactory reqFactory,
+                      IPersistenceService psService) {
         _config = config;
         _adapter = adapter;
         _reqFactory = reqFactory;
+        _psService = psService;
     }
 
     /*
@@ -73,11 +77,6 @@ public class ApiService implements IApiService {
 
     @Override
     public void send(final GigyaApiRequest request, boolean blocking, final IApiServiceResponse apiCallback) {
-        if (!request.getApi().equals(GigyaDefinitions.API.API_GET_SDK_CONFIG) && requiresSdkConfig()) {
-            // Need to verify if GMID is available. If not we must request SDK configuration.
-            getSdkConfig(apiCallback, request.getTag());
-        }
-
         GigyaLogger.debug(LOG_TAG, "sending: " + request.getApi());
         GigyaLogger.debug(LOG_TAG, "sending: params = " + request.getParams().toString());
 
@@ -89,6 +88,8 @@ public class ApiService implements IApiService {
 
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final int apiErrorCode = apiResponse.getErrorCode();
+
+                GigyaLogger.debug(LOG_TAG, "GET_SDK_CONFIG with:\n" + jsonResponse);
 
                 // Check for timestamp skew error.
                 if (isRequestExpiredError(apiErrorCode)) {
@@ -143,26 +144,12 @@ public class ApiService implements IApiService {
 
     //region SDK CONFIG
 
-    private boolean requiresSdkConfig() {
-        return (_config.getGmid() == null || _config.getServerOffset() == null);
-    }
-
-    private void onConfigResponse(GigyaConfigModel response) {
-        _config.setUcid(response.getIds().getUcid());
-        _config.setGmid(response.getIds().getGmid());
-        release();
-    }
-
-    private void onConfigError(String nextApiTag) {
-        if (nextApiTag != null) {
-            cancel(nextApiTag);
-        }
-        release();
-    }
-
-    private void getSdkConfig(final IApiServiceResponse apiCallback, final String nextApiTag) {
-
+    @Override
+    public void getSdkConfig(final IApiServiceResponse apiCallback) {
         GigyaLogger.debug(LOG_TAG, "sending: " + GigyaDefinitions.API.API_GET_SDK_CONFIG);
+
+        // Loading updated GMID/UCID to config.
+        loadIds();
 
         final Map<String, Object> params = new HashMap<>();
         params.put("include", "permissions,ids,appIds");
@@ -181,22 +168,52 @@ public class ApiService implements IApiService {
                     if (parsed == null) {
                         // Parsing error.
                         apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
-                        onConfigError(nextApiTag);
+                        onConfigError();
                         return;
                     }
                     onConfigResponse(parsed);
+                    apiCallback.onApiSuccess(apiResponse);
                 } else {
                     apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
-                    onConfigError(nextApiTag);
+                    onConfigError();
                 }
             }
 
             @Override
             public void onApiError(GigyaError gigyaError) {
                 apiCallback.onApiError(gigyaError);
-                onConfigError(nextApiTag);
+                onConfigError();
             }
         });
+    }
+
+    private void loadIds() {
+        final String gmid = _psService.getGmid();
+        if (gmid != null) {
+            _config.setGmid(gmid);
+        }
+        final String ucid = _psService.getUcid();
+        if (ucid != null) {
+            _config.setUcid(ucid);
+        }
+    }
+
+    private void onConfigResponse(GigyaConfigModel response) {
+        final String gmid = response.getIds().getGmid();
+        final String ucid = response.getIds().getUcid();
+
+        _config.setGmid(gmid);
+        _config.setUcid(ucid);
+
+        // Update prefs.
+        _psService.setGmid(gmid);
+        _psService.setUcid(ucid);
+
+        release();
+    }
+
+    private void onConfigError() {
+        release();
     }
 
     //endregion
