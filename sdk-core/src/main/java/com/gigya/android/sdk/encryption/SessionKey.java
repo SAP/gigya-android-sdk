@@ -141,6 +141,8 @@ public class SessionKey implements ISecureKey {
                     .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
                     .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
+                    .setKeyValidityStart(start.getTime())
+                    .setKeyValidityEnd(end.getTime())
                     .build();
             keyGen.initialize(spec);
             keyGen.generateKeyPair();

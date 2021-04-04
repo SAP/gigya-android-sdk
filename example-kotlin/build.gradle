@@ -12,8 +12,8 @@ android {
         applicationId "com.gigya.android.sample"
         minSdkVersion build_versions.min_sdk_app
         targetSdkVersion build_versions.target_sdk
-        versionCode 4080
-        versionName "1.4.0.8"
+        versionCode 5110
+        versionName "1.5.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

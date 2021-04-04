@@ -68,4 +68,6 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void getSchema(@Nullable Map<String, Object> params, @NonNull final GigyaCallback<GigyaSchema> gigyaCallback);
 
+    void getSDKConfig();
+
 }
