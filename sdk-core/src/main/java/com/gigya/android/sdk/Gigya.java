@@ -46,7 +46,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.1.0";
+    public static final String VERSION = "5.1.1";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -128,7 +128,7 @@ public class Gigya<T extends GigyaAccount> {
                 INSTANCE = container.createInstance(Gigya.class);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
+                throw new RuntimeException("Error creating Gigya SDK (did you forget to Gigya.setApplication or missing apiKey?)");
             }
         }
         // Check scheme. If already set log an error.
@@ -184,6 +184,9 @@ public class Gigya<T extends GigyaAccount> {
         // Setup sdk
         _sessionService.load();
         init(false);
+
+        // Request SDK configuration (blocking).
+        _businessApiService.getSDKConfig();
 
         // Must be registered following the init call. Dependent on full parsed config.
         _sessionVerificationService.registerActivityLifecycleCallbacks();
