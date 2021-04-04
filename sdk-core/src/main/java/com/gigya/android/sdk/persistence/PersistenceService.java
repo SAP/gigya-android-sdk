@@ -200,6 +200,27 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getString(PREFS_PUSH_TOKEN, null);
     }
 
+    @Override
+    public void setGmid(String gmid) {
+        getPrefs().edit().putString(PREFS_GMID, gmid).apply();
+
+    }
+
+    @Override
+    public void setUcid(String ucid) {
+        getPrefs().edit().putString(PREFS_UCID, ucid).apply();
+    }
+
+    @Override
+    public String getGmid() {
+        return getPrefs().getString(PREFS_GMID, null);
+    }
+
+    @Override
+    public String getUcid() {
+        return getPrefs().getString(PREFS_UCID, null);
+    }
+
     //endregion
 
     //region KEYS
@@ -238,6 +259,11 @@ public class PersistenceService implements IPersistenceService {
      * Push token key.
      */
     private static final String PREFS_PUSH_TOKEN = "GS_PUSH_TOKEN";
+
+
+    private static final String PREFS_GMID = "GS_GMID";
+
+    private static final String PREFS_UCID = "GS_UCID";
 
     //endregion
 }

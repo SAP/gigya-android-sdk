@@ -42,4 +42,12 @@ public interface IPersistenceService {
 
     @Nullable
     String getPushToken();
+
+    void setGmid(String gmid);
+
+    void setUcid(String ucid);
+
+    String getGmid();
+
+    String getUcid();
 }
