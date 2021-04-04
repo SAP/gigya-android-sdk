@@ -59,6 +59,24 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _interruptionsHandler = interruptionsHandler;
     }
 
+    //region CONFIG
+
+    @Override
+    public void getSDKConfig() {
+        _apiService.getSdkConfig(new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug(LOG_TAG, "getSDKConfig: success");
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                GigyaLogger.error(LOG_TAG, "getSDKConfig: failed to fetch configuration");
+            }
+        });
+    }
+
+    //endregion
 
     //region CONDITIONALS & HELPERS
 
