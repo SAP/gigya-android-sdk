@@ -7,8 +7,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.GigyaAccountClass;
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -46,7 +46,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.1.1";
+    public static final String VERSION = "5.1.2";
 
     private static final String LOG_TAG = "Gigya";
 
