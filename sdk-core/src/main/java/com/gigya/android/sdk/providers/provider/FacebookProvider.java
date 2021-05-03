@@ -8,14 +8,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -34,15 +32,13 @@ public class FacebookProvider extends Provider {
 
     public FacebookProvider(Context context,
                             IPersistenceService persistenceService,
-                            IBusinessApiService businessApiService,
                             ProviderCallback providerCallback) {
-        super(context, persistenceService, businessApiService, providerCallback);
+        super(context, persistenceService, providerCallback);
     }
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};
 
     private final CallbackManager _callbackManager = CallbackManager.Factory.create();
-    private AccessTokenTracker _tokenTracker;
 
     @Override
     public String getName() {
@@ -128,9 +124,6 @@ public class FacebookProvider extends Provider {
     @Override
     public void logout() {
         super.logout();
-        if (_tokenTracker != null) {
-            _tokenTracker.stopTracking();
-        }
         if (AccessToken.getCurrentAccessToken() != null) {
             LoginManager.getInstance().logOut();
         }
@@ -148,25 +141,6 @@ public class FacebookProvider extends Provider {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public boolean supportsTokenTracking() {
-        return true;
-    }
-
-    @Override
-    public void trackTokenChange() {
-        _tokenTracker = new AccessTokenTracker() {
-
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                // Send api request.
-                final String newAuthToken = currentAccessToken.getToken();
-                final long expiresInSeconds = currentAccessToken.getExpires().getTime() / 1000;
-                _tokenTrackingListener.onTokenChange(getName(), getProviderSessions(newAuthToken, expiresInSeconds, null), null);
-            }
-        };
     }
 
     //region SPECIFIC PROVIDER LOGIC

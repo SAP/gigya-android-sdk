@@ -3,6 +3,7 @@ package com.gigya.android.sdk.ui.plugin;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -13,6 +14,9 @@ import androidx.fragment.app.Fragment;
 import com.gigya.android.sdk.GigyaLogger;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import static android.app.Activity.RESULT_OK;
@@ -62,6 +66,7 @@ public class GigyaPluginFileChooser extends WebChromeClient {
             return;
         }
         Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        capture.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         Intent select = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE);
         select.setType("image/*");
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
@@ -78,6 +83,7 @@ public class GigyaPluginFileChooser extends WebChromeClient {
                 String dataString = data.getDataString();
                 results = new Uri[]{Uri.parse(dataString)};
             }
+
             // If there is not data, then we may have taken a photo
             else if (data != null && data.getExtras() != null && data.getExtras().get("data") != null) {
                 if (getFragment() == null) {
@@ -87,10 +93,30 @@ public class GigyaPluginFileChooser extends WebChromeClient {
                 if (_captureBitmap == null) {
                     return;
                 }
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                _captureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-                String path = MediaStore.Images.Media.insertImage(getFragment().getActivity().getContentResolver(), _captureBitmap, "Title", null);
-                results = new Uri[]{Uri.parse(path)};
+
+                try {
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                        File file = new File(getFragment().getContext().getFilesDir(), "gigya_profile_temp.png");
+                        if (file.exists()) file.delete();
+                        file.createNewFile();
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                        _captureBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+                        results = new Uri[]{Uri.fromFile(file)};
+                    } else {
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        _captureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                        String path = MediaStore.Images.Media.insertImage(getFragment().getActivity().getContentResolver(), _captureBitmap, "Title", null);
+                        results = new Uri[]{Uri.parse(path)};
+                        bytes.flush();
+                        bytes.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    _imagePathCallback.onReceiveValue(results);
+                    _imagePathCallback = null;
+                }
             }
         }
         _imagePathCallback.onReceiveValue(results);

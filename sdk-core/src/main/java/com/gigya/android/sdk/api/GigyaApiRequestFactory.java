@@ -2,17 +2,16 @@ package com.gigya.android.sdk.api;
 
 import android.text.TextUtils;
 
-import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
