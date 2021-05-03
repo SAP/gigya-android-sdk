@@ -4,14 +4,10 @@ import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.providers.IProviderPermissionsCallback;
-import com.gigya.android.sdk.providers.IProviderTokenTrackerListener;
 import com.gigya.android.sdk.session.SessionInfo;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Provider implements IProvider {
@@ -20,7 +16,6 @@ public abstract class Provider implements IProvider {
 
     final protected Context _context;
     private final IPersistenceService _psService;
-    final protected IBusinessApiService _businessApiService;
 
     boolean _connecting = false;
 
@@ -29,31 +24,12 @@ public abstract class Provider implements IProvider {
 
     private String _regToken;
 
-    IProviderTokenTrackerListener _tokenTrackingListener;
-
     ProviderCallback _providerCallback;
 
-    public Provider(Context context, IPersistenceService persistenceService,
-                    IBusinessApiService businessApiService, ProviderCallback providerCallback) {
+    public Provider(Context context, IPersistenceService persistenceService, ProviderCallback providerCallback) {
         _context = context;
         _psService = persistenceService;
-        _businessApiService = businessApiService;
         _providerCallback = providerCallback;
-
-        if (supportsTokenTracking()) {
-            _tokenTrackingListener = new IProviderTokenTrackerListener() {
-                @Override
-                public void onTokenChange(String provider, String providerSession, final IProviderPermissionsCallback permissionsCallback) {
-                    GigyaLogger.debug(LOG_TAG, getName() + ": onProviderTrackingTokenChanges: provider = "
-                            + provider + ", providerSession =" + providerSession);
-                    // Setup refresh session request.
-                    final Map<String, Object> params = new HashMap<>();
-                    params.put("providerSession", providerSession);
-                    // Notify.
-                    _businessApiService.refreshNativeProviderSession(params, permissionsCallback);
-                }
-            };
-        }
     }
 
     @Override
@@ -87,9 +63,6 @@ public abstract class Provider implements IProvider {
             @Override
             public void run() {
                 _psService.addSocialProvider(getName());
-                if (supportsTokenTracking()) {
-                    trackTokenChange();
-                }
             }
         };
 
@@ -108,9 +81,6 @@ public abstract class Provider implements IProvider {
             @Override
             public void run() {
                 _psService.addSocialProvider(getName());
-                if (supportsTokenTracking()) {
-                    trackTokenChange();
-                }
             }
         };
 
