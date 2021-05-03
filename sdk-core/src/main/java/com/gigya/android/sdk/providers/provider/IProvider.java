@@ -15,10 +15,6 @@ public interface IProvider {
 
     String getProviderSessions(String tokenOrCode, long expiration, String uid);
 
-    boolean supportsTokenTracking();
-
-    void trackTokenChange();
-
     void setRegToken(String regToken);
 
     // Action interfacing.

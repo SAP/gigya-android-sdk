@@ -2,7 +2,6 @@ package com.gigya.android.sdk.providers;
 
 import android.content.Context;
 
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
