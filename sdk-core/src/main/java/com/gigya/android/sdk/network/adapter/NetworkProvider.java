@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.network.adapter;
 
-import com.gigya.android.sdk.api.GigyaApiHttpRequest;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 

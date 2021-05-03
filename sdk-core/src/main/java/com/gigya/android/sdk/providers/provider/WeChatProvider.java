@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -32,9 +31,8 @@ public class WeChatProvider extends Provider {
     public WeChatProvider(Context context,
                           FileUtils fileUtils,
                           IPersistenceService persistenceService,
-                          IBusinessApiService businessApiService,
                           ProviderCallback providerCallback) {
-        super(context, persistenceService, businessApiService, providerCallback);
+        super(context, persistenceService, providerCallback);
         _appId = fileUtils.stringFromMetaData("wechatAppID");
         _api = WXAPIFactory.createWXAPI(_context, _appId, true);
         _api.registerApp(_appId);
@@ -142,15 +140,5 @@ public class WeChatProvider extends Provider {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public boolean supportsTokenTracking() {
-        return false;
-    }
-
-    @Override
-    public void trackTokenChange() {
-        // Stub.
     }
 }

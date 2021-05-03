@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -41,10 +40,9 @@ public class GoogleProvider extends Provider {
 
     public GoogleProvider(Context context,
                           IPersistenceService persistenceService,
-                          IBusinessApiService businessApiService,
                           ProviderCallback providerCallback,
                           FileUtils fileUtils) {
-        super(context, persistenceService, businessApiService, providerCallback);
+        super(context, persistenceService, providerCallback);
         _fileUtils = fileUtils;
     }
 
@@ -170,16 +168,6 @@ public class GoogleProvider extends Provider {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public boolean supportsTokenTracking() {
-        return false;
-    }
-
-    @Override
-    public void trackTokenChange() {
-        // Stub.
     }
 
     private void finish(final Activity activity) {

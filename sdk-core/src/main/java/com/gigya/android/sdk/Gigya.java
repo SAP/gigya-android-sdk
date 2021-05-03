@@ -7,8 +7,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.GigyaAccountClass;
+import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;

@@ -9,7 +9,6 @@ import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -36,9 +35,8 @@ public class WebLoginProvider extends Provider {
                             ISessionService sessionService,
                             IAccountService accountService,
                             IPersistenceService persistenceService,
-                            IBusinessApiService businessApiService,
                             ProviderCallback providerCallback) {
-        super(context, persistenceService, businessApiService, providerCallback);
+        super(context, persistenceService, providerCallback);
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
@@ -129,16 +127,6 @@ public class WebLoginProvider extends Provider {
     @Override
     public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
         return null;
-    }
-
-    @Override
-    public boolean supportsTokenTracking() {
-        return false;
-    }
-
-    @Override
-    public void trackTokenChange() {
-        // Stub.
     }
 
     private SessionInfo parseSessionInfo(Map<String, Object> result) {
