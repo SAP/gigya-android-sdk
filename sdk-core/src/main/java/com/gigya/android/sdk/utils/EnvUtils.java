@@ -1,7 +1,5 @@
 package com.gigya.android.sdk.utils;
 
-import com.gigya.android.sdk.Gigya;
-
 public class EnvUtils {
 
     public static void checkGson() {
