@@ -1,4 +1,6 @@
 # SAP CDC (Gigya) Android SDK
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/gigya-android-sdk)](https://api.reuse.software/info/github.com/SAP/gigya-android-sdk)
+
 
 ## Description
 The Android SDK provides an interface for the Gigya API.
