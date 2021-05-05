@@ -27,6 +27,10 @@ An issue that is about a real bug is closed as soon as the fix is committed. The
 
 Pull Request rejections are not a bad thing. It just means you need to fix something. Perhaps it is important to define 'rejection' as it is used in this case.
 
+## Developer Certificate of Origin (DCO)
+
+Due to legal reasons, contributors will be asked to accept a DCO when they create the first pull request to this project. This happens in an automated fashion during the submission process. SAP uses [the standard DCO text of the Linux Foundation](https://developercertificate.org/).
+
 ## Contacting Us
 
 - Email: tal.mirmelshtein@sap.com, sagi.shmuel@sap.com
