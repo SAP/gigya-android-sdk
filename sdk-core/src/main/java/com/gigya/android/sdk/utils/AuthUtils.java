@@ -3,7 +3,6 @@ package com.gigya.android.sdk.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Random;
 import java.util.TreeMap;
 
 public class AuthUtils {
@@ -26,11 +25,6 @@ public class AuthUtils {
         // Add timestamp.
         params.put("timestamp", timestamp);
 
-        // Add nonce.
-        final Random random = new Random();
-        String nonce = System.currentTimeMillis() + "_" + random.nextInt();
-        params.put("nonce", nonce);
-
         // Add signature.
         final String signature = SigUtils.getSignature(
                 sessionSecret,
@@ -51,6 +45,6 @@ public class AuthUtils {
     public static void removeAuthenticationParameters(@NonNull final TreeMap<String, Object> params) {
         params.remove("sig");
         params.remove("timestamp");
-        params.remove("nonce");
+        //params.remove("nonce");
     }
 }
