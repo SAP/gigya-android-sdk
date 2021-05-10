@@ -13,6 +13,7 @@ import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 public class
@@ -54,6 +55,11 @@ GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
+
+        // Add nonce.
+        final Random random = new Random();
+        String nonce = System.currentTimeMillis() + "_" + random.nextInt();
+        urlParams.put("nonce", nonce);
 
         // Add configuration parameters
         final String gmid = _config.getGmid();
