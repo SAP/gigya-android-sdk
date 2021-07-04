@@ -3,31 +3,37 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gigya.gigyaNativeScreensetsEngine</groupId>
-  <artifactId>flutter_profile</artifactId>
-  <version>1.2.0</version>
+  <artifactId>flutter_debug</artifactId>
+  <version>1.3.0</version>
   <packaging>aar</packaging>
   <dependencies>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>flutter_embedding_profile</artifactId>
+      <artifactId>flutter_embedding_debug</artifactId>
       <version>1.0.0-40441def692f444660a11e20fac37af9050245ab</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>armeabi_v7a_profile</artifactId>
+      <artifactId>armeabi_v7a_debug</artifactId>
       <version>1.0.0-40441def692f444660a11e20fac37af9050245ab</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>arm64_v8a_profile</artifactId>
+      <artifactId>arm64_v8a_debug</artifactId>
       <version>1.0.0-40441def692f444660a11e20fac37af9050245ab</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.flutter</groupId>
-      <artifactId>x86_64_profile</artifactId>
+      <artifactId>x86_64_debug</artifactId>
+      <version>1.0.0-40441def692f444660a11e20fac37af9050245ab</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.flutter</groupId>
+      <artifactId>x86_debug</artifactId>
       <version>1.0.0-40441def692f444660a11e20fac37af9050245ab</version>
       <scope>compile</scope>
     </dependency>
