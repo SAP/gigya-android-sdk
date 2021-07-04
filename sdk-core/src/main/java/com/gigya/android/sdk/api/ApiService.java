@@ -96,7 +96,7 @@ public class ApiService implements IApiService {
 
                     GigyaLogger.error(LOG_TAG, "Request expired error occurred. Allowing retries");
 
-                    new RetryDispatcher.Builder(_adapter)
+                    new RetryDispatcher.Builder(_adapter, _reqFactory)
                             .request(request)
                             .errorCode(GigyaError.Codes.ERROR_REQUEST_HAS_EXPIRED)
                             .tries(2)
