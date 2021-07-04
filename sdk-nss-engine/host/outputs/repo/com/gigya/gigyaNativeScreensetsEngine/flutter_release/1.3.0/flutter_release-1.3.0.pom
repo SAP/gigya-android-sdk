@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gigya.gigyaNativeScreensetsEngine</groupId>
   <artifactId>flutter_release</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
   <packaging>aar</packaging>
   <dependencies>
     <dependency>

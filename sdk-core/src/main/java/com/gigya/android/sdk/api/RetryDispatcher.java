@@ -7,15 +7,20 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 
+import java.util.Random;
+
 public class RetryDispatcher {
 
     private static final String LOG_TAG = "RetryDispatcher";
 
     private GigyaApiRequest request;
     private IRestAdapter adapter;
+    private IApiRequestFactory factory;
     private IRetryHandler handler;
     private int errorCode;
     private int tries;
+
+    private final Random random = new Random();
 
     public interface IRetryHandler {
 
@@ -32,7 +37,13 @@ public class RetryDispatcher {
     }
 
     public void dispatch() {
-        adapter.send(request, false, new IRestAdapterCallback() {
+        // Recreate the request to avoid duplicate nonce & additional errors.
+        final GigyaApiRequest newRequest = factory.create(
+                request.getApi(),
+                request.getParams(),
+                request.getMethod());
+
+        adapter.send(newRequest, false, new IRestAdapterCallback() {
 
             @Override
             public void onResponse(String jsonResponse, String responseDateHeader) {
@@ -77,9 +88,10 @@ public class RetryDispatcher {
 
         private RetryDispatcher dispatcher;
 
-        public Builder(IRestAdapter adapter) {
+        public Builder(IRestAdapter adapter, IApiRequestFactory factory) {
             dispatcher = new RetryDispatcher();
             dispatcher.adapter = adapter;
+            dispatcher.factory = factory;
         }
 
         public RetryDispatcher.Builder request(@NonNull GigyaApiRequest request) {
