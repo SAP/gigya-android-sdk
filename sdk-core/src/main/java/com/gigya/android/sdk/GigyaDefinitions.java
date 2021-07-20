@@ -25,8 +25,10 @@ public class GigyaDefinitions {
      * Api related specific constants.
      */
     public static class API {
-        // ACCOUNT
+        @Deprecated
         public static final String API_GET_SDK_CONFIG = "socialize.getSDKConfig";
+
+        public static final String API_GET_IDS = "socialize.getIDs";
         public static final String API_LOGIN = "accounts.login";
         public static final String API_LOGOUT = "accounts.logout";
         public static final String API_GET_ACCOUNT_INFO = "accounts.getAccountInfo";
