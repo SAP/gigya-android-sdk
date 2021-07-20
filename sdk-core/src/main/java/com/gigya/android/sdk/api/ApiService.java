@@ -146,7 +146,7 @@ public class ApiService implements IApiService {
 
     @Override
     public void getSdkConfig(final IApiServiceResponse apiCallback) {
-        GigyaLogger.debug(LOG_TAG, "sending: " + GigyaDefinitions.API.API_GET_SDK_CONFIG);
+        GigyaLogger.debug(LOG_TAG, "sending: " + GigyaDefinitions.API.API_GET_IDS);
 
         // Loading updated GMID/UCID to config.
         loadIds();
@@ -154,7 +154,7 @@ public class ApiService implements IApiService {
         final Map<String, Object> params = new HashMap<>();
         params.put("include", "permissions,ids,appIds");
         final GigyaApiRequest request = _reqFactory.create(
-                GigyaDefinitions.API.API_GET_SDK_CONFIG,
+                GigyaDefinitions.API.API_GET_IDS,
                 params,
                 RestAdapter.HttpMethod.POST);
         // Set request as anonymous! Will not go through if will include timestamp, nonce & signature.
@@ -164,14 +164,17 @@ public class ApiService implements IApiService {
             public void onApiSuccess(GigyaApiResponse apiResponse) {
                 final int apiErrorCode = apiResponse.getErrorCode();
                 if (apiErrorCode == 0) {
-                    final GigyaConfigModel parsed = apiResponse.parseTo(GigyaConfigModel.class);
-                    if (parsed == null) {
+
+                    final String gmid = apiResponse.getField("gcid", String.class);
+                    final String ucid = apiResponse.getField("ucid", String.class);
+
+                    if (gmid == null || ucid == null) {
                         // Parsing error.
                         apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
                         onConfigError();
                         return;
                     }
-                    onConfigResponse(parsed);
+                    onConfigResponse(gmid, ucid);
                     apiCallback.onApiSuccess(apiResponse);
                 } else {
                     apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
@@ -198,10 +201,22 @@ public class ApiService implements IApiService {
         }
     }
 
+    @Deprecated
     private void onConfigResponse(GigyaConfigModel response) {
         final String gmid = response.getIds().getGmid();
         final String ucid = response.getIds().getUcid();
 
+        _config.setGmid(gmid);
+        _config.setUcid(ucid);
+
+        // Update prefs.
+        _psService.setGmid(gmid);
+        _psService.setUcid(ucid);
+
+        release();
+    }
+
+    private void onConfigResponse(String gmid, String ucid) {
         _config.setGmid(gmid);
         _config.setUcid(ucid);
 
