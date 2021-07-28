@@ -11,6 +11,8 @@ For more details see: For documentation: https://developers.gigya.com/display/GD
 The core Android SDK requires SDK 14 and above.
 For Biometric capabilities, SDK 23 and above is required.
 
+**Android 12 verified.**
+
 ## Download and Installation
 
 Gigya Available SDK libraries:
