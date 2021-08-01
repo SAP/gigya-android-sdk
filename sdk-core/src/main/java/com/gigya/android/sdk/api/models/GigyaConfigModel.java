@@ -6,6 +6,7 @@ import com.gigya.android.sdk.network.GigyaResponseModel;
 /**
  * Gigya SDK main configuration model.
  */
+@Deprecated
 public class GigyaConfigModel extends GigyaResponseModel {
 
     private Ids ids;
