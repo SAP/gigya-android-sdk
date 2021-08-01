@@ -22,8 +22,10 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
+import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +104,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         } else {
             // Parse & success.
-            A parsed = response.parseTo(_accountService.getAccountSchema());
+            A parsed = response.parseAccountTo(_accountService.getAccountSchema());
             updateWithNewSession(response);
             updateCachedAccount(response);
             if (loginCallback != null) {
@@ -315,7 +317,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     // No interruption support.
-                    A parsed = response.parseTo(_accountService.getAccountSchema());
+                    A parsed = response.parseAccountTo(_accountService.getAccountSchema());
                     updateWithNewSession(response);
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
@@ -497,7 +499,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     // Parse response & update account service.
-                    A parsed = response.parseTo(_accountService.getAccountSchema());
+                    A parsed = response.parseAccountTo(_accountService.getAccountSchema());
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
                 } else {

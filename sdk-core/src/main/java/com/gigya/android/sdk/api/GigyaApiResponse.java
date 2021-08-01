@@ -3,8 +3,10 @@ package com.gigya.android.sdk.api;
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +72,21 @@ public class GigyaApiResponse {
     public <T> T parseTo(Class<T> clazz) {
         try {
             return getGson().fromJson(asJson(), clazz);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Account object requires specific parser in order to be aligned with
+     * Site schema object.
+     */
+    @Nullable
+    public <A> A parseAccountTo(Class<A> clazz) {
+        try {
+            return new GsonBuilder().registerTypeAdapter(clazz, new AccountGSONDeserializer<A>()).create()
+                    .fromJson(asJson(), clazz);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
