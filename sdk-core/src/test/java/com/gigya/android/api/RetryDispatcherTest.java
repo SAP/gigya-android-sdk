@@ -96,7 +96,7 @@ public class RetryDispatcherTest {
         }).when(_adapter).send(any(GigyaApiRequest.class), anyBoolean(), any(IRestAdapterCallback.class));
 
         // Act
-        new RetryDispatcher.Builder(_adapter)
+        new RetryDispatcher.Builder(_adapter, _reqFactory)
                 .errorCode(GigyaError.Codes.ERROR_REQUEST_HAS_EXPIRED)
                 .tries(2)
                 .request(mockRequest)
