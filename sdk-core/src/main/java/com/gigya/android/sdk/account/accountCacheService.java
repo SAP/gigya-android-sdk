@@ -2,6 +2,7 @@ package com.gigya.android.sdk.account;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.gigya.android.sdk.utils.CustomGSONDeserializer;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
@@ -67,7 +68,8 @@ public class accountCacheService<A extends GigyaAccount> implements IAccountServ
 
     @Override
     public A getAccount() {
-        return new Gson().fromJson(_cachedAccount, _accountScheme);
+        return new GsonBuilder().registerTypeAdapter(_accountScheme,
+                new AccountGSONDeserializer<A>()).create() .fromJson(_cachedAccount, _accountScheme);
     }
 
     @Override

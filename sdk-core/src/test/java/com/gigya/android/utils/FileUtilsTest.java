@@ -120,17 +120,4 @@ public class FileUtilsTest {
         assertNotNull(mockMetaDataString);
         assertEquals("MOCK", mockMetaDataString);
     }
-
-    @Test
-    public void test_createImageFile() {
-        try {
-            // Act
-            File testFile = FileUtils.createImageFile();
-            // Assert
-            assertNotNull(testFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

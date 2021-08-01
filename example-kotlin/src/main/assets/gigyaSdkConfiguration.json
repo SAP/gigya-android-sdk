@@ -11,7 +11,8 @@
     ],
     "extraProfileFields": [
       "languages",
-      "phones"
+      "phones",
+      "education"
     ]
   },
   "sessionVerificationInterval": 0
