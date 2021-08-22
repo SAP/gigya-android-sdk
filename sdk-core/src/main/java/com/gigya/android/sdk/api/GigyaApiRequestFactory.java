@@ -61,7 +61,7 @@ GigyaApiRequestFactory implements IApiRequestFactory {
         String nonce = System.currentTimeMillis() + "_" + random.nextInt();
         urlParams.put("nonce", nonce);
 
-        // Add configuration parameters
+        // Add configuration parameters.
         final String gmid = _config.getGmid();
         if (gmid != null) {
             urlParams.put("gmid", gmid);

@@ -20,6 +20,7 @@ import com.gigya.android.sdk.utils.UrlUtils;
 import org.json.JSONObject;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 public class WebLoginProvider extends Provider {
@@ -173,6 +174,11 @@ public class WebLoginProvider extends Provider {
             api = "socialize.addConnection";
         }
 
+        // Add nonce.
+        final Random random = new Random();
+        String nonce = System.currentTimeMillis() + "_" + random.nextInt();
+        serverParams.put("nonce", nonce);
+
         if (_sessionService.isValid()) {
             // Add signature parameters if needed.
             @SuppressWarnings("ConstantConditions") final String sessionToken = _sessionService.getSession().getSessionToken();
@@ -184,7 +190,6 @@ public class WebLoginProvider extends Provider {
                     serverParams,
                     _config.getServerOffset());
         }
-
 
         // Build final URL.
         return String.format("%s://%s.%s/%s?%s", "https", "socialize", _config.getApiDomain(),
