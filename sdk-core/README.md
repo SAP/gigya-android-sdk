@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v5.1.2.aar')
+implementation files('libs/gigya-android-sdk-core-v5.1.4.aar')
 ```
 
 ### Implement using Jitpack
@@ -36,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.1.2'
+implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.1.4'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -374,7 +374,12 @@ It is done by using the provider's native SDK, so it will require you to add its
 We will review the relevant providers and their implementation flow.
 
 ### Facebook
-Adding Facebook native login to your Android app is mandatory if you want to login via Facebook. To do so, set up your Facebook app in your
+Adding Facebook native login SDK to your Android app is mandatory if you want to login via Facebook.
+```
+On October 5, 2021, Facebook Login will no longer support Android embedded browsers (WebViews) for authenticating users.
+```
+
+To set up your Facebook app in your
 Android Studio project using the following instructions:
 
 Setting up the Facebook dependency:
