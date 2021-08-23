@@ -152,7 +152,7 @@ public class ApiService implements IApiService {
         loadIds();
 
         final Map<String, Object> params = new HashMap<>();
-        params.put("include", "permissions,ids,appIds");
+        //params.put("include", "permissions,ids,appIds");
         final GigyaApiRequest request = _reqFactory.create(
                 GigyaDefinitions.API.API_GET_IDS,
                 params,
