@@ -16,6 +16,7 @@ class ScreenMethodChannel : IMethodChannel {
         ACTION("action"),
         DISMISS("_dismiss"),
         CANCEL("_cancel"),
-        LINK("link")
+        LINK("link"),
+        EVAL("eval")
     }
 }
