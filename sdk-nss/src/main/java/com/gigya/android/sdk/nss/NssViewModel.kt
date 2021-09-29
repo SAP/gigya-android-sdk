@@ -9,6 +9,7 @@ import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.bloc.SchemaHelper
 import com.gigya.android.sdk.nss.bloc.action.NssSetAccountAction
 import com.gigya.android.sdk.nss.bloc.data.NssDataResolver
+import com.gigya.android.sdk.nss.bloc.data.NssJsEvaluator
 import com.gigya.android.sdk.nss.bloc.events.FieldEventModel
 import com.gigya.android.sdk.nss.bloc.events.NssScreenEvents
 import com.gigya.android.sdk.nss.bloc.events.ScreenEventsManager
@@ -31,7 +32,8 @@ class NssViewModel<T : GigyaAccount>(
         private val schemaHelper: SchemaHelper<T>,
         private val nssDataResolver: NssDataResolver,
         private val screenEventsManager: ScreenEventsManager,
-        private val nssMarkupLoader: NssMarkupLoader<T>
+        private val nssMarkupLoader: NssMarkupLoader<T>,
+        private val nssJSEvaluator: NssJsEvaluator,
 ) {
 
     var finishClosure: () -> Unit? = { }
@@ -139,6 +141,17 @@ class NssViewModel<T : GigyaAccount>(
                         val intent = Intent(Intent.ACTION_VIEW, uri)
                         // Forward intent action to activity in order to open browser URL.
                         intentAction(intent)
+                    }
+                }
+                // Screen request to evaluate expression by demand.
+                ScreenMethodChannel.ScreenCall.EVAL.identifier -> {
+                    GigyaLogger.debug(LOG_TAG, "screen eval")
+                    call.arguments.refined<Map<String, String>> { map ->
+                        val expression = map["expression"] as String
+                        val data = map["data"] as Map<String, Any>
+                        nssJSEvaluator.evalSingle(data, expression) { eval ->
+                            result.success(eval)
+                        }
                     }
                 }
             }
