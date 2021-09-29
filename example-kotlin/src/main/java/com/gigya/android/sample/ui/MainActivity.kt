@@ -721,7 +721,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         GigyaNss.getInstance()
 //                .load("DEFAULT")
                 .loadFromAssets("gigya-nss-example")
-                .initialRoute("login")
+                .initialRoute("register")
                 //.lang("es")
                 .events(object : NssEvents<MyAccount>() {
 

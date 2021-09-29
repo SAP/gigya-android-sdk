@@ -71,6 +71,31 @@ class NssJsEvaluator(context: Context) {
     }
 
     /**
+     * Evaluate single conditional expression using a WebView instance.
+     */
+    fun evalSingle(data: Map<String, Any>?, expression: String, result: (String) -> Unit) {
+        try {
+            val jsData = makeData(data)
+            jsData?.let {
+                webView!!.evaluateJavascript(it, null)
+            }
+
+            webView!!.evaluateJavascript("JSON.stringify($expression);") { evalResult ->
+                if (evalResult == "\"{}\"" || evalResult == "null") {
+                    result("")
+                    return@evaluateJavascript
+                }
+                val trimmed = trimJsResult(evalResult)
+                result(trimmed)
+            }
+        } catch (ex: Exception) {
+            GigyaLogger.error("NssJsEvaluator", "NssEvaluator exception")
+            ex.printStackTrace()
+            result("")
+        }
+    }
+
+    /**
      * Trimming double stringify JS response.
      */
     private fun trimJsResult(js: String): String = gson.fromJson(js, String::class.java)
