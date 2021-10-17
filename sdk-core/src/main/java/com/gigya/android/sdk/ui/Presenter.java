@@ -99,6 +99,7 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
         // Clearing cached cookies.
         CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.removeAllCookies(null);
             cookieManager.flush();
         } else {
             CookieSyncManager.createInstance(_context);
