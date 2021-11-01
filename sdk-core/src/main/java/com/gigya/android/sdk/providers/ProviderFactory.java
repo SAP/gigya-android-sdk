@@ -79,8 +79,11 @@ public class ProviderFactory implements IProviderFactory {
                 case FACEBOOK:
                     if (FacebookProvider.isAvailable(_fileUtils)) {
                         return FacebookProvider.class;
+                    }else {
+                        throw new RuntimeException("Facebook library implementation is a required dependency." +
+                                " Please make sure it is correctly implemented in your build.gradle file.\n" +
+                                "https://sap.github.io/gigya-android-sdk/sdk-core/#facebook");
                     }
-                    break;
                 case GOOGLE:
                 case LEGACY_GOOGLE_IDENTIFIER:
                     if (GoogleProvider.isAvailable(_context)) {
@@ -88,7 +91,7 @@ public class ProviderFactory implements IProviderFactory {
                     } else {
                         throw new RuntimeException("Google auth library implementation is a required dependency." +
                                 " Please make sure it is correctly implemented in your build.gradle file.\n" +
-                                "https://developers.gigya.com/display/GD/Android+SDK+v4#AndroidSDKv4-Google");
+                                "https://sap.github.io/gigya-android-sdk/sdk-core/#google");
                     }
                 case LINE:
                     if (LineProvider.isAvailable(_fileUtils)) {
