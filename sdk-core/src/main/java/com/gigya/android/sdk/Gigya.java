@@ -185,9 +185,6 @@ public class Gigya<T extends GigyaAccount> {
         _sessionService.load();
         init(false);
 
-        // Request SDK configuration (blocking).
-        _businessApiService.getSDKConfig();
-
         // Must be registered following the init call. Dependent on full parsed config.
         _sessionVerificationService.registerActivityLifecycleCallbacks();
     }
@@ -243,6 +240,11 @@ public class Gigya<T extends GigyaAccount> {
                 GigyaLogger.error(LOG_TAG, "Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
                 throw new RuntimeException("Failed to set the SDK Api-Key. Please verify you have correctly initialized the SDK.");
             }
+        }
+
+        // Request SDK configuration (blocking).
+        if (_config.getApiKey() != null) {
+            _businessApiService.getSDKConfig();
         }
     }
 
