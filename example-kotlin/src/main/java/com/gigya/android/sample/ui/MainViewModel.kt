@@ -518,6 +518,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
+    fun oidcLogin(){
+        gigya.oidcLogin()
+    }
+
     //endregion
 
     //region UTILITY
