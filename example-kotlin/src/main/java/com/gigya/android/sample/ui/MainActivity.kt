@@ -252,6 +252,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_push_auth_register -> registerForPushAuthentication()
             R.id.action_web_bridge_test -> startActivity(Intent(this, WebBridgeTestActivity::class.java))
             R.id.action_show_native_screen_sets -> showNativeScreenSets()
+            R.id.action_oidc_login -> oidcLogin()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
@@ -976,6 +977,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             true -> viewModel?.onResolvePendingRegistrationWithMissingData(field, value)
         }
 
+    }
+
+    fun oidcLogin() {
+        viewModel?.oidcLogin()
     }
 
     //endregion

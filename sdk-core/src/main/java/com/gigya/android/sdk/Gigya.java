@@ -18,6 +18,8 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
+import com.gigya.android.sdk.oidc.OIDCViewModel;
+import com.gigya.android.sdk.oidc.OIDCWrapper;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
@@ -792,6 +794,18 @@ public class Gigya<T extends GigyaAccount> {
     public void getSchema(@NonNull Map<String, Object> params, @NonNull GigyaCallback<GigyaSchema> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "getSchema: ");
         _businessApiService.getSchema(params, gigyaCallback);
+    }
+
+    /**
+     *
+     */
+    public void oidcLogin() {
+        try {
+            final OIDCWrapper wrapper = _container.get(OIDCWrapper.class);
+            wrapper.show("");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     //endregion

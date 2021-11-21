@@ -101,6 +101,9 @@ dependencies {
     implementation 'com.linecorp:linesdk:5.1.1'
     // Requires (android.enableJetifier=true)
     implementation 'com.facebook.android:facebook-android-sdk:11.2.0'
+
+    // ChromeTabs
+    compileOnly "androidx.browser:browser:1.0.0"
 }
 
 apply plugin: 'com.google.gms.google-services'
