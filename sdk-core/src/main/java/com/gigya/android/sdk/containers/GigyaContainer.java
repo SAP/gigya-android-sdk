@@ -19,12 +19,12 @@ import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.oidc.OIDCViewModel;
 import com.gigya.android.sdk.oidc.OIDCWrapper;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.ProviderFactory;
+import com.gigya.android.sdk.providers.sso.GigyaSSOViewModel;
 import com.gigya.android.sdk.push.GigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
 import com.gigya.android.sdk.reporting.IReportingManager;
@@ -70,7 +70,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
                 .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(OIDCWrapper.class, OIDCWrapper.class, true)
-                .bind(OIDCViewModel.class, OIDCViewModel.class, false)
+                .bind(GigyaSSOViewModel.class, GigyaSSOViewModel.class, false)
                 .bind(IoCContainer.class, this);
     }
 }

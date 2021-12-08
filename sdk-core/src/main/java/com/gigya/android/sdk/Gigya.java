@@ -796,17 +796,5 @@ public class Gigya<T extends GigyaAccount> {
         _businessApiService.getSchema(params, gigyaCallback);
     }
 
-    /**
-     *
-     */
-    public void oidcLogin() {
-        try {
-            final OIDCWrapper wrapper = _container.get(OIDCWrapper.class);
-            wrapper.show("");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     //endregion
 }
