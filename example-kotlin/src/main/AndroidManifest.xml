@@ -36,7 +36,7 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
-        <activity android:name=".GigyaOIDCActivity"
+        <activity android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity"
             android:exported="true"
             android:launchMode="singleTask">
 

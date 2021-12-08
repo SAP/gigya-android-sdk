@@ -82,8 +82,8 @@
                     android:title="@string/nav_show_native_screen_sets" />
 
                 <item
-                    android:id="@+id/action_oidc_login"
-                    android:title="@string/oidc_login" />
+                    android:id="@+id/action_sso_login"
+                    android:title="@string/sso_login" />
 
                 <item
                     android:id="@+id/action_web_bridge_test"
