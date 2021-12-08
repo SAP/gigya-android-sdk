@@ -11,6 +11,7 @@ import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.LineProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
+import com.gigya.android.sdk.providers.provider.SSOProvider;
 import com.gigya.android.sdk.providers.provider.WeChatProvider;
 import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
@@ -18,6 +19,7 @@ import com.gigya.android.sdk.utils.FileUtils;
 import java.util.ArrayList;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.SSO;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
@@ -79,7 +81,7 @@ public class ProviderFactory implements IProviderFactory {
                 case FACEBOOK:
                     if (FacebookProvider.isAvailable(_fileUtils)) {
                         return FacebookProvider.class;
-                    }else {
+                    } else {
                         throw new RuntimeException("Facebook library implementation is a required dependency." +
                                 " Please make sure it is correctly implemented in your build.gradle file.\n" +
                                 "https://sap.github.io/gigya-android-sdk/sdk-core/#facebook");
@@ -103,6 +105,8 @@ public class ProviderFactory implements IProviderFactory {
                         return WeChatProvider.class;
                     }
                     break;
+                case SSO:
+                    return SSOProvider.class;
             }
         }
 

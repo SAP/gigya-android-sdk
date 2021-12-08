@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.*
-import com.gigya.android.sdk.GigyaDefinitions.AccountProfileExtraFields.LANGUAGES
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.CANCELED
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
@@ -518,8 +517,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    fun oidcLogin(){
-        gigya.oidcLogin()
+    fun ssoLogin(){
+        gigya.login(SSO, mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onError(error: GigyaError?) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
     }
 
     //endregion

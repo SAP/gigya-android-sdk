@@ -43,7 +43,7 @@
     <string name="get_account_invalidate_cache">Get Account + Invalidate cache</string>
     <string name="register_for_push_authentication">Register for push authentication</string>
     <string name="otp_login">OTP login</string>
-    <string name="oidc_login">OIDC login</string>
+    <string name="sso_login">SSO login</string>
 
 
 </resources>
