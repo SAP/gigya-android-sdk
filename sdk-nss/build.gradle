@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka-android'
 
-def libVersion = "1.4.2"
+def libVersion = "1.4.3"
 
 ext {
     sharedManifest = manifest {
