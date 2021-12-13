@@ -92,6 +92,8 @@ class NssViewModel<T : GigyaAccount>(
                     }
                     LogMethodChannel.LogCall.ERROR.identifier -> {
                         GigyaLogger.error(logMap["tag"], logMap["message"])
+                        // Development errors logs from the engine will throw a runtime exception.
+                        throw RuntimeException(logMap["message"])
                     }
                 }
             }
