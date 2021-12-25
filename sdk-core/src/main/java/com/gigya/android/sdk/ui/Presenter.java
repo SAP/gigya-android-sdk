@@ -95,19 +95,6 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
     }
 
     @Override
-    public void clearOnLogout() {
-        // Clearing cached cookies.
-        CookieManager cookieManager = CookieManager.getInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.removeAllCookies(null);
-            cookieManager.flush();
-        } else {
-            CookieSyncManager.createInstance(_context);
-            cookieManager.removeAllCookie();
-        }
-    }
-
-    @Override
     public String getPresentationUrl(Map<String, Object> params, String requestType) {
         // Setup parameters.
         final Map<String, Object> urlParams = new HashMap<>();
