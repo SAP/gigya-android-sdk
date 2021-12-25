@@ -3,11 +3,8 @@ package com.gigya.android.sdk.ui.plugin;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Base64;
 import android.view.View;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
@@ -342,10 +339,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                             // Cleaning up.
                             _sessionService.cancelSessionCountdownTimer();
                             _sessionService.clear(true);
+                            _sessionService.clearCookiesOnLogout();
                             _providerFactory.logoutFromUsedSocialProviders();
                             _sessionVerificationService.stop();
-                            clearCookies();
-
                         } else {
                             onError(GigyaError.fromResponse(response));
                         }
@@ -356,16 +352,6 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         invokeWebViewCallback(callbackId, error.getData());
                     }
                 });
-    }
-
-    private void clearCookies() {
-        CookieManager cookieManager = CookieManager.getInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.flush();
-        } else {
-            CookieSyncManager.createInstance(_context);
-            cookieManager.removeAllCookie();
-        }
     }
 
     /*
