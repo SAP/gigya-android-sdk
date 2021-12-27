@@ -17,6 +17,4 @@ public interface IPresenter<A extends GigyaAccount> {
                                   Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback);
 
     String getPresentationUrl(Map<String, Object> params, String requestType);
-
-    void clearOnLogout();
 }

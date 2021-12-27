@@ -30,67 +30,10 @@ class GigyaSampleApplication : Application() {
         Gigya.setApplication(this)
         Gigya.secureActivityWindow(true)
 
-        //val sessionExpiration = Gigya.getContainer().get(IPersistenceService::class.java).sessionExpiration
-
         // Initialization with implicit configuration & myAccountLiveData scheme.
         Gigya.getInstance(MyAccount::class.java)
 
-        //if (gigya.isLoggedIn &&  sessionExpiration != 0L && sessionExpiration < System.currentTimeMillis()) {
-        //    Gigya.getInstance(MyAccount::class.java).logout()
-        //}
-
         val signatureHelper = AppSignatureHelper(this)
         GigyaLogger.debug("GigyaSampleApplication SIG", signatureHelper.getAppSignatures().toString())
-
-        /*
-        Initialization with implicit configuration & without a custom myAccountLiveData scheme.
-        Will use the default GigyaAccount scheme.
-        */
-        // Gigya.getInstance(applicationContext)
-
-        /*
-        TFA phone/totp.
-         */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.api_with_phone_totp_tfa), "us1-st1.gigya.com")
-
-        /*
-        TFA Email.
-         */
-        //Gigya.getInstance(MyAccount::class.java).init(getString(R.string.apui_with_email_tfa));
-
-        /*
-        TFA push only (Staging).
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_r0q_m0wQe7gyZJxHFL-mBAkPYILsmsIzloWwAB6QMXRiacHjq2f6CxBy0Mya9rLS", "ru1.gigya.com")
-
-        /*
-        With LiveLink.
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_7iTV4NJUApz8TdUB5_Ms-SH2Fuj3aUgfw-y78IYulD-BA8IFLYRcpUDoCwzDgs9o", "us1.gigya.com")
-
-        /*
-        Global login site
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("4_mOdtipUxEhwsuZ6McabFRQ")
-
-        /*
-        Forcing pending registration
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_5FIA8jNk1LTw_spOzIYLVU-GJVm93TAfJjqTjACQCnfxfRm0kZghGH1lx7zoNMbD")
-
-        /*
-        SAML
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_e6fBzFpWA_5w1A2aB96Ad3NGmlbg6r1iQ5JQHv78tGj_YaYr1laPmM5XA3hO2YNh")
-
-        /*
-        Eu site testing.
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_1pjil0H2GoDmHPAAMsqY24BdoNNAqBEFO4n461JnkbarkP2DBKoOpFzaxekXt3kt", "eu1.gigya.com")
-
-        /*
-        Auth
-         */
-        //Gigya.getInstance(MyAccount::class.java).init("3_fkRaJs5vQuVjkb9Z1He22lHMUcJAwfZMUDvIRQ08Jhnk82yAWR5ZapM44N332hy9", "us1-st1.gigya.com")
     }
 }

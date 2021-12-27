@@ -3,8 +3,11 @@ package com.gigya.android.sdk.session;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
@@ -34,6 +37,13 @@ import javax.crypto.SecretKey;
 public class SessionService implements ISessionService {
 
     private static final String LOG_TAG = "SessionService";
+
+    private boolean clearCookies = true;
+
+    @Override
+    public void setClearCookies(boolean clear) {
+        clearCookies = clear;
+    }
 
     // Final fields.
     final private Context _context;
@@ -251,6 +261,20 @@ public class SessionService implements ISessionService {
             // Remove session data. Update encryption to DEFAULT.
             _psService.removeSession();
             _psService.setSessionEncryptionType(GigyaDefinitions.SessionEncryption.DEFAULT);
+        }
+    }
+
+    @Override
+    public void clearCookiesOnLogout() {
+        if (clearCookies) {
+            CookieManager cookieManager = CookieManager.getInstance();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.removeAllCookies(null);
+                cookieManager.flush();
+            } else {
+                CookieSyncManager.createInstance(_context);
+                cookieManager.removeAllCookie();
+            }
         }
     }
 
