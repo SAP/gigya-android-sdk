@@ -79,6 +79,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         pendingRegistrationResolver?.setAccount(params)
     }
 
+    init {
+        // Disable clearing cookies on logout.
+        gigya.setClearCookies(false)
+    }
 
     //endregion
 

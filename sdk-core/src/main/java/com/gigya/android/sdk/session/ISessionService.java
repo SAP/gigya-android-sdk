@@ -29,4 +29,8 @@ public interface ISessionService {
     void addInterceptor(GigyaInterceptor interceptor);
 
     void refreshSessionExpiration();
+
+    void setClearCookies(boolean clear);
+
+    void clearCookiesOnLogout();
 }
