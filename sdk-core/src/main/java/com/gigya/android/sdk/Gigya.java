@@ -46,7 +46,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.1.5";
+    public static final String VERSION = "5.1.6";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -374,16 +374,24 @@ public class Gigya<T extends GigyaAccount> {
 
         _sessionService.cancelSessionCountdownTimer();
         _sessionService.clear(true);
+        _sessionService.clearCookiesOnLogout();
 
         // Make sure account cache is also cleared.
         _accountService.invalidateAccount();
 
         _sessionVerificationService.stop();
 
-        // Clear presenter related data (cookies).
-        _presenter.clearOnLogout();
-
         _providerFactory.logoutFromUsedSocialProviders();
+    }
+
+    /**
+     * Enable/Disable clearing cookies from WebView on logout.
+     * Default is set to true.
+     *
+     * @param clear False to disable clearing cookies from WebView instances on logout.
+     */
+    public void setClearCookies(boolean clear) {
+        _sessionService.setClearCookies(clear);
     }
 
     //endregion
