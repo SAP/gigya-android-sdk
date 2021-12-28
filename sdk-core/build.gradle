@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def libVersion = "5.1.5"
+def libVersion = "5.1.6"
 
 ext {
     sharedManifest = manifest {
