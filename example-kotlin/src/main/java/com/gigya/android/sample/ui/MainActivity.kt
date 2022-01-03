@@ -795,7 +795,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun otpLogin() {
-        val dialog = CustomOTPRegistrationFragment.newInstance(object: IOTPResultCallback {
+        val dialog = CustomOTPRegistrationFragment.newInstance(object : IOTPResultCallback {
 
             override fun onOTPResult(json: String) {
                 onJsonResult(json)
@@ -979,8 +979,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun ssoLogin() {
-        viewModel?.ssoLogin()
+    private fun ssoLogin() {
+        viewModel?.ssoLogin(
+                success = { json ->
+                    onJsonResult(json)
+                },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                },
+                cancel = { response_text_view.snackbar("Request cancelled") }
+        )
     }
 
     //endregion
@@ -1002,10 +1010,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * On Gigya error interfacing. Display error alert.
      */
     private fun onError(error: GigyaError) {
-        displayErrorAlert(R.string.rest_error_title, when (error.localizedMessage != null) {
-            true -> error.localizedMessage
-            false -> "General error"
-        })
+        displayErrorAlert(R.string.rest_error_title,
+                when (error.localizedMessage != null) {
+                    true -> error.localizedMessage
+                    false -> "General error"
+                })
         onLoadingDone()
     }
 
