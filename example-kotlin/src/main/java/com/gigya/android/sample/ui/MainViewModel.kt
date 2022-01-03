@@ -521,14 +521,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 })
     }
 
-    fun ssoLogin(){
-        gigya.login(SSO, mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
+    fun ssoLogin(success: (String) -> Unit,
+                 error: (GigyaError?) -> Unit,
+                 cancel: () -> Unit){
+        gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
-                TODO("Not yet implemented")
+                Log.d("ssoLogin", "Success")
+                myAccountLiveData.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onOperationCanceled() {
+                cancel()
             }
 
             override fun onError(error: GigyaError?) {
-                TODO("Not yet implemented")
+                Log.d("ssoLogin", "onError")
+                error(error)
             }
 
         })

@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.ui.Presenter
-import com.gigya.android.sdk.ui.WebLoginActivity
 import com.gigya.android.sdk.utils.UrlUtils
 
 class GigyaSSOLoginActivity : AppCompatActivity() {
