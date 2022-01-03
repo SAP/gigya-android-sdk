@@ -2,9 +2,11 @@ package com.gigya.android.sdk.providers.provider
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.api.GigyaApiRequest
+import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.network.adapter.IRestAdapter
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback
@@ -14,7 +16,10 @@ import com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity
 import com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity.SSOLoginActivityCallback
 import com.gigya.android.sdk.session.SessionInfo
 import com.gigya.android.sdk.utils.PKCEHelper
+import com.gigya.android.sdk.utils.UrlUtils
 import com.google.gson.Gson
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.util.*
@@ -65,6 +70,7 @@ class SSOProvider(var context: Context?,
 
         GigyaLogger.debug(LOG_TAG, "login: with url $loginUrl")
 
+        // Authorize endpoint.
         GigyaSSOLoginActivity.present(context!!, loginUrl, object : SSOLoginActivityCallback {
             override fun onResult(activity: Activity?, parsed: Map<String, Any>) {
                 GigyaLogger.debug(LOG_TAG, "GigyaSSOLoginActivity: onResult -> $parsed")
@@ -72,7 +78,8 @@ class SSOProvider(var context: Context?,
                 if (parsed.containsKey("code")) {
                     onSSOCodeReceived(parsed["code"] as String)
                 } else {
-                    //TODO: Handle possible error here.
+                    // Failed login authorization.
+                    onLoginFailed(GigyaApiResponse(GigyaError.generalError().toString()))
                 }
             }
 
@@ -127,27 +134,48 @@ class SSOProvider(var context: Context?,
         serverParams["grant_type"] = "authorization_code"
         serverParams["code"] = code
         serverParams["code_verifier"] = pkceHelper.verifier!!
-        val urlString = getUrl("token")
+        val urlString = getUrl(TOKEN)
         val request = GigyaApiRequest(RestAdapter.HttpMethod.POST, urlString, serverParams)
 
+        // Token endpoint.
         restAdapter?.sendUnsigned(request, object : IRestAdapterCallback() {
             override fun onResponse(jsonResponse: String, responseDateHeader: String) {
                 GigyaLogger.debug(LOG_TAG, "getToken: success -> $jsonResponse")
 
                 // Parse response.
-                val parsed: Map<String, String> = gson.fromJson(jsonResponse, Map::class.java) as Map<String, String>
-                if (parsed.containsKey("access_token")) {
-                    val sessionInfo: SessionInfo = parseSessionInfo(parsed)
-                    // Notify successful sign in.
-                    onLoginSuccess(name, sessionInfo)
-                } else {
-                    //TODO ERROR
+                val parsed: Map<String, Any> = gson.fromJson(jsonResponse, Map::class.java) as Map<String, Any>
+                when {
+                    parsed.containsKey("access_token") -> {
+                        val sessionInfo: SessionInfo = parseSessionInfo(parsed)
+                        // Notify successful sign in.
+                        onLoginSuccess(name, sessionInfo)
+                    }
+                    else -> {
+                        // Generating general error. No error available to parse.
+                        onLoginFailed(GigyaApiResponse(GigyaError.generalError().data))
+                    }
                 }
             }
 
             override fun onError(gigyaError: GigyaError) {
                 GigyaLogger.debug("OIDCWrapper", "getToken: fail -> $gigyaError")
-                //TODO ERROR
+                if (gigyaError.localizedMessage != null) {
+                    val json = gigyaError.localizedMessage
+                    if (isJSONValid(json)) {
+                        val parsed: Map<String, String> = gson.fromJson(json, Map::class.java) as Map<String, String>
+                        if (parsed.containsKey("error_uri")) {
+                            val jsonError = parseErrorUri(parsed["error_uri"]!!)
+                            onLoginFailed(GigyaApiResponse(jsonError))
+                        } else {
+                            onLoginFailed(gigyaError.localizedMessage)
+                        }
+                    } else {
+                        onLoginFailed(gigyaError.localizedMessage)
+                    }
+                } else {
+                    // Generating general error. No error available to parse
+                    onLoginFailed(GigyaApiResponse(GigyaError.generalError().data))
+                }
             }
         })
     }
@@ -155,16 +183,40 @@ class SSOProvider(var context: Context?,
     /**
      * Parse the SessionInfo object from code exchange response.
      */
-    private fun parseSessionInfo(result: Map<String, String>): SessionInfo {
-        val accessToken = result["access_token"]
-        val expiresInString = result["expires_in"]
-        val expiresIn: Long = (expiresInString ?: "0".toLong()) as Long
-        val secret = result["device_secret"]
-        return SessionInfo(secret, accessToken, expiresIn)
+    private fun parseSessionInfo(result: Map<String, Any>): SessionInfo {
+        val accessToken = result["access_token"] as String
+        val expiresIn: Double = result["expires_in"] as Double
+        val secret = result["device_secret"] as String
+        return SessionInfo(secret, accessToken, expiresIn.toLong())
     }
 
-    private fun parseErrorResult(result: Map<String, Any>) {
-        val errorDescription = result["error_description"] as String
-        val jsonObject = JSONObject()
+    /**
+     * Parse error_uri from error response.
+     */
+    private fun parseErrorUri(uriString: String): String {
+        val uri = Uri.parse(uriString)
+        val queryParams: Map<String, Any> = mutableMapOf()
+        UrlUtils.parseUrlParameters(queryParams, uri.query)
+        val json = JSONObject()
+        json.put("callId", queryParams["callId"])
+        json.put("errorCode", (queryParams["error_code"] as String).toInt())
+        json.put("errorDetails", queryParams["error_description"])
+        return json.toString()
+    }
+
+    /**
+     * Check for valid JSON String.
+     */
+    fun isJSONValid(test: String?): Boolean {
+        try {
+            JSONObject(test)
+        } catch (ex: JSONException) {
+            try {
+                JSONArray(test)
+            } catch (ex1: JSONException) {
+                return false
+            }
+        }
+        return true
     }
 }
