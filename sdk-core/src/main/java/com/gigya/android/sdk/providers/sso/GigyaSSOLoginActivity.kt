@@ -29,7 +29,7 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
     }
 
     interface SSOLoginActivityCallback {
-        fun onResult(activity: Activity?, parsed: Map<String, Any>)
+        fun onResult(activity: Activity?, uri: Uri)
         fun onCancelled()
     }
 
@@ -83,10 +83,10 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
 
         // Parse Uri query parameters.
         val uri: Uri = intent?.data as Uri
-        val queryParams: Map<String, Any> = mutableMapOf()
-        UrlUtils.parseUrlParameters(queryParams, uri.query)
+        //val queryParams: Map<String, Any> = mutableMapOf()
+        //UrlUtils.parseUrlParameters(queryParams, uri.query)
 
-        _ssoLoginLifecycleCallbacks?.onResult(this, queryParams)
+        _ssoLoginLifecycleCallbacks?.onResult(this, uri)
         finish()
     }
 
@@ -105,4 +105,5 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
         Disable exit animation.
          */overridePendingTransition(0, 0)
     }
+
 }
