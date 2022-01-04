@@ -72,14 +72,22 @@ class SSOProvider(var context: Context?,
 
         // Authorize endpoint.
         GigyaSSOLoginActivity.present(context!!, loginUrl, object : SSOLoginActivityCallback {
-            override fun onResult(activity: Activity?, parsed: Map<String, Any>) {
-                GigyaLogger.debug(LOG_TAG, "GigyaSSOLoginActivity: onResult -> $parsed")
+            override fun onResult(activity: Activity?, uri: Uri) {
+                GigyaLogger.debug(LOG_TAG, "GigyaSSOLoginActivity: onResult -> ${uri.query}")
+
+                // Parse Uri query parameters.
+                val parsed = getQueryKeyValueMap(uri)
 
                 if (parsed.containsKey("code")) {
                     onSSOCodeReceived(parsed["code"] as String)
                 } else {
-                    // Failed login authorization.
-                    onLoginFailed(GigyaApiResponse(GigyaError.generalError().toString()))
+                    if (parsed.containsKey("error")) {
+                        val jsonError = parseErrorUri(parsed["error_uri"] as String)
+                        onLoginFailed(GigyaApiResponse(jsonError))
+                    } else {
+                        // Failed login authorization.
+                        onLoginFailed(GigyaApiResponse(GigyaError.generalError().toString()))
+                    }
                 }
             }
 
@@ -202,6 +210,22 @@ class SSOProvider(var context: Context?,
         json.put("errorCode", (queryParams["error_code"] as String).toInt())
         json.put("errorDetails", queryParams["error_description"])
         return json.toString()
+    }
+
+    fun getQueryKeyValueMap(uri: Uri): HashMap<String, Any> {
+        val keyValueMap = HashMap<String, Any>()
+        var key: String
+        var value: String
+
+        val keyNamesList = uri.queryParameterNames
+        val iterator = keyNamesList.iterator()
+
+        while (iterator.hasNext()) {
+            key = iterator.next() as String
+            value = uri.getQueryParameter(key) as String
+            keyValueMap[key] = value
+        }
+        return keyValueMap
     }
 
     /**
