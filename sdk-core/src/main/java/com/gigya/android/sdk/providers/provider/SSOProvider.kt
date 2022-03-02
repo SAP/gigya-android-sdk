@@ -24,8 +24,6 @@ import org.json.JSONObject
 import java.net.URLEncoder
 import java.util.*
 
-//3_KF6Dwf0BoTktLiX54s_rSWRiklW69xCLG8pZa413Z6pkuBGBwQeSK9k19grZfCDe
-
 class SSOProvider(var context: Context?,
                   persistenceService: IPersistenceService?,
                   providerCallback: ProviderCallback?,
@@ -49,9 +47,12 @@ class SSOProvider(var context: Context?,
     private var pkceHelper: PKCEHelper = PKCEHelper()
     val gson: Gson = Gson()
 
+    var packageName: String
+
     init {
         // Create new PKCE challenge/verifier.
         pkceHelper.newChallenge()
+        packageName = _context.packageName
     }
 
     /**
@@ -118,7 +119,7 @@ class SSOProvider(var context: Context?,
     private fun getAuthorizeUrl(): String {
         val urlString = getUrl(AUTHORIZE)
         val serverParams: Map<String, String> = mapOf(
-                "redirect_uri" to "gsapi://login/",
+                "redirect_uri" to "gsapi://${packageName}/login/",
                 "response_type" to "code",
                 "client_id" to config!!.apiKey,
                 "scope" to "device_sso",
@@ -137,7 +138,7 @@ class SSOProvider(var context: Context?,
         GigyaLogger.debug(LOG_TAG, "onSSOCodeReceived: with code $code")
 
         val serverParams = TreeMap<String, Any>()
-        serverParams["redirect_uri"] = "gsapi://login/"
+        serverParams["redirect_uri"] = "gsapi://${packageName}/login/"
         serverParams["client_id"] = config!!.apiKey
         serverParams["grant_type"] = "authorization_code"
         serverParams["code"] = code
