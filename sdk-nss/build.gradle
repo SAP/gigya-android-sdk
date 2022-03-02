@@ -60,12 +60,14 @@ dependencies {
     testImplementation project(path: ':sdk-core')
 
     compileOnly 'com.google.code.gson:gson:2.8.6'
-    compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    //compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Gigya SDKs.
     compileOnly project(path: ':sdk-core')
     compileOnly project(path: ':sdk-tfa')
     compileOnly project(path: ':sdk-auth')
+
+    compileOnly 'androidx.core:core-ktx:1.3.1'
 
     // Nss engine.
     debugCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:+'

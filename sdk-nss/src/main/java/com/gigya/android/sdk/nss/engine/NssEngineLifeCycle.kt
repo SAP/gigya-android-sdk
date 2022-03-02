@@ -5,6 +5,7 @@ import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.nss.IgnitionData
 import com.gigya.android.sdk.nss.NssActivity
 import com.gigya.android.sdk.nss.channel.IgnitionMethodChannel
+import io.flutter.FlutterInjector
 import io.flutter.embedding.android.FlutterFragment
 import io.flutter.embedding.android.TransparencyMode
 import io.flutter.embedding.engine.FlutterEngine
@@ -52,7 +53,7 @@ open class NssEngineLifeCycle {
     fun engineExecuteMain() {
         FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)?.dartExecutor?.executeDartEntrypoint(
                 DartExecutor.DartEntrypoint(
-                        FlutterMain.findAppBundlePath(),
+                        FlutterInjector.instance().flutterLoader().findAppBundlePath(),
                         DART_ENTRY_POINT
                 )
         )
