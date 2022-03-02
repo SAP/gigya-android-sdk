@@ -17,6 +17,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -136,11 +137,16 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
 
     private static SparseArray<HostActivity.HostActivityLifecycleCallbacks> lifecycleSparse = new SparseArray<>();
     private static SparseArray<WebLoginActivity.WebLoginActivityCallback> webLoginLifecycleSparse = new SparseArray<>();
+    private static SparseArray<GigyaSSOLoginActivity.SSOLoginActivityCallback> ssoLoginLifecycleSparse = new SparseArray<>();
 
     public static int addLifecycleCallbacks(HostActivity.HostActivityLifecycleCallbacks callbacks) {
         int id = callbacks.hashCode();
         lifecycleSparse.append(id, callbacks);
         return id;
+    }
+
+    public static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
+        return lifecycleSparse.get(id);
     }
 
     public static int addWebLoginLifecycleCallback(WebLoginActivity.WebLoginActivityCallback callback) {
@@ -149,12 +155,18 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
         return id;
     }
 
-    public static HostActivity.HostActivityLifecycleCallbacks getCallbacks(int id) {
-        return lifecycleSparse.get(id);
-    }
-
     public static WebLoginActivity.WebLoginActivityCallback getWebLoginCallback(int id) {
         return webLoginLifecycleSparse.get(id);
+    }
+
+    public static int addSSOLoginLifecycleCallback(GigyaSSOLoginActivity.SSOLoginActivityCallback callback) {
+        int id = callback.hashCode();
+        ssoLoginLifecycleSparse.append(id, callback);
+        return id;
+    }
+
+    public static GigyaSSOLoginActivity.SSOLoginActivityCallback getSSOLoginCallback(int id) {
+        return ssoLoginLifecycleSparse.get(id);
     }
 
     public static void flushLifecycleCallbacks(int id) {
@@ -163,6 +175,10 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
 
     public static void flushWebLoginLifecycleCallback(int id) {
         webLoginLifecycleSparse.remove(id);
+    }
+
+    public static void flushSSOLoginLifecycleCallback(int id) {
+        ssoLoginLifecycleSparse.remove(id);
     }
 
     public static void flush() {
