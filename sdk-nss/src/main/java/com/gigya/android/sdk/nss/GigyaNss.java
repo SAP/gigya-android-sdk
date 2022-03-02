@@ -1,7 +1,6 @@
 package com.gigya.android.sdk.nss;
 
 import android.annotation.SuppressLint;
-import android.telephony.TelephonyManager;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;

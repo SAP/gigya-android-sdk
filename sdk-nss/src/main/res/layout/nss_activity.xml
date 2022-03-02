@@ -8,8 +8,8 @@
         android:id="@+id/nss_main_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0"
-        android:visibility="gone" />
+        android:alpha="1"
+        android:visibility="invisible" />
 
     <FrameLayout
         android:id="@+id/nss_progress_frame"
