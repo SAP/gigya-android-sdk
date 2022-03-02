@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def libVersion = "5.1.6"
+def libVersion = "5.1.7"
 
 ext {
     sharedManifest = manifest {
@@ -71,7 +71,7 @@ dependencies {
     testImplementation project(path: ':sdk-tfa')
     testImplementation project(path: ':sdk-biometric')
 
-    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    compileOnly 'androidx.appcompat:appcompat:1.4.1'
     compileOnly 'com.google.code.gson:gson:2.8.6'
     compileOnly 'com.google.firebase:firebase-messaging:20.3.0'
     compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'

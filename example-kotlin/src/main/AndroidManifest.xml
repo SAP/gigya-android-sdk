@@ -48,7 +48,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="login"
+                    android:host="${applicationId}"
+                    android:path="/login/"
                     android:scheme="gsapi" />
 
             </intent-filter>

@@ -81,11 +81,7 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        // Parse Uri query parameters.
         val uri: Uri = intent?.data as Uri
-        //val queryParams: Map<String, Any> = mutableMapOf()
-        //UrlUtils.parseUrlParameters(queryParams, uri.query)
-
         _ssoLoginLifecycleCallbacks?.onResult(this, uri)
         finish()
     }
