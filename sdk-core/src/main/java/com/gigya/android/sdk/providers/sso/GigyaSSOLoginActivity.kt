@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.ui.Presenter
-import com.gigya.android.sdk.utils.UrlUtils
 
 class GigyaSSOLoginActivity : AppCompatActivity() {
 
@@ -32,6 +31,9 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
         fun onResult(activity: Activity?, uri: Uri)
         fun onCancelled()
     }
+
+    // Tracking paused state to handle "X" button tap.
+    var pausedState = false
 
     var builder = CustomTabsIntent.Builder()
 
@@ -68,14 +70,24 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
         }
 
         // Reference the callback using static getter from the Presenter. Same as the HostActivity.
-
-        // Reference the callback using static getter from the Presenter. Same as the HostActivity.
         _ssoLoginLifecycleCallbacks = Presenter.getSSOLoginCallback(_ssoLoginLifecycleCallbacksId)
 
         // Authenticate using custom tabs instance.
         // Custom tabs instance is currently not customizable.
         val customTabsIntent: CustomTabsIntent = builder.build()
         customTabsIntent.launchUrl(this, Uri.parse(_uri))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (pausedState) {
+            finish()
+        }
+    }
+
+    override fun onPause() {
+        pausedState = true;
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent?) {

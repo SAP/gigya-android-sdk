@@ -49,6 +49,8 @@ class SSOProvider(var context: Context?,
 
     var packageName: String
 
+    var redirect: String? = null
+
     init {
         // Create new PKCE challenge/verifier.
         pkceHelper.newChallenge()
@@ -70,6 +72,13 @@ class SSOProvider(var context: Context?,
         val loginUrl: String = getAuthorizeUrl()
 
         GigyaLogger.debug(LOG_TAG, "login: with url $loginUrl")
+
+        // Check for custom SSO redirect URI.
+        loginParams?.let { params ->
+            if (params.containsKey("sso-redirect")) {
+                redirect = params["sso-redirect"]?.toString()
+            }
+        }
 
         // Authorize endpoint.
         GigyaSSOLoginActivity.present(context!!, loginUrl, object : SSOLoginActivityCallback {
@@ -118,8 +127,14 @@ class SSOProvider(var context: Context?,
      */
     private fun getAuthorizeUrl(): String {
         val urlString = getUrl(AUTHORIZE)
+
+        var redirectUri = "gsapi://${packageName}/login/"
+        if (redirect != null) {
+            redirectUri = redirect!!
+        }
+
         val serverParams: Map<String, String> = mapOf(
-                "redirect_uri" to "gsapi://${packageName}/login/",
+                "redirect_uri" to redirectUri,
                 "response_type" to "code",
                 "client_id" to config!!.apiKey,
                 "scope" to "device_sso",
@@ -137,8 +152,13 @@ class SSOProvider(var context: Context?,
     private fun onSSOCodeReceived(code: String) {
         GigyaLogger.debug(LOG_TAG, "onSSOCodeReceived: with code $code")
 
+        var redirectUri = "gsapi://${packageName}/login/"
+        if (redirect != null) {
+            redirectUri = redirect!!
+        }
+
         val serverParams = TreeMap<String, Any>()
-        serverParams["redirect_uri"] = "gsapi://${packageName}/login/"
+        serverParams["redirect_uri"] = redirectUri
         serverParams["client_id"] = config!!.apiKey
         serverParams["grant_type"] = "authorization_code"
         serverParams["code"] = code
