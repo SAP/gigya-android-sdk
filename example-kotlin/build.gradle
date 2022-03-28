@@ -102,7 +102,7 @@ dependencies {
     // Requires (android.enableJetifier=true)
     implementation 'com.facebook.android:facebook-android-sdk:12.0.0'
 
-    // ChromeTabs
+    // CustomTabs
     implementation 'androidx.browser:browser:1.3.0'
 }
 
