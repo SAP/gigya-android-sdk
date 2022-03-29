@@ -11,6 +11,8 @@ For more details see: For documentation: https://developers.gigya.com/display/GD
 The core Android SDK requires SDK 14 and above.
 For Biometric capabilities, SDK 23 and above is required.
 
+**Android 12 verified.**
+
 ## Download and Installation
 
 Gigya Available SDK libraries:
@@ -32,8 +34,7 @@ None
 None
 
 ## How to obtain support
-Via SAP standard support.
-https://developers.gigya.com/display/GD/Opening+A+Support+Incident
+[Via SAP standard support](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4167e8a470b21014bbc5a10ce4041860.html)
 
 ## Contributing
 Via pull request to this repository.
