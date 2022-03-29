@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.*
-import com.gigya.android.sdk.GigyaDefinitions.AccountProfileExtraFields.LANGUAGES
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.CANCELED
 import com.gigya.android.sdk.GigyaDefinitions.Plugin.FINISHED
 import com.gigya.android.sdk.GigyaDefinitions.Providers.*
@@ -520,6 +519,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
                 })
+    }
+
+    fun ssoLogin(success: (String) -> Unit,
+                 error: (GigyaError?) -> Unit,
+                 cancel: () -> Unit){
+        gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                Log.d("ssoLogin", "Success")
+                myAccountLiveData.value = obj
+                success(GsonBuilder().setPrettyPrinting().create().toJson(obj!!))
+            }
+
+            override fun onOperationCanceled() {
+                cancel()
+            }
+
+            override fun onError(error: GigyaError?) {
+                Log.d("ssoLogin", "onError")
+                error(error)
+            }
+
+        })
+
     }
 
     //endregion

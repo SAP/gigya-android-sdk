@@ -46,7 +46,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.1.6";
+    public static final String VERSION = "5.1.7";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -448,6 +448,17 @@ public class Gigya<T extends GigyaAccount> {
     public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
         _businessApiService.login(socialProvider, params, gigyaLoginCallback);
+    }
+
+    /**
+     * Single sign on login.
+     *
+     * @param params             Additional parameters map.
+     * @param gigyaLoginCallback Login response callback.
+     */
+    public void sso(Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
+        GigyaLogger.debug(LOG_TAG, "login: with SSO provider");
+        _businessApiService.login(GigyaDefinitions.Providers.SSO, params, gigyaLoginCallback);
     }
 
     /**
