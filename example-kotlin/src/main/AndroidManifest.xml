@@ -36,11 +36,30 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
+        <activity android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+
+            <intent-filter>
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="${applicationId}"
+                    android:path="/login/"
+                    android:scheme="gsapi" />
+
+            </intent-filter>
+        </activity>
+
         <activity
             android:name="com.gigya.android.sdk.ui.WebLoginActivity"
             android:allowTaskReparenting="true"
-            android:launchMode="singleTask"
             android:exported="true"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
         <!-- Facebook integration -->
