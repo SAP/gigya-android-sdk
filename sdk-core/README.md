@@ -36,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:gigya-android-sdk-core:core-v5.1.7'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v5.1.7'
 ```
 
 **Add a required style to your *styles.xml* file**
