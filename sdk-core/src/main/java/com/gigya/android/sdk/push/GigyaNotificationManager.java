@@ -12,12 +12,14 @@ import androidx.core.app.NotificationManagerCompat;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.utils.DeviceUtils;
 
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
 public class GigyaNotificationManager implements IGigyaNotificationManager {
 
     private static final String LOG_TAG = "GigyaNotificationManager";
+
+    private SecureRandom random  = new SecureRandom();
 
     @Override
     public void createNotificationChannelIfNeeded(@NonNull Context context,
@@ -60,7 +62,7 @@ public class GigyaNotificationManager implements IGigyaNotificationManager {
 
         // Notify.
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(new Random().nextInt(), builder.build());
+        notificationManager.notify(random.nextInt(), builder.build());
     }
 
 
