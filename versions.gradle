@@ -5,10 +5,10 @@
 def build_versions = [:]
 build_versions.compile_sdk = 28
 build_versions.target_sdk = 28
-build_versions.min_sdk_core = 14
+build_versions.min_sdk_core = 19
 build_versions.min_sdk_biometric = 23
-build_versions.min_sdk_tfa = 16
-build_versions.min_sdk_auth = 16
+build_versions.min_sdk_tfa = 19
+build_versions.min_sdk_auth = 19
 build_versions.min_sdk_app = 25
 build_versions.build_tools = "29.0.2"
 build_versions.min_sdk_nss = 19
