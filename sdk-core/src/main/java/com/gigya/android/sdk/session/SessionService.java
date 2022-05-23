@@ -15,7 +15,6 @@ import androidx.collection.ArrayMap;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
-import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
@@ -37,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 
 public class SessionService implements ISessionService {
 
@@ -103,7 +103,8 @@ public class SessionService implements ISessionService {
                 GigyaLogger.debug(LOG_TAG, "ECB session decrypted");
             } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                final GCMParameterSpec iv = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
+                final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
+//                final GCMParameterSpec iv = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
                 GigyaLogger.debug(LOG_TAG, "GCM session decrypted");
                 cipher.init(Cipher.DECRYPT_MODE, key, iv);
             }
