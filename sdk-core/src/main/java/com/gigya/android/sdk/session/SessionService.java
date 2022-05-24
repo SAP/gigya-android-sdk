@@ -101,6 +101,7 @@ public class SessionService implements ISessionService {
                 // New saved session encryption will be migrated with "AES/GCM/NoPadding".
                 cipher = Cipher.getInstance("AES");
                 GigyaLogger.debug(LOG_TAG, "ECB session decrypted");
+                cipher.init(Cipher.DECRYPT_MODE, key);
             } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
