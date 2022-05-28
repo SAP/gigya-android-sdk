@@ -78,6 +78,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onStart()
         // Register for myAccountLiveData info updates.
         registerAccountUpdates()
+
+        /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
+        GigyaTFA.getInstance().registerForRemoteNotifications(this)
+
+        /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
+        GigyaAuth.getInstance().registerForPushNotifications(this)
     }
 
     override fun onResume() {
@@ -96,12 +102,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             onClear()
         }
-
-        /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
-        GigyaTFA.getInstance().registerForRemoteNotifications(this)
-
-        /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
-        GigyaAuth.getInstance().registerForPushNotifications(this)
     }
 
     override fun onPause() {
