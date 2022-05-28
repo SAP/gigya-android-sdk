@@ -105,7 +105,6 @@ public class SessionService implements ISessionService {
             } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
-//                final GCMParameterSpec iv = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
                 GigyaLogger.debug(LOG_TAG, "GCM session decrypted");
                 cipher.init(Cipher.DECRYPT_MODE, key, iv);
             }
