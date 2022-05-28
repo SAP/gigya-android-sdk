@@ -7,7 +7,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class RetryDispatcher {
 
@@ -20,7 +20,7 @@ public class RetryDispatcher {
     private int errorCode;
     private int tries;
 
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     public interface IRetryHandler {
 
