@@ -12,8 +12,8 @@ import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 
 public class
@@ -57,7 +57,7 @@ GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("format", "json");
 
         // Add nonce.
-        final Random random = new Random();
+        final SecureRandom random = new SecureRandom();
         String nonce = System.currentTimeMillis() + "_" + random.nextInt();
         urlParams.put("nonce", nonce);
 

@@ -221,6 +221,16 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getString(PREFS_UCID, null);
     }
 
+    @Override
+    public void setCoreVersion(String version) {
+        getPrefs().edit().putString(PREFS_CORE_VERSION, version).apply();
+    }
+
+    @Override
+    public String getCoreVersion() {
+        return getPrefs().getString(PREFS_CORE_VERSION, null);
+    }
+
     //endregion
 
     //region KEYS
@@ -256,6 +266,11 @@ public class PersistenceService implements IPersistenceService {
     public static final String PREFS_KEY_IV_SPEC = "IV_fingerprint";
 
     /*
+     * Value key for session gcm cipher iv spec.
+     */
+    public static final String PREFS_KEY_IV_SPEC_SESSION = "IV_session";
+
+    /*
      * Push token key.
      */
     private static final String PREFS_PUSH_TOKEN = "GS_PUSH_TOKEN";
@@ -266,4 +281,6 @@ public class PersistenceService implements IPersistenceService {
     private static final String PREFS_UCID = "GS_UCID";
 
     //endregion
+
+    private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 }
