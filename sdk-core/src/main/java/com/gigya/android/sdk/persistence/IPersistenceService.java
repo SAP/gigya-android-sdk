@@ -50,4 +50,8 @@ public interface IPersistenceService {
     String getGmid();
 
     String getUcid();
+
+    void setCoreVersion(String version);
+
+    String getCoreVersion();
 }
