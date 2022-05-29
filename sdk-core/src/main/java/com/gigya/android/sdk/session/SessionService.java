@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -20,6 +21,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.google.gson.Gson;
@@ -33,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 
 public class SessionService implements ISessionService {
 
@@ -72,9 +76,10 @@ public class SessionService implements ISessionService {
     @Override
     public String encryptSession(String plain, Key key) throws EncryptionException {
         try {
-            final String ENCRYPTION_ALGORITHM = "AES";
-            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] ivSpec = cipher.getIV();
+            _psService.add(PersistenceService.PREFS_KEY_IV_SPEC_SESSION, Base64.encodeToString(ivSpec, Base64.DEFAULT));
             byte[] byteCipherText = cipher.doFinal(plain.getBytes());
             return CipherUtils.bytesToString(byteCipherText);
         } catch (Exception ex) {
@@ -83,14 +88,26 @@ public class SessionService implements ISessionService {
         }
     }
 
-    @SuppressLint("GetInstance")
+    @SuppressLint({"GetInstance"})
     @Nullable
     @Override
     public String decryptSession(String encrypted, Key key) throws EncryptionException {
         try {
-            final String ENCRYPTION_ALGORITHM = "AES";
-            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, key);
+            Cipher cipher;
+            String ivSpecString = _psService.getString(PersistenceService.PREFS_KEY_IV_SPEC_SESSION, null);
+            if (ivSpecString == null) {
+                // Session encryption has not migrated to GCM.
+                // Old session will be decrypted using "AES/ECB" nut will no longer use this algorithm.
+                // New saved session encryption will be migrated with "AES/GCM/NoPadding".
+                cipher = Cipher.getInstance("AES");
+                GigyaLogger.debug(LOG_TAG, "ECB session decrypted");
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            } else {
+                cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
+                GigyaLogger.debug(LOG_TAG, "GCM session decrypted");
+                cipher.init(Cipher.DECRYPT_MODE, key, iv);
+            }
             byte[] encPLBytes = CipherUtils.stringToBytes(encrypted);
             byte[] bytePlainText = cipher.doFinal(encPLBytes);
             return new String(bytePlainText);

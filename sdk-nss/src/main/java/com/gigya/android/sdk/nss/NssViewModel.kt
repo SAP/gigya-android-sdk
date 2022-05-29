@@ -36,6 +36,9 @@ class NssViewModel<T : GigyaAccount>(
         private val nssJSEvaluator: NssJsEvaluator,
 ) {
 
+    // Default language will be set to English unless specified by initator.
+    var screenLanguage: String = "en"
+
     var finishClosure: () -> Unit? = { }
 
     lateinit var intentAction: (Intent) -> Unit?
@@ -234,6 +237,11 @@ class NssViewModel<T : GigyaAccount>(
      * Load the markup provided from NSS builder.
      */
     fun loadMarkup(data: IgnitionData, done: (Map<String, Any>?) -> Unit, error: (GigyaError) -> Unit) {
+        data.lang?.let { language ->
+            screenLanguage = language
+        }
+        // In any case, populate language with default "en" if not specified in ignition data.
+        data.lang = screenLanguage
         nssMarkupLoader.loadMarkupFrom(data,
                 markupLoaded = { markup ->
                     done(markup)
@@ -279,6 +287,10 @@ class NssViewModel<T : GigyaAccount>(
     private val apiMethodChannelHandler: MethodChannel.MethodCallHandler by lazy {
         MethodChannel.MethodCallHandler { call, result ->
             call.arguments.refined<MutableMap<String, Any>> { args ->
+                // Add language parameter to all api call.
+                // English will be added by default unless language is
+                // specified in ignition data.
+                args["lang"] = screenLanguage
                 flowManager.onNext(call.method, args, result)
             }
         }
