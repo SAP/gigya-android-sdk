@@ -2,11 +2,9 @@ package com.gigya.android.sdk.session;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -275,15 +273,8 @@ public class SessionVerificationService implements ISessionVerificationService {
             e.printStackTrace();
         }
 
-        // Send "session invalid" local broadcast & flush the timer.
-        Intent intent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID);
         // Add "regToken" value to intent if available.
-        if (regToken != null) {
-            intent.putExtra("rawError", data);
-            intent.putExtra("regToken", regToken);
-        }
 
-        LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
     /**

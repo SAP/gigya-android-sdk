@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.se.omapi.Session
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -35,6 +36,7 @@ import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
+import com.gigya.android.sdk.session.SessionVerificationObserver
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
 import com.google.android.material.navigation.NavigationView
@@ -84,15 +86,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
         GigyaAuth.getInstance().registerForPushNotifications(this)
+
+    }
+
+    private val verificationObserver = object : SessionVerificationObserver() {
+
+        override fun onSessionInvalidated(o: Any?) {
+            runOnUiThread {
+                displayErrorAlert("Alert", "session verification failed")
+                onClear()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter()
-        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
-        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
-        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
-                filter)
+
+        Gigya.getInstance().registerSessionVerificationObserver(verificationObserver)
+
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
 
@@ -105,7 +116,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
+
+        Gigya.getInstance().unregisterSessionVerificationObserver(verificationObserver)
+
         val biometric = GigyaBiometric.getInstance()
         if (biometric.isLocked) {
             onClear()

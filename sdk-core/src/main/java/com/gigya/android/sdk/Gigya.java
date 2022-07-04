@@ -25,7 +25,9 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
+import com.gigya.android.sdk.session.SessionExpirationObserver;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.session.SessionVerificationObserver;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
@@ -392,6 +394,22 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setClearCookies(boolean clear) {
         _sessionService.setClearCookies(clear);
+    }
+
+    public void registerSessionExpirationObserver(SessionExpirationObserver observer) {
+
+    }
+
+    public void unregisterSessionExpirationObserver(SessionExpirationObserver observer) {
+
+    }
+
+    public void registerSessionVerificationObserver(SessionVerificationObserver observer) {
+        _sessionVerificationService.addObserver(observer);
+    }
+
+    public void unregisterSessionVerificationObserver(SessionVerificationObserver observer) {
+        _sessionVerificationService.removeObserver(observer);
     }
 
     //endregion
@@ -773,8 +791,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         return null;
     }
-
-
 
 
     //endregion
