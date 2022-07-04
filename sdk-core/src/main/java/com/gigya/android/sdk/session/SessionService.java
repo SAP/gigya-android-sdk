@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.CookieManager;
@@ -20,6 +21,9 @@ import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.encryption.ISecureKey;
+import com.gigya.android.sdk.encryption.SessionKey;
+import com.gigya.android.sdk.encryption.SessionKeyLegacy;
+import com.gigya.android.sdk.encryption.SessionKeyV2;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.utils.CipherUtils;
@@ -53,22 +57,47 @@ public class SessionService implements ISessionService {
     final private Context _context;
     final private Config _config;
     final private IPersistenceService _psService;
-    final private ISecureKey _secureKey;
 
     // Dynamic field - session heap.
     private SessionInfo _sessionInfo;
 
     // Injected field - session logic interceptors.
-    private ArrayMap<String, GigyaInterceptor> _sessionInterceptors = new ArrayMap<>();
+    private final ArrayMap<String, GigyaInterceptor> _sessionInterceptors = new ArrayMap<>();
 
     public SessionService(Context context,
                           Config config,
-                          IPersistenceService psService,
-                          ISecureKey secureKey) {
+                          IPersistenceService psService) {
         _context = context;
         _psService = psService;
         _config = config;
-        _secureKey = secureKey;
+    }
+
+    /**
+     * Fetch key used for session encryption/decryption.
+     * Session key generation will vary according to OS level and SDK core version.
+     *
+     * @return SecretKey KeyStore generated secure key.
+     */
+    private SecretKey getKey(int optMode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            SessionKeyV2 v2 = new SessionKeyV2();
+            if (v2.isUsed()) {
+                return v2.getKey();
+            } else {
+                switch (optMode) {
+                    case Cipher.ENCRYPT_MODE:
+                        return v2.getKey();
+                    case Cipher.DECRYPT_MODE:
+                        return new SessionKey(_context, _psService).getKey();
+                }
+            }
+            return null;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            return new SessionKey(_context, _psService).getKey();
+        } else {
+            SessionKeyLegacy legacyKeyGenerator = new SessionKeyLegacy(_psService);
+            return legacyKeyGenerator.getKey();
+        }
     }
 
     @SuppressLint("GetInstance")
@@ -136,7 +165,7 @@ public class SessionService implements ISessionService {
                     .put("sessionSecret", sessionInfo == null ? null : sessionInfo.getSessionSecret())
                     .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime());
             final String json = jsonObject.toString();
-            final SecretKey key = _secureKey.getKey();
+            final SecretKey key = getKey(Cipher.ENCRYPT_MODE);
             final String encryptedSession = encryptSession(json, key);
             // Save session.
             _psService.setSession(encryptedSession);
@@ -164,7 +193,7 @@ public class SessionService implements ISessionService {
                     GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
                 }
                 try {
-                    final SecretKey key = _secureKey.getKey();
+                    final SecretKey key = getKey(Cipher.DECRYPT_MODE);
                     final String decryptedSession = decryptSession(encryptedSession, key);
                     Gson gson = new Gson();
                     // Parse session info.
