@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v5.1.7.aar')
+implementation files('libs/gigya-android-sdk-core-v5.2.0.aar')
 ```
 
 ### Implement using Jitpack
@@ -36,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v5.1.7'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v5.2.0'
 ```
 
 **Add a required style to your *styles.xml* file**
