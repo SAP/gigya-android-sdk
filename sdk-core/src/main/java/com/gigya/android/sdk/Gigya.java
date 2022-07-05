@@ -397,11 +397,11 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     public void registerSessionExpirationObserver(SessionExpirationObserver observer) {
-
+        _sessionService.addSessionExpirationObserver(observer);
     }
 
     public void unregisterSessionExpirationObserver(SessionExpirationObserver observer) {
-
+        _sessionService.removeSessionExpirationObserver(observer);
     }
 
     public void registerSessionVerificationObserver(SessionVerificationObserver observer) {
