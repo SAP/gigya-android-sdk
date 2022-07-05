@@ -36,6 +36,7 @@ import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
+import com.gigya.android.sdk.session.SessionExpirationObserver
 import com.gigya.android.sdk.session.SessionVerificationObserver
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
@@ -93,7 +94,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         override fun onSessionInvalidated(o: Any?) {
             runOnUiThread {
-                displayErrorAlert("Alert", "session verification failed")
+                displayErrorAlert("Session state alert", "session verification failed")
+                onClear()
+            }
+        }
+    }
+
+    private val expirationObserver = object: SessionExpirationObserver() {
+
+        override fun onSessionInvalidated(o: Any?) {
+            runOnUiThread {
+                displayErrorAlert("Session state alert", "session expired")
                 onClear()
             }
         }
@@ -103,6 +114,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
 
         Gigya.getInstance().registerSessionVerificationObserver(verificationObserver)
+        Gigya.getInstance().registerSessionExpirationObserver(expirationObserver)
 
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
@@ -118,6 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onPause() {
 
         Gigya.getInstance().unregisterSessionVerificationObserver(verificationObserver)
+        Gigya.getInstance().unregisterSessionExpirationObserver(expirationObserver)
 
         val biometric = GigyaBiometric.getInstance()
         if (biometric.isLocked) {
@@ -157,10 +170,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val regToken: String = intent.getStringExtra("regToken")
                         GigyaLogger.debug("MainActivity", "regToken = $regToken")
                     }
-                    runOnUiThread {
-                        displayErrorAlert("Alert", message)
-                        onClear()
-                    }
+//                    runOnUiThread {
+//                        displayErrorAlert("Alert", message)
+//                        onClear()
+//                    }
                 }
             }
         }

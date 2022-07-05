@@ -54,6 +54,7 @@ public class SessionService implements ISessionService {
     final private Config _config;
     final private IPersistenceService _psService;
     final private ISecureKey _secureKey;
+    final private SessionExpirationObservable _observable;
 
     // Dynamic field - session heap.
     private SessionInfo _sessionInfo;
@@ -64,11 +65,13 @@ public class SessionService implements ISessionService {
     public SessionService(Context context,
                           Config config,
                           IPersistenceService psService,
-                          ISecureKey secureKey) {
+                          ISecureKey secureKey,
+                          SessionExpirationObservable observable) {
         _context = context;
         _psService = psService;
         _config = config;
         _secureKey = secureKey;
+        _observable = observable;
     }
 
     @SuppressLint("GetInstance")
@@ -295,6 +298,16 @@ public class SessionService implements ISessionService {
         }
     }
 
+    @Override
+    public void addSessionExpirationObserver(SessionExpirationObserver observer) {
+        _observable.addObserver(observer);
+    }
+
+    @Override
+    public void removeSessionExpirationObserver(SessionExpirationObserver observer) {
+        _observable.deleteObserver(observer);
+    }
+
     private void applyInterceptions() {
         if (_sessionInterceptors.isEmpty()) {
             return;
@@ -433,6 +446,8 @@ public class SessionService implements ISessionService {
                 clear(true);
                 // Send "session expired" local broadcast.
                 LocalBroadcastManager.getInstance(_context).sendBroadcast(new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED));
+                // Notify session expiration observers.
+                _observable.notifyObservers();
             }
         }.start();
     }
