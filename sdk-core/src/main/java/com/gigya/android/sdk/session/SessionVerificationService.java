@@ -2,9 +2,11 @@ package com.gigya.android.sdk.session;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -40,19 +42,22 @@ public class SessionVerificationService implements ISessionVerificationService {
     final private IAccountService _accountService;
     final private IApiService _apiService;
     final private IApiRequestFactory _requestFactory;
+    final private SessionVerificationObservable _observable;
 
     public SessionVerificationService(Application context,
                                       Config config,
                                       ISessionService sessionService,
                                       IAccountService accountService,
                                       IApiService apiService,
-                                      IApiRequestFactory requestFactory) {
+                                      IApiRequestFactory requestFactory,
+                                      SessionVerificationObservable observable) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
         _requestFactory = requestFactory;
+        _observable = observable;
 
         /*
         Add a setSession interception in order to make sure that the service starts when a new
@@ -229,6 +234,16 @@ public class SessionVerificationService implements ISessionVerificationService {
         return initialDelay;
     }
 
+    @Override
+    public void addObserver(SessionVerificationObserver observer) {
+        _observable.addObserver(observer);
+    }
+
+    @Override
+    public void removeObserver(SessionVerificationObserver observer) {
+        _observable.deleteObserver(observer);
+    }
+
     /**
      * Evaluate notifyLogin endpoint error.
      * Will ignore network error.
@@ -264,17 +279,12 @@ public class SessionVerificationService implements ISessionVerificationService {
         _sessionService.clear(true);
         _accountService.invalidateAccount();
 
-        String regToken = null;
-        try {
-            final JSONObject jo = new JSONObject(data);
-            regToken = jo.getString("regToken");
-            GigyaLogger.debug(LOG_TAG, "evaluateVerifyLoginError: regToken = " + regToken);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        // Send "session invalid" local broadcast & flush the timer.
+        Intent intent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID);
+        LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
 
-        // Add "regToken" value to intent if available.
-
+        // Notify session verification observable that the session is invalid.
+        _observable.notifyObservers();
     }
 
     /**
