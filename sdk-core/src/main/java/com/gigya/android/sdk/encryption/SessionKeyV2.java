@@ -1,8 +1,6 @@
 package com.gigya.android.sdk.encryption;
 
-import android.content.Context;
 import android.os.Build;
-import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -29,11 +27,21 @@ public class SessionKeyV2 {
         try {
             keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
             keyStore.load(null);
-            if (keyStore.containsAlias(getAlias())) return true;
+            if (keyStore.containsAlias(getAlias())) {
+                removeObsoleteAlias(keyStore);
+                return true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private void removeObsoleteAlias(KeyStore keyStore) throws KeyStoreException {
+        // Remove old keystore alias for obsolete encryption key prior to v2.
+        if (keyStore.containsAlias("GS_ALIAS")) {
+            keyStore.deleteEntry("GS_ALIAS");
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -54,9 +62,6 @@ public class SessionKeyV2 {
                         KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                         .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    keyGenParameterSpecBuilder.setUserPresenceRequired(true);
-                }
                 final KeyGenParameterSpec keyGenParameterSpec = keyGenParameterSpecBuilder.build();
                 keyGeneratorAES.init(keyGenParameterSpec);
                 return keyGeneratorAES.generateKey();
