@@ -47,6 +47,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.toast
+import org.json.JSONObject
 import java.util.*
 
 
@@ -100,9 +101,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private val expirationObserver = object: SessionExpirationObserver() {
+    private val expirationObserver = object : SessionExpirationObserver() {
 
         override fun onSessionInvalidated(o: Any?) {
+            o?.let { data ->
+                if (data is JSONObject) {
+                    println(o.toString())
+                }
+            }
             runOnUiThread {
                 displayErrorAlert("Session state alert", "session expired")
                 onClear()
@@ -112,6 +118,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
+
+        val filter = IntentFilter()
+        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
+        filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
+                filter)
 
         Gigya.getInstance().registerSessionVerificationObserver(verificationObserver)
         Gigya.getInstance().registerSessionExpirationObserver(expirationObserver)
@@ -128,7 +140,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onPause() {
-
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
+        
         Gigya.getInstance().unregisterSessionVerificationObserver(verificationObserver)
         Gigya.getInstance().unregisterSessionExpirationObserver(expirationObserver)
 

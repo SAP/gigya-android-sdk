@@ -279,12 +279,29 @@ public class SessionVerificationService implements ISessionVerificationService {
         _sessionService.clear(true);
         _accountService.invalidateAccount();
 
+        String regToken = null;
+        JSONObject jo = null;
+        try {
+            jo = new JSONObject(data);
+            regToken = jo.optString("regToken");
+            GigyaLogger.debug(LOG_TAG, "evaluateVerifyLoginError: regToken = " + regToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // Send "session invalid" local broadcast & flush the timer.
         Intent intent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID);
+        // Add "regToken" value to intent if available.
+        if (regToken != null) {
+            intent.putExtra("rawError", data);
+            if (!regToken.isEmpty())
+                intent.putExtra("regToken", regToken);
+        }
+        // Send "session invalid" local broadcast & flush the timer.
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
 
         // Notify session verification observable that the session is invalid.
-        _observable.notifyObservers();
+        _observable.notifyObservers(jo);
     }
 
     /**
