@@ -34,7 +34,7 @@ public interface ISessionService {
 
     void clearCookiesOnLogout();
 
-    void addSessionExpirationObserver(SessionExpirationObserver observer);
+    void registerExpirationObserver(SessionStateObserver observer);
 
-    void removeSessionExpirationObserver(SessionExpirationObserver observer);
+    void removeExpirationObserver(SessionStateObserver observer);
 }

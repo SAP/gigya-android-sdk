@@ -1,14 +1,7 @@
 package com.gigya.android.sdk.session;
 
-import java.util.Observable;
-import java.util.Observer;
+public interface SessionStateObserver {
 
-public abstract class SessionStateObserver implements Observer {
+    void onSessionInvalidated(Object o);
 
-    public abstract void onSessionInvalidated(Object o);
-
-    @Override
-    public void update(Observable observable, Object o) {
-        onSessionInvalidated(o);
-    }
 }
