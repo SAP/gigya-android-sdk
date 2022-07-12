@@ -42,7 +42,7 @@ public class SessionVerificationService implements ISessionVerificationService {
     final private IAccountService _accountService;
     final private IApiService _apiService;
     final private IApiRequestFactory _requestFactory;
-    final private SessionVerificationObservable _observable;
+    final private SessionStateHandler _observable;
 
     public SessionVerificationService(Application context,
                                       Config config,
@@ -50,7 +50,7 @@ public class SessionVerificationService implements ISessionVerificationService {
                                       IAccountService accountService,
                                       IApiService apiService,
                                       IApiRequestFactory requestFactory,
-                                      SessionVerificationObservable observable) {
+                                      SessionStateHandler observable) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
@@ -235,13 +235,13 @@ public class SessionVerificationService implements ISessionVerificationService {
     }
 
     @Override
-    public void addObserver(SessionVerificationObserver observer) {
-        _observable.addObserver(observer);
+    public void registerObserver(SessionStateObserver observer) {
+        _observable.registerVerificationObserver(observer);
     }
 
     @Override
-    public void removeObserver(SessionVerificationObserver observer) {
-        _observable.deleteObserver(observer);
+    public void removeObserver(SessionStateObserver observer) {
+        _observable.removeVerificationObserver(observer);
     }
 
     /**
@@ -301,7 +301,7 @@ public class SessionVerificationService implements ISessionVerificationService {
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
 
         // Notify session verification observable that the session is invalid.
-        _observable.notifyObservers(jo);
+        _observable.notifySessionInvalidated(jo);
     }
 
     /**
