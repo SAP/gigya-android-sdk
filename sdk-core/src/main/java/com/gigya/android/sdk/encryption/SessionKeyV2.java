@@ -21,27 +21,23 @@ public class SessionKeyV2 {
         return "GS_ALIAS_V2";
     }
 
-    public boolean isUsed() {
+    public static boolean isUsed() {
         final String ANDROID_KEY_STORE = "AndroidKeyStore";
         final KeyStore keyStore;
         try {
             keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
             keyStore.load(null);
-            if (keyStore.containsAlias(getAlias())) {
-                removeObsoleteAlias(keyStore);
+            if (keyStore.containsAlias("GS_ALIAS_V2")) {
+                // Remove old keystore alias for obsolete encryption key prior to v2.
+                if (keyStore.containsAlias("GS_ALIAS")) {
+                    keyStore.deleteEntry("GS_ALIAS");
+                }
                 return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private void removeObsoleteAlias(KeyStore keyStore) throws KeyStoreException {
-        // Remove old keystore alias for obsolete encryption key prior to v2.
-        if (keyStore.containsAlias("GS_ALIAS")) {
-            keyStore.deleteEntry("GS_ALIAS");
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

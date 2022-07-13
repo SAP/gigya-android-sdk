@@ -12,6 +12,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -80,13 +81,12 @@ public class SessionService implements ISessionService {
      */
     private SecretKey getKey(int optMode) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            SessionKeyV2 v2 = new SessionKeyV2();
-            if (v2.isUsed()) {
-                return v2.getKey();
+            if (SessionKeyV2.isUsed()) {
+                return new SessionKeyV2().getKey();
             } else {
                 switch (optMode) {
                     case Cipher.ENCRYPT_MODE:
-                        return v2.getKey();
+                        return new SessionKeyV2().getKey();
                     case Cipher.DECRYPT_MODE:
                         return new SessionKey(_context, _psService).getKey();
                 }
@@ -117,6 +117,7 @@ public class SessionService implements ISessionService {
         }
     }
 
+
     @SuppressLint({"GetInstance"})
     @Nullable
     @Override
@@ -131,6 +132,10 @@ public class SessionService implements ISessionService {
                 cipher = Cipher.getInstance("AES");
                 GigyaLogger.debug(LOG_TAG, "ECB session decrypted");
                 cipher.init(Cipher.DECRYPT_MODE, key);
+            } else if (SessionKeyV2.isUsed() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                GCMParameterSpec ivSpec = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
+                cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
             } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
@@ -202,6 +207,13 @@ public class SessionService implements ISessionService {
                     // Added in version 5.1.1.
                     migrateEncryptedDynamicConfig(decryptedSession, sessionInfo);
 
+                    // Added in version 6.0.0
+                    // Migrate session encryption to GCM.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (!SessionKeyV2.isUsed()) {
+                            save(sessionInfo);
+                        }
+                    }
                     _sessionInfo = sessionInfo;
                 } catch (Exception eex) {
                     eex.printStackTrace();
