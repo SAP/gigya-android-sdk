@@ -2,6 +2,8 @@ package com.gigya.android.sdk.api;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaDefinitions;
@@ -13,6 +15,7 @@ import com.gigya.android.sdk.utils.AuthUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,7 +47,25 @@ GigyaApiRequestFactory implements IApiRequestFactory {
      * @param httpMethod Request HTTP method.
      * @return New GigyaApiRequest instance.
      */
-    public GigyaApiRequest create(String api, Map<String, Object> params, RestAdapter.HttpMethod httpMethod) {
+    public GigyaApiRequest create(String api,
+                                  Map<String, Object> params,
+                                  RestAdapter.HttpMethod httpMethod) {
+        return create(api, params, httpMethod, null);
+    }
+
+    /**
+     * Create a new instance of the GigyaApiRequest structure.
+     *
+     * @param api        Api method.
+     * @param params     Request parameters.
+     * @param httpMethod Request HTTP method.
+     * @param headers    Custom header map.
+     * @return New GigyaApiRequest instance.
+     */
+    public GigyaApiRequest create(String api,
+                                  Map<String, Object> params,
+                                  RestAdapter.HttpMethod httpMethod,
+                                  @Nullable HashMap<String, String> headers) {
         TreeMap<String, Object> urlParams = new TreeMap<>();
         if (params != null) {
             urlParams.putAll(params);
@@ -75,7 +96,7 @@ GigyaApiRequestFactory implements IApiRequestFactory {
         addAccountConfigParameters(api, urlParams);
 
         // Generate new GigyaApiRequest entity.
-        return new GigyaApiRequest(httpMethod, api, urlParams);
+        return new GigyaApiRequest(httpMethod, api, urlParams, headers);
     }
 
     /**
