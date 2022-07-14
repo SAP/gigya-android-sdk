@@ -19,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class
-GigyaApiRequestFactory implements IApiRequestFactory {
+public class GigyaApiRequestFactory implements IApiRequestFactory {
 
     private static final String LOG_TAG = "GigyaApiRequestFactory";
 
@@ -47,6 +46,7 @@ GigyaApiRequestFactory implements IApiRequestFactory {
      * @param httpMethod Request HTTP method.
      * @return New GigyaApiRequest instance.
      */
+    @Override
     public GigyaApiRequest create(String api,
                                   Map<String, Object> params,
                                   RestAdapter.HttpMethod httpMethod) {
@@ -62,6 +62,7 @@ GigyaApiRequestFactory implements IApiRequestFactory {
      * @param headers    Custom header map.
      * @return New GigyaApiRequest instance.
      */
+    @Override
     public GigyaApiRequest create(String api,
                                   Map<String, Object> params,
                                   RestAdapter.HttpMethod httpMethod,
