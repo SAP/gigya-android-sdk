@@ -5,34 +5,32 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.fido.fido2.api.common.Attachment;
 
 public enum WebAuthnAuthenticatorSelectionType {
-    PLATFORM {
+    PLATFORM(Attachment.PLATFORM) {
         @NonNull
         public String toString() {
             return "Platform";
         }
-
-        public Attachment getAttachment() {
-            return Attachment.PLATFORM;
-        }
     },
-    CROSS_PLATFORM {
+    CROSS_PLATFORM(Attachment.CROSS_PLATFORM) {
         @NonNull
         public String toString() {
             return "Cross-Platform";
         }
-
-        public Attachment getAttachment() {
-            return Attachment.CROSS_PLATFORM;
-        }
     },
-    UNSPECIFIED {
+    UNSPECIFIED(Attachment.PLATFORM) {
         @NonNull
         public String toString() {
             return "Unspecified";
         }
+    };
 
-        public Attachment getAttachment() {
-            return Attachment.PLATFORM;
-        }
+    private final Attachment attachment;
+
+    WebAuthnAuthenticatorSelectionType(Attachment attachment) {
+        this.attachment = attachment;
+    }
+
+    public Attachment attachment() {
+        return this.attachment;
     }
 }
