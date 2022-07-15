@@ -1,14 +1,14 @@
 package com.gigya.android.sdk.auth;
 
-import java.util.Map;
+import android.app.Activity;
+import android.content.Intent;
 
 public interface IWebAuthnService {
 
-    void initRegistration();
+    void register(Activity activity);
 
-    void registerCredentials(Map<String, Object> params);
+    void login(Activity activity);
 
-    void getAssertionOptions();
+    void handleIntent(int requestCode, int resultCode, Intent data);
 
-    void verifyAssertion(Map<String, Object> params);
 }

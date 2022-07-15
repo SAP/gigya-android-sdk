@@ -13,6 +13,7 @@ import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
@@ -155,6 +156,7 @@ public class Gigya<T extends GigyaAccount> {
     final private IPresenter<T> _presenter;
     final private IProviderFactory _providerFactory;
     final private IoCContainer _container;
+    final private IWebAuthnService _webAuthnService;
 
     protected Gigya(
             @NonNull Application context,
@@ -167,7 +169,8 @@ public class Gigya<T extends GigyaAccount> {
             IInterruptionResolverFactory interruptionsHandler,
             IPresenter<T> presenter,
             IProviderFactory providerFactory,
-            IoCContainer container) {
+            IoCContainer container,
+            IWebAuthnService webAuthnService) {
         // Setup dependencies.
         _context = context;
         _config = config;
@@ -180,6 +183,7 @@ public class Gigya<T extends GigyaAccount> {
         _presenter = presenter;
         _providerFactory = providerFactory;
         _container = container;
+        _webAuthnService = webAuthnService;
 
         // Setup sdk
         _sessionService.load();
@@ -775,7 +779,13 @@ public class Gigya<T extends GigyaAccount> {
     }
 
 
+    //endregion
 
+    //region WEBAUTHN
+
+    public IWebAuthnService WebAuthn() {
+        return _webAuthnService;
+    }
 
     //endregion
 
