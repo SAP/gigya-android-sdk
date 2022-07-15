@@ -38,6 +38,11 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         _sdk = sdk;
     }
 
+    @Override
+    public GigyaApiRequest create(String api, Map<String, Object> params) {
+        return create(api, params, RestAdapter.HttpMethod.POST);
+    }
+
     /**
      * Create a new instance of the GigyaApiRequest structure.
      *
