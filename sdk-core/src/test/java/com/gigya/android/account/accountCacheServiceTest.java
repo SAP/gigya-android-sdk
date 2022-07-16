@@ -1,5 +1,12 @@
 package com.gigya.android.account;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
@@ -16,13 +23,6 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Map;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(PowerMockRunner.class)

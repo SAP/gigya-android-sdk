@@ -1,19 +1,13 @@
 package com.gigya.android.sdk.auth;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Build;
 import android.util.Base64;
 
-import androidx.activity.ComponentActivity;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -27,7 +21,6 @@ import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
 import com.google.android.gms.fido.Fido;
 import com.google.android.gms.fido.fido2.Fido2ApiClient;
 import com.google.android.gms.fido.fido2.api.common.Attachment;
-import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse;
@@ -67,7 +60,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
 
     @Override
     public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnInitRegisterResponseModel responseModel, final IFidoResponseResult fidoResult) {
-        WebAuthnOptionsModel options = responseModel.parseOptions();
+        final WebAuthnOptionsModel options = responseModel.parseOptions();
+
         PublicKeyCredentialCreationOptions requestOptions = null;
         try {
             requestOptions = new PublicKeyCredentialCreationOptions.Builder()
@@ -106,8 +100,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
             GigyaLogger.debug(LOG_TAG, "requestOptions null");
             return;
         }
-        Fido2ApiClient fido2ApiClient = Fido.getFido2ApiClient(applicationContext);
-        Task<PendingIntent> task = fido2ApiClient.getRegisterPendingIntent(requestOptions);
+        final Fido2ApiClient fido2ApiClient = Fido.getFido2ApiClient(applicationContext);
+        final Task<PendingIntent> task = fido2ApiClient.getRegisterPendingIntent(requestOptions);
         task.addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
@@ -123,18 +117,6 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                 ).setFillInIntent(fillIntent)
                         .build();
                 resultLauncher.launch(senderRequest);
-//                try {
-//                    activity.startIntentSenderForResult(
-//                            pendingIntent.getIntentSender(),
-//                            FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code(),
-//                            fillIntent,
-//                            0, 0, 0
-//                    );
-//                } catch (IntentSender.SendIntentException e) {
-//                    GigyaLogger.debug(LOG_TAG,
-//                            "sign: fido2ApiClient.getRegisterPendingIntent: error launching pending intent");
-//                    e.printStackTrace();
-//                }
             }
         });
         task.addOnFailureListener(new OnFailureListener() {
@@ -149,31 +131,39 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     @Override
     public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
 
-        AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
-        String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.DEFAULT);
-        String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        String attestationObjectBase64 =
-                Base64.encodeToString(response.getAttestationObject(), Base64.DEFAULT);
+        final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
-        PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
+        final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
 
-        GigyaLogger.debug(LOG_TAG, "id: " + credential.getId());
-        GigyaLogger.debug(LOG_TAG, "rawID: " + Arrays.toString(credential.getRawId()));
+        final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
+        final String clientDataJsonBase64 = Base64.encodeToString(response.getClientDataJSON(), Base64.URL_SAFE);
+
+        final String attestationObjectBase64 =
+                Base64.encodeToString(response.getAttestationObject(), Base64.URL_SAFE);
+
         GigyaLogger.debug(LOG_TAG, "keyHandleBase64: " + keyHandleBase64);
         GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
         GigyaLogger.debug(LOG_TAG, "attestationObjectBase64: " + attestationObjectBase64);
 
+        final PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
+
+        final String idBase64 = Base64.encodeToString(credential.getId().getBytes(), Base64.URL_SAFE);
+        final String rawIdBase64 = Base64.encodeToString(credential.getRawId(), Base64.URL_SAFE);
+
+        GigyaLogger.debug(LOG_TAG, "id: " + credential.getId());
+        GigyaLogger.debug(LOG_TAG, "rawID: " + Arrays.toString(credential.getRawId()));
+
         return new WebAuthnAttestationResponse(
                 keyHandleBase64,
-                Base64.encodeToString(response.getClientDataJSON(), Base64.DEFAULT),
+                clientDataJsonBase64,
                 attestationObjectBase64,
-                credential.getId(),
-                Base64.encodeToString(credential.getRawId(), Base64.DEFAULT)
+                idBase64,
+                rawIdBase64
         );
     }
 
     @Override
-    public void sign(final Activity activity, final WebAuthnGetOptionsResponseModel responseModel, final IFidoResponseResult fidoResult) {
+    public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnGetOptionsResponseModel responseModel, final IFidoResponseResult fidoResult) {
         final WebAuthnGetOptionsModel options = responseModel.parseOptions();
         final PublicKeyCredentialRequestOptions requestOptions = new PublicKeyCredentialRequestOptions.Builder()
                 .setRpId(options.rpId)
@@ -189,8 +179,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                 .setChallenge(Base64.decode(options.challenge, Base64.URL_SAFE))
                 .build();
 
-        Fido2ApiClient client = Fido.getFido2ApiClient(applicationContext);
-        Task<PendingIntent> task = client.getSignPendingIntent(requestOptions);
+        final Fido2ApiClient client = Fido.getFido2ApiClient(applicationContext);
+        final Task<PendingIntent> task = client.getSignPendingIntent(requestOptions);
         task.addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
@@ -198,21 +188,14 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                     GigyaLogger.debug(LOG_TAG, "getSignPendingIntent: null pending intent");
                     return;
                 }
-                Intent fillIntent = new Intent(applicationContext, activity.getClass());
+                final Intent fillIntent = new Intent();
                 fillIntent.putExtra("token", responseModel.token);
                 fillIntent.putExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code());
-                try {
-                    activity.startIntentSenderForResult(
-                            pendingIntent.getIntentSender(),
-                            FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code(),
-                            fillIntent,
-                            0, 0, 0
-                    );
-                } catch (IntentSender.SendIntentException e) {
-                    GigyaLogger.debug(LOG_TAG,
-                            "sign: fido2ApiClient.getRegisterPendingIntent: error launching pending intent");
-                    e.printStackTrace();
-                }
+                final IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(
+                        pendingIntent.getIntentSender()
+                ).setFillInIntent(fillIntent)
+                        .build();
+                resultLauncher.launch(senderRequest);
             }
         });
         task.addOnFailureListener(new OnFailureListener() {
@@ -224,12 +207,18 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse) {
-        AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
-        String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.DEFAULT);
-        String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        String authenticatorDataBase64 =
-                Base64.encodeToString(response.getAuthenticatorData(), Base64.DEFAULT);
-        String signatureBase64 = Base64.encodeToString(response.getSignature(), Base64.DEFAULT);
+
+        final AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
+
+        final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
+
+        final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
+        final String clientDataJsonBase64 = Base64.encodeToString(response.getClientDataJSON(), Base64.URL_SAFE);
+
+        final String authenticatorDataBase64 =
+                Base64.encodeToString(response.getAuthenticatorData(), Base64.URL_SAFE);
+
+        final String signatureBase64 = Base64.encodeToString(response.getSignature(), Base64.URL_SAFE);
 
         GigyaLogger.debug(LOG_TAG, "keyHandleBase64: " + keyHandleBase64);
         GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
@@ -238,7 +227,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
 
         return new WebAuthnAssertionResponse(
                 keyHandleBase64,
-                Base64.encodeToString(response.getClientDataJSON(), Base64.DEFAULT),
+                clientDataJsonBase64,
                 authenticatorDataBase64,
                 signatureBase64
         );
@@ -246,10 +235,11 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
 
     @Override
     public void onFidoError(byte[] errorResponse) {
-        AuthenticatorErrorResponse authenticatorErrorResponse =
+        final AuthenticatorErrorResponse authenticatorErrorResponse =
                 AuthenticatorErrorResponse.deserializeFromBytes(errorResponse);
-        int errorCode = authenticatorErrorResponse.getErrorCode().getCode();
-        String errorMessage = authenticatorErrorResponse.getErrorMessage();
+
+        final int errorCode = authenticatorErrorResponse.getErrorCode().getCode();
+        final String errorMessage = authenticatorErrorResponse.getErrorMessage();
 
         GigyaLogger.debug(LOG_TAG, "errorCode.name: " + errorCode);
         GigyaLogger.debug(LOG_TAG, "errorMessage: " + errorMessage);

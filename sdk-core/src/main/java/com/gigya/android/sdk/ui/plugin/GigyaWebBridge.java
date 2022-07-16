@@ -1,5 +1,23 @@
 package com.gigya.android.sdk.ui.plugin;
 
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
+import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
+import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
@@ -36,24 +54,6 @@ import org.json.JSONArray;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.ADD_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.CANCELED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGIN_STARTED;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.LOGOUT;
-import static com.gigya.android.sdk.ui.plugin.PluginAuthEventDef.REMOVE_CONNECTION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.AFTER_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SCREEN_LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_SUBMIT;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.BEFORE_VALIDATION;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.ERROR;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.FIELD_CHANGED;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.HIDE;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.LOAD;
-import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A> {
 
