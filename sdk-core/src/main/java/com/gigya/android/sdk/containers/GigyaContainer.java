@@ -12,6 +12,13 @@ import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.auth.FidoApiServiceImpl;
+import com.gigya.android.sdk.auth.FidoApiServiceV23Impl;
+import com.gigya.android.sdk.auth.IFidoApiService;
+import com.gigya.android.sdk.auth.IOauthService;
+import com.gigya.android.sdk.auth.IWebAuthnService;
+import com.gigya.android.sdk.auth.OauthService;
+import com.gigya.android.sdk.auth.WebAuthnService;
 import com.gigya.android.sdk.encryption.ISecureKey;
 import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.encryption.SessionKeyLegacy;
@@ -61,6 +68,9 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
                 .bind(IProviderFactory.class, ProviderFactory.class, false)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
+                .bind(IOauthService.class, OauthService.class, true)
+                .bind(IFidoApiService.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? FidoApiServiceV23Impl.class : FidoApiServiceImpl.class, true)
+                .bind(IWebAuthnService.class, WebAuthnService.class, true)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)

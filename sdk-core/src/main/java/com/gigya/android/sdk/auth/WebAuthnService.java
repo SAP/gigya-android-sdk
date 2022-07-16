@@ -7,11 +7,11 @@ import static android.app.Activity.RESULT_OK;
 import static com.google.android.gms.fido.Fido.FIDO2_KEY_RESPONSE_EXTRA;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 
-import com.gigya.android.sdk.Gigya;
+import androidx.activity.ComponentActivity;
+
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.GigyaApiRequest;
@@ -120,7 +120,7 @@ public class WebAuthnService implements IWebAuthnService {
 
     @SuppressLint("NewApi")
     @Override
-    public void register(final Activity activity) {
+    public void register(final ComponentActivity activity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
@@ -139,7 +139,13 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                fidoApiService.register(activity, webAuthnInitRegisterResponseModel);
+                fidoApiService.register(activity, webAuthnInitRegisterResponseModel, new IFidoResponseResult() {
+
+                    @Override
+                    public void onIntent(int resultCode, Intent intent) {
+                        handleFidoResult(resultCode, intent);
+                    }
+                });
             }
 
             @Override
@@ -151,7 +157,7 @@ public class WebAuthnService implements IWebAuthnService {
 
     @SuppressLint("NewApi")
     @Override
-    public void login(final Activity activity) {
+    public void login(final ComponentActivity activity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
@@ -171,7 +177,12 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                fidoApiService.sign(activity, webAuthnGetOptionsResponseModel);
+                fidoApiService.sign(activity, webAuthnGetOptionsResponseModel, new IFidoResponseResult() {
+                    @Override
+                    public void onIntent(int resultCode, Intent intent) {
+                        handleFidoResult(resultCode, intent);
+                    }
+                });
             }
 
             @Override
@@ -181,8 +192,7 @@ public class WebAuthnService implements IWebAuthnService {
         });
     }
 
-    @Override
-    public void handleIntent(int requestCode, int resultCode, Intent data) {
+    private void handleFidoResult(int resultCode, Intent data) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
@@ -198,10 +208,17 @@ public class WebAuthnService implements IWebAuthnService {
                 } else if (data.hasExtra(FIDO2_KEY_RESPONSE_EXTRA)) {
                     byte[] fido2Response = data.getByteArrayExtra(FIDO2_KEY_RESPONSE_EXTRA);
                     byte[] fido2Credential = data.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA);
+                    int requestCode = data.getIntExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_INVALID.code());
+                    if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_INVALID.code()) {
+                        GigyaLogger.debug(LOG_TAG, "Invalid request code from Fido response");
+                        return;
+                    }
+
+                    String token = data.getStringExtra("token");
                     if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
-                        onRegistration("", fido2Response, fido2Credential);
+                        onRegistration(token, fido2Response, fido2Credential);
                     } else if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
-                        onLogin("", fido2Response);
+                        onLogin(token, fido2Response);
                     }
                 }
                 break;
