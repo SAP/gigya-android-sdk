@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.ApiService;
@@ -120,7 +122,7 @@ public class WebAuthnService implements IWebAuthnService {
 
     @SuppressLint("NewApi")
     @Override
-    public void register(final ComponentActivity activity) {
+    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
@@ -139,7 +141,7 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                fidoApiService.register(activity, webAuthnInitRegisterResponseModel, new IFidoResponseResult() {
+                fidoApiService.register(resultLauncher, webAuthnInitRegisterResponseModel, new IFidoResponseResult() {
 
                     @Override
                     public void onIntent(int resultCode, Intent intent) {
@@ -192,7 +194,8 @@ public class WebAuthnService implements IWebAuthnService {
         });
     }
 
-    private void handleFidoResult(int resultCode, Intent data) {
+    @Override
+    public void handleFidoResult(int resultCode, Intent data) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
@@ -204,6 +207,7 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
                 if (data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA)) {
+                    fidoApiService.onFidoError(data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA));
                     return;
                 } else if (data.hasExtra(FIDO2_KEY_RESPONSE_EXTRA)) {
                     byte[] fido2Response = data.getByteArrayExtra(FIDO2_KEY_RESPONSE_EXTRA);

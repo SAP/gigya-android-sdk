@@ -1,6 +1,10 @@
 package com.gigya.android.sdk.auth;
 
+import android.app.Activity;
+
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
@@ -9,11 +13,13 @@ import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 
 public interface IFidoApiService {
 
-    void register(ComponentActivity activity, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult);
+    void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult);
 
     WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse);
 
-    void sign(ComponentActivity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult);
+    void sign(Activity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult);
 
     WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse);
+
+    void onFidoError(byte[] errorResponse);
 }
