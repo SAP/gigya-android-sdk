@@ -1,14 +1,14 @@
 package com.gigya.android.utils;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import com.gigya.android.sdk.utils.CipherUtils;
 
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CipherUtilsTest {
 

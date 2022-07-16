@@ -1,8 +1,5 @@
 package com.gigya.android.interruption.tfa;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
@@ -15,6 +12,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(PowerMockRunner.class)
 public class TFAResolverFactoryTest {

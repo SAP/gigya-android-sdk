@@ -1,11 +1,5 @@
 package com.gigya.android.utils;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNull;
-
 import com.gigya.android.sdk.utils.UrlUtils;
 
 import org.junit.Test;
@@ -13,6 +7,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("ALL")
 public class UrlUtilsTest {
