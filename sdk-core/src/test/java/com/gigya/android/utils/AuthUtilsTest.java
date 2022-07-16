@@ -1,5 +1,11 @@
 package com.gigya.android.utils;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import android.util.Base64;
 
 import com.gigya.android.sdk.utils.AuthUtils;
@@ -18,12 +24,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Random;
 import java.util.TreeMap;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Base64.class, System.class, Random.class, AuthUtils.class})

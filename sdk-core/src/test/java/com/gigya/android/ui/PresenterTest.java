@@ -1,5 +1,8 @@
 package com.gigya.android.ui;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
 import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.ui.Presenter;
@@ -11,9 +14,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 @RunWith(PowerMockRunner.class)
 public class PresenterTest extends BaseGigyaTest {

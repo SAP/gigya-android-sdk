@@ -1,5 +1,7 @@
 package com.gigya.android.containers;
 
+import static junit.framework.TestCase.assertNotNull;
+
 import android.app.Application;
 import android.content.Context;
 
@@ -14,8 +16,6 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.InvocationTargetException;
-
-import static junit.framework.TestCase.assertNotNull;
 
 @RunWith(PowerMockRunner.class)
 public class GigyaContainerTest {

@@ -1,5 +1,9 @@
 package com.gigya.android;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -17,10 +21,6 @@ import org.powermock.core.classloader.annotations.SuppressStaticInitializationFo
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.InvocationTargetException;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @SuppressStaticInitializationFor

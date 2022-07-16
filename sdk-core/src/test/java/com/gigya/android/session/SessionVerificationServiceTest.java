@@ -1,5 +1,9 @@
 package com.gigya.android.session;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.gigya.android.BaseGigyaTest;
 import com.gigya.android.sdk.session.SessionVerificationService;
 
@@ -8,10 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 public class SessionVerificationServiceTest extends BaseGigyaTest {

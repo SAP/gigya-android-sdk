@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.push;
 
+import static com.gigya.android.sdk.persistence.PersistenceService.PREFS_FILE_KEY;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,8 +20,6 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.HashMap;
-
-import static com.gigya.android.sdk.persistence.PersistenceService.PREFS_FILE_KEY;
 
 public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
 

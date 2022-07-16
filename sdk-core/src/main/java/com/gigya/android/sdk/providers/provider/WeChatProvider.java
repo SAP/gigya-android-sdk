@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.providers.provider;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +23,6 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import org.json.JSONObject;
 
 import java.util.Map;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
 
 public class WeChatProvider extends Provider {
 

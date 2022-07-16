@@ -1,5 +1,18 @@
 package com.gigya.android.providers;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.AMAZON;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import android.content.Context;
 
 import com.gigya.android.sdk.containers.IoCContainer;
@@ -29,19 +42,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.AMAZON;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({GoogleProvider.class, FacebookProvider.class, LineProvider.class, WeChatProvider.class})

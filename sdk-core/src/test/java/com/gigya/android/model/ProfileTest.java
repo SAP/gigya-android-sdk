@@ -1,5 +1,9 @@
 package com.gigya.android.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.google.gson.Gson;
@@ -8,10 +12,6 @@ import com.google.gson.GsonBuilder;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class ProfileTest {
 
