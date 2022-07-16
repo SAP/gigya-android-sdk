@@ -37,7 +37,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse) {
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "onSignResponse operation not supported for Android OS lower than M");
         return null;
