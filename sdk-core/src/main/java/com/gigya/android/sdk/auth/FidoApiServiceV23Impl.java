@@ -133,6 +133,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
 
         final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
+        //TODO: Should use keyHandle?
         final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
 
         final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
@@ -206,10 +207,11 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         });
     }
 
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse) {
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
 
         final AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
 
+        //TODO: Should use keyHandle?
         final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
 
         final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
@@ -225,11 +227,18 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         GigyaLogger.debug(LOG_TAG, "authenticatorDataBase64: " + authenticatorDataBase64);
         GigyaLogger.debug(LOG_TAG, "signatureBase64: " + signatureBase64);
 
+        final PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
+
+        final String idBase64 = Base64.encodeToString(credential.getId().getBytes(), Base64.URL_SAFE);
+        final String rawIdBase64 = Base64.encodeToString(credential.getRawId(), Base64.URL_SAFE);
+
         return new WebAuthnAssertionResponse(
                 keyHandleBase64,
                 clientDataJsonBase64,
                 authenticatorDataBase64,
-                signatureBase64
+                signatureBase64,
+                idBase64,
+                rawIdBase64
         );
     }
 

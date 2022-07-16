@@ -16,7 +16,7 @@ public interface IFidoApiService {
 
     void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options);
 
-    WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse);
+    WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse);
 
     void onFidoError(byte[] errorResponse);
 }

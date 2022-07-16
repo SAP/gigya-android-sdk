@@ -100,22 +100,11 @@ public class WebAuthnService implements IWebAuthnService {
     /**
      * @param params
      */
-    private void verifyAssertion(Map<String, Object> params) {
+    private void verifyAssertion(Map<String, Object> params, ApiService.IApiServiceResponse iApiServiceResponse) {
         GigyaApiRequest request = requestFactory.create(
                 WebAuthnApis.verifyAssertion.api,
                 params);
-        apiService.send(request, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "verifyAssertion success:\n" + response.asJson());
-
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                GigyaLogger.debug(LOG_TAG, "verifyAssertion error:\n" + gigyaError.getData());
-            }
-        });
+        apiService.send(request, iApiServiceResponse);
     }
 
 
@@ -217,7 +206,7 @@ public class WebAuthnService implements IWebAuthnService {
                     if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
                         onRegistration(token, fido2Response, fido2Credential);
                     } else if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
-                        onLogin(token, fido2Response);
+                        onLogin(token, fido2Response, fido2Credential);
                     }
                 }
                 break;
@@ -257,14 +246,40 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
     @SuppressLint("NewApi")
-    public void onLogin(final String token, byte[] assertionResponse) {
+    public void onLogin(final String token, byte[] assertionResponse, byte[] fido2Credential) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
 
         WebAuthnAssertionResponse webAuthnAssertionResponse =
-                fidoApiService.onSignResponse(assertionResponse);
+                fidoApiService.onSignResponse(assertionResponse, fido2Credential);
+        
+        final Map<String, Object> params = new HashMap<>();
+        params.put("authenticatorAssertion", webAuthnAssertionResponse.getAssertion());
+        params.put("token", token);
+
+        verifyAssertion(params, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug(LOG_TAG, "verifyAssertion success:\n" + response.asJson());
+
+                final String idToken = response.getField("idToken", String.class);
+                if (idToken == null) {
+                    GigyaLogger.debug(LOG_TAG, "verifyAssertion: missing idToken");
+                    return;
+                }
+
+                // Authorize idToken.
+                oauthService.authorize(idToken);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                GigyaLogger.debug(LOG_TAG, "verifyAssertion error:\n" + gigyaError.getData());
+            }
+        });
+
     }
 
 }
