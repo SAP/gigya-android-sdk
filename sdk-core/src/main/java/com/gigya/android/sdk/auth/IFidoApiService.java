@@ -10,11 +10,11 @@ import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 
 public interface IFidoApiService {
 
-    void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult);
+    void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option);
 
     WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse);
 
-    void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult);
+    void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options);
 
     WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse);
 
