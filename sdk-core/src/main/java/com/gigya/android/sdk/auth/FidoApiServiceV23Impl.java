@@ -1,8 +1,10 @@
 package com.gigya.android.sdk.auth;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Build;
 import android.util.Base64;
 
@@ -12,16 +14,20 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
+import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
+import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
 import com.google.android.gms.fido.Fido;
 import com.google.android.gms.fido.fido2.Fido2ApiClient;
 import com.google.android.gms.fido.fido2.api.common.Attachment;
+import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse;
@@ -35,6 +41,7 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOp
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity;
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialType;
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
@@ -59,54 +66,82 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void register(final ComponentActivity activity, final WebAuthnInitRegisterResponseModel responseModel, final IFidoResponseResult fidoResult) {
-        PublicKeyCredentialCreationOptions requestOptions = new PublicKeyCredentialCreationOptions.Builder()
-                .setRp(
-                        new PublicKeyCredentialRpEntity(
-                                responseModel.options.rp.id, // RP
-                                getApplicationName(applicationContext), // name //TODO use app name?
-                                null // icon
-                        )
-                )
-                .setUser(
-                        new PublicKeyCredentialUserEntity(
-                                Base64.decode(responseModel.options.user.id, Base64.URL_SAFE), // id
-                                Arrays.toString(Base64.decode(responseModel.options.user.id, Base64.URL_SAFE)), // name
-                                null, // icon
-                                getApplicationName(applicationContext) // display name //TODO use app name?
-                        )
-                )
-                .setAuthenticatorSelection(new AuthenticatorSelectionCriteria.Builder()
-                        .setAttachment(Attachment.PLATFORM).build()) //TODO Where do we get the attachment?
-                .setChallenge(Base64.decode(responseModel.options.challenge, Base64.URL_SAFE))
-                .setParameters(
-                        Collections.singletonList(
-                                new PublicKeyCredentialParameters(
-                                        PublicKeyCredentialType.PUBLIC_KEY.toString(),
-                                        EC2Algorithm.ES256.getAlgoValue()
-                                )
-                        )
-                )
-                .build();
+    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnInitRegisterResponseModel responseModel, final IFidoResponseResult fidoResult) {
+        WebAuthnOptionsModel options = responseModel.parseOptions();
+        PublicKeyCredentialCreationOptions requestOptions = null;
+        try {
+            requestOptions = new PublicKeyCredentialCreationOptions.Builder()
+                    .setRp(
+                            new PublicKeyCredentialRpEntity(
+                                    options.rp.id, // RP
+                                    getApplicationName(applicationContext), // name //TODO use app name?
+                                    null // icon
+                            )
+                    )
+                    .setUser(
+                            new PublicKeyCredentialUserEntity(
+                                    Base64.decode(options.user.id, Base64.URL_SAFE), // id
+                                    Arrays.toString(Base64.decode(options.user.id, Base64.URL_SAFE)), // name
+                                    null, // icon
+                                    getApplicationName(applicationContext) // display name //TODO use app name?
+                            )
+                    )
+                    .setAuthenticatorSelection(new AuthenticatorSelectionCriteria.Builder()
+                            .setAttachment(Attachment.fromString(options.authenticatorSelection.authenticatorAttachment)).build()) //TODO Where do we get the attachment?
+                    .setChallenge(Base64.decode(options.challenge, Base64.URL_SAFE))
+                    .setParameters(
+                            Collections.singletonList(
+                                    new PublicKeyCredentialParameters(
+                                            PublicKeyCredentialType.PUBLIC_KEY.toString(),
+                                            EC2Algorithm.ES256.getAlgoValue()
+                                    )
+                            )
+                    )
+                    .build();
+        } catch (Attachment.UnsupportedAttachmentException e) {
+            GigyaLogger.debug(LOG_TAG, "register: unsupported attachment");
+            e.printStackTrace();
+        }
+        if (requestOptions == null) {
+            GigyaLogger.debug(LOG_TAG, "requestOptions null");
+            return;
+        }
         Fido2ApiClient fido2ApiClient = Fido.getFido2ApiClient(applicationContext);
         Task<PendingIntent> task = fido2ApiClient.getRegisterPendingIntent(requestOptions);
         task.addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
-                Intent fillIntent = new Intent(applicationContext, activity.getClass());
+                if (pendingIntent == null) {
+                    GigyaLogger.debug(LOG_TAG, "getRegisterPendingIntent: null pending intent");
+                    return;
+                }
+                Intent fillIntent = new Intent();
                 fillIntent.putExtra("token", responseModel.token);
                 fillIntent.putExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code());
-                ActivityResultLauncher<IntentSenderRequest> startForResult = activity.registerForActivityResult(
-                        new ActivityResultContracts.StartIntentSenderForResult(),
-                        new ActivityResultCallback<ActivityResult>() {
-                            @Override
-                            public void onActivityResult(ActivityResult result) {
-                                fidoResult.onIntent(result.getResultCode(), result.getData());
-                            }
-                        }
-                );
-                startForResult.launch(new IntentSenderRequest.Builder(pendingIntent.getIntentSender())
-                        .setFillInIntent(fillIntent).build());
+                IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(
+                        pendingIntent.getIntentSender()
+                ).setFillInIntent(fillIntent)
+                        .build();
+                resultLauncher.launch(senderRequest);
+//                try {
+//                    activity.startIntentSenderForResult(
+//                            pendingIntent.getIntentSender(),
+//                            FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code(),
+//                            fillIntent,
+//                            0, 0, 0
+//                    );
+//                } catch (IntentSender.SendIntentException e) {
+//                    GigyaLogger.debug(LOG_TAG,
+//                            "sign: fido2ApiClient.getRegisterPendingIntent: error launching pending intent");
+//                    e.printStackTrace();
+//                }
+            }
+        });
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                GigyaLogger.debug(LOG_TAG, "getRegisterPendingIntent task failed with:\n" + e.getLocalizedMessage());
+
             }
         });
     }
@@ -138,9 +173,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void sign(final ComponentActivity activity, final WebAuthnGetOptionsResponseModel responseModel, final IFidoResponseResult fidoResult) {
-        final PublicKeyCredentialRequestOptions options = new PublicKeyCredentialRequestOptions.Builder()
-                .setRpId(responseModel.options.rpId)
+    public void sign(final Activity activity, final WebAuthnGetOptionsResponseModel responseModel, final IFidoResponseResult fidoResult) {
+        final WebAuthnGetOptionsModel options = responseModel.parseOptions();
+        final PublicKeyCredentialRequestOptions requestOptions = new PublicKeyCredentialRequestOptions.Builder()
+                .setRpId(options.rpId)
                 .setAllowList(
                         Collections.singletonList(
                                 new PublicKeyCredentialDescriptor(
@@ -150,28 +186,39 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                                 )
                         )
                 )
-                .setChallenge(Base64.decode(responseModel.options.challenge, Base64.URL_SAFE))
+                .setChallenge(Base64.decode(options.challenge, Base64.URL_SAFE))
                 .build();
 
         Fido2ApiClient client = Fido.getFido2ApiClient(applicationContext);
-        Task<PendingIntent> task = client.getSignPendingIntent(options);
+        Task<PendingIntent> task = client.getSignPendingIntent(requestOptions);
         task.addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
+                if (pendingIntent == null) {
+                    GigyaLogger.debug(LOG_TAG, "getSignPendingIntent: null pending intent");
+                    return;
+                }
                 Intent fillIntent = new Intent(applicationContext, activity.getClass());
                 fillIntent.putExtra("token", responseModel.token);
                 fillIntent.putExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code());
-                ActivityResultLauncher<IntentSenderRequest> startForResult = activity.registerForActivityResult(
-                        new ActivityResultContracts.StartIntentSenderForResult(),
-                        new ActivityResultCallback<ActivityResult>() {
-                            @Override
-                            public void onActivityResult(ActivityResult result) {
-                                fidoResult.onIntent(result.getResultCode(), result.getData());
-                            }
-                        }
-                );
-                startForResult.launch(new IntentSenderRequest.Builder(pendingIntent.getIntentSender())
-                        .setFillInIntent(fillIntent).build());
+                try {
+                    activity.startIntentSenderForResult(
+                            pendingIntent.getIntentSender(),
+                            FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code(),
+                            fillIntent,
+                            0, 0, 0
+                    );
+                } catch (IntentSender.SendIntentException e) {
+                    GigyaLogger.debug(LOG_TAG,
+                            "sign: fido2ApiClient.getRegisterPendingIntent: error launching pending intent");
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                GigyaLogger.debug(LOG_TAG, "getSignPendingIntent task failed with:\n" + e.getLocalizedMessage());
             }
         });
     }
@@ -197,9 +244,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         );
     }
 
-    private void parseErrorResponse(byte[] errorBytes) {
+    @Override
+    public void onFidoError(byte[] errorResponse) {
         AuthenticatorErrorResponse authenticatorErrorResponse =
-                AuthenticatorErrorResponse.deserializeFromBytes(errorBytes);
+                AuthenticatorErrorResponse.deserializeFromBytes(errorResponse);
         int errorCode = authenticatorErrorResponse.getErrorCode().getCode();
         String errorMessage = authenticatorErrorResponse.getErrorMessage();
 

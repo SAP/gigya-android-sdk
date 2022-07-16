@@ -1,7 +1,7 @@
 package com.gigya.android.sdk.auth.models;
 
 public class WebAuthnAuthenticatorSelectionModel {
-    boolean requireResidentKey;
-    String userVerification;
-    WebAuthnAuthenticatorSelectionType authenticatorAttachment;
+    public boolean requireResidentKey;
+    public String userVerification;
+    public String authenticatorAttachment;
 }
