@@ -1,26 +1,19 @@
 package com.gigya.android.sdk.auth;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
+import androidx.activity.ComponentActivity;
 
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 
-import java.util.Map;
-
-@RequiresApi(api = Build.VERSION_CODES.M)
 public interface IFidoApiService {
 
-    void register(Activity activity, WebAuthnInitRegisterResponseModel option);
+    void register(ComponentActivity activity, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult);
 
     WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse);
 
-    void sign(Activity activity, WebAuthnGetOptionsResponseModel options);
+    void sign(ComponentActivity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult);
 
     WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse);
 }
