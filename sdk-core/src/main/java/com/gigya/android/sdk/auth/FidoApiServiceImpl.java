@@ -1,8 +1,5 @@
 package com.gigya.android.sdk.auth;
 
-import android.app.Activity;
-
-import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 
@@ -34,7 +31,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public void sign(Activity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult) {
+    public void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "sign operation not supported for Android OS lower than M");
     }

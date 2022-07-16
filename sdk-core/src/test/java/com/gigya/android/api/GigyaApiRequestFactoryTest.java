@@ -1,5 +1,9 @@
 package com.gigya.android.api;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import android.content.Context;
 
 import com.gigya.android.StaticMockFactory;
@@ -26,10 +30,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 public class GigyaApiRequestFactoryTest {

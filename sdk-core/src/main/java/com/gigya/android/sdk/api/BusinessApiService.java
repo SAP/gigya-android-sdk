@@ -22,10 +22,8 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
-import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
