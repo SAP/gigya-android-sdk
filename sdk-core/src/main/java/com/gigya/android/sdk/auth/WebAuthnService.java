@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 
@@ -139,13 +140,7 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                fidoApiService.register(resultLauncher, webAuthnInitRegisterResponseModel, new IFidoResponseResult() {
-
-                    @Override
-                    public void onIntent(int resultCode, Intent intent) {
-                        handleFidoResult(resultCode, intent);
-                    }
-                });
+                fidoApiService.register(resultLauncher, webAuthnInitRegisterResponseModel);
             }
 
             @Override
@@ -177,12 +172,7 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel, new IFidoResponseResult() {
-                    @Override
-                    public void onIntent(int resultCode, Intent intent) {
-                        handleFidoResult(resultCode, intent);
-                    }
-                });
+                fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel);
             }
 
             @Override
@@ -193,13 +183,14 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
     @Override
-    public void handleFidoResult(int resultCode, Intent data) {
+    public void handleFidoResult(ActivityResult activityResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.debug(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
-        switch (resultCode) {
+        switch (activityResult.getResultCode()) {
             case RESULT_OK:
+                final Intent data = activityResult.getData();
                 if (data == null) {
                     GigyaLogger.debug(LOG_TAG, "handleIntent: null response intent");
                     return;
@@ -210,13 +201,19 @@ public class WebAuthnService implements IWebAuthnService {
                 } else if (data.hasExtra(FIDO2_KEY_RESPONSE_EXTRA)) {
                     byte[] fido2Response = data.getByteArrayExtra(FIDO2_KEY_RESPONSE_EXTRA);
                     byte[] fido2Credential = data.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA);
-                    int requestCode = data.getIntExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_INVALID.code());
+                    int requestCode = data.getIntExtra("requestCode",
+                            FidoApiService.FidoApiServiceCodes.REQUEST_CODE_INVALID.code());
                     if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_INVALID.code()) {
                         GigyaLogger.debug(LOG_TAG, "Invalid request code from Fido response");
                         return;
                     }
 
                     String token = data.getStringExtra("token");
+                    if (token == null) {
+                        GigyaLogger.debug(LOG_TAG, "handleIntent: token null");
+                        return;
+                    }
+                    
                     if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
                         onRegistration(token, fido2Response, fido2Credential);
                     } else if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
@@ -268,9 +265,6 @@ public class WebAuthnService implements IWebAuthnService {
 
         WebAuthnAssertionResponse webAuthnAssertionResponse =
                 fidoApiService.onSignResponse(assertionResponse);
-
-
     }
-
 
 }

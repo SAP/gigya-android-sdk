@@ -1,9 +1,5 @@
 package com.gigya.android.push;
 
-import static org.junit.Assert.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.push.GigyaNotificationManager;
 import com.gigya.android.sdk.push.IGigyaNotificationManager;
@@ -18,6 +14,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.InvocationTargetException;
+
+import static org.junit.Assert.assertEquals;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DeviceUtils.class})

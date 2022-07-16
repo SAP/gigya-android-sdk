@@ -1,12 +1,12 @@
 package com.gigya.android.model;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-
 import com.gigya.android.sdk.session.SessionInfo;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 public class SessionInfoTest {
 

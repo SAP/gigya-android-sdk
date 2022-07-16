@@ -18,7 +18,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     private static final String LOG_TAG = "FidoApiService";
 
     @Override
-    public void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult) {
+    public void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "register operation not supported for Android OS lower than M");
     }
@@ -31,7 +31,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult) {
+    public void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnGetOptionsResponseModel options) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "sign operation not supported for Android OS lower than M");
     }

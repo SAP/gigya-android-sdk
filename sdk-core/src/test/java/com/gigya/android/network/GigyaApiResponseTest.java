@@ -1,10 +1,5 @@
 package com.gigya.android.network;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -15,6 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 
 public class GigyaApiResponseTest {
