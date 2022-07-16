@@ -213,7 +213,7 @@ public class WebAuthnService implements IWebAuthnService {
                         GigyaLogger.debug(LOG_TAG, "handleIntent: token null");
                         return;
                     }
-                    
+
                     if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
                         onRegistration(token, fido2Response, fido2Credential);
                     } else if (requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {

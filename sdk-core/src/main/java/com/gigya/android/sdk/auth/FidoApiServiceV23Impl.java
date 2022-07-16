@@ -59,7 +59,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnInitRegisterResponseModel responseModel, final IFidoResponseResult fidoResult) {
+    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnInitRegisterResponseModel responseModel) {
         final WebAuthnOptionsModel options = responseModel.parseOptions();
 
         PublicKeyCredentialCreationOptions requestOptions = null;
@@ -163,7 +163,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnGetOptionsResponseModel responseModel, final IFidoResponseResult fidoResult) {
+    public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnGetOptionsResponseModel responseModel) {
         final WebAuthnGetOptionsModel options = responseModel.parseOptions();
         final PublicKeyCredentialRequestOptions requestOptions = new PublicKeyCredentialRequestOptions.Builder()
                 .setRpId(options.rpId)
