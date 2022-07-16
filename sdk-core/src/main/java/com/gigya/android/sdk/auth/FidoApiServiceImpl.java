@@ -1,6 +1,10 @@
 package com.gigya.android.sdk.auth;
 
+import android.app.Activity;
+
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
@@ -17,24 +21,35 @@ public class FidoApiServiceImpl implements IFidoApiService {
     private static final String LOG_TAG = "FidoApiService";
 
     @Override
-    public void register(ComponentActivity activity, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult) {
+    public void register(ActivityResultLauncher<IntentSenderRequest> resultLauncher, WebAuthnInitRegisterResponseModel option, IFidoResponseResult fidoResult) {
+        // Stub
         GigyaLogger.debug(LOG_TAG, "register operation not supported for Android OS lower than M");
     }
 
     @Override
     public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
+        // Stub
         GigyaLogger.debug(LOG_TAG, "onRegisterResponse operation not supported for Android OS lower than M");
         return null;
     }
 
     @Override
-    public void sign(ComponentActivity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult) {
+    public void sign(Activity activity, WebAuthnGetOptionsResponseModel options, IFidoResponseResult fidoResult) {
+        // Stub
         GigyaLogger.debug(LOG_TAG, "sign operation not supported for Android OS lower than M");
     }
 
     @Override
     public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse) {
+        // Stub
         GigyaLogger.debug(LOG_TAG, "onSignResponse operation not supported for Android OS lower than M");
         return null;
+    }
+
+    @Override
+    public void onFidoError(byte[] errorResponse) {
+        // Stub
+        GigyaLogger.debug(LOG_TAG, "onFidoError operation not supported for Android OS lower than M");
+
     }
 }
