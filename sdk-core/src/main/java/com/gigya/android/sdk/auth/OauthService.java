@@ -47,31 +47,20 @@ public class OauthService implements IOauthService {
      * @param token
      */
     @Override
-    public void connect(String token) {
+    public void connect(String token, final ApiService.IApiServiceResponse iApiServiceResponse) {
         final HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + token);
         GigyaApiRequest request = this.requestFactory.create(
                 OauthApis.connect.api, null, RestAdapter.HttpMethod.POST, headers
         );
-        this.apiService.send(request, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                GigyaLogger.debug(LOG_TAG, "connect api error: \n" + gigyaError.getData());
-            }
-        });
-
+        this.apiService.send(request, iApiServiceResponse);
     }
 
     /**
      * @param token
      */
     @Override
-    public void authorize(String token) {
+    public void authorize(String token, final ApiService.IApiServiceResponse iApiServiceResponse) {
         final Map<String, Object> params = new HashMap<>();
         params.put("response_type", "code");
         final HashMap<String, String> headers = new HashMap<>();
@@ -79,46 +68,21 @@ public class OauthService implements IOauthService {
         GigyaApiRequest request = this.requestFactory.create(
                 OauthApis.authorize.api, params, RestAdapter.HttpMethod.POST, headers
         );
-        this.apiService.send(request, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "authorize api success response:\n" + response.asJson());
-
-                if (response.contains("code")) {
-                    final String code = response.getField("code", String.class);
-                    token(code);
-                }
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                GigyaLogger.debug(LOG_TAG, "authorize api error: \n" + gigyaError.getData());
-            }
-        });
+        this.apiService.send(request, iApiServiceResponse);
     }
 
     /**
      * @param code
      */
     @Override
-    public void token(String code) {
+    public void token(String code, final ApiService.IApiServiceResponse iApiServiceResponse) {
         final Map<String, Object> params = new HashMap<>();
         params.put("grant_type", "authorization_code");
         params.put("code", code);
         GigyaApiRequest request = this.requestFactory.create(
                 OauthApis.token.api, params, RestAdapter.HttpMethod.POST
         );
-        this.apiService.send(request, new ApiService.IApiServiceResponse() {
-            @Override
-            public void onApiSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "token api success response:\n" + response.asJson());
-            }
-
-            @Override
-            public void onApiError(GigyaError gigyaError) {
-                GigyaLogger.debug(LOG_TAG, "token api error: \n" + gigyaError.getData());
-            }
-        });
+        this.apiService.send(request, iApiServiceResponse);
     }
 
 }

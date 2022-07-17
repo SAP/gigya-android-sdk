@@ -18,6 +18,7 @@ import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
+import com.gigya.android.sdk.network.GigyaError;
 import com.google.android.gms.fido.Fido;
 import com.google.android.gms.fido.fido2.Fido2ApiClient;
 import com.google.android.gms.fido.fido2.api.common.Attachment;
@@ -59,7 +60,9 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnInitRegisterResponseModel responseModel) {
+    public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+                         final WebAuthnInitRegisterResponseModel responseModel,
+                         final IFidoApiFlowError flowError) {
         final WebAuthnOptionsModel options = responseModel.parseOptions();
 
         PublicKeyCredentialCreationOptions requestOptions = null;
@@ -93,11 +96,11 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                     )
                     .build();
         } catch (Attachment.UnsupportedAttachmentException e) {
-            GigyaLogger.debug(LOG_TAG, "register: unsupported attachment");
+            GigyaLogger.debug(LOG_TAG, "Fido register: unsupported attachment");
             e.printStackTrace();
-        }
-        if (requestOptions == null) {
-            GigyaLogger.debug(LOG_TAG, "requestOptions null");
+            flowError.onFlowFailedWith(
+                    new GigyaError(200001, e.getLocalizedMessage())
+            );
             return;
         }
         final Fido2ApiClient fido2ApiClient = Fido.getFido2ApiClient(applicationContext);
@@ -106,7 +109,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
                 if (pendingIntent == null) {
-                    GigyaLogger.debug(LOG_TAG, "getRegisterPendingIntent: null pending intent");
+                    GigyaLogger.debug(LOG_TAG, "Fido getRegisterPendingIntent: null pending intent");
+                    flowError.onFlowFailedWith(
+                            new GigyaError(200001, "Fido getRegisterPendingIntent: null pending intent")
+                    );
                     return;
                 }
                 Intent fillIntent = new Intent();
@@ -122,8 +128,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                GigyaLogger.debug(LOG_TAG, "getRegisterPendingIntent task failed with:\n" + e.getLocalizedMessage());
-
+                GigyaLogger.debug(LOG_TAG, "Fido getRegisterPendingIntent task failed with:\n" + e.getLocalizedMessage());
+                flowError.onFlowFailedWith(
+                        new GigyaError(200001, e.getLocalizedMessage())
+                );
             }
         });
     }
@@ -164,11 +172,13 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final WebAuthnGetOptionsResponseModel responseModel) {
+    public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+                     final WebAuthnGetOptionsResponseModel responseModel,
+                     final IFidoApiFlowError flowError) {
         final WebAuthnGetOptionsModel options = responseModel.parseOptions();
         final PublicKeyCredentialRequestOptions requestOptions = new PublicKeyCredentialRequestOptions.Builder()
                 .setRpId(options.rpId)
-                .setAllowList(
+                .setAllowList( //TODO : is it needed? check removal - retraining for one key?
                         Collections.singletonList(
                                 new PublicKeyCredentialDescriptor(
                                         PublicKeyCredentialType.PUBLIC_KEY.toString(), // type
@@ -186,7 +196,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
                 if (pendingIntent == null) {
-                    GigyaLogger.debug(LOG_TAG, "getSignPendingIntent: null pending intent");
+                    GigyaLogger.debug(LOG_TAG, "Fido getSignPendingIntent: null pending intent");
+                    flowError.onFlowFailedWith(
+                            new GigyaError(200001, "Fido getSignPendingIntent: null pending intent")
+                    );
                     return;
                 }
                 final Intent fillIntent = new Intent();
@@ -202,7 +215,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                GigyaLogger.debug(LOG_TAG, "getSignPendingIntent task failed with:\n" + e.getLocalizedMessage());
+                GigyaLogger.debug(LOG_TAG, "Fido getSignPendingIntent task failed with:\n" + e.getLocalizedMessage());
+                flowError.onFlowFailedWith(
+                        new GigyaError(200001, e.getLocalizedMessage())
+                );
             }
         });
     }
@@ -243,15 +259,20 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public void onFidoError(byte[] errorResponse) {
+    public GigyaError onFidoError(byte[] errorBytes) {
         final AuthenticatorErrorResponse authenticatorErrorResponse =
-                AuthenticatorErrorResponse.deserializeFromBytes(errorResponse);
+                AuthenticatorErrorResponse.deserializeFromBytes(errorBytes);
 
         final int errorCode = authenticatorErrorResponse.getErrorCode().getCode();
         final String errorMessage = authenticatorErrorResponse.getErrorMessage();
 
         GigyaLogger.debug(LOG_TAG, "errorCode.name: " + errorCode);
         GigyaLogger.debug(LOG_TAG, "errorMessage: " + errorMessage);
+
+        return new GigyaError(
+                200001,
+                "fido api code: " + errorCode + ", " + errorMessage
+        );
     }
 
 }
