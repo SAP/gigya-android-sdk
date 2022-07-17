@@ -1,5 +1,9 @@
 package com.gigya.android.sdk.auth.models;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +14,8 @@ public class WebAuthnAttestationResponse {
     public String attestationObjectBase64;
     public String idBase64;
     public String rawIdBase64;
+
+    private final Gson gson = new Gson();
 
     public WebAuthnAttestationResponse(
             String keyHandleBase64,
@@ -31,12 +37,12 @@ public class WebAuthnAttestationResponse {
         return response;
     }
 
-    public Map<String, Object> getAttestation() {
+    public String getAttestation() {
         Map<String, Object> attestation = new HashMap<>();
         attestation.put("id", this.idBase64);
         attestation.put("rawId", this.rawIdBase64);
         attestation.put("type", "public-key");
         attestation.put("response", getResponse());
-        return attestation;
+        return gson.toJson(attestation);
     }
 }
