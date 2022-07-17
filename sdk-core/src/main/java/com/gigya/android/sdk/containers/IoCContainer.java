@@ -134,4 +134,8 @@ public class IoCContainer {
         _bindings.clear();
         _bindings = null;
     }
+
+    public void clear() {
+        _bindings.clear();
+    }
 }
