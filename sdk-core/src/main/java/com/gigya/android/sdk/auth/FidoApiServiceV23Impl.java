@@ -65,7 +65,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                          final IFidoApiFlowError flowError) {
         final WebAuthnOptionsModel options = responseModel.parseOptions();
 
-        PublicKeyCredentialCreationOptions requestOptions = null;
+        PublicKeyCredentialCreationOptions requestOptions;
         try {
             requestOptions = new PublicKeyCredentialCreationOptions.Builder()
                     .setRp(
@@ -96,7 +96,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                     )
                     .build();
         } catch (Attachment.UnsupportedAttachmentException e) {
-            GigyaLogger.debug(LOG_TAG, "Fido register: unsupported attachment");
+            GigyaLogger.error(LOG_TAG, "Fido register: unsupported attachment");
             e.printStackTrace();
             flowError.onFlowFailedWith(
                     new GigyaError(200001, e.getLocalizedMessage())
@@ -109,18 +109,14 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
                 if (pendingIntent == null) {
-                    GigyaLogger.debug(LOG_TAG, "Fido getRegisterPendingIntent: null pending intent");
+                    GigyaLogger.error(LOG_TAG, "Fido getRegisterPendingIntent: null pending intent");
                     flowError.onFlowFailedWith(
                             new GigyaError(200001, "Fido getRegisterPendingIntent: null pending intent")
                     );
                     return;
                 }
-                Intent fillIntent = new Intent();
-                fillIntent.putExtra("token", responseModel.token);
-                fillIntent.putExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code());
                 IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(
-                        pendingIntent.getIntentSender()
-                ).setFillInIntent(fillIntent)
+                        pendingIntent.getIntentSender())
                         .build();
                 resultLauncher.launch(senderRequest);
             }
@@ -128,7 +124,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                GigyaLogger.debug(LOG_TAG, "Fido getRegisterPendingIntent task failed with:\n" + e.getLocalizedMessage());
+                GigyaLogger.error(LOG_TAG, "Fido getRegisterPendingIntent task failed with:\n" + e.getLocalizedMessage());
                 flowError.onFlowFailedWith(
                         new GigyaError(200001, e.getLocalizedMessage())
                 );
@@ -196,18 +192,14 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
             @Override
             public void onSuccess(PendingIntent pendingIntent) {
                 if (pendingIntent == null) {
-                    GigyaLogger.debug(LOG_TAG, "Fido getSignPendingIntent: null pending intent");
+                    GigyaLogger.error(LOG_TAG, "Fido getSignPendingIntent: null pending intent");
                     flowError.onFlowFailedWith(
                             new GigyaError(200001, "Fido getSignPendingIntent: null pending intent")
                     );
                     return;
                 }
-                final Intent fillIntent = new Intent();
-                fillIntent.putExtra("token", responseModel.token);
-                fillIntent.putExtra("requestCode", FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code());
                 final IntentSenderRequest senderRequest = new IntentSenderRequest.Builder(
-                        pendingIntent.getIntentSender()
-                ).setFillInIntent(fillIntent)
+                        pendingIntent.getIntentSender())
                         .build();
                 resultLauncher.launch(senderRequest);
             }
@@ -215,7 +207,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                GigyaLogger.debug(LOG_TAG, "Fido getSignPendingIntent task failed with:\n" + e.getLocalizedMessage());
+                GigyaLogger.error(LOG_TAG, "Fido getSignPendingIntent task failed with:\n" + e.getLocalizedMessage());
                 flowError.onFlowFailedWith(
                         new GigyaError(200001, e.getLocalizedMessage())
                 );
@@ -266,8 +258,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         final int errorCode = authenticatorErrorResponse.getErrorCode().getCode();
         final String errorMessage = authenticatorErrorResponse.getErrorMessage();
 
-        GigyaLogger.debug(LOG_TAG, "errorCode.name: " + errorCode);
-        GigyaLogger.debug(LOG_TAG, "errorMessage: " + errorMessage);
+        GigyaLogger.error(LOG_TAG, "errorCode.name: " + errorCode);
+        GigyaLogger.error(LOG_TAG, "errorMessage: " + errorMessage);
 
         return new GigyaError(
                 200001,
