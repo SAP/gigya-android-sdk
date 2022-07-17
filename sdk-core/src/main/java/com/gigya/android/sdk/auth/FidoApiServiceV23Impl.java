@@ -138,13 +138,12 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
         //TODO: Should use keyHandle?
-        final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
+        final String keyHandleBase64 = toBase64Url(response.getKeyHandle());
 
         final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        final String clientDataJsonBase64 = Base64.encodeToString(response.getClientDataJSON(), Base64.URL_SAFE);
+        final String clientDataJsonBase64 = toBase64Url(response.getClientDataJSON());
 
-        final String attestationObjectBase64 =
-                Base64.encodeToString(response.getAttestationObject(), Base64.URL_SAFE);
+        final String attestationObjectBase64 = toBase64Url(response.getAttestationObject());
 
         GigyaLogger.debug(LOG_TAG, "keyHandleBase64: " + keyHandleBase64);
         GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
@@ -152,8 +151,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
 
         final PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
 
-        final String idBase64 = Base64.encodeToString(credential.getId().getBytes(), Base64.URL_SAFE);
-        final String rawIdBase64 = Base64.encodeToString(credential.getRawId(), Base64.URL_SAFE);
+        final String idBase64 = toBase64Url(credential.getId().getBytes());
+        final String rawIdBase64 = toBase64Url(credential.getRawId());
 
         GigyaLogger.debug(LOG_TAG, "id: " + credential.getId());
         GigyaLogger.debug(LOG_TAG, "rawID: " + Arrays.toString(credential.getRawId()));
@@ -265,6 +264,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                 200001,
                 "fido api code: " + errorCode + ", " + errorMessage
         );
+    }
+
+    private String toBase64Url(byte[] bytes) {
+        return Base64.encodeToString(bytes, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
     }
 
 }

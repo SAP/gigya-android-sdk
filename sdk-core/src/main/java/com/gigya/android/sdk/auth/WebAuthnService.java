@@ -383,7 +383,7 @@ public class WebAuthnService implements IWebAuthnService {
         try {
             return container.get(WebAuthnOptionsToken.class);
         } catch (Exception e) {
-            GigyaLogger.debug(LOG_TAG, "currentToken: Unable to get options token from container");
+            GigyaLogger.error(LOG_TAG, "currentToken: Unable to get options token from container");
             e.printStackTrace();
             return null;
         }
@@ -395,7 +395,7 @@ public class WebAuthnService implements IWebAuthnService {
             final GigyaCallback callback = container.get(GigyaCallback.class);
             callback.onSuccess(result);
         } catch (Exception e) {
-            GigyaLogger.debug(LOG_TAG, "notifySuccess: Unable to get login callback instance.");
+            GigyaLogger.error(LOG_TAG, "notifySuccess: Unable to get login callback instance.");
             e.printStackTrace();
         }
         clearContainerCallbacks();
@@ -407,7 +407,7 @@ public class WebAuthnService implements IWebAuthnService {
             final GigyaCallback callback = container.get(GigyaCallback.class);
             callback.onError(error);
         } catch (Exception e) {
-            GigyaLogger.debug(LOG_TAG, "notifyError: Unable to get login callback instance.");
+            GigyaLogger.error(LOG_TAG, "notifyError: Unable to get login callback instance.");
             e.printStackTrace();
         }
         clearContainerCallbacks();
