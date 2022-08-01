@@ -44,6 +44,9 @@ import java.util.Collections;
 
 import kotlin.text.Charsets;
 
+/**
+ * Fido api service connector for Android >=M.
+ */
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class FidoApiServiceV23Impl implements IFidoApiService {
 
