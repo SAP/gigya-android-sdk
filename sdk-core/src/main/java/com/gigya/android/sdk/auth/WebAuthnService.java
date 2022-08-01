@@ -15,7 +15,6 @@ import androidx.activity.result.IntentSenderRequest;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiResponse;
@@ -114,6 +113,14 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
 
+    /**
+     * Initialize WebAuthn/Fido registration flow.
+     * 1. initRegistration - connect with site to retrieve configuration data.
+     * 2. Register with FIDO2 service - retrieve key data - Sender intent will be sent.
+     *
+     * @param resultLauncher Activity result launcher for intent sender request.
+     * @param gigyaCallback  Result callback.
+     */
     @SuppressLint("NewApi")
     @Override
     public void register(
@@ -134,7 +141,11 @@ public class WebAuthnService implements IWebAuthnService {
             public void onApiSuccess(GigyaApiResponse response) {
                 GigyaLogger.debug(LOG_TAG, "initRegistration success:\n" + response.asJson());
 
-                WebAuthnInitRegisterResponseModel webAuthnInitRegisterResponseModel =
+                if (gigyaResponseError(response)) {
+                    return;
+                }
+
+                final WebAuthnInitRegisterResponseModel webAuthnInitRegisterResponseModel =
                         response.parseTo(WebAuthnInitRegisterResponseModel.class);
 
                 if (webAuthnInitRegisterResponseModel == null) {
@@ -164,9 +175,18 @@ public class WebAuthnService implements IWebAuthnService {
         });
     }
 
+    /**
+     * Initialize WebAuthn/Fido login/signing flow.
+     * 1. getAssertionOptions - retrieve relevant assertion verification data.
+     * 2. Sign with FIDO2 service - retrieve key data - Sender intent will be sent.
+     *
+     * @param resultLauncher Activity result launcher for intent sender request.
+     * @param gigyaCallback  Result callback.
+     */
     @SuppressLint("NewApi")
     @Override
-    public void login(final ActivityResultLauncher<IntentSenderRequest> resultLauncher, final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+    public void login(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+                      final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
@@ -181,7 +201,11 @@ public class WebAuthnService implements IWebAuthnService {
             public void onApiSuccess(GigyaApiResponse response) {
                 GigyaLogger.debug(LOG_TAG, "getAssertionOptions success:\n" + response.asJson());
 
-                WebAuthnGetOptionsResponseModel webAuthnGetOptionsResponseModel =
+                if (gigyaResponseError(response)) {
+                    return;
+                }
+
+                final WebAuthnGetOptionsResponseModel webAuthnGetOptionsResponseModel =
                         response.parseTo(WebAuthnGetOptionsResponseModel.class);
 
                 if (webAuthnGetOptionsResponseModel == null) {
@@ -211,7 +235,13 @@ public class WebAuthnService implements IWebAuthnService {
         });
     }
 
-    @Override
+    /**
+     * Handle service activity sender result.
+     * Make sure to initialize the ActivityResultLauncher before onCreate method or as a member variable.
+     *
+     * @param activityResult ActivityResult from sender intent.
+     */
+//    @Override
     public void handleFidoResult(ActivityResult activityResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
@@ -256,6 +286,16 @@ public class WebAuthnService implements IWebAuthnService {
         }
     }
 
+    /**
+     * Handle WebAuthn/Fido registration result.
+     * <p>
+     * 1. registerCredentials - register device.
+     * 2. oauthservice - connect.
+     *
+     * @param token
+     * @param attestationResponse
+     * @param credentialResponse
+     */
     @SuppressLint("NewApi")
     public void onRegistration(final String token, byte[] attestationResponse, byte[] credentialResponse) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -275,6 +315,10 @@ public class WebAuthnService implements IWebAuthnService {
             public void onApiSuccess(GigyaApiResponse response) {
                 GigyaLogger.debug(LOG_TAG, "registerCredentials success:\n" + response.asJson());
 
+                if (gigyaResponseError(response)) {
+                    return;
+                }
+
                 final String idToken = response.getField("idToken", String.class);
                 if (idToken == null) {
                     GigyaLogger.error(LOG_TAG, "verifyAssertion: missing idToken");
@@ -286,6 +330,11 @@ public class WebAuthnService implements IWebAuthnService {
                     @Override
                     public void onApiSuccess(GigyaApiResponse response) {
                         GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
+
+                        if (gigyaResponseError(response)) {
+                            return;
+                        }
+
                         notifySuccess(response);
                     }
 
@@ -305,6 +354,17 @@ public class WebAuthnService implements IWebAuthnService {
         });
     }
 
+    /**
+     * Handle WebAuthn/Fido login result.
+     * <p>
+     * 1. verifyAssertion - Verify assertion data.
+     * 2. oauthservice - authorize.
+     * 3. oauthservice - token.
+     *
+     * @param token
+     * @param assertionResponse
+     * @param fido2Credential
+     */
     @SuppressLint("NewApi")
     public void onLogin(final String token, byte[] assertionResponse, byte[] fido2Credential) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -312,7 +372,7 @@ public class WebAuthnService implements IWebAuthnService {
             return;
         }
 
-        WebAuthnAssertionResponse webAuthnAssertionResponse =
+        final WebAuthnAssertionResponse webAuthnAssertionResponse =
                 fidoApiService.onSignResponse(assertionResponse, fido2Credential);
 
         final Map<String, Object> params = new HashMap<>();
@@ -323,6 +383,10 @@ public class WebAuthnService implements IWebAuthnService {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
                 GigyaLogger.debug(LOG_TAG, "verifyAssertion success:\n" + response.asJson());
+
+                if (gigyaResponseError(response)) {
+                    return;
+                }
 
                 final String idToken = response.getField("idToken", String.class);
                 if (idToken == null) {
@@ -337,12 +401,21 @@ public class WebAuthnService implements IWebAuthnService {
                     public void onApiSuccess(GigyaApiResponse response) {
                         GigyaLogger.debug(LOG_TAG, "authorize api success response:\n" + response.asJson());
 
+                        if (gigyaResponseError(response)) {
+                            return;
+                        }
+
                         if (response.contains("code")) {
                             final String code = response.getField("code", String.class);
                             oauthService.token(code, new ApiService.IApiServiceResponse() {
                                 @Override
                                 public void onApiSuccess(GigyaApiResponse response) {
                                     GigyaLogger.debug(LOG_TAG, "token api success response:\n" + response.asJson());
+
+                                    if (gigyaResponseError(response)) {
+                                        return;
+                                    }
+
                                     notifySuccess(response);
                                 }
 
@@ -370,6 +443,15 @@ public class WebAuthnService implements IWebAuthnService {
             }
         });
 
+    }
+
+    private boolean gigyaResponseError(GigyaApiResponse response) {
+        if ((response.getStatusCode() == 400) && response.getErrorCode() != 0) {
+            GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+            notifyError(GigyaError.fromResponse(response));
+            return true;
+        }
+        return false;
     }
 
     /**
