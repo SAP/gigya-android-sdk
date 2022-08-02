@@ -142,7 +142,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
                 _config.getApiDomain()) + (request.getMethod() == RestAdapter.HttpMethod.GET ? "?" + encodedParams : "");
 
         // Return a new instance of a signed REST request.
-        return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams);
+        return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams, request.getHeaders());
     }
 
     @Override
@@ -152,7 +152,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         }
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
 
-        return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams);
+        return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams, request.getHeaders());
     }
 
     /**

@@ -39,6 +39,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -136,7 +140,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     @Override
-    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
+    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse, String rpId) {
 
         final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
@@ -144,8 +148,17 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         final String keyHandleBase64 = toBase64Url(response.getKeyHandle());
 
         final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        final String clientDataJsonBase64 = toBase64Url(response.getClientDataJSON());
 
+        // Override origin for RP validation.
+        JSONObject jo = null;
+        try {
+            jo = new JSONObject(clientDataJson);
+            jo.put("origin", rpId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String clientDataJsonBase64 = toBase64Url(jo != null ? jo.toString().getBytes(StandardCharsets.UTF_8) : response.getClientDataJSON());
         final String attestationObjectBase64 = toBase64Url(response.getAttestationObject());
 
         GigyaLogger.debug(LOG_TAG, "keyHandleBase64: " + keyHandleBase64);
@@ -217,7 +230,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         });
     }
 
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
+    @Override
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse, String rpId) {
 
         final AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
 
@@ -225,7 +239,17 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         final String keyHandleBase64 = Base64.encodeToString(response.getKeyHandle(), Base64.URL_SAFE);
 
         final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        final String clientDataJsonBase64 = Base64.encodeToString(response.getClientDataJSON(), Base64.URL_SAFE);
+
+        // Override origin for RP validation.
+        JSONObject jo = null;
+        try {
+            jo = new JSONObject(clientDataJson);
+            jo.put("origin", rpId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String clientDataJsonBase64 = toBase64Url(jo != null ? jo.toString().getBytes(StandardCharsets.UTF_8) : response.getClientDataJSON());
 
         final String authenticatorDataBase64 =
                 Base64.encodeToString(response.getAuthenticatorData(), Base64.URL_SAFE);
