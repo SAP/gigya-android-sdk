@@ -22,9 +22,11 @@ import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
+import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
-import com.gigya.android.sdk.auth.models.WebAuthnOptionsToken;
+import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
+import com.gigya.android.sdk.auth.models.WebAuthnOptionsBinding;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
 import com.google.android.gms.fido.Fido;
@@ -158,7 +160,14 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                container.bind(WebAuthnOptionsToken.class, webAuthnInitRegisterResponseModel.getOptionsToken());
+                final WebAuthnOptionsModel options = webAuthnInitRegisterResponseModel.parseOptions();
+
+                container.bind(WebAuthnOptionsBinding.class,
+                        new WebAuthnOptionsBinding(
+                                webAuthnInitRegisterResponseModel.token,
+                                FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code(),
+                                options.rp.id
+                        ));
 
                 fidoApiService.register(resultLauncher, webAuthnInitRegisterResponseModel, new IFidoApiFlowError() {
                     @Override
@@ -218,7 +227,14 @@ public class WebAuthnService implements IWebAuthnService {
                     return;
                 }
 
-                container.bind(WebAuthnOptionsToken.class, webAuthnGetOptionsResponseModel.getOptionsToken());
+                final WebAuthnGetOptionsModel options = webAuthnGetOptionsResponseModel.parseOptions();
+
+                container.bind(WebAuthnOptionsBinding.class,
+                        new WebAuthnOptionsBinding(
+                                webAuthnGetOptionsResponseModel.token,
+                                FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code(),
+                                options.rpId
+                        ));
 
                 fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel, new IFidoApiFlowError() {
                     @Override
@@ -241,7 +257,7 @@ public class WebAuthnService implements IWebAuthnService {
      *
      * @param activityResult ActivityResult from sender intent.
      */
-//    @Override
+    @Override
     public void handleFidoResult(ActivityResult activityResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
@@ -263,17 +279,17 @@ public class WebAuthnService implements IWebAuthnService {
                     byte[] fido2Response = data.getByteArrayExtra(FIDO2_KEY_RESPONSE_EXTRA);
                     byte[] fido2Credential = data.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA);
 
-                    final WebAuthnOptionsToken optionsToken = currentToken();
-                    if (optionsToken == null) {
+                    final WebAuthnOptionsBinding tokenBinding = getWebAuthnOptionsBinding();
+                    if (tokenBinding == null) {
                         GigyaLogger.error(LOG_TAG, "Failed to fetch options token from container");
                         notifyError(new GigyaError(200001, "Failed to fetch options token from container"));
                         return;
                     }
 
-                    if (optionsToken.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
-                        onRegistration(optionsToken.token, fido2Response, fido2Credential);
-                    } else if (optionsToken.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
-                        onLogin(optionsToken.token, fido2Response, fido2Credential);
+                    if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REGISTER.code()) {
+                        onRegistration(tokenBinding, fido2Response, fido2Credential);
+                    } else if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
+                        onLogin(tokenBinding, fido2Response, fido2Credential);
                     }
                 }
                 break;
@@ -292,23 +308,23 @@ public class WebAuthnService implements IWebAuthnService {
      * 1. registerCredentials - register device.
      * 2. oauthservice - connect.
      *
-     * @param token
+     * @param tokenBinding
      * @param attestationResponse
      * @param credentialResponse
      */
     @SuppressLint("NewApi")
-    public void onRegistration(final String token, byte[] attestationResponse, byte[] credentialResponse) {
+    public void onRegistration(final WebAuthnOptionsBinding tokenBinding, byte[] attestationResponse, byte[] credentialResponse) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
 
         final WebAuthnAttestationResponse webAuthnAttestationResponse =
-                fidoApiService.onRegisterResponse(attestationResponse, credentialResponse);
+                fidoApiService.onRegisterResponse(attestationResponse, credentialResponse, tokenBinding.rp);
 
         final Map<String, Object> params = new HashMap<>();
         params.put("attestation", webAuthnAttestationResponse.getAttestation());
-        params.put("token", token);
+        params.put("token", tokenBinding.token);
 
         registerCredentials(params, new ApiService.IApiServiceResponse() {
             @Override
@@ -361,23 +377,23 @@ public class WebAuthnService implements IWebAuthnService {
      * 2. oauthservice - authorize.
      * 3. oauthservice - token.
      *
-     * @param token
+     * @param tokenBinding
      * @param assertionResponse
      * @param fido2Credential
      */
     @SuppressLint("NewApi")
-    public void onLogin(final String token, byte[] assertionResponse, byte[] fido2Credential) {
+    public void onLogin(final WebAuthnOptionsBinding tokenBinding, byte[] assertionResponse, byte[] fido2Credential) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
 
         final WebAuthnAssertionResponse webAuthnAssertionResponse =
-                fidoApiService.onSignResponse(assertionResponse, fido2Credential);
+                fidoApiService.onSignResponse(assertionResponse, fido2Credential, tokenBinding.rp);
 
         final Map<String, Object> params = new HashMap<>();
         params.put("authenticatorAssertion", webAuthnAssertionResponse.getAssertion());
-        params.put("token", token);
+        params.put("token", tokenBinding.token);
 
         verifyAssertion(params, new ApiService.IApiServiceResponse() {
             @Override
@@ -461,9 +477,9 @@ public class WebAuthnService implements IWebAuthnService {
         container.clear();
     }
 
-    private WebAuthnOptionsToken currentToken() {
+    private WebAuthnOptionsBinding getWebAuthnOptionsBinding() {
         try {
-            return container.get(WebAuthnOptionsToken.class);
+            return container.get(WebAuthnOptionsBinding.class);
         } catch (Exception e) {
             GigyaLogger.error(LOG_TAG, "currentToken: Unable to get options token from container");
             e.printStackTrace();

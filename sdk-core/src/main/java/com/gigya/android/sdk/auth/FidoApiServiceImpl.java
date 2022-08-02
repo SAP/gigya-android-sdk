@@ -26,7 +26,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
+    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse, String rpId) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "onRegisterResponse operation not supported for Android OS lower than M");
         return null;
@@ -40,7 +40,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse, String rpId) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "onSignResponse operation not supported for Android OS lower than M");
         return null;

@@ -19,7 +19,8 @@ public interface IFidoApiService {
 
     WebAuthnAttestationResponse onRegisterResponse(
             byte[] attestationResponse,
-            byte[] credentialResponse
+            byte[] credentialResponse,
+            String rpId
     );
 
     void sign(
@@ -30,7 +31,8 @@ public interface IFidoApiService {
 
     WebAuthnAssertionResponse onSignResponse(
             byte[] fidoApiResponse,
-            byte[] credentialResponse
+            byte[] credentialResponse,
+            String rpId
     );
 
     GigyaError onFidoError(byte[] errorBytes);
