@@ -462,7 +462,7 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
     private boolean gigyaResponseError(GigyaApiResponse response) {
-        if ((response.getStatusCode() == 400) && response.getErrorCode() != 0) {
+        if (response.getErrorCode() != 0) {
             GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
             notifyError(GigyaError.fromResponse(response));
             return true;
