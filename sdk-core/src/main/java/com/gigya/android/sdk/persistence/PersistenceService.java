@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.gigya.android.sdk.GigyaDefinitions;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class PersistenceService implements IPersistenceService {
@@ -231,6 +232,16 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getString(PREFS_CORE_VERSION, null);
     }
 
+    @Override
+    public void saveKeyHandles(String keyHandles) {
+        getPrefs().edit().putString(PREFS_KEY_HANDLES, keyHandles).apply();
+    }
+
+    @Override
+    public String getKeyHandles() {
+        return getPrefs().getString(PREFS_KEY_HANDLES, null);
+    }
+
     //endregion
 
     //region KEYS
@@ -280,7 +291,10 @@ public class PersistenceService implements IPersistenceService {
 
     private static final String PREFS_UCID = "GS_UCID";
 
+    private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
+
+    public static final String PREFS_KEY_HANDLES = "GS_KEY_HANDLES";
+
     //endregion
 
-    private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 }
