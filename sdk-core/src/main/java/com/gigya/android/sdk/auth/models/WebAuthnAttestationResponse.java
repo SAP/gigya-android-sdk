@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class WebAuthnAttestationResponse {
 
-    public String keyHandleBase64;
     public String clientDataJSONBase64;
     public String attestationObjectBase64;
     public String idBase64;
@@ -18,12 +17,10 @@ public class WebAuthnAttestationResponse {
     private final Gson gson = new Gson();
 
     public WebAuthnAttestationResponse(
-            String keyHandleBase64,
             String clientDataJSONBase64,
             String attestationObjectBase64,
             String idBase64,
             String rawIdBase64) {
-        this.keyHandleBase64 = keyHandleBase64;
         this.clientDataJSONBase64 = clientDataJSONBase64;
         this.attestationObjectBase64 = attestationObjectBase64;
         this.idBase64 = idBase64;

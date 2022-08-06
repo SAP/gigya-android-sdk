@@ -1,20 +1,15 @@
 package com.gigya.android.sdk.auth;
 
-import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.GigyaApiRequest;
-import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
-import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class OauthService implements IOauthService {
-
-    private static final String LOG_TAG = "OauthService";
 
     final private IApiService apiService;
     final private IApiRequestFactory requestFactory;
