@@ -2,8 +2,6 @@ package com.gigya.android.sdk.auth.models;
 
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
