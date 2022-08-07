@@ -18,6 +18,11 @@ public interface IWebAuthnService {
             ActivityResultLauncher<IntentSenderRequest> resultLauncher,
             GigyaCallback<GigyaApiResponse> gigyaCallback);
 
+    void revoke(
+            ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+            GigyaCallback<GigyaApiResponse> gigyaCallback
+    );
+
     void handleFidoResult(
             ActivityResult activityResult);
 

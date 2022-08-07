@@ -252,6 +252,29 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
     /**
+     * Initialize revoke key flow.
+     * Revoking a key will perform its removal from Gigya services only. You cannot delete a fido key from the device
+     * once it has been created.
+     *
+     * @param resultLauncher Activity result launcher for intent sender request.
+     * @param gigyaCallback  Result callback.
+     */
+    @Override
+    public void revoke(ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+                       GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
+            notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
+            return;
+        }
+
+        // Register callback.
+        container.bind(GigyaCallback.class, gigyaCallback);
+
+        //TODO: Perform sign flow without oauth service? User will choose the id and revoke it.
+    }
+
+    /**
      * Handle service activity sender result.
      * Make sure to initialize the ActivityResultLauncher before onCreate method or as a member variable.
      *

@@ -40,14 +40,10 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntit
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,28 +146,36 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         });
     }
 
+    /**
+     * Handle Fido API register response.
+     *
+     * @param attestationResponse Api response bytes.
+     * @param credentialResponse  Api credential response bytes.
+     * @return WebAuthnAttestationResponse instance for WebAuthnService registration flow.
+     */
+    //TODO: Remove rpId parameter.
     @Override
     public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse, String rpId) {
 
         final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
-        final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-
-        final String clientDataJsonBase64 = toBase64Url(overrideClientDataJsonOrigin(clientDataJson, rpId).getBytes(StandardCharsets.UTF_8));
         final String attestationObjectBase64 = toBase64Url(response.getAttestationObject());
-
-        GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
         GigyaLogger.debug(LOG_TAG, "attestationObjectBase64: " + attestationObjectBase64);
 
         final PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
 
-        final String idBase64 = toBase64Url(credential.getId().getBytes());
+        final String clientDataJson = new String(credential.getResponse().getClientDataJSON(), Charsets.UTF_8);
+        GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
+
+        final String clientDataJsonBase64 = toBase64Url(credential.getResponse().getClientDataJSON());
+
+        final String idBase64 = credential.getId();
         final String rawIdBase64 = toBase64Url(credential.getRawId());
 
         GigyaLogger.debug(LOG_TAG, "id: " + credential.getId());
         GigyaLogger.debug(LOG_TAG, "rawID: " + Arrays.toString(credential.getRawId()));
 
-        saveKeyHandle(rawIdBase64);
+        storePublicId(rawIdBase64);
 
         return new WebAuthnAttestationResponse(
                 clientDataJsonBase64,
@@ -236,29 +240,43 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         });
     }
 
+    /**
+     * Handle Fido API sign response.
+     *
+     * @param fidoApiResponse    Api response bytes.
+     * @param credentialResponse Api credential response bytes.
+     * @return WebAuthnAssertionResponse instance for WebAuthnService login flow.
+     */
+    //TODO: Remove rpId parameter.
     @Override
     public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse, String rpId) {
 
         final AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
 
-        final String clientDataJson = new String(response.getClientDataJSON(), Charsets.UTF_8);
-        final String clientDataJsonBase64 = toBase64Url(overrideClientDataJsonOrigin(clientDataJson, rpId).getBytes(StandardCharsets.UTF_8));
-
         final String authenticatorDataBase64 =
                 toBase64Url(response.getAuthenticatorData());
 
+        final Object userHandleBase64 =
+                response.getUserHandle() != null ? toBase64Url(response.getUserHandle()) : null;
+        GigyaLogger.debug(LOG_TAG, "userHandleBase64: " + userHandleBase64);
+
         final String signatureBase64 = toBase64Url(response.getSignature());
 
-        GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
         GigyaLogger.debug(LOG_TAG, "authenticatorDataBase64: " + authenticatorDataBase64);
         GigyaLogger.debug(LOG_TAG, "signatureBase64: " + signatureBase64);
 
         final PublicKeyCredential credential = PublicKeyCredential.deserializeFromBytes(credentialResponse);
 
-        final String idBase64 = toBase64Url(credential.getId().getBytes());
+        final String clientDataJson = new String(credential.getResponse().getClientDataJSON(), Charsets.UTF_8);
+        GigyaLogger.debug(LOG_TAG, "clientDataJSON: " + clientDataJson);
+
+        final String clientDataJsonBase64 = toBase64Url(credential.getResponse().getClientDataJSON());
+
+        final String idBase64 = credential.getId();
         final String rawIdBase64 = toBase64Url(credential.getRawId());
 
         return new WebAuthnAssertionResponse(
+                userHandleBase64,
                 clientDataJsonBase64,
                 authenticatorDataBase64,
                 signatureBase64,
@@ -267,6 +285,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         );
     }
 
+    //TODO: Remove unused method. Cannot manipulate origin.
     private String overrideClientDataJsonOrigin(String clientDataJson, String rpId) {
         if (!UrlUtils.checkUrl(rpId)) {
             rpId = "https://" + rpId;
@@ -293,6 +312,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         GigyaLogger.error(LOG_TAG, "errorCode.name: " + errorCode);
         GigyaLogger.error(LOG_TAG, "errorMessage: " + errorMessage);
 
+        // All fido error will share gigya error code 200001. Description however, will vary according
+        // to error output.
         return new GigyaError(
                 200001,
                 "fido api code: " + errorCode + ", " + errorMessage
@@ -300,14 +321,16 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     }
 
     private String toBase64Url(byte[] bytes) {
-        return Base64.encodeToString(bytes, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+        return Base64.encodeToString(bytes,
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
     }
 
     public byte[] decodeBase64Url(String origin) {
-        return Base64.decode(origin, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+        return Base64.decode(origin,
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
     }
 
-    private void saveKeyHandle(String handle) {
+    private void storePublicId(String handle) {
         final String json = this.persistenceService.getKeyHandles();
         final WebAuthnKeyHandles webAuthnKeyHandles = WebAuthnKeyHandles.parse(json);
         webAuthnKeyHandles.handles.add(handle);
