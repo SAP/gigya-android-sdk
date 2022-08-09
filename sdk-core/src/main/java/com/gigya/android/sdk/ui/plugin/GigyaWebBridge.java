@@ -27,6 +27,7 @@ import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.ui.plugin.webbridgetmanager.IWebBridgeInterruptionManager;
 import com.gigya.android.sdk.utils.ObjectUtils;
 import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.gson.Gson;
@@ -90,6 +91,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     final private IAccountService<A> _accountService;
     final private ISessionVerificationService _sessionVerificationService;
     final private IProviderFactory _providerFactory;
+    final private IWebBridgeInterruptionManager<A> _webBridgeInterruptionManager;
 
     private GigyaPluginFragment.IBridgeCallbacks<A> _invocationCallback;
     private boolean _obfuscation = false;
@@ -100,7 +102,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                           IBusinessApiService<A> businessApiService,
                           IAccountService<A> accountService,
                           ISessionVerificationService sessionVerificationService,
-                          IProviderFactory providerFactory) {
+                          IProviderFactory providerFactory,
+                          IWebBridgeInterruptionManager webBridgeInterruptionManager) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
@@ -108,6 +111,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         _accountService = accountService;
         _sessionVerificationService = sessionVerificationService;
         _providerFactory = providerFactory;
+        _webBridgeInterruptionManager = webBridgeInterruptionManager;
     }
 
     @Override
@@ -234,7 +238,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     }
 
     @Override
-    public void sendOAuthRequest(final String callbackId, String api, Map<String, Object> params) {
+    public void sendOAuthRequest(final String callbackId, String api, final Map<String, Object> params) {
         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
         final String providerName = ObjectUtils.firstNonNull((String) params.get("provider"), "");
         if (providerName.isEmpty()) {
@@ -256,12 +260,14 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         String invocation = "{\"errorCode\":" + account.getErrorCode() + ",\"userInfo\":" + new Gson().toJson(account) + "}";
                         invokeWebViewCallback(callbackId, invocation);
                         if (_invocationCallback != null) {
-                            _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, account);
+                            _webBridgeInterruptionManager.responseManager(
+                                    params, account, _invocationCallback);
                         }
                     }
 
                     @Override
                     public void onError(GigyaError error) {
+                        _webBridgeInterruptionManager.interruptionHandler(error);
                         invokeWebViewCallback(callbackId, error.getData());
                     }
 
@@ -288,7 +294,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     //region APIS
 
     @Override
-    public void sendRequest(final String callbackId, final String api, Map<String, Object> params) {
+    public void sendRequest(final String callbackId, final String api, final Map<String, Object> params) {
         _businessApiService.send(
                 api,
                 params,
@@ -305,7 +311,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 _sessionService.setSession(newSession);
                                 _accountService.setAccount(response.asJson());
                                 if (_invocationCallback != null) {
-                                    _invocationCallback.onPluginAuthEvent(PluginAuthEventDef.LOGIN, parsed);
+                                    _webBridgeInterruptionManager.responseManager(
+                                            params, parsed, _invocationCallback);
                                 }
                             }
                             invokeWebViewCallback(callbackId, response.asJson());
@@ -316,6 +323,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
 
                     @Override
                     public void onError(GigyaError error) {
+                        _webBridgeInterruptionManager.interruptionHandler(error);
                         invokeWebViewCallback(callbackId, error.getData());
                     }
                 });
