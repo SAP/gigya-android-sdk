@@ -8,6 +8,7 @@ import static com.google.android.gms.fido.Fido.FIDO2_KEY_RESPONSE_EXTRA;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Base64;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -61,7 +62,8 @@ public class WebAuthnService implements IWebAuthnService {
         initRegisterCredentials("accounts.auth.fido.initRegisterCredentials"),
         getAssertionOptions("accounts.auth.fido.getAssertionOptions"),
         registerCredentials("accounts.auth.fido.registerCredentials"),
-        verifyAssertion("accounts.auth.fido.verifyAssertion");
+        verifyAssertion("accounts.auth.fido.verifyAssertion"),
+        removeCredential("accounts.auth.fido.removeCredential");
 
         final String api;
 
@@ -105,11 +107,21 @@ public class WebAuthnService implements IWebAuthnService {
     }
 
     /**
-     * @param params
+     *
      */
     private void verifyAssertion(Map<String, Object> params, ApiService.IApiServiceResponse iApiServiceResponse) {
         GigyaApiRequest request = requestFactory.create(
                 WebAuthnApis.verifyAssertion.api,
+                params);
+        apiService.send(request, iApiServiceResponse);
+    }
+
+    /**
+     *
+     */
+    private void removeCredential(Map<String, Object> params, ApiService.IApiServiceResponse iApiServiceResponse) {
+        GigyaApiRequest request = requestFactory.create(
+                WebAuthnApis.removeCredential.api,
                 params);
         apiService.send(request, iApiServiceResponse);
     }
@@ -194,8 +206,9 @@ public class WebAuthnService implements IWebAuthnService {
      */
     @SuppressLint("NewApi")
     @Override
-    public void login(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
-                      final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+    public void login(
+            final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+            final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
@@ -260,8 +273,10 @@ public class WebAuthnService implements IWebAuthnService {
      * @param gigyaCallback  Result callback.
      */
     @Override
-    public void revoke(ActivityResultLauncher<IntentSenderRequest> resultLauncher,
-                       GigyaCallback<GigyaApiResponse> gigyaCallback) {
+    public void revoke(
+            final String uid,
+            final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+            GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
@@ -271,7 +286,49 @@ public class WebAuthnService implements IWebAuthnService {
         // Register callback.
         container.bind(GigyaCallback.class, gigyaCallback);
 
-        //TODO: Perform sign flow without oauth service? User will choose the id and revoke it.
+        getAssertionOptions(new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug(LOG_TAG, "getAssertionOptions success:\n" + response.asJson());
+
+                if (gigyaResponseError(response)) {
+                    return;
+                }
+
+                final WebAuthnGetOptionsResponseModel webAuthnGetOptionsResponseModel =
+                        response.parseTo(WebAuthnGetOptionsResponseModel.class);
+
+                if (webAuthnGetOptionsResponseModel == null) {
+                    GigyaLogger.error(LOG_TAG,
+                            "getAssertionOptions webAuthnGetOptionsResponseModel parse error");
+                    notifyError(
+                            new GigyaError(200001,
+                                    "getAssertionOptions webAuthnGetOptionsResponseModel parse error")
+                    );
+                    return;
+                }
+
+                final WebAuthnGetOptionsModel options = webAuthnGetOptionsResponseModel.parseOptions();
+
+                container.bind(WebAuthnOptionsBinding.class,
+                        new WebAuthnOptionsBinding(
+                                FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REVOKE.code(),
+                                options.rpId,
+                                uid
+                        ));
+                fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel, new IFidoApiFlowError() {
+                    @Override
+                    public void onFlowFailedWith(GigyaError error) {
+                        notifyError(error);
+                    }
+                });
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                GigyaLogger.error(LOG_TAG, "getAssertionOptions error:\n" + gigyaError.getData());
+            }
+        });
     }
 
     /**
@@ -313,6 +370,8 @@ public class WebAuthnService implements IWebAuthnService {
                         onRegistration(tokenBinding, fido2Response, fido2Credential);
                     } else if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
                         onLogin(tokenBinding, fido2Response, fido2Credential);
+                    } else if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REVOKE.code()) {
+                        onRevoke(tokenBinding, fido2Response, fido2Credential);
                     }
                 }
                 break;
@@ -331,23 +390,23 @@ public class WebAuthnService implements IWebAuthnService {
      * 1. registerCredentials - register device.
      * 2. oauthservice - connect.
      *
-     * @param tokenBinding
+     * @param optionsBinding
      * @param attestationResponse
      * @param credentialResponse
      */
     @SuppressLint("NewApi")
-    public void onRegistration(final WebAuthnOptionsBinding tokenBinding, byte[] attestationResponse, byte[] credentialResponse) {
+    public void onRegistration(final WebAuthnOptionsBinding optionsBinding, byte[] attestationResponse, byte[] credentialResponse) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
 
         final WebAuthnAttestationResponse webAuthnAttestationResponse =
-                fidoApiService.onRegisterResponse(attestationResponse, credentialResponse, tokenBinding.rp);
+                fidoApiService.onRegisterResponse(attestationResponse, credentialResponse, optionsBinding.rp);
 
         final Map<String, Object> params = new HashMap<>();
         params.put("attestation", webAuthnAttestationResponse.getAttestation());
-        params.put("token", tokenBinding.token);
+        params.put("token", optionsBinding.token);
 
         registerCredentials(params, new ApiService.IApiServiceResponse() {
             @Override
@@ -400,23 +459,25 @@ public class WebAuthnService implements IWebAuthnService {
      * 2. oauthservice - authorize.
      * 3. oauthservice - token.
      *
-     * @param tokenBinding
+     * @param optionsBinding
      * @param assertionResponse
      * @param fido2Credential
      */
     @SuppressLint("NewApi")
-    public void onLogin(final WebAuthnOptionsBinding tokenBinding, byte[] assertionResponse, byte[] fido2Credential) {
+    public void onLogin(
+            final WebAuthnOptionsBinding optionsBinding,
+            byte[] assertionResponse, byte[] fido2Credential) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
             return;
         }
 
         final WebAuthnAssertionResponse webAuthnAssertionResponse =
-                fidoApiService.onSignResponse(assertionResponse, fido2Credential, tokenBinding.rp);
+                fidoApiService.onSignResponse(assertionResponse, fido2Credential, optionsBinding.rp);
 
         final Map<String, Object> params = new HashMap<>();
         params.put("authenticatorAssertion", webAuthnAssertionResponse.getAssertion());
-        params.put("token", tokenBinding.token);
+        params.put("token", optionsBinding.token);
 
         verifyAssertion(params, new ApiService.IApiServiceResponse() {
             @Override
@@ -481,7 +542,50 @@ public class WebAuthnService implements IWebAuthnService {
                 notifyError(gigyaError);
             }
         });
+    }
 
+    /**
+     * Handle WebAuthn/Fido revoke key result.
+     * <p>
+     * 1. verifyAssertion - Verify assertion data.
+     * 2. oauthservice - authorize.
+     * 3. oauthservice - token.
+     *
+     * @param optionsBinding
+     * @param assertionResponse
+     * @param fido2Credential
+     */
+    private void onRevoke(
+            final WebAuthnOptionsBinding optionsBinding,
+            byte[] assertionResponse, byte[] fido2Credential) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
+            return;
+        }
+
+        final WebAuthnAssertionResponse webAuthnAssertionResponse =
+                fidoApiService.onSignResponse(assertionResponse, fido2Credential, optionsBinding.rp);
+
+        final Map<String, Object> params = new HashMap<>();
+        params.put("credentialId", webAuthnAssertionResponse.rawIdBase64);
+        removeCredential(params, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                GigyaLogger.debug(LOG_TAG, "removeCredential success response:\n" + response.asJson());
+
+                if (gigyaResponseError(response)) {
+                    return;
+                }
+
+                notifySuccess(response);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                GigyaLogger.error(LOG_TAG, "removeCredential error:\n" + gigyaError.getData());
+                notifyError(gigyaError);
+            }
+        });
     }
 
     private boolean gigyaResponseError(GigyaApiResponse response) {
