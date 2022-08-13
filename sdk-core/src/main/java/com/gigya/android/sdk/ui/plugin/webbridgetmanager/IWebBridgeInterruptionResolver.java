@@ -7,5 +7,7 @@ import java.util.Map;
 
 public interface IWebBridgeInterruptionResolver<A extends GigyaAccount> {
 
+    boolean isActive();
+
     void resolve(Map<String, Object> params, A data, GigyaPluginFragment.IBridgeCallbacks<A> callback);
 }

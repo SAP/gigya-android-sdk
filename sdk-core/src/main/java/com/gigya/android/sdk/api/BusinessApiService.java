@@ -462,6 +462,14 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     @Override
+    public void getAccount(boolean invalidate, GigyaCallback<A> gigyaCallback) {
+        if (invalidate) {
+            _accountService.invalidateAccount();
+        }
+        getAccount(gigyaCallback);
+    }
+
+    @Override
     @Deprecated
     public void getAccount(@NonNull String[] include, @NonNull String[] profileExtraFields, GigyaCallback<A> gigyaCallback) {
         final String includeParam = ObjectUtils.commaConcat(include);

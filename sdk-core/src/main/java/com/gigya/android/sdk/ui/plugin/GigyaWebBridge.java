@@ -597,8 +597,11 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 pluginCallback.onAfterSubmit(event);
                                 break;
                             case HIDE:
-                                final String reason = (String) event.getEventMap().get("reason");
-                                pluginCallback.onHide(event, reason);
+                                // Check interruption resolver for hide override.
+                                if (!_webBridgeInterruptionManager.overrideEvent(HIDE)) {
+                                    final String reason = (String) event.getEventMap().get("reason");
+                                    pluginCallback.onHide(event, reason);
+                                }
                                 break;
                             case ERROR:
                                 pluginCallback.onError(event);
