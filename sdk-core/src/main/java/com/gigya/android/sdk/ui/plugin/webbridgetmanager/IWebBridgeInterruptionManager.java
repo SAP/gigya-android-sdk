@@ -11,4 +11,6 @@ public interface IWebBridgeInterruptionManager<A extends GigyaAccount> {
     void responseManager(Map<String, Object> params, A data, GigyaPluginFragment.IBridgeCallbacks<A> callback);
 
     void interruptionHandler(GigyaError error);
+
+    boolean overrideEvent(String event);
 }
