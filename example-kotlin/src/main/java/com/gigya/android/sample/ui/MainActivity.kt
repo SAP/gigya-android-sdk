@@ -35,6 +35,7 @@ import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.push.IGigyaPushCustomizer
+import com.gigya.android.sdk.session.SessionStateObserver
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
 import com.google.android.material.navigation.NavigationView
@@ -44,6 +45,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.toast
+import org.json.JSONObject
 import java.util.*
 
 
@@ -79,20 +81,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Register for myAccountLiveData info updates.
         registerAccountUpdates()
 
+        Gigya.getInstance().registerSessionVerificationObserver(verificationObserver)
+        Gigya.getInstance().registerSessionExpirationObserver(expirationObserver)
+
+
         /* Check if this device is opt-in to use push TFA and prompt if notifications are turned off */
         GigyaTFA.getInstance().registerForRemoteNotifications(this)
 
         /* Check if this device is registered to use push authentication and prompt if notifications are turned off */
         GigyaAuth.getInstance().registerForPushNotifications(this)
+
+    }
+
+    private val verificationObserver = SessionStateObserver { data ->
+        data?.let {
+            if (data is JSONObject) {
+                println(it.toString())
+            }
+        }
+        runOnUiThread {
+            displayErrorAlert("Session state alert", "session verification failed")
+            onClear()
+        }
+    }
+
+    private val expirationObserver = SessionStateObserver {
+        runOnUiThread {
+            displayErrorAlert("Session state alert", "session expired")
+            onClear()
+        }
     }
 
     override fun onResume() {
         super.onResume()
+
         val filter = IntentFilter()
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_EXPIRED)
         filter.addAction(GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID)
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).registerReceiver(sessionLifecycleReceiver,
                 filter)
+
         // Evaluate fingerprint session.
         evaluateFingerprintSession()
 
@@ -106,6 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionLifecycleReceiver)
+
         val biometric = GigyaBiometric.getInstance()
         if (biometric.isLocked) {
             onClear()
@@ -115,6 +144,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onStop() {
         unregisterAccountUpdates()
+
+        Gigya.getInstance().unregisterSessionVerificationObserver(verificationObserver)
+        Gigya.getInstance().unregisterSessionExpirationObserver(expirationObserver)
+
         super.onStop()
     }
 
@@ -141,13 +174,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     if (intent_action == GigyaDefinitions.Broadcasts.INTENT_ACTION_SESSION_INVALID) {
                         // We can fetch the "regToken" value for additional flows.
-                        val regToken: String = intent.getStringExtra("regToken")
-                        GigyaLogger.debug("MainActivity", "regToken = $regToken")
+                        intent.extras?.let { bundle ->
+                            {
+                                if (bundle.containsKey("regToken")) {
+                                    val regToken: String = intent.getStringExtra("regToken")
+                                    GigyaLogger.debug("MainActivity", "regToken = $regToken")
+                                }
+                            }
+                        }
                     }
-                    runOnUiThread {
-                        displayErrorAlert("Alert", message)
-                        onClear()
-                    }
+//                    runOnUiThread {
+//                        displayErrorAlert("Alert", message)
+//                        onClear()
+//                    }
                 }
             }
         }

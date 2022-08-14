@@ -12,4 +12,8 @@ public interface ISessionVerificationService {
 
     long getInitialDelay();
 
+    void registerObserver(SessionStateObserver observer);
+
+    void removeObserver(SessionStateObserver observer);
+
 }

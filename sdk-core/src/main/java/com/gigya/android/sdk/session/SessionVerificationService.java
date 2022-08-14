@@ -42,19 +42,22 @@ public class SessionVerificationService implements ISessionVerificationService {
     final private IAccountService _accountService;
     final private IApiService _apiService;
     final private IApiRequestFactory _requestFactory;
+    final private SessionStateHandler _observable;
 
     public SessionVerificationService(Application context,
                                       Config config,
                                       ISessionService sessionService,
                                       IAccountService accountService,
                                       IApiService apiService,
-                                      IApiRequestFactory requestFactory) {
+                                      IApiRequestFactory requestFactory,
+                                      SessionStateHandler observable) {
         _context = context;
         _config = config;
         _sessionService = sessionService;
         _accountService = accountService;
         _apiService = apiService;
         _requestFactory = requestFactory;
+        _observable = observable;
 
         /*
         Add a setSession interception in order to make sure that the service starts when a new
@@ -231,6 +234,16 @@ public class SessionVerificationService implements ISessionVerificationService {
         return initialDelay;
     }
 
+    @Override
+    public void registerObserver(SessionStateObserver observer) {
+        _observable.registerVerificationObserver(observer);
+    }
+
+    @Override
+    public void removeObserver(SessionStateObserver observer) {
+        _observable.removeVerificationObserver(observer);
+    }
+
     /**
      * Evaluate notifyLogin endpoint error.
      * Will ignore network error.
@@ -267,9 +280,10 @@ public class SessionVerificationService implements ISessionVerificationService {
         _accountService.invalidateAccount();
 
         String regToken = null;
+        JSONObject jo = null;
         try {
-            final JSONObject jo = new JSONObject(data);
-            regToken = jo.getString("regToken");
+            jo = new JSONObject(data);
+            regToken = jo.optString("regToken");
             GigyaLogger.debug(LOG_TAG, "evaluateVerifyLoginError: regToken = " + regToken);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -280,10 +294,14 @@ public class SessionVerificationService implements ISessionVerificationService {
         // Add "regToken" value to intent if available.
         if (regToken != null) {
             intent.putExtra("rawError", data);
-            intent.putExtra("regToken", regToken);
+            if (!regToken.isEmpty())
+                intent.putExtra("regToken", regToken);
         }
-
+        // Send "session invalid" local broadcast & flush the timer.
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
+
+        // Notify session verification observable that the session is invalid.
+        _observable.notifySessionInvalidated(jo);
     }
 
     /**
