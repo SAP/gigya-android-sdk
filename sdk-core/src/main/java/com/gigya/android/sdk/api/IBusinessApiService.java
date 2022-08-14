@@ -70,4 +70,6 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void getSDKConfig();
 
+    void verifySession(GigyaCallback<GigyaApiResponse> loginCallback);
+
 }

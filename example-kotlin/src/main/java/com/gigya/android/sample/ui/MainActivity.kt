@@ -273,6 +273,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_is_session_valid -> isSessionValid()
             R.id.action_send_request -> onSendAnonymousRequest()
             R.id.action_login -> onLogin()
             R.id.action_login_with_provider -> onLoginWithProvider()
@@ -923,6 +924,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onReInit() {
         viewModel?.logout()
         onClear()
+    }
+
+    private fun isSessionValid() {
+        if (!viewModel!!.isLoggedIn()) {
+            response_text_view.snackbar("Active session is required")
+            return
+        }
+        viewModel!!.isSessionValid(
+                success = { json -> onJsonResult(json) },
+                error = { possibleError ->
+                    possibleError?.let { error -> onError(error) }
+                },
+        )
+
     }
 
     override fun onAnonymousInput(input: String) {
