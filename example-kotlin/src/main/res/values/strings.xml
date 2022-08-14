@@ -44,6 +44,7 @@
     <string name="register_for_push_authentication">Register for push authentication</string>
     <string name="otp_login">OTP login</string>
     <string name="sso_login">SSO login</string>
+    <string name="is_session_valid">Is session valid</string>
 
 
 </resources>

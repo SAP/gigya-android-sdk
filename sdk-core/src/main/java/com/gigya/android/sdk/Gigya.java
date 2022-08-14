@@ -419,6 +419,18 @@ public class Gigya<T extends GigyaAccount> {
 
     //region BUSINESS APIS
 
+
+    /**
+     * Validate session endpoint.
+     * Please use this over getAccountInfo to check session validation state.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void verifySession(GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "isSessionValid");
+        _businessApiService.verifySession(gigyaCallback);
+    }
+
     /**
      * Login with provided id and password.
      *

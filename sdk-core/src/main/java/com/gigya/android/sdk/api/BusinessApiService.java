@@ -592,6 +592,26 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
 
     //region MISC
 
+    @Override
+    public void verifySession(final GigyaCallback<GigyaApiResponse> callback) {
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_IS_SESSION_VALID, new HashMap<String, Object>(), RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    callback.onSuccess(response);
+                } else {
+                    callback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                callback.onError(gigyaError);
+            }
+        });
+    }
+
     // Non documented. For SDK use only.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
