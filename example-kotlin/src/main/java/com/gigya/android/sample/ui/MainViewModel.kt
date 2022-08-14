@@ -102,6 +102,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+    fun isSessionValid(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        gigya.verifySession(object : GigyaCallback<GigyaApiResponse>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                obj?.let { response ->
+                    success(response.asJson())
+                }
+
+            }
+
+            override fun onError(error: GigyaError?) {
+                error?.let { gigyaError ->
+                    error(gigyaError)
+                }
+
+            }
+
+        })
+    }
+
     /**
      * Login using loginID & password.
      */
@@ -523,7 +542,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun ssoLogin(success: (String) -> Unit,
                  error: (GigyaError?) -> Unit,
-                 cancel: () -> Unit){
+                 cancel: () -> Unit) {
         gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 Log.d("ssoLogin", "Success")
