@@ -1086,6 +1086,58 @@ android:value=60 /> // The verification call interval in seconds.
 Adding this meta-data tag will cause the SDK to perform a periodic session validation according to provided value (in seconds).
 When a session changes state, the verification call will fail and the SDK will invalidate the current session and broadcast an event locally.
 
+## SessionStateObservers
+
+For both session expiration & session verification services our previous versions of the Android core SDK have taken use of the [LocalBroadcastManager](https://developer.android.com/reference/androidx/localbroadcastmanager/content/LocalBroadcastManager) application wide event bus to notify when the session has been invalidated.
+
+Due to Google’s deprecation we have migrated the notification flow accordingly.
+
+You can now register two separate observers/listeners to observe session state changes using the *“SessionStateObserver”* class.
+
+```
+private val sessionExpirationObserver = SessionStateObserver {
+        
+  runOnUiThread {
+            checkLoginState()
+            // Display error to user.
+            Snackbar.make(
+                window.decorView.rootView,
+                "Session expired!",
+                Snackbar.LENGTH_LONG
+            ).show()
+            result.text = ""
+        }
+    }
+```
+
+Please implement the following in your view controller (Activity/Fragment) instance to register  & unregister the observer classes.
+
+```
+override fun onStart() {
+        super.onStart()
+        // Register session state observers.
+  Gigya.getInstance().registerSessionVerificationObserver(sessionVerificationObserver)
+  Gigya.getInstance().registerSessionExpirationObserver(sessionExpirationObserver)
+   
+}
+
+override fun onStop() {
+        // Unregister session state observers.
+  Gigya.getInstance().unregisterSessionVerificationObserver(sessionVerificationObserver)
+  Gigya.getInstance().unregisterSessionExpirationObserver(sessionExpirationObserver)
+  super.onStop()
+  
+}
+```
+
+Please make sure you don’t use the same *“SessionStateObserver”* instance for both session expiration traking & session verifcation tracking..
+
+**NOTE:**
+In order to avoid immediate breaking changes, localbroadcasts will still be sent along with notifying the new observers.
+Make sure to remove localbroadcast receiver code when you implement the use with the *“SessionStateObserver”* classes.
+LocalBroadcastManager usage will be completly removed in future versions. Please take the time to migrate.
+
+
 ## Using the GigyaWebBridge explicitly.
 
 You are able to use the GigyaWebBridge.java class explicitly in order to attach Gigya's web sdk actions into your own WebView implementation.
