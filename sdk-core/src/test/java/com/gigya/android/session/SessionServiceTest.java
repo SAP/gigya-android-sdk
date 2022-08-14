@@ -71,7 +71,7 @@ public class SessionServiceTest extends BaseGigyaTest {
         final SecretKey secretKey = generator.generateKey();
         when(mSecureKey.getKey()).thenReturn(secretKey);
 
-        cSessionService = new SessionService(mContext, mConfig, mPersistenceService, mSecureKey);
+        cSessionService = new SessionService(mContext, mConfig, mPersistenceService, mSecureKey, null);
     }
 
     @Test
