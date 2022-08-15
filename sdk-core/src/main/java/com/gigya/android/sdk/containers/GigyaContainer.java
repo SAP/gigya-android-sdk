@@ -42,6 +42,8 @@ import com.gigya.android.sdk.ui.plugin.IGigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
+import com.gigya.android.sdk.ui.plugin.webbridgetmanager.IWebBridgeInterruptionManager;
+import com.gigya.android.sdk.ui.plugin.webbridgetmanager.WebBridgeInterruptionManager;
 import com.gigya.android.sdk.utils.FileUtils;
 
 public class GigyaContainer extends IoCContainer {
@@ -68,6 +70,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
+                .bind(IWebBridgeInterruptionManager.class, WebBridgeInterruptionManager.class, true)
                 .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IoCContainer.class, this);
     }
