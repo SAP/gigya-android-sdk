@@ -38,6 +38,8 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void getAccount(final GigyaCallback<A> gigyaCallback);
 
+    void getAccount(boolean invalidate, GigyaCallback<A> gigyaCallback);
+
     void getAccount(final Map<String, Object> params, final GigyaCallback<A> gigyaCallback);
 
     void getAccount(@NonNull final String[] include, @NonNull final String[] profileExtraFields, GigyaCallback<A> gigyaCallback);
@@ -69,5 +71,7 @@ public interface IBusinessApiService<A extends GigyaAccount> {
     void getSchema(@Nullable Map<String, Object> params, @NonNull final GigyaCallback<GigyaSchema> gigyaCallback);
 
     void getSDKConfig();
+
+    void verifySession(GigyaCallback<GigyaApiResponse> loginCallback);
 
 }

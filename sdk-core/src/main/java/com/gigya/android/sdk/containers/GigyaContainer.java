@@ -32,6 +32,7 @@ import com.gigya.android.sdk.reporting.ReportingService;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionService;
+import com.gigya.android.sdk.session.SessionStateHandler;
 import com.gigya.android.sdk.session.SessionVerificationService;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.Presenter;
@@ -41,6 +42,8 @@ import com.gigya.android.sdk.ui.plugin.IGigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.plugin.WebViewFragmentFactory;
+import com.gigya.android.sdk.ui.plugin.webbridgetmanager.IWebBridgeInterruptionManager;
+import com.gigya.android.sdk.ui.plugin.webbridgetmanager.WebBridgeInterruptionManager;
 import com.gigya.android.sdk.utils.FileUtils;
 
 public class GigyaContainer extends IoCContainer {
@@ -56,6 +59,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)
                 .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
                         : SessionKeyLegacy.class, true)
+                .bind(SessionStateHandler.class, SessionStateHandler.class, true)
                 .bind(ISessionService.class, SessionService.class, true)
                 .bind(IAccountService.class, accountCacheService.class, true)
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
@@ -66,6 +70,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
+                .bind(IWebBridgeInterruptionManager.class, WebBridgeInterruptionManager.class, true)
                 .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
                 .bind(IoCContainer.class, this);
     }
