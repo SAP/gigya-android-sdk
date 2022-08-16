@@ -26,7 +26,7 @@ public class SessionVerificationServiceTest extends BaseGigyaTest {
         mockConfig();
 
         cSessionVerificationService = new SessionVerificationService(
-                mContext, mConfig, mSessionService, mAccountCacheService, mApiService, mRequestFactory
+                mContext, mConfig, mSessionService, mAccountCacheService, mApiService, mRequestFactory, null
         );
     }
 

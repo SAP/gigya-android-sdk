@@ -47,6 +47,7 @@ public class GigyaDefinitions {
         public static final String API_IS_AVAILABLE_LOGIN_ID = "accounts.isAvailableLoginID";
         public static final String API_GET_POLICIES = "accounts.getPolicies";
         public static final String API_GET_SCHEMA = "accounts.getSchema";
+        public static final String API_IS_SESSION_VALID = "accounts.session.verify";
 
         public static final String API_AUTH_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
     }

@@ -7,6 +7,9 @@
         <item android:title="@string/nav_api_reference">
             <menu>
                 <item
+                    android:id="@+id/action_is_session_valid"
+                    android:title="@string/is_session_valid" />
+                <item
                     android:id="@+id/action_send_request"
                     android:title="@string/nav_send_request" />
 

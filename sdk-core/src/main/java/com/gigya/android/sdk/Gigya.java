@@ -26,6 +26,7 @@ import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
+import com.gigya.android.sdk.session.SessionStateObserver;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
@@ -46,7 +47,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "5.2.0";
+    public static final String VERSION = "6.0.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -396,7 +397,39 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+    //region SESSION OBSERVERS
+
+    public void registerSessionExpirationObserver(SessionStateObserver observer) {
+        _sessionService.registerExpirationObserver(observer);
+    }
+
+    public void unregisterSessionExpirationObserver(SessionStateObserver observer) {
+        _sessionService.removeExpirationObserver(observer);
+    }
+
+    public void registerSessionVerificationObserver(SessionStateObserver observer) {
+        _sessionVerificationService.registerObserver(observer);
+    }
+
+    public void unregisterSessionVerificationObserver(SessionStateObserver observer) {
+        _sessionVerificationService.removeObserver(observer);
+    }
+
+    //endregion
+
     //region BUSINESS APIS
+
+
+    /**
+     * Validate session endpoint.
+     * Please use this over getAccountInfo to check session validation state.
+     *
+     * @param gigyaCallback Response listener callback.
+     */
+    public void verifySession(GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "isSessionValid");
+        _businessApiService.verifySession(gigyaCallback);
+    }
 
     /**
      * Login with provided id and password.
@@ -773,8 +806,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         return null;
     }
-
-
 
 
     //endregion
