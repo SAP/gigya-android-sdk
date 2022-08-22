@@ -233,12 +233,12 @@ public class PersistenceService implements IPersistenceService {
     }
 
     @Override
-    public void saveKeyHandles(String keyHandles) {
-        getPrefs().edit().putString(PREFS_KEY_HANDLES, keyHandles).apply();
+    public void saveWebAuthnKeys(String keys) {
+        getPrefs().edit().putString(PREFS_KEY_HANDLES, keys).apply();
     }
 
     @Override
-    public String getKeyHandles() {
+    public String getWebAuthnKeys() {
         return getPrefs().getString(PREFS_KEY_HANDLES, null);
     }
 

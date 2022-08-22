@@ -25,7 +25,7 @@ public class WebAuthnAttestationResponse {
         this.rawIdBase64 = rawIdBase64;
     }
 
-    private Map<String, String> getResponse() {
+    public Map<String, String> getResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("attestationObject", this.attestationObjectBase64);
         response.put("clientDataJSON", this.clientDataJSONBase64);

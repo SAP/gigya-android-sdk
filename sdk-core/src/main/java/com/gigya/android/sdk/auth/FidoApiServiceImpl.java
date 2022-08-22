@@ -8,7 +8,10 @@ import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 import com.gigya.android.sdk.network.GigyaError;
+
+import java.util.List;
 
 /**
  * Stub service class.
@@ -26,7 +29,7 @@ public class FidoApiServiceImpl implements IFidoApiService {
     }
 
     @Override
-    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse, String rpId) {
+    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "onRegisterResponse operation not supported for Android OS lower than M");
         return null;
@@ -34,13 +37,15 @@ public class FidoApiServiceImpl implements IFidoApiService {
 
     @Override
     public void sign(ActivityResultLauncher<IntentSenderRequest> resultLauncher,
-                     WebAuthnGetOptionsResponseModel options, IFidoApiFlowError flowError) {
+                     WebAuthnGetOptionsResponseModel options,
+                     List<WebAuthnKeyModel> allowedKeys,
+                     IFidoApiFlowError flowError) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "sign operation not supported for Android OS lower than M");
     }
 
     @Override
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse, String rpId) {
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
         // Stub
         GigyaLogger.debug(LOG_TAG, "onSignResponse operation not supported for Android OS lower than M");
         return null;
