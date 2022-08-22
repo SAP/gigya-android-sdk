@@ -16,11 +16,10 @@ import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
-import com.gigya.android.sdk.auth.models.WebAuthnKeyHandles;
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.persistence.IPersistenceService;
-import com.gigya.android.sdk.utils.UrlUtils;
 import com.google.android.gms.fido.Fido;
 import com.google.android.gms.fido.fido2.Fido2ApiClient;
 import com.google.android.gms.fido.fido2.api.common.Attachment;
@@ -41,9 +40,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,13 +56,11 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     private static final String LOG_TAG = "FidoApiService";
 
     private final Context applicationContext;
-    private final IPersistenceService persistenceService;
 
     public FidoApiServiceV23Impl(
             Context applicationContext,
             IPersistenceService persistenceService) {
         this.applicationContext = applicationContext;
-        this.persistenceService = persistenceService;
     }
 
     private String getApplicationName(Context context) {
@@ -153,9 +147,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
      * @param credentialResponse  Api credential response bytes.
      * @return WebAuthnAttestationResponse instance for WebAuthnService registration flow.
      */
-    //TODO: Remove rpId parameter.
     @Override
-    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse, String rpId) {
+    public WebAuthnAttestationResponse onRegisterResponse(byte[] attestationResponse, byte[] credentialResponse) {
 
         final AuthenticatorAttestationResponse response = AuthenticatorAttestationResponse.deserializeFromBytes(attestationResponse);
 
@@ -175,8 +168,6 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         GigyaLogger.debug(LOG_TAG, "id: " + credential.getId());
         GigyaLogger.debug(LOG_TAG, "rawID: " + Arrays.toString(credential.getRawId()));
 
-        storePublicId(rawIdBase64);
-
         return new WebAuthnAttestationResponse(
                 clientDataJsonBase64,
                 attestationObjectBase64,
@@ -188,11 +179,16 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     @Override
     public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
                      final WebAuthnGetOptionsResponseModel responseModel,
+                     List<WebAuthnKeyModel> allowedKeys,
                      final IFidoApiFlowError flowError) {
         final WebAuthnGetOptionsModel options = responseModel.parseOptions();
 
         // Populate public key handles.
-        final List<String> keyHandles = getKeyHandles();
+        final List<String> keyHandles = new ArrayList<>(allowedKeys.size());
+        for (WebAuthnKeyModel key : allowedKeys) {
+            keyHandles.add(key.key);
+        }
+
         List<PublicKeyCredentialDescriptor> publicKeyCredentialDescriptors = new ArrayList<>(keyHandles.size());
         for (String handle : keyHandles) {
             GigyaLogger.debug(LOG_TAG, "Keyhandle: " + handle);
@@ -247,9 +243,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
      * @param credentialResponse Api credential response bytes.
      * @return WebAuthnAssertionResponse instance for WebAuthnService login flow.
      */
-    //TODO: Remove rpId parameter.
     @Override
-    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse, String rpId) {
+    public WebAuthnAssertionResponse onSignResponse(byte[] fidoApiResponse, byte[] credentialResponse) {
 
         final AuthenticatorAssertionResponse response = AuthenticatorAssertionResponse.deserializeFromBytes(fidoApiResponse);
 
@@ -285,22 +280,6 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         );
     }
 
-    //TODO: Remove unused method. Cannot manipulate origin.
-    private String overrideClientDataJsonOrigin(String clientDataJson, String rpId) {
-        if (!UrlUtils.checkUrl(rpId)) {
-            rpId = "https://" + rpId;
-        }
-        JSONObject jo;
-        try {
-            jo = new JSONObject(clientDataJson);
-            jo.put("origin", rpId);
-            return jo.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return clientDataJson;
-    }
-
     @Override
     public GigyaError onFidoError(byte[] errorBytes) {
         final AuthenticatorErrorResponse authenticatorErrorResponse =
@@ -328,19 +307,6 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
     public byte[] decodeBase64Url(String origin) {
         return Base64.decode(origin,
                 Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
-    }
-
-    private void storePublicId(String handle) {
-        final String json = this.persistenceService.getKeyHandles();
-        final WebAuthnKeyHandles webAuthnKeyHandles = WebAuthnKeyHandles.parse(json);
-        webAuthnKeyHandles.handles.add(handle);
-        this.persistenceService.saveKeyHandles(webAuthnKeyHandles.toJson());
-    }
-
-    public List<String> getKeyHandles() {
-        final String json = this.persistenceService.getKeyHandles();
-        final WebAuthnKeyHandles webAuthnKeyHandles = WebAuthnKeyHandles.parse(json);
-        return webAuthnKeyHandles.handles;
     }
 
 }

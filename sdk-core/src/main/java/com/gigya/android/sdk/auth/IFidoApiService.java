@@ -7,7 +7,10 @@ import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 import com.gigya.android.sdk.network.GigyaError;
+
+import java.util.List;
 
 public interface IFidoApiService {
 
@@ -19,20 +22,19 @@ public interface IFidoApiService {
 
     WebAuthnAttestationResponse onRegisterResponse(
             byte[] attestationResponse,
-            byte[] credentialResponse,
-            String rpId
+            byte[] credentialResponse
     );
 
     void sign(
             ActivityResultLauncher<IntentSenderRequest> resultLauncher,
             WebAuthnGetOptionsResponseModel options,
+            List<WebAuthnKeyModel> allowedKeys,
             IFidoApiFlowError flowError
     );
 
     WebAuthnAssertionResponse onSignResponse(
             byte[] fidoApiResponse,
-            byte[] credentialResponse,
-            String rpId
+            byte[] credentialResponse
     );
 
     GigyaError onFidoError(byte[] errorBytes);
