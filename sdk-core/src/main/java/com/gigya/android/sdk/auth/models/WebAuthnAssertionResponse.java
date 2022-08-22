@@ -1,6 +1,5 @@
 package com.gigya.android.sdk.auth.models;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ public class WebAuthnAssertionResponse {
         response.put("authenticatorData", this.authenticatorDataBase64);
         response.put("clientDataJSON", this.clientDataJSONBase64);
         response.put("signature", signatureBase64);
-        response.put("userHandle", userHandleBase64); //TODO user keyhandle or rawid like google requests.
+        response.put("userHandle", userHandleBase64); // Usually null (optional).
         return response;
     }
 
@@ -46,8 +45,7 @@ public class WebAuthnAssertionResponse {
         assertion.put("type", "public-key");
         assertion.put("response", getResponse());
 
-        final GsonBuilder builder = new GsonBuilder();
-        builder.serializeNulls();
+        final GsonBuilder builder = new GsonBuilder().serializeNulls();
         return builder.create().toJson(assertion);
     }
 

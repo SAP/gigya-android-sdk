@@ -2,21 +2,24 @@ package com.gigya.android.sdk.auth.models;
 
 public class WebAuthnOptionsBinding {
 
-    public WebAuthnOptionsBinding(String token, int requestCode, String rp) {
+    public WebAuthnOptionsBinding(String token,
+                                  int requestCode,
+                                  String type,
+                                  WebAuthnUserModel userModel) {
         this.token = token;
         this.requestCode = requestCode;
-        this.rp = rp;
+        this.type = type;
+        this.userModel = userModel;
     }
 
-    public WebAuthnOptionsBinding(int requestCode, String rp, String uid) {
+    public WebAuthnOptionsBinding(String token, int requestCode) {
+        this.token = token;
         this.requestCode = requestCode;
-        this.rp = rp;
-        this.uid = uid;
     }
 
     public String token;
     public int requestCode;
-    public String rp;
+    public WebAuthnUserModel userModel;
+    public String type; // cross-platform or platform.
 
-    public String uid;
 }
