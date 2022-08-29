@@ -8,23 +8,21 @@ import static com.google.android.gms.fido.Fido.FIDO2_KEY_RESPONSE_EXTRA;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Base64;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
+import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
-import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.GigyaApiResponse;
-import com.gigya.android.sdk.api.IApiRequestFactory;
-import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.auth.models.WebAuthnAssertionResponse;
 import com.gigya.android.sdk.auth.models.WebAuthnAttestationResponse;
-import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnGetOptionsResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
@@ -48,7 +46,6 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
     final private IOauthService oauthService;
     final private IFidoApiService fidoApiService;
-    final private IApiRequestFactory requestFactory;
     final private ISessionService sessionService;
     final private IPersistenceService persistenceService;
     final private IBusinessApiService<A> businessApiService;
@@ -58,14 +55,12 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     public WebAuthnService(
             IOauthService oauthService,
             IFidoApiService fidoApiService,
-            IApiRequestFactory requestFactory,
             ISessionService sessionService,
             IPersistenceService persistenceService,
             IBusinessApiService<A> businessApiService
     ) {
         this.oauthService = oauthService;
         this.fidoApiService = fidoApiService;
-        this.requestFactory = requestFactory;
         this.sessionService = sessionService;
         this.persistenceService = persistenceService;
         this.businessApiService = businessApiService;
@@ -92,7 +87,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     //region APIS
 
     /**
-     *
+     * Initialize registration flow. Request options.
      */
     private void initRegistration(GigyaCallback<WebAuthnInitRegisterResponseModel> callback) {
         this.businessApiService.send(
@@ -105,7 +100,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     /**
-     *
+     * Register new passkey.
      */
     private void registerCredentials(Map<String, Object> params, GigyaCallback<GigyaApiResponse> callback) {
         this.businessApiService.send(
@@ -118,7 +113,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     /**
-     *
+     * Request assertion options from WebAuthn service.
      */
     private void getAssertionOptions(GigyaCallback<WebAuthnGetOptionsResponseModel> callback) {
         this.businessApiService.send(
@@ -131,7 +126,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     /**
-     *
+     * Verify Fido assertion with WebAuthn service.
      */
     private void verifyAssertion(Map<String, Object> params, GigyaCallback<GigyaApiResponse> callback) {
         this.businessApiService.send(
@@ -144,7 +139,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     /**
-     *
+     * Remove request passkey.
      */
     private void removeCredential(Map<String, Object> params, GigyaCallback<GigyaApiResponse> callback) {
         this.businessApiService.send(
@@ -176,7 +171,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
-            notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
+            gigyaCallback.onError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
             return;
         }
 
@@ -238,6 +233,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     public void onRegistration(final WebAuthnOptionsBinding optionsBinding, byte[] attestationResponse, byte[] credentialResponse) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
+            notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
             return;
         }
 
@@ -259,14 +255,14 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                     return;
                 }
 
-                // Store public key.
-                storePublicKey(
+                // Store public key. Current passkey should be revoked.
+                final WebAuthnKeyModel revokeKeyModel = getPassKey();
+                storePassKey(
                         new WebAuthnKeyModel(
                                 optionsBinding.userModel.name,
                                 optionsBinding.userModel.displayName,
                                 optionsBinding.type,
                                 webAuthnAttestationResponse.rawIdBase64)
-
                 );
 
                 final String idToken = response.getField("idToken", String.class);
@@ -276,9 +272,9 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                     return;
                 }
 
-                oauthService.connect(idToken, new ApiService.IApiServiceResponse() {
+                oauthService.connect(idToken, new GigyaCallback<GigyaApiResponse>() {
                     @Override
-                    public void onApiSuccess(GigyaApiResponse response) {
+                    public void onSuccess(GigyaApiResponse response) {
                         GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
 
                         if (response.getErrorCode() != 0) {
@@ -288,12 +284,38 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                         }
 
                         notifySuccess(response);
+
+                        if (revokeKeyModel == null) {
+                            // No last key to revoke.
+                            return;
+                        }
+
+                        // decode last key
+                        final byte[] decoded = Base64.decode(revokeKeyModel.key.getBytes(),
+                                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+
+                        // Remove old credential before submitting success response.
+                        final Map<String, Object> params = new HashMap<>();
+                        params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
+                        removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
+                            @Override
+                            public void onSuccess(GigyaApiResponse revokeResponse) {
+                                if (revokeResponse.getErrorCode() != 0) {
+                                    GigyaLogger.error(LOG_TAG, "Response error: \n" + revokeResponse.asJson());
+                                }
+                            }
+
+                            @Override
+                            public void onError(GigyaError error) {
+                                GigyaLogger.error(LOG_TAG, "removeCredential api error: \n" + error.getData());
+                            }
+                        });
                     }
 
                     @Override
-                    public void onApiError(GigyaError gigyaError) {
-                        GigyaLogger.error(LOG_TAG, "connect api error: \n" + gigyaError.getData());
-                        notifyError(gigyaError);
+                    public void onError(GigyaError error) {
+                        GigyaLogger.error(LOG_TAG, "connect api error: \n" + error.getData());
+                        notifyError(error);
                     }
                 });
             }
@@ -325,7 +347,15 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
             final GigyaLoginCallback<A> gigyaCallback) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
-            notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
+            gigyaCallback.onError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
+            return;
+        }
+
+        // Load allowed keys.
+        final List<WebAuthnKeyModel> keys = getPassKeys();
+        if (keys.isEmpty()) {
+            GigyaLogger.debug(LOG_TAG, "login error : PassKey not available");
+            gigyaCallback.onError(new GigyaError(200001, "PassKey not available"));
             return;
         }
 
@@ -340,14 +370,12 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                 if (webAuthnGetOptionsResponseModel == null) {
                     GigyaLogger.error(LOG_TAG,
                             "getAssertionOptions webAuthnGetOptionsResponseModel parse error");
-                    notifyError(
+                    notifyLoginError(
                             new GigyaError(200001,
                                     "getAssertionOptions webAuthnGetOptionsResponseModel parse error")
                     );
                     return;
                 }
-
-                final WebAuthnGetOptionsModel options = webAuthnGetOptionsResponseModel.parseOptions();
 
                 // Register helper model.
                 container.bind(WebAuthnOptionsBinding.class,
@@ -356,13 +384,10 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                                 FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()
                         ));
 
-                // Load allowed keys.
-                List<WebAuthnKeyModel> keys = getKeys();
-
                 fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel, keys, new IFidoApiFlowError() {
                     @Override
                     public void onFlowFailedWith(GigyaError error) {
-                        notifyError(error);
+                        notifyLoginError(error);
                     }
                 });
             }
@@ -370,7 +395,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
             @Override
             public void onError(GigyaError error) {
                 GigyaLogger.error(LOG_TAG, "getAssertionOptions error:\n" + error.getData());
-                notifyError(error);
+                notifyLoginError(error);
             }
 
         });
@@ -417,14 +442,14 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                 final String idToken = response.getField("idToken", String.class);
                 if (idToken == null) {
                     GigyaLogger.error(LOG_TAG, "verifyAssertion: missing idToken");
-                    notifyError(new GigyaError(200001, "verifyAssertion: missing idToken"));
+                    notifyLoginError(new GigyaError(200001, "verifyAssertion: missing idToken"));
                     return;
                 }
 
                 // Authorize idToken.
-                oauthService.authorize(idToken, new ApiService.IApiServiceResponse() {
+                oauthService.authorize(idToken, new GigyaCallback<GigyaApiResponse>() {
                     @Override
-                    public void onApiSuccess(GigyaApiResponse response) {
+                    public void onSuccess(GigyaApiResponse response) {
                         GigyaLogger.debug(LOG_TAG, "authorize api success response:\n" + response.asJson());
 
                         if (response.getErrorCode() != 0) {
@@ -435,9 +460,9 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                         if (response.contains("code")) {
                             final String code = response.getField("code", String.class);
-                            oauthService.token(code, new ApiService.IApiServiceResponse() {
+                            oauthService.token(code, new GigyaCallback<GigyaApiResponse>() {
                                 @Override
-                                public void onApiSuccess(GigyaApiResponse response) {
+                                public void onSuccess(GigyaApiResponse response) {
                                     GigyaLogger.debug(LOG_TAG, "token api success response:\n" + response.asJson());
 
                                     if (response.getErrorCode() != 0) {
@@ -451,18 +476,19 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                                 }
 
                                 @Override
-                                public void onApiError(GigyaError gigyaError) {
-                                    GigyaLogger.error(LOG_TAG, "token api error: \n" + gigyaError.getData());
-                                    notifyLoginError(gigyaError);
+                                public void onError(GigyaError error) {
+                                    GigyaLogger.error(LOG_TAG, "token api error: \n" + error.getData());
+                                    notifyLoginError(error);
                                 }
+
                             });
                         }
                     }
 
                     @Override
-                    public void onApiError(GigyaError gigyaError) {
-                        GigyaLogger.error(LOG_TAG, "authorize api error: \n" + gigyaError.getData());
-                        notifyLoginError(gigyaError);
+                    public void onError(GigyaError error) {
+                        GigyaLogger.error(LOG_TAG, "authorize api error: \n" + error.getData());
+                        notifyLoginError(error);
                     }
                 });
             }
@@ -484,109 +510,41 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
      * Revoking a key will perform its removal from Gigya services only. You cannot delete a fido key from the device
      * once it has been created.
      *
-     * @param resultLauncher Activity result launcher for intent sender request.
-     * @param gigyaCallback  Result callback.
+     * @param gigyaCallback Result callback.
      */
     @Override
     public void revoke(
-            final String uid,
-            final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
-            GigyaCallback<GigyaApiResponse> gigyaCallback) {
+            final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
-            notifyError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
+            gigyaCallback.onError(new GigyaError(200001, "WebAuthn/Fido service is available from Android M only"));
             return;
         }
 
-        // Register callback.
-        container.bind(GigyaCallback.class, gigyaCallback);
-
-//        getAssertionOptions(new ApiService.IApiServiceResponse() {
-//            @Override
-//            public void onApiSuccess(GigyaApiResponse response) {
-//                GigyaLogger.debug(LOG_TAG, "getAssertionOptions success:\n" + response.asJson());
-//
-//                if (gigyaResponseError(response)) {
-//                    return;
-//                }
-//
-//                final WebAuthnGetOptionsResponseModel webAuthnGetOptionsResponseModel =
-//                        response.parseTo(WebAuthnGetOptionsResponseModel.class);
-//
-//                if (webAuthnGetOptionsResponseModel == null) {
-//                    GigyaLogger.error(LOG_TAG,
-//                            "getAssertionOptions webAuthnGetOptionsResponseModel parse error");
-//                    notifyError(
-//                            new GigyaError(200001,
-//                                    "getAssertionOptions webAuthnGetOptionsResponseModel parse error")
-//                    );
-//                    return;
-//                }
-//
-//                // Load allowed keys.
-//                List<WebAuthnKeyModel> keys = getKeys();
-//
-//                fidoApiService.sign(resultLauncher, webAuthnGetOptionsResponseModel, keys,
-//                        new IFidoApiFlowError() {
-//                            @Override
-//                            public void onFlowFailedWith(GigyaError error) {
-//                                notifyError(error);
-//                            }
-//                        });
-//            }
-//
-//            @Override
-//            public void onApiError(GigyaError gigyaError) {
-//                GigyaLogger.error(LOG_TAG, "getAssertionOptions error:\n" + gigyaError.getData());
-//            }
-//        });
-    }
-
-
-    /**
-     * Handle WebAuthn/Fido revoke key result.
-     * <p>
-     * 1. verifyAssertion - Verify assertion data.
-     * 2. oauthservice - authorize.
-     * 3. oauthservice - token.
-     *
-     * @param optionsBinding
-     * @param assertionResponse
-     * @param fido2Credential
-     */
-    private void onRevoke(
-            final WebAuthnOptionsBinding optionsBinding,
-            byte[] assertionResponse, byte[] fido2Credential) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            GigyaLogger.error(LOG_TAG, "WebAuthn/Fido service is available from Android M only");
+        // Currently only one passkey allowed at one time. list will always contain 1 entry.
+        final WebAuthnKeyModel keyModel = getPassKey();
+        if (keyModel == null) {
+            GigyaLogger.error(LOG_TAG, "PassKey not available");
+            gigyaCallback.onError(new GigyaError(200001, "PassKey not available"));
             return;
         }
 
-        final WebAuthnAssertionResponse webAuthnAssertionResponse =
-                fidoApiService.onSignResponse(assertionResponse, fido2Credential);
+        final byte[] decoded = Base64.decode(keyModel.key.getBytes(),
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
 
         final Map<String, Object> params = new HashMap<>();
-        params.put("credentialId", webAuthnAssertionResponse.rawIdBase64);
+        params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
         removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
             @Override
-            public void onSuccess(GigyaApiResponse response) {
-                GigyaLogger.debug(LOG_TAG, "removeCredential success response:\n" + response.asJson());
-
-                if (response.getErrorCode() != 0) {
-                    GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                    notifyError(GigyaError.fromResponse(response));
-                    return;
-                }
-
-                notifySuccess(response);
+            public void onSuccess(GigyaApiResponse obj) {
+                gigyaCallback.onSuccess(obj);
+                clearPassKey();
             }
 
             @Override
             public void onError(GigyaError error) {
-                GigyaLogger.error(LOG_TAG, "removeCredential error:\n" + error.getData());
-                notifyError(error);
+                gigyaCallback.onError(error);
             }
-
         });
     }
 
@@ -633,8 +591,6 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                         onRegistration(tokenBinding, fido2Response, fido2Credential);
                     } else if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_SIGN.code()) {
                         onLogin(tokenBinding, fido2Response, fido2Credential);
-                    } else if (tokenBinding.requestCode == FidoApiService.FidoApiServiceCodes.REQUEST_CODE_REVOKE.code()) {
-                        onRevoke(tokenBinding, fido2Response, fido2Credential);
                     }
                 }
                 break;
@@ -649,9 +605,6 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
     //endregion
 
-    /**
-     * Clear callback container from flow callback references.
-     */
     private void clearContainerCallbacks() {
         container.clear();
     }
@@ -717,16 +670,47 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
     //region PERSISTENCE
 
-    private void storePublicKey(WebAuthnKeyModel key) {
-        final List<WebAuthnKeyModel> keys = getKeys();
+    /**
+     * Store new created passkey.
+     * Only one passkey available at any time.
+     *
+     * @param key Key model.
+     * @return Last Stored passkey. Null if none available.
+     */
+    private void storePassKey(WebAuthnKeyModel key) {
+        final List<WebAuthnKeyModel> keys = getPassKeys();
+        WebAuthnKeyModel lastKey = null;
+        keys.clear();
         keys.add(key);
-        this.persistenceService.saveWebAuthnKeys(WebAuthnKeyModel.toJsonList(keys));
+        final String json = WebAuthnKeyModel.toJsonList(keys);
+        this.persistenceService.savePassKeys(json);
+        GigyaLogger.debug(LOG_TAG, "storePassKey: " + json);
     }
 
-    public List<WebAuthnKeyModel> getKeys() {
-        final String json = this.persistenceService.getWebAuthnKeys();
+    /**
+     * Clears all passkeys from preferences.
+     */
+    private void clearPassKey() {
+        this.persistenceService.clearPassKeys();
+    }
+
+    /**
+     * Get stored passkeys.
+     *
+     * @return Will return a list of stored passkeys (currently only one available at any time).
+     */
+    public List<WebAuthnKeyModel> getPassKeys() {
+        final String json = this.persistenceService.getPassKeys();
         final List<WebAuthnKeyModel> keys = WebAuthnKeyModel.parseList(json);
+        GigyaLogger.debug(LOG_TAG, "getPassKeys: " + keys.toString());
         return keys;
+    }
+
+    @Nullable
+    private WebAuthnKeyModel getPassKey() {
+        final List<WebAuthnKeyModel> keys = getPassKeys();
+        if (keys.isEmpty()) return null;
+        return keys.get(0);
     }
 
     //endregion

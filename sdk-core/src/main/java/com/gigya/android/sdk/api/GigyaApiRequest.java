@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class GigyaApiRequest {
