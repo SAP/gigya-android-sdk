@@ -6,8 +6,7 @@ public class FidoApiService {
 
         REQUEST_CODE_INVALID(-1),
         REQUEST_CODE_REGISTER(1),
-        REQUEST_CODE_SIGN(2),
-        REQUEST_CODE_REVOKE(3);
+        REQUEST_CODE_SIGN(2);
 
         private final int code;
 

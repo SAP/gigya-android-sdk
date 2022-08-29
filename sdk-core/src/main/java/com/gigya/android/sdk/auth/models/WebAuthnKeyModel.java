@@ -24,6 +24,7 @@ public class WebAuthnKeyModel {
     public String type;
     public String key;
 
+
     public static List<WebAuthnKeyModel> parseList(String json) {
         if (json == null) {
             return new ArrayList<>();

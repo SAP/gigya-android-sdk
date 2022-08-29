@@ -56,7 +56,9 @@ public interface IPersistenceService {
 
     String getCoreVersion();
 
-    void saveWebAuthnKeys(String keys);
+    void savePassKeys(String keys);
 
-    String getWebAuthnKeys();
+    String getPassKeys();
+
+    void clearPassKeys();
 }

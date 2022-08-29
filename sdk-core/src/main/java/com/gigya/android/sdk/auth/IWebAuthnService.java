@@ -21,8 +21,6 @@ public interface IWebAuthnService<A extends GigyaAccount> {
             GigyaLoginCallback<A> gigyaCallback);
 
     void revoke(
-            String uid,
-            ActivityResultLauncher<IntentSenderRequest> resultLauncher,
             GigyaCallback<GigyaApiResponse> gigyaCallback
     );
 
