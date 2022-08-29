@@ -67,6 +67,18 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         return context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
     }
 
+    private String toBase64Url(byte[] bytes) {
+        return Base64.encodeToString(bytes,
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+    }
+
+    public byte[] decodeBase64Url(String origin) {
+        return Base64.decode(origin,
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+    }
+
+    //region REGISTER
+
     @Override
     public void register(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
                          final WebAuthnInitRegisterResponseModel responseModel,
@@ -176,6 +188,10 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         );
     }
 
+    //endregion
+
+    //region SIGN
+
     @Override
     public void sign(final ActivityResultLauncher<IntentSenderRequest> resultLauncher,
                      final WebAuthnGetOptionsResponseModel responseModel,
@@ -280,6 +296,8 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
         );
     }
 
+    //endregion
+
     @Override
     public GigyaError onFidoError(byte[] errorBytes) {
         final AuthenticatorErrorResponse authenticatorErrorResponse =
@@ -297,16 +315,6 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                 200001,
                 "fido api code: " + errorCode + ", " + errorMessage
         );
-    }
-
-    private String toBase64Url(byte[] bytes) {
-        return Base64.encodeToString(bytes,
-                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
-    }
-
-    public byte[] decodeBase64Url(String origin) {
-        return Base64.decode(origin,
-                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
     }
 
 }

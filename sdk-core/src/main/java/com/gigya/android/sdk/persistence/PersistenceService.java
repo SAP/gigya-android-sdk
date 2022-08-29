@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import com.gigya.android.sdk.GigyaDefinitions;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class PersistenceService implements IPersistenceService {
@@ -233,13 +232,18 @@ public class PersistenceService implements IPersistenceService {
     }
 
     @Override
-    public void saveWebAuthnKeys(String keys) {
-        getPrefs().edit().putString(PREFS_KEY_HANDLES, keys).apply();
+    public void savePassKeys(String keys) {
+        getPrefs().edit().putString(PREFS_PASSKEYS, keys).apply();
     }
 
     @Override
-    public String getWebAuthnKeys() {
-        return getPrefs().getString(PREFS_KEY_HANDLES, null);
+    public String getPassKeys() {
+        return getPrefs().getString(PREFS_PASSKEYS, "[]");
+    }
+
+    @Override
+    public void clearPassKeys() {
+        getPrefs().edit().remove(PREFS_PASSKEYS).apply();
     }
 
     //endregion
@@ -293,7 +297,7 @@ public class PersistenceService implements IPersistenceService {
 
     private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 
-    public static final String PREFS_KEY_HANDLES = "GS_KEY_HANDLES";
+    public static final String PREFS_PASSKEYS = "GS_PASSKEYS";
 
     //endregion
 
