@@ -180,6 +180,7 @@ public class GigyaApiResponse {
      * @return Integer status code.
      */
     public int getStatusCode() {
+        if (mapped == null) return INVALID_VALUE;
         try {
             return (int) mapped.get("statusCode");
         } catch (Exception ex) {
@@ -194,6 +195,7 @@ public class GigyaApiResponse {
      * @return Integer error code.
      */
     public int getErrorCode() {
+        if (mapped == null) return INVALID_VALUE;
         try {
             return (int) mapped.get("errorCode");
         } catch (Exception ex) {
@@ -209,8 +211,13 @@ public class GigyaApiResponse {
      */
     @Nullable
     public String getErrorDetails() {
-        if (mapped.containsKey("errorDetails")) {
-            return (String) mapped.get("errorDetails");
+        if (mapped == null) return null;
+        try {
+            if (mapped.containsKey("errorDetails")) {
+                return (String) mapped.get("errorDetails");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
@@ -222,8 +229,13 @@ public class GigyaApiResponse {
      */
     @Nullable
     public String getStatusReason() {
-        if (mapped.containsKey("statusReason")) {
-            return (String) mapped.get("statusReason");
+        if (mapped == null) return null;
+        try {
+            if (mapped.containsKey("statusReason")) {
+                return (String) mapped.get("statusReason");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
@@ -235,8 +247,13 @@ public class GigyaApiResponse {
      */
     @Nullable
     public String getCallId() {
-        if (mapped.containsKey("callId")) {
-            return (String) mapped.get("callId");
+        if (mapped == null) return null;
+        try {
+            if (mapped.containsKey("callId")) {
+                return (String) mapped.get("callId");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
@@ -248,8 +265,13 @@ public class GigyaApiResponse {
      */
     @Nullable
     public String getTime() {
-        if (mapped.containsKey("time")) {
-            return (String) mapped.get("time");
+        if (mapped == null) return null;
+        try {
+            if (mapped.containsKey("time")) {
+                return (String) mapped.get("time");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
