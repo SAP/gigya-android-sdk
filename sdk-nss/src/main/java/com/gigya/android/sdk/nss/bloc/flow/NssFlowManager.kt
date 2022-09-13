@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.nss.bloc.flow
 
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.interruption.IPendingRegistrationResolver
@@ -26,6 +28,8 @@ interface INssFlowDelegate<T : GigyaAccount> {
 
     fun getActiveScreen(): String?
 
+    fun getWebAuthnResultHandler(): ActivityResultLauncher<IntentSenderRequest>?
+
     fun getGson(): Gson
 }
 
@@ -39,6 +43,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     private var activeChannelResult: MethodChannel.Result? = null
     private var activeResolver: INssResolver? = null
     private var mainFlowCallback: GigyaNssCallback<T, GigyaApiResponse>? = null
+    var fidoResultHandler: ActivityResultLauncher<IntentSenderRequest>? = null
 
     var nssEvents: NssEvents<T>? = null
 
@@ -47,6 +52,8 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     override fun getCurrentResult(): MethodChannel.Result? = activeChannelResult
 
     override fun getResolver(): INssResolver? = activeResolver
+
+    override fun getWebAuthnResultHandler(): ActivityResultLauncher<IntentSenderRequest>? = fidoResultHandler
 
     init {
         mainFlowCallback = object : GigyaNssCallback<T, GigyaApiResponse>() {
