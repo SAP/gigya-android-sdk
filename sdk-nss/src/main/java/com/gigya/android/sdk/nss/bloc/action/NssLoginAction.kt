@@ -20,9 +20,7 @@ class NssLoginAction<T : GigyaAccount>(private val businessApi: IBusinessApiServ
 
     override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         GigyaLogger.debug(LOG_TAG, "Explicit flow initialization ")
-        jsEvaluator.eval(null, expressions) { jsResult ->
-            result.success(mapOf("data" to mapOf(), "expressions" to jsEvaluator.mapExpressions(jsResult)))
-        }
+        super.initialize(expressions, result)
     }
 
     override fun onNext(method: String, arguments: MutableMap<String, Any>?) {
