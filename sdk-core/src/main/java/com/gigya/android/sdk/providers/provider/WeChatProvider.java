@@ -132,7 +132,7 @@ public class WeChatProvider extends Provider {
         try {
             final String json = new JSONObject()
                     .put(getName(), new JSONObject()
-                            .put("code", tokenOrCode).put("providerUID", uid)).toString();
+                            .put("authToken", tokenOrCode).put("providerUID", uid)).toString();
             GigyaLogger.debug(LOG_TAG, "Provider sessions: " + json);
             return json;
         } catch (Exception ex) {
