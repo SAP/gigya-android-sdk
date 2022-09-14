@@ -46,17 +46,19 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
 
     open var gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
 
-    private var globalData = mutableMapOf<String, Any>(
-            "Gigya" to mutableListOf("isLoggedIn" to
-                    Gigya.getInstance().isLoggedIn, "webAuthnExists" to (getWebAuthnService()?.passKeys?.size!! > 0))
-    )
+    fun getGlobalData(): MutableMap<String, Any> {
+        return mutableMapOf(
+                "Gigya" to mutableListOf(
+                        "isLoggedIn" to Gigya.getInstance().isLoggedIn,
+                        "webAuthnExists" to (getWebAuthnService()?.passKeys?.size!! > 0)))
+    }
 
     override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
-        doExpressions(globalData, expressions, result)
+        doExpressions(getGlobalData(), expressions, result)
     }
 
     fun doExpressions(data: Map<String, Any>, expressions: Map<String, String>, result: MethodChannel.Result) {
-        val mergedData = data + globalData
+        val mergedData = data + getGlobalData()
         jsEvaluator.eval(mergedData, expressions) { jsResult ->
             result.success(mapOf("data" to mergedData, "expressions" to jsEvaluator.mapExpressions(jsResult)))
         }
