@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.GZIPInputStream;
@@ -154,6 +155,13 @@ public class HttpNetworkProvider extends NetworkProvider {
                     connection.setReadTimeout(15000);
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("connection", "close");
+
+                    // Add custom headers if available.
+                    if (request.getHeaders() != null) {
+                        for (Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
+                            connection.setRequestProperty(entry.getKey(), entry.getValue());
+                        }
+                    }
 
                     connection.setRequestMethod(request.getHttpMethod().intValue() == 0 ? "GET" : "POST");
                     if (request.getHttpMethod().intValue() == 1) {

@@ -1190,7 +1190,6 @@ Make sure you implement it in the appropriate lifecycle callback.
 _webBridge?.detachFrom(web_view)
 ```
 
-
 ## SSO (Single Sign-on)
 Single Sign-On (SSO) is an authentication method that allows a user to log in to multiple applications that reside within the same site group with a single login credential.
 
@@ -1248,6 +1247,116 @@ gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
 
         })    
 ```
+
+## FIDO/WebAuthn Authentication
+FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
+Our Android SDK provides an interface to register a passkey, login, and revoke passkeys from the site or app created using Fido/Passkeys, backed by our WebAuthn service.
+
+### SDK limitations:
+Only one passkey is supported at a time. Once registering a new key, the client's previous key will be automatically revoked.
+
+### SDK prerequisites:
+Android - minimum SDK version: 23
+
+To use Fido authentication on mobile, make sure you have correctly set up your **Fido Configuration** section under the **Identity -> Security -> Authentication** tab of your SAP Customer Data Cloud console.
+
+### Android setup:
+The Google Fido API is required. Add the following to your application's build.gradle file.
+```
+implementation 'com.google.android.gms:play-services-fido:18.1.0'
+```
+
+**Interoperability with your website**
+To leverage Google’s FIDO API you are required to seamlessly share credentials across your website and Android application.
+Follow [Google guidelines](https://developers.google.com/identity/fido/android/native-apps#interoperability_with_your_website) to add your assetlinks.json file to your RP domain host.
+
+**Android Key Hash verification:**
+Android Key Hash is the SHA256 fingerprints of your app’s signing certificate.
+Google’s Fido API requires your application origin to be verified with the WebAuthn service. To do so you will need to fetch your Android Key Hash and add it to the FIDO console configuration.
+There are several ways you can obtain your key. Either use your gradle “signingReport” task or use this code snippet:
+```
+try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures) {
+                val md: MessageDigest = MessageDigest.getInstance("SHA256")
+                md.update(signature.toByteArray())
+                Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(), 
+                 Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (e: NoSuchAlgorithmException) {
+        }
+```
+
+### Android Implementation.
+The Fido interface contains 3 methods:
+
+**Registration:**
+Registering a new passkey can be performed only when a valid session is available.
+```
+Gigya.getInstance().WebAuthn()
+            .register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
+
+                override fun onSuccess(p0: GigyaApiResponse?) {
+                    // Success.
+                    Log.d("FIDO", "register success")
+                }
+
+                override fun onError(p0: GigyaError?) {
+                    visibleProgress(false)
+                    // Handle error here.
+                    p0?.let {
+                        Log.d("FIDO", "register error with:\n" + it.data)
+                    }
+                }
+
+            })
+```
+
+**Login:**
+Logging in using a valid passkey.
+```
+Gigya.getInstance().WebAuthn()
+            .login(resultHandler, object : GigyaLoginCallback<GigyaAccount>() {
+
+                override fun onSuccess(p0: GigyaAccount) {
+                    // Success.
+                    Log.d("FIDO", "login success")
+                }
+
+                override fun onError(p0: GigyaError?) {
+                    // Handle error here.
+                    p0?.let { error ->
+                        Log.d("FIDO", "login error with:\n" + error.data)
+                        
+                    }
+                }
+
+            })
+```
+
+
+**Revoke:**
+Revoking the current passkey. Logging in will not be available until registering a new one.
+```
+Gigya.getInstance().WebAuthn()
+            .revoke(object : GigyaCallback<GigyaApiResponse>() {
+
+                override fun onSuccess(p0: GigyaApiResponse?) {
+                    // Success.
+                    Log.d(“FIDO", "revoke success")
+                }
+
+                override fun onError(p0: GigyaError?) {
+                    // Handle error here.
+                    p0?.let {
+                        Log.d(“FIDO", "revoke error with:\n" + it.data)
+                    }
+                }
+
+            })
+```
+
 
 **Note**:
 You are able to define you own custom redirect schema.
