@@ -1,5 +1,11 @@
 package com.gigya.android.sdk.providers;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.SSO;
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
+
 import android.content.Context;
 
 import com.gigya.android.sdk.GigyaLogger;
@@ -17,12 +23,6 @@ import com.gigya.android.sdk.providers.provider.WebLoginProvider;
 import com.gigya.android.sdk.utils.FileUtils;
 
 import java.util.ArrayList;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.SSO;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.WECHAT;
 
 public class ProviderFactory implements IProviderFactory {
     final private IoCContainer _container;
