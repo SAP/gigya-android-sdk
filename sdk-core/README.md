@@ -1228,7 +1228,8 @@ try {
             for (signature in info.signatures) {
                 val md: MessageDigest = MessageDigest.getInstance("SHA256")
                 md.update(signature.toByteArray())
-                Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(), Base64.DEFAULT))
+                Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(), 
+                 Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
             }
         } catch (e: PackageManager.NameNotFoundException) {
         } catch (e: NoSuchAlgorithmException) {
