@@ -212,6 +212,7 @@ public class VolleyNetworkProvider extends NetworkProvider {
                     }
                 },
                 signedRequest.getEncodedParams(),
+                signedRequest.getHeaders(),
                 request.getTag()
         );
     }
@@ -230,15 +231,20 @@ public class VolleyNetworkProvider extends NetworkProvider {
         @Nullable
         private String _body;
 
+        @Nullable
+        Map<String, String> _headers;
+
         VolleyNetworkRequest(int method,
                              String url,
                              @NonNull Response.Listener<VolleyResponsePair> listener,
                              @NonNull Response.ErrorListener errorListener,
                              @Nullable String body,
+                             @Nullable Map<String, String> headers,
                              String tag) {
             super(method, url, errorListener);
             setTag(tag);
             _body = body;
+            _headers = headers;
             _listener = listener;
             setShouldCache(false);
             setRetryPolicy(new DefaultRetryPolicy(
@@ -249,10 +255,13 @@ public class VolleyNetworkProvider extends NetworkProvider {
 
         @Override
         public Map<String, String> getHeaders() {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Accept-Encoding", "gzip, deflate");
-            headers.put("connection", "close");
-            return headers;
+            Map<String, String> requestHeaders = new HashMap<>();
+            requestHeaders.put("Accept-Encoding", "gzip, deflate");
+            requestHeaders.put("connection", "close");
+            if (_headers != null) {
+                requestHeaders.putAll(_headers);
+            }
+            return requestHeaders;
         }
 
         @Override

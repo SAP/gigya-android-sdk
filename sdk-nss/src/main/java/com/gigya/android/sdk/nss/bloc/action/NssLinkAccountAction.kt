@@ -24,9 +24,7 @@ class NssLinkAccountAction<T : GigyaAccount>(private val businessApi: IBusinessA
         flowDelegate?.getResolver()?.let { nssResolver ->
             nssResolver.refined<NssResolver<LinkAccountsResolver<T>>> { linkAccountResolver ->
                 val data = mapOf<String, Any>("conflictingAccounts" to linkAccountResolver.resolver.conflictingAccounts.serializeToMap(flowDelegate!!.getGson()))
-                jsEvaluator.eval(data, expressions) { jsResult ->
-                    result.success(mapOf("data" to data, "expressions" to jsEvaluator.mapExpressions(jsResult)))
-                }
+                doExpressions(data, expressions, result)
             }
         }
     }
