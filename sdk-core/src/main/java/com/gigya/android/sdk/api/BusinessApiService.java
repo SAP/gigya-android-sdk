@@ -22,10 +22,8 @@ import com.gigya.android.sdk.reporting.ReportingManager;
 import com.gigya.android.sdk.schema.GigyaSchema;
 import com.gigya.android.sdk.session.ISessionService;
 import com.gigya.android.sdk.session.SessionInfo;
-import com.gigya.android.sdk.utils.AccountGSONDeserializer;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
-import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,6 +133,41 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     @Override
     public <V> void send(String api, Map<String, Object> params, int requestMethod, final Class<V> clazz, final GigyaCallback<V> gigyaCallback) {
         final GigyaApiRequest request = _reqFactory.create(api, params, RestAdapter.HttpMethod.fromInt(requestMethod));
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    if (clazz == GigyaApiResponse.class) {
+                        gigyaCallback.onSuccess((V) response);
+                    } else {
+                        V parsed = response.parseTo(clazz);
+                        gigyaCallback.onSuccess(parsed);
+                    }
+                } else {
+                    gigyaCallback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaCallback.onError(gigyaError);
+            }
+        });
+    }
+
+    /**
+     * Base API send request initiator.
+     *
+     * @param api           Requested API.
+     * @param params        Requested parameters map.
+     * @param headers       Requested custom headers.
+     * @param clazz         Requested Typed response class.
+     * @param gigyaCallback Response callback.
+     * @param <V>           Typed response class.
+     */
+    @Override
+    public <V> void send(String api, Map<String, Object> params, Map<String, String> headers, final Class<V> clazz, final GigyaCallback<V> gigyaCallback) {
+        final GigyaApiRequest request = _reqFactory.create(api, params, RestAdapter.HttpMethod.POST, new HashMap<>(headers));
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {

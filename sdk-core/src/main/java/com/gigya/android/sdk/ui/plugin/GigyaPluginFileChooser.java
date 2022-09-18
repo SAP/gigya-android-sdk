@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.ui.plugin;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -18,8 +20,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-
-import static android.app.Activity.RESULT_OK;
 
 public class GigyaPluginFileChooser extends WebChromeClient {
 

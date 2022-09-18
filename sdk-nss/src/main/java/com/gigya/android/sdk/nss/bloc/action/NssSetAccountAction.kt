@@ -72,9 +72,7 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
                     throw RuntimeException("Failed to serialize account object")
                 }
 
-                jsEvaluator.eval(data, expressions) { jsResult ->
-                    result.success(mapOf("data" to data, "expressions" to jsEvaluator.mapExpressions(jsResult)))
-                }
+                doExpressions(data, expressions, result)
             }
 
             override fun onError(error: GigyaError?) {

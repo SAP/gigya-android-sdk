@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def libVersion = "6.0.0"
+def libVersion = "6.1.0"
 
 ext {
     sharedManifest = manifest {
@@ -86,7 +86,10 @@ dependencies {
     compileOnly 'com.android.volley:volley:1.2.1'
 
     // ChromeTabs
-    compileOnly "androidx.browser:browser:1.4.0"
+    compileOnly 'androidx.browser:browser:1.4.0'
+
+    // FIDO
+    compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
 }
 
 task javadoc(type: Javadoc) {

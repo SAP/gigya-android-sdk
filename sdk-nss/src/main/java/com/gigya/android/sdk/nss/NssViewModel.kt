@@ -3,6 +3,8 @@ package com.gigya.android.sdk.nss
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.account.models.GigyaAccount
 import com.gigya.android.sdk.network.GigyaError
@@ -36,13 +38,17 @@ class NssViewModel<T : GigyaAccount>(
         private val nssJSEvaluator: NssJsEvaluator,
 ) {
 
-    // Default language will be set to English unless specified by initator.
+    // Default language will be set to English unless specified by initiator.
     var screenLanguage: String = "en"
 
     var finishClosure: () -> Unit? = { }
 
     lateinit var intentAction: (Intent) -> Unit?
     lateinit var intentActionForResult: (Intent, Int) -> Unit?
+
+    fun attachWebAuthnResultHandler(handler: ActivityResultLauncher<IntentSenderRequest>) {
+        flowManager.fidoResultHandler = handler
+    }
 
     var nssEvents: NssEvents<T>? = null
         set(value) {

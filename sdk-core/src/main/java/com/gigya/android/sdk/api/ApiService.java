@@ -76,6 +76,11 @@ public class ApiService implements IApiService {
     }
 
     @Override
+    public void send(GigyaApiRequest request, IApiServiceResponse apiCallback) {
+        send(request, false, apiCallback);
+    }
+
+    @Override
     public void send(final GigyaApiRequest request, boolean blocking, final IApiServiceResponse apiCallback) {
         GigyaLogger.debug(LOG_TAG, "sending: " + request.getApi());
         GigyaLogger.debug(LOG_TAG, "sending: params = " + request.getParams().toString());

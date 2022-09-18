@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.providers.provider;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -24,8 +26,6 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Map;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
 
 public class LineProvider extends Provider {
 
