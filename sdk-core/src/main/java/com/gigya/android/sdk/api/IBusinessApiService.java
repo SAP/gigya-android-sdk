@@ -20,6 +20,8 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     <V> void send(String api, Map<String, Object> params, int requestMethod, Class<V> clazz, GigyaCallback<V> gigyaCallback);
 
+    <V> void send(String api, Map<String, Object> params, Map<String, String> headers, Class<V> clazz, GigyaCallback<V> gigyaCallback);
+
     void logout(final GigyaCallback<GigyaApiResponse> gigyaCallback);
 
     void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);

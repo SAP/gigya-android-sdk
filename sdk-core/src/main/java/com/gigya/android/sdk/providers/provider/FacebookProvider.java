@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.providers.provider;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,8 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK;
 
 public class FacebookProvider extends Provider {
 
