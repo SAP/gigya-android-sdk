@@ -231,6 +231,21 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getString(PREFS_CORE_VERSION, null);
     }
 
+    @Override
+    public void savePassKeys(String keys) {
+        getPrefs().edit().putString(PREFS_PASSKEYS, keys).apply();
+    }
+
+    @Override
+    public String getPassKeys() {
+        return getPrefs().getString(PREFS_PASSKEYS, "[]");
+    }
+
+    @Override
+    public void clearPassKeys() {
+        getPrefs().edit().remove(PREFS_PASSKEYS).apply();
+    }
+
     //endregion
 
     //region KEYS
@@ -280,7 +295,10 @@ public class PersistenceService implements IPersistenceService {
 
     private static final String PREFS_UCID = "GS_UCID";
 
+    private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
+
+    public static final String PREFS_PASSKEYS = "GS_PASSKEYS";
+
     //endregion
 
-    private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 }

@@ -12,6 +12,9 @@ import android.telephony.TelephonyManager
 import android.transition.Slide
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
@@ -46,6 +49,17 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
             context.startActivity(intent)
         }
     }
+
+    // Custom result handler for FIDO sender intents.
+    private val webAuthnResultHandler: ActivityResultLauncher<IntentSenderRequest> =
+            registerForActivityResult(
+                    ActivityResultContracts.StartIntentSenderForResult()
+            ) { activityResult ->
+                val extras =
+                        activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
+                                ?.joinToString { it }
+                Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+            }
 
     /**
      * Add FLAG_SECURE to activity if specified in the Gigya interface using "secureActivityWindow" method.
@@ -90,6 +104,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
             viewModel!!.intentActionForResult = { intent, requestCode ->
                 startActivityForResult(intent, requestCode)
             }
+            viewModel!!.attachWebAuthnResultHandler(webAuthnResultHandler)
         }
 
         // Load channels.

@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.providers.provider;
 
+import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +29,6 @@ import com.google.android.gms.tasks.Task;
 import org.json.JSONObject;
 
 import java.util.Map;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE;
 
 public class GoogleProvider extends Provider {
 

@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
 
+import java.util.List;
 import java.util.Set;
 
 public interface IPersistenceService {
@@ -54,4 +55,10 @@ public interface IPersistenceService {
     void setCoreVersion(String version);
 
     String getCoreVersion();
+
+    void savePassKeys(String keys);
+
+    String getPassKeys();
+
+    void clearPassKeys();
 }

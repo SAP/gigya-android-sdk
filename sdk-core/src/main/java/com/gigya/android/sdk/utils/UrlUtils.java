@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -106,5 +107,14 @@ public class UrlUtils {
 
     public static boolean isGigyaScheme(String scheme) {
         return ObjectUtils.safeEquals(scheme, Presenter.Consts.REDIRECT_URL_SCHEME);
+    }
+
+    public static boolean checkUrl(String origin) {
+        try {
+            new URL(origin).toURI();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

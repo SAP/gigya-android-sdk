@@ -35,6 +35,12 @@ public class GigyaError extends GigyaResponseModel {
 
     private String localizedMessage;
 
+    public GigyaError(int errorCode, String message) {
+        this.errorCode = errorCode;
+        this.localizedMessage = message;
+        this.callId = null;
+    }
+
     public GigyaError(int errorCode, String localizedMessage, String callId) {
         this.errorCode = errorCode;
         this.localizedMessage = localizedMessage;
