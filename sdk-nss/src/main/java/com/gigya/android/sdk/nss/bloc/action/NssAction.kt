@@ -1,5 +1,6 @@
 package com.gigya.android.sdk.nss.bloc.action
 
+import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import com.gigya.android.sdk.Gigya
@@ -48,9 +49,14 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
 
     fun getGlobalData(): MutableMap<String, Any> {
         return mutableMapOf(
-                "Gigya" to mutableListOf(
+                "Gigya" to mutableMapOf(
                         "isLoggedIn" to Gigya.getInstance().isLoggedIn,
-                        "webAuthnExists" to (getWebAuthnService()?.passKeys?.size!! > 0)))
+                        "webAuthn" to mutableMapOf(
+                                "isExists" to (getWebAuthnService()?.passKeys?.size!! > 0),
+                                "isSupported" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        ),
+                ),
+        )
     }
 
     override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
