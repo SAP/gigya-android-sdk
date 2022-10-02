@@ -8,7 +8,7 @@ The library makes it simple to integrate Gigya's service in your Android applica
 For more details see: For documentation: https://developers.gigya.com/display/GD/Android+SDK+v4
 
 ## Requirements
-The core Android SDK requires SDK 14 and above.
+The core Android SDK requires SDK 17 and above.
 For Biometric capabilities, SDK 23 and above is required.
 
 ## Download and Installation
