@@ -22,6 +22,10 @@ class MainViewModel : ViewModel() {
 
     fun isLoggedIn() = gigyaRepository.isLoggedIn()
 
+    fun reinit(apiKey: String, dataCenter: String?) {
+        gigyaRepository.reinitializeSdk(apiKey, dataCenter)
+    }
+
     // Login using email & password pair.
     fun credentialLogin(email: String, password: String,
                         error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
@@ -37,6 +41,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Register using email & password pair.
     fun credentialRegister(email: String, password: String,
                            error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
@@ -50,7 +55,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    // Request new account data ("getAccount" endpoint).
+    // Request updated account information.
     fun getAccount(error: (GigyaError?) -> Unit) {
         viewModelScope.launch {
             val result = gigyaRepository.getAccountInfo()
@@ -62,6 +67,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Logout from existing session.
     fun logout(error: (GigyaError?) -> Unit, onLogout: () -> Unit) {
         viewModelScope.launch {
             val result = gigyaRepository.logout()
@@ -73,6 +79,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Sign in using social login provider.
     fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
             val result = gigyaRepository.socialLoginWithProvider(provider)
@@ -84,6 +91,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Login with Fido passkey (needs to have registered a key before).
     fun passwordlessLogin(resultHandler: ActivityResultLauncher<IntentSenderRequest>,
                           error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
@@ -96,6 +104,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Show web screensets.
     fun showScreenSets(screenset: String,
                        error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         gigyaRepository.gigyaInstance.showScreenSet(
@@ -119,5 +128,10 @@ class MainViewModel : ViewModel() {
                     // You can listen to additional events if required.
                 }
         )
+    }
+
+    // Show native screensets.
+    fun showNativeScreenSets() {
+
     }
 }

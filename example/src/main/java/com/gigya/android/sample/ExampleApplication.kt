@@ -33,7 +33,8 @@ class ExampleApplication : Application() {
         Gigya.getInstance(MyAccount::class.java)
     }
 
-    private fun useThisFunctionToObtainAppSignature() {
+    // Call function to get the application signature used for Facebook login or Fido authentication.
+    private fun getSignature() {
         try {
             val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
             for (signature in info.signatures) {

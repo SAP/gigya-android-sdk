@@ -14,6 +14,7 @@ class MyAccountFragment : BaseExampleFragment() {
 
     companion object {
         fun newInstance() = MyAccountFragment()
+        const val name = "MyAccountFragment"
     }
 
     private var _binding: FragmentMyAccountBinding? = null

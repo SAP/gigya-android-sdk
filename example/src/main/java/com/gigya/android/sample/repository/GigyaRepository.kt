@@ -7,8 +7,11 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
+import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.containers.GigyaContainer
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.session.ISessionService
 import com.google.gson.Gson
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -19,6 +22,22 @@ class GigyaRepository {
     var gigyaInstance: Gigya<MyAccount> = Gigya.getInstance(MyAccount::class.java)
 
     fun isLoggedIn() = gigyaInstance.isLoggedIn
+
+    private fun invalidateSession() {
+        val accountService = Gigya.getContainer().get(IAccountService::class.java)
+        accountService.invalidateAccount()
+        val sessionService = Gigya.getContainer().get(ISessionService::class.java)
+        sessionService.clear(true)
+    }
+
+    fun reinitializeSdk(apiKey: String, dataCenter: String?) {
+        invalidateSession()
+        if (dataCenter.isNullOrEmpty()) {
+            gigyaInstance.init(apiKey)
+        } else {
+            gigyaInstance.init(apiKey, dataCenter)
+        }
+    }
 
     @UiThread
     suspend fun login(map: MutableMap<String, Any>): GigyaRepoResponse {
@@ -89,30 +108,7 @@ class GigyaRepository {
         }
 
     }
-
-    @UiThread
-    suspend fun providerLogin(provider: String): GigyaRepoResponse {
-        val res = GigyaRepoResponse()
-        return suspendCoroutine { continuation ->
-            gigyaInstance.login(provider, mapOf(), object : GigyaLoginCallback<MyAccount>() {
-                override fun onSuccess(obj: MyAccount?) {
-                    obj?.let {
-                        res.account = it
-                        continuation.resume(res)
-                    }
-                }
-
-                override fun onError(error: GigyaError?) {
-                    error?.let {
-                        res.error = error
-                        continuation.resume(res)
-                    }
-                }
-
-            })
-        }
-    }
-
+    
     @UiThread
     suspend fun logout(): GigyaRepoResponse {
         val res = GigyaRepoResponse()
