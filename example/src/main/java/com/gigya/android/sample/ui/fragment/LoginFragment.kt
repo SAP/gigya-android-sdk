@@ -12,6 +12,7 @@ class LoginFragment : BaseExampleFragment() {
 
     companion object {
         fun newInstance() = LoginFragment()
+        const val name = "LoginFragment"
     }
 
     private var _binding: FragmentLoginBinding? = null
@@ -39,6 +40,7 @@ class LoginFragment : BaseExampleFragment() {
         binding.includePasswordlessContent.passwordlessLogin.setOnClickListener { passwordlessLogin() }
         binding.includeSocialContent.socialLogin.setOnClickListener { socialLogin() }
         binding.includeScreensetsContent.useScreensets.setOnClickListener { useScreenSets() }
+        binding.includeScreensetsContent.useNativeScreensets.setOnClickListener { useNativeScreenSets() }
     }
 
     private fun credentialsLogin() {
