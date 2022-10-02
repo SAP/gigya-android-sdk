@@ -12,3 +12,5 @@
 .externalNativeBuild
 /javadoc
 
+
+example/src/main/assets/gigyaSdkConfiguration.json
