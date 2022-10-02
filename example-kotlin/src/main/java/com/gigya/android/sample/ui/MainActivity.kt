@@ -7,9 +7,15 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -38,27 +44,42 @@ import com.gigya.android.sdk.push.IGigyaPushCustomizer
 import com.gigya.android.sdk.session.SessionStateObserver
 import com.gigya.android.sdk.tfa.GigyaTFA
 import com.gigya.android.sdk.tfa.ui.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.nav_header_main.*
-import org.jetbrains.anko.design.snackbar
-import org.jetbrains.anko.toast
 import org.json.JSONObject
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, InputDialog.IApiResultCallback {
+class MainActivity : AppCompatActivity(),
+        NavigationView.OnNavigationItemSelectedListener,
+        InputDialog.IApiResultCallback {
 
     private var viewModel: MainViewModel? = null
+
+    private var drawerLayout: DrawerLayout? = null
+    private var navigationView: NavigationView? = null
+    private var toolbar: Toolbar? = null
+    private var fingerprintFab: FloatingActionButton? = null
+    private var fingerprintLockFab: FloatingActionButton? = null
+    private var responseTextView: TextView? = null
+    private var uidTextView: TextView? = null
+    private var loader: View? = null
+    private var emptyResponseText: TextView? = null
+    private var navTitle: TextView? = null
+    private var navSubtitle: TextView? = null
+    private var navImage: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         title = "Gigya SDK sample"
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        findIds()
+
         initDrawer()
 
         GigyaTFA.getInstance().setPushCustomizer(object : IGigyaPushCustomizer {
@@ -72,8 +93,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun getApproveActionIcon(): Int = 0
 
         })
+    }
 
-        //changeLocale("tr")
+    private fun findIds() {
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.nav_view)
+        fingerprintFab = findViewById(R.id.fingerprint_fab)
+        fingerprintLockFab = findViewById(R.id.fingerprint_lock_fab)
+        responseTextView = findViewById(R.id.response_text_view)
+        uidTextView = findViewById(R.id.uid_text_view)
+        loader = findViewById(R.id.loader)
+        emptyResponseText = findViewById(R.id.empty_response_text)
+        navTitle = findViewById(R.id.nav_title)
+        navSubtitle = findViewById(R.id.nav_subtitle)
+        navImage = findViewById(R.id.nav_image)
     }
 
     override fun onStart() {
@@ -177,7 +210,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         intent.extras?.let { bundle ->
                             {
                                 if (bundle.containsKey("regToken")) {
-                                    val regToken: String = intent.getStringExtra("regToken")
+                                    val regToken: String? = intent.getStringExtra("regToken")
                                     GigyaLogger.debug("MainActivity", "regToken = $regToken")
                                 }
                             }
@@ -193,8 +226,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
+        if (drawerLayout!!.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout!!.closeDrawer(GravityCompat.START)
             return
         }
         // Trigger on back press trigger in the current fragment.
@@ -210,14 +243,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun initDrawer() {
         val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
+                this, drawerLayout!!, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawerLayout!!.addDrawerListener(toggle)
         toggle.syncState()
 
-        nav_view.setNavigationItemSelectedListener(this)
+        navigationView!!.setNavigationItemSelectedListener(this)
 
         /* Setup drawer navigation header click listener. */
-        nav_view.getHeaderView(0)?.setOnClickListener {
+        navigationView!!.getHeaderView(0)?.setOnClickListener {
             if (viewModel!!.isLoggedIn()) {
                 showAccountDetails()
             }
@@ -249,7 +282,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Show fingerprint FAB if logged in & support is available.
         if (isLoggedIn && GigyaBiometric.getInstance().isAvailable) {
-            fingerprint_fab.visible()
+            fingerprintFab!!.visible()
         }
 
         return true
@@ -294,7 +327,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_show_native_screen_sets -> showNativeScreenSets()
             R.id.action_sso_login -> ssoLogin()
         }
-        drawer_layout.closeDrawer(GravityCompat.START)
+        drawerLayout!!.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -310,20 +343,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             runOnUiThread {
                 when (action) {
                     GigyaBiometric.Action.OPT_IN -> {
-                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
-                        fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
-                        fingerprint_lock_fab.show()
+                        fingerprintLockFab!!.setImageResource(R.drawable.ic_lock_open)
+                        fingerprintFab!!.setImageResource(R.drawable.ic_fingerprint_opt_out)
+                        fingerprintLockFab!!.show()
                     }
                     GigyaBiometric.Action.OPT_OUT -> {
-                        fingerprint_fab.setImageResource(R.drawable.ic_fingerprint)
-                        fingerprint_lock_fab.hide()
+                        fingerprintFab!!.setImageResource(R.drawable.ic_fingerprint)
+                        fingerprintLockFab!!.hide()
                     }
                     GigyaBiometric.Action.LOCK -> {
-                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_outline)
+                        fingerprintLockFab!!.setImageResource(R.drawable.ic_lock_outline)
                     }
                     GigyaBiometric.Action.UNLOCK -> {
-                        fingerprint_lock_fab.setImageResource(R.drawable.ic_lock_open)
-
+                        fingerprintLockFab!!.setImageResource(R.drawable.ic_lock_open)
                     }
                 }
             }
@@ -350,22 +382,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         if (viewModel!!.isLoggedIn()) {
-            fingerprint_fab.show()
+            fingerprintFab!!.show()
         }
         if (biometric.isOptIn) {
-            fingerprint_fab.show()
-            fingerprint_lock_fab.show()
-            fingerprint_fab.setImageResource(R.drawable.ic_fingerprint_opt_out)
+            fingerprintFab!!.show()
+            fingerprintLockFab!!.show()
+            fingerprintFab!!.setImageResource(R.drawable.ic_fingerprint_opt_out)
         }
         if (biometric.isLocked) {
-            fingerprint_fab.show()
+            fingerprintFab!!.show()
             biometric.unlock(
                     this,
                     GigyaPromptInfo("Unlock session", "Place finger on sensor to continue", ""),
                     gigyaBiometricCallback)
         }
         // Opt-in/out action.
-        fingerprint_fab.setOnClickListener {
+        fingerprintFab!!.setOnClickListener {
             if (biometric.isAvailable && !biometric.isLocked) {
                 if (biometric.isOptIn) {
                     biometric.optOut(
@@ -383,7 +415,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         // Lock/Unlock button.
-        fingerprint_lock_fab.setOnClickListener {
+        fingerprintLockFab!!.setOnClickListener {
             when (biometric.isLocked) {
                 true -> {
                     biometric.unlock(
@@ -407,9 +439,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         onClear()
         viewModel?.logout()
         invalidateAccountData()
-        response_text_view.snackbar(getString(R.string.logged_out))
-        fingerprint_fab.hide()
-        fingerprint_lock_fab.hide()
+        toast(getString(R.string.logged_out))
+        fingerprintFab!!.hide()
+        fingerprintLockFab!!.hide()
     }
 
     /**
@@ -648,7 +680,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      */
     private fun onGetAccount() {
         if (!viewModel!!.isLoggedIn()) {
-            response_text_view.snackbar(getString(R.string.not_logged_in))
+           toast(getString(R.string.not_logged_in))
             return
         }
         onLoading()
@@ -664,7 +696,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun getAccountAndInvalidateCache() {
         if (!viewModel!!.isLoggedIn()) {
-            response_text_view.snackbar(getString(R.string.not_logged_in))
+            toast(getString(R.string.not_logged_in))
             return
         }
         onLoading()
@@ -691,7 +723,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.verifyLogin(
                     success = { json ->
-                        response_text_view.snackbar("Login verified")
+                        toast("Login verified")
                         onJsonResult(json)
                     },
                     error = { possibleError ->
@@ -699,7 +731,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
             )
         } else {
-            response_text_view.snackbar("Please login to test api")
+            toast("Please login to test api")
         }
     }
 
@@ -711,14 +743,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.forgotPassword(
                     success = {
-                        response_text_view.snackbar("Reset password email sent.")
+                        toast("Reset password email sent.")
                     },
                     error = { possibleError ->
                         possibleError?.let { error -> onError(error) }
                     }
             )
         } else {
-            response_text_view.snackbar("Please login to test api. Current view model setup is dependent on a live myAccountLiveData (can be changed)")
+            toast("Please login to test api. Current view model setup is dependent on a live myAccountLiveData (can be changed)")
         }
     }
 
@@ -729,14 +761,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.pushTFAOptIn(
                     success = {
-                        response_text_view.snackbar("Approve opt-in notification to complete TFA push registration")
+                        toast("Approve opt-in notification to complete TFA push registration")
                     },
                     error = { possibleError ->
                         possibleError?.let { error -> onError(error) }
                     }
             )
         } else {
-            response_text_view.snackbar("An active session is required")
+            toast("An active session is required")
         }
     }
 
@@ -747,14 +779,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (viewModel!!.isLoggedIn()) {
             viewModel?.pushAuthRegister(
                     success = {
-                        response_text_view.snackbar("Successfully registered for push authentication")
+                        toast("Successfully registered for push authentication")
                     },
                     error = { possibleError ->
                         possibleError?.let { error -> onError(error) }
                     }
             )
         } else {
-            response_text_view.snackbar("An active session is required")
+            toast("An active session is required")
         }
     }
 
@@ -830,7 +862,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
-                }, cancel = { response_text_view.snackbar("Request cancelled") }
+                }, cancel = { toast("Request cancelled") }
         )
     }
 
@@ -854,7 +886,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     onJsonResult(json)
                 },
                 onCanceled = {
-                    response_text_view.snackbar("Operation canceled")
+                    toast("Operation canceled")
                 },
                 onError = { possibleError ->
                     possibleError?.let {
@@ -868,7 +900,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Show myAccountLiveData details. Will use ScreenSet.
      */
     private fun showAccountDetails() {
-        drawer_layout.closeDrawer(GravityCompat.START)
+        drawerLayout!!.closeDrawer(GravityCompat.START)
 //        if (GigyaNss.getInstance().isSupported) {
 //        GigyaNss.getInstance()
 //                .loadFromAssets("gigya-nss-example")
@@ -899,11 +931,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.showAccountDetails(
                 onUpdated = {
                     onClear()
-                    response_text_view.snackbar(getString(R.string.account_updated))
+                    toast(getString(R.string.account_updated))
                     onGetAccount()
                 },
                 onCanceled = {
-                    response_text_view.snackbar("Operation canceled")
+                    toast("Operation canceled")
                 },
                 onError = { possibleError ->
                     possibleError?.let {
@@ -928,7 +960,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun isSessionValid() {
         if (!viewModel!!.isLoggedIn()) {
-            response_text_view.snackbar("Active session is required")
+            toast("Active session is required")
             return
         }
         viewModel!!.isSessionValid(
@@ -982,7 +1014,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel?.removeConnection(provider,
                 success = { json ->
                     onJsonResult(json)
-                    response_text_view.snackbar("Connection removed")
+                    toast("Connection removed")
                 },
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
@@ -1041,7 +1073,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 error = { possibleError ->
                     possibleError?.let { error -> onError(error) }
                 },
-                cancel = { response_text_view.snackbar("Request cancelled") }
+                cancel = { toast("Request cancelled") }
         )
     }
 
@@ -1053,8 +1085,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Populate JSON result.
      */
     private fun onJsonResult(json: String) {
-        response_text_view.text = json
-        empty_response_text.gone()
+        responseTextView!!.text = json
+        emptyResponseText!!.gone()
         onLoadingDone()
 
         // Update UI field if available.
@@ -1076,22 +1108,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Cancelled operation. Display Toast.
      */
     fun onCancel() {
-        loader.gone()
-        response_text_view.snackbar("Operation canceled")
+        loader!!.gone()
+        toast("Operation canceled")
     }
 
     /**
      * Show loading state.
      */
     private fun onLoading() {
-        loader.visible()
+        loader!!.visible()
     }
 
     /**
      * Clear loading state. Invalidate menu.
      */
     private fun onLoadingDone() {
-        loader.gone()
+        loader!!.gone()
         invalidateOptionsMenu()
     }
 
@@ -1099,11 +1131,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Call to clear current JSON response presentation.
      */
     private fun onClear() {
-        loader.gone()
-        response_text_view.text = ""
-        empty_response_text.visible()
+        loader!!.gone()
+        responseTextView!!.text = ""
+        emptyResponseText!!.visible()
         invalidateOptionsMenu()
-        fingerprint_lock_fab.hide()
+        fingerprintLockFab!!.hide()
     }
 
     //endregion
@@ -1113,14 +1145,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private
     val accountObserver: Observer<MyAccount> = Observer { myAccount ->
         val fullName = myAccount?.profile?.firstName + " " + myAccount?.profile?.lastName
-        nav_title?.text = fullName
-        nav_subtitle?.text = myAccount?.profile?.email
-        nav_image?.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
+        navTitle?.text = fullName
+        navSubtitle?.text = myAccount?.profile?.email
+        navImage?.loadRoundImageWith(myAccount?.profile?.thumbnailURL, R.drawable.side_nav_bar)
         invalidateOptionsMenu()
 
         myAccount?.uid?.let {
-            uid_text_view.text = it
-            uid_text_view.visible()
+            uidTextView!!.text = it
+            uidTextView!!.visible()
         }
     }
 
@@ -1136,11 +1168,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * Invalidate navigation header views.
      */
     private fun invalidateAccountData() {
-        nav_title?.text = getString(R.string.nav_header_title)
-        nav_subtitle?.text = getString(R.string.nav_header_subtitle)
-        nav_image?.setImageResource(R.mipmap.ic_launcher_round)
-        uid_text_view.text = ""
-        uid_text_view.gone()
+        navTitle?.text = getString(R.string.nav_header_title)
+        navSubtitle?.text = getString(R.string.nav_header_subtitle)
+        navImage?.setImageResource(R.mipmap.ic_launcher_round)
+        uidTextView!!.text = ""
+        uidTextView!!.gone()
     }
 
     //endregion
@@ -1152,5 +1184,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Locale.setDefault(newLocale)
         configuration.setLocale(newLocale)
         val context = createConfigurationContext(configuration)
+    }
+
+    private fun toast(text: String) {
+        val toast = Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT)
+        toast.show()
     }
 }

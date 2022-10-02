@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">example</string>
+
+    <string name="title_login_fragment">Authenticate User</string>
+    <string name="title_my_account_fragment">Account information</string>
+
+    <string name="enter_credentials">Enter Credentials</string>
+    <string name="user_registration">User registration</string>
+    <string name="user_login">User login</string>
+
+    <string name="credentials_authentication">Authenticate using credentials</string>
+    <string name="passwordless_authentication">Authenticate using Fido2/WebAuthn</string>
+    <string name="screensets_authentication">Authenticate using screensets flow</string>
+    <string name="social_authentication">Social provider authentication</string>
+
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="logout">Logout</string>
+
+    <string name="passwordless">Passwordless</string>
+    <string name="screensets">ScreenSets</string>
+    <string name="native_screensets">Native ScreenSets</string>
+    <string name="social_login">Social Login</string>
+    <string name="social_provider_name">Social provider name</string>
+
+    <string name="account_uid">Account UID:</string>
+
+    <!-- Social login integration strings -->
+    <string name="facebook_app_id">YOUR-FACEBOOK-APP-ID-HERE</string>
+    <string name="google_client_id">YOUR-GOOGLE-CLIENT-ID-HERE</string>
+
+</resources>
