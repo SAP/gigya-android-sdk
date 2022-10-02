@@ -4,13 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentLoginBinding
 import com.gigya.android.sample.ui.MainActivity
-import com.gigya.android.sdk.Gigya
 
 class LoginFragment : BaseExampleFragment() {
 
