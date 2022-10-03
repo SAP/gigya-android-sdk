@@ -72,6 +72,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation project(path: ':sdk-core')
+    implementation project(path: ':sdk-biometric')
 
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
 
