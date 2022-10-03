@@ -59,7 +59,8 @@ class LoginFragment : BaseExampleFragment() {
                     toastIt("Error: ${it?.localizedMessage}")
                 }, onLogin = {
             toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
         })
     }
 
@@ -79,7 +80,8 @@ class LoginFragment : BaseExampleFragment() {
                     toastIt("Error: ${it?.localizedMessage}")
                 }, onLogin = {
             toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
         })
     }
 
@@ -91,7 +93,8 @@ class LoginFragment : BaseExampleFragment() {
                     toastIt("Error: ${it?.localizedMessage}")
                 }, onLogin = {
             toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
         })
     }
 
@@ -108,7 +111,8 @@ class LoginFragment : BaseExampleFragment() {
                 },
                 onLogin = {
                     toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
                 })
 
     }
@@ -122,12 +126,24 @@ class LoginFragment : BaseExampleFragment() {
                 },
                 onLogin = {
                     toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
                 })
     }
 
     private fun useNativeScreenSets() {
-
+        viewModel.showNativeScreenSets(
+                requireContext(),
+                "default",
+                error = {
+                    // Display error.
+                    toastIt("Error: ${it?.localizedMessage}")
+                },
+                onLogin = {
+                    toastIt("login successful")
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                })
     }
 
 

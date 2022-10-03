@@ -792,7 +792,6 @@ class MainActivity : AppCompatActivity(),
 
     private fun showNativeScreenSets() {
         GigyaNss.getInstance()
-//                .load("DEFAULT")
                 .loadFromAssets("gigya-nss-example")
                 .initialRoute("register")
                 //.lang("es")
