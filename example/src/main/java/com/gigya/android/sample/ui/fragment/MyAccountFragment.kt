@@ -9,6 +9,9 @@ import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentMyAccountBinding
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.MainActivity
+import com.gigya.android.sdk.biometric.GigyaBiometric
+import com.gigya.android.sdk.biometric.GigyaPromptInfo
+import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 
 class MyAccountFragment : BaseExampleFragment() {
 
@@ -20,6 +23,8 @@ class MyAccountFragment : BaseExampleFragment() {
     private var _binding: FragmentMyAccountBinding? = null
 
     private val binding get() = _binding!!
+
+    private var biometric = GigyaBiometric.getInstance()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -45,6 +50,11 @@ class MyAccountFragment : BaseExampleFragment() {
 
         populateAccountInfo()
         setClicks()
+
+        if (biometric.isAvailable) {
+            evaluateBiometricSession()
+        }
+        updateBiometricUiState()
     }
 
     private fun populateAccountInfo() {
@@ -71,7 +81,84 @@ class MyAccountFragment : BaseExampleFragment() {
                     }
             )
         }
+
+        binding.biometricOpt.setOnClickListener {
+            if (biometric.isOptIn) {
+                biometric.optOut(
+                        requireActivity(),
+                        GigyaPromptInfo("Opt-Out requested",
+                                "Place finger on sensor to continue", ""),
+                        biometricCallback)
+            } else {
+                biometric.optIn(
+                        requireActivity(),
+                        GigyaPromptInfo("Opt-In requested",
+                                "Place finger on sensor to continue", ""),
+                        biometricCallback)
+            }
+        }
+
+        binding.biometricLock.setOnClickListener {
+            when (biometric.isLocked) {
+                true -> {
+                    biometric.unlock(
+                            requireActivity(),
+                            GigyaPromptInfo("Unlock session",
+                                    "Place finger on sensor to continue", ""),
+                            biometricCallback)
+                }
+                false -> {
+                    biometric.lock(biometricCallback)
+                }
+            }
+        }
+
     }
 
+    private val biometricCallback = object : IGigyaBiometricCallback {
+        override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+            updateBiometricUiState()
+            when (action) {
+                GigyaBiometric.Action.OPT_IN -> {
+                    toastIt("Biometric: OptIn")
+                }
+                GigyaBiometric.Action.OPT_OUT -> {
+                    toastIt("Biometric: OptOut")
+                }
+                GigyaBiometric.Action.LOCK -> {
+                    toastIt("Biometric: Locked")
+                }
+                GigyaBiometric.Action.UNLOCK -> {
+                    toastIt("Biometric: Unlocked")
+                }
+            }
+        }
+
+        override fun onBiometricOperationFailed(reason: String?) {
+            toastIt("Biometric authentication error: $reason")
+        }
+
+        override fun onBiometricOperationCanceled() {
+            toastIt("Biometric operation canceled")
+        }
+
+    }
+
+    private fun evaluateBiometricSession() {
+        if (biometric.isLocked) {
+            // Unlock the session
+            biometric.unlock(
+                    requireActivity(),
+                    GigyaPromptInfo("Unlock session",
+                            "Place finger on sensor to continue", ""),
+                    biometricCallback
+            )
+        }
+    }
+
+    private fun updateBiometricUiState() {
+        binding.biometricOpt.isEnabled = biometric.isAvailable
+        binding.biometricLock.isEnabled = biometric.isAvailable && biometric.isOptIn
+    }
 
 }
