@@ -1,5 +1,7 @@
 package com.gigya.android.sample.ui
 
+import android.content.Context
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.MutableLiveData
@@ -7,8 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.repository.GigyaRepository
+import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.network.GigyaError
+import com.gigya.android.sdk.nss.GigyaNss
+import com.gigya.android.sdk.nss.NssEvents
+import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import kotlinx.coroutines.launch
 
@@ -131,7 +137,57 @@ class MainViewModel : ViewModel() {
     }
 
     // Show native screensets.
-    fun showNativeScreenSets() {
+    fun showNativeScreenSets(context: Context, screensetId: String,
+                             error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+        GigyaNss.getInstance()
+                .load(screensetId)
+                .events(object : NssEvents<MyAccount>() {
 
+                    override fun onError(screenId: String, error: GigyaError) {
+                        error(error)
+                    }
+
+                    override fun onCancel() {
+                        // Handle cancel event if needed.
+
+                    }
+
+                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
+                        // Handle login event here if needed.
+                        accountObj?.let {
+                            account.value = accountObj
+                            onLogin()
+                        }
+                    }
+
+                })
+                .eventsFor("login", object : NssScreenEvents() {
+
+                    override fun screenDidLoad() {
+                        Log.d("NssEvents", "screen did load for login")
+                    }
+
+                    override fun routeFrom(screen: ScreenRouteFromModel) {
+                        Log.d("NssEvents", "routeFrom: from: " + screen.previousRoute())
+                        super.routeFrom(screen)
+                    }
+
+                    override fun routeTo(screen: ScreenRouteToModel) {
+                        Log.d("NssEvents", "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData().toString())
+                        super.routeTo(screen)
+                    }
+
+                    override fun submit(screen: ScreenSubmitModel) {
+                        Log.d("NssEvents", "submit: data: " + screen.screenData().toString())
+                        super.submit(screen)
+                    }
+
+                    override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
+                        Log.d("NssEvents", "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal)
+                        super.fieldDidChange(screen, field)
+                    }
+
+                })
+                .show(context)
     }
 }

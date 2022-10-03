@@ -73,6 +73,11 @@ dependencies {
 
     implementation project(path: ':sdk-core')
     implementation project(path: ':sdk-biometric')
+    implementation project(path: ':sdk-nss')
+
+    // Nss engine.
+    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.5.1'
+    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.5.1'
 
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
 
