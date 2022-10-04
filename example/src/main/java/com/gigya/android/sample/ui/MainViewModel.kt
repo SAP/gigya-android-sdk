@@ -11,12 +11,17 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.repository.GigyaRepository
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.GigyaPluginCallback
+import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.auth.GigyaAuth
+import com.gigya.android.sdk.auth.GigyaOTPCallback
+import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
 
 class MainViewModel : ViewModel() {
 
@@ -27,6 +32,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun isLoggedIn() = gigyaRepository.isLoggedIn()
+
+    var gigyaResolverMap = mutableMapOf<String, Any>()
 
     fun reinit(apiKey: String, dataCenter: String?) {
         gigyaRepository.reinitializeSdk(apiKey, dataCenter)
@@ -107,6 +114,41 @@ class MainViewModel : ViewModel() {
                 return@launch
             }
             onLogin()
+        }
+    }
+
+    fun otpLogin(phoneNumber: String,
+                 onLogin: () -> Unit,
+                 error: (GigyaError?) -> Unit,
+                 onPendingOTP: () -> Unit) {
+        GigyaAuth.getInstance().otp.phoneLogin(phoneNumber, object : GigyaOTPCallback<MyAccount>() {
+            override fun onSuccess(obj: MyAccount?) {
+                obj?.let {
+                    account.value = it
+                    onLogin()
+                    // Flush resolver.
+                    gigyaResolverMap.remove("OTP")
+                }
+            }
+
+            override fun onError(error: GigyaError?) {
+                error?.let {
+                    error(it)
+                }
+            }
+
+            override fun onPendingOTPVerification(response: GigyaApiResponse, resolver: IGigyaOtpResult) {
+                gigyaResolverMap["OTP"] = resolver
+                onPendingOTP()
+            }
+
+        })
+    }
+
+    fun otpVerify(code: String) {
+        val resolver = gigyaResolverMap["OTP"]
+        resolver?.let {
+            (it as IGigyaOtpResult).verify(code)
         }
     }
 

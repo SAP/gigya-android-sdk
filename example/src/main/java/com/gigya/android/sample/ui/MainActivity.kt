@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                         .addToBackStack(null)
                         .commit()
             }
+            android.R.id.home -> onBackPressed()
         }
         return true
     }
