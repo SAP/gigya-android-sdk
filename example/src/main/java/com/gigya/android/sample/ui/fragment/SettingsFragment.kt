@@ -32,6 +32,8 @@ class SettingsFragment : BaseExampleFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as MainActivity).supportActionBar?.title = getString(R.string.title_settings_fragment)
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setClicks()
     }
 
