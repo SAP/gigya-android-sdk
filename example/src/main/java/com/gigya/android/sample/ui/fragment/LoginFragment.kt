@@ -19,6 +19,11 @@ class LoginFragment : BaseExampleFragment() {
 
     private val binding get() = _binding!!
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(false)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -26,6 +31,8 @@ class LoginFragment : BaseExampleFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as MainActivity).supportActionBar?.title = getString(R.string.title_login_fragment)
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        (activity as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(false)
         setClicks()
     }
 
@@ -38,11 +45,15 @@ class LoginFragment : BaseExampleFragment() {
         binding.includeCredentialContent.login.setOnClickListener { credentialsLogin() }
         binding.includeCredentialContent.register.setOnClickListener { credentialsRegistration() }
         binding.includePasswordlessContent.passwordlessLogin.setOnClickListener { passwordlessLogin() }
+        binding.includePasswordlessContent.toOtpLogin.setOnClickListener { otpLogin() }
         binding.includeSocialContent.socialLogin.setOnClickListener { socialLogin() }
         binding.includeScreensetsContent.useScreensets.setOnClickListener { useScreenSets() }
         binding.includeScreensetsContent.useNativeScreensets.setOnClickListener { useNativeScreenSets() }
     }
 
+    /**
+     * Login using login/id credential pair.
+     */
     private fun credentialsLogin() {
         val email = binding.includeCredentialContent.emailInput.text.toString().trim()
         val password = binding.includeCredentialContent.passwordInput.text.toString().trim()
@@ -64,6 +75,9 @@ class LoginFragment : BaseExampleFragment() {
         })
     }
 
+    /**
+     * Register using login/id credential pair.
+     */
     private fun credentialsRegistration() {
         val email = binding.includeCredentialContent.emailInput.text.toString().trim()
         val password = binding.includeCredentialContent.passwordInput.text.toString().trim()
@@ -85,6 +99,9 @@ class LoginFragment : BaseExampleFragment() {
         })
     }
 
+    /**
+     * Login using Fido passkey.
+     */
     private fun passwordlessLogin() {
         viewModel.passwordlessLogin(
                 (activity as MainActivity).resultHandler,
@@ -98,6 +115,9 @@ class LoginFragment : BaseExampleFragment() {
         })
     }
 
+    /**
+     * Sign in via social provider.
+     */
     private fun socialLogin() {
         val provider = binding.includeSocialContent.socialProviderInput.text.toString().trim()
         if (provider.isEmpty()) {
@@ -117,6 +137,9 @@ class LoginFragment : BaseExampleFragment() {
 
     }
 
+    /**
+     * Initiate web ScreenSets flow.
+     */
     private fun useScreenSets() {
         viewModel.showScreenSets(
                 "Default-RegistrationLogin",
@@ -131,6 +154,9 @@ class LoginFragment : BaseExampleFragment() {
                 })
     }
 
+    /**
+     * Initiate Native ScreenSets flow.
+     */
     private fun useNativeScreenSets() {
         viewModel.showNativeScreenSets(
                 requireContext(),
@@ -142,8 +168,18 @@ class LoginFragment : BaseExampleFragment() {
                 onLogin = {
                     toastIt("login successful")
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
                 })
+    }
+
+    /**
+     * Open OTP login Fragment.
+     */
+    private fun otpLogin() {
+        activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, OTPLoginFragment.newInstance())
+                ?.addToBackStack(OTPLoginFragment.name)
+                ?.commit()
     }
 
 
