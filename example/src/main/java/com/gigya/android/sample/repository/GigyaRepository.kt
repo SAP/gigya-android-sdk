@@ -9,7 +9,6 @@ import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
-import com.gigya.android.sdk.containers.GigyaContainer
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.session.ISessionService
 import com.google.gson.Gson
@@ -20,7 +19,6 @@ class GigyaRepository {
 
     // Referencing the gigya instance.
     var gigyaInstance: Gigya<MyAccount> = Gigya.getInstance(MyAccount::class.java)
-
     fun isLoggedIn() = gigyaInstance.isLoggedIn
 
     private fun invalidateSession() {
@@ -108,7 +106,7 @@ class GigyaRepository {
         }
 
     }
-    
+
     @UiThread
     suspend fun logout(): GigyaRepoResponse {
         val res = GigyaRepoResponse()
@@ -183,9 +181,10 @@ class GigyaRepository {
                     })
         }
     }
+
 }
 
-class GigyaRepoResponse {
+open class GigyaRepoResponse {
 
     var error: GigyaError? = null
     var json: String? = null

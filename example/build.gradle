@@ -74,6 +74,7 @@ dependencies {
     implementation project(path: ':sdk-core')
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-nss')
+    implementation project(path: ':sdk-auth')
 
     // Nss engine.
     debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.5.1'
