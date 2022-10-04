@@ -16,6 +16,7 @@
     <string name="screensets_authentication">Authenticate using screensets flow</string>
     <string name="social_authentication">Social provider authentication</string>
     <string name="otp_authentication">Authenticate using phone number otp</string>
+    <string name="otp_verification">Use verification code to complete authentication</string>
 
     <string name="email_address">Email address</string>
     <string name="password">Password</string>

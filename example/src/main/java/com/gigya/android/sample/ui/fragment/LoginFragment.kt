@@ -166,7 +166,7 @@ class LoginFragment : BaseExampleFragment() {
                     toastIt("Error: ${it?.localizedMessage}")
                 },
                 onLogin = {
-                    toastIt("login successful")
+                    toastIt("login successful");
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
                 })

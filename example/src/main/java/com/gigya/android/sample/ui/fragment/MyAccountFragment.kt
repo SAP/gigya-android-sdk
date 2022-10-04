@@ -42,6 +42,8 @@ class MyAccountFragment : BaseExampleFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as MainActivity).supportActionBar?.title = getString(R.string.title_my_account_fragment)
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val nameObserver = Observer<MyAccount> { account ->
             binding.uidText.text = account.uid

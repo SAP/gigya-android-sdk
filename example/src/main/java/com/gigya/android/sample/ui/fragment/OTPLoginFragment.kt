@@ -20,11 +20,6 @@ class OTPLoginFragment : BaseExampleFragment() {
 
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentOtpLoginBinding.inflate(inflater, container, false)
 
@@ -61,8 +56,11 @@ class OTPLoginFragment : BaseExampleFragment() {
                 phoneNumber,
                 onLogin = {
                     toastIt("login successful")
+                    clearBackStack()
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())
+                            ?.addToBackStack(MyAccountFragment.name)
+                            ?.commit()
                 },
                 error = {
                     // Display error.
