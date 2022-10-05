@@ -5,6 +5,7 @@
     <string name="title_my_account_fragment">Account information</string>
     <string name="title_settings_fragment">@string/settings</string>
     <string name="title_otp_login_fragment">OTP login</string>
+    <string name="title_tfa_fragment">2 Factor Authentication required</string>
 
     <string name="enter_credentials">Enter Credentials</string>
     <string name="user_registration">User registration</string>
