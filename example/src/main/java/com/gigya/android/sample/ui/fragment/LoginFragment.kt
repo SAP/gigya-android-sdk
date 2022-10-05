@@ -68,11 +68,18 @@ class LoginFragment : BaseExampleFragment() {
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
-                }, onLogin = {
-            toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-        })
+                },
+                onLogin = {
+                    toastIt("login successful")
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                },
+                tfaInterruption = {
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, TFAFragment.newInstance())
+                            ?.addToBackStack(TFAFragment.name)
+                            ?.commit()
+                })
     }
 
     /**
