@@ -9,19 +9,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.repository.GigyaRepository
-import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sample.repository.TFAInterruption
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.api.GigyaApiResponse
-import com.gigya.android.sdk.auth.GigyaAuth
-import com.gigya.android.sdk.auth.GigyaOTPCallback
-import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.resume
 
 class MainViewModel : ViewModel() {
 
@@ -33,24 +30,31 @@ class MainViewModel : ViewModel() {
 
     fun isLoggedIn() = gigyaRepository.isLoggedIn()
 
-    var gigyaResolverMap = mutableMapOf<String, Any>()
-
     fun reinit(apiKey: String, dataCenter: String?) {
         gigyaRepository.reinitializeSdk(apiKey, dataCenter)
     }
 
     // Login using email & password pair.
     fun credentialLogin(email: String, password: String,
-                        error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+                        error: (GigyaError?) -> Unit,
+                        onLogin: () -> Unit,
+                        tfaInterruption: (TFAInterruption) -> Unit
+    ) {
         val params = mutableMapOf<String, Any>("loginID" to email, "password" to password)
         viewModelScope.launch {
-            val result = gigyaRepository.login(params)
-            if (result.isError()) {
-                error(result.error)
-                return@launch
+            gigyaRepository.loginWith(params).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else if (result.isTfaInterruption()) {
+                    tfaInterruption(result.tfa!!)
+                } else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
             }
-            account.value = result.account
-            onLogin()
+
         }
     }
 
@@ -58,13 +62,16 @@ class MainViewModel : ViewModel() {
     fun credentialRegister(email: String, password: String,
                            error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
-            val result = gigyaRepository.register(email, password)
-            if (result.isError()) {
-                error(result.error)
-                return@launch
+            gigyaRepository.registerWith(email, password).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
             }
-            account.value = result.account
-            onLogin()
         }
     }
 
@@ -95,12 +102,16 @@ class MainViewModel : ViewModel() {
     // Sign in using social login provider.
     fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
-            val result = gigyaRepository.socialLoginWithProvider(provider)
-            if (result.isError()) {
-                error(result.error)
-                return@launch
+            gigyaRepository.socialLoginWith(provider).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
             }
-            onLogin()
         }
     }
 
@@ -117,39 +128,30 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Login using phone OTP.
     fun otpLogin(phoneNumber: String,
                  onLogin: () -> Unit,
                  error: (GigyaError?) -> Unit,
                  onPendingOTP: () -> Unit) {
-        GigyaAuth.getInstance().otp.phoneLogin(phoneNumber, object : GigyaOTPCallback<MyAccount>() {
-            override fun onSuccess(obj: MyAccount?) {
-                obj?.let {
-                    account.value = it
+        viewModelScope.launch {
+            gigyaRepository.otpLoginWith(phoneNumber).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else if (result.isInterruption()) {
+                    onPendingOTP()
+                } else {
+                    account.value = result.account
                     onLogin()
-                    // Flush resolver.
-                    gigyaResolverMap.remove("OTP")
+                    this.coroutineContext.job.cancel()
                 }
             }
-
-            override fun onError(error: GigyaError?) {
-                error?.let {
-                    error(it)
-                }
-            }
-
-            override fun onPendingOTPVerification(response: GigyaApiResponse, resolver: IGigyaOtpResult) {
-                gigyaResolverMap["OTP"] = resolver
-                onPendingOTP()
-            }
-
-        })
+        }
     }
 
+    // Verify phone OTP code.
     fun otpVerify(code: String) {
-        val resolver = gigyaResolverMap["OTP"]
-        resolver?.let {
-            (it as IGigyaOtpResult).verify(code)
-        }
+        gigyaRepository.otpVerify(code)
     }
 
     // Show web screensets.
