@@ -22,7 +22,6 @@ class SettingsFragment : BaseExampleFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -53,7 +52,7 @@ class SettingsFragment : BaseExampleFragment() {
             toastIt("New ApiKey is required")
             return
         }
-        viewModel.reinit(apiKey,dataCenter)
+        viewModel.reinit(apiKey, dataCenter)
         toastIt("Done. Task is synchronous")
     }
 }
