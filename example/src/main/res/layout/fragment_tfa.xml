@@ -38,6 +38,8 @@
 
     <FrameLayout
         android:id="@+id/tfa_qr_layout"
+        android:visibility="gone"
+        tools:visibility="visible"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="24dp"

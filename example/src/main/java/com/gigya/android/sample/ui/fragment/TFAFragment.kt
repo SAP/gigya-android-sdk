@@ -69,6 +69,7 @@ class TFAFragment : BaseExampleFragment(), AdapterView.OnItemSelectedListener {
             binding.providersSpinner.adapter = adapter
             binding.providersSpinner.onItemSelectedListener = this
         }
+        setClicks()
         selectInterruptionType()
     }
 
@@ -78,16 +79,39 @@ class TFAFragment : BaseExampleFragment(), AdapterView.OnItemSelectedListener {
     private fun selectInterruptionType() {
         when (interruption.type) {
             TFAInterruptionType.REGISTRATION -> {
-                bindRegistrationLayout()
+                binding.tfaQrLayout.visible()
+                binding.tfaRegTitle.visible()
+                registerTotp()
 
             }
             TFAInterruptionType.VERIFICATION -> {
-                bindVerificationLayout()
+                binding.tfaQrLayout.gone()
+                binding.tfaRegTitle.gone()
             }
         }
     }
 
-    private fun bindRegistrationLayout() {
+    private fun setClicks() {
+        binding.tfaVerifyCodeButton.setOnClickListener {
+            val code = binding.tfaAuthCodeEdit.text.toString().trim()
+            viewModel.verifyTotpCode(
+                    code,
+                    error = {
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    onVerified = {
+                        // TOTP login success. Original callback will update.
+                        // Dismiss TFA Fragment.
+                        requireActivity().onBackPressed()
+                    },
+            )
+        }
+    }
+
+    // Call to register a TOTP authenticator application.
+    // The request will fetch the data needed to display a QR code needed to register
+    // the authenticator application.
+    private fun registerTotp() {
         viewModel.registerTfaTotp(
                 onQrCode = { qrCode ->
                     // Decoding the image received (Base64).
@@ -99,26 +123,6 @@ class TFAFragment : BaseExampleFragment(), AdapterView.OnItemSelectedListener {
                     toastIt("Error: ${it?.localizedMessage}")
                 }
         )
-
-        binding.tfaVerifyCodeButton.setOnClickListener {
-            val code = binding.tfaAuthCodeEdit.text.toString().trim()
-            viewModel.verifyTotpCode(
-                    code,
-                    error = {
-                        toastIt("Error: ${it?.localizedMessage}")
-                    },
-                    onLogin = {
-                        // TOTP login success. Original callback will update.
-                        requireActivity().onBackPressed()
-                    },
-            )
-        }
-
     }
-
-    private fun bindVerificationLayout() {
-
-    }
-
 
 }
