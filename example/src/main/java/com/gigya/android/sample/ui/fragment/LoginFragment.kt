@@ -74,9 +74,11 @@ class LoginFragment : BaseExampleFragment() {
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
                 },
-                tfaInterruption = {
+                tfaInterruption = { interruption ->
+                    val fragment = TFAFragment.newInstance()
+                    fragment.interruption = interruption
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, TFAFragment.newInstance())
+                            ?.replace(R.id.container, fragment)
                             ?.addToBackStack(TFAFragment.name)
                             ?.commit()
                 })
@@ -99,11 +101,21 @@ class LoginFragment : BaseExampleFragment() {
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
-                }, onLogin = {
-            toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-        })
+                },
+                onLogin = {
+                    toastIt("login successful")
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                },
+                tfaInterruption = { interruption ->
+                    val fragment = TFAFragment.newInstance()
+                    fragment.interruption = interruption
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, fragment)
+                            ?.addToBackStack(TFAFragment.name)
+                            ?.commit()
+                },
+        )
     }
 
     /**
