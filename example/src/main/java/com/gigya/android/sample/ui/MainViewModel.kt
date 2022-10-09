@@ -170,10 +170,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun verifyTotpCode(code: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+    fun verifyTotpCode(code: String, error: (GigyaError?) -> Unit, onVerified: () -> Unit) {
         viewModelScope.launch {
-            val result = gigyaRepository.registerTfaTotp()
-
+            val result =  gigyaRepository.verifyTotpCode(code)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            onVerified()
         }
     }
 
