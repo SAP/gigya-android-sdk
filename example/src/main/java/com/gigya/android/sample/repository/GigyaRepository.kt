@@ -8,6 +8,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
+import com.gigya.android.sdk.account.GigyaAccountConfig
 import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
@@ -21,8 +22,10 @@ import com.gigya.android.sdk.tfa.GigyaDefinitions
 import com.gigya.android.sdk.tfa.resolvers.email.RegisteredEmailsResolver
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver
+import com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.RegisterTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.VerifyTOTPResolver
+import com.gigya.android.sdk.tfa.ui.TFATOTPRegistrationFragment
 import com.google.gson.Gson
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -254,6 +257,62 @@ class GigyaRepository {
     }
 
     @UiThread
+    suspend fun registerTfaTotp(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            val resolver = gigyaResolverMap["TOTP"]
+            resolver?.let {
+                (resolver as RegisterTOTPResolver<MyAccount>).registerTOTP(object : RegisterTOTPResolver.ResultCallback {
+                    override fun onQRCodeAvailable(qrCode: String, verifyTOTPResolver: IVerifyTOTPResolver?) {
+                        gigyaResolverMap["TOTP"] = verifyTOTPResolver as VerifyTOTPResolver<MyAccount>
+                        res.optional = qrCode
+                        continuation.resume(res)
+                    }
+
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
+                    }
+
+                })
+            }
+        }
+    }
+
+    @UiThread
+    suspend fun verifyTotpCode(code: String): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            val resolver = gigyaResolverMap["TOTP"]
+            resolver?.let {
+                (resolver as VerifyTOTPResolver<MyAccount>).verifyTOTPCode(
+                        code, true, object : VerifyTOTPResolver.ResultCallback {
+
+                    override fun onResolved() {
+                        continuation.resume(res)
+                    }
+
+                    override fun onInvalidCode() {
+                        res.error = GigyaError(-1, "Invalid code")
+                        continuation.resume(res)
+                    }
+
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
+                    }
+
+                }
+                )
+            }
+        }
+    }
+
+    @UiThread
     suspend fun logout(): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
@@ -307,6 +366,7 @@ open class GigyaRepoResponse {
 
     var error: GigyaError? = null
     var json: String? = null
+    var optional: Any? = null
 
     // Interruption will be the available resolver tag.
     var interruption: String? = null

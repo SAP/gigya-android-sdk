@@ -60,12 +60,16 @@ class MainViewModel : ViewModel() {
 
     // Register using email & password pair.
     fun credentialRegister(email: String, password: String,
-                           error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+                           error: (GigyaError?) -> Unit,
+                           onLogin: () -> Unit,
+                           tfaInterruption: (TFAInterruption) -> Unit) {
         viewModelScope.launch {
             gigyaRepository.registerWith(email, password).collect { result ->
                 if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()
+                } else if (result.isTfaInterruption()) {
+                    tfaInterruption(result.tfa!!)
                 } else {
                     account.value = result.account
                     onLogin()
@@ -152,6 +156,25 @@ class MainViewModel : ViewModel() {
     // Verify phone OTP code.
     fun otpVerify(code: String) {
         gigyaRepository.otpVerify(code)
+    }
+
+    // Register TFA authenticator - fetch QR code.
+    fun registerTfaTotp(onQrCode: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.registerTfaTotp()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            onQrCode(result.optional as String)
+        }
+    }
+
+    fun verifyTotpCode(code: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.registerTfaTotp()
+
+        }
     }
 
     // Show web screensets.

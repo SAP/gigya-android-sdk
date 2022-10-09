@@ -3,22 +3,18 @@ package com.gigya.android.sample.ui.fragment
 import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.gigya.android.sample.ui.MainViewModel
 
 open class BaseExampleFragment : Fragment() {
 
-    open lateinit var viewModel: MainViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    open val viewModel: MainViewModel by activityViewModels()
 
     fun toastIt(message: String) {
         val toast = Toast.makeText(requireContext(), message, Toast.LENGTH_LONG)
@@ -38,4 +34,16 @@ fun Fragment.clearBackStack() {
     for (i in 0 until fm.backStackEntryCount) {
         fm.popBackStack()
     }
+}
+
+fun View.visible() {
+    this.visibility = View.VISIBLE
+}
+
+fun View.invisible() {
+    this.visibility = View.INVISIBLE
+}
+
+fun View.gone() {
+    this.visibility = View.GONE
 }
