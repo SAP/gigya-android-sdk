@@ -36,12 +36,21 @@
     <string name="social_provider_name">Social provider name</string>
 
     <string name="account_uid">Account UID:</string>
+    <string name="add_connection">Add connection</string>
+    <string name="remove_connection">Remove connection</string>
+    <string name="add_remove_connection_provider">Add/Remove connection provider</string>
+    <string name="provider_name">Provider name</string>
+    <string name="fido_register">Register Fido passkey</string>
+    <string name="fido_revoke">Revoke Fido passkey</string>
 
     <string name="available_providers">Available providers</string>
     <string name="register_authenticator">Register authenticator</string>
     <string name="loading_image">Loading image..</string>
     <string name="authenticator_image">Authenticator QR</string>
     <string name="enter_authentication_code">Enter authentication code:</string>
+
+    <string name="site_account_password">Site account password</string>
+    <string name="link_account">Link account</string>
 
     <string name="reinit_title">Change API Key and DataCenter</string>
     <string name="reinit_subtitle">Reinitializing the SDK dynamically will invalidate current session!</string>

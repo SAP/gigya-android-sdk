@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.repository.GigyaRepository
+import com.gigya.android.sample.repository.LinkInterruption
 import com.gigya.android.sample.repository.TFAInterruption
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.network.GigyaError
@@ -35,10 +36,12 @@ class MainViewModel : ViewModel() {
     }
 
     // Login using email & password pair.
-    fun credentialLogin(email: String, password: String,
-                        error: (GigyaError?) -> Unit,
-                        onLogin: () -> Unit,
-                        tfaInterruption: (TFAInterruption) -> Unit
+    fun credentialLogin(
+            email: String, password: String,
+            error: (GigyaError?) -> Unit,
+            onLogin: () -> Unit,
+            tfaInterruption: (TFAInterruption) -> Unit,
+            linkInterruption: (LinkInterruption) -> Unit,
     ) {
         val params = mutableMapOf<String, Any>("loginID" to email, "password" to password)
         viewModelScope.launch {
@@ -48,6 +51,8 @@ class MainViewModel : ViewModel() {
                     this.coroutineContext.job.cancel()
                 } else if (result.isTfaInterruption()) {
                     tfaInterruption(result.tfa!!)
+                } else if (result.isLinkInterruption()) {
+                    linkInterruption(result.link!!)
                 } else {
                     account.value = result.account
                     onLogin()
@@ -62,7 +67,8 @@ class MainViewModel : ViewModel() {
     fun credentialRegister(email: String, password: String,
                            error: (GigyaError?) -> Unit,
                            onLogin: () -> Unit,
-                           tfaInterruption: (TFAInterruption) -> Unit) {
+                           tfaInterruption: (TFAInterruption) -> Unit,
+                           linkInterruption: (LinkInterruption) -> Unit) {
         viewModelScope.launch {
             gigyaRepository.registerWith(email, password).collect { result ->
                 if (result.isError()) {
@@ -70,6 +76,8 @@ class MainViewModel : ViewModel() {
                     this.coroutineContext.job.cancel()
                 } else if (result.isTfaInterruption()) {
                     tfaInterruption(result.tfa!!)
+                } else if (result.isLinkInterruption()) {
+                    linkInterruption(result.link!!)
                 } else {
                     account.value = result.account
                     onLogin()
@@ -103,6 +111,28 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun addConnection(provider: String, error: (GigyaError?) -> Unit, success: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.addConnection(provider)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
+        }
+    }
+
+    fun removeConnection(provider: String, error: (GigyaError?) -> Unit, success: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.removeConnection(provider)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
+        }
+    }
+
     // Sign in using social login provider.
     fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
@@ -129,6 +159,32 @@ class MainViewModel : ViewModel() {
                 return@launch
             }
             onLogin()
+        }
+    }
+
+    // Register new Fido passkey.
+    fun passwordlessRegister(resultHandler: ActivityResultLauncher<IntentSenderRequest>,
+                             error: (GigyaError?) -> Unit, success: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.webAuthnRegister(resultHandler)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
+        }
+    }
+
+    // Revoke current Fido passkey.
+    fun passwordlessRevoke(
+            error: (GigyaError?) -> Unit, success: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.webAuthnRevoke()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
         }
     }
 
@@ -170,14 +226,29 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Verify TFA authenticator code.
     fun verifyTotpCode(code: String, error: (GigyaError?) -> Unit, onVerified: () -> Unit) {
         viewModelScope.launch {
-            val result =  gigyaRepository.verifyTotpCode(code)
+            val result = gigyaRepository.verifyTotpCode(code)
             if (result.isError()) {
                 error(result.error)
                 return@launch
             }
             onVerified()
+        }
+    }
+
+    // Link account with site credentials.
+    fun linkAccountSite(loginId: String, password: String) {
+        viewModelScope.launch {
+            gigyaRepository.linkToSite(loginId, password)
+        }
+    }
+
+    // Link account to social provider.
+    fun linkAccountSocial(provider: String) {
+        viewModelScope.launch {
+            gigyaRepository.linkToSocial(provider)
         }
     }
 
