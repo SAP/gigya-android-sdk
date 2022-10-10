@@ -8,12 +8,14 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
-import com.gigya.android.sdk.account.GigyaAccountConfig
 import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.GigyaOTPCallback
 import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
+import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
+import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
+import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
@@ -25,7 +27,6 @@ import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.RegisterTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.VerifyTOTPResolver
-import com.gigya.android.sdk.tfa.ui.TFATOTPRegistrationFragment
 import com.google.gson.Gson
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -101,6 +102,10 @@ class GigyaRepository {
         }
     }
 
+    private fun populateLinkAccountResolver(resolver: ILinkAccountsResolver) {
+        gigyaResolverMap["LINK"] = resolver
+    }
+
     private fun loginFlow(initiator: (GigyaLoginCallback<MyAccount>) -> Unit): Flow<GigyaRepoResponse> {
         Log.d(TAG, "loginFlow: initiating")
         val flow: Flow<GigyaRepoResponse> = callbackFlow {
@@ -123,6 +128,15 @@ class GigyaRepository {
                         res.error = error
                         trySend(res)
                     }
+                }
+
+                override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
+                    Log.d(TAG, "loginFlow: emmit Conflicting account interruption")
+                    val res = GigyaRepoResponse()
+                    res.json = response.asJson()
+                    populateLinkAccountResolver(resolver)
+                    res.link = LinkInterruption(resolver.conflictingAccounts)
+                    trySend(res)
                 }
 
                 override fun onPendingTwoFactorRegistration(response: GigyaApiResponse,
@@ -204,6 +218,51 @@ class GigyaRepository {
                         }
 
                     })
+        }
+    }
+
+    @UiThread
+    suspend fun webAuthnRegister(resultHandler: ActivityResultLauncher<IntentSenderRequest>): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.WebAuthn().register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    obj?.let {
+                        res.json = obj.asJson()
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+            })
+        }
+    }
+
+    @UiThread
+    suspend fun webAuthnRevoke(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.WebAuthn().revoke(object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    obj?.let {
+                        res.json = obj.asJson()
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+
+            })
         }
     }
 
@@ -336,6 +395,50 @@ class GigyaRepository {
         }
     }
 
+    @UiThread
+    suspend fun addConnection(provider: String): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.addConnection(provider, object : GigyaLoginCallback<MyAccount>() {
+                override fun onSuccess(obj: MyAccount?) {
+                    obj?.let {
+                        res.account = it
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+
+            })
+        }
+    }
+
+    @UiThread
+    suspend fun removeConnection(provider: String): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.removeConnection(provider, object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    obj?.let {
+                        res.json = obj.asJson()
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+            })
+        }
+    }
 
     @UiThread
     suspend fun getAccountInfo(): GigyaRepoResponse {
@@ -360,6 +463,26 @@ class GigyaRepository {
         }
 
     }
+
+    @UiThread
+    suspend fun linkToSite(loginID: String, password: String) {
+        return suspendCoroutine {
+            val resolver = gigyaResolverMap["LINK"]
+            resolver?.let {
+                (resolver as LinkAccountsResolver<MyAccount>).linkToSite(loginID, password)
+            }
+        }
+    }
+
+    @UiThread
+    suspend fun linkToSocial(provider: String) {
+        return suspendCoroutine {
+            val resolver = gigyaResolverMap["LINK"]
+            resolver?.let {
+                (resolver as LinkAccountsResolver<MyAccount>).linkToSocial(provider)
+            }
+        }
+    }
 }
 
 open class GigyaRepoResponse {
@@ -379,12 +502,20 @@ open class GigyaRepoResponse {
 
     var tfa: TFAInterruption? = null
 
+    var link: LinkInterruption? = null
+
     fun isError(): Boolean = error != null
+
+    fun isLinkInterruption(): Boolean = link != null
 
     fun isInterruption(): Boolean = interruption != null
 
     fun isTfaInterruption(): Boolean = tfa != null
 }
+
+data class LinkInterruption(
+        var accounts: ConflictingAccounts
+)
 
 data class TFAInterruption(
         var type: TFAInterruptionType,

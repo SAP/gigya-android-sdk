@@ -40,19 +40,31 @@ class MyAccountFragment : BaseExampleFragment() {
         _binding = null
     }
 
+    override fun onPause() {
+        viewModel.account.removeObserver(nameObserver)
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.account.observe(viewLifecycleOwner, nameObserver)
+    }
+
+    private val nameObserver = Observer<MyAccount> { account ->
+        binding.uidText.text = account.uid
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as MainActivity).supportActionBar?.title = getString(R.string.title_my_account_fragment)
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (activity as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        val nameObserver = Observer<MyAccount> { account ->
-            binding.uidText.text = account.uid
-        }
-        viewModel.account.observe(viewLifecycleOwner, nameObserver)
-
-        populateAccountInfo()
         setClicks()
 
+        // Get account data if needed.
+        populateAccountInfo()
+
+        // Check biometric state.
         if (biometric.isAvailable) {
             evaluateBiometricSession()
         }
@@ -80,6 +92,69 @@ class MyAccountFragment : BaseExampleFragment() {
                     onLogout = {
                         toastIt("Account logout")
                         (activity as MainActivity).onLogout()
+                    }
+            )
+        }
+
+        binding.addConnection.setOnClickListener {
+            val provider = binding.addRemoveEdit.text.toString().trim()
+            if (provider.isEmpty()) {
+                toastIt("Provider required")
+                return@setOnClickListener
+            }
+            viewModel.addConnection(
+                    provider,
+                    error = {
+                        // Display error.
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    success = {
+                        toastIt("Connection added")
+                        // Good idea here to call get account info again
+                        // to refresh the account data...
+                    },
+            )
+        }
+
+        binding.removeConnection.setOnClickListener {
+            val provider = binding.addRemoveEdit.text.toString().trim()
+            if (provider.isEmpty()) {
+                toastIt("Provider required")
+                return@setOnClickListener
+            }
+            viewModel.removeConnection(
+                    provider,
+                    error = {
+                        // Display error.
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    success = {
+                        toastIt("Connection removed")
+                    },
+            )
+        }
+
+        binding.fidoRegister.setOnClickListener {
+            viewModel.passwordlessRegister(
+                    (activity as MainActivity).resultHandler,
+                    error = {
+                        // Display error.
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    success = {
+                        toastIt("New Fido passkey added")
+                    }
+            )
+        }
+
+        binding.fidoRevoke.setOnClickListener {
+            viewModel.passwordlessRevoke(
+                    error = {
+                        // Display error.
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    success = {
+                        toastIt("Fido passkey revoked")
                     }
             )
         }
@@ -143,7 +218,6 @@ class MyAccountFragment : BaseExampleFragment() {
         override fun onBiometricOperationCanceled() {
             toastIt("Biometric operation canceled")
         }
-
     }
 
     private fun evaluateBiometricSession() {
