@@ -19,11 +19,6 @@ class LoginFragment : BaseExampleFragment() {
 
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -81,7 +76,16 @@ class LoginFragment : BaseExampleFragment() {
                             ?.replace(R.id.container, fragment)
                             ?.addToBackStack(TFAFragment.name)
                             ?.commit()
-                })
+                },
+                linkInterruption = { interruption ->
+                    val fragment = LinkAccountFragment.newInstance()
+                    fragment.interruption = interruption
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, LinkAccountFragment.newInstance())
+                            ?.addToBackStack(LinkAccountFragment.name)
+                            ?.commit()
+                },
+        )
     }
 
     /**
@@ -113,6 +117,14 @@ class LoginFragment : BaseExampleFragment() {
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, fragment)
                             ?.addToBackStack(TFAFragment.name)
+                            ?.commit()
+                },
+                linkInterruption = { interruption ->
+                    val fragment = LinkAccountFragment.newInstance()
+                    fragment.interruption = interruption
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, LinkAccountFragment.newInstance())
+                            ?.addToBackStack(LinkAccountFragment.name)
                             ?.commit()
                 },
         )
