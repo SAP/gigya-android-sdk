@@ -155,7 +155,8 @@ class LoginFragment : BaseExampleFragment() {
             toastIt("Enter social provider")
             return
         }
-        viewModel.socialLogin(provider,
+        viewModel.socialLogin(
+                provider,
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
@@ -164,7 +165,16 @@ class LoginFragment : BaseExampleFragment() {
                     toastIt("login successful")
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-                })
+                },
+                linkInterruption = { interruption ->
+                    val fragment = LinkAccountFragment.newInstance()
+                    fragment.interruption = interruption
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, fragment)
+                            ?.addToBackStack(LinkAccountFragment.name)
+                            ?.commit()
+                },
+        )
 
     }
 
