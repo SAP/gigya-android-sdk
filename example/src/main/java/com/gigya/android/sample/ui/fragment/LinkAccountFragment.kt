@@ -82,7 +82,8 @@ class LinkAccountFragment : BaseExampleFragment(), AdapterView.OnItemSelectedLis
                 when (provider) {
                     "site" -> {
                         val loginId = interruption.accounts.loginID
-                        viewModel.linkAccountSite(loginId, selectedProvider!!)
+                        val password = binding.linkSiteEdit.text.toString().trim()
+                        viewModel.linkAccountSite(loginId, password)
                     }
                     else -> {
                         viewModel.linkAccountSocial(provider)

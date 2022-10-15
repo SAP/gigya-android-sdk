@@ -192,7 +192,7 @@ class GigyaRepository {
 
     fun socialLoginWith(provider: String): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
-            gigyaInstance.login(provider, mapOf(), callback)
+            gigyaInstance.login(provider, mutableMapOf(), callback)
         }
     }
 

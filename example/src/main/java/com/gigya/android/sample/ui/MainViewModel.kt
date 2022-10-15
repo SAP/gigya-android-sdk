@@ -134,12 +134,14 @@ class MainViewModel : ViewModel() {
     }
 
     // Sign in using social login provider.
-    fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+    fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit,  linkInterruption: (LinkInterruption) -> Unit) {
         viewModelScope.launch {
             gigyaRepository.socialLoginWith(provider).collect { result ->
                 if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()
+                } else if (result.isLinkInterruption()) {
+                    linkInterruption(result.link!!)
                 } else {
                     account.value = result.account
                     onLogin()
