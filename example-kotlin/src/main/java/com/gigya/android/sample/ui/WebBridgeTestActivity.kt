@@ -8,17 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ProgressBar
+import android.widget.Toast
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.gone
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaPluginCallback
-import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
-import com.gigya.android.sdk.ui.plugin.GigyaWebBridge
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge
-import kotlinx.android.synthetic.main.activity_web_bridge.*
-import org.jetbrains.anko.design.snackbar
 
 class WebBridgeTestActivity : AppCompatActivity() {
 
@@ -28,6 +26,9 @@ class WebBridgeTestActivity : AppCompatActivity() {
     }
 
     private var _webBridge: IGigyaWebBridge<MyAccount>? = null
+
+    private var webView: WebView? = null
+    private var progressIndicator: ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +40,8 @@ class WebBridgeTestActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun initUi() {
 
-        val webSettings = web_view.settings
+        webView = findViewById(R.id.web_view)
+        val webSettings = webView!!.settings
         webSettings.javaScriptEnabled = true
 
         // Generate a new web bridge instance.
@@ -47,7 +49,7 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
         // Attach web view to the web bridge instance.
         _webBridge?.attachTo(
-                web_view,
+                webView!!,
                 object : GigyaPluginCallback<MyAccount>() {
 
                     /*
@@ -55,28 +57,28 @@ class WebBridgeTestActivity : AppCompatActivity() {
                      */
 
                     override fun onLogin(accountObj: MyAccount) {
-                        web_view.snackbar("onLogin event shown")
+                        toast("onLogin event shown")
                         onBackPressed()
                     }
 
                     override fun onLogout() {
-                        web_view.snackbar("onLogout event shown")
+                        toast("onLogout event shown")
                         onBackPressed()
                     }
 
                 },
-                progress_indicator)
+                progressIndicator!!)
 
 
         // Setup a web view client to allow web bridge URL exchange.
-        web_view.webViewClient = (object : WebViewClient() {
+        webView!!.webViewClient = (object : WebViewClient() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                progress_indicator.visible()
+               progressIndicator!!.visible()
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                progress_indicator.gone()
+                progressIndicator!!.gone()
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -93,12 +95,16 @@ class WebBridgeTestActivity : AppCompatActivity() {
 
         /* Load custom URL */
 
-        web_view.loadUrl(TEST_BRIDGE_URL)
+        webView!!.loadUrl(TEST_BRIDGE_URL)
     }
 
     override fun onDestroy() {
-        _webBridge?.detachFrom(web_view)
+        _webBridge?.detachFrom(webView!!)
         super.onDestroy()
     }
 
+    private fun toast(text: String) {
+        val toast = Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT)
+        toast.show()
+    }
 }

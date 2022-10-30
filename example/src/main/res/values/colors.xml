@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sap_gold">#F0AB00</color>
+    <color name="sap_white">#FFFFFF</color>
+    <color name="sap_black">#000000</color>
+    <color name="sap_light_gray">#CCCCCC</color>
+    <color name="sap_medium_gray">#999999</color>
+    <color name="sap_dark_gray">#666666</color>
+    <color name="sap_blue">#008FD3</color>
+    <color name="sap_purple">#970A82</color>
+    <color name="sap_orange">#E35500</color>
+    <color name="sap_green">#4fb81c</color>
+</resources>

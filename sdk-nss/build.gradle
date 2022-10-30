@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'org.jetbrains.dokka-android'
 
 def libVersion = "1.5.1"
 
@@ -16,12 +14,11 @@ ext {
 }
 
 android {
-    compileSdkVersion build_versions.target_sdk
-    buildToolsVersion build_versions.build_tools
+    compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion build_versions.min_sdk_nss
-        targetSdkVersion build_versions.target_sdk
+        minSdkVersion 17
+        targetSdkVersion 32
 
         archivesBaseName = "gigya-android-nss"
     }
@@ -40,10 +37,7 @@ android {
         }
     }
 
-    dokka {
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/javadoc"
-    }
+    namespace 'com.gigya.android.sdk.nss'
 }
 
 dependencies {
