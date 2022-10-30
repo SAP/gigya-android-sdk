@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 def libVersion = "6.1.0"
 
@@ -15,13 +14,12 @@ ext {
 }
 
 android {
-    compileSdkVersion build_versions.target_sdk
-    buildToolsVersion build_versions.build_tools
+    compileSdkVersion 32
 
     defaultConfig {
         //noinspection MinSdkTooLow
-        minSdkVersion build_versions.min_sdk_core
-        targetSdkVersion build_versions.target_sdk
+        minSdkVersion 17
+        targetSdkVersion 32
 
         archivesBaseName = "gigya-android-sdk-core"
     }
@@ -33,25 +31,23 @@ android {
 
     buildTypes {
 
-        debug {
-            //testCoverageEnabled true
-            debuggable true
-        }
 
         release {
-            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/proguard/androidx-annotations.pro'
+        resources {
+            excludes += ['META-INF/proguard/androidx-annotations.pro']
+        }
     }
+
 
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    namespace 'com.gigya.android.sdk'
 
 }
 
@@ -60,7 +56,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.json:json:20180813'
-    testImplementation 'androidx.test:core:1.3.0'
+    testImplementation 'androidx.test:core:1.4.0'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
@@ -78,7 +74,7 @@ dependencies {
 
     // Social provider supported libraries.
     compileOnly 'com.linecorp:linesdk:5.1.1'
-    compileOnly 'com.facebook.android:facebook-android-sdk:11.2.0'
+    compileOnly 'com.facebook.android:facebook-android-sdk:12.3.0'
     compileOnly 'com.google.android.gms:play-services-auth:18.1.0'
     compileOnly 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.3'
 
@@ -92,11 +88,5 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("../javadoc/core")
-    failOnError false
-}
 
 

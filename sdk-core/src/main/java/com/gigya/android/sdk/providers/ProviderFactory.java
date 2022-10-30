@@ -91,7 +91,7 @@ public class ProviderFactory implements IProviderFactory {
                     if (GoogleProvider.isAvailable(_context)) {
                         return GoogleProvider.class;
                     } else {
-                        throw new RuntimeException("Google auth library implementation is a required dependency." +
+                        throw new RuntimeException("Google Play Services & Google auth library implementation is required." +
                                 " Please make sure it is correctly implemented in your build.gradle file.\n" +
                                 "https://sap.github.io/gigya-android-sdk/sdk-core/#google");
                     }

@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.invisible
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.ui.MainViewModel
-import kotlinx.android.synthetic.main.fragment_otp_login.*
 
 interface IOTPResultCallback {
 
@@ -26,11 +29,23 @@ class CustomOTPRegistrationFragment : DialogFragment() {
 
     lateinit var resultCallback: IOTPResultCallback
 
+    private var getCodeButton: Button? = null
+    private var otpEditText: EditText? = null
+    private var otpProgress: ProgressBar? = null
+    private var otpPhoneHint: TextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = activity?.run {
             ViewModelProvider(this).get(MainViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
+    }
+
+    private fun findIds() {
+        getCodeButton = requireView().findViewById(R.id.g_otp_get_code_button)
+        otpEditText = requireView().findViewById(R.id.g_otp_edit_text)
+        otpProgress = requireView().findViewById(R.id.g_top_progress)
+        otpPhoneHint = requireView().findViewById(R.id.g_top_phone_hint)
     }
 
     companion object {
@@ -50,19 +65,20 @@ class CustomOTPRegistrationFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        g_otp_get_code_button.setOnClickListener {
+        findIds()
+        getCodeButton!!.setOnClickListener {
             if (verifyState) {
-                val code: String = g_otp_edit_text.text.toString().trim()
+                val code: String = otpEditText!!.text.toString().trim()
                 verifyPhoneCode(code)
                 return@setOnClickListener
             }
-            val phoneNumber: String = g_otp_edit_text.text.toString().trim()
+            val phoneNumber: String = otpEditText!!.text.toString().trim()
             loginByPhone(phoneNumber)
         }
     }
 
     private fun loginByPhone(phoneNumber: String) {
-        g_top_progress.visible()
+        otpProgress!!.visible()
         viewModel?.otpLoginByPhone(
                 phoneNumber,
                 onCodeSent = {
@@ -79,14 +95,14 @@ class CustomOTPRegistrationFragment : DialogFragment() {
 
     private fun verifyPhoneCode(code: String) {
         viewModel?.onVerifyOTPCode(code)
-        g_top_progress.visible()
+        otpProgress!!.visible()
     }
 
     private fun switchToCodeVerificationView() {
-        g_top_progress.invisible()
+        otpProgress!!.invisible()
         verifyState = true
-        g_otp_edit_text.setText("")
-        g_otp_get_code_button.text = "Verify code"
-        g_top_phone_hint.text = "Wait for verification code"
+        otpEditText!!.setText("")
+        getCodeButton!!.text = "Verify code"
+        otpPhoneHint!!.text = "Wait for verification code"
     }
 }
