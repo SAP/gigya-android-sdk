@@ -378,6 +378,7 @@ Adding Facebook native login SDK to your Android app is mandatory if you want to
 ```
 On October 5, 2021, Facebook Login will no longer support Android embedded browsers (WebViews) for authenticating users.
 ```
+Android SDK currently supports up to Facebook Android SDK v12.3.0.
 
 To set up your Facebook app in your
 Android Studio project using the following instructions:
