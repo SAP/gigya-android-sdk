@@ -190,6 +190,10 @@ class MyAccountFragment : BaseExampleFragment() {
             }
         }
 
+        binding.accountNss.setOnClickListener {
+            showNativeScreenSets()
+        }
+
     }
 
     private val biometricCallback = object : IGigyaBiometricCallback {
@@ -235,6 +239,35 @@ class MyAccountFragment : BaseExampleFragment() {
     private fun updateBiometricUiState() {
         binding.biometricOpt.isEnabled = biometric.isAvailable
         binding.biometricLock.isEnabled = biometric.isAvailable && biometric.isOptIn
+    }
+
+    /**
+     * Initiate Native ScreenSets flow.
+     */
+    private fun showNativeScreenSets() {
+        viewModel.showNativeScreenSets(
+                requireContext(),
+                "fido_demo",
+                "account-update",
+                error = {
+                    // Display error.
+                    toastIt("Error: ${it?.localizedMessage}")
+                },
+                onLogin = {
+                    toastIt("login successful");
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
+                },
+                onApiResult = { api, gigyaApiResponse ->
+                    if (gigyaApiResponse != null) {
+                        if (gigyaApiResponse.statusCode != 0) {
+                            toastIt("Result success $api")
+                        } else {
+                            toastIt("Result error $api ${gigyaApiResponse.errorDetails}")
+                        }
+                    }
+
+                })
     }
 
 }

@@ -201,7 +201,8 @@ class LoginFragment : BaseExampleFragment() {
     private fun useNativeScreenSets() {
         viewModel.showNativeScreenSets(
                 requireContext(),
-                "default",
+                "fido_demo",
+                "login",
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
@@ -209,7 +210,10 @@ class LoginFragment : BaseExampleFragment() {
                 onLogin = {
                     toastIt("login successful");
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
+                },
+                onApiResult = { s, gigyaApiResponse ->
+                    // Stub.
                 })
     }
 
