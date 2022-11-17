@@ -18,6 +18,7 @@ android {
     }
 
     signingConfigs {
+
         debug {
             storeFile file("keystore/debug-key.keystore")
             storePassword 'android'
@@ -79,8 +80,8 @@ dependencies {
     implementation project(path: ':sdk-tfa')
 
     // Nss engine.
-    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.5.1'
-    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.5.1'
+    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.6.0'
+    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.6.0'
 
     // Fido passwordless authentication.
     implementation 'com.google.android.gms:play-services-fido:18.1.0'

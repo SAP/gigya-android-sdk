@@ -85,7 +85,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
                     getWebAuthnService()?.register(it.getWebAuthnResultHandler(),
                             object : GigyaCallback<GigyaApiResponse>() {
                                 override fun onSuccess(obj: GigyaApiResponse?) {
-                                    it.getMainFlowCallback()?.onGenericResponse(obj)
+                                    it.getMainFlowCallback()?.onGenericResponse(obj, webAuthnRegister)
                                 }
 
                                 override fun onError(error: GigyaError?) {
@@ -100,7 +100,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
                     getWebAuthnService()?.revoke(
                             object : GigyaCallback<GigyaApiResponse>() {
                                 override fun onSuccess(obj: GigyaApiResponse?) {
-                                    it.getMainFlowCallback()?.onGenericResponse(obj)
+                                    it.getMainFlowCallback()?.onGenericResponse(obj, webAuthnRevoke)
                                 }
 
                                 override fun onError(error: GigyaError?) {
