@@ -58,19 +58,25 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     init {
         mainFlowCallback = object : GigyaNssCallback<T, GigyaApiResponse>() {
 
-            override fun onGenericResponse(res: GigyaApiResponse?) {
+            override fun onGenericResponse(res: GigyaApiResponse?, api: String?) {
                 res.let {
                     val serializedObject = it.serializeToMap(gson)
 
                     // Merge data with updated global data.
-                    val merged = mutableListOf(serializedObject)
-                    activeAction?.let { action ->
-                        merged.add(action.getGlobalData())
-                    }
+                    val merged = (serializedObject["mapped"] as Map<out String, Any>) + activeAction!!.getGlobalData()
 
                     // Return merged result to engine.
                     activeChannelResult?.success(merged)
 
+                    if (api != null) {
+                        nssEvents?.onApiResult(
+                                activeScreen!!,
+                                activeAction!!.actionId!!,
+                                api,
+                                res
+                        )
+                        return@let
+                    }
                     // Propagate Nss event.
                     nssEvents?.onScreenSuccess(
                             activeScreen!!,
