@@ -537,8 +537,8 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
-                gigyaCallback.onSuccess(obj);
                 clearPassKey();
+                gigyaCallback.onSuccess(obj);
             }
 
             @Override
