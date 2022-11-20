@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.nss
 
 import com.gigya.android.sdk.account.models.GigyaAccount
+import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
 
 abstract class NssEvents<T : GigyaAccount> {
@@ -14,6 +15,10 @@ abstract class NssEvents<T : GigyaAccount> {
     }
 
     open fun onScreenSuccess(screenId: String, action: String, accountObj: T?) {
+        // Stub.
+    }
+
+    open fun onApiResult(screenId: String, action: String, api: String, response: GigyaApiResponse?) {
         // Stub.
     }
 }
