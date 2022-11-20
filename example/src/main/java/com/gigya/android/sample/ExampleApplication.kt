@@ -31,6 +31,8 @@ class ExampleApplication : Application() {
 
         // Initialize the Gigya SDK using custom account scheme.
         Gigya.getInstance(MyAccount::class.java)
+
+        getSignature()
     }
 
     // Call function to get the application signature used for Facebook login or Fido authentication.
