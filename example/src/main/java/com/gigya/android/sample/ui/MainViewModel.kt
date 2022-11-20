@@ -284,8 +284,8 @@ class MainViewModel : ViewModel() {
     fun showNativeScreenSets(context: Context, screensetId: String, initial: String,
                              error: (GigyaError?) -> Unit, onLogin: () -> Unit, onApiResult: (String, GigyaApiResponse?) -> Unit) {
         GigyaNss.getInstance()
-//                .load(screensetId)
-                .loadFromAssets("nss-example")
+                .load(screensetId)
+//                .loadFromAssets("nss-example")
                 .initialRoute(initial)
                 .events(object : NssEvents<MyAccount>() {
 

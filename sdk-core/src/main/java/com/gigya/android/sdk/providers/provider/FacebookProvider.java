@@ -13,6 +13,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -57,6 +59,7 @@ public class FacebookProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
+        FacebookSdk.sdkInitialize(_context);
         if (_connecting) {
             return;
         }
