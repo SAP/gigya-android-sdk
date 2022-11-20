@@ -78,34 +78,13 @@
           "type": "container"
         },
         {
-          "api": "webAuthnRegister",
-          "type": "button",
-          "textKey": "login-button",
-          "style": {
-            "textAlign": "center",
-            "background": "white",
-            "borderColor": "#0854A0",
-            "fontColor": "#0854A0",
-            "borderSize": 2,
-            "cornerRadius": 5,
-            "elevation": 4,
-            "margin": 5,
-            "opacity": 1,
-            "size": [
-              300,
-              40
-            ]
-          },
-          "iconEnabled": true,
-          "iconURL": "https://static.gigya.com/nSS/assets/fido.png",
-          "showIf": "Gigya.webAuthn.isExists == false && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true"
-        },
-        {
+          "showIf": "Gigya.webAuthn.isExists == true && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true",
+          "useRouting": false,
           "api": "webAuthnRevoke",
           "type": "button",
-          "textKey": "login-button1",
+          "textKey": "account-update-button",
           "style": {
-            "textAlign": "center",
+            "textAlign": "left",
             "background": "white",
             "borderColor": "#0854A0",
             "fontColor": "#0854A0",
@@ -120,8 +99,31 @@
             ]
           },
           "iconEnabled": true,
-          "iconURL": "https://static.gigya.com/nSS/assets/fido.png",
-          "showIf": "Gigya.webAuthn.isExists == true && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true"
+          "iconURL": "https://static.gigya.com/nSS/assets/fido.png"
+        },
+        {
+          "showIf": "Gigya.webAuthn.isExists == false && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true",
+          "useRouting": false,
+          "api": "webAuthnRegister",
+          "type": "button",
+          "textKey": "account-update-button1",
+          "style": {
+            "textAlign": "left",
+            "background": "white",
+            "borderColor": "#0854A0",
+            "fontColor": "#0854A0",
+            "borderSize": 2,
+            "cornerRadius": 5,
+            "elevation": 4,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ]
+          },
+          "iconEnabled": true,
+          "iconURL": "https://static.gigya.com/nSS/assets/fido.png"
         },
         {
           "bind": "profile.email",
@@ -1577,6 +1579,89 @@
         "onSuccess": "_dismiss"
       }
     },
+    "forgot-password": {
+      "action": "forgotPassword",
+      "appBar": {
+        "textKey": "forgot-password-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-label",
+          "type": "label"
+        },
+        {
+          "bind": "#loginID",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 8,
+            "opacity": 1
+          },
+          "textKey": "forgot-password-input",
+          "type": "emailInput"
+        },
+        {
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 6,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ],
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-submit",
+          "type": "submit"
+        },
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-label1",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onSuccess": "forgot-password-sent"
+      }
+    },
+    "forgot-password-sent": {
+      "action": "none",
+      "appBar": {
+        "textKey": "forgot-password-sent-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 16,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-sent-label",
+          "type": "label"
+        },
+        {
+          "style": {
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-sent-label1",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onSuccess": "login"
+      }
+    },
     "login": {
       "action": "login",
       "appBar": {
@@ -1618,12 +1703,13 @@
           "type": "label"
         },
         {
-          "api": "webAuthnLogin",
+          "showIf": "Gigya.webAuthn.isExists == true",
           "useRouting": true,
+          "api": "webAuthnLogin",
           "type": "button",
-          "textKey": "account-update-button",
+          "textKey": "login-button",
           "style": {
-            "textAlign": "start",
+            "textAlign": "left",
             "background": "white",
             "borderColor": "#0854A0",
             "fontColor": "#0854A0",
@@ -1883,89 +1969,6 @@
       "routing": {
         "onPendingRegistration": "account-update",
         "onSuccess": "account-update"
-      }
-    },
-    "forgot-password": {
-      "action": "forgotPassword",
-      "appBar": {
-        "textKey": "forgot-password-title"
-      },
-      "children": [
-        {
-          "style": {
-            "margin": 10,
-            "opacity": 1,
-            "textAlign": "center"
-          },
-          "textKey": "forgot-password-label",
-          "type": "label"
-        },
-        {
-          "bind": "#loginID",
-          "disabled": false,
-          "style": {
-            "borderSize": 1,
-            "cornerRadius": 22,
-            "margin": 8,
-            "opacity": 1
-          },
-          "textKey": "forgot-password-input",
-          "type": "emailInput"
-        },
-        {
-          "style": {
-            "borderSize": 1,
-            "cornerRadius": 6,
-            "margin": 5,
-            "opacity": 1,
-            "size": [
-              300,
-              40
-            ],
-            "textAlign": "center"
-          },
-          "textKey": "forgot-password-submit",
-          "type": "submit"
-        },
-        {
-          "style": {
-            "margin": 10,
-            "opacity": 1,
-            "textAlign": "center"
-          },
-          "textKey": "forgot-password-label1",
-          "type": "label"
-        }
-      ],
-      "routing": {
-        "onSuccess": "forgot-password-sent"
-      }
-    },
-    "forgot-password-sent": {
-      "action": "none",
-      "appBar": {
-        "textKey": "forgot-password-sent-title"
-      },
-      "children": [
-        {
-          "style": {
-            "margin": 16,
-            "opacity": 1,
-            "textAlign": "center"
-          },
-          "textKey": "forgot-password-sent-label",
-          "type": "label"
-        },
-        {
-          "style": {
-            "textAlign": "center"
-          },
-          "textKey": "forgot-password-sent-label1",
-          "type": "label"
-        }
-      ],
-      "routing": {
-        "onSuccess": "login"
       }
     }
   },

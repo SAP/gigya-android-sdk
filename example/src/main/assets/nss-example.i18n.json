@@ -383,8 +383,8 @@
     "register-title": "Register",
     "error-schema-required-validation": "This field is required",
     "error-schema-regex-validation": "Invalid value",
-    "login-button": "FIDO Activate",
-    "login-button1": "FIDO Deactivate",
-    "account-update-button": "FIDO Login"
+    "login-button": "FIDO Login",
+    "account-update-button": "FIDO Deactivate",
+    "account-update-button1": "FIDO Activate"
   }
 }
