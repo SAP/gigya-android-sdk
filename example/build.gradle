@@ -85,4 +85,8 @@ dependencies {
 
     // Fido passwordless authentication.
     implementation 'com.google.android.gms:play-services-fido:18.1.0'
+
+
+    implementation 'com.facebook.android:facebook-android-sdk:14.1.1'
+
 }

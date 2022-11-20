@@ -59,6 +59,10 @@
 
     <!-- Social login integration strings -->
     <string name="facebook_app_id">YOUR-FACEBOOK-APP-ID-HERE</string>
+    <string name="fb_login_protocol_scheme">fbYOUR-FACEBOOK-APP-ID-HERE</string>
+    <string name="facebook_client_token">YOUR-FACEBOOK-CLIENT-TOKEN-HERE</string>
+
+
     <string name="google_client_id">YOUR-GOOGLE-CLIENT-ID-HERE</string>
 
 
