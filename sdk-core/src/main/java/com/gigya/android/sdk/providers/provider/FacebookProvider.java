@@ -59,7 +59,6 @@ public class FacebookProvider extends Provider {
 
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
-        FacebookSdk.sdkInitialize(_context);
         if (_connecting) {
             return;
         }
