@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentLoginBinding
 import com.gigya.android.sample.ui.MainActivity
+import com.gigya.android.sdk.biometric.GigyaBiometric
+import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 
 class LoginFragment : BaseExampleFragment() {
 
@@ -34,6 +36,49 @@ class LoginFragment : BaseExampleFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (biometric.isLocked) {
+            evaluateBiometricSession(biometricCallback)
+        }
+    }
+
+    private val biometricCallback = object : IGigyaBiometricCallback {
+        override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+            updateBiometricUiState()
+            when (action) {
+                GigyaBiometric.Action.OPT_IN -> {
+                    toastIt("Biometric: OptIn")
+                }
+                GigyaBiometric.Action.OPT_OUT -> {
+                    toastIt("Biometric: OptOut")
+                }
+                GigyaBiometric.Action.LOCK -> {
+                    toastIt("Biometric: Locked")
+                }
+                GigyaBiometric.Action.UNLOCK -> {
+                    toastIt("Biometric: Unlocked")
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
+                }
+            }
+        }
+
+        override fun onBiometricOperationFailed(reason: String?) {
+            toastIt("Biometric authentication error: $reason")
+            reason?.let { error ->
+                if (error == "Key invalidated") {
+                    toastIt("Key invalidated - session not recoverable")
+                }
+            }
+        }
+
+        override fun onBiometricOperationCanceled() {
+            toastIt("Biometric operation canceled")
+        }
+
     }
 
     private fun setClicks() {
@@ -67,7 +112,7 @@ class LoginFragment : BaseExampleFragment() {
                 onLogin = {
                     toastIt("login successful")
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
                 },
                 tfaInterruption = { interruption ->
                     val fragment = TFAFragment.newInstance()
