@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.util.Base64
 import android.util.Log
 import android.webkit.WebView
+import com.facebook.FacebookSdk
+import com.facebook.appevents.AppEventsLogger
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
@@ -31,6 +33,9 @@ class ExampleApplication : Application() {
 
         // Initialize the Gigya SDK using custom account scheme.
         Gigya.getInstance(MyAccount::class.java)
+
+//        FacebookSdk.sdkInitialize(this)
+        AppEventsLogger.activateApp(this);
 
         getSignature()
     }

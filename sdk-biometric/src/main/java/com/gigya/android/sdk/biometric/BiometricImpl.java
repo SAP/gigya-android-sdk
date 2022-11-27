@@ -191,6 +191,7 @@ public abstract class BiometricImpl implements IBiometricImpl {
             setSession(cipher, sessionInfo);
             biometricCallback.onBiometricOperationSuccess(GigyaBiometric.Action.OPT_IN);
         } catch (Exception ex) {
+            ((BiometricKey) _biometricKey).deleteKey();
             ex.printStackTrace();
             biometricCallback.onBiometricOperationFailed("Fingerprint optIn: " + ex.getMessage());
         }
@@ -303,4 +304,14 @@ public abstract class BiometricImpl implements IBiometricImpl {
     }
 
     //endregion
+
+    /**
+     * Key permanently invalidated.
+     * OS security state has changed. Session is not recoverable.
+     * Key needs to be deleted and session invalidated.
+     */
+    protected void onInvalidKey() {
+        _sessionService.clear(true);
+        ((BiometricKey) _biometricKey).deleteKey();
+    }
 }

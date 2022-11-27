@@ -1,8 +1,11 @@
 package com.gigya.android.sdk.biometric;
 
+import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
+
+import androidx.annotation.RequiresApi;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
@@ -48,7 +51,7 @@ public class BiometricKey implements ISecureKey {
             return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new EncryptionException("getEncryptionCipher: exception" + ex.getMessage(), ex.getCause());
+            throw new EncryptionException("getEncryptionCipher: exception" + ex.getMessage(), ex);
         }
     }
 
@@ -67,7 +70,7 @@ public class BiometricKey implements ISecureKey {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex.getCause());
+            throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex);
         }
     }
 
@@ -111,6 +114,7 @@ public class BiometricKey implements ISecureKey {
     public void deleteKey() {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
             keyStore.deleteEntry(getAlias());
         } catch (Exception ex) {
             ex.printStackTrace();

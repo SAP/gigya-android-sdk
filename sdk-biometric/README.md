@@ -8,11 +8,15 @@ Gigya's Android Core library implementation.
 Android SDK 23 and above is required.
 
 ## Limitations
-Following released version 2.+ the Biometric extension will require your Application to be AndroidX complient.
+Following released version 2.+ the Biometric extension will require your Application to be AndroidX compliant.
 For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
 
-
 **Biometric fingerprint support is available for devices running Android Marshmallow and above.**
+
+On Android devices running OS 11+, An active/locked session will be unrecoverable when the user makes
+changes to his fingerprint state on the device.
+The Android OS will apply an additional security layer that will invalidate any keystore keys related to biometric authentication.
+Application state can be handled according to **"Key invalidated"** errors from the biometric **"onBiometricOperationFailed"** callback.
 
 ## Integration
 
