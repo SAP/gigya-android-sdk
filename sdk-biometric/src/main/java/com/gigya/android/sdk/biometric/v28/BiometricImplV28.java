@@ -7,18 +7,23 @@ import android.content.DialogInterface;
 import android.hardware.biometrics.BiometricPrompt;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
 
 import androidx.annotation.NonNull;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.BiometricImpl;
+import com.gigya.android.sdk.biometric.BiometricKey;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
 import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
+import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
+
+import java.security.KeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -46,51 +51,63 @@ public class BiometricImplV28 extends BiometricImpl {
             return;
         }
         final Cipher cipher;
-        if (encryptionMode == Cipher.DECRYPT_MODE) {
-            cipher = _biometricKey.getDecryptionCipher(key);
-        } else {
-            cipher = _biometricKey.getEncryptionCipher(key);
-        }
-        if (cipher != null) {
-            BiometricPrompt prompt = new BiometricPrompt.Builder(activity)
-                    .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title))
-                    .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle))
-                    .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description))
-                    .setNegativeButton("Cancel", _context.getMainExecutor(), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            callback.onBiometricOperationCanceled();
-                        }
-                    })
-                    .build();
-            final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(cipher);
-            prompt.authenticate(cryptoObject, new CancellationSignal(), _context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(int errorCode, CharSequence errString) {
-                    super.onAuthenticationError(errorCode, errString);
-                    callback.onBiometricOperationFailed(errString.toString());
-                }
+        try {
+            if (encryptionMode == Cipher.DECRYPT_MODE) {
+                cipher = _biometricKey.getDecryptionCipher(key);
+            } else {
+                cipher = _biometricKey.getEncryptionCipher(key);
+            }
+            if (cipher != null) {
+                BiometricPrompt prompt = new BiometricPrompt.Builder(activity)
+                        .setTitle(gigyaPromptInfo.getTitle() != null ? gigyaPromptInfo.getTitle() : _context.getString(R.string.bio_prompt_default_title))
+                        .setSubtitle(gigyaPromptInfo.getSubtitle() != null ? gigyaPromptInfo.getSubtitle() : _context.getString(R.string.bio_prompt_default_subtitle))
+                        .setDescription(gigyaPromptInfo.getDescription() != null ? gigyaPromptInfo.getDescription() : _context.getString(R.string.bio_prompt_default_description))
+                        .setNegativeButton("Cancel", _context.getMainExecutor(), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                callback.onBiometricOperationCanceled();
+                            }
+                        })
+                        .build();
+                final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(cipher);
+                prompt.authenticate(cryptoObject, new CancellationSignal(), _context.getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationError(int errorCode, CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+                        callback.onBiometricOperationFailed(errString.toString());
+                    }
 
-                @Override
-                public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                    super.onAuthenticationHelp(helpCode, helpString);
-                }
+                    @Override
+                    public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                        super.onAuthenticationHelp(helpCode, helpString);
+                    }
 
-                @Override
-                public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                    super.onAuthenticationSucceeded(result);
-                    onSuccessfulAuthentication(cipher, action, callback);
-                }
+                    @Override
+                    public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        onSuccessfulAuthentication(cipher, action, callback);
+                    }
 
-                @Override
-                public void onAuthenticationFailed() {
-                    super.onAuthenticationFailed();
-                    callback.onBiometricOperationFailed("Fingerprint recognition failed");
-                }
-            });
-        } else {
-            //Error.
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        callback.onBiometricOperationFailed("Fingerprint recognition failed");
+                    }
+                });
+            } else {
+                //Error.
+                GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
+                callback.onBiometricOperationFailed("Failed to initialize cipher");
+            }
+        } catch (EncryptionException encryptionException) {
+            Exception ex = (Exception) encryptionException.getCause();
+            if (ex instanceof KeyPermanentlyInvalidatedException) {
+                GigyaLogger.error(LOG_TAG, ex.getMessage());
+                onInvalidKey();
+                callback.onBiometricOperationFailed("Key invalidated");
+            }
             GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
+            callback.onBiometricOperationFailed("Failed to initialize cipher");
         }
     }
 }

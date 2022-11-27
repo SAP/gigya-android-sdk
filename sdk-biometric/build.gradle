@@ -13,12 +13,11 @@ ext {
 }
 
 android {
-    compileSdkVersion build_versions.target_sdk
-    buildToolsVersion build_versions.build_tools
+    compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion build_versions.min_sdk_biometric
-        targetSdkVersion build_versions.target_sdk
+        minSdkVersion 23
+        targetSdkVersion 32
 
         archivesBaseName = "gigya-android-biometric"
 
@@ -32,16 +31,13 @@ android {
 
     buildTypes {
 
-        debug {
-            debuggable true
-        }
 
         release {
-            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.gigya.android.sdk.biometric'
 }
 
 dependencies {
@@ -59,10 +55,3 @@ dependencies {
     compileOnly project(path: ':sdk-core')
 }
 
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("../javadoc/biometric")
-    failOnError false
-}

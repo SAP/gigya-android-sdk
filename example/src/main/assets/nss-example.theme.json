@@ -1,0 +1,16 @@
+{
+  "theme": {
+    "disabledColor": "grey",
+    "enabledColor": "blue",
+    "errorColor": "red",
+    "primaryColor": "blue",
+    "secondaryColor": "white",
+    "textColor": "black"
+  },
+  "customThemes": {
+    "title": {
+      "fontWeight": "bold",
+      "fontSize": 22
+    }
+  }
+}
