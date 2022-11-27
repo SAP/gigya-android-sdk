@@ -68,22 +68,26 @@ class MainActivity : AppCompatActivity() {
                 supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.container, MyAccountFragment.newInstance())
-                        .commitNow()
+                        .commit()
                 return
             }
             supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.container, LoginFragment.newInstance())
-                    .commitNow()
+                    .commit()
         }
     }
 
     fun onLogout() {
-        supportFragmentManager.popBackStackImmediate()
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, LoginFragment.newInstance())
-                .commitNow()
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStackImmediate()
+        }
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.container, LoginFragment.newInstance())
+                    .commitAllowingStateLoss()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

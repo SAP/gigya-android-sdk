@@ -24,8 +24,6 @@ class MyAccountFragment : BaseExampleFragment() {
 
     private val binding get() = _binding!!
 
-    private var biometric = GigyaBiometric.getInstance()
-
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -48,6 +46,11 @@ class MyAccountFragment : BaseExampleFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.account.observe(viewLifecycleOwner, nameObserver)
+        // Check biometric state.
+        if (biometric.isLocked) {
+            evaluateBiometricSession(biometricCallback)
+        }
+        updateBiometricUiState()
     }
 
     private val nameObserver = Observer<MyAccount> { account ->
@@ -63,12 +66,40 @@ class MyAccountFragment : BaseExampleFragment() {
 
         // Get account data if needed.
         populateAccountInfo()
+    }
 
-        // Check biometric state.
-        if (biometric.isAvailable) {
-            evaluateBiometricSession()
+    private val biometricCallback = object : IGigyaBiometricCallback {
+        override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+            updateBiometricUiState()
+            when (action) {
+                GigyaBiometric.Action.OPT_IN -> {
+                    toastIt("Biometric: OptIn")
+                }
+                GigyaBiometric.Action.OPT_OUT -> {
+                    toastIt("Biometric: OptOut")
+                }
+                GigyaBiometric.Action.LOCK -> {
+                    toastIt("Biometric: Locked")
+                }
+                GigyaBiometric.Action.UNLOCK -> {
+                    toastIt("Biometric: Unlocked")
+                }
+            }
         }
-        updateBiometricUiState()
+
+        override fun onBiometricOperationFailed(reason: String?) {
+            toastIt("Biometric authentication error: $reason")
+            reason?.let { error ->
+                if (error == "Key invalidated" || error == "No fingerprints enrolled.") {
+                    (activity as MainActivity).onLogout()
+                }
+            }
+        }
+
+        override fun onBiometricOperationCanceled() {
+            toastIt("Biometric operation canceled")
+        }
+
     }
 
     private fun populateAccountInfo() {
@@ -196,47 +227,7 @@ class MyAccountFragment : BaseExampleFragment() {
 
     }
 
-    private val biometricCallback = object : IGigyaBiometricCallback {
-        override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
-            updateBiometricUiState()
-            when (action) {
-                GigyaBiometric.Action.OPT_IN -> {
-                    toastIt("Biometric: OptIn")
-                }
-                GigyaBiometric.Action.OPT_OUT -> {
-                    toastIt("Biometric: OptOut")
-                }
-                GigyaBiometric.Action.LOCK -> {
-                    toastIt("Biometric: Locked")
-                }
-                GigyaBiometric.Action.UNLOCK -> {
-                    toastIt("Biometric: Unlocked")
-                }
-            }
-        }
-
-        override fun onBiometricOperationFailed(reason: String?) {
-            toastIt("Biometric authentication error: $reason")
-        }
-
-        override fun onBiometricOperationCanceled() {
-            toastIt("Biometric operation canceled")
-        }
-    }
-
-    private fun evaluateBiometricSession() {
-        if (biometric.isLocked) {
-            // Unlock the session
-            biometric.unlock(
-                    requireActivity(),
-                    GigyaPromptInfo("Unlock session",
-                            "Place finger on sensor to continue", ""),
-                    biometricCallback
-            )
-        }
-    }
-
-    private fun updateBiometricUiState() {
+    override fun updateBiometricUiState() {
         binding.biometricOpt.isEnabled = biometric.isAvailable
         binding.biometricLock.isEnabled = biometric.isAvailable && biometric.isOptIn
     }
