@@ -13,12 +13,11 @@ ext {
 }
 
 android {
-    compileSdkVersion build_versions.target_sdk
-    buildToolsVersion build_versions.build_tools
+    compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion build_versions.min_sdk_auth
-        targetSdkVersion build_versions.target_sdk
+        minSdkVersion 17
+        targetSdkVersion 32
 
         archivesBaseName = "gigya-android-auth"
     }
@@ -30,15 +29,13 @@ android {
 
     buildTypes {
 
-        debug {
-            debuggable true
-        }
 
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.gigya.android.sdk.auth'
 
 }
 
@@ -56,12 +53,4 @@ dependencies {
     compileOnly 'com.google.firebase:firebase-messaging:20.3.0'
 
     compileOnly project(path: ':sdk-core')
-}
-
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("../javadoc/auth")
-    failOnError false
 }

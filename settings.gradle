@@ -1,1 +1,36 @@
-include ':example-kotlin', ':sdk-core', ':sdk-biometric', ':sdk-tfa', ':sdk-auth', ':sdk-nss', ':example-java'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        jcenter()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        maven {
+            // NOTE: This is a dynamic link to the native screen-sets (NSS) engine folder.
+            // Update the local path to match you engine location in order to safely
+            // compile when using NSS references.
+            url 'sdk-nss-engine/host/outputs/repo'
+        }
+        maven {
+            url 'https://storage.googleapis.com/download.flutter.io'
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+rootProject.name = "gigya-android-sdk"
+include ':sdk-core',
+        ':sdk-biometric',
+        ':sdk-tfa',
+        ':sdk-auth',
+        ':sdk-nss',
+        ':example' ,
+        ':example-kotlin'

@@ -2,22 +2,27 @@ package com.gigya.android.sample.ui.fragment
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.*
 import com.gigya.android.sample.R
 import com.gigya.android.sample.extras.visible
 import com.gigya.android.sample.ui.MainViewModel
-import kotlinx.android.synthetic.main.dialog_conflicting_accounts.*
+import com.google.android.material.textfield.TextInputLayout
 
 class ConflictingAccountsDialog : androidx.fragment.app.DialogFragment() {
 
     private var viewModel: MainViewModel? = null
 
     lateinit var loginID: String
+
+    private var caTitle: TextView? = null
+    private var caLoginId: TextView? = null
+    private var caAvailableProvidersSpinner: Spinner? = null
+    private var caPasswordEditLayout: TextInputLayout? = null
+    private var caSubmit: Button? = null
+    private var caPasswordEdit: EditText? = null
 
     companion object {
 
@@ -30,6 +35,15 @@ class ConflictingAccountsDialog : androidx.fragment.app.DialogFragment() {
             dialog.isCancelable = false
             return dialog
         }
+    }
+
+    private fun findIds() {
+        caTitle = requireView().findViewById(R.id.ca_title)
+        caLoginId = requireView().findViewById(R.id.ca_login_id)
+        caAvailableProvidersSpinner = requireView().findViewById(R.id.ca_available_providers_spinner)
+        caPasswordEditLayout = requireView().findViewById(R.id.ca_password_edit_layout)
+        caSubmit = requireView().findViewById(R.id.ca_submit)
+        caPasswordEdit = requireView().findViewById(R.id.ca_password_edit)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,14 +69,15 @@ class ConflictingAccountsDialog : androidx.fragment.app.DialogFragment() {
     }
 
     private fun setupView() {
+        findIds()
         // Populate LoginID.
-        loginID = arguments!!["loginID"] as String
-        ca_login_id.text = "Login id: " + loginID
+        loginID = requireArguments()["loginID"] as String
+        caLoginId!!.text = "Login id: " + loginID
         // Populate available providers
-        val providers = arguments!!.getStringArrayList("providers")
-        val providerAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, providers!!)
-        ca_available_providers_spinner.adapter = providerAdapter
-        ca_available_providers_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        val providers = requireArguments().getStringArrayList("providers")
+        val providerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, providers!!)
+        caAvailableProvidersSpinner!!.adapter = providerAdapter
+        caAvailableProvidersSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Stub.
             }
@@ -71,17 +86,17 @@ class ConflictingAccountsDialog : androidx.fragment.app.DialogFragment() {
                 val selected = providers[position]
                 when (selected) {
                     "site" -> {
-                        ca_password_edit_layout.visible()
+                        caPasswordEditLayout!!.visible()
                     }
                 }
             }
         }
 
-        ca_submit.setOnClickListener {
-            val provider = ca_available_providers_spinner.selectedItem.toString()
+        caSubmit!!.setOnClickListener {
+            val provider = caAvailableProvidersSpinner!!.selectedItem.toString()
             when (provider) {
                 "site" -> {
-                    val pass = ca_password_edit.text.toString().trim()
+                    val pass = caPasswordEdit!!.text.toString().trim()
                     viewModel?.onLinkAccountWithSite(loginID, pass)
                 }
                 else -> {
