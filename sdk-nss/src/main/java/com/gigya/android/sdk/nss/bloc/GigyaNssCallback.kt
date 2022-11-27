@@ -9,5 +9,5 @@ import com.gigya.android.sdk.api.GigyaApiResponse
  */
 abstract class GigyaNssCallback<T : GigyaAccount, R : GigyaApiResponse> : GigyaLoginCallback<T>() {
 
-    abstract fun onGenericResponse(res: R?);
+    abstract fun onGenericResponse(res: R?, api: String?)
 }

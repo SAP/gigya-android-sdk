@@ -1,0 +1,1976 @@
+{
+  "routing": {
+    "default": {
+      "onPendingEmailVerification": "_dismiss",
+      "onSuccess": "_dismiss"
+    },
+    "initial": "login"
+  },
+  "screens": {
+    "account-update": {
+      "action": "setAccount",
+      "appBar": {
+        "textKey": "account-update-title"
+      },
+      "children": [
+        {
+          "alignment": "start",
+          "children": [
+            {
+              "allowUpload": false,
+              "default": "https://static.gigya.com/nSS/assets/img_avatar.png",
+              "style": {
+                "elevation": 0,
+                "margin": 10,
+                "opacity": 1,
+                "size": [
+                  80,
+                  80
+                ]
+              },
+              "type": "profilePhoto"
+            },
+            {
+              "alignment": "start",
+              "children": [
+                {
+                  "bind": "profile.firstName",
+                  "disabled": false,
+                  "style": {
+                    "borderSize": 1,
+                    "cornerRadius": 22,
+                    "margin": 10,
+                    "opacity": 1
+                  },
+                  "textKey": "account-update-input",
+                  "type": "textInput"
+                },
+                {
+                  "bind": "profile.lastName",
+                  "disabled": false,
+                  "style": {
+                    "borderSize": 1,
+                    "cornerRadius": 22,
+                    "margin": 10,
+                    "opacity": 1
+                  },
+                  "textKey": "account-update-input1",
+                  "type": "textInput"
+                }
+              ],
+              "stack": "vertical",
+              "style": {
+                "margin": [
+                  5,
+                  0,
+                  0,
+                  0
+                ],
+                "opacity": 1
+              },
+              "type": "container"
+            }
+          ],
+          "stack": "horizontal",
+          "style": {
+            "opacity": 1
+          },
+          "type": "container"
+        },
+        {
+          "showIf": "Gigya.webAuthn.isExists == true && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true",
+          "useRouting": false,
+          "api": "webAuthnRevoke",
+          "type": "button",
+          "textKey": "account-update-button",
+          "style": {
+            "textAlign": "left",
+            "background": "white",
+            "borderColor": "#0854A0",
+            "fontColor": "#0854A0",
+            "borderSize": 2,
+            "cornerRadius": 5,
+            "elevation": 4,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ]
+          },
+          "iconEnabled": true,
+          "iconURL": "https://static.gigya.com/nSS/assets/fido.png"
+        },
+        {
+          "showIf": "Gigya.webAuthn.isExists == false && Gigya.isLoggedIn == true && Gigya.webAuthn.isSupported == true",
+          "useRouting": false,
+          "api": "webAuthnRegister",
+          "type": "button",
+          "textKey": "account-update-button1",
+          "style": {
+            "textAlign": "left",
+            "background": "white",
+            "borderColor": "#0854A0",
+            "fontColor": "#0854A0",
+            "borderSize": 2,
+            "cornerRadius": 5,
+            "elevation": 4,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ]
+          },
+          "iconEnabled": true,
+          "iconURL": "https://static.gigya.com/nSS/assets/fido.png"
+        },
+        {
+          "bind": "profile.email",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 10,
+            "opacity": 1
+          },
+          "textKey": "account-update-input2",
+          "type": "emailInput"
+        },
+        {
+          "bind": "profile.birthYear",
+          "placeholder": "account-update-option-year",
+          "disabled": false,
+          "options": [
+            {
+              "textKey": "account-update-option-1920",
+              "value": "1920"
+            },
+            {
+              "textKey": "account-update-option-1921",
+              "value": "1921"
+            },
+            {
+              "textKey": "account-update-option-1922",
+              "value": "1922"
+            },
+            {
+              "textKey": "account-update-option-1923",
+              "value": "1923"
+            },
+            {
+              "textKey": "account-update-option-1924",
+              "value": "1924"
+            },
+            {
+              "textKey": "account-update-option-1925",
+              "value": "1925"
+            },
+            {
+              "textKey": "account-update-option-1926",
+              "value": "1926"
+            },
+            {
+              "textKey": "account-update-option-1927",
+              "value": "1927"
+            },
+            {
+              "textKey": "account-update-option-1928",
+              "value": "1928"
+            },
+            {
+              "textKey": "account-update-option-1929",
+              "value": "1929"
+            },
+            {
+              "textKey": "account-update-option-1930",
+              "value": "1930"
+            },
+            {
+              "textKey": "account-update-option-1931",
+              "value": "1931"
+            },
+            {
+              "textKey": "account-update-option-1932",
+              "value": "1932"
+            },
+            {
+              "textKey": "account-update-option-1933",
+              "value": "1933"
+            },
+            {
+              "textKey": "account-update-option-1934",
+              "value": "1934"
+            },
+            {
+              "textKey": "account-update-option-1935",
+              "value": "1935"
+            },
+            {
+              "textKey": "account-update-option-1936",
+              "value": "1936"
+            },
+            {
+              "textKey": "account-update-option-1937",
+              "value": "1937"
+            },
+            {
+              "textKey": "account-update-option-1938",
+              "value": "1938"
+            },
+            {
+              "textKey": "account-update-option-1939",
+              "value": "1939"
+            },
+            {
+              "textKey": "account-update-option-1940",
+              "value": "1940"
+            },
+            {
+              "textKey": "account-update-option-1941",
+              "value": "1941"
+            },
+            {
+              "textKey": "account-update-option-1942",
+              "value": "1942"
+            },
+            {
+              "textKey": "account-update-option-1943",
+              "value": "1943"
+            },
+            {
+              "textKey": "account-update-option-1944",
+              "value": "1944"
+            },
+            {
+              "textKey": "account-update-option-1945",
+              "value": "1945"
+            },
+            {
+              "textKey": "account-update-option-1946",
+              "value": "1946"
+            },
+            {
+              "textKey": "account-update-option-1947",
+              "value": "1947"
+            },
+            {
+              "textKey": "account-update-option-1948",
+              "value": "1948"
+            },
+            {
+              "textKey": "account-update-option-1949",
+              "value": "1949"
+            },
+            {
+              "textKey": "account-update-option-1950",
+              "value": "1950"
+            },
+            {
+              "textKey": "account-update-option-1951",
+              "value": "1951"
+            },
+            {
+              "textKey": "account-update-option-1952",
+              "value": "1952"
+            },
+            {
+              "textKey": "account-update-option-1953",
+              "value": "1953"
+            },
+            {
+              "textKey": "account-update-option-1954",
+              "value": "1954"
+            },
+            {
+              "textKey": "account-update-option-1955",
+              "value": "1955"
+            },
+            {
+              "textKey": "account-update-option-1956",
+              "value": "1956"
+            },
+            {
+              "textKey": "account-update-option-1957",
+              "value": "1957"
+            },
+            {
+              "textKey": "account-update-option-1958",
+              "value": "1958"
+            },
+            {
+              "textKey": "account-update-option-1959",
+              "value": "1959"
+            },
+            {
+              "textKey": "account-update-option-1960",
+              "value": "1960"
+            },
+            {
+              "textKey": "account-update-option-1961",
+              "value": "1961"
+            },
+            {
+              "textKey": "account-update-option-1962",
+              "value": "1962"
+            },
+            {
+              "textKey": "account-update-option-1963",
+              "value": "1963"
+            },
+            {
+              "textKey": "account-update-option-1964",
+              "value": "1964"
+            },
+            {
+              "textKey": "account-update-option-1965",
+              "value": "1965"
+            },
+            {
+              "textKey": "account-update-option-1966",
+              "value": "1966"
+            },
+            {
+              "textKey": "account-update-option-1967",
+              "value": "1967"
+            },
+            {
+              "textKey": "account-update-option-1968",
+              "value": "1968"
+            },
+            {
+              "textKey": "account-update-option-1969",
+              "value": "1969"
+            },
+            {
+              "textKey": "account-update-option-1970",
+              "value": "1970"
+            },
+            {
+              "textKey": "account-update-option-1971",
+              "value": "1971"
+            },
+            {
+              "textKey": "account-update-option-1972",
+              "value": "1972"
+            },
+            {
+              "textKey": "account-update-option-1973",
+              "value": "1973"
+            },
+            {
+              "textKey": "account-update-option-1974",
+              "value": "1974"
+            },
+            {
+              "textKey": "account-update-option-1975",
+              "value": "1975"
+            },
+            {
+              "textKey": "account-update-option-1976",
+              "value": "1976"
+            },
+            {
+              "textKey": "account-update-option-1977",
+              "value": "1977"
+            },
+            {
+              "textKey": "account-update-option-1978",
+              "value": "1978"
+            },
+            {
+              "textKey": "account-update-option-1979",
+              "value": "1979"
+            },
+            {
+              "textKey": "account-update-option-1980",
+              "value": "1980"
+            },
+            {
+              "textKey": "account-update-option-1981",
+              "value": "1981"
+            },
+            {
+              "textKey": "account-update-option-1982",
+              "value": "1982"
+            },
+            {
+              "textKey": "account-update-option-1983",
+              "value": "1983"
+            },
+            {
+              "textKey": "account-update-option-1984",
+              "value": "1984"
+            },
+            {
+              "textKey": "account-update-option-1985",
+              "value": "1985"
+            },
+            {
+              "textKey": "account-update-option-1986",
+              "value": "1986"
+            },
+            {
+              "textKey": "account-update-option-1987",
+              "value": "1987"
+            },
+            {
+              "textKey": "account-update-option-1988",
+              "value": "1988"
+            },
+            {
+              "textKey": "account-update-option-1989",
+              "value": "1989"
+            },
+            {
+              "textKey": "account-update-option-1990",
+              "value": "1990"
+            },
+            {
+              "textKey": "account-update-option-1991",
+              "value": "1991"
+            },
+            {
+              "textKey": "account-update-option-1992",
+              "value": "1992"
+            },
+            {
+              "textKey": "account-update-option-1993",
+              "value": "1993"
+            },
+            {
+              "textKey": "account-update-option-1994",
+              "value": "1994"
+            },
+            {
+              "textKey": "account-update-option-1995",
+              "value": "1995"
+            },
+            {
+              "textKey": "account-update-option-1996",
+              "value": "1996"
+            },
+            {
+              "textKey": "account-update-option-1997",
+              "value": "1997"
+            },
+            {
+              "textKey": "account-update-option-1998",
+              "value": "1998"
+            },
+            {
+              "textKey": "account-update-option-1999",
+              "value": "1999"
+            },
+            {
+              "textKey": "account-update-option-2000",
+              "value": "2000"
+            },
+            {
+              "textKey": "account-update-option-2001",
+              "value": "2001"
+            },
+            {
+              "textKey": "account-update-option-2002",
+              "value": "2002"
+            },
+            {
+              "textKey": "account-update-option-2003",
+              "value": "2003"
+            },
+            {
+              "textKey": "account-update-option-2004",
+              "value": "2004"
+            },
+            {
+              "textKey": "account-update-option-2005",
+              "value": "2005"
+            },
+            {
+              "textKey": "account-update-option-2006",
+              "value": "2006"
+            },
+            {
+              "textKey": "account-update-option-2007",
+              "value": "2007"
+            },
+            {
+              "textKey": "account-update-option-2008",
+              "value": "2008"
+            },
+            {
+              "textKey": "account-update-option-2009",
+              "value": "2009"
+            },
+            {
+              "textKey": "account-update-option-2010",
+              "value": "2010"
+            },
+            {
+              "textKey": "account-update-option-2011",
+              "value": "2011"
+            },
+            {
+              "textKey": "account-update-option-2012",
+              "value": "2012"
+            },
+            {
+              "textKey": "account-update-option-2013",
+              "value": "2013"
+            },
+            {
+              "textKey": "account-update-option-2014",
+              "value": "2014"
+            },
+            {
+              "textKey": "account-update-option-2015",
+              "value": "2015"
+            },
+            {
+              "textKey": "account-update-option-2016",
+              "value": "2016"
+            },
+            {
+              "textKey": "account-update-option-2017",
+              "value": "2017"
+            },
+            {
+              "textKey": "account-update-option-2018",
+              "value": "2018"
+            },
+            {
+              "textKey": "account-update-option-2019",
+              "value": "2019"
+            },
+            {
+              "textKey": "account-update-option-2020",
+              "value": "2020"
+            },
+            {
+              "textKey": "account-update-option-2021",
+              "value": "2021"
+            }
+          ],
+          "style": {
+            "borderColor": "#e0e0e0",
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 10,
+            "opacity": 1
+          },
+          "type": "dropdown"
+        },
+        {
+          "bind": "profile.zip",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 10,
+            "opacity": 1
+          },
+          "textKey": "account-update-input3",
+          "type": "textInput"
+        },
+        {
+          "bind": "profile.country",
+          "placeholder": "account-update-option-country",
+          "disabled": false,
+          "options": [
+            {
+              "textKey": "account-update-option-Afghanistan",
+              "value": "Afghanistan"
+            },
+            {
+              "textKey": "account-update-option-Albania",
+              "value": "Albania"
+            },
+            {
+              "textKey": "account-update-option-Algeria",
+              "value": "Algeria"
+            },
+            {
+              "textKey": "account-update-option-American Samoa",
+              "value": "American Samoa"
+            },
+            {
+              "textKey": "account-update-option-Andorra",
+              "value": "Andorra"
+            },
+            {
+              "textKey": "account-update-option-Angola",
+              "value": "Angola"
+            },
+            {
+              "textKey": "account-update-option-Anguilla",
+              "value": "Anguilla"
+            },
+            {
+              "textKey": "account-update-option-Antarctica",
+              "value": "Antarctica"
+            },
+            {
+              "textKey": "account-update-option-Antigua and Barbuda",
+              "value": "Antigua and Barbuda"
+            },
+            {
+              "textKey": "account-update-option-Argentina",
+              "value": "Argentina"
+            },
+            {
+              "textKey": "account-update-option-Armenia",
+              "value": "Armenia"
+            },
+            {
+              "textKey": "account-update-option-Aruba",
+              "value": "Aruba"
+            },
+            {
+              "textKey": "account-update-option-Australia",
+              "value": "Australia"
+            },
+            {
+              "textKey": "account-update-option-Austria",
+              "value": "Austria"
+            },
+            {
+              "textKey": "account-update-option-Azerbaijan",
+              "value": "Azerbaijan"
+            },
+            {
+              "textKey": "account-update-option-Bahamas",
+              "value": "Bahamas"
+            },
+            {
+              "textKey": "account-update-option-Bahrain",
+              "value": "Bahrain"
+            },
+            {
+              "textKey": "account-update-option-Bangladesh",
+              "value": "Bangladesh"
+            },
+            {
+              "textKey": "account-update-option-Barbados",
+              "value": "Barbados"
+            },
+            {
+              "textKey": "account-update-option-Belarus",
+              "value": "Belarus"
+            },
+            {
+              "textKey": "account-update-option-Belgium",
+              "value": "Belgium"
+            },
+            {
+              "textKey": "account-update-option-Belize",
+              "value": "Belize"
+            },
+            {
+              "textKey": "account-update-option-Benin",
+              "value": "Benin"
+            },
+            {
+              "textKey": "account-update-option-Bermuda",
+              "value": "Bermuda"
+            },
+            {
+              "textKey": "account-update-option-Bhutan",
+              "value": "Bhutan"
+            },
+            {
+              "textKey": "account-update-option-Bolivia",
+              "value": "Bolivia"
+            },
+            {
+              "textKey": "account-update-option-Bosnia and Herzegovina",
+              "value": "Bosnia and Herzegovina"
+            },
+            {
+              "textKey": "account-update-option-Botswana",
+              "value": "Botswana"
+            },
+            {
+              "textKey": "account-update-option-Bouvet Island",
+              "value": "Bouvet Island"
+            },
+            {
+              "textKey": "account-update-option-Brazil",
+              "value": "Brazil"
+            },
+            {
+              "textKey": "account-update-option-British Indian Ocean Territory",
+              "value": "British Indian Ocean Territory"
+            },
+            {
+              "textKey": "account-update-option-Brunei Darussalam",
+              "value": "Brunei Darussalam"
+            },
+            {
+              "textKey": "account-update-option-Bulgaria",
+              "value": "Bulgaria"
+            },
+            {
+              "textKey": "account-update-option-Burkina Faso",
+              "value": "Burkina Faso"
+            },
+            {
+              "textKey": "account-update-option-Burundi",
+              "value": "Burundi"
+            },
+            {
+              "textKey": "account-update-option-Cambodia",
+              "value": "Cambodia"
+            },
+            {
+              "textKey": "account-update-option-Cameroon",
+              "value": "Cameroon"
+            },
+            {
+              "textKey": "account-update-option-Canada",
+              "value": "Canada"
+            },
+            {
+              "textKey": "account-update-option-Cape Verde",
+              "value": "Cape Verde"
+            },
+            {
+              "textKey": "account-update-option-Cayman Islands",
+              "value": "Cayman Islands"
+            },
+            {
+              "textKey": "account-update-option-Central African Republic",
+              "value": "Central African Republic"
+            },
+            {
+              "textKey": "account-update-option-Chad",
+              "value": "Chad"
+            },
+            {
+              "textKey": "account-update-option-Chile",
+              "value": "Chile"
+            },
+            {
+              "textKey": "account-update-option-China",
+              "value": "China"
+            },
+            {
+              "textKey": "account-update-option-Christmas Island",
+              "value": "Christmas Island"
+            },
+            {
+              "textKey": "account-update-option-Cocos (Keeling) Islands",
+              "value": "Cocos (Keeling) Islands"
+            },
+            {
+              "textKey": "account-update-option-Colombia",
+              "value": "Colombia"
+            },
+            {
+              "textKey": "account-update-option-Comoros",
+              "value": "Comoros"
+            },
+            {
+              "textKey": "account-update-option-Congo",
+              "value": "Congo"
+            },
+            {
+              "textKey": "account-update-option-Congo, The Democratic Republic of The",
+              "value": "Congo, The Democratic Republic of The"
+            },
+            {
+              "textKey": "account-update-option-Cook Islands",
+              "value": "Cook Islands"
+            },
+            {
+              "textKey": "account-update-option-Costa Rica",
+              "value": "Costa Rica"
+            },
+            {
+              "textKey": "account-update-option-Cote Divoire",
+              "value": "Cote Divoire"
+            },
+            {
+              "textKey": "account-update-option-Croatia",
+              "value": "Croatia"
+            },
+            {
+              "textKey": "account-update-option-Cuba",
+              "value": "Cuba"
+            },
+            {
+              "textKey": "account-update-option-Cyprus",
+              "value": "Cyprus"
+            },
+            {
+              "textKey": "account-update-option-Czech Republic",
+              "value": "Czech Republic"
+            },
+            {
+              "textKey": "account-update-option-Denmark",
+              "value": "Denmark"
+            },
+            {
+              "textKey": "account-update-option-Djibouti",
+              "value": "Djibouti"
+            },
+            {
+              "textKey": "account-update-option-Dominica",
+              "value": "Dominica"
+            },
+            {
+              "textKey": "account-update-option-Dominican Republic",
+              "value": "Dominican Republic"
+            },
+            {
+              "textKey": "account-update-option-Easter Island",
+              "value": "Easter Island"
+            },
+            {
+              "textKey": "account-update-option-Ecuador",
+              "value": "Ecuador"
+            },
+            {
+              "textKey": "account-update-option-Egypt",
+              "value": "Egypt"
+            },
+            {
+              "textKey": "account-update-option-El Salvador",
+              "value": "El Salvador"
+            },
+            {
+              "textKey": "account-update-option-Equatorial Guinea",
+              "value": "Equatorial Guinea"
+            },
+            {
+              "textKey": "account-update-option-Eritrea",
+              "value": "Eritrea"
+            },
+            {
+              "textKey": "account-update-option-Estonia",
+              "value": "Estonia"
+            },
+            {
+              "textKey": "account-update-option-Ethiopia",
+              "value": "Ethiopia"
+            },
+            {
+              "textKey": "account-update-option-Falkland Islands (Malvinas)",
+              "value": "Falkland Islands (Malvinas)"
+            },
+            {
+              "textKey": "account-update-option-Faroe Islands",
+              "value": "Faroe Islands"
+            },
+            {
+              "textKey": "account-update-option-Fiji",
+              "value": "Fiji"
+            },
+            {
+              "textKey": "account-update-option-Finland",
+              "value": "Finland"
+            },
+            {
+              "textKey": "account-update-option-France",
+              "value": "France"
+            },
+            {
+              "textKey": "account-update-option-French Guiana",
+              "value": "French Guiana"
+            },
+            {
+              "textKey": "account-update-option-French Polynesia",
+              "value": "French Polynesia"
+            },
+            {
+              "textKey": "account-update-option-French Southern Territories",
+              "value": "French Southern Territories"
+            },
+            {
+              "textKey": "account-update-option-Gabon",
+              "value": "Gabon"
+            },
+            {
+              "textKey": "account-update-option-Gambia",
+              "value": "Gambia"
+            },
+            {
+              "textKey": "account-update-option-Georgia",
+              "value": "Georgia"
+            },
+            {
+              "textKey": "account-update-option-Germany",
+              "value": "Germany"
+            },
+            {
+              "textKey": "account-update-option-Ghana",
+              "value": "Ghana"
+            },
+            {
+              "textKey": "account-update-option-Gibraltar",
+              "value": "Gibraltar"
+            },
+            {
+              "textKey": "account-update-option-Greece",
+              "value": "Greece"
+            },
+            {
+              "textKey": "account-update-option-Greenland",
+              "value": "Greenland"
+            },
+            {
+              "textKey": "account-update-option-Grenada",
+              "value": "Grenada"
+            },
+            {
+              "textKey": "account-update-option-Guadeloupe",
+              "value": "Guadeloupe"
+            },
+            {
+              "textKey": "account-update-option-Guam",
+              "value": "Guam"
+            },
+            {
+              "textKey": "account-update-option-Guatemala",
+              "value": "Guatemala"
+            },
+            {
+              "textKey": "account-update-option-Guinea",
+              "value": "Guinea"
+            },
+            {
+              "textKey": "account-update-option-Guinea-bissau",
+              "value": "Guinea-bissau"
+            },
+            {
+              "textKey": "account-update-option-Guyana",
+              "value": "Guyana"
+            },
+            {
+              "textKey": "account-update-option-Haiti",
+              "value": "Haiti"
+            },
+            {
+              "textKey": "account-update-option-Heard Island and Mcdonald Islands",
+              "value": "Heard Island and Mcdonald Islands"
+            },
+            {
+              "textKey": "account-update-option-Honduras",
+              "value": "Honduras"
+            },
+            {
+              "textKey": "account-update-option-Hong Kong",
+              "value": "Hong Kong"
+            },
+            {
+              "textKey": "account-update-option-Hungary",
+              "value": "Hungary"
+            },
+            {
+              "textKey": "account-update-option-Iceland",
+              "value": "Iceland"
+            },
+            {
+              "textKey": "account-update-option-India",
+              "value": "India"
+            },
+            {
+              "textKey": "account-update-option-Indonesia",
+              "value": "Indonesia"
+            },
+            {
+              "textKey": "account-update-option-Iran",
+              "value": "Iran"
+            },
+            {
+              "textKey": "account-update-option-Iraq",
+              "value": "Iraq"
+            },
+            {
+              "textKey": "account-update-option-Ireland",
+              "value": "Ireland"
+            },
+            {
+              "textKey": "account-update-option-Israel",
+              "value": "Israel"
+            },
+            {
+              "textKey": "account-update-option-Italy",
+              "value": "Italy"
+            },
+            {
+              "textKey": "account-update-option-Jamaica",
+              "value": "Jamaica"
+            },
+            {
+              "textKey": "account-update-option-Japan",
+              "value": "Japan"
+            },
+            {
+              "textKey": "account-update-option-Jordan",
+              "value": "Jordan"
+            },
+            {
+              "textKey": "account-update-option-Kazakhstan",
+              "value": "Kazakhstan"
+            },
+            {
+              "textKey": "account-update-option-Kenya",
+              "value": "Kenya"
+            },
+            {
+              "textKey": "account-update-option-Kiribati",
+              "value": "Kiribati"
+            },
+            {
+              "textKey": "account-update-option-Korea, North",
+              "value": "Korea, North"
+            },
+            {
+              "textKey": "account-update-option-Korea, South",
+              "value": "Korea, South"
+            },
+            {
+              "textKey": "account-update-option-Kosovo",
+              "value": "Kosovo"
+            },
+            {
+              "textKey": "account-update-option-Kuwait",
+              "value": "Kuwait"
+            },
+            {
+              "textKey": "account-update-option-Kyrgyzstan",
+              "value": "Kyrgyzstan"
+            },
+            {
+              "textKey": "account-update-option-Laos",
+              "value": "Laos"
+            },
+            {
+              "textKey": "account-update-option-Latvia",
+              "value": "Latvia"
+            },
+            {
+              "textKey": "account-update-option-Lebanon",
+              "value": "Lebanon"
+            },
+            {
+              "textKey": "account-update-option-Lesotho",
+              "value": "Lesotho"
+            },
+            {
+              "textKey": "account-update-option-Liberia",
+              "value": "Liberia"
+            },
+            {
+              "textKey": "account-update-option-Libya",
+              "value": "Libya"
+            },
+            {
+              "textKey": "account-update-option-Libyan Arab Jamahiriya",
+              "value": "Libyan Arab Jamahiriya"
+            },
+            {
+              "textKey": "account-update-option-Liechtenstein",
+              "value": "Liechtenstein"
+            },
+            {
+              "textKey": "account-update-option-Lithuania",
+              "value": "Lithuania"
+            },
+            {
+              "textKey": "account-update-option-Luxembourg",
+              "value": "Luxembourg"
+            },
+            {
+              "textKey": "account-update-option-Macau",
+              "value": "Macau"
+            },
+            {
+              "textKey": "account-update-option-Macedonia",
+              "value": "Macedonia"
+            },
+            {
+              "textKey": "account-update-option-Madagascar",
+              "value": "Madagascar"
+            },
+            {
+              "textKey": "account-update-option-Malawi",
+              "value": "Malawi"
+            },
+            {
+              "textKey": "account-update-option-Malaysia",
+              "value": "Malaysia"
+            },
+            {
+              "textKey": "account-update-option-Maldives",
+              "value": "Maldives"
+            },
+            {
+              "textKey": "account-update-option-Mali",
+              "value": "Mali"
+            },
+            {
+              "textKey": "account-update-option-Malta",
+              "value": "Malta"
+            },
+            {
+              "textKey": "account-update-option-Marshall Islands",
+              "value": "Marshall Islands"
+            },
+            {
+              "textKey": "account-update-option-Martinique",
+              "value": "Martinique"
+            },
+            {
+              "textKey": "account-update-option-Mauritania",
+              "value": "Mauritania"
+            },
+            {
+              "textKey": "account-update-option-Mauritius",
+              "value": "Mauritius"
+            },
+            {
+              "textKey": "account-update-option-Mayotte",
+              "value": "Mayotte"
+            },
+            {
+              "textKey": "account-update-option-Mexico",
+              "value": "Mexico"
+            },
+            {
+              "textKey": "account-update-option-Micronesia, Federated States of",
+              "value": "Micronesia, Federated States of"
+            },
+            {
+              "textKey": "account-update-option-Moldova, Republic of",
+              "value": "Moldova, Republic of"
+            },
+            {
+              "textKey": "account-update-option-Monaco",
+              "value": "Monaco"
+            },
+            {
+              "textKey": "account-update-option-Mongolia",
+              "value": "Mongolia"
+            },
+            {
+              "textKey": "account-update-option-Montenegro",
+              "value": "Montenegro"
+            },
+            {
+              "textKey": "account-update-option-Montserrat",
+              "value": "Montserrat"
+            },
+            {
+              "textKey": "account-update-option-Morocco",
+              "value": "Morocco"
+            },
+            {
+              "textKey": "account-update-option-Mozambique",
+              "value": "Mozambique"
+            },
+            {
+              "textKey": "account-update-option-Myanmar",
+              "value": "Myanmar"
+            },
+            {
+              "textKey": "account-update-option-Namibia",
+              "value": "Namibia"
+            },
+            {
+              "textKey": "account-update-option-Nauru",
+              "value": "Nauru"
+            },
+            {
+              "textKey": "account-update-option-Nepal",
+              "value": "Nepal"
+            },
+            {
+              "textKey": "account-update-option-Netherlands",
+              "value": "Netherlands"
+            },
+            {
+              "textKey": "account-update-option-Netherlands Antilles",
+              "value": "Netherlands Antilles"
+            },
+            {
+              "textKey": "account-update-option-New Caledonia",
+              "value": "New Caledonia"
+            },
+            {
+              "textKey": "account-update-option-New Zealand",
+              "value": "New Zealand"
+            },
+            {
+              "textKey": "account-update-option-Nicaragua",
+              "value": "Nicaragua"
+            },
+            {
+              "textKey": "account-update-option-Niger",
+              "value": "Niger"
+            },
+            {
+              "textKey": "account-update-option-Nigeria",
+              "value": "Nigeria"
+            },
+            {
+              "textKey": "account-update-option-Niue",
+              "value": "Niue"
+            },
+            {
+              "textKey": "account-update-option-Norfolk Island",
+              "value": "Norfolk Island"
+            },
+            {
+              "textKey": "account-update-option-Northern Mariana Islands",
+              "value": "Northern Mariana Islands"
+            },
+            {
+              "textKey": "account-update-option-Norway",
+              "value": "Norway"
+            },
+            {
+              "textKey": "account-update-option-Oman",
+              "value": "Oman"
+            },
+            {
+              "textKey": "account-update-option-Pakistan",
+              "value": "Pakistan"
+            },
+            {
+              "textKey": "account-update-option-Palau",
+              "value": "Palau"
+            },
+            {
+              "textKey": "account-update-option-Palestinian Territory",
+              "value": "Palestinian Territory"
+            },
+            {
+              "textKey": "account-update-option-Panama",
+              "value": "Panama"
+            },
+            {
+              "textKey": "account-update-option-Papua New Guinea",
+              "value": "Papua New Guinea"
+            },
+            {
+              "textKey": "account-update-option-Paraguay",
+              "value": "Paraguay"
+            },
+            {
+              "textKey": "account-update-option-Peru",
+              "value": "Peru"
+            },
+            {
+              "textKey": "account-update-option-Philippines",
+              "value": "Philippines"
+            },
+            {
+              "textKey": "account-update-option-Pitcairn",
+              "value": "Pitcairn"
+            },
+            {
+              "textKey": "account-update-option-Poland",
+              "value": "Poland"
+            },
+            {
+              "textKey": "account-update-option-Portugal",
+              "value": "Portugal"
+            },
+            {
+              "textKey": "account-update-option-Puerto Rico",
+              "value": "Puerto Rico"
+            },
+            {
+              "textKey": "account-update-option-Qatar",
+              "value": "Qatar"
+            },
+            {
+              "textKey": "account-update-option-Reunion",
+              "value": "Reunion"
+            },
+            {
+              "textKey": "account-update-option-Romania",
+              "value": "Romania"
+            },
+            {
+              "textKey": "account-update-option-Russia",
+              "value": "Russia"
+            },
+            {
+              "textKey": "account-update-option-Rwanda",
+              "value": "Rwanda"
+            },
+            {
+              "textKey": "account-update-option-Saint Helena",
+              "value": "Saint Helena"
+            },
+            {
+              "textKey": "account-update-option-Saint Kitts and Nevis",
+              "value": "Saint Kitts and Nevis"
+            },
+            {
+              "textKey": "account-update-option-Saint Lucia",
+              "value": "Saint Lucia"
+            },
+            {
+              "textKey": "account-update-option-Saint Pierre and Miquelon",
+              "value": "Saint Pierre and Miquelon"
+            },
+            {
+              "textKey": "account-update-option-Saint Vincent and The Grenadines",
+              "value": "Saint Vincent and The Grenadines"
+            },
+            {
+              "textKey": "account-update-option-Samoa",
+              "value": "Samoa"
+            },
+            {
+              "textKey": "account-update-option-San Marino",
+              "value": "San Marino"
+            },
+            {
+              "textKey": "account-update-option-Sao Tome and Principe",
+              "value": "Sao Tome and Principe"
+            },
+            {
+              "textKey": "account-update-option-Saudi Arabia",
+              "value": "Saudi Arabia"
+            },
+            {
+              "textKey": "account-update-option-Senegal",
+              "value": "Senegal"
+            },
+            {
+              "textKey": "account-update-option-Serbia and Montenegro",
+              "value": "Serbia and Montenegro"
+            },
+            {
+              "textKey": "account-update-option-Seychelles",
+              "value": "Seychelles"
+            },
+            {
+              "textKey": "account-update-option-Sierra Leone",
+              "value": "Sierra Leone"
+            },
+            {
+              "textKey": "account-update-option-Singapore",
+              "value": "Singapore"
+            },
+            {
+              "textKey": "account-update-option-Slovakia",
+              "value": "Slovakia"
+            },
+            {
+              "textKey": "account-update-option-Slovenia",
+              "value": "Slovenia"
+            },
+            {
+              "textKey": "account-update-option-Solomon Islands",
+              "value": "Solomon Islands"
+            },
+            {
+              "textKey": "account-update-option-Somalia",
+              "value": "Somalia"
+            },
+            {
+              "textKey": "account-update-option-South Africa",
+              "value": "South Africa"
+            },
+            {
+              "textKey": "account-update-option-South Georgia and The South Sandwich Islands",
+              "value": "South Georgia and The South Sandwich Islands"
+            },
+            {
+              "textKey": "account-update-option-Spain",
+              "value": "Spain"
+            },
+            {
+              "textKey": "account-update-option-Sri Lanka",
+              "value": "Sri Lanka"
+            },
+            {
+              "textKey": "account-update-option-Sudan",
+              "value": "Sudan"
+            },
+            {
+              "textKey": "account-update-option-Suriname",
+              "value": "Suriname"
+            },
+            {
+              "textKey": "account-update-option-Svalbard and Jan Mayen",
+              "value": "Svalbard and Jan Mayen"
+            },
+            {
+              "textKey": "account-update-option-Swaziland",
+              "value": "Swaziland"
+            },
+            {
+              "textKey": "account-update-option-Sweden",
+              "value": "Sweden"
+            },
+            {
+              "textKey": "account-update-option-Switzerland",
+              "value": "Switzerland"
+            },
+            {
+              "textKey": "account-update-option-Syria",
+              "value": "Syria"
+            },
+            {
+              "textKey": "account-update-option-Taiwan",
+              "value": "Taiwan"
+            },
+            {
+              "textKey": "account-update-option-Tajikistan",
+              "value": "Tajikistan"
+            },
+            {
+              "textKey": "account-update-option-Tanzania, United Republic of",
+              "value": "Tanzania, United Republic of"
+            },
+            {
+              "textKey": "account-update-option-Thailand",
+              "value": "Thailand"
+            },
+            {
+              "textKey": "account-update-option-Timor-leste",
+              "value": "Timor-leste"
+            },
+            {
+              "textKey": "account-update-option-Togo",
+              "value": "Togo"
+            },
+            {
+              "textKey": "account-update-option-Tokelau",
+              "value": "Tokelau"
+            },
+            {
+              "textKey": "account-update-option-Tonga",
+              "value": "Tonga"
+            },
+            {
+              "textKey": "account-update-option-Trinidad and Tobago",
+              "value": "Trinidad and Tobago"
+            },
+            {
+              "textKey": "account-update-option-Tunisia",
+              "value": "Tunisia"
+            },
+            {
+              "textKey": "account-update-option-Turkey",
+              "value": "Turkey"
+            },
+            {
+              "textKey": "account-update-option-Turkmenistan",
+              "value": "Turkmenistan"
+            },
+            {
+              "textKey": "account-update-option-Turks and Caicos Islands",
+              "value": "Turks and Caicos Islands"
+            },
+            {
+              "textKey": "account-update-option-Tuvalu",
+              "value": "Tuvalu"
+            },
+            {
+              "textKey": "account-update-option-Uganda",
+              "value": "Uganda"
+            },
+            {
+              "textKey": "account-update-option-Ukraine",
+              "value": "Ukraine"
+            },
+            {
+              "textKey": "account-update-option-United Arab Emirates",
+              "value": "United Arab Emirates"
+            },
+            {
+              "textKey": "account-update-option-United Kingdom",
+              "value": "United Kingdom"
+            },
+            {
+              "textKey": "account-update-option-United States",
+              "value": "United States"
+            },
+            {
+              "textKey": "account-update-option-United States Minor Outlying Islands",
+              "value": "United States Minor Outlying Islands"
+            },
+            {
+              "textKey": "account-update-option-Uruguay",
+              "value": "Uruguay"
+            },
+            {
+              "textKey": "account-update-option-Uzbekistan",
+              "value": "Uzbekistan"
+            },
+            {
+              "textKey": "account-update-option-Vanuatu",
+              "value": "Vanuatu"
+            },
+            {
+              "textKey": "account-update-option-Vatican City",
+              "value": "Vatican City"
+            },
+            {
+              "textKey": "account-update-option-Venezuela",
+              "value": "Venezuela"
+            },
+            {
+              "textKey": "account-update-option-Vietnam",
+              "value": "Vietnam"
+            },
+            {
+              "textKey": "account-update-option-Virgin Islands, British",
+              "value": "Virgin Islands, British"
+            },
+            {
+              "textKey": "account-update-option-Virgin Islands, U.S.",
+              "value": "Virgin Islands, U.S."
+            },
+            {
+              "textKey": "account-update-option-Wallis and Futuna",
+              "value": "Wallis and Futuna"
+            },
+            {
+              "textKey": "account-update-option-Western Sahara",
+              "value": "Western Sahara"
+            },
+            {
+              "textKey": "account-update-option-Yemen",
+              "value": "Yemen"
+            },
+            {
+              "textKey": "account-update-option-Zambia",
+              "value": "Zambia"
+            },
+            {
+              "textKey": "account-update-option-Zimbabwe",
+              "value": "Zimbabwe"
+            }
+          ],
+          "style": {
+            "borderColor": "#e0e0e0",
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 10,
+            "opacity": 1
+          },
+          "type": "dropdown"
+        },
+        {
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 6,
+            "margin": 10,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ],
+            "textAlign": "center"
+          },
+          "textKey": "account-update-submit",
+          "type": "submit"
+        }
+      ],
+      "routing": {
+        "onSuccess": "_dismiss"
+      }
+    },
+    "forgot-password": {
+      "action": "forgotPassword",
+      "appBar": {
+        "textKey": "forgot-password-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-label",
+          "type": "label"
+        },
+        {
+          "bind": "#loginID",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 8,
+            "opacity": 1
+          },
+          "textKey": "forgot-password-input",
+          "type": "emailInput"
+        },
+        {
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 6,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ],
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-submit",
+          "type": "submit"
+        },
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-label1",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onSuccess": "forgot-password-sent"
+      }
+    },
+    "forgot-password-sent": {
+      "action": "none",
+      "appBar": {
+        "textKey": "forgot-password-sent-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 16,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-sent-label",
+          "type": "label"
+        },
+        {
+          "style": {
+            "textAlign": "center"
+          },
+          "textKey": "forgot-password-sent-label1",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onSuccess": "login"
+      }
+    },
+    "login": {
+      "action": "login",
+      "appBar": {
+        "textKey": "login-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "login-label",
+          "type": "label"
+        },
+        {
+          "columns": 4,
+          "hideTitles": false,
+          "providers": [
+            "google",
+            "twitter",
+            "facebook",
+            "linkedin"
+          ],
+          "rows": 1,
+          "style": {
+            "opacity": 1
+          },
+          "type": "socialLoginGrid"
+        },
+        {
+          "style": {
+            "fontSize": 16,
+            "margin": 8,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "login-label1",
+          "type": "label"
+        },
+        {
+          "showIf": "Gigya.webAuthn.isExists == true",
+          "useRouting": true,
+          "api": "webAuthnLogin",
+          "type": "button",
+          "textKey": "login-button",
+          "style": {
+            "textAlign": "left",
+            "background": "white",
+            "borderColor": "#0854A0",
+            "fontColor": "#0854A0",
+            "borderSize": 2,
+            "cornerRadius": 5,
+            "elevation": 4,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ]
+          },
+          "iconEnabled": true,
+          "iconURL": "https://static.gigya.com/nSS/assets/fido.png"
+        },
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "login-label2",
+          "type": "label"
+        },
+        {
+          "bind": "#loginID",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 8,
+            "opacity": 1
+          },
+          "textKey": "login-input",
+          "type": "emailInput"
+        },
+        {
+          "bind": "#password",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 8,
+            "opacity": 1
+          },
+          "textKey": "login-input1",
+          "type": "passwordInput"
+        },
+        {
+          "alignment": "start",
+          "children": [
+            {
+              "bind": "#remember",
+              "disabled": false,
+              "style": {
+                "margin": 10,
+                "opacity": 1
+              },
+              "textKey": "login-checkbox",
+              "type": "checkbox"
+            },
+            {
+              "style": {
+                "fontSize": 16,
+                "margin": 10,
+                "opacity": 1,
+                "textAlign": "start"
+              },
+              "textKey": "login-label3",
+              "type": "label"
+            }
+          ],
+          "stack": "horizontal",
+          "style": {
+            "opacity": 1
+          },
+          "type": "container"
+        },
+        {
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 6,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ],
+            "textAlign": "center"
+          },
+          "textKey": "login-submit",
+          "type": "submit"
+        },
+        {
+          "style": {
+            "margin": 8,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "login-label4",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onPendingRegistration": "account-update",
+        "onSuccess": "account-update"
+      }
+    },
+    "register": {
+      "action": "register",
+      "appBar": {
+        "textKey": "register-title"
+      },
+      "children": [
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "register-label",
+          "type": "label"
+        },
+        {
+          "columns": 4,
+          "hideTitles": false,
+          "providers": [
+            "facebook",
+            "google",
+            "linkedin",
+            "twitter"
+          ],
+          "rows": 1,
+          "style": {
+            "opacity": 1,
+            "margin": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "type": "socialLoginGrid"
+        },
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "register-label1",
+          "type": "label"
+        },
+        {
+          "style": {
+            "margin": 10,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "register-label2",
+          "type": "label"
+        },
+        {
+          "bind": "#email",
+          "disabled": false,
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 22,
+            "margin": 5,
+            "opacity": 1
+          },
+          "textKey": "register-input",
+          "type": "emailInput"
+        },
+        {
+          "alignment": "start",
+          "children": [
+            {
+              "bind": "profile.firstName",
+              "disabled": false,
+              "style": {
+                "borderSize": 1,
+                "cornerRadius": 22,
+                "margin": 5,
+                "opacity": 1
+              },
+              "textKey": "register-input2",
+              "type": "textInput"
+            },
+            {
+              "bind": "profile.lastName",
+              "disabled": false,
+              "style": {
+                "borderSize": 1,
+                "cornerRadius": 22,
+                "margin": 5,
+                "opacity": 1
+              },
+              "textKey": "register-input1",
+              "type": "textInput"
+            }
+          ],
+          "stack": "horizontal",
+          "style": {
+            "opacity": 1
+          },
+          "type": "container"
+        },
+        {
+          "alignment": "start",
+          "children": [
+            {
+              "bind": "#password",
+              "disabled": false,
+              "style": {
+                "borderSize": 1,
+                "cornerRadius": 22,
+                "margin": 5,
+                "opacity": 1
+              },
+              "textKey": "register-input4",
+              "type": "passwordInput"
+            }
+          ],
+          "stack": "horizontal",
+          "style": {
+            "opacity": 1
+          },
+          "type": "container"
+        },
+        {
+          "style": {
+            "borderSize": 1,
+            "cornerRadius": 6,
+            "margin": 5,
+            "opacity": 1,
+            "size": [
+              300,
+              40
+            ],
+            "textAlign": "center"
+          },
+          "textKey": "register-submit",
+          "type": "submit"
+        },
+        {
+          "style": {
+            "margin": 8,
+            "opacity": 1,
+            "textAlign": "center"
+          },
+          "textKey": "register-label3",
+          "type": "label"
+        }
+      ],
+      "routing": {
+        "onPendingRegistration": "account-update",
+        "onSuccess": "account-update"
+      }
+    }
+  },
+  "useSchemaValidations": false
+}

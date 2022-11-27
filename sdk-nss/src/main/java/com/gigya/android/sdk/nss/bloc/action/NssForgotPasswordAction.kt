@@ -40,7 +40,7 @@ class NssForgotPasswordAction<T : GigyaAccount>(private val businessApi: IBusine
                 flattenArguments(arguments)
                 businessApi.forgotPassword(arguments, object : GigyaCallback<GigyaApiResponse>() {
                     override fun onSuccess(obj: GigyaApiResponse?) {
-                        it.getMainFlowCallback()?.onGenericResponse(obj)
+                        it.getMainFlowCallback()?.onGenericResponse(obj, null)
                     }
 
                     override fun onError(error: GigyaError?) {

@@ -56,9 +56,6 @@ public class GigyaBiometric {
     protected GigyaBiometric(Context context, BiometricImpl impl) {
         // Verify conditions for using biometric authentication.
         _isAvailable = verifyBiometricSupport(context);
-        if (!_isAvailable) {
-            return;
-        }
         _impl = impl;
     }
 
