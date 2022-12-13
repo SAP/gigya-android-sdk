@@ -255,16 +255,6 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                     return;
                 }
 
-                // Store public key. Current passkey should be revoked.
-                final WebAuthnKeyModel revokeKeyModel = getPassKey();
-                storePassKey(
-                        new WebAuthnKeyModel(
-                                optionsBinding.userModel.name,
-                                optionsBinding.userModel.displayName,
-                                optionsBinding.type,
-                                webAuthnAttestationResponse.rawIdBase64)
-                );
-
                 final String idToken = response.getField("idToken", String.class);
                 if (idToken == null) {
                     GigyaLogger.error(LOG_TAG, "registerCredentials: missing idToken");
@@ -272,52 +262,78 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                     return;
                 }
 
-                oauthService.connect(idToken, new GigyaCallback<GigyaApiResponse>() {
+                // Account UID is required to align unique user to passkey.
+                businessApiService.getAccount(new GigyaCallback<A>() {
+
                     @Override
-                    public void onSuccess(GigyaApiResponse response) {
-                        GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
-
-                        if (response.getErrorCode() != 0) {
-                            GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                            notifyError(GigyaError.fromResponse(response));
-                            return;
-                        }
-
-                        notifySuccess(response);
-
-                        if (revokeKeyModel == null) {
-                            // No last key to revoke.
-                            return;
-                        }
-
-                        // decode last key
-                        final byte[] decoded = Base64.decode(revokeKeyModel.key.getBytes(),
-                                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
-
-                        // Remove old credential before submitting success response.
-                        final Map<String, Object> params = new HashMap<>();
-                        params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
-                        removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
+                    public void onSuccess(final A account) {
+                        oauthService.connect(idToken, new GigyaCallback<GigyaApiResponse>() {
                             @Override
-                            public void onSuccess(GigyaApiResponse revokeResponse) {
-                                if (revokeResponse.getErrorCode() != 0) {
-                                    GigyaLogger.error(LOG_TAG, "Response error: \n" + revokeResponse.asJson());
+                            public void onSuccess(GigyaApiResponse response) {
+                                GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
+
+                                // Store public key. Current passkey should be revoked.
+                                final WebAuthnKeyModel revokeKeyModel = getPassKey();
+                                storePassKey(
+                                        new WebAuthnKeyModel(
+                                                optionsBinding.userModel.name,
+                                                optionsBinding.userModel.displayName,
+                                                account.getUID(),
+                                                optionsBinding.type,
+                                                webAuthnAttestationResponse.rawIdBase64)
+                                );
+
+                                if (response.getErrorCode() != 0) {
+                                    GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                    notifyError(GigyaError.fromResponse(response));
+                                    return;
                                 }
+
+                                notifySuccess(response);
+
+                                if (revokeKeyModel == null) {
+                                    // No last key to revoke.
+                                    return;
+                                }
+
+                                // decode last key
+                                final byte[] decoded = Base64.decode(revokeKeyModel.key.getBytes(),
+                                        Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+
+                                // Remove old credential before submitting success response.
+                                final Map<String, Object> params = new HashMap<>();
+                                params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
+                                removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
+                                    @Override
+                                    public void onSuccess(GigyaApiResponse revokeResponse) {
+                                        if (revokeResponse.getErrorCode() != 0) {
+                                            GigyaLogger.error(LOG_TAG, "Response error: \n" + revokeResponse.asJson());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(GigyaError error) {
+                                        GigyaLogger.error(LOG_TAG, "removeCredential api error: \n" + error.getData());
+                                    }
+                                });
                             }
 
                             @Override
                             public void onError(GigyaError error) {
-                                GigyaLogger.error(LOG_TAG, "removeCredential api error: \n" + error.getData());
+                                GigyaLogger.error(LOG_TAG, "connect api error: \n" + error.getData());
+                                notifyError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(GigyaError error) {
-                        GigyaLogger.error(LOG_TAG, "connect api error: \n" + error.getData());
+                        GigyaLogger.error(LOG_TAG, "registerCredentials: Failed to obtain account information");
                         notifyError(error);
                     }
                 });
+
+
             }
 
             @Override
@@ -704,6 +720,15 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         final List<WebAuthnKeyModel> keys = WebAuthnKeyModel.parseList(json);
         GigyaLogger.debug(LOG_TAG, "getPassKeys: " + keys.toString());
         return keys;
+    }
+
+    public boolean passkeyForUser(String uid) {
+        if (uid == null) return false;
+        List<WebAuthnKeyModel> keys = getPassKeys();
+        if (keys.size() > 0) {
+            return keys.get(0).uid.equals(uid);
+        }
+        return false;
     }
 
     @Nullable
