@@ -11,15 +11,18 @@ public class WebAuthnKeyModel {
 
     public WebAuthnKeyModel(String name,
                             String displayName,
+                            String uid,
                             String type,
                             String key) {
         this.name = name;
+        this.uid = uid;
         this.displayName = displayName;
         this.type = type;
         this.key = key;
     }
 
     public String name;
+    public String uid;
     public String displayName;
     public String type;
     public String key;
