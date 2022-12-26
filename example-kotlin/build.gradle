@@ -93,8 +93,8 @@ dependencies {
     implementation project(path: ':sdk-nss')
 
     // Nss engine.
-    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.5.1'
-    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.5.1'
+    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.6.0'
+    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.6.0'
 
     // Social provider libraries.
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
