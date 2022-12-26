@@ -41,6 +41,8 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
 
     var actionId: String? = null
 
+    var tempUid: String? = null
+
     var flowDelegate: INssFlowDelegate<*>? = null
 
     var webAuthnResultHandler: ActivityResultLauncher<IntentSenderRequest>? = null
@@ -52,7 +54,7 @@ abstract class NssAction<T : GigyaAccount>(private val businessApi: IBusinessApi
                 "Gigya" to mutableMapOf(
                         "isLoggedIn" to Gigya.getInstance().isLoggedIn,
                         "webAuthn" to mutableMapOf(
-                                "isExists" to (getWebAuthnService()?.passKeys?.size!! > 0),
+                                "isExists" to (getWebAuthnService()?.passkeyForUser(tempUid)),
                                 "isSupported" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                         ),
                 ),
