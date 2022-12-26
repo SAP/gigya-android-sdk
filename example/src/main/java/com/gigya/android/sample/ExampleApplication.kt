@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.util.Base64
 import android.util.Log
 import android.webkit.WebView
-import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
