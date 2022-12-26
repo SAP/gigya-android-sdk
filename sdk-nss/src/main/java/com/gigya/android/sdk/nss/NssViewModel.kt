@@ -158,9 +158,13 @@ class NssViewModel<T : GigyaAccount>(
                 ScreenMethodChannel.ScreenCall.EVAL.identifier -> {
                     GigyaLogger.debug(LOG_TAG, "screen eval")
                     call.arguments.refined<Map<String, String>> { map ->
-                        val expression = map["expression"] as String
+                        var expression: String? = null
+                        if (map["expression"] != null) {
+                            expression = map["expression"] as String
+                        }
+                        val globalData = flowManager.activeAction?.getGlobalData() as Map<String, Any>
                         val data = map["data"] as Map<String, Any>
-                        nssJSEvaluator.evalSingle(data, expression) { eval ->
+                        nssJSEvaluator.evalSingle(data + globalData, expression!!) { eval ->
                             result.success(eval)
                         }
                     }

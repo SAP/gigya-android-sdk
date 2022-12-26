@@ -71,6 +71,7 @@ class NssSetAccountAction<T : GigyaAccount>(private val businessApi: IBusinessAp
                 val data = obj.serializeToMap(gson).guard {
                     throw RuntimeException("Failed to serialize account object")
                 }
+                tempUid = obj.uid
 
                 doExpressions(data, expressions, result)
             }
