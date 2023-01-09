@@ -67,7 +67,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@android:color/transparent"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless"
         android:text="@string/bio_cancel"
         android:textColor="@color/color_blue" />
 

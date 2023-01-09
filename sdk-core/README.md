@@ -21,7 +21,7 @@ implementation 'com.google.code.gson:gson:2.8.6'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v5.2.0.aar')
+implementation files('libs/gigya-android-sdk-core-v6.1.2.aar')
 ```
 
 ### Implement using Jitpack
@@ -36,7 +36,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v5.2.0'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v6.1.2'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -378,6 +378,7 @@ Adding Facebook native login SDK to your Android app is mandatory if you want to
 ```
 On October 5, 2021, Facebook Login will no longer support Android embedded browsers (WebViews) for authenticating users.
 ```
+Android SDK currently supports up to Facebook Android SDK v12.3.0.
 
 Android SDK currently supports up to Facebook Android SDK v14.1.1.
 
