@@ -85,25 +85,12 @@ public class SessionService implements ISessionService {
      *
      * @return SecretKey KeyStore generated secure key.
      */
-    private SecretKey getKey(int optMode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (SessionKeyV2.isUsed()) {
-                return new SessionKeyV2().getKey();
-            } else {
-                switch (optMode) {
-                    case Cipher.ENCRYPT_MODE:
-                        return new SessionKeyV2().getKey();
-                    case Cipher.DECRYPT_MODE:
-                        return new SessionKey(_context, _psService).getKey();
-                }
-            }
+    private SecretKey getKey() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            GigyaLogger.error(LOG_TAG, "SDK v7+ supports android M+ only");
             return null;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return new SessionKey(_context, _psService).getKey();
-        } else {
-            SessionKeyLegacy legacyKeyGenerator = new SessionKeyLegacy(_psService);
-            return legacyKeyGenerator.getKey();
         }
+        return new SessionKeyV2().getKey();
     }
 
     @SuppressLint("GetInstance")
@@ -176,7 +163,7 @@ public class SessionService implements ISessionService {
                     .put("sessionSecret", sessionInfo == null ? null : sessionInfo.getSessionSecret())
                     .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime());
             final String json = jsonObject.toString();
-            final SecretKey key = getKey(Cipher.ENCRYPT_MODE);
+            final SecretKey key = getKey();
             final String encryptedSession = encryptSession(json, key);
             // Save session.
             _psService.setSession(encryptedSession);
@@ -204,7 +191,7 @@ public class SessionService implements ISessionService {
                     GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
                 }
                 try {
-                    final SecretKey key = getKey(Cipher.DECRYPT_MODE);
+                    final SecretKey key = getKey();
                     final String decryptedSession = decryptSession(encryptedSession, key);
                     Gson gson = new Gson();
                     // Parse session info.
