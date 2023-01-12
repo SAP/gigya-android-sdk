@@ -8,8 +8,6 @@ import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.NetworkProvider;
@@ -68,7 +66,6 @@ public class RestAdapterTest {
         container.bind(Context.class, mContext);
         container.bind(Config.class, mConfig);
         container.bind(IPersistenceService.class, PersistenceService.class, false);
-        container.bind(ISecureKey.class, SessionKey.class, false);
         container.bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, false);
         container.bind(ISessionService.class, SessionService.class, true);
         container.bind(IRestAdapter.class, RestAdapter.class, true);
