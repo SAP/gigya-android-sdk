@@ -19,9 +19,6 @@ import com.gigya.android.sdk.auth.IOauthService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.auth.OauthService;
 import com.gigya.android.sdk.auth.WebAuthnService;
-import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
-import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
@@ -64,8 +61,6 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IReportingService.class, ReportingService.class, true)
                 .bind(IReportingManager.class, ReportingManager.class, true)
                 .bind(IApiRequestFactory.class, GigyaApiRequestFactory.class, true)
-                .bind(ISecureKey.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? SessionKey.class
-                        : SessionKeyLegacy.class, true)
                 .bind(SessionStateHandler.class, SessionStateHandler.class, true)
                 .bind(ISessionService.class, SessionService.class, true)
                 .bind(IAccountService.class, accountCacheService.class, true)
