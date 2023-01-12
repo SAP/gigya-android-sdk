@@ -5,8 +5,6 @@ import android.content.Context;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ConfigFactory;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.providers.IProviderFactory;
@@ -121,7 +119,6 @@ public class IoCContainerTest {
         // Arrange
         container.bind(Context.class, _context);
         container.bind(Config.class, _config);
-        container.bind(ISecureKey.class, SessionKey.class, true);
         container.bind(IPersistenceService.class, PersistenceService.class, true);
         container.bind(ISessionService.class, SessionService.class, true);
         // Act

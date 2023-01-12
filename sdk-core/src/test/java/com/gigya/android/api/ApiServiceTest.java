@@ -21,8 +21,6 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
@@ -80,7 +78,6 @@ public class ApiServiceTest {
         container.bind(Context.class, _context);
         container.bind(Config.class, _config);
         container.bind(IPersistenceService.class, PersistenceService.class, false);
-        container.bind(ISecureKey.class, SessionKey.class, false);
         container.bind(IApiRequestFactory.class, _reqFactory);
         container.bind(ISessionService.class, SessionService.class, true);
         container.bind(IRestAdapter.class, _adapter);
