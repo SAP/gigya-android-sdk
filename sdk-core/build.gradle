@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         //noinspection MinSdkTooLow
-        minSdkVersion 17
+        minSdkVersion 23
         targetSdkVersion 32
 
         archivesBaseName = "gigya-android-sdk-core"
