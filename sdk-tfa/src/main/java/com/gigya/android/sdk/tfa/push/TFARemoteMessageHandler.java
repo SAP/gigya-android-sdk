@@ -119,8 +119,14 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
         // We don't want the annoying enter animation.
         intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        
         final PendingIntent pendingIntent = PendingIntent.getActivity(_context, PUSH_TFA_CONTENT_INTENT_REQUEST_CODE,
-                intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                intent, flags);
 
         // Build notification.
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, TFA_CHANNEL_ID)
@@ -144,7 +150,7 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
             denyIntent.setAction(_context.getString(R.string.gig_tfa_action_deny));
             final PendingIntent denyPendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, denyIntent,
-                            PendingIntent.FLAG_CANCEL_CURRENT);
+                            flags);
 
             // Approve action.
             final Intent approveIntent = new Intent(_context, TFAPushReceiver.class);
@@ -155,7 +161,7 @@ public class TFARemoteMessageHandler extends RemoteMessageHandler implements IRe
             approveIntent.setAction(_context.getString(R.string.gig_tfa_action_approve));
             final PendingIntent approvePendingIntent =
                     PendingIntent.getBroadcast(_context, PUSH_TFA_CONTENT_ACTION_REQUEST_CODE, approveIntent,
-                            PendingIntent.FLAG_CANCEL_CURRENT);
+                            flags);
 
             builder
                     .addAction(_customizer.getDenyActionIcon(), _context.getString(R.string.gig_tfa_deny), denyPendingIntent)
