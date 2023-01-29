@@ -260,7 +260,7 @@ class MainViewModel : ViewModel() {
         gigyaRepository.gigyaInstance.showScreenSet(
                 screenset,
                 true,
-                mapOf(),
+                mutableMapOf(),
                 object : GigyaPluginCallback<MyAccount>() {
 
                     override fun onLogin(accountObj: MyAccount) {

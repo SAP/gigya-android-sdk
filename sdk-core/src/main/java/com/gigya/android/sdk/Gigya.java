@@ -221,6 +221,19 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     /**
+     * Explicitly initialize the SDK With additional CNAME parameter.
+     *
+     * @param apiKey Client API-KEY
+     * @param apiDomain Request Domain.
+     * @param cname  CNAME.
+     */
+    public void initWithCName(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname) {
+        // Override existing configuration when applied explicitly.
+        _config.updateWith(apiKey, apiDomain, cname);
+        init(true);
+    }
+
+    /**
      * Implicitly initialize the SDK.
      * Available Options:
      * - read JSON assets file.
