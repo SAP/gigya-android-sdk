@@ -227,7 +227,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param apiDomain Request Domain.
      * @param cname  CNAME.
      */
-    public void initWithCName(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname) {
+    public void init(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname) {
         // Override existing configuration when applied explicitly.
         _config.updateWith(apiKey, apiDomain, cname);
         init(true);
