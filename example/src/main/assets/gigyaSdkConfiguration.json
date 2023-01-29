@@ -1,6 +1,7 @@
 {
-  "apiKey": "YOUR-API-KEY-HERE",
+  "apiKey": "4_XxTkjQ87Kzp8xXGhrNjH0Q",
   "apiDomain": "us1.gigya.com",
+  "cname": "gig.websdk.gigyax.com",
   "account": {
     "cacheTime": 2,
     "include": [
