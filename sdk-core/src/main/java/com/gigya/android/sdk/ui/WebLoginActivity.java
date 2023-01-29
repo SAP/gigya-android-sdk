@@ -76,8 +76,15 @@ public class WebLoginActivity extends Activity {
             }
 
             final String host = uri.getHost();
-            if (!host.equals("socialize." + Gigya.getContainer().get(Config.class).getApiDomain())) {
-                return true;
+            final Config config = Gigya.getContainer().get(Config.class);
+            if (config.isCnameEnabled()) {
+                if (!host.equals(config.getCname())) {
+                    return true;
+                }
+            } else {
+                if (!host.equals("socialize." + config.getApiDomain())) {
+                    return true;
+                }
             }
 
             final String path = uri.getPath();
