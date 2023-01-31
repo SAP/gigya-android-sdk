@@ -118,13 +118,12 @@ class SSOProvider(var context: Context?,
     /**
      * Build fidm base url.
      */
-    fun getUrl(path: String): String {
-        val domain = when (config!!.isCnameEnabled) {
-            true -> config!!.cname
-            false -> config!!.apiDomain
+    fun getUrl(path: String): String =
+     when (config!!.isCnameEnabled) {
+            true -> "https://${config!!.cname}$fidmPath${config!!.apiKey ?: ""}/$path"
+            false -> "$fidmUrl${config!!.apiDomain}$fidmPath${config!!.apiKey ?: ""}/$path"
         }
-        return "$fidmUrl${domain}$fidmPath${config!!.apiKey ?: ""}/$path"
-    }
+
 
     /**
      * Get authorization URL.
