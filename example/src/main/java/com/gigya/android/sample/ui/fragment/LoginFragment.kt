@@ -89,6 +89,7 @@ class LoginFragment : BaseExampleFragment() {
         binding.includeSocialContent.socialLogin.setOnClickListener { socialLogin() }
         binding.includeScreensetsContent.useScreensets.setOnClickListener { useScreenSets() }
         binding.includeScreensetsContent.useNativeScreensets.setOnClickListener { useNativeScreenSets() }
+        binding.includeMobileSso.sso.setOnClickListener { sso() }
     }
 
     /**
@@ -257,7 +258,7 @@ class LoginFragment : BaseExampleFragment() {
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
                 },
-                onApiResult = { s, gigyaApiResponse ->
+                onApiResult = { _, _ ->
                     // Stub.
                 })
     }
@@ -272,5 +273,18 @@ class LoginFragment : BaseExampleFragment() {
                 ?.commit()
     }
 
+    private fun sso() {
+        viewModel.mobileSSO(
+                error = {
+                    // Display error.
+                    toastIt("Error: ${it?.localizedMessage}")
+                },
+                onLogin = {
+                    toastIt("login successful")
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+                },
+        )
+    }
 
 }

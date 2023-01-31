@@ -11,6 +11,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.repository.GigyaRepository
 import com.gigya.android.sample.repository.LinkInterruption
 import com.gigya.android.sample.repository.TFAInterruption
+import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.network.GigyaError
@@ -31,8 +32,8 @@ class MainViewModel : ViewModel() {
 
     fun isLoggedIn() = gigyaRepository.isLoggedIn()
 
-    fun reinit(apiKey: String, dataCenter: String?) {
-        gigyaRepository.reinitializeSdk(apiKey, dataCenter)
+    fun reinit(apiKey: String, dataCenter: String?, cname: String?) {
+        gigyaRepository.reinitializeSdk(apiKey, dataCenter, cname)
     }
 
     // Login using email & password pair.
@@ -346,7 +347,7 @@ class MainViewModel : ViewModel() {
                              error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         GigyaNss.getInstance()
                 .loadFromAssets("nss-example")
-               // .load(screensetId)
+                // .load(screensetId)
                 .events(object : NssEvents<MyAccount>() {
 
                     override fun onError(screenId: String, error: GigyaError) {
@@ -395,5 +396,25 @@ class MainViewModel : ViewModel() {
 
                 })
                 .show(context)
+    }
+
+    // Mobile sso authentication.
+    fun mobileSSO(
+            error: (GigyaError?) -> Unit,
+            onLogin: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            gigyaRepository.ssoLogin(mutableMapOf()).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
+            }
+
+        }
     }
 }
