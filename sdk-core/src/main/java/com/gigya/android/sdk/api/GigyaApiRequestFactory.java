@@ -82,6 +82,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
+        urlParams.put("apiKey", _config.getApiKey());
 
         // Add nonce.
         final SecureRandom random = new SecureRandom();

@@ -19,12 +19,15 @@
     <string name="otp_authentication">Authenticate using phone number otp</string>
     <string name="otp_verification">Use verification code to complete authentication</string>
 
+    <string name="mobile_sso_auth">Authenticate using mobile SSO</string>
+
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
     <string name="logout">Logout</string>
     <string name="settings">Settings</string>
     <string name="apikey">apiKey</string>
     <string name="datacenter">dataCenter</string>
+    <string name="cname">cname</string>
     <string name="phoneNumber">Phone number</string>
     <string name="verify_code">Verify code</string>
     <string name="verification_code">Verification Code</string>
@@ -34,6 +37,8 @@
     <string name="native_screensets">Native ScreenSets</string>
     <string name="social_login">Social Login</string>
     <string name="social_provider_name">Social provider name</string>
+
+    <string name="sso">SSO</string>
 
     <string name="account_uid">Account UID:</string>
     <string name="add_connection">Add connection</string>
