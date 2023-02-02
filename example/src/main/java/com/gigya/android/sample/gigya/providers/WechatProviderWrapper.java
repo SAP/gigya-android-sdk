@@ -31,7 +31,7 @@ public class WechatProviderWrapper extends ProviderWrapper implements IProviderW
     public WechatProviderWrapper(Context context) {
         super(context, R.string.wechat_app_id);
         if (pId != null) {
-            _api = WXAPIFactory.createWXAPI(context, pId, true);
+            _api = WXAPIFactory.createWXAPI(context, pId, false);
             _api.registerApp(pId);
         } else {
             GigyaLogger.error("WechatProviderWrapper", "Missing App ID.");
@@ -98,7 +98,7 @@ public class WechatProviderWrapper extends ProviderWrapper implements IProviderW
     }
 
     public void handleIntent(Intent intent, IWXAPIEventHandler eventHandler) {
-        if (_api != null && _api.isWXAppInstalled()) {
+        if (_api != null) {
             _api.handleIntent(intent, eventHandler);
         }
     }
