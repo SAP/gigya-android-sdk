@@ -137,7 +137,7 @@ public class ExternalProvider extends Provider {
                     final String uid = (String) providerLoginMap.get("uid");
                     return new JSONObject()
                             .put(provider, new JSONObject()
-                                    .put("code", wechatCode).put("providerUID", uid)).toString();
+                                    .put("authToken", wechatCode).put("providerUID", uid)).toString();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
