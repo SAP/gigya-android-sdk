@@ -63,6 +63,10 @@ public class ExternalProvider extends Provider {
      * @param name
      */
     public void setProviderName(String name) {
+        // Temporary fix for legacy google provider.
+        if (name.equals("googleplus")) {
+            name = "google";
+        }
         this.name = name;
     }
 
