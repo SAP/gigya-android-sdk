@@ -25,6 +25,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LINE sign in wrapper class.
+ * Add the following class to your application ../gigya.providers package.
+ * Make sure to define the application id in your strings resources file.
+ */
 public class LineProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private static final int REQUEST_CODE = 1;
