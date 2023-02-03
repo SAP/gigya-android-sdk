@@ -229,7 +229,7 @@ class LoginFragment : BaseExampleFragment() {
      */
     private fun useScreenSets() {
         viewModel.showScreenSets(
-                "Default-RegistrationLogin",
+                binding.includeScreensetsContent.screensetsNameEdit.text.toString().trim(),
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
@@ -247,7 +247,7 @@ class LoginFragment : BaseExampleFragment() {
     private fun useNativeScreenSets() {
         viewModel.showNativeScreenSets(
                 requireContext(),
-                "fido_demo",
+                binding.includeScreensetsContent.nativeScreensetsNameEdit.text.toString().trim(),
                 "login",
                 error = {
                     // Display error.
