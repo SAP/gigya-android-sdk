@@ -23,6 +23,11 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * WeChat sign in wrapper class.
+ * Add the following class to your application ../gigya.providers package.
+ * Make sure to define the application id in your strings resources file.
+ */
 public class WechatProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private IWXAPI _api;

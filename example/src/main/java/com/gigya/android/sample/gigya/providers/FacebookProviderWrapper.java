@@ -26,18 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Facebook sign in wrapper class.
+ * Add the following class to your application ../gigya.providers package.
+ */
 public class FacebookProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private static final String[] DEFAULT_READ_PERMISSIONS = {"email"};
-
-    private final CallbackManager callbackManager = CallbackManager.Factory.create();
-
+    private final
+    CallbackManager callbackManager = CallbackManager.Factory.create();
     public FacebookProviderWrapper(Context context) {
         super(context, R.string.facebook_app_id);
     }
 
     @Override
-    public void login(Context context, final Map<String, Object> params, final IProviderWrapperCallback wrapperCallback) {
+    public void login(Context context,
+                      final Map<String, Object> params,
+                      final IProviderWrapperCallback wrapperCallback) {
 
         final List<String> readPermissions = Arrays.asList(DEFAULT_READ_PERMISSIONS);
 
@@ -84,20 +89,16 @@ public class FacebookProviderWrapper extends ProviderWrapper implements IProvide
                     @Override
                     public void onCancel() {
                         loginManager.unregisterCallback(callbackManager);
-
                         // Notify login canceled.
                         wrapperCallback.onCanceled();
-
                         activity.finish();
                     }
 
                     @Override
                     public void onError(FacebookException error) {
                         loginManager.unregisterCallback(callbackManager);
-
                         // Notify login failed.
                         wrapperCallback.onFailed(error.getLocalizedMessage());
-
                         activity.finish();
                     }
                 });
