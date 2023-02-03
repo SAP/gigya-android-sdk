@@ -26,11 +26,15 @@ import com.google.android.gms.tasks.Task;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Google sign in wrapper class.
+ * Add the following class to your application ../gigya.providers package.
+ * Make sure to define the application id in your strings resources file.
+ */
 public class GoogleProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private static final int RC_SIGN_IN = 0;
     private GoogleSignInClient _googleClient;
-
     final Context context;
 
     GoogleProviderWrapper(Context context) {
