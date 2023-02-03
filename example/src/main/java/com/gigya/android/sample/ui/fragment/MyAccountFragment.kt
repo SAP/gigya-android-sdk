@@ -221,6 +221,10 @@ class MyAccountFragment : BaseExampleFragment() {
             }
         }
 
+        binding.accountScreensets.setOnClickListener {
+            showScreenSets()
+        }
+
         binding.accountNss.setOnClickListener {
             showNativeScreenSets()
         }
@@ -232,12 +236,9 @@ class MyAccountFragment : BaseExampleFragment() {
         binding.biometricLock.isEnabled = biometric.isAvailable && biometric.isOptIn
     }
 
-    /**
-     * Initiate Native ScreenSets flow.
-     */
-    private fun showNativeScreenSets() {
+    private fun showScreenSets() {
         viewModel.showScreenSets(
-                "Default-ProfileUpdate",
+                binding.accountScreensetsNameEdit.text.toString().trim(),
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
@@ -247,29 +248,35 @@ class MyAccountFragment : BaseExampleFragment() {
                     activity?.supportFragmentManager?.beginTransaction()
                             ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
                 })
-//        viewModel.showNativeScreenSets(
-//                requireContext(),
-//                "fido_demo",
-//                "account-update",
-//                error = {
-//                    // Display error.
-//                    toastIt("Error: ${it?.localizedMessage}")
-//                },
-//                onLogin = {
-//                    toastIt("login successful");
-//                    activity?.supportFragmentManager?.beginTransaction()
-//                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
-//                },
-//                onApiResult = { api, gigyaApiResponse ->
-//                    if (gigyaApiResponse != null) {
-//                        if (gigyaApiResponse.statusCode != 0) {
-//                            toastIt("Result success $api")
-//                        } else {
-//                            toastIt("Result error $api ${gigyaApiResponse.errorDetails}")
-//                        }
-//                    }
-//
-//                })
+    }
+
+    /**
+     * Initiate Native ScreenSets flow.
+     */
+    private fun showNativeScreenSets() {
+        viewModel.showNativeScreenSets(
+                requireContext(),
+                binding.accountNativeScreensetsNameEdit.text.toString().trim(),
+                "account-update",
+                error = {
+                    // Display error.
+                    toastIt("Error: ${it?.localizedMessage}")
+                },
+                onLogin = {
+                    toastIt("login successful");
+                    activity?.supportFragmentManager?.beginTransaction()
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
+                },
+                onApiResult = { api, gigyaApiResponse ->
+                    if (gigyaApiResponse != null) {
+                        if (gigyaApiResponse.statusCode != 0) {
+                            toastIt("Result success $api")
+                        } else {
+                            toastIt("Result error $api ${gigyaApiResponse.errorDetails}")
+                        }
+                    }
+
+                })
     }
 
 }
