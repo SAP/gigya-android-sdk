@@ -236,29 +236,40 @@ class MyAccountFragment : BaseExampleFragment() {
      * Initiate Native ScreenSets flow.
      */
     private fun showNativeScreenSets() {
-        viewModel.showNativeScreenSets(
-                requireContext(),
-                "fido_demo",
-                "account-update",
+        viewModel.showScreenSets(
+                "Default-ProfileUpdate",
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
                 },
                 onLogin = {
-                    toastIt("login successful");
+                    toastIt("login successful")
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
-                },
-                onApiResult = { api, gigyaApiResponse ->
-                    if (gigyaApiResponse != null) {
-                        if (gigyaApiResponse.statusCode != 0) {
-                            toastIt("Result success $api")
-                        } else {
-                            toastIt("Result error $api ${gigyaApiResponse.errorDetails}")
-                        }
-                    }
-
+                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
                 })
+//        viewModel.showNativeScreenSets(
+//                requireContext(),
+//                "fido_demo",
+//                "account-update",
+//                error = {
+//                    // Display error.
+//                    toastIt("Error: ${it?.localizedMessage}")
+//                },
+//                onLogin = {
+//                    toastIt("login successful");
+//                    activity?.supportFragmentManager?.beginTransaction()
+//                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
+//                },
+//                onApiResult = { api, gigyaApiResponse ->
+//                    if (gigyaApiResponse != null) {
+//                        if (gigyaApiResponse.statusCode != 0) {
+//                            toastIt("Result success $api")
+//                        } else {
+//                            toastIt("Result error $api ${gigyaApiResponse.errorDetails}")
+//                        }
+//                    }
+//
+//                })
     }
 
 }
