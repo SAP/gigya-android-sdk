@@ -69,7 +69,7 @@ public class WebLoginProvider extends Provider {
                     final SessionInfo sessionInfo = parseSessionInfo(parsed);
                     // Notify successful sign in.
                     onLoginSuccess(providerName, sessionInfo);
-                    
+
                 } else {
 
                     JSONObject jsonObject = new JSONObject();
@@ -186,11 +186,15 @@ public class WebLoginProvider extends Provider {
             final String sessionSecret = _sessionService.getSession().getSessionSecret();
             AuthUtils.addAuthenticationParameters(sessionSecret,
                     RestAdapter.GET,
-                    UrlUtils.getBaseUrl(api, _config.getApiDomain()),
+                    UrlUtils.getBaseUrl(api, _config),
                     serverParams,
                     _config.getServerOffset());
         }
 
+        if (_config.isCnameEnabled()) {
+            return String.format("%s://%s/%s?%s", "https", _config.getCname(),
+                    api, UrlUtils.buildEncodedQuery(serverParams));
+        }
         // Build final URL.
         return String.format("%s://%s.%s/%s?%s", "https", "socialize", _config.getApiDomain(),
                 api, UrlUtils.buildEncodedQuery(serverParams));
