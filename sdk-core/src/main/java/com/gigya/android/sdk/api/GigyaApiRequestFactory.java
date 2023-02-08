@@ -82,6 +82,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
+        urlParams.put("apiKey", _config.getApiKey());
 
         // Add nonce.
         final SecureRandom random = new SecureRandom();
@@ -127,7 +128,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             AuthUtils.addAuthenticationParameters(
                     sessionSecret,
                     request.getMethod().intValue(),
-                    UrlUtils.getBaseUrl(request.getApi(), _config.getApiDomain()),
+                    UrlUtils.getBaseUrl(request.getApi(), _config),
                     request.getParams(),
                     _config.getServerOffset());
         } else {
@@ -138,8 +139,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
 
         // Encode url & generate encoded parameters.
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
-        final String url = UrlUtils.getBaseUrl(request.getApi(),
-                _config.getApiDomain()) + (request.getMethod() == RestAdapter.HttpMethod.GET ? "?" + encodedParams : "");
+        final String url = UrlUtils.getBaseUrl(request.getApi(), _config);
 
         // Return a new instance of a signed REST request.
         return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams, request.getHeaders());

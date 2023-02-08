@@ -9,9 +9,11 @@ public class Config {
     private String apiDomain;
     private String gmid;
     private String ucid;
+
     @Deprecated
     // Will be removed in SDK code version 6.
     private int accountCacheTime;
+
     private boolean interruptionsEnabled = true;
     private int sessionVerificationInterval = 0;
     private Long serverOffset;
@@ -20,11 +22,21 @@ public class Config {
     @SerializedName("account")
     private GigyaAccountConfig gigyaAccountConfig;
 
+    private String cname;
+    private boolean cnameEnabled = false;
+
     //region UPDATE
 
     public Config updateWith(String apiKey, String apiDomain) {
         this.apiKey = apiKey;
         this.apiDomain = apiDomain;
+        return this;
+    }
+
+    public Config updateWith(String apiKey, String apiDomain, String cname) {
+        this.apiKey = apiKey;
+        this.apiDomain = apiDomain;
+        this.cname = cname;
         return this;
     }
 
@@ -54,6 +66,9 @@ public class Config {
         }
         if (config.getGigyaAccountConfig() != null) {
             this.gigyaAccountConfig = config.getGigyaAccountConfig();
+        }
+        if (config.getCname() != null) {
+            this.cname = config.getCname();
         }
         return this;
     }
@@ -147,6 +162,22 @@ public class Config {
 
     public void setGigyaAccountConfig(GigyaAccountConfig gigyaAccountConfig) {
         this.gigyaAccountConfig = gigyaAccountConfig;
+    }
+
+    public String getCname() {
+        return cname;
+    }
+
+    public void setCname(String cname) {
+        this.cname = cname;
+    }
+
+    public boolean isCnameEnabled() {
+        return cname != null;
+    }
+
+    public void setCnameEnabled(boolean cnameEnabled) {
+        this.cnameEnabled = cnameEnabled;
     }
 
     //endregion

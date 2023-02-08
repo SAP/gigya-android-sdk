@@ -48,11 +48,12 @@ class SettingsFragment : BaseExampleFragment() {
     private fun reInitWithNewApiKey() {
         val apiKey = binding.editNewApiKey.text.toString().trim()
         val dataCenter = binding.editNewDataCenter.text.toString().trim()
+        val cname = binding.editNewCname.text.toString().trim()
         if (apiKey.isEmpty()) {
             toastIt("New ApiKey is required")
             return
         }
-        viewModel.reinit(apiKey, dataCenter)
+        viewModel.reinit(apiKey, dataCenter, cname)
         toastIt("Done. Task is synchronous")
     }
 }
