@@ -118,7 +118,7 @@ public class GigyaDefinitions {
         public static final String WORDPRESS = "wordpress";
         public static final String XING = "xing";
         public static final String YAHOO = "yahoo";
-        public static final String YAHOO_JAPAN = "Yahoo Japan";
+        public static final String YAHOO_JAPAN = "yahoojapan";
         public static final String APPLE = "apple";
 
         public static final String SSO = "sso";
