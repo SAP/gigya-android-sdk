@@ -312,7 +312,10 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                                 _accountService.setAccount(response.asJson());
                                 if (_invocationCallback != null) {
                                     _webBridgeInterruptionManager.responseManager(
-                                            params, parsed, _invocationCallback);
+                                            api,
+                                            params,
+                                            parsed,
+                                            _invocationCallback);
                                 }
                             }
                             invokeWebViewCallback(callbackId, response.asJson());
