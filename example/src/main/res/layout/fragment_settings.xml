@@ -51,6 +51,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_new_api_key" />
 
+    <EditText
+        android:id="@+id/edit_new_cname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/cname"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_new_data_center" />
 
     <Button
         android:id="@+id/change_api_key"
@@ -61,6 +72,6 @@
         android:text="@string/re_initialize_sdk"
         android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_new_data_center" />
+        app:layout_constraintTop_toBottomOf="@id/edit_new_cname" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
