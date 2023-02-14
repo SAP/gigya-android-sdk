@@ -48,7 +48,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "6.1.2";
+    public static final String VERSION = "6.2.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -217,6 +217,19 @@ public class Gigya<T extends GigyaAccount> {
     public void init(@NonNull String apiKey, @NonNull String apiDomain) {
         // Override existing configuration when applied explicitly.
         _config.updateWith(apiKey, apiDomain);
+        init(true);
+    }
+
+    /**
+     * Explicitly initialize the SDK With additional CNAME parameter.
+     *
+     * @param apiKey Client API-KEY
+     * @param apiDomain Request Domain.
+     * @param cname  CNAME.
+     */
+    public void init(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname) {
+        // Override existing configuration when applied explicitly.
+        _config.updateWith(apiKey, apiDomain, cname);
         init(true);
     }
 

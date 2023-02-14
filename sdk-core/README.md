@@ -135,6 +135,17 @@ Supplying Api-Key & Api-Domain
 Gigya.getInstance(MyAccount.class).init("YOUR-API-KEY-HERE", "YOUR-API-DOMAIN-HERE");
 ```
 
+### CNAME initialization
+
+When using implicit initialization of the SDK, add the “cname” property to your gigyaSdkConfigurations.json file:
+```json
+"cname": "YOUR_CNAME_HERE",
+```
+When using explicit initialization of the SDK, you can use the following method:
+```java
+public void init(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname)
+```
+
 ## Sending a Request
 You can send anonymous requests to Gigya using the SDK using one of two overloads:
 General - this will return an instance of GigyaApiResponse class (see the section below on how to access its data).

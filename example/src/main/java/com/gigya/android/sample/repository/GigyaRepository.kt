@@ -55,10 +55,12 @@ class GigyaRepository {
         sessionService.clear(true)
     }
 
-    fun reinitializeSdk(apiKey: String, dataCenter: String?) {
+    fun reinitializeSdk(apiKey: String, dataCenter: String?, cname: String?) {
         invalidateSession()
         if (dataCenter.isNullOrEmpty()) {
             gigyaInstance.init(apiKey)
+        } else if (cname != null){
+            gigyaInstance.init(apiKey, dataCenter, cname)
         } else {
             gigyaInstance.init(apiKey, dataCenter)
         }
@@ -193,6 +195,12 @@ class GigyaRepository {
     fun socialLoginWith(provider: String): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.login(provider, mutableMapOf(), callback)
+        }
+    }
+
+    fun ssoLogin(map: MutableMap<String, Any>) : Flow<GigyaRepoResponse> {
+        return loginFlow { callback ->
+            gigyaInstance.sso(map, callback)
         }
     }
 

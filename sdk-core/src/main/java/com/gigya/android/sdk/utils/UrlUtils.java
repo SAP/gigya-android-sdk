@@ -2,6 +2,7 @@ package com.gigya.android.sdk.utils;
 
 import androidx.annotation.NonNull;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.ui.Presenter;
 
 import java.io.BufferedReader;
@@ -94,15 +95,23 @@ public class UrlUtils {
         }
     }
 
-    public static String getBaseUrl(String api, String apiDomain) {
+    public static String getBaseUrl(String api, Config config) {
         final StringBuilder sb = new StringBuilder();
         final String[] split = api.split("\\.");
-        return sb.append("https://")
-                .append(split[0]).append(".")
-                .append(apiDomain)
-                .append("/")
-                .append(api)
-                .toString();
+        if (config.isCnameEnabled()) {
+            return sb.append("https://")
+                    .append(config.getCname())
+                    .append("/")
+                    .append(api)
+                    .toString();
+        } else {
+            return sb.append("https://")
+                    .append(split[0]).append(".")
+                    .append(config.getApiDomain())
+                    .append("/")
+                    .append(api)
+                    .toString();
+        }
     }
 
     public static boolean isGigyaScheme(String scheme) {
