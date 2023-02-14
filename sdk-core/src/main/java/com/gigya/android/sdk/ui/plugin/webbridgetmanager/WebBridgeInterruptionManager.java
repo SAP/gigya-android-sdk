@@ -27,6 +27,7 @@ public class WebBridgeInterruptionManager<A extends GigyaAccount> implements IWe
 
     @Override
     public void responseManager(
+            String api,
             Map<String, Object> params,
             A data,
             GigyaPluginFragment.IBridgeCallbacks<A> callback) {
@@ -35,7 +36,12 @@ public class WebBridgeInterruptionManager<A extends GigyaAccount> implements IWe
             return;
         }
         GigyaLogger.debug(LOG_TAG, "responseManager: available resolver");
-        this.resolver.resolve(params, data, callback);
+        this.resolver.resolve(api, params, data, callback);
+    }
+
+    @Override
+    public void responseManager(Map<String, Object> params, A data, GigyaPluginFragment.IBridgeCallbacks<A> callback) {
+
     }
 
     private final IWebBridgeInterruptionResolverDispose disposeResolver = new IWebBridgeInterruptionResolverDispose() {
