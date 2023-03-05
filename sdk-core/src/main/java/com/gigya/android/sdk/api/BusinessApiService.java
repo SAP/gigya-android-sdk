@@ -447,7 +447,9 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                     final String regToken = response.getField("regToken", String.class);
                     if (regToken != null) {
                         params.put("regToken", regToken);
-                        params.put("finalizeRegistration", true);
+                        if (!params.containsKey("finalizeRegistration")) {
+                            params.put("finalizeRegistration", true);
+                        }
                     } else {
                         ReportingManager.get().error(Gigya.VERSION, "core", "initRegistration produced null regToken");
                         GigyaLogger.error(LOG_TAG, "register: ionitRegistration produced null regToken");
