@@ -248,7 +248,7 @@ class LoginFragment : BaseExampleFragment() {
     private fun useNativeScreenSets() {
         viewModel.showNativeScreenSets(
                 requireContext(),
-                "fido_demo",
+                "example_tests",
                 "login",
                 error = {
                     // Display error.
