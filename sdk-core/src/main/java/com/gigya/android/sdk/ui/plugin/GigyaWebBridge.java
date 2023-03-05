@@ -238,7 +238,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     }
 
     @Override
-    public void sendOAuthRequest(final String callbackId, String api, final Map<String, Object> params) {
+    public void sendOAuthRequest(final String callbackId, final String api, final Map<String, Object> params) {
         GigyaLogger.debug(LOG_TAG, "sendOAuthRequest with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
         final String providerName = ObjectUtils.firstNonNull((String) params.get("provider"), "");
         if (providerName.isEmpty()) {
@@ -261,7 +261,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                         invokeWebViewCallback(callbackId, invocation);
                         if (_invocationCallback != null) {
                             _webBridgeInterruptionManager.responseManager(
-                                    params, account, _invocationCallback);
+                                    api, params, account, _invocationCallback);
                         }
                     }
 
