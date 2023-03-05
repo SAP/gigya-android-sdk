@@ -67,11 +67,12 @@ class MainViewModel : ViewModel() {
     // Register using email & password pair.
     fun credentialRegister(email: String, password: String,
                            error: (GigyaError?) -> Unit,
+                           params: MutableMap<String, Any>,
                            onLogin: () -> Unit,
                            tfaInterruption: (TFAInterruption) -> Unit,
                            linkInterruption: (LinkInterruption) -> Unit) {
         viewModelScope.launch {
-            gigyaRepository.registerWith(email, password).collect { result ->
+            gigyaRepository.registerWith(email, password, params).collect { result ->
                 if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()

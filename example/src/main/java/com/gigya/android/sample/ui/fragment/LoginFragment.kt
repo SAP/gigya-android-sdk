@@ -148,6 +148,7 @@ class LoginFragment : BaseExampleFragment() {
         viewModel.credentialRegister(
                 email = email,
                 password = password,
+                params = mutableMapOf(),
                 error = {
                     // Display error.
                     toastIt("Error: ${it?.localizedMessage}")
