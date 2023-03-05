@@ -186,9 +186,9 @@ class GigyaRepository {
         }
     }
 
-    fun registerWith(loginID: String, password: String): Flow<GigyaRepoResponse> {
+    fun registerWith(loginID: String, password: String, params: MutableMap<String, Any>): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
-            gigyaInstance.register(loginID, password, callback)
+            gigyaInstance.register(loginID, password, params, callback)
         }
     }
 
