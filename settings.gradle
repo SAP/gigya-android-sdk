@@ -32,5 +32,4 @@ include ':sdk-core',
         ':sdk-tfa',
         ':sdk-auth',
         ':sdk-nss',
-        ':example' ,
-        ':example-kotlin'
+        ':example'
