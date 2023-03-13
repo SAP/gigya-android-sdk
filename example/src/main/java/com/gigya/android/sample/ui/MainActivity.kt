@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.appbar_menu, menu)
+        menu?.findItem(R.id.action_version)?.title = Gigya.VERSION
         return true
     }
 

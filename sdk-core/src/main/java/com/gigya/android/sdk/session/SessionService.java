@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 
 public class SessionService implements ISessionService {
@@ -116,9 +117,8 @@ public class SessionService implements ISessionService {
                 return null;
             } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
-                GigyaLogger.debug(LOG_TAG, "GCM session decrypted");
-                cipher.init(Cipher.DECRYPT_MODE, key, iv);
+                GCMParameterSpec ivSpec = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
+                cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
             }
             byte[] encPLBytes = CipherUtils.stringToBytes(encrypted);
             byte[] bytePlainText = cipher.doFinal(encPLBytes);
