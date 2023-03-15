@@ -1211,6 +1211,12 @@ _webBridge?.detachFrom(web_view)
 ## SSO (Single Sign-on)
 Single Sign-On (SSO) is an authentication method that allows a user to log in to multiple applications that reside within the same site group with a single login credential.
 
+When using the mobile SSO feature, applications within the same group are able to share a valid session with the device browser.
+Supported flows:
+* Login via SSO feature on mobile. The browser can share the session using the SSO method.
+* Login via SSO feature on application 1. Application 2 can share the session when using the SSO method.
+* Login via SSO method on the browser. Applications within the same group can share the session when using the SSO method.
+
 You will be required to setup you central login page on your site’s console.
 
 To set up mobile SSO please follow these steps:
