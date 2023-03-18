@@ -1,6 +1,4 @@
-package com.gigya.android.sdk.providers.provider;
-
-import static com.gigya.android.sdk.GigyaDefinitions.Providers.LINE;
+package com.gigya.android.sample.gigya.providers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +8,11 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.persistence.IPersistenceService;
+import com.gigya.android.sample.R;
+import com.gigya.android.sdk.providers.external.IProviderWrapper;
+import com.gigya.android.sdk.providers.external.IProviderWrapperCallback;
+import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.ui.HostActivity;
-import com.gigya.android.sdk.utils.FileUtils;
 import com.linecorp.linesdk.LineApiResponse;
 import com.linecorp.linesdk.Scope;
 import com.linecorp.linesdk.api.LineApiClient;
@@ -22,64 +21,43 @@ import com.linecorp.linesdk.auth.LineAuthenticationParams;
 import com.linecorp.linesdk.auth.LineLoginApi;
 import com.linecorp.linesdk.auth.LineLoginResult;
 
-import org.json.JSONObject;
-
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
-public class LineProvider extends Provider {
-
-    private static final String LOG_TAG = "LineLoginProvider";
+/**
+ * LINE sign in wrapper class.
+ * Add the following class to your application ../gigya.providers package.
+ * Make sure to define the application id in your strings resources file.
+ */
+public class LineProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private static final int REQUEST_CODE = 1;
 
-    private FileUtils _fileUtils;
+    IProviderWrapperCallback providerWrapperCallback;
+    final Context context;
 
-    public LineProvider(Context context,
-                        IPersistenceService persistenceService,
-                        FileUtils fileUtils,
-                        ProviderCallback providerCallback) {
-        super(context, persistenceService, providerCallback);
-        _fileUtils = fileUtils;
+    LineProviderWrapper(Context context) {
+        super(context, R.string.line_channel_id);
+        this.context = context;
     }
 
     @Override
-    public String getName() {
-        return LINE;
-    }
-
-    public static boolean isAvailable(FileUtils fileUtils) {
-        try {
-            String lineChannelID = fileUtils.stringFromMetaData("lineChannelID");
-            Class.forName("com.linecorp.linesdk.auth.LineLoginApi");
-            return lineChannelID != null;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
-    @Override
-    public void login(final Map<String, Object> loginParams, final String loginMode) {
-        if (_connecting) {
-            return;
-        }
-        _connecting = true;
-        _loginMode = loginMode;
-        HostActivity.present(_context, new HostActivity.HostActivityLifecycleCallbacks() {
+    public void login(Context context, Map<String, Object> params, IProviderWrapperCallback callback) {
+        providerWrapperCallback = callback;
+        HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                // Fetch channel Id from meta-data.
-                final String lineChannelID = _fileUtils.stringFromMetaData("lineChannelID");
-                if (lineChannelID == null) {
+                if (pId == null) {
                     // Fail login.
-                    onLoginFailed("Channel Id not available");
+                    callback.onFailed("Channel Id not available");
                     activity.finish();
                     return;
                 }
 
                 Intent loginIntent = LineLoginApi.getLoginIntent(
                         activity,
-                        lineChannelID,
+                        pId,
                         new LineAuthenticationParams.Builder()
                                 .scopes(Arrays.asList(Scope.PROFILE))
                                 .build());
@@ -88,6 +66,9 @@ public class LineProvider extends Provider {
 
             @Override
             public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
+                if (providerWrapperCallback == null) {
+                    return;
+                }
                 if (requestCode == REQUEST_CODE) {
                     LineLoginResult result = LineLoginApi.getLoginResultFromIntent(data);
                     switch (result.getResponseCode()) {
@@ -97,14 +78,16 @@ public class LineProvider extends Provider {
                                 return;
                             }
                             final String accessToken = result.getLineCredential().getAccessToken().getTokenString();
-                            onLoginSuccess(loginParams, getProviderSessions(accessToken, -1, null), loginMode);
+                            final Map<String, Object> loginMap = new HashMap<>();
+                            loginMap.put("token", accessToken);
+                            providerWrapperCallback.onLogin(loginMap);
                             break;
                         case CANCEL:
-                            onCanceled();
+                            providerWrapperCallback.onCanceled();
                             break;
                         default:
                             // Any other is an error.
-                            onLoginFailed(result.getErrorData().getMessage());
+                            providerWrapperCallback.onFailed(result.getErrorData().getMessage());
                             break;
                     }
                     activity.finish();
@@ -115,28 +98,9 @@ public class LineProvider extends Provider {
 
     @Override
     public void logout() {
-        super.logout();
-        final String lineChannelID = _fileUtils.stringFromMetaData("lineChannelID");
-        if (lineChannelID == null) {
-            return;
-        }
-        LineApiClientBuilder builder = new LineApiClientBuilder(_context, lineChannelID);
+        LineApiClientBuilder builder = new LineApiClientBuilder(context, pId);
         LineApiClient client = builder.build();
         new LogoutTask(client).execute();
-    }
-
-    @Override
-    public String getProviderSessions(String tokenOrCode, long expiration, String uid) {
-        // Only token is relevant.
-        try {
-            return new JSONObject()
-                    .put(getName(), new JSONObject()
-                            .put("authToken", tokenOrCode)).toString();
-        } catch (Exception ex) {
-            _connecting = false;
-            ex.printStackTrace();
-        }
-        return null;
     }
 
     private static class LogoutTask extends AsyncTask<Void, Void, LineApiResponse> {
@@ -156,10 +120,8 @@ public class LineProvider extends Provider {
         protected void onPostExecute(LineApiResponse lineApiResponse) {
             if (lineApiResponse.isSuccess()) {
                 /* Logout success. */
-                GigyaLogger.debug(LOG_TAG, "Line logout success");
             } else {
                 /* Logout error. */
-                GigyaLogger.error(LOG_TAG, "Line logout error");
             }
             _client = null;
         }
