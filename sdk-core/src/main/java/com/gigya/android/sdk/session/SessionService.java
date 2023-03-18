@@ -5,14 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.CountDownTimer;
-import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -21,9 +18,6 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaInterceptor;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.encryption.EncryptionException;
-import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
-import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.encryption.SessionKeyV2;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
@@ -58,7 +52,6 @@ public class SessionService implements ISessionService {
     final private Context _context;
     final private Config _config;
     final private IPersistenceService _psService;
-    final private ISecureKey _secureKey;
     final private SessionStateHandler _observable;
 
     // Dynamic field - session heap.
@@ -70,12 +63,10 @@ public class SessionService implements ISessionService {
     public SessionService(Context context,
                           Config config,
                           IPersistenceService psService,
-                          ISecureKey secureKey,
                           SessionStateHandler observable) {
         _context = context;
         _psService = psService;
         _config = config;
-        _secureKey = secureKey;
         _observable = observable;
     }
 
@@ -85,25 +76,12 @@ public class SessionService implements ISessionService {
      *
      * @return SecretKey KeyStore generated secure key.
      */
-    private SecretKey getKey(int optMode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (SessionKeyV2.isUsed()) {
-                return new SessionKeyV2().getKey();
-            } else {
-                switch (optMode) {
-                    case Cipher.ENCRYPT_MODE:
-                        return new SessionKeyV2().getKey();
-                    case Cipher.DECRYPT_MODE:
-                        return new SessionKey(_context, _psService).getKey();
-                }
-            }
+    private SecretKey getKey() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            GigyaLogger.error(LOG_TAG, "SDK v7+ supports android M+ only");
             return null;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return new SessionKey(_context, _psService).getKey();
-        } else {
-            SessionKeyLegacy legacyKeyGenerator = new SessionKeyLegacy(_psService);
-            return legacyKeyGenerator.getKey();
         }
+        return new SessionKeyV2().getKey();
     }
 
     @SuppressLint("GetInstance")
@@ -135,18 +113,12 @@ public class SessionService implements ISessionService {
                 // Session encryption has not migrated to GCM.
                 // Old session will be decrypted using "AES/ECB" nut will no longer use this algorithm.
                 // New saved session encryption will be migrated with "AES/GCM/NoPadding".
-                cipher = Cipher.getInstance("AES");
-                GigyaLogger.debug(LOG_TAG, "ECB session decrypted");
-                cipher.init(Cipher.DECRYPT_MODE, key);
-            } else if (SessionKeyV2.isUsed() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                GigyaLogger.error(LOG_TAG, "Session not migrated. Cannot be restored");
+                return null;
+            } else {
                 cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 GCMParameterSpec ivSpec = new GCMParameterSpec(128, Base64.decode(ivSpecString, Base64.DEFAULT));
                 cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
-            } else {
-                cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                final IvParameterSpec iv = new IvParameterSpec(Base64.decode(ivSpecString, Base64.DEFAULT));
-                GigyaLogger.debug(LOG_TAG, "GCM session decrypted");
-                cipher.init(Cipher.DECRYPT_MODE, key, iv);
             }
             byte[] encPLBytes = CipherUtils.stringToBytes(encrypted);
             byte[] bytePlainText = cipher.doFinal(encPLBytes);
@@ -176,7 +148,7 @@ public class SessionService implements ISessionService {
                     .put("sessionSecret", sessionInfo == null ? null : sessionInfo.getSessionSecret())
                     .put("expirationTime", sessionInfo == null ? null : sessionInfo.getExpirationTime());
             final String json = jsonObject.toString();
-            final SecretKey key = getKey(Cipher.ENCRYPT_MODE);
+            final SecretKey key = getKey();
             final String encryptedSession = encryptSession(json, key);
             // Save session.
             _psService.setSession(encryptedSession);
@@ -190,12 +162,6 @@ public class SessionService implements ISessionService {
      */
     @Override
     public void load() {
-        // Check & load legacy session if available.
-        if (isLegacySession()) {
-            GigyaLogger.debug(LOG_TAG, "load: isLegacySession!! Will migrate to update structure");
-            _sessionInfo = loadLegacySession();
-            return;
-        }
         if (_psService.isSessionAvailable()) {
             String encryptedSession = _psService.getSession();
             if (!TextUtils.isEmpty(encryptedSession)) {
@@ -204,7 +170,7 @@ public class SessionService implements ISessionService {
                     GigyaLogger.debug(LOG_TAG, "Fingerprint session available. Load stops until unlocked");
                 }
                 try {
-                    final SecretKey key = getKey(Cipher.DECRYPT_MODE);
+                    final SecretKey key = getKey();
                     final String decryptedSession = decryptSession(encryptedSession, key);
                     Gson gson = new Gson();
                     // Parse session info.
@@ -215,11 +181,7 @@ public class SessionService implements ISessionService {
 
                     // Added in version 6.0.0
                     // Migrate session encryption to GCM.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (!SessionKeyV2.isUsed()) {
-                            save(sessionInfo);
-                        }
-                    }
+                    save(sessionInfo);
                     _sessionInfo = sessionInfo;
                 } catch (Exception eex) {
                     eex.printStackTrace();
@@ -332,13 +294,8 @@ public class SessionService implements ISessionService {
     public void clearCookiesOnLogout() {
         if (clearCookies) {
             CookieManager cookieManager = CookieManager.getInstance();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cookieManager.removeAllCookies(null);
-                cookieManager.flush();
-            } else {
-                CookieSyncManager.createInstance(_context);
-                cookieManager.removeAllCookie();
-            }
+            cookieManager.removeAllCookies(null);
+            cookieManager.flush();
         }
     }
 
@@ -361,32 +318,6 @@ public class SessionService implements ISessionService {
             GigyaLogger.debug(LOG_TAG, "Apply interception for: " + interceptor.getName());
             interceptor.intercept();
         }
-    }
-
-    //region LEGACY SESSION (Obsolete)
-
-    private boolean isLegacySession() {
-        final String legacyTokenKey = "session.Token";
-        return (!TextUtils.isEmpty(_psService.getString(legacyTokenKey, null)));
-    }
-
-    private SessionInfo loadLegacySession() {
-        final String token = _psService.getString("session.Token", null);
-        final String secret = _psService.getString("session.Secret", null);
-        final long expiration = _psService.getLong("session.ExpirationTime", 0L);
-        final SessionInfo sessionInfo = new SessionInfo(secret, token, expiration);
-        // Update configuration fields.
-        final String ucid = _psService.getString("ucid", null);
-        final String gmid = _psService.getString("gmid", null);
-        final Config dynamicConfig = new Config();
-        dynamicConfig.setUcid(ucid);
-        dynamicConfig.setGmid(gmid);
-        _config.updateWith(dynamicConfig);
-        // Clear all legacy session entries.
-        _psService.removeLegacySession();
-        // Save session in current construct.
-        save(sessionInfo);
-        return sessionInfo;
     }
 
     //endregion

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "6.2.1"
+def libVersion = "7.0.0"
 
 ext {
     sharedManifest = manifest {
@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         //noinspection MinSdkTooLow
-        minSdkVersion 17
+        minSdkVersion 23
         targetSdkVersion 32
 
         archivesBaseName = "gigya-android-sdk-core"
