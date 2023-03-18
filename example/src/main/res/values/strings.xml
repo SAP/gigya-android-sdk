@@ -33,10 +33,13 @@
     <string name="verification_code">Verification Code</string>
 
     <string name="passwordless">Passwordless</string>
+    <string name="native_screen_sets_name">Native ScreenSets name.. </string>
+    <string name="screen_sets_name">ScreenSets name.. </string>
     <string name="screensets">ScreenSets</string>
     <string name="native_screensets">Native ScreenSets</string>
     <string name="social_login">Social Login</string>
     <string name="social_provider_name">Social provider name</string>
+
 
     <string name="sso">SSO</string>
 
@@ -47,7 +50,6 @@
     <string name="provider_name">Provider name</string>
     <string name="fido_register">Register Fido passkey</string>
     <string name="fido_revoke">Revoke Fido passkey</string>
-    <string name="show_account_nss">Show account NSS</string>
 
     <string name="available_providers">Available providers</string>
     <string name="register_authenticator">Register authenticator</string>
@@ -67,8 +69,11 @@
     <string name="fb_login_protocol_scheme">fbYOUR-FACEBOOK-APP-ID-HERE</string>
     <string name="facebook_client_token">YOUR-FACEBOOK-CLIENT-TOKEN-HERE</string>
 
-
     <string name="google_client_id">YOUR-GOOGLE-CLIENT-ID-HERE</string>
+
+    <string name="line_channel_id">YOUR-LINE-CHANNEL-ID-HERE</string>
+
+    <string name="wechat_app_id">YOUR-WECHAT-APP-ID-HERE</string>
 
 
 </resources>

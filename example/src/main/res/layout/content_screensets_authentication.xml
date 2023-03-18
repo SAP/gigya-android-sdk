@@ -2,26 +2,31 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="12dp">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/screensets_content_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/screensets_authentication"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:layout_marginStart="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/screensets_name_edit"
+        android:layout_width="match_parent"
+        android:text="Default-RegistrationLogin"
+        android:hint="@string/screen_sets_name"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+        android:layout_margin="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/screensets_content_title" />
 
     <Button
         android:id="@+id/use_screensets"
@@ -31,9 +36,18 @@
         android:backgroundTint="@color/sap_gold"
         android:text="@string/screensets"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toStartOf="@id/screensets_name_edit"
+        app:layout_constraintTop_toBottomOf="@id/screensets_name_edit" />
+
+    <EditText
+        android:id="@+id/native_screensets_name_edit"
+        android:layout_width="match_parent"
+        android:hint="@string/native_screen_sets_name"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/screensets_content_title" />
+        app:layout_constraintTop_toBottomOf="@id/use_screensets" />
 
     <Button
         android:id="@+id/use_native_screensets"
@@ -43,8 +57,7 @@
         android:backgroundTint="@color/sap_gold"
         android:text="@string/native_screensets"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@id/screensets_content_title" />
+        app:layout_constraintStart_toStartOf="@id/native_screensets_name_edit"
+        app:layout_constraintTop_toBottomOf="@id/native_screensets_name_edit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
