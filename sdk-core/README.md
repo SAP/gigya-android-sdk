@@ -5,23 +5,24 @@ Gigya's Android Core SDK library provides a Java interface for Gigya's API - It 
 life-cycle.
 
 ## Requirements
-Android SDK SDK 14 and above.
+Android SDK SDK 23 and above.
 
-## Limitations
-Following released version 5.+ The Core SDK will require your Application to be AndroidX complient.
-For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
-
+## Upgrading to v7
+To align with current security standards following the Android core SDK [v6.0.0](https://github.com/SAP/gigya-android-sdk/releases/tag/core-v6.0.0) release, v7 removes all redundant code related to old cryptography logic targeted for devices lower than Android 23.
+This change is crucial to avoid future flagging of the SDK by Google Play.
+As a result, session retention is only available when upgrading from v6 to v7.
+Users running applications that are using v5 and below of the Android core SDK will need to re-authenticate their session.
 
 [Google GSON library](https://github.com/google/gson)
 ```gradle
-implementation 'com.google.code.gson:gson:2.8.6'
+implementation 'com.google.code.gson:gson:2.8.9'
 ```
 
 ## Configuration
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v6.2.0.aar')
+implementation files('libs/gigya-android-sdk-core-v7.0.0.aar')
 ```
 
 ### Implement using Jitpack
@@ -36,7 +37,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v6.2.0'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.0'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -382,204 +383,175 @@ mGigya.login(FACEBOOK, new HashMap<>(), new GigyaLoginCallback<MyAccount>() {
 For some social providers, the SDK supports social login via the social provider's native implementation.
 It is done by using the provider's native SDK, so it will require you to add its required libraries as dependencies to your Android project.
 
-We will review the relevant providers and their implementation flow.
+**Moving to external social provider implementation:**
+
+To match our [Swift SDK](https://github.com/SAP/gigya-swift-sdk), for Android core SDK v7 have moved social provider implementation out of the SDK’s scope.
+This change has been done to avoid upgrading the SDK once a specific provider’s SDK requires an update.
+
+The code for specific to the relevant providers (Google, Facebook, Line, WeChat) will be removed from the core SDK and placed in special “ProviderWrapper” classes.
+All provider classes should be stored in your application source root under the ***“gigya.providers”*** package.
+In addition, implementation of the provider’s library should be added to the application *gradle* build file.
 
 ### Facebook
-Adding Facebook native login SDK to your Android app is mandatory if you want to login via Facebook.
+
+Add the following line to your application’s build.gradle file:
 ```
-On October 5, 2021, Facebook Login will no longer support Android embedded browsers (WebViews) for authenticating users.
-```
-Android SDK currently supports up to Facebook Android SDK v12.3.0.
-
-Android SDK currently supports up to Facebook Android SDK v14.1.1.
-
-To set up your Facebook app in your
-Android Studio project using the following instructions:
-
-Setting up the Facebook dependency:
-
-Add the following line to your application's build.gradle file.
-
-```gradle
 implementation 'com.facebook.android:facebook-android-sdk:14.1.1'
 ```
-Add the following lines to your *AndroidManifest.xml* file.
-It is recommended that the **facebook_app_id** String be placed in the your *res/values/strings.xml* file.
+
+Add the provided “FacebookProviderWrapper” class provided in your ../gigya/providers package.
+
+Add the following lines to your AndroidManifest.xml file using String references to your String resource file:
 
 ```
-If you do not yet have an active Facebook app please see our Facebook documentation.
-For mobile specific. please go to Facebook Mobile App Setup.
-```
-
-```xml
 <activity
-android:name="com.facebook.FacebookActivity"
-android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-android:label="@string/app_name"
-android:theme="@android:style/Theme.Translucent.NoTitleBar"
-tools:replace="android:theme" />
-```
-```xml
-<meta-data
-android:name="com.facebook.sdk.ApplicationId"
-android:value="@string/facebook_app_id" />
+  android:name="com.facebook.FacebookActivity"
+  android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+  android:label="@string/app_name"
+  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+  tools:replace="android:theme" />
 
 <meta-data
-android:name="com.facebook.sdk.ClientToken"
-android:value="@string/facebook_client_token" />
+  android:name="com.facebook.sdk.ApplicationId"
+  android:value="@string/facebook_app_id" />
+
+<meta-data
+  android:name="com.facebook.sdk.ClientToken"
+  android:value="@string/facebook_client_token" />
 ```
+
+**Note:** The FacebookProviderWrapper class is set to reference the “R.string.facebook_app_id" string reference.
 
 ### Google
-Android enables users to set their Google account on their device.
-Using Google Sign-In is mandatory if you want users to login via Google.
 
-Instructions for adding Google Sign-in to your Android device can be found at Google Sign-In for Android.
-
-Add the following line to your application's build.gradle file.
-```radle
+Add the following line to your application’s build.gradle file:
+```
 implementation 'com.google.android.gms:play-services-auth:16.0.1'
 ```
-Add the following meta-data tag to your AndroidManifest.xml file. It is recommended that the google_client_id String be placed in the your re
-s/values/strings.xml file.
 
-```xml
+Add the “GoogleProviderWrapper” class provided in your ../gigya/providers package.
+
+Add the following lines to your AndroidManifest.xml file using String references to your String resource file:
+```
 <meta-data
 android:name="googleClientId"
 android:value="@string/google_client_id" />
 ```
 
-```
-Important!
-From version 4.2.+ it is now mandatory to implement the Google auth library if using Google sign in in your app.
-```
-```
-Note that the required client_id is the Web client id generated when you create your Google project. This should not be mistaken with
-the Android OAuth client id. Make sure that your Google project contains both.
-```
+**Note:** The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
+
+As for previous Google login implementations, the required client_id is the **Web client id** generated when you create your Google project.
+This should not be mistaken with the Android OAuth client id. Make sure that your Google project contains both.
 
 ### LINE
 
-The Gigya Android SDK allows you to enable LINE native login for users that have the LINE app installed.
-Instructions for adding LINE Native Login to your Android device can be found at Integrating LINE Login with an Android app.
-Make sure you have the following in your application's build.gradle file.
+Add the following line to your application’s build.gradle file:
+```
+ implementation 'com.linecorp:linesdk:5.1.1'
+```
 
-```gradle
-implementation 'com.linecorp:linesdk:5.0.1'
-```
-In order to support LINE v5 please make sure you enable Java 1.8 support in your app's build.gradle file.
+Add the “LineProviderWrapper” class provided in your ../gigya/providers package.
 
-```gradle
-compileOptions {
-sourceCompatibility JavaVersion.VERSION_1_8
-targetCompatibility JavaVersion.VERSION_1_8
-}
+Add the following lines to your AndroidManifest.xml file using String references to your String resource file:
 ```
-You must generate a package signature to place in your LINE Channels > Technical configuration > Android Package Signature field.
-The signature you need is the SHA1 signature, you can generate it according to the following:
-
-```
-// Code to generate Package Signature
-keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias
-androiddebugkey -storepass android -keypass android
-```
-```
-//Returns -> SHA1: DD:D3:1B:4.....xxxxx.....
-//Convert To -> DDD31B4xxxxxxx.............xxxxxx
-```
-Once you have removed the colons (":") from the signature, paste it to the respective field in LINE's Developers Console.
-
-Add the following to your AndroidManifest.xml. It is recommended that the line_Channel_ID String be placed in the your res/values/strings.x
-ml file
-
-```xml
 <meta-data
 android:name="lineChannelID"
-android:value="@string/line_Channel_ID" />
+android:value="@string/line_channel_id" />
 ```
+
+Follow LINE login guidelines to set up your channel id in the [Line developer console](https://developers.line.biz/console/).
+
+**Note:** The LineProviderWrapper class is set to reference the “R.string.line_channel_id" string reference.
+
+If you have not already changed your JAVA compatibility within your build file, please do so, as Line integration requires it.
 ```
-The GIgya SDK currently supports LINE SDK v5.1 for Android.
-Note that support for LINE v4.x has been discontinued.
-It is important that you remove any instance of the previous Line v4 files from your /lib folder (if any).
+compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 ```
 
 ### WeChat
-The Gigya Android SDK allows you to enable WeChat native login for users that have the WeChat app installed.
-Add the following the dependency to your application's build.gradle file.
 
+Add the following line to your application’s build.gradle file:
 ```
-The current tested WeChat api version is 5.3.1.
+implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.3'
 ```
-```gradle
-implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.3.1'
-```
-The the following to your *AndroidManifest.xml* It is recommended that the wechatAppID String be placed
-in the your *res/values/strings.xml file*.
 
-```xml
+Add the “WeChatProviderWrapper” class provided in your ../gigya/providers package.
+
+Add the following lines to your AndroidManifest.xml file using String references to your String resource file:
+```
 <activity
-android:name=".wxapi.WXEntryActivity"
-android:exported="true"
-android:label="@string/app_name"
-android:launchMode="singleTop" />
-```
-```xml
+  android:name=".wxapi.WXEntryActivity"
+  android:exported="true"
+  android:label="@string/app_name"
+  android:launchMode="singleTop" />
+
 <meta-data
-android:name="wechatAppID"
-android:value="@string/wechatAppID" />
+  android:name="wechatAppID"
+  android:value="@string/wechat_app_id" />
 ```
-Create a sub folder in the root of your project called wxapi. In that folder, create an activity named WXEntryActivity which must contain the
-following:
 
-```java
-public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
-    
-@Override
-protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    WeChatProvider.handleIntent(this, getIntent(), this);
-    finish(); 
-    }   
+**Note:** The WeChatProviderWrapper class is set to reference the “R.string.wechat_app_id" string reference.
 
-@Override
-protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
-    WeChatProvider.handleIntent(this, getIntent(), this);
-    finish();
+Create a sub folder in the root of your project called "wxapi".
+In that folder, create an activity named WXEntryActivity, which must contain the following:
+
+```
+public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHandler {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WechatProviderWrapper provider = getProvider();
+        if (provider != null) {
+            provider.handleIntent(getIntent(), this);
+        }
+        finish();
     }
 
-@Override
-public void onReq(BaseReq baseReq) {
-    // Stub. Currently unused.
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        WechatProviderWrapper provider = getProvider();
+        if (provider != null) {
+            provider.handleIntent(getIntent(), this);
+        }
     }
 
-@Override
-public void onResp(BaseResp baseResp) {
-    WeChatProvider.onResponse(baseResp);
+    @Override
+    public void onReq(BaseReq baseReq) {
+        // Stub. Currently unused.
+        Log.d("sd", "sd");
     }
 
-@Override
-public void finish() {
-    super.finish();
-    // Disable exit animation.
-    overridePendingTransition(0, 0);
+    @Override
+    public void onResp(BaseResp baseResp) {
+        WechatProviderWrapper provider = getProvider();
+        if (provider != null) {
+            provider.onResponse(baseResp);
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        // Disable exit animation.
+        overridePendingTransition(0, 0);
+    }
+
+    @Nullable
+    private WechatProviderWrapper getProvider() {
+        ExternalProvider provider = (ExternalProvider) Gigya.getInstance(MyAccount.class).getUsedSocialProvider("wechat");
+        return (WechatProviderWrapper) provider.getWrapper();
     }
 }
 ```
-Once you've tested your app, run the signature generation tool available from WeChat at https://open.weixin.qq.com/cgi-bin/showdocument?actio
-n=dir_list&t=resource/res_list&verify=1&id=open1419319167&token=&lang=en_US.
-
-Use the tool to generate the app signature and update your setting in the WeChat console.
+The code above will be provided in a separate file along with the WeChatProviderWrapper file.
 
 ## Logout
 A simple logout is available by using:
-
-```
-Important Notes
-The signature generation tool must be installed on the mobile device.
-You will not be able to test WeChat functionality using an emulator. WeChat requires a physical mobile device.
-Once you update your app signature in the WeChat console, it could take a couple of hours to update.
-If you experience problems and notice errCode -6 from WeChat while debugging, it means the signature isn't correct.
-```
 
 ```java
 mGigya.logout();

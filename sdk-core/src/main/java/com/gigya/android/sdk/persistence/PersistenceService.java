@@ -153,7 +153,7 @@ public class PersistenceService implements IPersistenceService {
     //region PRIVATE HELPERS
 
     private boolean contains(String key) {
-        return _prefs.contains(key);
+        return getPrefs().contains(key);
     }
 
     @Override
