@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKeyLegacy;
 import com.gigya.android.sdk.persistence.PersistenceService;
 
 import org.junit.Before;
@@ -48,7 +47,6 @@ public class SessionKeyLegacyTest {
         when(mEditor.putString(anyString(), anyString())).thenReturn(mEditor);
         doNothing().when(mEditor).apply();
         // Test instance.
-        cSecureKey = new SessionKeyLegacy(mPsService);
     }
 
     @Test
