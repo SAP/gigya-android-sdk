@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.gigya.android.sdk.encryption.ISecureKey;
-import com.gigya.android.sdk.encryption.SessionKey;
 import com.gigya.android.sdk.persistence.PersistenceService;
 
 import org.junit.Before;
@@ -53,7 +52,6 @@ public class SessionKeyTest {
         doNothing().when(mEditor).apply();
 
         // Test instance.
-        cSecureKey = new SessionKey(mContext, mPsService);
     }
 
     @Test
