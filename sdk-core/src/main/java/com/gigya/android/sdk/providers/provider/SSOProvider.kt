@@ -57,10 +57,16 @@ class SSOProvider(var context: Context?,
         packageName = _context.packageName
     }
 
+    private fun getContext(params: MutableMap<String, Any>?): String? {
+        if (params == null) return null
+        if (params.isEmpty()) return null
+        return Gson().toJson(params)
+    }
+
     /**
      * Initiate provider login.
      */
-    override fun login(loginParams: MutableMap<String, Any>?, loginMode: String?) {
+    override fun login(params: MutableMap<String, Any>?, loginMode: String?) {
         if (_connecting) {
             return
         }
@@ -69,16 +75,8 @@ class SSOProvider(var context: Context?,
         // Irrelevant...
         _loginMode = loginMode
 
-        val loginUrl: String = getAuthorizeUrl()
-
+        val loginUrl: String = getAuthorizeUrl(getContext(params))
         GigyaLogger.debug(LOG_TAG, "login: with url $loginUrl")
-
-        // Check for custom SSO redirect URI.
-        loginParams?.let { params ->
-            if (params.containsKey("sso-redirect")) {
-                redirect = params["sso-redirect"]?.toString()
-            }
-        }
 
         // Authorize endpoint.
         GigyaSSOLoginActivity.present(context!!, loginUrl, object : SSOLoginActivityCallback {
@@ -119,17 +117,17 @@ class SSOProvider(var context: Context?,
      * Build fidm base url.
      */
     fun getUrl(path: String): String =
-     when (config!!.isCnameEnabled) {
-            true -> "https://${config!!.cname}$fidmPath${config!!.apiKey ?: ""}/$path"
-            false -> "$fidmUrl${config!!.apiDomain}$fidmPath${config!!.apiKey ?: ""}/$path"
-        }
+            when (config!!.isCnameEnabled) {
+                true -> "https://${config!!.cname}$fidmPath${config!!.apiKey ?: ""}/$path"
+                false -> "$fidmUrl${config!!.apiDomain}$fidmPath${config!!.apiKey ?: ""}/$path"
+            }
 
 
     /**
      * Get authorization URL.
      * URL will be used in the Custom tab implementation to authenticate the user.
      */
-    private fun getAuthorizeUrl(): String {
+    private fun getAuthorizeUrl(context: String?): String {
         val urlString = getUrl(AUTHORIZE)
 
         var redirectUri = "gsapi://${packageName}/login/"
@@ -137,7 +135,7 @@ class SSOProvider(var context: Context?,
             redirectUri = redirect!!
         }
 
-        val serverParams: Map<String, String> = mapOf(
+        val serverParams: MutableMap<String, String> = mutableMapOf(
                 "redirect_uri" to redirectUri,
                 "response_type" to "code",
                 "client_id" to config!!.apiKey,
@@ -145,6 +143,12 @@ class SSOProvider(var context: Context?,
                 "code_challenge" to pkceHelper.challenge!!,
                 "code_challenge_method" to "S256"
         )
+
+        // Add context param if available.
+        if (context != null) {
+            serverParams["rp_context"] = context
+        }
+
         val queryString = serverParams.entries.joinToString("&")
         { "${it.key}=${URLEncoder.encode(it.value, "UTF-8")}" }
         return "$urlString?$queryString"
@@ -183,6 +187,7 @@ class SSOProvider(var context: Context?,
                         // Notify successful sign in.
                         onLoginSuccess(name, sessionInfo)
                     }
+
                     else -> {
                         // Generating general error. No error available to parse.
                         onLoginFailed(GigyaApiResponse(GigyaError.generalError().data))
