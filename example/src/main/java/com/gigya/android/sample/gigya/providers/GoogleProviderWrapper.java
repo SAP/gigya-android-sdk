@@ -53,19 +53,23 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
         _googleClient = GoogleSignIn.getClient(context, gso);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
-        if (account != null) {
-            // This option should not happen theoretically because we logout out explicitly.
-            final Map<String, Object> loginMap = new HashMap<>();
+        if (account == null) {
+            authenticate(params, callback);
+        } else {
             final String code = account.getServerAuthCode();
             if (code == null) {
-                GigyaLogger.error("GoogleProviderWrapper", "Server auth code null");
-                callback.onFailed("Error acquiring server auth code");
+                // Account code may be flushed. Need to re-authenticate.
+                authenticate(params, callback);
+            } else {
+                final Map<String, Object> loginMap = new HashMap<>();
+                loginMap.put("code", account.getServerAuthCode());
+                callback.onLogin(loginMap);
             }
-            loginMap.put("code", account.getServerAuthCode());
-            callback.onLogin(loginMap);
-            return;
         }
 
+    }
+
+    private void authenticate(final Map<String, Object> params, final IProviderWrapperCallback callback) {
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
 
             @Override
