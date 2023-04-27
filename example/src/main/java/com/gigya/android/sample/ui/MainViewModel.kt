@@ -405,7 +405,11 @@ class MainViewModel : ViewModel() {
             onLogin: () -> Unit,
     ) {
         viewModelScope.launch {
-            gigyaRepository.ssoLogin(mutableMapOf()).collect { result ->
+            gigyaRepository.ssoLogin(mutableMapOf("rp_context" to mutableMapOf(
+                    "brand" to "metropolitan", "time" to "utc"
+            )
+
+            )).collect { result ->
                 if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()
