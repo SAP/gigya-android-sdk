@@ -417,6 +417,21 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         });
     }
 
+    /***
+     * Initialize WebAuthn/Fido login/signing flow. Additional login parameters applied.
+     *
+     * @param resultLauncher Activity result launcher for intent sender request.
+     * @param params Available login parameters.
+     * @param gigyaCallback Result callback.
+     */
+    @Override
+    public void login(ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+                      Map<String, Object> params,
+                      GigyaLoginCallback<A> gigyaCallback) {
+        oauthService.setLoginParams(params);
+        login(resultLauncher, gigyaCallback);
+    }
+
     /**
      * Handle WebAuthn/Fido login result.
      * <p>
@@ -486,6 +501,8 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                                         notifyLoginError(GigyaError.fromResponse(response));
                                         return;
                                     }
+
+                                    oauthService.clearLoginParams();
 
                                     // Session received. Update session service.
                                     notifySession(response);
