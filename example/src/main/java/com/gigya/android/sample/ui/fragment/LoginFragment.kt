@@ -181,7 +181,7 @@ class LoginFragment : BaseExampleFragment() {
      * Login using Fido passkey.
      */
     private fun passwordlessLogin() {
-        viewModel.passwordlessLogin(
+        viewModel.passwordlessLogin(10,
                 (activity as MainActivity).resultHandler,
                 error = {
                     // Display error.

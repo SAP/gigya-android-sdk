@@ -9,9 +9,12 @@ import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentMyAccountBinding
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.MainActivity
+import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
+import com.gigya.android.sdk.session.SessionStateObserver
+import com.google.android.material.snackbar.Snackbar
 
 class MyAccountFragment : BaseExampleFragment() {
 
@@ -40,11 +43,36 @@ class MyAccountFragment : BaseExampleFragment() {
 
     override fun onPause() {
         viewModel.account.removeObserver(nameObserver)
+        Gigya.getInstance().unregisterSessionExpirationObserver(sessionExpirationObserver)
         super.onPause()
+    }
+
+    private val sessionExpirationObserver = SessionStateObserver {
+
+        activity?.runOnUiThread {
+            // Display error to user.
+            Snackbar.make(
+                    requireView(),
+                    "Session expired!",
+                    Snackbar.LENGTH_LONG
+            ).show()
+
+            viewModel.logout(
+                    error = {
+                        // Display error.
+                        toastIt("Error: ${it?.localizedMessage}")
+                    },
+                    onLogout = {
+                        toastIt("Account logout")
+                        (activity as MainActivity).onLogout()
+                    }
+            )
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        Gigya.getInstance().registerSessionExpirationObserver(sessionExpirationObserver)
         viewModel.account.observe(viewLifecycleOwner, nameObserver)
         // Check biometric state.
         if (biometric.isLocked) {
@@ -75,12 +103,15 @@ class MyAccountFragment : BaseExampleFragment() {
                 GigyaBiometric.Action.OPT_IN -> {
                     toastIt("Biometric: OptIn")
                 }
+
                 GigyaBiometric.Action.OPT_OUT -> {
                     toastIt("Biometric: OptOut")
                 }
+
                 GigyaBiometric.Action.LOCK -> {
                     toastIt("Biometric: Locked")
                 }
+
                 GigyaBiometric.Action.UNLOCK -> {
                     toastIt("Biometric: Unlocked")
                 }
@@ -215,6 +246,7 @@ class MyAccountFragment : BaseExampleFragment() {
                                     "Place finger on sensor to continue", ""),
                             biometricCallback)
                 }
+
                 false -> {
                     biometric.lock(biometricCallback)
                 }

@@ -10,6 +10,8 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 
+import java.util.Map;
+
 public interface IWebAuthnService<A extends GigyaAccount> {
 
     void register(
@@ -18,6 +20,11 @@ public interface IWebAuthnService<A extends GigyaAccount> {
 
     void login(
             ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+            GigyaLoginCallback<A> gigyaCallback);
+
+    void login(
+            ActivityResultLauncher<IntentSenderRequest> resultLauncher,
+            Map<String, Object> params,
             GigyaLoginCallback<A> gigyaCallback);
 
     void revoke(
