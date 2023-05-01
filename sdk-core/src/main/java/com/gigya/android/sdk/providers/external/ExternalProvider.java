@@ -102,7 +102,10 @@ public class ExternalProvider extends Provider {
         try {
             final Class clazz = getWrapperClass(_context, provider, providersRoot);
             if (clazz != null) {
-                final IProviderWrapper wrapper = (IProviderWrapper) providerContainer.createInstance(clazz);
+                IProviderWrapper wrapper = (IProviderWrapper) providerContainer.get(clazz);
+                if (wrapper == null) {
+                    wrapper = (IProviderWrapper) providerContainer.createInstance(clazz);
+                }
                 providerContainer.bind(clazz, wrapper);
                 return wrapper;
             }

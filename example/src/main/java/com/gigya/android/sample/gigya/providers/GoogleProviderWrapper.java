@@ -35,7 +35,7 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
     private GoogleSignInClient _googleClient;
     final Context context;
 
-    GoogleProviderWrapper(Context context) {
+    public GoogleProviderWrapper(Context context) {
         super(context, R.string.google_client_id);
         this.context = context;
     }

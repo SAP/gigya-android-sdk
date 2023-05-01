@@ -406,7 +406,7 @@ class MainViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             gigyaRepository.ssoLogin(mutableMapOf("rp_context" to mutableMapOf(
-                    "brand" to "metropolitan", "time" to "utc"
+                    "contextKey" to "contextValue"
             )
 
             )).collect { result ->
