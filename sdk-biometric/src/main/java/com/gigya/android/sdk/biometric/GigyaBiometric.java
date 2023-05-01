@@ -51,11 +51,9 @@ public class GigyaBiometric {
     // endregion
 
     private BiometricImpl _impl;
-    private boolean _isAvailable;
 
     protected GigyaBiometric(Context context, BiometricImpl impl) {
         // Verify conditions for using biometric authentication.
-        _isAvailable = verifyBiometricSupport(context);
         _impl = impl;
     }
 
@@ -65,7 +63,7 @@ public class GigyaBiometric {
      * @return TRUE if biometric service is available for use.
      */
     public boolean isAvailable() {
-        return _isAvailable;
+        return verifyBiometricSupport(_impl._context);
     }
 
     /**
