@@ -154,10 +154,11 @@ class MainViewModel : ViewModel() {
     }
 
     // Login with Fido passkey (needs to have registered a key before).
-    fun passwordlessLogin(resultHandler: ActivityResultLauncher<IntentSenderRequest>,
+    fun passwordlessLogin(sessionExpiration: Int?,
+            resultHandler: ActivityResultLauncher<IntentSenderRequest>,
                           error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
-            val result = gigyaRepository.webAuthnLogin(resultHandler)
+            val result = gigyaRepository.webAuthnLogin(sessionExpiration, resultHandler)
             if (result.isError()) {
                 error(result.error)
                 return@launch
