@@ -37,7 +37,7 @@ public class LineProviderWrapper extends ProviderWrapper implements IProviderWra
     IProviderWrapperCallback providerWrapperCallback;
     final Context context;
 
-    LineProviderWrapper(Context context) {
+    public LineProviderWrapper(Context context) {
         super(context, R.string.line_channel_id);
         this.context = context;
     }
