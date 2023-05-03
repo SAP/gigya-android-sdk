@@ -54,6 +54,10 @@ public class ProviderFactory implements IProviderFactory {
 
         try {
             if (isExternalProvider(name)) {
+                // Must have fix for deprecated name "googleplus" until WebSDK will no longer save it.
+                if (name.equals("googleplus")) {
+                    name = "google";
+                }
                 final ExternalProvider externalProvider = tempContainer.createInstance(ExternalProvider.class);
                 final String rootPath = ExternalProvider.getPath();
                 externalProvider.setProviderName(name);
