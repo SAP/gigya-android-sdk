@@ -7,6 +7,7 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.external.ExternalProvider;
+import com.gigya.android.sdk.providers.external.IProviderWrapper;
 import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
@@ -60,7 +61,7 @@ public class ProviderFactory implements IProviderFactory {
                 externalProvider.init(_container);
                 final Class externalProviderClazz = ExternalProvider.getWrapperClass(_context, name, rootPath);
                 if (externalProviderClazz != null) {
-                    _container.bind(externalProviderClazz, externalProvider);
+                    _container.bind(externalProviderClazz, externalProvider.getWrapper());
                 }
                 return externalProvider;
             } else {
@@ -111,27 +112,37 @@ public class ProviderFactory implements IProviderFactory {
         return WebLoginProvider.class;
     }
 
+    /**
+     * Iterate through relevant social provider wrappers (this applies for external SDK specific providers and
+     * not social login performed via web screen-sets) and attempt to logout of provider.
+     */
     @Override
     public void logoutFromUsedSocialProviders() {
-        final ArrayList<ExternalProvider> usedProviders = getUsedSocialProviders();
+        final ArrayList<IProviderWrapper> usedProviders = getUsedSocialProviders();
         if (usedProviders.size() > 0) {
-            for (IProvider provider : usedProviders) {
+            for (IProviderWrapper provider : usedProviders) {
                 provider.logout();
             }
             _psService.removeSocialProviders();
         }
     }
 
+    /**
+     * Get the available list of used External social provider wrappers.
+     * Method is used for logout attempt.
+     *
+     * @return List of used IProviderWrapper interfaces.
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private ArrayList<ExternalProvider> getUsedSocialProviders() {
-        ArrayList<ExternalProvider> providers = new ArrayList<>();
+    private ArrayList<IProviderWrapper> getUsedSocialProviders() {
+        ArrayList<IProviderWrapper> providers = new ArrayList<>();
 
         final String root = ExternalProvider.getPath();
         for (String optional : optionalProviders) {
             try {
                 Class providerClass = ExternalProvider.getWrapperClass(_context, optional, root);
                 if (_container.isBound(providerClass)) {
-                    ExternalProvider provider = (ExternalProvider) _container.get(providerClass);
+                    IProviderWrapper provider = (IProviderWrapper) _container.get(providerClass);
                     if (provider != null) {
                         providers.add(provider);
                     }

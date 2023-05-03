@@ -154,10 +154,11 @@ class MainViewModel : ViewModel() {
     }
 
     // Login with Fido passkey (needs to have registered a key before).
-    fun passwordlessLogin(resultHandler: ActivityResultLauncher<IntentSenderRequest>,
+    fun passwordlessLogin(sessionExpiration: Int?,
+            resultHandler: ActivityResultLauncher<IntentSenderRequest>,
                           error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
         viewModelScope.launch {
-            val result = gigyaRepository.webAuthnLogin(resultHandler)
+            val result = gigyaRepository.webAuthnLogin(sessionExpiration, resultHandler)
             if (result.isError()) {
                 error(result.error)
                 return@launch
@@ -405,7 +406,11 @@ class MainViewModel : ViewModel() {
             onLogin: () -> Unit,
     ) {
         viewModelScope.launch {
-            gigyaRepository.ssoLogin(mutableMapOf()).collect { result ->
+            gigyaRepository.ssoLogin(mutableMapOf("rp_context" to mutableMapOf(
+                    "contextKey" to "contextValue"
+            )
+
+            )).collect { result ->
                 if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()

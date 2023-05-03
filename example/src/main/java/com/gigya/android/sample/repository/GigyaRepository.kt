@@ -205,11 +205,13 @@ class GigyaRepository {
     }
 
     @UiThread
-    suspend fun webAuthnLogin(resultHandler: ActivityResultLauncher<IntentSenderRequest>): GigyaRepoResponse {
+    suspend fun webAuthnLogin(sessionExpiration: Int?,
+            resultHandler: ActivityResultLauncher<IntentSenderRequest>): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
+            val params = mutableMapOf<String, Any>("sessionExpiration" to sessionExpiration!!)
             gigyaInstance.WebAuthn()
-                    .login(resultHandler, object : GigyaLoginCallback<MyAccount>() {
+                    .login(resultHandler, params, object : GigyaLoginCallback<MyAccount>() {
 
                         override fun onSuccess(obj: MyAccount?) {
                             obj?.let {

@@ -12,6 +12,8 @@ public class OauthService implements IOauthService {
 
     final private IBusinessApiService businessApiService;
 
+    public Map<String, Object> loginParameters;
+
     public OauthService(
             IBusinessApiService businessApiService
     ) {
@@ -76,6 +78,10 @@ public class OauthService implements IOauthService {
         final Map<String, Object> params = new HashMap<>();
         params.put("grant_type", "authorization_code");
         params.put("code", code);
+        // Merge with login parameters if relevant.
+        if (loginParameters != null) {
+            params.putAll(loginParameters);
+        }
         this.businessApiService.send(
                 OauthApis.token.api,
                 params,
@@ -83,6 +89,19 @@ public class OauthService implements IOauthService {
                 GigyaApiResponse.class,
                 callback
         );
+    }
+
+    @Override
+    public void setLoginParams(Map<String, Object> params) {
+        if (loginParameters == null) {
+            loginParameters = new HashMap<>();
+        }
+        loginParameters.putAll(params);
+    }
+
+    @Override
+    public void clearLoginParams() {
+        loginParameters.clear();
     }
 
 }
