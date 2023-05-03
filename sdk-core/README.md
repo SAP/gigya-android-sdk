@@ -780,8 +780,8 @@ mGigya.showScreenSets("Default-RegistrationLogin", false, null, new GigyaPluginC
 });
 ```
 
-The showScreenSets method available parameters include:
-All parameters that the web screen-sets plugin can receive.
+The available parameters for the "showScreenSetts" method are the same as those for the webSDK, as described here: https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/8b8d6fffe113457094a17701f63e3d6a/413a5b7170b21014bbc5a10ce4041860.html
+
 Optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
 Customizing the look & feel of the PluginFragment is recommended.
 It can be done by simply copying the gigya_plugin_fragment.xml file from the SDKs source code to your application res/layout folder
@@ -1181,24 +1181,27 @@ _webBridge?.detachFrom(web_view)
 ```
 
 ## SSO (Single Sign-on)
-Single Sign-On (SSO) is an authentication method that allows a user to log in to multiple applications that reside within the same site group with a single login credential.
+Single Sign-On (SSO) is an authentication method that allows a user to log in to multiple applications that reside within the same site group using a single login credential.
+When using the mobile SSO feature, applications within the same group are able to share a valid session with the device browser.
 
 When using the mobile SSO feature, applications within the same group are able to share a valid session with the device browser.
 Supported flows:
-* Login via SSO feature on mobile. The browser can share the session using the SSO method.
-* Login via SSO feature on application 1. Application 2 can share the session when using the SSO method.
-* Login via SSO method on the browser. Applications within the same group can share the session when using the SSO method.
+* Login via SSO feature on the client application running on a mobile device. The browser on the device can then obtain the session using the SSO method.
+* Login via SSO feature on Client Application 1 on a mobile device. Client Application 2 within the same site group can obtain the session using the SSO method.
+* Login via SSO method on a browser running on a mobile device. Client applications within the same site group can obtain the session when using the SSO method.
 
-You will be required to setup you central login page on your site’s console.
+You will be required to set up your central login page on your site’s console.
 
-To set up mobile SSO please follow these steps:
+**Instructions**
 
-Add Custom-Tabs implementation to your application level build.gradle file:
+To set up mobile SSO, please follow these steps:
+
+1. Add the Custom-Tabs implementation to your application level build.gradle file:
 ```
 implementation 'androidx.browser:browser:1.3.0'
 ```
 
-Add The following to your application’s AndroidManifest.xml file:
+2. Add the following to your application’s AndroidManifest.xml file:
 ```
  <activity android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity"
             android:exported="true"
@@ -1220,12 +1223,10 @@ Add The following to your application’s AndroidManifest.xml file:
   </activity>
 ```
 
-**The default redirect needed consists of the following structure:**
-“gsapi://{applicationId}/login/ whereas the “applicationId” represent the applicaiton unique bundle identifier.
-
+3. The required default redirect consists of the following structure: “gsapi://{applicationId}/login/”, where the “applicationId” represents the application’s unique bundle identifier."
 Please make sure you add your unique redirect URL to the **Trusted Site URLs** section of your parent site.
 
-Finally, to initiate the flow, use the SSO function provided by the Gigya shared interface
+4. Finally, to initiate the flow, use the SSO function provided by the Gigya shared interface
 
 ```
 gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
@@ -1242,6 +1243,28 @@ gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
             }
 
         })    
+```
+
+The available parameters map is a baseline for adding additional parameters to the initial authentication endpoint.
+Currently supported parameters:
+•	"rp_context" - An available dynamic object which will be JSON serialized upon request. For more information.
+Usage example:
+
+```kotlin
+gigya.sso(mutableMapOf("rp_context" to mutableMapOf("contextKey" to "contextValue"), 
+        object : GigyaLoginCallback<MyAccount>() {
+                override fun onSuccess(obj: MyAccount?) {
+                //...
+                }
+
+                 override fun onOperationCanceled() {
+                //...
+                 }
+
+                 override fun onError(error: GigyaError?) {
+               //...
+                 }
+        })
 ```
 
 ## FIDO/WebAuthn Authentication
