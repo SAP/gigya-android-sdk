@@ -20,7 +20,7 @@ public class GigyaBiometric {
         OPT_IN, OPT_OUT, LOCK, UNLOCK
     }
 
-    public static final String VERSION = "2.1.0";
+    public static final String VERSION = "2.1.1";
 
     private static final String LOG_TAG = "GigyaBiometric";
 
