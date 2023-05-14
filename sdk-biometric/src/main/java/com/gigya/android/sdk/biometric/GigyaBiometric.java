@@ -20,7 +20,7 @@ public class GigyaBiometric {
         OPT_IN, OPT_OUT, LOCK, UNLOCK
     }
 
-    public static final String VERSION = "2.1.0";
+    public static final String VERSION = "2.1.1";
 
     private static final String LOG_TAG = "GigyaBiometric";
 
@@ -51,11 +51,9 @@ public class GigyaBiometric {
     // endregion
 
     private BiometricImpl _impl;
-    private boolean _isAvailable;
 
     protected GigyaBiometric(Context context, BiometricImpl impl) {
         // Verify conditions for using biometric authentication.
-        _isAvailable = verifyBiometricSupport(context);
         _impl = impl;
     }
 
@@ -65,7 +63,7 @@ public class GigyaBiometric {
      * @return TRUE if biometric service is available for use.
      */
     public boolean isAvailable() {
-        return _isAvailable;
+        return verifyBiometricSupport(_impl._context);
     }
 
     /**
