@@ -36,6 +36,8 @@ class ExampleApplication : Application() {
 //        FacebookSdk.sdkInitialize(this)
         AppEventsLogger.activateApp(this);
 
+        //Gigya.getInstance().setExternalProvidersPath("providers")
+
         getSignature()
     }
 

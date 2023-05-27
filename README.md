@@ -1,15 +1,12 @@
 # SAP CDC (Gigya) Android SDK
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/gigya-android-sdk)](https://api.reuse.software/info/github.com/SAP/gigya-android-sdk)
 
-
 ## Description
 The Android SDK provides an interface for the Gigya API.
 The library makes it simple to integrate Gigya's service in your Android application.
-For more details see: For documentation: https://developers.gigya.com/display/GD/Android+SDK+v4
 
 ## Requirements
-The core Android SDK requires SDK 23 and above.
-For Biometric capabilities, SDK 23 and above is required.
+Android SDK 23+ is required.
 
 ## Download and Installation
 
@@ -36,6 +33,9 @@ None
 
 ## Contributing
 Via pull request to this repository.
+
+## Code of Conduct
+See attached CODE_OF_CONDUCT.md file.
 
 ## To-Do (upcoming changes)
 None

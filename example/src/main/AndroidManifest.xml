@@ -56,6 +56,10 @@
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
 
+        <meta-data
+            android:name="com.gigya.android.externalProvidersPath"
+            android:value="@string/external_provider_path" />
+
         <activity
             android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity"
             android:exported="true"

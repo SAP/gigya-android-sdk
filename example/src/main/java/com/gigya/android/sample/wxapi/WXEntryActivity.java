@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.gigya.android.sample.gigya.providers.WechatProviderWrapper;
+import com.gigya.android.sample.providers.WechatProviderWrapper;
 import com.gigya.android.sample.model.MyAccount;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.providers.external.ExternalProvider;

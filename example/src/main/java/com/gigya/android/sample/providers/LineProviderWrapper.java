@@ -1,4 +1,4 @@
-package com.gigya.android.sample.gigya.providers;
+package com.gigya.android.sample.providers;
 
 import android.content.Context;
 import android.content.Intent;

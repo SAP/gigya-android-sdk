@@ -726,6 +726,15 @@ public class Gigya<T extends GigyaAccount> {
     //region NATIVE LOGIN
 
     /**
+     * Custom setter for external provider package path.
+     *
+     * @param path Path to package where the external providers path are located.
+     */
+    public void setExternalProvidersPath(String path) {
+        _providerFactory.setExternalProvidersPath(path);
+    }
+
+    /**
      * Request reference to used Gigya social provider.
      * Currently supported provider (GOOGLE, FACEBOOK, LINE, WECHAT).
      *
