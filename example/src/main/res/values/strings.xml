@@ -75,5 +75,7 @@
 
     <string name="wechat_app_id">YOUR-WECHAT-APP-ID-HERE</string>
 
+    <string name="external_provider_path">providers</string>
+
 
 </resources>

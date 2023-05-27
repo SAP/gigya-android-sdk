@@ -1,6 +1,9 @@
 package com.gigya.android.sdk.providers;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
@@ -8,7 +11,6 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.external.ExternalProvider;
 import com.gigya.android.sdk.providers.external.IProviderWrapper;
-import com.gigya.android.sdk.providers.provider.IProvider;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.providers.provider.SSOProvider;
@@ -32,6 +34,11 @@ public class ProviderFactory implements IProviderFactory {
     final private List<String> optionalProviders =
             Arrays.asList("facebook", "google", "googleplus", "line", "wechat");
 
+    // Default path is "gigya.providers" if not set manually.
+    public String externalProviderPath = "gigya.providers";
+    // Default meta-data key for external provider path if user chooses to add it.
+    private static final String EXTERNAL_PROVIDERS_META_DATA_PATH_KEY = "com.gigya.android.externalProvidersPath";
+
     public ProviderFactory(IoCContainer container,
                            Context context,
                            Config config,
@@ -40,6 +47,33 @@ public class ProviderFactory implements IProviderFactory {
         _context = context;
         _config = config;
         _psService = persistenceService;
+        checkMetaDataForCustomExternalProviderPath();
+    }
+
+    private void checkMetaDataForCustomExternalProviderPath() {
+        String path;
+        try {
+            PackageManager packageManager = _context.getPackageManager();
+            if (packageManager != null) {
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(_context.getPackageName(),
+                        PackageManager.GET_META_DATA);
+                if (applicationInfo != null) {
+                    if (applicationInfo.metaData != null) {
+                        path = String.valueOf(applicationInfo.metaData.get(EXTERNAL_PROVIDERS_META_DATA_PATH_KEY));
+                        if (!TextUtils.isEmpty(path)) {
+                            if (path.equals("null")) {
+                                return;
+                            }
+                            externalProviderPath = path;
+                            GigyaLogger.debug(LOG_TAG, "External provider path from meta-data = " + path);
+                        }
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            GigyaLogger.debug(LOG_TAG, "External provider path from meta-data exception - not found");
+            //e.printStackTrace();
+        }
     }
 
 
@@ -59,7 +93,7 @@ public class ProviderFactory implements IProviderFactory {
                     name = "google";
                 }
                 final ExternalProvider externalProvider = tempContainer.createInstance(ExternalProvider.class);
-                final String rootPath = ExternalProvider.getPath();
+                final String rootPath = externalProviderPath;
                 externalProvider.setProviderName(name);
                 externalProvider.setProvidersRoot(rootPath);
                 externalProvider.init(_container);
@@ -93,7 +127,7 @@ public class ProviderFactory implements IProviderFactory {
         Class<Provider> providerClazz;
         try {
             if (isExternalProvider(name)) {
-                final String rootPath = ExternalProvider.getPath();
+                final String rootPath = externalProviderPath;
                 providerClazz = ExternalProvider.getWrapperClass(_context, name, rootPath);
             } else {
                 providerClazz = getProviderClass(name);
@@ -131,6 +165,11 @@ public class ProviderFactory implements IProviderFactory {
         }
     }
 
+    @Override
+    public void setExternalProvidersPath(String path) {
+        this.externalProviderPath = path;
+    }
+
     /**
      * Get the available list of used External social provider wrappers.
      * Method is used for logout attempt.
@@ -141,7 +180,7 @@ public class ProviderFactory implements IProviderFactory {
     private ArrayList<IProviderWrapper> getUsedSocialProviders() {
         ArrayList<IProviderWrapper> providers = new ArrayList<>();
 
-        final String root = ExternalProvider.getPath();
+        final String root = externalProviderPath;
         for (String optional : optionalProviders) {
             try {
                 Class providerClass = ExternalProvider.getWrapperClass(_context, optional, root);
@@ -161,4 +200,5 @@ public class ProviderFactory implements IProviderFactory {
     public boolean isExternalProvider(String provider) {
         return optionalProviders.contains(provider.toLowerCase());
     }
+
 }
