@@ -13,4 +13,6 @@ public interface IProviderFactory {
     Provider usedProviderFor(String name);
 
     void logoutFromUsedSocialProviders();
+
+    void setExternalProvidersPath(String path);
 }
