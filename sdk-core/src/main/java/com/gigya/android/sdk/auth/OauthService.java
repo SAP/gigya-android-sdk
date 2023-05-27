@@ -101,7 +101,9 @@ public class OauthService implements IOauthService {
 
     @Override
     public void clearLoginParams() {
-        loginParameters.clear();
+        if (loginParameters != null) {
+            loginParameters.clear();
+        }
     }
 
 }
