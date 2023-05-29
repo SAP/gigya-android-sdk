@@ -42,6 +42,7 @@
     <EditText
         android:id="@+id/native_screensets_name_edit"
         android:layout_width="match_parent"
+        android:text="example_tests"
         android:hint="@string/native_screen_sets_name"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
