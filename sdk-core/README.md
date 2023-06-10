@@ -913,9 +913,10 @@ flow that they were triggered.
 
 The current supported interruption flows are:
 ```
+Pending registration
 Account linking
-TFA registration
-TFA verification
+Pending TFA registration 
+Pending TFA verification
 ```
 #### Interruptions handling - Account linking example
 
@@ -1308,6 +1309,24 @@ try {
 ```
 
 ### Android Implementation.
+
+A result handler is required to process the FIDO library result intent.
+Add the following to your activity:
+
+```
+// Custom result handler for FIDO sender intents.
+val resultHandler: ActivityResultLauncher<IntentSenderRequest> =
+       registerForActivityResult(
+               ActivityResultContracts.StartIntentSenderForResult()
+       ) { activityResult ->
+           val extras =
+                   activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
+                           ?.joinToString { it }
+           Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+       }
+
+```
+
 The Fido interface contains 3 methods:
 
 **Registration:**
@@ -1375,13 +1394,6 @@ Gigya.getInstance().WebAuthn()
 
             })
 ```
-
-
-**Note**:
-You are able to define you own custom redirect schema.
-To do so:
-1. update the “intent filter” data segmennt to you desired schema.
-2. Add the required redirect-uri String (in the specified above strucutre) to the sso request parameters using “sso-redirect” key mapping.
 
 ## Error reporting
 
