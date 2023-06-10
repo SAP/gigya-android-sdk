@@ -52,21 +52,8 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                 .build();
         _googleClient = GoogleSignIn.getClient(context, gso);
 
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
-        if (account == null) {
-            authenticate(params, callback);
-        } else {
-            final String code = account.getServerAuthCode();
-            if (code == null) {
-                // Account code may be flushed. Need to re-authenticate.
-                authenticate(params, callback);
-            } else {
-                final Map<String, Object> loginMap = new HashMap<>();
-                loginMap.put("code", account.getServerAuthCode());
-                callback.onLogin(loginMap);
-            }
-        }
-
+        // Not using cached account. Server auth code can be used only once.
+        authenticate(params, callback);
     }
 
     private void authenticate(final Map<String, Object> params, final IProviderWrapperCallback callback) {

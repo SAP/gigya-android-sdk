@@ -420,7 +420,9 @@ Add the following lines to your AndroidManifest.xml file using String references
   android:value="@string/facebook_client_token" />
 ```
 
-**Note:** The FacebookProviderWrapper class is set to reference the “R.string.facebook_app_id" string reference.
+**Note:** 
+The FacebookProviderWrapper class is set to reference the “R.string.facebook_app_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("facebook_app_id", "string", context.getPackageName()" instead.
 
 ### Google
 
@@ -438,7 +440,9 @@ android:name="googleClientId"
 android:value="@string/google_client_id" />
 ```
 
-**Note:** The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
+**Note:** 
+The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("google_client_id", "string", context.getPackageName()" instead.
 
 As for previous Google login implementations, the required client_id is the **Web client id** generated when you create your Google project.
 This should not be mistaken with the Android OAuth client id. Make sure that your Google project contains both.
@@ -461,7 +465,9 @@ android:value="@string/line_channel_id" />
 
 Follow LINE login guidelines to set up your channel id in the [Line developer console](https://developers.line.biz/console/).
 
-**Note:** The LineProviderWrapper class is set to reference the “R.string.line_channel_id" string reference.
+**Note:** 
+The LineProviderWrapper class is set to reference the “R.string.line_channel_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("line_channel_id", "string", context.getPackageName()" instead.
 
 If you have not already changed your JAVA compatibility within your build file, please do so, as Line integration requires it.
 ```
@@ -493,7 +499,9 @@ Add the following lines to your AndroidManifest.xml file using String references
   android:value="@string/wechat_app_id" />
 ```
 
-**Note:** The WeChatProviderWrapper class is set to reference the “R.string.wechat_app_id" string reference.
+**Note:**
+The WeChatProviderWrapper class is set to reference the “R.string.wechat_app_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("wechat_app_id", "string", context.getPackageName()" instead.
 
 Create a sub folder in the root of your project called "wxapi".
 In that folder, create an activity named WXEntryActivity, which must contain the following:
