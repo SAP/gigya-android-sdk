@@ -85,14 +85,24 @@ public class ExternalProvider extends Provider {
      */
     @SuppressWarnings("rawtypes")
     public static Class getWrapperClass(Context context, String provider, String root) throws ClassNotFoundException {
-        final String packageName = context.getPackageName();
+        // Try to get wrapper from absolute root.
         final String providerName = provider.substring(0, 1).toUpperCase() + provider.substring(1);
-        final String className = packageName + "." + root + "." + providerName + "ProviderWrapper";
+        final String absoluteRootClassName = root + "." + providerName + "ProviderWrapper";
         try {
-            return Class.forName(className);
-        } catch (Exception ex) {
-            GigyaLogger.error(LOG_TAG, "Error getting provider class name. Check root path");
-            return null;
+            return Class.forName(absoluteRootClassName);
+        } catch (Exception ex1) {
+            GigyaLogger.debug(LOG_TAG, "Unable to get provider class from absolute root path");
+            // Try to get wrapper from package/root combination.
+            final String packageName = context.getPackageName();
+            final String className = packageName + "." + root + "." + providerName + "ProviderWrapper";
+            try {
+                return Class.forName(className);
+            } catch (Exception ex2) {
+                ex2.printStackTrace();
+                GigyaLogger.debug(LOG_TAG, "Unable to get provider class from package/root combination path");
+                GigyaLogger.error(LOG_TAG, "Error getting provider class name. Check your path");
+                return null;
+            }
         }
     }
 
