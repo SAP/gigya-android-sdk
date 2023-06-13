@@ -32,7 +32,7 @@ public class ProviderFactory implements IProviderFactory {
 
     // Available external provider list. Lowercase.
     final private List<String> optionalProviders =
-            Arrays.asList("facebook", "google", "line", "wechat");
+            Arrays.asList("facebook", "google", "googleplus", "line", "wechat");
 
     // Default path is "gigya.providers" if not set manually.
     public String externalProviderPath = "gigya.providers";
@@ -191,7 +191,9 @@ public class ProviderFactory implements IProviderFactory {
                     }
                 }
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+                if (!optional.equals("googleplus")) {
+                    GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+                }
             }
         }
         return providers;
