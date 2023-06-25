@@ -15,7 +15,7 @@ class ScreenMethodChannel : IMethodChannel {
     internal enum class ScreenCall(val identifier: String) {
         ACTION("action"),
         DISMISS("_dismiss"),
-        CANCEL("_cancel"),
+        CANCEL("_canceled"),
         LINK("link"),
         EVAL("eval")
     }
