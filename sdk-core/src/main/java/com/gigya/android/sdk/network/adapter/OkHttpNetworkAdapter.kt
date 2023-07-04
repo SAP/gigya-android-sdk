@@ -1,0 +1,236 @@
+package com.gigya.android.sdk.network.adapter
+
+import android.os.Handler
+import android.os.Looper
+import com.gigya.android.sdk.GigyaLogger
+import com.gigya.android.sdk.api.GigyaApiHttpRequest
+import com.gigya.android.sdk.api.GigyaApiRequest
+import com.gigya.android.sdk.api.IApiRequestFactory
+import com.gigya.android.sdk.network.GigyaError
+import okhttp3.Call
+import okhttp3.Headers.Companion.toHeaders
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import java.net.HttpURLConnection
+import java.util.Queue
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
+
+class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvider(requestFactory) {
+
+    companion object {
+        fun isAvailable(): Boolean {
+            return try {
+                Class.forName("okhttp3.OkHttpClient")
+                true
+            } catch (ex: Exception) {
+                false
+            }
+        }
+    }
+
+    private val _queue: Queue<OkHttpTask> = ConcurrentLinkedQueue()
+    private val client = NetworkClient()
+
+    override fun addToQueue(
+        request: GigyaApiRequest,
+        networkCallbacks: IRestAdapterCallback
+    ) {
+        if (_blocked) {
+            // Add request to queue.
+            _queue.add(
+                OkHttpTask(OkHttpAsyncTask(networkCallbacks, client), request)
+            )
+            return
+        }
+        // Send request here.
+        val signedRequest = _requestFactory.sign(request)
+        OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
+    }
+
+    override fun addToQueueUnsigned(
+        request: GigyaApiRequest,
+        networkCallbacks: IRestAdapterCallback
+    ) {
+        // Send the request here.
+        val unsignedRequest = _requestFactory.unsigned(request)
+        OkHttpAsyncTask(networkCallbacks, client).execute(unsignedRequest)
+    }
+
+    override fun sendBlocking(
+        request: GigyaApiRequest,
+        networkCallbacks: IRestAdapterCallback
+    ) {
+        // Send the request here.
+        val signedRequest = _requestFactory.sign(request)
+        OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
+        _blocked = true
+    }
+
+    override fun cancel(tag: String?) {
+        if (tag == null) {
+            _queue.clear()
+            // Unable to cancel already sent requests.
+        }
+        if (!_queue.isEmpty()) {
+            val it: MutableIterator<*> = _queue.iterator()
+            while (it.hasNext()) {
+                val task = it.next() as OkHttpTask
+                val requestTag = task.request.tag
+                if (requestTag == tag) {
+                    it.remove()
+                }
+            }
+        }
+    }
+
+    override fun release() {
+        super.release()
+        if (_queue.isEmpty()) {
+            return
+        }
+        while (!_queue.isEmpty()) {
+            val queued: OkHttpTask = _queue.poll() as OkHttpTask
+            val signedRequest = _requestFactory.sign(queued.request)
+            queued.task.execute(signedRequest)
+        }
+    }
+
+}
+
+data class OkHttpTask(
+    var task: OkHttpAsyncTask,
+    var request: GigyaApiRequest
+)
+
+data class Result(
+    val code: Int,
+    val result: String?,
+    val date: String?
+)
+
+class NetworkClient {
+
+    internal companion object {
+        const val DEFAULT_TIMEOUT: Int = 30
+    }
+
+    private val okHttpClient: OkHttpClient
+
+    init {
+        val builder = OkHttpClient.Builder()
+
+        builder.connectTimeout(DEFAULT_TIMEOUT.toLong(), TimeUnit.SECONDS)
+        builder.readTimeout(DEFAULT_TIMEOUT.toLong(), TimeUnit.SECONDS)
+
+        // Add network logging if set to allow (default set to false).
+        if (GigyaLogger.isDebug()) {
+            builder.addInterceptor(
+                HttpLoggingInterceptor()
+                    .setLevel(HttpLoggingInterceptor.Level.BODY)
+            )
+        }
+        okHttpClient = builder.build()
+    }
+
+    fun newCall(request: Request): Call {
+        return okHttpClient.newCall(request);
+    }
+}
+
+open class OkHttpAsyncTask(
+    val callback: IRestAdapterCallback,
+    private val client: NetworkClient,
+) {
+
+    private var executor: ExecutorService? = null
+    private var handler: Handler? = null
+
+    companion object {
+        const val REQUEST_CONTENT_TYPE = "application/x-www-form-urlencoded"
+    }
+
+    init {
+        executor = Executors.newSingleThreadExecutor { r ->
+            val t = Thread(r)
+            t.isDaemon = true
+            return@newSingleThreadExecutor t
+        }
+    }
+
+    private fun getHandler(): Handler? {
+        if (handler == null) {
+            synchronized(OkHttpAsyncTask::class.java) {
+                handler = Handler(Looper.getMainLooper())
+            }
+        }
+        return handler
+    }
+
+    fun execute(request: GigyaApiHttpRequest) {
+        executor?.execute {
+            val result = doInBackground(request)
+            getHandler()?.post {
+                result?.let { onPostExecute(it) }
+                shutDown()
+            }
+        }
+    }
+
+    private fun doInBackground(request: GigyaApiHttpRequest): Result? {
+        // Make OkHttp call.
+        val builder = Request.Builder()
+        builder.url(request.url)
+        request.headers?.let {
+            builder.headers(it.toHeaders())
+        }
+        request.encodedParams?.let {
+            val data = it.toByteArray()
+            builder.post(data.toRequestBody())
+        }
+        builder.header("Content-Type", REQUEST_CONTENT_TYPE)
+        val okHttpRequest = builder.build()
+        val call = client.newCall(okHttpRequest)
+        val response = call.execute()
+
+        val responseCode = response.code
+        val responseBody = response.body?.string()
+        val responseDate = response.headers["date"]
+        return Result(responseCode, responseBody, responseDate)
+    }
+
+    private fun onPostExecute(result: Result) {
+        // Process response.
+        val badRequest: Boolean = result.code >= HttpURLConnection.HTTP_BAD_REQUEST
+        if (badRequest) {
+            val noNetworkRequest = result.code == 400106
+            if (noNetworkRequest) {
+                val noNetworkError = GigyaError(
+                    400106,
+                    "User is not connected to the required network or to any network",
+                    null
+                )
+                GigyaLogger.debug("GigyaApiResponse", "No network error")
+                callback.onError(noNetworkError)
+                return
+            }
+
+            // Generate gigya error.
+            val gigyaError = GigyaError(result.code, result.result!!, null)
+            callback.onError(gigyaError)
+            return
+        }
+        callback.onResponse(result.result, result.date)
+    }
+
+    private fun shutDown() {
+        if (executor != null) {
+            executor!!.shutdownNow()
+        }
+    }
+}
