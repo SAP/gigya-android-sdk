@@ -152,6 +152,7 @@ open class OkHttpAsyncTask(
     private var handler: Handler? = null
 
     companion object {
+        const val LOG_TAG = "OkHttpAsyncTask"
         const val REQUEST_CONTENT_TYPE = "application/x-www-form-urlencoded"
     }
 
@@ -174,8 +175,10 @@ open class OkHttpAsyncTask(
 
     fun execute(request: GigyaApiHttpRequest) {
         executor?.execute {
+            GigyaLogger.debug(LOG_TAG, "Executor: execute request with ${request.url}")
             val result = doInBackground(request)
             getHandler()?.post {
+                GigyaLogger.debug(LOG_TAG, "Executor: post execute request with ${request.url}")
                 result?.let { onPostExecute(it) }
                 shutDown()
             }
