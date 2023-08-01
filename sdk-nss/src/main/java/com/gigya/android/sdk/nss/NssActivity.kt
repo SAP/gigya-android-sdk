@@ -228,4 +228,8 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
         super.onDestroy()
     }
+
+    override fun onBackPressed() {
+        viewModel?.onBackPressed()
+    }
 }

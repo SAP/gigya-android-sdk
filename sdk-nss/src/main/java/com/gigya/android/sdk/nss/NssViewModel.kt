@@ -22,29 +22,34 @@ import com.gigya.android.sdk.nss.utils.guard
 import com.gigya.android.sdk.nss.utils.refined
 import com.gigya.android.sdk.reporting.ReportingManager
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import java.util.logging.StreamHandler
 
 class NssViewModel<T : GigyaAccount>(
-        private val screenChannel: ScreenMethodChannel,
-        private val dataChannel: DataMethodChannel,
-        private val apiChannel: ApiMethodChannel,
-        private val logChannel: LogMethodChannel,
-        private val eventsChannel: EventsMethodChannel,
-        private val flowManager: NssFlowManager<T>,
-        private val schemaHelper: SchemaHelper<T>,
-        private val nssDataResolver: NssDataResolver,
-        private val screenEventsManager: ScreenEventsManager,
-        private val nssMarkupLoader: NssMarkupLoader<T>,
-        private val nssJSEvaluator: NssJsEvaluator,
+    private val screenChannel: ScreenMethodChannel,
+    private val dataChannel: DataMethodChannel,
+    private val apiChannel: ApiMethodChannel,
+    private val logChannel: LogMethodChannel,
+    private val eventsChannel: EventsMethodChannel,
+    private val flowManager: NssFlowManager<T>,
+    private val schemaHelper: SchemaHelper<T>,
+    private val nssDataResolver: NssDataResolver,
+    private val screenEventsManager: ScreenEventsManager,
+    private val nssMarkupLoader: NssMarkupLoader<T>,
+    private val nssJSEvaluator: NssJsEvaluator,
 ) {
 
     // Default language will be set to English unless specified by initiator.
-    var screenLanguage: String = "en"
+    private var screenLanguage: String = "en"
 
     var finishClosure: () -> Unit? = { }
 
     lateinit var intentAction: (Intent) -> Unit?
     lateinit var intentActionForResult: (Intent, Int) -> Unit?
+
+    lateinit var backInterceptorChannel: EventChannel
+    var backInterceptorChannelSink: EventChannel.EventSink? = null
 
     fun attachWebAuthnResultHandler(handler: ActivityResultLauncher<IntentSenderRequest>) {
         flowManager.fidoResultHandler = handler
@@ -87,6 +92,24 @@ class NssViewModel<T : GigyaAccount>(
 
         eventsChannel.initChannel(engine.dartExecutor.binaryMessenger)
         eventsChannel.setMethodChannelHandler(eventsMethodChannelHandler)
+
+        backInterceptorChannel =
+            EventChannel(engine.dartExecutor.binaryMessenger, "nativeBackEventStream")
+        backInterceptorChannel.setStreamHandler(object : EventChannel.StreamHandler {
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                backInterceptorChannelSink = events
+            }
+
+            override fun onCancel(arguments: Any?) {
+                // Redundant.
+            }
+
+        })
+    }
+
+    fun onBackPressed() {
+        backInterceptorChannelSink?.success(null)
     }
 
     /**
@@ -99,6 +122,7 @@ class NssViewModel<T : GigyaAccount>(
                     LogMethodChannel.LogCall.DEBUG.identifier -> {
                         GigyaLogger.debug(logMap["tag"], logMap["message"])
                     }
+
                     LogMethodChannel.LogCall.ERROR.identifier -> {
                         GigyaLogger.error(logMap["tag"], logMap["message"])
                         // Development errors logs from the engine will throw a runtime exception.
@@ -124,8 +148,15 @@ class NssViewModel<T : GigyaAccount>(
                         val expressions = map["expressions"] as Map<String, String>
 
                         actionId.guard {
-                            GigyaLogger.error(LOG_TAG, "Missing action if in screen action initializer")
-                            ReportingManager.get().error(GigyaNss.VERSION, "nss", "Missing action if in screen action initializer")
+                            GigyaLogger.error(
+                                LOG_TAG,
+                                "Missing action if in screen action initializer"
+                            )
+                            ReportingManager.get().error(
+                                GigyaNss.VERSION,
+                                "nss",
+                                "Missing action if in screen action initializer"
+                            )
                         }
                         flowManager.setCurrent(actionId!!, screenId!!, expressions, result)
                     }
@@ -162,7 +193,8 @@ class NssViewModel<T : GigyaAccount>(
                         if (map["expression"] != null) {
                             expression = map["expression"] as String
                         }
-                        val globalData = flowManager.activeAction?.getGlobalData() as Map<String, Any>
+                        val globalData =
+                            flowManager.activeAction?.getGlobalData() as Map<String, Any>
                         val data = map["data"] as Map<String, Any>
                         nssJSEvaluator.evalSingle(data + globalData, expression!!) { eval ->
                             result.success(eval)
@@ -184,6 +216,7 @@ class NssViewModel<T : GigyaAccount>(
                         nssDataResolver.fetchImageResource(args, result)
                     }
                 }
+
                 "pick_image" -> {
                     flowManager.activeAction.refined<NssSetAccountAction<T>> {
                         // Set reference to active data result.
@@ -214,22 +247,26 @@ class NssViewModel<T : GigyaAccount>(
                             events.screenDidLoad()
                             result.success(null)
                         }
+
                         "routeFrom" -> {
                             screenModel.pr = call.argument("pid") ?: ""
                             events.routeFrom(screenModel)
                         }
+
                         "routeTo" -> {
                             screenModel.nr = call.argument("nid") ?: ""
                             events.routeTo(screenModel)
                         }
+
                         "submit" -> {
                             events.submit(screenModel)
                         }
+
                         "fieldDidChange" -> {
                             val fieldModel = FieldEventModel(
-                                    screenModel.data["field"] as String,
-                                    screenModel.data["from"] as String?,
-                                    screenModel.data["to"] as String?
+                                screenModel.data["field"] as String,
+                                screenModel.data["from"] as String?,
+                                screenModel.data["to"] as String?
                             )
                             events.fieldDidChange(screenModel, fieldModel)
                         }
@@ -246,19 +283,23 @@ class NssViewModel<T : GigyaAccount>(
     /**
      * Load the markup provided from NSS builder.
      */
-    fun loadMarkup(data: IgnitionData, done: (Map<String, Any>?) -> Unit, error: (GigyaError) -> Unit) {
+    fun loadMarkup(
+        data: IgnitionData,
+        done: (Map<String, Any>?) -> Unit,
+        error: (GigyaError) -> Unit
+    ) {
         data.lang?.let { language ->
             screenLanguage = language
         }
         // In any case, populate language with default "en" if not specified in ignition data.
         data.lang = screenLanguage
         nssMarkupLoader.loadMarkupFrom(data,
-                markupLoaded = { markup ->
-                    done(markup)
-                },
-                markupFailedToLoad = { e ->
-                    error(e)
-                })
+            markupLoaded = { markup ->
+                done(markup)
+            },
+            markupFailedToLoad = { e ->
+                error(e)
+            })
     }
 
     /**
@@ -277,7 +318,10 @@ class NssViewModel<T : GigyaAccount>(
     fun handleDynamicImageUri(uri: Uri) {
         val data = nssDataResolver.getBitmapDataFromUri(uri)
         data?.let {
-            flowManager.activeAction?.onNext(NssSetAccountAction.setProfilePhoto, mutableMapOf("data" to data))
+            flowManager.activeAction?.onNext(
+                NssSetAccountAction.setProfilePhoto,
+                mutableMapOf("data" to data)
+            )
         }
     }
 
@@ -287,7 +331,10 @@ class NssViewModel<T : GigyaAccount>(
     fun handleDynamicImageBitmap(bitmap: Bitmap) {
         val data = nssDataResolver.getBitmapData(bitmap)
         data?.let {
-            flowManager.activeAction?.onNext(NssSetAccountAction.setProfilePhoto, mutableMapOf("data" to data))
+            flowManager.activeAction?.onNext(
+                NssSetAccountAction.setProfilePhoto,
+                mutableMapOf("data" to data)
+            )
         }
     }
 
