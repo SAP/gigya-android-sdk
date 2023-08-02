@@ -185,7 +185,7 @@ open class OkHttpAsyncTask(
         }
     }
 
-    private fun doInBackground(request: GigyaApiHttpRequest): Result? {
+    private fun doInBackground(request: GigyaApiHttpRequest): Result {
         // Make OkHttp call.
         val builder = Request.Builder()
         builder.url(request.url)
