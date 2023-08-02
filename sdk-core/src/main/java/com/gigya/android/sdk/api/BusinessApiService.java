@@ -878,7 +878,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void getTFAProviders(String regToken, final GigyaCallback<TFAProvidersModel> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
-        send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.GET, TFAProvidersModel.class, callback);
+        send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.POST, TFAProvidersModel.class, callback);
     }
 
     //endregion
