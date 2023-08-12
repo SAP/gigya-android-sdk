@@ -790,15 +790,14 @@ mGigya.showScreenSets("Default-RegistrationLogin", false, null, new GigyaPluginC
 
 The available parameters for the "showScreenSetts" method are the same as those for the webSDK, as described here: https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/8b8d6fffe113457094a17701f63e3d6a/413a5b7170b21014bbc5a10ce4041860.html
 
-Optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
+An optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
 Customizing the look & feel of the PluginFragment is recommended.
-It can be done by simply copying the gigya_plugin_fragment.xml file from the SDKs source code to your application res/layout folder
+It can be done by simply copying the gigya_fragment_webview.xml file from the SDK's source code to your application res/layout folder
 directory.
 Once copied you will be able to change & customize the layout to your choosing (with some restrictions of course).
 
 ```
-Keep in mind that you cannot remove any element or change any existing element id. Doing so could result in unexpected crashes, as
-the SDK will still expect these elements to be presented.
+Keep in mind that you cannot remove any element or change any existing element id. Doing so could result in unexpected crashes, as the SDK will still expect these elements to be presented.
 ```
 
 
