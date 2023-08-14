@@ -223,9 +223,9 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Explicitly initialize the SDK With additional CNAME parameter.
      *
-     * @param apiKey Client API-KEY
+     * @param apiKey    Client API-KEY
      * @param apiDomain Request Domain.
-     * @param cname  CNAME.
+     * @param cname     CNAME.
      */
     public void init(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname) {
         // Override existing configuration when applied explicitly.
@@ -708,6 +708,18 @@ public class Gigya<T extends GigyaAccount> {
     public void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback) {
         GigyaLogger.debug(LOG_TAG, "removeConnection: with " + socialProvider);
         _businessApiService.removeConnection(socialProvider, gigyaCallback);
+    }
+
+    /**
+     * Remove a social connection from an existing account.
+     * Method expects "provider" parameter to be present in the params map.
+     *
+     * @param params        Parameter map.
+     * @param gigyaCallback Response listener callback.
+     */
+    public void removeConnection(@NonNull Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "removeConnection: with parameters");
+        _businessApiService.removeConnection(params, gigyaCallback);
     }
 
     /**

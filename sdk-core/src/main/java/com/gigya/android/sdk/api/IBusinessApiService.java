@@ -60,6 +60,8 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void removeConnection(@GigyaDefinitions.Providers.SocialProvider String socialProvider, GigyaCallback<GigyaApiResponse> gigyaCallback);
 
+    void removeConnection(@Nullable Map<String, Object> params, GigyaCallback<GigyaApiResponse> gigyaCallback);
+
     void getConflictingAccounts(final String regToken, final GigyaCallback<GigyaApiResponse> callback);
 
     void getTFAProviders(final String regToken, final GigyaCallback<TFAProvidersModel> callback);

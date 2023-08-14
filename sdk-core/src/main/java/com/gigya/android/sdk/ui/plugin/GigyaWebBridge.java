@@ -224,8 +224,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                 addConnection(callbackId, providerToAdd);
                 break;
             case "socialize.removeConnection":
-                final String providerToRemove = (String) params.get("provider");
-                removeConnection(callbackId, providerToRemove);
+                removeConnection(callbackId, params);
                 break;
             default:
                 if (feature.equals(Feature.SEND_REQUEST)) {
@@ -368,10 +367,10 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     /*
     Send removeConnection request via business API service.
      */
-    private void removeConnection(final String callbackId, String provider) {
-        GigyaLogger.debug(LOG_TAG, "Sending removeConnection api request with provider: " + provider);
+    private void removeConnection(final String callbackId, Map<String, Object> params) {
+        GigyaLogger.debug(LOG_TAG, "Sending removeConnection api request with provider: " + params.get("provider"));
         _businessApiService.removeConnection(
-                provider,
+                params,
                 new GigyaCallback<GigyaApiResponse>() {
                     @Override
                     public void onSuccess(GigyaApiResponse response) {
