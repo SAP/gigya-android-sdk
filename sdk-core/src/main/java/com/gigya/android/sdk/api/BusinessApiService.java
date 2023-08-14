@@ -789,13 +789,20 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         }
         final Map<String, Object> params = new HashMap<>();
         params.put("provider", socialProvider);
-        final String UID = _accountService.getAccount().getUID();
-        if (UID == null) {
-            GigyaLogger.error(LOG_TAG, "removeConnection: UID null. UID field is required to remove connection");
-            return;
+        removeConnection(params, gigyaCallback);
+    }
+
+    @Override
+    public void removeConnection(@Nullable Map<String, Object> params, 
+                                 final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        if (!_sessionService.isValid()) {
+            GigyaLogger.error(LOG_TAG, "Action requires a valid session");
+            if (gigyaCallback != null) {
+                gigyaCallback.onError(GigyaError.unauthorizedUser());
+            }
         }
-        params.put("UID", UID);
-        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REMOVE_CONNECTION, params, RestAdapter.HttpMethod.POST);
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_REMOVE_CONNECTION,
+                params, RestAdapter.HttpMethod.POST);
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
@@ -812,6 +819,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             }
         });
     }
+
 
     /**
      * Verify login id available for registration.
@@ -878,7 +886,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     public void getTFAProviders(String regToken, final GigyaCallback<TFAProvidersModel> callback) {
         final Map<String, Object> params = new HashMap<>();
         params.put("regToken", regToken);
-        send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.GET, TFAProvidersModel.class, callback);
+        send(GigyaDefinitions.API.API_TFA_GET_PROVIDERS, params, RestAdapter.POST, TFAProvidersModel.class, callback);
     }
 
     //endregion
