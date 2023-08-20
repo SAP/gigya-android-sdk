@@ -360,4 +360,13 @@ class NssViewModel<T : GigyaAccount>(
         schemaHelper.getSchema(result)
     }
 
+    /**
+     * Manually dismiss the engine.
+     */
+    fun nssDismiss() {
+        GigyaLogger.debug(LOG_TAG, "screen dismiss")
+        flowManager.dispose()
+        finishClosure()
+    }
+
 }
