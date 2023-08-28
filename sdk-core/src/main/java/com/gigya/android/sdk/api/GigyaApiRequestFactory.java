@@ -99,6 +99,12 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             urlParams.put("ucid", ucid);
         }
 
+        // Add API key to every request header.
+        if (headers == null) {
+            headers = new HashMap<>();
+        }
+        headers.put("apikey", _config.getApiKey());
+
         // Add global configuration request parameters.
         addAccountConfigParameters(api, urlParams);
 
