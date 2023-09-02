@@ -24,12 +24,13 @@ import org.json.JSONObject
 import java.net.URLEncoder
 import java.util.*
 
-class SSOProvider(var context: Context?,
-                  persistenceService: IPersistenceService?,
-                  providerCallback: ProviderCallback?,
-                  val restAdapter: IRestAdapter?,
-                  var config: Config?)
-    : Provider(context, persistenceService, providerCallback) {
+class SSOProvider(
+    var context: Context?,
+    persistenceService: IPersistenceService?,
+    providerCallback: ProviderCallback?,
+    val restAdapter: IRestAdapter?,
+    var config: Config?
+) : Provider(context, persistenceService, providerCallback) {
 
     companion object {
 
@@ -117,10 +118,10 @@ class SSOProvider(var context: Context?,
      * Build fidm base url.
      */
     fun getUrl(path: String): String =
-            when (config!!.isCnameEnabled) {
-                true -> "https://${config!!.cname}$fidmPath${config!!.apiKey ?: ""}/$path"
-                false -> "$fidmUrl${config!!.apiDomain}$fidmPath${config!!.apiKey ?: ""}/$path"
-            }
+        when (config!!.isCnameEnabled) {
+            true -> "https://${config!!.cname}$fidmPath${config!!.apiKey ?: ""}/$path"
+            false -> "$fidmUrl${config!!.apiDomain}$fidmPath${config!!.apiKey ?: ""}/$path"
+        }
 
 
     /**
@@ -136,12 +137,12 @@ class SSOProvider(var context: Context?,
         }
 
         val serverParams: MutableMap<String, Any> = mutableMapOf(
-                "redirect_uri" to redirectUri,
-                "response_type" to "code",
-                "client_id" to config!!.apiKey,
-                "scope" to "device_sso",
-                "code_challenge" to pkceHelper.challenge!!,
-                "code_challenge_method" to "S256"
+            "redirect_uri" to redirectUri,
+            "response_type" to "code",
+            "client_id" to config!!.apiKey,
+            "scope" to "device_sso",
+            "code_challenge" to pkceHelper.challenge!!,
+            "code_challenge_method" to "S256"
         )
 
         // Evaluate context & parameters.
@@ -172,6 +173,10 @@ class SSOProvider(var context: Context?,
             redirectUri = redirect!!
         }
 
+        val headers = hashMapOf(
+            "apikey" to config!!.apiKey
+        )
+
         val serverParams = TreeMap<String, Any>()
         serverParams["redirect_uri"] = redirectUri
         serverParams["client_id"] = config!!.apiKey
@@ -179,7 +184,7 @@ class SSOProvider(var context: Context?,
         serverParams["code"] = code
         serverParams["code_verifier"] = pkceHelper.verifier!!
         val urlString = getUrl(TOKEN)
-        val request = GigyaApiRequest(RestAdapter.HttpMethod.POST, urlString, serverParams)
+        val request = GigyaApiRequest(RestAdapter.HttpMethod.POST, urlString, serverParams, headers)
 
         // Token endpoint.
         restAdapter?.sendUnsigned(request, object : IRestAdapterCallback() {
@@ -187,7 +192,8 @@ class SSOProvider(var context: Context?,
                 GigyaLogger.debug(LOG_TAG, "getToken: success -> $jsonResponse")
 
                 // Parse response.
-                val parsed: Map<String, Any> = gson.fromJson(jsonResponse, Map::class.java) as Map<String, Any>
+                val parsed: Map<String, Any> =
+                    gson.fromJson(jsonResponse, Map::class.java) as Map<String, Any>
                 when {
                     parsed.containsKey("access_token") -> {
                         val sessionInfo: SessionInfo = parseSessionInfo(parsed)
@@ -207,7 +213,8 @@ class SSOProvider(var context: Context?,
                 if (gigyaError.localizedMessage != null) {
                     val json = gigyaError.localizedMessage
                     if (isJSONValid(json)) {
-                        val parsed: Map<String, String> = gson.fromJson(json, Map::class.java) as Map<String, String>
+                        val parsed: Map<String, String> =
+                            gson.fromJson(json, Map::class.java) as Map<String, String>
                         if (parsed.containsKey("error_uri")) {
                             val jsonError = parseErrorUri(parsed["error_uri"]!!)
                             onLoginFailed(GigyaApiResponse(jsonError))
