@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "7.0.4"
+def libVersion = "7.0.5"
 
 ext {
     sharedManifest = manifest {
