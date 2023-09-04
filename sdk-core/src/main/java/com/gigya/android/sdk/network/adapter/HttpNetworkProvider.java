@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.network.adapter;
 
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.api.GigyaApiHttpRequest;
@@ -20,6 +21,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.zip.GZIPInputStream;
 
 public class HttpNetworkProvider extends NetworkProvider {
@@ -33,22 +37,22 @@ public class HttpNetworkProvider extends NetworkProvider {
     @Override
     public void addToQueue(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         if (_blocked) {
-            _queue.add(new HttpTask(_requestFactory, new GigyaNetworkAsyncTask(networkCallbacks), request));
+            _queue.add(new HttpTask(_requestFactory, new ExecutorAsyncTask(networkCallbacks), request));
             return;
         }
         // If not blocked send the request.
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
+        new ExecutorAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
     }
 
     @Override
     public void addToQueueUnsigned(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.unsigned(request));
+        new ExecutorAsyncTask(networkCallbacks).execute(_requestFactory.unsigned(request));
     }
 
     @Override
     public void sendBlocking(GigyaApiRequest request, IRestAdapterCallback networkCallbacks) {
         _requestFactory.sign(request);
-        new GigyaNetworkAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
+        new ExecutorAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
         _blocked = true;
     }
 
@@ -107,7 +111,7 @@ public class HttpNetworkProvider extends NetworkProvider {
 
     private static class HttpTask {
 
-        private GigyaNetworkAsyncTask asyncTask;
+        private ExecutorAsyncTask asyncTask;
         private GigyaApiRequest request;
         private IApiRequestFactory requestFactory;
 
@@ -119,7 +123,7 @@ public class HttpNetworkProvider extends NetworkProvider {
             this.request = request;
         }
 
-        HttpTask(IApiRequestFactory requestFactory, GigyaNetworkAsyncTask asyncTask, GigyaApiRequest request) {
+        HttpTask(IApiRequestFactory requestFactory, ExecutorAsyncTask asyncTask, GigyaApiRequest request) {
             this.requestFactory = requestFactory;
             this.asyncTask = asyncTask;
             this.request = request;
@@ -131,17 +135,55 @@ public class HttpNetworkProvider extends NetworkProvider {
         }
     }
 
-    private static class GigyaNetworkAsyncTask extends AsyncTask<GigyaApiHttpRequest, Void, AsyncResult> {
+    private static class ExecutorAsyncTask {
 
-        private IRestAdapterCallback networkCallbacks;
+        private static final String LOG_TAG = "ExecutorAsyncTask";
+        private final IRestAdapterCallback callback;
+        private final ExecutorService executor;
 
-        GigyaNetworkAsyncTask(IRestAdapterCallback networkCallbacks) {
-            this.networkCallbacks = networkCallbacks;
+        public ExecutorAsyncTask(IRestAdapterCallback networkCallbacks) {
+            callback = networkCallbacks;
+            executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    final Thread t = new Thread(runnable);
+                    t.setDaemon(true);
+                    return t;
+                }
+            });
+        }
+        private Handler handler;
+
+        private Handler getHandler() {
+            if (handler == null) {
+                synchronized (ExecutorAsyncTask.class) {
+                    handler = new Handler(Looper.getMainLooper());
+                }
+            }
+            return handler;
         }
 
-        @Override
-        protected AsyncResult doInBackground(GigyaApiHttpRequest... gigyaApiRequests) {
-            GigyaApiHttpRequest request = gigyaApiRequests[0];
+        public void execute(final GigyaApiHttpRequest request) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    GigyaLogger.debug(LOG_TAG, "Executor: execute request with " + request.getUrl());
+                    final AsyncResult result = doInBackground(request);
+                    getHandler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            GigyaLogger.debug(LOG_TAG, "Executor: post execute request with " + request.getUrl());
+                            onPostExecute(result);
+                            if (executor != null) {
+                                executor.shutdownNow();
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        private AsyncResult doInBackground(GigyaApiHttpRequest request) {
             if (request != null) {
                 HttpURLConnection connection = null;
                 OutputStreamWriter outputStreamWriter = null;
@@ -217,13 +259,12 @@ public class HttpNetworkProvider extends NetworkProvider {
             return null;
         }
 
-        @Override
-        protected void onPostExecute(AsyncResult asyncResult) {
-            if (networkCallbacks == null) {
+        private void onPostExecute(AsyncResult asyncResult) {
+            if (callback == null) {
                 return;
             }
             if (asyncResult == null) {
-                networkCallbacks.onError(GigyaError.generalError());
+                callback.onError(GigyaError.generalError());
                 return;
             }
 
@@ -233,20 +274,18 @@ public class HttpNetworkProvider extends NetworkProvider {
                 if (noNetworkRequest) {
                     final GigyaError noNetworkError = new GigyaError(400106, "User is not connected to the required network or to any network", null);
                     GigyaLogger.debug("GigyaApiResponse", "No network error");
-                    networkCallbacks.onError(noNetworkError);
+                    callback.onError(noNetworkError);
                     return;
                 }
 
                 // Generate gigya error.
                 final GigyaError gigyaError = new GigyaError(asyncResult.code, asyncResult.result, null);
-                networkCallbacks.onError(gigyaError);
+                callback.onError(gigyaError);
                 return;
             }
 
-            networkCallbacks.onResponse(asyncResult.result, asyncResult.date);
+            callback.onResponse(asyncResult.result, asyncResult.date);
         }
     }
-
-    //endregion
 
 }

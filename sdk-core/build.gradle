@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "7.0.4"
+def libVersion = "7.0.5"
 
 ext {
     sharedManifest = manifest {
@@ -74,6 +74,9 @@ dependencies {
 
     // Optional network library.
     compileOnly 'com.android.volley:volley:1.2.1'
+
+    compileOnly "com.squareup.okhttp3:okhttp:4.10.0"
+    compileOnly "com.squareup.okhttp3:logging-interceptor:4.10.0"
 
     // ChromeTabs
     compileOnly 'androidx.browser:browser:1.4.0'

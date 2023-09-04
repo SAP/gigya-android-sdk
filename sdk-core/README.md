@@ -66,6 +66,15 @@ android:theme="@style/Theme.AppCompat.Translucent">
 </activity>
 ```
 
+### OKHttp Support
+
+The core SDK now supports using the OKHttp library to make network requests (which deprecates the use of the obsolete HttpUrlConnection & Volley).
+To use the OKHttp library, please add the following to your application dependencies:
+```
+implementation "com.squareup.okhttp3:okhttp:4.10.0"
+implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
+```
+
 **Securing SDK activities with FLAG_SECURE**
 If required by the host application, in order to add *FLAG_SECURE* to all SDK specific activities,
 you are able to add the following flag. This will not allow the device to take screenshots of the relevant
@@ -96,27 +105,6 @@ This will allow the SDK to parse the required configuration fields (ApiKey, ApiD
 "accountCacheTime": 1,
 "sessionVerificationInterval": 60
 }
-```
-
-**DEPRECATED - Please do not use meta-data initialization**
-**Option will be removed in later version**
-**Using meta-data tags in your *AndroidManifest.xml* file**
-```xml
-<meta-data
-android:name="apiKey"
-android:value="YOUR-API-KEY-HERE" />
-
-<meta-data
-android:name="apiDomain"
-android:value="YOUR-API-DOMAIN-HERE"/>
-
-<meta-data
-android:name="accountCacheTime"
-android:value="1"/>
- 
-<meta-data
-android:name="sessionVerificationInterval"
-android:value="60" />
 ```
 
  

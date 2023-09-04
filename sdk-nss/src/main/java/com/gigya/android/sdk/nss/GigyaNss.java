@@ -25,6 +25,8 @@ import com.gigya.android.sdk.nss.channel.LogMethodChannel;
 import com.gigya.android.sdk.nss.channel.ScreenMethodChannel;
 import com.gigya.android.sdk.nss.engine.NssEngineLifeCycle;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class GigyaNss {
 
     public static final String VERSION = "1.9.0";
@@ -115,5 +117,17 @@ public class GigyaNss {
     public Nss.Builder load(String screenSetId) {
         GigyaLogger.debug(LOG_TAG, "load " + screenSetId);
         return new Nss.Builder().screenSetId(screenSetId);
+    }
+
+    /**
+     * Manually dismiss the NSS engine.
+     */
+    public void nssDismiss() {
+        try {
+            final NssViewModel model = Gigya.getContainer().get(NssViewModel.class);
+            model.nssDismiss();
+        } catch (Exception ex) {
+            GigyaLogger.error(LOG_TAG, "Unable to get view model");
+        }
     }
 }
