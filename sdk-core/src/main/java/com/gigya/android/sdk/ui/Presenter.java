@@ -15,6 +15,7 @@ import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginBaseFragment;
 import com.gigya.android.sdk.ui.plugin.IWebViewFragmentFactory;
 import com.gigya.android.sdk.ui.provider.ProviderFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -127,6 +128,26 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
         final String protocol = "https";
         final String domainPrefix = "socialize";
         return String.format("%s://%s.%s/%s?%s", protocol, domainPrefix, _config.getApiDomain(), endpoint, qs);
+    }
+
+    @Override
+    public GigyaPluginBaseFragment<A> getFragmentPlugin(AppCompatActivity activity,
+                                                        final boolean obfuscate,
+                                                        final String plugin,
+                                                        final boolean fullScreen,
+                                                        final Map<String, Object> params,
+                                                        final GigyaPluginCallback<A> gigyaPluginCallback) {
+        if (!params.containsKey("lang")) {
+            params.put("lang", "en");
+        }
+        if (!params.containsKey("deviceType")) {
+            params.put("deviceType", "mobile");
+        }
+
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_STYLE_SHOW_FULL_SCREEN, fullScreen);
+        args.putBoolean(ARG_OBFUSCATE, obfuscate);
+        return _pfgFactory.getPluginFragmentInstance(activity, plugin, params, args, gigyaPluginCallback);
     }
 
 

@@ -134,4 +134,79 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
             }
         });
     }
+
+    @Override
+    public GigyaPluginBaseFragment<A> getPluginFragmentInstance(AppCompatActivity activity,
+                                                                String plugin, Map<String, Object> params,
+                                                                Bundle args,
+                                                                GigyaPluginCallback<A> gigyaPluginCallback) {
+        params.put("containerID", Presenter.Consts.CONTAINER_ID);
+
+        if (params.containsKey("commentsUI")) {
+            params.put("hideShareButtons", true);
+            if (params.get("version") != null && (int) params.get("version") == -1) {
+                params.put("version", 2);
+            }
+        }
+
+        if (params.containsKey("RatingUI") && params.get("showCommentButton") == null) {
+            params.put("showCommentButton", false);
+        }
+
+        final String template =
+                "<head>" +
+                        "<link rel=\"icon\" href=\"data:,\">" +
+                        "<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />" +
+                        "<script>" +
+                        "function onJSException(ex) {" +
+                        "document.location.href = '%s://%s?ex=' + encodeURIComponent(ex);" +
+                        "}" +
+                        "function onJSLoad() {" +
+                        "if (gigya && gigya.isGigya)" +
+                        "window.__wasSocializeLoaded = true;" +
+                        "}" +
+                        "setTimeout(function() {" +
+                        "if (!window.__wasSocializeLoaded)" +
+                        "document.location.href = '%s://%s';" +
+                        "}, %s);" +
+                        "</script>" +
+                        "<script src='https://" +
+                        (_config.isCnameEnabled() ? _config.getCname() : "cdns." + _config.getApiDomain()) +
+                        "/JS/gigya.js?apikey=%s&lang=%s' type='text/javascript' onLoad='onJSLoad();'>" +
+                        "{" +
+                        "deviceType: 'mobile'" +
+                        "}" +
+                        "</script>" +
+                        "</head>" +
+                        "<body>" +
+                        "<div id='%s'></div>" +
+                        "<script>" +
+                        "%s" +
+                        "try {" +
+                        "gigya._.apiAdapters.mobile.showPlugin('%s', %s);" +
+                        "} catch (ex) { onJSException(ex); }" +
+                        "</script>" +
+                        "</body>";
+
+        final GigyaPluginBaseFragment<A> fragment = new GigyaPluginBaseFragment<>();
+        fragment.setArguments(args);
+        fragment.setConfig(_config);
+        fragment.setWebBridge(_gigyaWebBridge);
+        fragment.setCallback(gigyaPluginCallback);
+        fragment.setHtml(String.format(template,
+                Presenter.Consts.REDIRECT_URL_SCHEME,
+                Presenter.Consts.ON_JS_EXCEPTION,
+                Presenter.Consts.REDIRECT_URL_SCHEME,
+                Presenter.Consts.ON_JS_LOAD_ERROR,
+                Presenter.Consts.JS_TIMEOUT,
+                _config.getApiKey(),
+                params.get("lang"),
+                Presenter.Consts.CONTAINER_ID,
+                "", // js script before showing the plugin
+                plugin,
+                new JSONObject(params).toString()));
+
+
+        return fragment;
+    }
 }

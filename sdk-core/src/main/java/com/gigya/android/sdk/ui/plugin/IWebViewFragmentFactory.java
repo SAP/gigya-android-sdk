@@ -16,4 +16,6 @@ public interface IWebViewFragmentFactory<A extends GigyaAccount> {
     void showPluginFragment(AppCompatActivity activity, String plugin, final Map<String, Object> params, Bundle args, final GigyaPluginCallback<A> gigyaPluginCallback);
 
     void showProviderFragment(AppCompatActivity activity, IBusinessApiService businessApiService, final Map<String, Object> params, Bundle args, final GigyaLoginCallback gigyaLoginCallback);
+
+    GigyaPluginBaseFragment<A> getPluginFragmentInstance(AppCompatActivity activity, String plugin, final Map<String, Object> params, Bundle args, final GigyaPluginCallback<A> gigyaPluginCallback);
 }
