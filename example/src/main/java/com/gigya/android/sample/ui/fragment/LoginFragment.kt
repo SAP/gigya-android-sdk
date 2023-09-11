@@ -21,13 +21,18 @@ class LoginFragment : BaseExampleFragment() {
 
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        (activity as MainActivity).supportActionBar?.title = getString(R.string.title_login_fragment)
+        (activity as MainActivity).supportActionBar?.title =
+            getString(R.string.title_login_fragment)
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         (activity as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(false)
         setClicks()
@@ -52,16 +57,19 @@ class LoginFragment : BaseExampleFragment() {
                 GigyaBiometric.Action.OPT_IN -> {
                     toastIt("Biometric: OptIn")
                 }
+
                 GigyaBiometric.Action.OPT_OUT -> {
                     toastIt("Biometric: OptOut")
                 }
+
                 GigyaBiometric.Action.LOCK -> {
                     toastIt("Biometric: Locked")
                 }
+
                 GigyaBiometric.Action.UNLOCK -> {
                     toastIt("Biometric: Unlocked")
                     activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
+                        ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
                 }
             }
         }
@@ -104,33 +112,33 @@ class LoginFragment : BaseExampleFragment() {
         }
         hideKeyboard()
         viewModel.credentialLogin(
-                email = email,
-                password = password,
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
-                },
-                tfaInterruption = { interruption ->
-                    val fragment = TFAFragment.newInstance()
-                    fragment.interruption = interruption
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, fragment)
-                            ?.addToBackStack(TFAFragment.name)
-                            ?.commit()
-                },
-                linkInterruption = { interruption ->
-                    val fragment = LinkAccountFragment.newInstance()
-                    fragment.interruption = interruption
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, LinkAccountFragment.newInstance())
-                            ?.addToBackStack(LinkAccountFragment.name)
-                            ?.commit()
-                },
+            email = email,
+            password = password,
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commit()
+            },
+            tfaInterruption = { interruption ->
+                val fragment = TFAFragment.newInstance()
+                fragment.interruption = interruption
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, fragment)
+                    ?.addToBackStack(TFAFragment.name)
+                    ?.commit()
+            },
+            linkInterruption = { interruption ->
+                val fragment = LinkAccountFragment.newInstance()
+                fragment.interruption = interruption
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, LinkAccountFragment.newInstance())
+                    ?.addToBackStack(LinkAccountFragment.name)
+                    ?.commit()
+            },
         )
     }
 
@@ -146,34 +154,34 @@ class LoginFragment : BaseExampleFragment() {
         }
         hideKeyboard()
         viewModel.credentialRegister(
-                email = email,
-                password = password,
-                params = mutableMapOf(),
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-                },
-                tfaInterruption = { interruption ->
-                    val fragment = TFAFragment.newInstance()
-                    fragment.interruption = interruption
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, fragment)
-                            ?.addToBackStack(TFAFragment.name)
-                            ?.commit()
-                },
-                linkInterruption = { interruption ->
-                    val fragment = LinkAccountFragment.newInstance()
-                    fragment.interruption = interruption
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, LinkAccountFragment.newInstance())
-                            ?.addToBackStack(LinkAccountFragment.name)
-                            ?.commit()
-                },
+            email = email,
+            password = password,
+            params = mutableMapOf(),
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            },
+            tfaInterruption = { interruption ->
+                val fragment = TFAFragment.newInstance()
+                fragment.interruption = interruption
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, fragment)
+                    ?.addToBackStack(TFAFragment.name)
+                    ?.commit()
+            },
+            linkInterruption = { interruption ->
+                val fragment = LinkAccountFragment.newInstance()
+                fragment.interruption = interruption
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, LinkAccountFragment.newInstance())
+                    ?.addToBackStack(LinkAccountFragment.name)
+                    ?.commit()
+            },
         )
     }
 
@@ -182,15 +190,15 @@ class LoginFragment : BaseExampleFragment() {
      */
     private fun passwordlessLogin() {
         viewModel.passwordlessLogin(10,
-                (activity as MainActivity).resultHandler,
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                }, onLogin = {
-            toastIt("login successful")
-            activity?.supportFragmentManager?.beginTransaction()
+            (activity as MainActivity).resultHandler,
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            }, onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-        })
+            })
     }
 
     /**
@@ -203,24 +211,24 @@ class LoginFragment : BaseExampleFragment() {
             return
         }
         viewModel.socialLogin(
-                provider,
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-                },
-                linkInterruption = { interruption ->
-                    val fragment = LinkAccountFragment.newInstance()
-                    fragment.interruption = interruption
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, fragment)
-                            ?.addToBackStack(LinkAccountFragment.name)
-                            ?.commit()
-                },
+            provider,
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            },
+            linkInterruption = { interruption ->
+                val fragment = LinkAccountFragment.newInstance()
+                fragment.interruption = interruption
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, fragment)
+                    ?.addToBackStack(LinkAccountFragment.name)
+                    ?.commit()
+            },
         )
 
     }
@@ -230,16 +238,16 @@ class LoginFragment : BaseExampleFragment() {
      */
     private fun useScreenSets() {
         viewModel.showScreenSets(
-                binding.includeScreensetsContent.screensetsNameEdit.text.toString().trim(),
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-                })
+            binding.includeScreensetsContent.screensetsNameEdit.text.toString().trim(),
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            })
     }
 
     /**
@@ -247,21 +255,22 @@ class LoginFragment : BaseExampleFragment() {
      */
     private fun useNativeScreenSets() {
         viewModel.showNativeScreenSets(
-                requireContext(),
-                binding.includeScreensetsContent.nativeScreensetsNameEdit.text.toString().trim(),
-                "login",
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful");
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitAllowingStateLoss()
-                },
-                onApiResult = { _, _ ->
-                    // Stub.
-                })
+            requireContext(),
+            binding.includeScreensetsContent.nativeScreensetsNameEdit.text.toString().trim(),
+            "login",
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful");
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())
+                    ?.commitAllowingStateLoss()
+            },
+            onApiResult = { _, _ ->
+                // Stub.
+            })
     }
 
     /**
@@ -269,22 +278,25 @@ class LoginFragment : BaseExampleFragment() {
      */
     private fun otpLogin() {
         activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, OTPLoginFragment.newInstance())
-                ?.addToBackStack(OTPLoginFragment.name)
-                ?.commit()
+            ?.replace(R.id.container, OTPLoginFragment.newInstance())
+            ?.addToBackStack(OTPLoginFragment.name)
+            ?.commit()
     }
 
     private fun sso() {
         viewModel.mobileSSO(
-                error = {
-                    // Display error.
-                    toastIt("Error: ${it?.localizedMessage}")
-                },
-                onLogin = {
-                    toastIt("login successful")
-                    activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
-                },
+            canceled = {
+                toastIt("Canceled")
+            },
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+            onLogin = {
+                toastIt("login successful")
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+            },
         )
     }
 
