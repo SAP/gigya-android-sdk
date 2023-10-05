@@ -2,9 +2,13 @@ package com.gigya.android.sdk.ui.plugin;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -386,7 +390,12 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                 @Override
                 public void onBrowserIntent(Uri uri) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(browserIntent);
+                    try {
+                        startActivity(browserIntent);
+                    } catch (ActivityNotFoundException ex) {
+                        //ex.printStackTrace();
+                        GigyaLogger.error(LOG_TAG, "Browser not available to handle Intent.ACTION_VIEW");
+                    }
                 }
             });
 }
