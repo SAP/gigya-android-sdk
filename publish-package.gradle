@@ -1,0 +1,118 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'org.jetbrains.dokka'
+
+tasks.register('androidSourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    if (project.plugins.findPlugin("com.android.library")) {
+        // For android libraries
+        from android.sourceSets.main.java.srcDirs
+        from android.sourceSets.main.kotlin.srcDirs
+    } else {
+        // For pure kotlin libraries, in case you have them
+        from sourceSets.main.java.srcDirs
+        from sourceSets.main.kotlin.srcDirs
+    }
+}
+
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file('local.properties')))
+
+group = project.group
+version = project.ext.version
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+
+                groupId project.group
+                artifactId project.ext.artifactId
+                version project.ext.version
+
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+                pom {
+                    name = project.ext.name
+                    artifactId = project.ext.artifactId
+                    packaging 'aar'
+                    description = project.ext.description
+                    url = project.ext.url
+
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'SAP CX-CDC'
+                            name = 'SAP CX-CDC'
+                        }
+                    }
+
+                    scm {
+                        connection = 'scm:git:ssh://git@github.com:SAP/gigya-android-sdk.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:SAP/gigya-android-sdk.git'
+                        url = 'https://github.com/SAP/gigya-android-sdk'
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                name = "SonatypeSnapshot"
+
+//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+                credentials {
+                    username localProperties.ossrhUsername
+                    password localProperties.ossrhPassword
+                }
+            }
+
+            maven {
+                name = "sonatype"
+
+//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+                credentials {
+                    username localProperties.ossrhUsername
+                    password localProperties.ossrhPassword
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications
+}
+
+tasks.register('javadocJar', Jar) {
+    dependsOn dokkaJavadoc
+    classifier 'javadoc'
+    from dokkaJavadoc.outputDirectory
+}
+
+artifacts {
+    archives androidSourcesJar
+    archives javadocJar
+}
+
+
+
+
+
