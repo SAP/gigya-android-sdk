@@ -2,6 +2,12 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.1.1"
 
+ext["name"] = "Gigya-Android-SDK-Biometric"
+ext["version"] = libVersion
+ext["artifactId"] = "sdk-biometric"
+ext["description"] = "SAP CX-CDC (Gigya) Android SDK Biometric extension"
+ext["url"] = "https://github.com/SAP/gigya-android-sdk"
+
 ext {
     sharedManifest = manifest {
         attributes(
@@ -54,4 +60,6 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'
 

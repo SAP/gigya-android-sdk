@@ -7,7 +7,7 @@ group = "com.gigya.android.sdk"
 
 ext["name"] = "Gigya-Android-SDK-Core"
 ext["version"] = libVersion
-ext["artifactId"] = "gigya-android-sdk-core"
+ext["artifactId"] = "sdk-core"
 ext["description"] = "SAP CX-CDC (Gigya) Android SDK Core"
 ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 

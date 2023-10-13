@@ -3,6 +3,12 @@ apply plugin: 'kotlin-android'
 
 def libVersion = "1.8.0"
 
+ext["name"] = "Gigya-Android-SDK-NSS"
+ext["version"] = libVersion
+ext["artifactId"] = "sdk-nss"
+ext["description"] = "SAP CX-CDC (Gigya) Android SDK Native Screen-Sets extension"
+ext["url"] = "https://github.com/SAP/gigya-android-sdk"
+
 ext {
     sharedManifest = manifest {
         attributes(
@@ -68,6 +74,8 @@ dependencies {
     debugCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:+'
     releaseCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:+'
 }
+
+apply from: '../publish-package.gradle'
 
 
 

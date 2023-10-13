@@ -15,8 +15,12 @@ tasks.register('androidSourcesJar', Jar) {
     }
 }
 
-def localProperties = new Properties()
-localProperties.load(new FileInputStream(rootProject.file('local.properties')))
+def signingProperties = new Properties()
+File signingPropertiesFile = project.rootProject.file('publish-signing.properties')
+if (signingPropertiesFile.exists()) {
+    signingProperties.load(new FileInputStream(signingPropertiesFile))
+}
+
 
 group = project.group
 version = project.ext.version
@@ -68,37 +72,25 @@ afterEvaluate {
         repositories {
             maven {
                 name = "SonatypeSnapshot"
-
-//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
                 url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
                 credentials {
-                    username localProperties.ossrhUsername
-                    password localProperties.ossrhPassword
+                    username signingProperties['ossrhUsername']
+                    password signingProperties['ossrhPassword']
                 }
             }
 
             maven {
                 name = "sonatype"
-
-//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
                 url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
                 credentials {
-                    username localProperties.ossrhUsername
-                    password localProperties.ossrhPassword
+                    username signingProperties['ossrhUsername']
+                    password signingProperties['ossrhPassword']
                 }
             }
         }
     }
-}
-
-signing {
-    sign publishing.publications
 }
 
 tasks.register('javadocJar', Jar) {
@@ -112,6 +104,13 @@ artifacts {
     archives javadocJar
 }
 
+signing {
+    useInMemoryPgpKeys(
+            signingProperties['signing.key'],
+            signingProperties['signing.password']
+    )
+    sign publishing.publications
+}
 
 
 
