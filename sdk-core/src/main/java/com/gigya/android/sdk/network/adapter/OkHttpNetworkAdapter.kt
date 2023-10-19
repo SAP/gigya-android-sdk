@@ -199,12 +199,16 @@ open class OkHttpAsyncTask(
         builder.header("Content-Type", REQUEST_CONTENT_TYPE)
         val okHttpRequest = builder.build()
         val call = client.newCall(okHttpRequest)
-        val response = call.execute()
-
-        val responseCode = response.code
-        val responseBody = response.body?.string()
-        val responseDate = response.headers["date"]
-        return Result(responseCode, responseBody, responseDate)
+        try {
+            val response = call.execute()
+            val responseCode = response.code
+            val responseBody = response.body?.string()
+            val responseDate = response.headers["date"]
+            return Result(responseCode, responseBody, responseDate)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return Result(400106, null, null)
     }
 
     private fun onPostExecute(result: Result) {
