@@ -14,6 +14,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
@@ -207,8 +209,14 @@ open class OkHttpAsyncTask(
             return Result(responseCode, responseBody, responseDate)
         } catch (ex: Exception) {
             ex.printStackTrace()
+            when(ex) {
+                is UnknownHostException,
+                is SocketTimeoutException -> {
+                    return Result(400106, null, null)
+                }
+                else -> throw ex
+            }
         }
-        return Result(400106, null, null)
     }
 
     private fun onPostExecute(result: Result) {
