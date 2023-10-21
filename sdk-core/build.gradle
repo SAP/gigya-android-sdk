@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android'
 
 def libVersion = "7.0.5"
 
+group = "com.gigya.android.sdk"
+
+ext["name"] = "Gigya-Android-SDK-Core"
+ext["version"] = libVersion
+ext["artifactId"] = "sdk-core"
+ext["description"] = "SAP CX-CDC (Gigya) Android SDK Core"
+ext["url"] = "https://github.com/SAP/gigya-android-sdk"
+
 ext {
     sharedManifest = manifest {
         attributes(
@@ -31,11 +39,11 @@ android {
 
     buildTypes {
 
-
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
     }
     packagingOptions {
         resources {
@@ -85,5 +93,6 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
 }
 
+apply from: '../publish-package.gradle'
 
 

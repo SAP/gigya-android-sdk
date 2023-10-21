@@ -2,6 +2,12 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.2.0"
 
+ext["name"] = "Gigya-Android-SDK-Auth"
+ext["version"] = libVersion
+ext["artifactId"] = "sdk-auth"
+ext["description"] = "SAP CX-CDC (Gigya) Android SDK Auth extension"
+ext["url"] = "https://github.com/SAP/gigya-android-sdk"
+
 ext {
     sharedManifest = manifest {
         attributes(
@@ -54,3 +60,5 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'

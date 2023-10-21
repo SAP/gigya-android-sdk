@@ -2,6 +2,12 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.1.0"
 
+ext["name"] = "Gigya-Android-SDK-TFA"
+ext["version"] = libVersion
+ext["artifactId"] = "sdk-tfa"
+ext["description"] = "SAP CX-CDC (Gigya) Android SDK TFA extension"
+ext["url"] = "https://github.com/SAP/gigya-android-sdk"
+
 ext {
     sharedManifest = manifest {
         attributes(
@@ -54,4 +60,6 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'
 
