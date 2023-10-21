@@ -30,6 +30,7 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.session.SessionStateObserver;
 import com.gigya.android.sdk.ui.IPresenter;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
+import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.utils.EnvUtils;
 
@@ -836,7 +837,7 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressWarnings("unchecked")
     public IGigyaWebBridge<T> createWebBridge() {
         try {
-            return _container.get(IGigyaWebBridge.class);
+            return _container.createInstance(GigyaWebBridge.class, false);
         } catch (Exception ex) {
             ex.printStackTrace();
             ReportingManager.get().error(VERSION, "core", "Unable to create new WebBridge instance");
