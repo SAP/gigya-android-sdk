@@ -122,6 +122,12 @@ class GigyaRepository {
                     }
                 }
 
+                override fun onOperationCanceled() {
+                    val res = GigyaRepoResponse()
+                    res.canceled = true
+                    trySend(res)
+                }
+
                 override fun onError(error: GigyaError?) {
                     error?.let {
                         Log.d(TAG, "loginFlow: emmit error")
@@ -500,6 +506,7 @@ open class GigyaRepoResponse {
     var error: GigyaError? = null
     var json: String? = null
     var optional: Any? = null
+    var canceled: Boolean = false
 
     // Interruption will be the available resolver tag.
     var interruption: String? = null
@@ -521,6 +528,8 @@ open class GigyaRepoResponse {
     fun isInterruption(): Boolean = interruption != null
 
     fun isTfaInterruption(): Boolean = tfa != null
+
+    fun isCanceled(): Boolean = canceled
 }
 
 data class LinkInterruption(

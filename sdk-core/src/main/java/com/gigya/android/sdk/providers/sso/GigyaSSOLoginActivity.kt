@@ -81,6 +81,7 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (pausedState) {
+            _ssoLoginLifecycleCallbacks?.onCancelled()
             finish()
         }
     }
@@ -93,6 +94,7 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
+        pausedState = false;
         val uri: Uri = intent?.data as Uri
         _ssoLoginLifecycleCallbacks?.onResult(this, uri)
         finish()
