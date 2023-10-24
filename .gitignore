@@ -16,3 +16,5 @@
 
 /example/src/main/assets/gigyaSdkConfiguration.json
 /example/src/main/res/values/secrets.xml
+
+*.zip

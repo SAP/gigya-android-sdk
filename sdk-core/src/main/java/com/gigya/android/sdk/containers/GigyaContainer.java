@@ -65,7 +65,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(ISessionService.class, SessionService.class, true)
                 .bind(IAccountService.class, accountCacheService.class, true)
                 .bind(ISessionVerificationService.class, SessionVerificationService.class, true)
-                .bind(IProviderFactory.class, ProviderFactory.class, false)
+                .bind(IProviderFactory.class, ProviderFactory.class, true)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
                 .bind(IOauthService.class, OauthService.class, true)
                 .bind(IFidoApiService.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? FidoApiServiceV23Impl.class : FidoApiServiceImpl.class, true)

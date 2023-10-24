@@ -191,7 +191,9 @@ public class ProviderFactory implements IProviderFactory {
                     }
                 }
             } catch (Exception e) {
-                GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+                if (!optional.equals("googleplus")) {
+                    GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+                }
             }
         }
         return providers;

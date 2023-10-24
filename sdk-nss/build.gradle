@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "1.8.0"
+def libVersion = "1.9.0"
 
 ext["name"] = "Gigya-Android-SDK-NSS"
 ext["version"] = libVersion

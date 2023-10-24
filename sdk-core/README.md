@@ -22,7 +22,7 @@ implementation 'com.google.code.gson:gson:2.8.9'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v7.0.0.aar')
+implementation files('libs/gigya-android-sdk-core-v7.0.5.aar')
 ```
 
 ### Implement using Jitpack
@@ -37,7 +37,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.0'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.5'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -408,7 +408,9 @@ Add the following lines to your AndroidManifest.xml file using String references
   android:value="@string/facebook_client_token" />
 ```
 
-**Note:** The FacebookProviderWrapper class is set to reference the “R.string.facebook_app_id" string reference.
+**Note:** 
+The FacebookProviderWrapper class is set to reference the “R.string.facebook_app_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("facebook_app_id", "string", context.getPackageName()" instead.
 
 ### Google
 
@@ -426,7 +428,9 @@ android:name="googleClientId"
 android:value="@string/google_client_id" />
 ```
 
-**Note:** The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
+**Note:** 
+The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("google_client_id", "string", context.getPackageName()" instead.
 
 As for previous Google login implementations, the required client_id is the **Web client id** generated when you create your Google project.
 This should not be mistaken with the Android OAuth client id. Make sure that your Google project contains both.
@@ -449,7 +453,9 @@ android:value="@string/line_channel_id" />
 
 Follow LINE login guidelines to set up your channel id in the [Line developer console](https://developers.line.biz/console/).
 
-**Note:** The LineProviderWrapper class is set to reference the “R.string.line_channel_id" string reference.
+**Note:** 
+The LineProviderWrapper class is set to reference the “R.string.line_channel_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("line_channel_id", "string", context.getPackageName()" instead.
 
 If you have not already changed your JAVA compatibility within your build file, please do so, as Line integration requires it.
 ```
@@ -481,7 +487,9 @@ Add the following lines to your AndroidManifest.xml file using String references
   android:value="@string/wechat_app_id" />
 ```
 
-**Note:** The WeChatProviderWrapper class is set to reference the “R.string.wechat_app_id" string reference.
+**Note:**
+The WeChatProviderWrapper class is set to reference the “R.string.wechat_app_id" string reference.
+If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("wechat_app_id", "string", context.getPackageName()" instead.
 
 Create a sub folder in the root of your project called "wxapi".
 In that folder, create an activity named WXEntryActivity, which must contain the following:
@@ -770,15 +778,14 @@ mGigya.showScreenSets("Default-RegistrationLogin", false, null, new GigyaPluginC
 
 The available parameters for the "showScreenSetts" method are the same as those for the webSDK, as described here: https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/8b8d6fffe113457094a17701f63e3d6a/413a5b7170b21014bbc5a10ce4041860.html
 
-Optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
+An optional Boolean fullScreen field which will force the displaying of the PluginFragment to fit into the screen.
 Customizing the look & feel of the PluginFragment is recommended.
-It can be done by simply copying the gigya_plugin_fragment.xml file from the SDKs source code to your application res/layout folder
+It can be done by simply copying the gigya_fragment_webview.xml file from the SDK's source code to your application res/layout folder
 directory.
 Once copied you will be able to change & customize the layout to your choosing (with some restrictions of course).
 
 ```
-Keep in mind that you cannot remove any element or change any existing element id. Doing so could result in unexpected crashes, as
-the SDK will still expect these elements to be presented.
+Keep in mind that you cannot remove any element or change any existing element id. Doing so could result in unexpected crashes, as the SDK will still expect these elements to be presented.
 ```
 
 
@@ -901,9 +908,10 @@ flow that they were triggered.
 
 The current supported interruption flows are:
 ```
+Pending registration
 Account linking
-TFA registration
-TFA verification
+Pending TFA registration 
+Pending TFA verification
 ```
 #### Interruptions handling - Account linking example
 
@@ -1296,6 +1304,24 @@ try {
 ```
 
 ### Android Implementation.
+
+A result handler is required to process the FIDO library result intent.
+Add the following to your activity:
+
+```
+// Custom result handler for FIDO sender intents.
+val resultHandler: ActivityResultLauncher<IntentSenderRequest> =
+       registerForActivityResult(
+               ActivityResultContracts.StartIntentSenderForResult()
+       ) { activityResult ->
+           val extras =
+                   activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
+                           ?.joinToString { it }
+           Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+       }
+
+```
+
 The Fido interface contains 3 methods:
 
 **Registration:**
@@ -1363,13 +1389,6 @@ Gigya.getInstance().WebAuthn()
 
             })
 ```
-
-
-**Note**:
-You are able to define you own custom redirect schema.
-To do so:
-1. update the “intent filter” data segmennt to you desired schema.
-2. Add the required redirect-uri String (in the specified above strucutre) to the sso request parameters using “sso-redirect” key mapping.
 
 ## Error reporting
 
