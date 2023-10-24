@@ -14,6 +14,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
@@ -199,12 +201,22 @@ open class OkHttpAsyncTask(
         builder.header("Content-Type", REQUEST_CONTENT_TYPE)
         val okHttpRequest = builder.build()
         val call = client.newCall(okHttpRequest)
-        val response = call.execute()
-
-        val responseCode = response.code
-        val responseBody = response.body?.string()
-        val responseDate = response.headers["date"]
-        return Result(responseCode, responseBody, responseDate)
+        try {
+            val response = call.execute()
+            val responseCode = response.code
+            val responseBody = response.body?.string()
+            val responseDate = response.headers["date"]
+            return Result(responseCode, responseBody, responseDate)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            when(ex) {
+                is UnknownHostException,
+                is SocketTimeoutException -> {
+                    return Result(400106, null, null)
+                }
+                else -> throw ex
+            }
+        }
     }
 
     private fun onPostExecute(result: Result) {

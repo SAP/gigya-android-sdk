@@ -17,6 +17,7 @@ import com.gigya.android.sdk.api.ApiService;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IApiService;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.persistence.IPersistenceService;
@@ -130,7 +131,8 @@ public class BaseGigyaTest {
                   IInterruptionResolverFactory interruptionsHandler,
                   IPresenter presenter,
                   IProviderFactory providerFactory,
-                  IoCContainer container) {
+                  IoCContainer container,
+                  IWebAuthnService webAuthnService) {
             super(context,
                     config,
                     configFactory,
@@ -141,7 +143,8 @@ public class BaseGigyaTest {
                     interruptionsHandler,
                     presenter,
                     providerFactory,
-                    container);
+                    container,
+                    webAuthnService);
         }
     }
 

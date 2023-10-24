@@ -403,6 +403,7 @@ class MainViewModel : ViewModel() {
     // Mobile sso authentication.
     fun mobileSSO(
             error: (GigyaError?) -> Unit,
+            canceled: () -> Unit,
             onLogin: () -> Unit,
     ) {
         viewModelScope.launch {
@@ -411,7 +412,11 @@ class MainViewModel : ViewModel() {
             )
 
             )).collect { result ->
-                if (result.isError()) {
+                if (result.isCanceled()) {
+                    canceled()
+                    this.coroutineContext.job.cancel()
+                }
+                else if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()
                 } else {

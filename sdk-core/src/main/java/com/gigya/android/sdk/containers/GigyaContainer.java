@@ -76,7 +76,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IGigyaPluginFragment.class, GigyaPluginFragment.class, false)
                 .bind(IGigyaNotificationManager.class, GigyaNotificationManager.class, true)
                 .bind(IWebBridgeInterruptionManager.class, WebBridgeInterruptionManager.class, true)
-                .bind(IGigyaWebBridge.class, GigyaWebBridge.class, false)
+                .bind(IGigyaWebBridge.class, GigyaWebBridge.class, true)
                 .bind(IoCContainer.class, this);
     }
 }
