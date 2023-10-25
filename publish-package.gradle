@@ -104,9 +104,6 @@ artifacts {
     archives javadocJar
 }
 
-signing {
-    sign publishing.publications
-}
 
 
 
