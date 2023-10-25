@@ -74,7 +74,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation project(path: ':sdk-core')
-
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-nss')
     implementation project(path: ':sdk-auth')

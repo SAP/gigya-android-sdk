@@ -75,7 +75,6 @@ dependencies {
     releaseCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:+'
 }
 
-apply from: '../publish-package.gradle'
 
 
 
