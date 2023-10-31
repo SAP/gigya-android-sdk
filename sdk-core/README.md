@@ -25,7 +25,13 @@ implementation 'com.google.code.gson:gson:2.8.9'
 implementation files('libs/gigya-android-sdk-core-v7.0.5.aar')
 ```
 
-### Implement using Jitpack
+### Implement using **MavenCentral**
+**Add the latest build reference to your app *build.gradle* file**
+```gradle
+implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.6'
+```
+
+### Implement using Jitpack (Will be soon deprecated - moving to Maven Central)
 **Add the Jitpack reference to your root *build.gradle* file**
 ```gradle
 allprojects {
@@ -37,7 +43,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.5'
+implementation 'com.github.SAP:gigya-android-sdk:core-v7.0.6'
 ```
 
 **Add a required style to your *styles.xml* file**
