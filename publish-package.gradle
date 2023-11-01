@@ -21,7 +21,6 @@ if (signingPropertiesFile.exists()) {
     signingProperties.load(new FileInputStream(signingPropertiesFile))
 }
 
-
 group = project.group
 version = project.ext.version
 
@@ -29,60 +28,46 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                from components.release
 
                 groupId project.group
                 artifactId project.ext.artifactId
                 version project.ext.version
 
-                if (project.plugins.findPlugin("com.android.library")) {
-                    from components.release
-                } else {
-                    from components.java
-                }
-
                 pom {
                     name = project.ext.name
-                    artifactId = project.ext.artifactId
-                    packaging 'aar'
                     description = project.ext.description
                     url = project.ext.url
+                    artifactId = project.ext.artifactId
+                    packaging 'aar'
 
                     licenses {
                         license {
-                            name = 'The Apache Software License, Version 2.0'
+                            name = 'The Apache License, Version 2.0'
                             url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         }
                     }
 
                     developers {
                         developer {
-                            id = 'SAP CX-CDC'
-                            name = 'SAP CX-CDC'
+                            name = 'Tal Mirmelshiten'
+                            email = 'tal.mirmelshtein@sap.com'
+                            organization = 'SAP'
                         }
                     }
 
                     scm {
-                        connection = 'scm:git:ssh://git@github.com:SAP/gigya-android-sdk.git'
-                        developerConnection = 'scm:git:ssh://git@github.com:SAP/gigya-android-sdk.git'
                         url = 'https://github.com/SAP/gigya-android-sdk'
+                        connection = 'scm:git:git://git@github.com:SAP/gigya-android-sdk.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:SAP/gigya-android-sdk.git'
                     }
                 }
             }
         }
         repositories {
             maven {
-                name = "SonatypeSnapshot"
-                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-
-                credentials {
-                    username signingProperties['ossrhUsername']
-                    password signingProperties['ossrhPassword']
-                }
-            }
-
-            maven {
                 name = "sonatype"
-                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
                 credentials {
                     username signingProperties['ossrhUsername']

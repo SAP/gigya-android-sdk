@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 def libVersion = "7.0.6"
 
-group = "com.sap.oss.gigya-andoird-sdk"
+group = "com.sap.oss.gigya-android-sdk"
 
 ext["name"] = "Gigya-Android-SDK-Core"
 ext["version"] = libVersion

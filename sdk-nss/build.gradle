@@ -1,7 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "1.9.0"
+def libVersion = "1.9.1"
+
+group = "com.sap.oss.gigya-android-sdk"
 
 ext["name"] = "Gigya-Android-SDK-NSS"
 ext["version"] = libVersion
@@ -74,6 +76,9 @@ dependencies {
     debugCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:+'
     releaseCompileOnly 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:+'
 }
+
+apply from: '../publish-package.gradle'
+
 
 
 

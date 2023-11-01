@@ -74,14 +74,17 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation project(path: ':sdk-core')
+//    implementation 'com.github.SAP:gigya-android-sdk:core-v7.0.6'
+//    implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.6'
+
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-nss')
     implementation project(path: ':sdk-auth')
     implementation project(path: ':sdk-tfa')
 
     // Nss engine.
-    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.9.0'
-    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.9.0'
+    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.9.1'
+    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.9.1'
 
     // Fido passwordless authentication.
     implementation 'com.google.android.gms:play-services-fido:18.1.0'
