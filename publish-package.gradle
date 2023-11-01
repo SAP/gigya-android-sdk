@@ -78,10 +78,6 @@ afterEvaluate {
     }
 }
 
-signing {
-    sign publishing.publications
-}
-
 tasks.register('javadocJar', Jar) {
     dependsOn dokkaJavadoc
     classifier 'javadoc'
