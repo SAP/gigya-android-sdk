@@ -61,5 +61,4 @@ dependencies {
     compileOnly project(path: ':sdk-core')
 }
 
-apply from: '../publish-package.gradle'
 

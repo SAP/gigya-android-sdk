@@ -104,13 +104,6 @@ artifacts {
     archives javadocJar
 }
 
-signing {
-    useInMemoryPgpKeys(
-            signingProperties['signing.key'],
-            signingProperties['signing.password']
-    )
-    sign publishing.publications
-}
 
 
 
