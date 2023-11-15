@@ -20,10 +20,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
+import java.lang.reflect.Type
+
 
 class NssMarkupLoader<T : GigyaAccount>(
-        private val context: Context,
-        private val api: IBusinessApiService<T>
+    private val context: Context,
+    private val api: IBusinessApiService<T>
 ) {
 
     companion object {
@@ -34,8 +36,8 @@ class NssMarkupLoader<T : GigyaAccount>(
     }
 
     private val gson: Gson = GsonBuilder()
-            .registerTypeAdapter(object : TypeToken<Map<String, Any>>() {}.type, NssJsonDeserializer())
-            .create()
+        .registerTypeAdapter(object : TypeToken<Map<String, Any>>() {}.type, NssJsonDeserializer())
+        .create()
 
     /**
      * Load markup file from assets folder given filename/path.
@@ -56,9 +58,9 @@ class NssMarkupLoader<T : GigyaAccount>(
      */
     @Suppress("UNCHECKED_CAST")
     fun loadMarkupAsset(
-            assetPath: String?,
-            initialRoute: String?,
-            lang: String?
+        assetPath: String?,
+        initialRoute: String?,
+        lang: String?
     ): MutableMap<String, Any>? {
         assetPath?.apply {
             val jsonAsset = loadJsonFromAssets(context, "$assetPath.json")
@@ -73,8 +75,8 @@ class NssMarkupLoader<T : GigyaAccount>(
 
             // Map available assets.
             val jsonMap = gson.fromJson<MutableMap<String, Any>>(
-                    jsonAsset,
-                    object : TypeToken<Map<String, Any>>() {}.type
+                jsonAsset,
+                object : TypeToken<Map<String, Any>>() {}.type
             )
             jsonMap.refined<MutableMap<String, Any>> { map ->
                 val routingMap: MutableMap<String, Any> = map["routing"] as MutableMap<String, Any>
@@ -82,7 +84,7 @@ class NssMarkupLoader<T : GigyaAccount>(
                     routingMap["initial"] = userDefinedInitialRoute
                 }
                 if (!routingMap.containsKey("initial")) {
-                    throw  RuntimeException("Markup scheme incorrect - initial route must be provided")
+                    throw RuntimeException("Markup scheme incorrect - initial route must be provided")
                 }
 
                 // Add optional theme map.
@@ -117,54 +119,54 @@ class NssMarkupLoader<T : GigyaAccount>(
      */
     @Suppress("UNCHECKED_CAST")
     private fun loadMarkupRemote(
-            screenSetId: String?,
-            lang: String,
-            onLoad: (MutableMap<String, Any>?) -> Unit,
-            onLoadError: (GigyaError) -> Unit
+        screenSetId: String?,
+        lang: String,
+        onLoad: (MutableMap<String, Any>?) -> Unit,
+        onLoadError: (GigyaError) -> Unit
     ) {
         screenSetId?.guard {
             throw RuntimeException("ScreenSet ID not provided - Flow invalid")
         }
         val params = mutableMapOf<String, Any>("screenSetId" to screenSetId!!, "lang" to lang)
         api.send("accounts.getNativeScreenSet", params, POST, GigyaApiResponse::class.java,
-                object : GigyaCallback<GigyaApiResponse>() {
+            object : GigyaCallback<GigyaApiResponse>() {
 
-                    override fun onSuccess(obj: GigyaApiResponse?) {
-                        obj?.let { response ->
-                            val markupMap = mutableMapOf<String, Any>()
-                            markupMap["lang"] = lang
-                            markupMap.putAll(response.asMap()["screenSet"] as MutableMap<out String, Any>)
-                            onLoad(markupMap)
-                        }
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    obj?.let { response ->
+                        val markupMap = mutableMapOf<String, Any>()
+                        markupMap["lang"] = lang
+                        markupMap.putAll(response.asMap()["screenSet"] as MutableMap<out String, Any>)
+                        onLoad(markupMap)
                     }
+                }
 
-                    override fun onError(error: GigyaError?) {
-                        error?.let {
-                            onLoadError(it)
-                        }
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        onLoadError(it)
                     }
+                }
 
-                })
+            })
     }
 
     /**
      * Load markup.
      */
     fun loadMarkupFrom(
-            data: IgnitionData,
-            markupLoaded: (Map<String, Any>?) -> Unit,
-            markupFailedToLoad: (GigyaError) -> Unit
+        data: IgnitionData,
+        markupLoaded: (Map<String, Any>?) -> Unit,
+        markupFailedToLoad: (GigyaError) -> Unit
     ) {
         if (data.screenSetId != null) {
             loadMarkupRemote(
-                    data.screenSetId,
-                    data.lang!!,
-                    { markupMap ->
-                        addPlatformSettings(markupMap)
-                        updateInitialRoute(markupMap, data.initialRoute)
-                        markupLoaded(markupMap)
-                    },
-                    markupFailedToLoad
+                data.screenSetId,
+                data.lang!!,
+                { markupMap ->
+                    addPlatformSettings(markupMap)
+                    updateInitialRoute(markupMap, data.initialRoute)
+                    markupLoaded(markupMap)
+                },
+                markupFailedToLoad
             )
         } else if (data.asset != null) {
             val markupMap = loadMarkupAsset(data.asset, data.initialRoute, data.lang!!)
@@ -211,7 +213,7 @@ class NssMarkupLoader<T : GigyaAccount>(
     private fun detectNetworkCountry(): String? {
         try {
             val telephonyManager =
-                    context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             Log.d(LOG_TAG, "detectNetworkCountry: ${telephonyManager.simCountryIso}")
             return telephonyManager.networkCountryIso
         } catch (e: Exception) {
@@ -220,5 +222,31 @@ class NssMarkupLoader<T : GigyaAccount>(
         return null
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun getStyleLibraryData(
+        onStylesLoaded: (Map<String, Any>) -> Unit,
+        onLoadError: (GigyaError) -> Unit
+    ) {
+        api.send("accounts.getNSSTheme", mapOf("themeId" to "system-default"),
+            POST, GigyaApiResponse::class.java,
+            object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    if (obj != null) {
+                        var styles = mutableMapOf<String, Any>()
+                        val stylesJson = obj.asMap()["theme"] as String
+                        val mapType: Type = object : TypeToken<MutableMap<String, Any>>() {}.type
+                        styles = gson.fromJson(stylesJson, mapType)
+                        onStylesLoaded(styles)
+                    }
+                }
 
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        onLoadError(it)
+                    }
+                }
+
+            })
+
+    }
 }

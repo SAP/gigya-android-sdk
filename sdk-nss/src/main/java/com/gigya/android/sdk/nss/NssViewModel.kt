@@ -302,6 +302,20 @@ class NssViewModel<T : GigyaAccount>(
             })
     }
 
+    fun loadStyles(
+        done: (Map<String, Any>?) -> Unit,
+        error: (GigyaError) -> Unit
+    ) {
+        nssMarkupLoader.getStyleLibraryData(
+            onStylesLoaded = { styles ->
+                done(styles)
+            },
+            onLoadError = { error ->
+                error(error)
+            }
+        )
+    }
+
     /**
      * Cancel event triggered from image selection flow.
      */
