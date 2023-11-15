@@ -888,13 +888,6 @@ addConnection
 removeConnection
 ```
 
-### Interruptions
-
-Some flows can be "interrupted" due to certain Site policies.
-For example, when trying to register but Two Factor Authentication is required - then an "interruption" can occur about "pending TFA registration"
-that will require the end user to setup a TFA method before being able to complete the registration flow.
-
-Interruptions map:
 ```
 The plugin callback is also typed to the current Account schema.
 ```
@@ -902,6 +895,14 @@ The plugin callback is also typed to the current Account schema.
 Business APIs are provided in order to give you an easier interface. If a more detailed and customized use is required, you can still use
 the generic Gigya.send interface for all request purposes.
 ```
+
+### Interruptions
+
+Some flows can be "interrupted" due to certain Site policies.
+For example, when trying to register but Two Factor Authentication is required - then an "interruption" can occur about "pending TFA registration"
+that will require the end user to setup a TFA method before being able to complete the registration flow.
+
+**Interruptions map:**
 The SDK's Business APIs are design to help to easily develop a friendly way to face and resolve those interruptions in order to get the end user
 logged in and still complying to the site's policies.
 
