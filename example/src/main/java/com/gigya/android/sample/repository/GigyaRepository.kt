@@ -204,6 +204,12 @@ class GigyaRepository {
         }
     }
 
+    fun socialLoginWith(providers: MutableList<String>) :  Flow<GigyaRepoResponse> {
+        return loginFlow { callback ->
+            gigyaInstance.socialLoginWith(providers, mutableMapOf(), callback)
+        }
+    }
+
     fun ssoLogin(map: MutableMap<String, Any>) : Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.sso(map, callback)
