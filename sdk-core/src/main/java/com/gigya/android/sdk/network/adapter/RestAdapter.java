@@ -33,7 +33,7 @@ public class RestAdapter implements IRestAdapter {
     public static final int GET = HttpMethod.GET.intValue();
     public static final int POST = HttpMethod.POST.intValue();
 
-    private final NetworkProvider _networkProvider;
+    private NetworkProvider _networkProvider;
 
     public RestAdapter(Context context, IApiRequestFactory requestFactory) {
         if (VolleyNetworkProvider.isAvailable()) {
@@ -43,6 +43,11 @@ public class RestAdapter implements IRestAdapter {
         } else {
             _networkProvider = new HttpNetworkProvider(requestFactory);
         }
+    }
+
+    public void forceDefaultRestAdapter(IApiRequestFactory requestFactory) {
+        _networkProvider = null;
+        _networkProvider = new HttpNetworkProvider(requestFactory);
     }
 
     @Override

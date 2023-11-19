@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.network.adapter;
 
 import com.gigya.android.sdk.api.GigyaApiRequest;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 
 public interface IRestAdapter {
 
@@ -17,4 +18,6 @@ public interface IRestAdapter {
     void cancel(String tag);
 
     String getProviderType();
+
+    void forceDefaultRestAdapter(IApiRequestFactory requestFactory);
 }

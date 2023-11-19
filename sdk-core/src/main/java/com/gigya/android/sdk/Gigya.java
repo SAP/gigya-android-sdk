@@ -12,12 +12,14 @@ import com.gigya.android.sdk.account.GigyaAccountConfig;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
+import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.network.GigyaError;
+import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
 import com.gigya.android.sdk.providers.provider.Provider;
@@ -896,4 +898,22 @@ public class Gigya<T extends GigyaAccount> {
     }
 
     //endregion
+
+    //region UTILS
+
+    /***
+     * Manually force the SDK to use default http provider (ignores okHttp, Volley adapter setups).
+     */
+    public void setDefaultHttpProvider() {
+        try {
+            IRestAdapter restAdapter = _container.get(IRestAdapter.class);
+            IApiRequestFactory requestFactory = _container.get(IApiRequestFactory.class);
+            restAdapter.forceDefaultRestAdapter(requestFactory);
+        } catch (Exception ex) {
+            GigyaLogger.error(LOG_TAG, "Failed to set default http provider");
+        }
+    }
+
+    //endregion
+
 }
