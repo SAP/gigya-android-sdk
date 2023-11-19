@@ -766,6 +766,7 @@ public class Gigya<T extends GigyaAccount> {
      * @param params             Request parameters.
      * @param gigyaLoginCallback Login response callback.
      */
+    @Deprecated
     public void socialLoginWith(@GigyaDefinitions.Providers.SocialProvider List<String> providers,
                                 @NonNull Map<String, Object> params, final GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "socialLoginWith: with parameters:\n" + params.toString());

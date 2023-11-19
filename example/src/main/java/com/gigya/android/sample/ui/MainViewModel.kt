@@ -38,11 +38,11 @@ class MainViewModel : ViewModel() {
 
     // Login using email & password pair.
     fun credentialLogin(
-            email: String, password: String,
-            error: (GigyaError?) -> Unit,
-            onLogin: () -> Unit,
-            tfaInterruption: (TFAInterruption) -> Unit,
-            linkInterruption: (LinkInterruption) -> Unit,
+        email: String, password: String,
+        error: (GigyaError?) -> Unit,
+        onLogin: () -> Unit,
+        tfaInterruption: (TFAInterruption) -> Unit,
+        linkInterruption: (LinkInterruption) -> Unit,
     ) {
         val params = mutableMapOf<String, Any>("loginID" to email, "password" to password)
         viewModelScope.launch {
@@ -65,12 +65,14 @@ class MainViewModel : ViewModel() {
     }
 
     // Register using email & password pair.
-    fun credentialRegister(email: String, password: String,
-                           error: (GigyaError?) -> Unit,
-                           params: MutableMap<String, Any>,
-                           onLogin: () -> Unit,
-                           tfaInterruption: (TFAInterruption) -> Unit,
-                           linkInterruption: (LinkInterruption) -> Unit) {
+    fun credentialRegister(
+        email: String, password: String,
+        error: (GigyaError?) -> Unit,
+        params: MutableMap<String, Any>,
+        onLogin: () -> Unit,
+        tfaInterruption: (TFAInterruption) -> Unit,
+        linkInterruption: (LinkInterruption) -> Unit
+    ) {
         viewModelScope.launch {
             gigyaRepository.registerWith(email, password, params).collect { result ->
                 if (result.isError()) {
@@ -135,8 +137,37 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun socialLoginWith(
+        providers: MutableList<String>,
+        error: (GigyaError?) -> Unit,
+        cancelled: () -> Unit,
+        onLogin: () -> Unit
+    ) {
+        viewModelScope.launch {
+            gigyaRepository.socialLoginWith(providers).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else if (result.isCanceled()) {
+                    cancelled()
+                    this.coroutineContext.job.cancel()
+                }
+                else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
+            }
+        }
+    }
+
     // Sign in using social login provider.
-    fun socialLogin(provider: String, error: (GigyaError?) -> Unit, onLogin: () -> Unit, linkInterruption: (LinkInterruption) -> Unit) {
+    fun socialLogin(
+        provider: String,
+        error: (GigyaError?) -> Unit,
+        onLogin: () -> Unit,
+        linkInterruption: (LinkInterruption) -> Unit
+    ) {
         viewModelScope.launch {
             gigyaRepository.socialLoginWith(provider).collect { result ->
                 if (result.isError()) {
@@ -154,9 +185,11 @@ class MainViewModel : ViewModel() {
     }
 
     // Login with Fido passkey (needs to have registered a key before).
-    fun passwordlessLogin(sessionExpiration: Int?,
-            resultHandler: ActivityResultLauncher<IntentSenderRequest>,
-                          error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+    fun passwordlessLogin(
+        sessionExpiration: Int?,
+        resultHandler: ActivityResultLauncher<IntentSenderRequest>,
+        error: (GigyaError?) -> Unit, onLogin: () -> Unit
+    ) {
         viewModelScope.launch {
             val result = gigyaRepository.webAuthnLogin(sessionExpiration, resultHandler)
             if (result.isError()) {
@@ -168,8 +201,10 @@ class MainViewModel : ViewModel() {
     }
 
     // Register new Fido passkey.
-    fun passwordlessRegister(resultHandler: ActivityResultLauncher<IntentSenderRequest>,
-                             error: (GigyaError?) -> Unit, success: () -> Unit) {
+    fun passwordlessRegister(
+        resultHandler: ActivityResultLauncher<IntentSenderRequest>,
+        error: (GigyaError?) -> Unit, success: () -> Unit
+    ) {
         viewModelScope.launch {
             val result = gigyaRepository.webAuthnRegister(resultHandler)
             if (result.isError()) {
@@ -182,7 +217,8 @@ class MainViewModel : ViewModel() {
 
     // Revoke current Fido passkey.
     fun passwordlessRevoke(
-            error: (GigyaError?) -> Unit, success: () -> Unit) {
+        error: (GigyaError?) -> Unit, success: () -> Unit
+    ) {
         viewModelScope.launch {
             val result = gigyaRepository.webAuthnRevoke()
             if (result.isError()) {
@@ -194,10 +230,12 @@ class MainViewModel : ViewModel() {
     }
 
     // Login using phone OTP.
-    fun otpLogin(phoneNumber: String,
-                 onLogin: () -> Unit,
-                 error: (GigyaError?) -> Unit,
-                 onPendingOTP: () -> Unit) {
+    fun otpLogin(
+        phoneNumber: String,
+        onLogin: () -> Unit,
+        error: (GigyaError?) -> Unit,
+        onPendingOTP: () -> Unit
+    ) {
         viewModelScope.launch {
             gigyaRepository.otpLoginWith(phoneNumber).collect { result ->
                 if (result.isError()) {
@@ -258,165 +296,204 @@ class MainViewModel : ViewModel() {
     }
 
     // Show web screensets.
-    fun showScreenSets(screenset: String,
-                       error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+    fun showScreenSets(
+        screenset: String,
+        error: (GigyaError?) -> Unit, onLogin: () -> Unit
+    ) {
         gigyaRepository.gigyaInstance.showScreenSet(
-                screenset,
-                true,
-                mutableMapOf(),
-                object : GigyaPluginCallback<MyAccount>() {
+            screenset,
+            true,
+            mutableMapOf(),
+            object : GigyaPluginCallback<MyAccount>() {
 
-                    override fun onLogin(accountObj: MyAccount) {
-                        account.value = accountObj
-                        onLogin()
-                    }
-
-                    override fun onError(event: GigyaPluginEvent?) {
-                        event?.let {
-                            val eventError = GigyaError.errorFrom(it.eventMap)
-                            error(eventError)
-                        }
-                    }
-
-                    // You can listen to additional events if required.
+                override fun onLogin(accountObj: MyAccount) {
+                    account.value = accountObj
+                    onLogin()
                 }
+
+                override fun onError(event: GigyaPluginEvent?) {
+                    event?.let {
+                        val eventError = GigyaError.errorFrom(it.eventMap)
+                        error(eventError)
+                    }
+                }
+
+                // You can listen to additional events if required.
+            }
         )
     }
 
     // Show native screensets.
-    fun showNativeScreenSets(context: Context, screensetId: String, initial: String,
-                             error: (GigyaError?) -> Unit, onLogin: () -> Unit, onApiResult: (String, GigyaApiResponse?) -> Unit) {
+    fun showNativeScreenSets(
+        context: Context,
+        screensetId: String,
+        initial: String,
+        error: (GigyaError?) -> Unit,
+        onLogin: () -> Unit,
+        onApiResult: (String, GigyaApiResponse?) -> Unit
+    ) {
         GigyaNss.getInstance()
-                .load(screensetId)
+            .load(screensetId)
 //                .loadFromAssets("nss-example")
-                .initialRoute(initial)
-                .events(object : NssEvents<MyAccount>() {
+            .initialRoute(initial)
+            .events(object : NssEvents<MyAccount>() {
 
-                    override fun onError(screenId: String, error: GigyaError) {
-                        error(error)
+                override fun onError(screenId: String, error: GigyaError) {
+                    error(error)
+                }
+
+                override fun onCancel() {
+                    // Handle cancel event if needed.
+
+                }
+
+                override fun onScreenSuccess(
+                    screenId: String,
+                    action: String,
+                    accountObj: MyAccount?
+                ) {
+                    // Handle login event here if needed.
+                    if (accountObj != null) {
+                        account.value = accountObj
+                        onLogin()
                     }
+                }
 
-                    override fun onCancel() {
-                        // Handle cancel event if needed.
+                override fun onApiResult(
+                    screenId: String,
+                    action: String,
+                    api: String,
+                    response: GigyaApiResponse?
+                ) {
+                    onApiResult(api, response)
+                }
 
-                    }
+            })
+            .eventsFor("login", object : NssScreenEvents() {
 
-                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
-                        // Handle login event here if needed.
-                        if (accountObj != null) {
-                            account.value = accountObj
-                            onLogin()
-                        }
-                    }
+                override fun screenDidLoad() {
+                    Log.d("NssEvents", "screen did load for login")
+                }
 
-                    override fun onApiResult(screenId: String, action: String, api: String, response: GigyaApiResponse?) {
-                        onApiResult(api, response)
-                    }
+                override fun routeFrom(screen: ScreenRouteFromModel) {
+                    Log.d("NssEvents", "routeFrom: from: " + screen.previousRoute())
+                    super.routeFrom(screen)
+                }
 
-                })
-                .eventsFor("login", object : NssScreenEvents() {
+                override fun routeTo(screen: ScreenRouteToModel) {
+                    Log.d(
+                        "NssEvents",
+                        "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData()
+                            .toString()
+                    )
+                    super.routeTo(screen)
+                }
 
-                    override fun screenDidLoad() {
-                        Log.d("NssEvents", "screen did load for login")
-                    }
+                override fun submit(screen: ScreenSubmitModel) {
+                    Log.d("NssEvents", "submit: data: " + screen.screenData().toString())
+                    super.submit(screen)
+                }
 
-                    override fun routeFrom(screen: ScreenRouteFromModel) {
-                        Log.d("NssEvents", "routeFrom: from: " + screen.previousRoute())
-                        super.routeFrom(screen)
-                    }
+                override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
+                    Log.d(
+                        "NssEvents",
+                        "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal
+                    )
+                    super.fieldDidChange(screen, field)
+                }
 
-                    override fun routeTo(screen: ScreenRouteToModel) {
-                        Log.d("NssEvents", "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData().toString())
-                        super.routeTo(screen)
-                    }
-
-                    override fun submit(screen: ScreenSubmitModel) {
-                        Log.d("NssEvents", "submit: data: " + screen.screenData().toString())
-                        super.submit(screen)
-                    }
-
-                    override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
-                        Log.d("NssEvents", "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal)
-                        super.fieldDidChange(screen, field)
-                    }
-
-                })
-                .show(context)
+            })
+            .show(context)
     }
 
     // Show native screensets.
-    fun showNativeScreenSets(context: Context, screensetId: String,
-                             error: (GigyaError?) -> Unit, onLogin: () -> Unit) {
+    fun showNativeScreenSets(
+        context: Context, screensetId: String,
+        error: (GigyaError?) -> Unit, onLogin: () -> Unit
+    ) {
         GigyaNss.getInstance()
-                .loadFromAssets("nss-example")
-                // .load(screensetId)
-                .events(object : NssEvents<MyAccount>() {
+            .loadFromAssets("nss-example")
+            // .load(screensetId)
+            .events(object : NssEvents<MyAccount>() {
 
-                    override fun onError(screenId: String, error: GigyaError) {
-                        error(error)
+                override fun onError(screenId: String, error: GigyaError) {
+                    error(error)
+                }
+
+                override fun onCancel() {
+                    // Handle cancel event if needed.
+
+                }
+
+                override fun onScreenSuccess(
+                    screenId: String,
+                    action: String,
+                    accountObj: MyAccount?
+                ) {
+                    // Handle login event here if needed.
+                    accountObj?.let {
+                        account.value = accountObj
+                        onLogin()
                     }
+                }
 
-                    override fun onCancel() {
-                        // Handle cancel event if needed.
+            })
+            .eventsFor("login", object : NssScreenEvents() {
 
-                    }
+                override fun screenDidLoad() {
+                    Log.d("NssEvents", "screen did load for login")
+                }
 
-                    override fun onScreenSuccess(screenId: String, action: String, accountObj: MyAccount?) {
-                        // Handle login event here if needed.
-                        accountObj?.let {
-                            account.value = accountObj
-                            onLogin()
-                        }
-                    }
+                override fun routeFrom(screen: ScreenRouteFromModel) {
+                    Log.d("NssEvents", "routeFrom: from: " + screen.previousRoute())
+                    super.routeFrom(screen)
+                }
 
-                })
-                .eventsFor("login", object : NssScreenEvents() {
+                override fun routeTo(screen: ScreenRouteToModel) {
+                    Log.d(
+                        "NssEvents",
+                        "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData()
+                            .toString()
+                    )
+                    super.routeTo(screen)
+                }
 
-                    override fun screenDidLoad() {
-                        Log.d("NssEvents", "screen did load for login")
-                    }
+                override fun submit(screen: ScreenSubmitModel) {
+                    Log.d("NssEvents", "submit: data: " + screen.screenData().toString())
+                    super.submit(screen)
+                }
 
-                    override fun routeFrom(screen: ScreenRouteFromModel) {
-                        Log.d("NssEvents", "routeFrom: from: " + screen.previousRoute())
-                        super.routeFrom(screen)
-                    }
+                override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
+                    Log.d(
+                        "NssEvents",
+                        "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal
+                    )
+                    super.fieldDidChange(screen, field)
+                }
 
-                    override fun routeTo(screen: ScreenRouteToModel) {
-                        Log.d("NssEvents", "routeTo: to: " + screen.nextRoute() + "data: " + screen.screenData().toString())
-                        super.routeTo(screen)
-                    }
-
-                    override fun submit(screen: ScreenSubmitModel) {
-                        Log.d("NssEvents", "submit: data: " + screen.screenData().toString())
-                        super.submit(screen)
-                    }
-
-                    override fun fieldDidChange(screen: ScreenFieldModel, field: FieldEventModel) {
-                        Log.d("NssEvents", "fieldDidChange: field:" + field.id + " oldVal: " + field.oldVal + " newVal: " + field.newVal)
-                        super.fieldDidChange(screen, field)
-                    }
-
-                })
-                .show(context)
+            })
+            .show(context)
     }
 
     // Mobile sso authentication.
     fun mobileSSO(
-            error: (GigyaError?) -> Unit,
-            canceled: () -> Unit,
-            onLogin: () -> Unit,
+        error: (GigyaError?) -> Unit,
+        canceled: () -> Unit,
+        onLogin: () -> Unit,
     ) {
         viewModelScope.launch {
-            gigyaRepository.ssoLogin(mutableMapOf("rp_context" to mutableMapOf(
-                    "contextKey" to "contextValue"
-            )
+            gigyaRepository.ssoLogin(
+                mutableMapOf(
+                    "rp_context" to mutableMapOf(
+                        "contextKey" to "contextValue"
+                    )
 
-            )).collect { result ->
+                )
+            ).collect { result ->
                 if (result.isCanceled()) {
                     canceled()
                     this.coroutineContext.job.cancel()
-                }
-                else if (result.isError()) {
+                } else if (result.isError()) {
                     error(result.error)
                     this.coroutineContext.job.cancel()
                 } else {

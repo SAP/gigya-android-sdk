@@ -162,10 +162,10 @@ public class ProviderFragment extends WebViewFragment {
             @Nullable
             private String getOverrideResult(String url) {
                 if (_redirectPrefix != null && _url != null) {
-                    if (url.startsWith(_redirectPrefix)) {
+                    if (url.startsWith(_redirectPrefix) || url.startsWith("https")) {
                         try {
                             final String decodedUrl = URLDecoder.decode(url, "UTF8");
-                            return decodedUrl.replace("gsapi", "http");
+                            return decodedUrl.replace("gsapi", "https");
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
