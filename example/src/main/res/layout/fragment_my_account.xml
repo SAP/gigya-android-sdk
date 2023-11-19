@@ -98,6 +98,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/uid_text" />
 
+            <Button
+                android:id="@+id/get_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/sap_gold"
+                android:text="@string/get_account"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logout" />
+
             <TextView
                 android:id="@+id/add_remove_title"
                 android:layout_width="match_parent"
@@ -109,7 +121,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/logout" />
+                app:layout_constraintTop_toBottomOf="@id/get_account" />
 
             <EditText
                 android:id="@+id/add_remove_edit"

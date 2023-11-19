@@ -70,6 +70,10 @@ public class GigyaError extends GigyaResponseModel {
         return new GigyaError(200001, "Operation canceled", "");
     }
 
+    public static GigyaError cancelledOperationWith(String message) {
+        return new GigyaError(200001, message, "");
+    }
+
     public static GigyaError fromResponse(GigyaApiResponse response) {
         final int errorCode = response.getErrorCode();
         final String localizedMessage = response.getErrorDetails();
