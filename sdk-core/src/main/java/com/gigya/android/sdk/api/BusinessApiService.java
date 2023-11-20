@@ -103,6 +103,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         } else {
             // Parse & success.
             A parsed = response.parseAccountTo(_accountService.getAccountSchema());
+            if (parsed == null) {
+                loginCallback.onError(GigyaError.cancelledOperationWith(
+                        "Operation cancelled: account failed to parse"
+                ));
+                return;
+            }
             updateWithNewSession(response);
             updateCachedAccount(response);
             if (loginCallback != null) {
@@ -351,6 +357,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 if (response.getErrorCode() == 0) {
                     // No interruption support.
                     A parsed = response.parseAccountTo(_accountService.getAccountSchema());
+                    if (parsed == null) {
+                        gigyaCallback.onError(GigyaError.cancelledOperationWith(
+                                "Operation cancelled: account failed to parse"
+                        ));
+                        return;
+                    }
                     updateWithNewSession(response);
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
@@ -543,6 +555,12 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                 if (response.getErrorCode() == 0) {
                     // Parse response & update account service.
                     A parsed = response.parseAccountTo(_accountService.getAccountSchema());
+                    if (parsed == null) {
+                        gigyaCallback.onError(GigyaError.cancelledOperationWith(
+                                "Operation cancelled: account failed to parse"
+                        ));
+                        return;
+                    }
                     updateCachedAccount(response);
                     gigyaCallback.onSuccess(parsed);
                 } else {

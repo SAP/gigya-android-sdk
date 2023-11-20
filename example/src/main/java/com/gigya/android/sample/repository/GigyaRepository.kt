@@ -48,6 +48,10 @@ class GigyaRepository {
 
     fun flushResolvers() = gigyaResolverMap.clear()
 
+    init {
+        gigyaInstance.setDefaultHttpProvider()
+    }
+
     private fun invalidateSession() {
         val accountService = Gigya.getContainer().get(IAccountService::class.java)
         accountService.invalidateAccount()

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentLoginBinding
 import com.gigya.android.sample.ui.MainActivity
+import com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK
+import com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
 
@@ -205,6 +207,20 @@ class LoginFragment : BaseExampleFragment() {
      * Sign in via social provider.
      */
     private fun socialLogin() {
+//        val providers = mutableListOf<String>()
+//        providers.add(FACEBOOK)
+//        providers.add(GOOGLE)
+//        viewModel.socialLoginWith(providers, onLogin = {
+//            toastIt("login successful")
+//            activity?.supportFragmentManager?.beginTransaction()
+//                ?.replace(R.id.container, MyAccountFragment.newInstance())?.commitNow()
+//        }, error = {
+//            //Display error.
+//            toastIt("Error: ${it?.localizedMessage}")
+//        }, cancelled = {
+//            toastIt("Operation cancelled")
+//        })
+
         val provider = binding.includeSocialContent.socialProviderInput.text.toString().trim()
         if (provider.isEmpty()) {
             toastIt("Enter social provider")
