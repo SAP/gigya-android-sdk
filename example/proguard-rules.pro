@@ -21,3 +21,4 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.gigya.** { *; }
+-keepdirectories */gigyaSdkConfiguration.json

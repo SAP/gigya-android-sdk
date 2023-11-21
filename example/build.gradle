@@ -25,6 +25,13 @@ android {
             keyAlias 'key0'
             keyPassword 'android'
         }
+
+        release {
+            storeFile file("keystore/debug-key.keystore")
+            storePassword 'android'
+            keyAlias 'key0'
+            keyPassword 'android'
+        }
     }
 
     buildFeatures {
@@ -34,8 +41,20 @@ android {
     buildTypes {
 
         release {
-            minifyEnabled false
+
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+//            postprocessing {
+//                removeUnusedCode true
+//                removeUnusedResources true
+//                optimizeCode true
+//                obfuscate true
+//                proguardFile("proguard-rules.pro")
+//            }
+
+            signingConfig signingConfigs.release
         }
 
         debug {
