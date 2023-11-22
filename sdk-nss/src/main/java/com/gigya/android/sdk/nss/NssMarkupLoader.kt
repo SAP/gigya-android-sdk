@@ -224,10 +224,15 @@ class NssMarkupLoader<T : GigyaAccount>(
 
     @Suppress("UNCHECKED_CAST")
     fun getStyleLibraryData(
+        screenSetId: String?,
         onStylesLoaded: (Map<String, Any>) -> Unit,
         onLoadError: (GigyaError) -> Unit
     ) {
-        api.send("accounts.getNSSTheme", mapOf("themeId" to "system-default"),
+        api.send("accounts.getNSSTheme",
+            mapOf(
+                "themeId" to "system-default",
+                "screenSetId" to screenSetId
+            ),
             POST, GigyaApiResponse::class.java,
             object : GigyaCallback<GigyaApiResponse>() {
                 override fun onSuccess(obj: GigyaApiResponse?) {

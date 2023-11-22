@@ -149,6 +149,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
                 IgnitionCall.STYLES.identifier -> {
                     // Load styles.
                     viewModel?.loadStyles(
+                        ignitionData!!.screenSetId,
                         done = { styles ->
                             result.success(styles)
                         },

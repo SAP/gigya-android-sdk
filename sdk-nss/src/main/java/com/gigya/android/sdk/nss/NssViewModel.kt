@@ -303,10 +303,12 @@ class NssViewModel<T : GigyaAccount>(
     }
 
     fun loadStyles(
+        screenSetId: String?,
         done: (Map<String, Any>?) -> Unit,
         error: (GigyaError) -> Unit
     ) {
         nssMarkupLoader.getStyleLibraryData(
+            screenSetId,
             onStylesLoaded = { styles ->
                 done(styles)
             },
