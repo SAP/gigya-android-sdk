@@ -228,6 +228,9 @@ class NssMarkupLoader<T : GigyaAccount>(
         onStylesLoaded: (Map<String, Any>) -> Unit,
         onLoadError: (GigyaError) -> Unit
     ) {
+        if (screenSetId == null) {
+            onStylesLoaded(mapOf())
+        }
         api.send("accounts.getNSSTheme",
             mapOf(
                 "themeId" to "system-default",
