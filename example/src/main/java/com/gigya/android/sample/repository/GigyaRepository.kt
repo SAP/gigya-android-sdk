@@ -49,7 +49,7 @@ class GigyaRepository {
     fun flushResolvers() = gigyaResolverMap.clear()
 
     init {
-        gigyaInstance.setDefaultHttpProvider()
+        //gigyaInstance.setDefaultHttpProvider()
     }
 
     private fun invalidateSession() {

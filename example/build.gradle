@@ -93,9 +93,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation project(path: ':sdk-core')
-//    implementation 'com.github.SAP:gigya-android-sdk:core-v7.0.6'
-//    implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.6'
-
     implementation project(path: ':sdk-biometric')
     implementation project(path: ':sdk-nss')
     implementation project(path: ':sdk-auth')
