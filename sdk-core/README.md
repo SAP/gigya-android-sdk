@@ -350,7 +350,11 @@ mGigya.socialLoginWith(providers, null, new GigyaLoginCallback<MyAccount>() {
     }
 });
 ```
-Here is a screenshot using the above implementation:
+
+**Note:**
+**This method is now marked for deprecation.**
+If your application creates a social provider selection dialog, we recommend that you implement your own UI and selection trigger
+and use the direct "login with Social provider" option (https://sap.github.io/gigya-android-sdk/sdk-core/#login-with-a-specified-provider)."
 
 
 ### Login With A Specified Provider

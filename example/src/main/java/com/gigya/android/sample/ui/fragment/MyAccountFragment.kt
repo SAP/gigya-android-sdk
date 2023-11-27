@@ -158,6 +158,13 @@ class MyAccountFragment : BaseExampleFragment() {
             )
         }
 
+        binding.getAccount.setOnClickListener {
+            viewModel.getAccount {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            }
+        }
+
         binding.addConnection.setOnClickListener {
             val provider = binding.addRemoveEdit.text.toString().trim()
             if (provider.isEmpty()) {

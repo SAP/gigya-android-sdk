@@ -48,6 +48,10 @@ class GigyaRepository {
 
     fun flushResolvers() = gigyaResolverMap.clear()
 
+    init {
+        gigyaInstance.setDefaultHttpProvider()
+    }
+
     private fun invalidateSession() {
         val accountService = Gigya.getContainer().get(IAccountService::class.java)
         accountService.invalidateAccount()
@@ -201,6 +205,12 @@ class GigyaRepository {
     fun socialLoginWith(provider: String): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.login(provider, mutableMapOf(), callback)
+        }
+    }
+
+    fun socialLoginWith(providers: MutableList<String>) :  Flow<GigyaRepoResponse> {
+        return loginFlow { callback ->
+            gigyaInstance.socialLoginWith(providers, mutableMapOf(), callback)
         }
     }
 
