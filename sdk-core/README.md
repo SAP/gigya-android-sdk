@@ -1273,6 +1273,9 @@ gigya.sso(mutableMapOf("rp_context" to mutableMapOf("contextKey" to "contextValu
                  }
         })
 ```
+**Note:**
+When using mobile SSO (single sign-on using the central login page), logging out using the SDK's logout method will only log the user out of the current API key used.
+The user will not be logged out of the other group sites.
 
 ## FIDO/WebAuthn Authentication
 FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
