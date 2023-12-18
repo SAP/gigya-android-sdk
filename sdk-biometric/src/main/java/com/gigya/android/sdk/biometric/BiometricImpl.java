@@ -46,41 +46,12 @@ public abstract class BiometricImpl implements IBiometricImpl {
         _config = config;
         _sessionService = sessionService;
         _persistenceService = persistenceService;
-        addSessionInterception();
         _biometricKey = new BiometricKey(_persistenceService);
     }
 
     protected abstract void updateAnimationState(boolean state);
 
-    //region SET SESSION & SESSION INTERCEPTION
-
-    /**
-     * Add session interceptor.
-     * Interception will trigger on SessionService setSession method.
-     *
-     * @see ISessionService#setSession(SessionInfo)
-     */
-    private void addSessionInterception() {
-        _sessionService.addInterceptor(new GigyaInterceptor("BIOMETRIC") {
-            @Override
-            public void intercept() {
-                final SessionInfo sessionInfo = _sessionService.getSession();
-                if (sessionInfo == null) {
-                    GigyaLogger.error(LOG_TAG, "Session is null cannot set the session");
-                    return;
-                }
-                try {
-                    // Enforce session encryption only if opt-in for fingerprint auth.
-                    if (isOptIn()) {
-                        setSession(null, _sessionService.getSession());
-                    }
-                } catch (Exception e) {
-                    GigyaLogger.error(LOG_TAG, "Error setting biometric session");
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+    //region SET SESSION
 
     /**
      * Biometric setSession implementation.
