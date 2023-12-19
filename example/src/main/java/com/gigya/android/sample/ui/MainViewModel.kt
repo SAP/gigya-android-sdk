@@ -92,7 +92,7 @@ class MainViewModel : ViewModel() {
     }
 
     // Request updated account information.
-    fun getAccount(error: (GigyaError?) -> Unit) {
+    fun getAccount(success: () -> Unit, error: (GigyaError?) -> Unit) {
         viewModelScope.launch {
             val result = gigyaRepository.getAccountInfo()
             if (result.isError()) {
@@ -100,6 +100,7 @@ class MainViewModel : ViewModel() {
                 return@launch
             }
             account.value = result.account
+            success()
         }
     }
 
