@@ -36,11 +36,17 @@ public class RestAdapter implements IRestAdapter {
     private NetworkProvider _networkProvider;
 
     public RestAdapter(Context context, IApiRequestFactory requestFactory) {
-        if (VolleyNetworkProvider.isAvailable()) {
-            _networkProvider = new VolleyNetworkProvider(requestFactory, context);
-        } else if (OkHttpNetworkAdapter.Companion.isAvailable()) {
-            _networkProvider = new OkHttpNetworkAdapter(requestFactory);
-        } else {
+        try {
+            // Avoid runtime crash for different adapters.
+            if (VolleyNetworkProvider.isAvailable()) {
+                _networkProvider = new VolleyNetworkProvider(requestFactory, context);
+            } else if (OkHttpNetworkAdapter.Companion.isAvailable()) {
+                _networkProvider = new OkHttpNetworkAdapter(requestFactory);
+            } else {
+                _networkProvider = new HttpNetworkProvider(requestFactory);
+            }
+        } catch (Exception ex) {
+            // Implementation exception averted. In any case fallback to default HttpNetworkProvider.
             _networkProvider = new HttpNetworkProvider(requestFactory);
         }
     }

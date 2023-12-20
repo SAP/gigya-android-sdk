@@ -2,7 +2,6 @@ package com.gigya.android.sdk.network.adapter
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.gigya.android.sdk.GigyaLogger
 import com.gigya.android.sdk.api.GigyaApiHttpRequest
 import com.gigya.android.sdk.api.GigyaApiRequest
@@ -14,10 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import java.net.ConnectException
 import java.net.HttpURLConnection
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
@@ -28,6 +24,7 @@ import java.util.concurrent.TimeUnit
 class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvider(requestFactory) {
 
     companion object {
+        @JvmStatic
         fun isAvailable(): Boolean {
             return try {
                 Class.forName("okhttp3.OkHttpClient")
@@ -134,10 +131,15 @@ class NetworkClient {
 
         // Add network logging if set to allow (default set to false).
         if (GigyaLogger.isDebug()) {
-            builder.addInterceptor(
-                HttpLoggingInterceptor()
-                    .setLevel(HttpLoggingInterceptor.Level.BODY)
-            )
+            try {
+                builder.addInterceptor(
+                    HttpLoggingInterceptor()
+                        .setLevel(HttpLoggingInterceptor.Level.BODY)
+                )
+            } catch (ex: Exception) {
+                // OkHttp logger implementation might not be available. should not crash.
+                GigyaLogger.debug("RestAdapter", "missing implementation of OkHttp logger. optional")
+            }
         }
         okHttpClient = builder.build()
     }
