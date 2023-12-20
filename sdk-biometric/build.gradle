@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.1.2"
 
+group = "com.sap.oss.gigya-android-sdk"
+
 ext["name"] = "Gigya-Android-SDK-Biometric"
 ext["version"] = libVersion
 ext["artifactId"] = "sdk-biometric"
@@ -60,5 +62,7 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'
 
 
