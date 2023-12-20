@@ -75,7 +75,7 @@ android:theme="@style/Theme.AppCompat.Translucent">
 ### OKHttp Support
 
 The core SDK now supports using the OKHttp library to make network requests (which deprecates the use of the obsolete HttpUrlConnection & Volley).
-To use the OKHttp library, please add the following to your application dependencies:
+To use the OKHttp library, please add both of the following to your application dependencies:
 ```
 implementation "com.squareup.okhttp3:okhttp:4.10.0"
 implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
