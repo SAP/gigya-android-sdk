@@ -22,13 +22,13 @@ implementation 'com.google.code.gson:gson:2.8.9'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v7.0.5.aar')
+implementation files('libs/gigya-android-sdk-core-v7.0.7.aar')
 ```
 
 ### Implement using **MavenCentral**
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.6'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.7'
 ```
 
 ### Implement using Jitpack (Will be soon deprecated - moving to Maven Central)
@@ -43,7 +43,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP:gigya-android-sdk:core-v7.0.6'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.7'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -892,13 +892,6 @@ addConnection
 removeConnection
 ```
 
-### Interruptions
-
-Some flows can be "interrupted" due to certain Site policies.
-For example, when trying to register but Two Factor Authentication is required - then an "interruption" can occur about "pending TFA registration"
-that will require the end user to setup a TFA method before being able to complete the registration flow.
-
-Interruptions map:
 ```
 The plugin callback is also typed to the current Account schema.
 ```
@@ -906,6 +899,14 @@ The plugin callback is also typed to the current Account schema.
 Business APIs are provided in order to give you an easier interface. If a more detailed and customized use is required, you can still use
 the generic Gigya.send interface for all request purposes.
 ```
+
+### Interruptions
+
+Some flows can be "interrupted" due to certain Site policies.
+For example, when trying to register but Two Factor Authentication is required - then an "interruption" can occur about "pending TFA registration"
+that will require the end user to setup a TFA method before being able to complete the registration flow.
+
+**Interruptions map:**
 The SDK's Business APIs are design to help to easily develop a friendly way to face and resolve those interruptions in order to get the end user
 logged in and still complying to the site's policies.
 
@@ -1272,6 +1273,9 @@ gigya.sso(mutableMapOf("rp_context" to mutableMapOf("contextKey" to "contextValu
                  }
         })
 ```
+**Note:**
+When using mobile SSO (single sign-on using the central login page), logging out using the SDK's logout method will only log the user out of the current API key used.
+The user will not be logged out of the other group sites.
 
 ## FIDO/WebAuthn Authentication
 FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
