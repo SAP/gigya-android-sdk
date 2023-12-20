@@ -131,15 +131,10 @@ class NetworkClient {
 
         // Add network logging if set to allow (default set to false).
         if (GigyaLogger.isDebug()) {
-            try {
-                builder.addInterceptor(
-                    HttpLoggingInterceptor()
-                        .setLevel(HttpLoggingInterceptor.Level.BODY)
-                )
-            } catch (ex: Exception) {
-                // OkHttp logger implementation might not be available. should not crash.
-                GigyaLogger.debug("RestAdapter", "missing implementation of OkHttp logger. optional")
-            }
+            builder.addInterceptor(
+                HttpLoggingInterceptor()
+                    .setLevel(HttpLoggingInterceptor.Level.BODY)
+            )
         }
         okHttpClient = builder.build()
     }

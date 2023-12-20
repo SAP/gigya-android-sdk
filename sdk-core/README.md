@@ -22,13 +22,13 @@ implementation 'com.google.code.gson:gson:2.8.9'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v7.0.7.aar')
+implementation files('libs/gigya-android-sdk-core-v7.0.8.aar')
 ```
 
 ### Implement using **MavenCentral**
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.7'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.8'
 ```
 
 ### Implement using Jitpack (Will be soon deprecated - moving to Maven Central)
@@ -43,7 +43,7 @@ allprojects {
 ```
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.7'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.8'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -75,7 +75,7 @@ android:theme="@style/Theme.AppCompat.Translucent">
 ### OKHttp Support
 
 The core SDK now supports using the OKHttp library to make network requests (which deprecates the use of the obsolete HttpUrlConnection & Volley).
-To use the OKHttp library, please add the following to your application dependencies:
+To use the OKHttp library, please add both of the following to your application dependencies:
 ```
 implementation "com.squareup.okhttp3:okhttp:4.10.0"
 implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
