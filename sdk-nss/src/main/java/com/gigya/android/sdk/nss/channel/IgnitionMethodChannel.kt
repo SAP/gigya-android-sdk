@@ -12,6 +12,9 @@ class IgnitionMethodChannel : IMethodChannel {
     }
 
     internal enum class IgnitionCall(val identifier: String) {
-        IGNITION("ignition"), READY_FOR_DISPLAY("ready_for_display"), SCHEMA("load_schema")
+        IGNITION("ignition"),
+        STYLES("ignition_styles"),
+        READY_FOR_DISPLAY("ready_for_display"),
+        SCHEMA("load_schema")
     }
 }

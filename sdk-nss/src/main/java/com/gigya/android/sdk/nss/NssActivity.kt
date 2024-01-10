@@ -52,14 +52,14 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
     // Custom result handler for FIDO sender intents.
     private val webAuthnResultHandler: ActivityResultLauncher<IntentSenderRequest> =
-            registerForActivityResult(
-                    ActivityResultContracts.StartIntentSenderForResult()
-            ) { activityResult ->
-                val extras =
-                        activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
-                                ?.joinToString { it }
-                Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
-            }
+        registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { activityResult ->
+            val extras =
+                activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
+                    ?.joinToString { it }
+            Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+        }
 
     /**
      * Add FLAG_SECURE to activity if specified in the Gigya interface using "secureActivityWindow" method.
@@ -132,17 +132,34 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
                 IgnitionCall.IGNITION.identifier -> {
                     // Load markup.
                     viewModel?.loadMarkup(ignitionData!!,
-                            done = { markup ->
-                                markup?.let {
-                                    result.success(markup)
-                                }
-                            },
-                            error = { error ->
-                                viewModel?.nssEvents?.onError("", error)
-                                onBackPressed()
-                            })
-                            ?: GigyaLogger.error(LOG_TAG, "Markup not available. Please check paths (asset or hosted)");
+                        done = { markup ->
+                            markup?.let {
+                                result.success(markup)
+                            }
+                        },
+                        error = { error ->
+                            viewModel?.nssEvents?.onError("", error)
+                            onBackPressed()
+                        })
+                        ?: GigyaLogger.error(
+                            LOG_TAG,
+                            "Markup not available. Please check paths (asset or hosted)"
+                        );
                 }
+                IgnitionCall.STYLES.identifier -> {
+                    // Load styles.
+                    viewModel?.loadStyles(
+                        ignitionData!!.screenSetId,
+                        done = { styles ->
+                            result.success(styles)
+                        },
+                        error = { error ->
+                            viewModel?.nssEvents?.onError("", error)
+                            onBackPressed()
+                        }
+                    )
+                }
+
                 IgnitionCall.READY_FOR_DISPLAY.identifier -> {
                     if (!isDisplayed) {
                         // A short transformation is required to avoid engine first load Jitter.
@@ -150,6 +167,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
                         applyProgressTransform()
                     }
                 }
+
                 IgnitionCall.SCHEMA.identifier -> {
                     viewModel?.loadSchema(result)
                 }
@@ -159,8 +177,8 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
         engineLifeCycle?.engineExecuteMain()
 
         supportFragmentManager.beginTransaction()
-                .replace(R.id.nss_main_frame, fragment!!)
-                .commit()
+            .replace(R.id.nss_main_frame, fragment!!)
+            .commit()
     }
 
     private fun applyProgressTransform() {
@@ -168,25 +186,26 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
         val loadingView = findViewById<View>(R.id.nss_progress_frame)
 
         val duration = resources.getInteger(
-                android.R.integer.config_mediumAnimTime)
+            android.R.integer.config_mediumAnimTime
+        )
 
         mainFrame.animate()
-                .alpha(1f)
-                .setDuration(duration.toLong())
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationStart(animation: Animator?) {
-                        mainFrame.visibility = View.VISIBLE
-                    }
-                })
+            .alpha(1f)
+            .setDuration(duration.toLong())
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animation: Animator?) {
+                    mainFrame.visibility = View.VISIBLE
+                }
+            })
 
         loadingView.animate()
-                .alpha(0f)
-                .setDuration(duration.toLong())
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationStart(animation: Animator?) {
-                        loadingView.visibility = View.GONE
-                    }
-                })
+            .alpha(0f)
+            .setDuration(duration.toLong())
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animation: Animator?) {
+                    loadingView.visibility = View.GONE
+                }
+            })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -195,6 +214,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
             Activity.RESULT_CANCELED -> {
                 viewModel?.cancelImageRequest()
             }
+
             Activity.RESULT_OK -> {
                 if (requestCode == 1666) {
                     // Resolve image selection from available image Uri.
