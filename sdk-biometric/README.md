@@ -167,7 +167,7 @@ None
 
 ## How to obtain support
 Via SAP standard support.
-https://developers.gigya.com/display/GD/Opening+A+Support+Incident
+[Via SAP standard support](https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/e0f596a1d9db4c318e0595bdc2e8e064/6b6221c924494b678353a32670d063a9.html)
 
 ## Contributing
 Via pull request to this repository.
