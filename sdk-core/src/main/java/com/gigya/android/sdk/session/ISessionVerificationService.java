@@ -10,8 +10,6 @@ public interface ISessionVerificationService {
 
     void stop();
 
-    long getInitialDelay();
-
     void registerObserver(SessionStateObserver observer);
 
     void removeObserver(SessionStateObserver observer);
