@@ -94,7 +94,7 @@ public class ApiService implements IApiService {
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final int apiErrorCode = apiResponse.getErrorCode();
 
-                GigyaLogger.debug(LOG_TAG, "GET_SDK_CONFIG with:\n" + jsonResponse);
+                GigyaLogger.debug(LOG_TAG, "SEND REQUEST with:\n" + jsonResponse);
 
                 // Check for timestamp skew error.
                 if (isRequestExpiredError(apiErrorCode)) {
