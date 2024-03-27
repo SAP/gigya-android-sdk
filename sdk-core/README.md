@@ -1199,83 +1199,84 @@ Supported flows:
 
 You will be required to set up your central login page on your site’s console.
 
-**Instructions**
+Steps for implementing SSO:
 
-To set up mobile SSO, please follow these steps:
+Add the Custom-Tabs implementation to your application-level build.gradle file:
+```groovy
+implementation 'androidx.browser:browser:1.3.0' 
+``` 
 
-1. Add the Custom-Tabs implementation to your application level build.gradle file:
+Add the following to your application’s AndroidManifest.xml file:
+```xml
+<activity 
+ android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity" 
+ android:exported="true" 
+ android:launchMode="singleTask"> 
+ 
+ <intent-filter> 
+ 
+ <action android:name="android.intent.action.VIEW" /> 
+ 
+ <category android:name="android.intent.category.DEFAULT" /> 
+ <category android:name="android.intent.category.BROWSABLE" /> 
+ 
+ <data 
+ android:host="${applicationId}" 
+ android:path="/login/" 
+ android:scheme="gsapi" /> 
+ 
+ </intent-filter> 
+</activity> 
 ```
-implementation 'androidx.browser:browser:1.3.0'
-```
 
-2. Add the following to your application’s AndroidManifest.xml file:
-```
- <activity android:name="com.gigya.android.sdk.providers.sso.GigyaSSOLoginActivity"
-            android:exported="true"
-            android:launchMode="singleTask">
+The required default redirect consists of the following structure: “gsapi://{applicationId}/login/”, where the “applicationId” represents the application’s unique bundle identifier." 
+Please make sure you add your unique redirect URL to the **Trusted Site URLs** section of your parent site. 
+ 
 
-            <intent-filter>
+To initiate the flow, use the SSO function provided by the Gigya shared interface:
+```kotlin
+gigya.sso(mutableMapOf(), object : GigyaLoginCallback() {
 
-                <action android:name="android.intent.action.VIEW" />
+ 		override fun 	onSuccess(obj: MyAccount?) {  
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+//...
 
-                <data
-                    android:host="${applicationId}"
-                    android:path="/login/"
-                    android:scheme="gsapi" />
+}
 
-          </intent-filter>
-  </activity>
-```
-
-3. The required default redirect consists of the following structure: “gsapi://{applicationId}/login/”, where the “applicationId” represents the application’s unique bundle identifier."
-Please make sure you add your unique redirect URL to the **Trusted Site URLs** section of your parent site.
-
-4. Finally, to initiate the flow, use the SSO function provided by the Gigya shared interface
-
-```
-gigya.sso(mutableMapOf(), object : GigyaLoginCallback<MyAccount>() {
-            override fun onSuccess(obj: MyAccount?) {
-                //...
-            }
-
-            override fun onOperationCanceled() {
-                //...
-            }
-
-            override fun onError(error: GigyaError?) {
-               //...
-            }
-
-        })    
-```
+       	override fun onOperationCanceled() { 
+            	//... 
+        	} 
+ 
+        override fun onError(error: GigyaError?) { 
+             //... 
+        	} 
+ 
+    	}) 
+``` 
 
 The available parameters map is a baseline for adding additional parameters to the initial authentication endpoint.
-Currently supported parameters:
-•	"rp_context" - An available dynamic object which will be JSON serialized upon request. For more information.
+Currently supported parameters:  
+
+• “rp_context” - An available dynamic object that will be JSON serialized upon request. For more information, see https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/8b8d6fffe113457094a17701f63e3d6a/8f338042a52a47c886684475bede0167.html. 
+
 Usage example:
-
 ```kotlin
-gigya.sso(mutableMapOf("rp_context" to mutableMapOf("contextKey" to "contextValue"), 
-        object : GigyaLoginCallback<MyAccount>() {
-                override fun onSuccess(obj: MyAccount?) {
-                //...
-                }
 
-                 override fun onOperationCanceled() {
-                //...
-                 }
+gigya.sso(mutableMapOf("rp_context" to mutableMapOf("contextKey" to "contextValue"),  
+object : GigyaLoginCallback<MyAccount>() {
+override fun onSuccess(obj: MyAccount?) {
+//...
+}
 
-                 override fun onError(error: GigyaError?) {
-               //...
-                 }
-        })
-```
-**Note:**
-When using mobile SSO (single sign-on using the central login page), logging out using the SDK's logout method will only log the user out of the current API key used.
-The user will not be logged out of the other group sites.
+                 override fun onOperationCanceled() { 
+                //... 
+                 } 
+ 
+                 override fun onError(error: GigyaError?) { 
+               //... 
+                 } 
+        }))
+``` 
 
 ## FIDO/WebAuthn Authentication
 FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
