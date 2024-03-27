@@ -94,7 +94,7 @@ public class ApiService implements IApiService {
                 final GigyaApiResponse apiResponse = new GigyaApiResponse(jsonResponse);
                 final int apiErrorCode = apiResponse.getErrorCode();
 
-                GigyaLogger.debug(LOG_TAG, "GET_SDK_CONFIG with:\n" + jsonResponse);
+                GigyaLogger.debug(LOG_TAG, "SEND REQUEST with:\n" + jsonResponse);
 
                 // Check for timestamp skew error.
                 if (isRequestExpiredError(apiErrorCode)) {
@@ -149,12 +149,31 @@ public class ApiService implements IApiService {
 
     //region SDK CONFIG
 
+    private boolean refreshGmid() {
+        if (_config.getGmid() == null) {
+            return true;
+        }
+        long gmidRefreshTime = _config.getGmidRefreshTime() == 0 ?
+                _psService.getGmidRefreshTime() : _config.getGmidRefreshTime();
+        if (gmidRefreshTime == 0) {
+            return true;
+        }
+        long currentTimeInMillis = System.currentTimeMillis();
+        return gmidRefreshTime < currentTimeInMillis;
+    }
+
     @Override
     public void getSdkConfig(final IApiServiceResponse apiCallback) {
-        GigyaLogger.debug(LOG_TAG, "sending: " + GigyaDefinitions.API.API_GET_IDS);
-
         // Loading updated GMID/UCID to config.
         loadIds();
+
+        // Checking if we should request the GMID.
+        if (!refreshGmid()) {
+            GigyaLogger.debug(LOG_TAG, "GMID refresh time not passed");
+            return;
+        }
+        GigyaLogger.debug(LOG_TAG, "GMID refresh time passed - requesting ids");
+        GigyaLogger.debug(LOG_TAG, "sending: " + GigyaDefinitions.API.API_GET_IDS);
 
         final Map<String, Object> params = new HashMap<>();
         //params.put("include", "permissions,ids,appIds");
@@ -173,13 +192,16 @@ public class ApiService implements IApiService {
                     final String gmid = apiResponse.getField("gcid", String.class);
                     final String ucid = apiResponse.getField("ucid", String.class);
 
+                    // Get gmidRefresh time.
+                    final Long refreshTime = apiResponse.getField("refreshTime", Long.class);
+
                     if (gmid == null || ucid == null) {
                         // Parsing error.
                         apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
                         onConfigError();
                         return;
                     }
-                    onConfigResponse(gmid, ucid);
+                    onConfigResponse(gmid, ucid, refreshTime == null ? 0 : refreshTime);
                     apiCallback.onApiSuccess(apiResponse);
                 } else {
                     apiCallback.onApiError(GigyaError.fromResponse(apiResponse));
@@ -206,28 +228,15 @@ public class ApiService implements IApiService {
         }
     }
 
-    @Deprecated
-    private void onConfigResponse(GigyaConfigModel response) {
-        final String gmid = response.getIds().getGmid();
-        final String ucid = response.getIds().getUcid();
-
+    private void onConfigResponse(String gmid, String ucid, long refreshTime) {
         _config.setGmid(gmid);
         _config.setUcid(ucid);
+        _config.setGmidRefreshTime(refreshTime);
 
         // Update prefs.
         _psService.setGmid(gmid);
         _psService.setUcid(ucid);
-
-        release();
-    }
-
-    private void onConfigResponse(String gmid, String ucid) {
-        _config.setGmid(gmid);
-        _config.setUcid(ucid);
-
-        // Update prefs.
-        _psService.setGmid(gmid);
-        _psService.setUcid(ucid);
+        _psService.setGmidRefreshTime(refreshTime);
 
         release();
     }
