@@ -8,6 +8,7 @@ public class Config {
     private String apiKey;
     private String apiDomain;
     private String gmid;
+    private long gmidRefreshTime;
     private String ucid;
 
     @Deprecated
@@ -97,8 +98,17 @@ public class Config {
         return gmid;
     }
 
+    public long getGmidRefreshTime() {
+        return gmidRefreshTime;
+    }
+
     public void setGmid(String gmid) {
         this.gmid = gmid;
+    }
+
+
+    public void setGmidRefreshTime(long refreshTime) {
+        gmidRefreshTime = refreshTime;
     }
 
     public String getUcid() {

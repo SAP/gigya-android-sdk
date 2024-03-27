@@ -48,9 +48,13 @@ public interface IPersistenceService {
 
     void setUcid(String ucid);
 
+    void setGmidRefreshTime(long refreshTime);
+
     String getGmid();
 
     String getUcid();
+
+    long getGmidRefreshTime();
 
     void setCoreVersion(String version);
 

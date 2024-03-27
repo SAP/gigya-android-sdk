@@ -212,6 +212,11 @@ public class PersistenceService implements IPersistenceService {
     }
 
     @Override
+    public void setGmidRefreshTime(long refreshTime) {
+        getPrefs().edit().putLong(PREFS_GMID_RT, refreshTime).apply();
+    }
+
+    @Override
     public String getGmid() {
         return getPrefs().getString(PREFS_GMID, null);
     }
@@ -219,6 +224,11 @@ public class PersistenceService implements IPersistenceService {
     @Override
     public String getUcid() {
         return getPrefs().getString(PREFS_UCID, null);
+    }
+
+    @Override
+    public long getGmidRefreshTime() {
+        return getPrefs().getLong(PREFS_GMID_RT, 0);
     }
 
     @Override
@@ -294,6 +304,8 @@ public class PersistenceService implements IPersistenceService {
     private static final String PREFS_GMID = "GS_GMID";
 
     private static final String PREFS_UCID = "GS_UCID";
+
+    private static final String PREFS_GMID_RT = "GS_GMID_RT";
 
     private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 
