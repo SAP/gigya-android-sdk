@@ -168,7 +168,7 @@ public class ExternalProvider extends Provider {
     }
 
     @Override
-    public void login(Map<String, Object> loginParams, final String loginMode) {
+    public void login(final Map<String, Object> loginParams, final String loginMode) {
         if (wrapper == null) {
             //TODO: Error - missing provider.
             GigyaLogger.error(LOG_TAG, "Requested login from provider that cannot be instantiated");
@@ -177,11 +177,12 @@ public class ExternalProvider extends Provider {
 
         wrapper.login(_context, loginParams, new IProviderWrapperCallback() {
             @Override
-            public void onLogin(Map<String, Object> loginParams) {
+            public void onLogin(Map<String, Object> wrapperLoginParams) {
                 // Transform login parameters to relevant provider sessions.
-                String providerSessions = generateProviderSessions(name, loginParams);
+                String providerSessions = generateProviderSessions(name, wrapperLoginParams);
                 // Continue login flow giving success with correct parameters.
-                onLoginSuccess(loginParams, providerSessions, loginMode);
+                wrapperLoginParams.putAll(loginParams);
+                onLoginSuccess(wrapperLoginParams, providerSessions, loginMode);
             }
 
             @Override
