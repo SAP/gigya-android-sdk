@@ -30,22 +30,7 @@ public class SessionVerificationServiceTest extends BaseGigyaTest {
         );
     }
 
-    @Test
-    public void testGetInitialDelay() {
-        // Act
-        final long initialDelay = cSessionVerificationService.getInitialDelay();
-        // Assert
-        assertEquals(0, initialDelay);
-    }
 
-    @Test
-    public void testGetInitialDelayVolatile()  {
-        // Arrange
-        Whitebox.setInternalState(cSessionVerificationService, "_lastRequestTimestamp", System.currentTimeMillis() - 4000);
-        // Act
-        final long initialDelay = cSessionVerificationService.getInitialDelay();
-        // Assert
-        assertNotEquals(300000, initialDelay);
-        assertTrue(initialDelay < 300000);
-    }
+
+
 }

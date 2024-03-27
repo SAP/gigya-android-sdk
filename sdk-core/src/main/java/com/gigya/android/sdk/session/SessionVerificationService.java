@@ -75,7 +75,7 @@ public class SessionVerificationService implements ISessionVerificationService {
     }
 
     private long _verificationInterval;
-    private long _lastRequestTimestamp = 0;
+
     private Timer _timer;
 
     @Override
@@ -169,7 +169,6 @@ public class SessionVerificationService implements ISessionVerificationService {
             public void run() {
                 if (!Thread.currentThread().isInterrupted()) {
                     GigyaLogger.debug(LOG_TAG, "dispatching verifyLogin request " + new Date().toString());
-                    _lastRequestTimestamp = System.currentTimeMillis();
                     final Map<String, Object> params = new HashMap<>();
                     params.put("include", "identities-all,loginIDs,profile,email,data");
                     final GigyaApiRequest request = _requestFactory.create(
@@ -198,7 +197,7 @@ public class SessionVerificationService implements ISessionVerificationService {
                     });
                 }
             }
-        }, getInitialDelay(), _verificationInterval);
+        }, 0, _verificationInterval);
     }
 
     @Override
@@ -215,23 +214,6 @@ public class SessionVerificationService implements ISessionVerificationService {
     private void restart() {
         stop();
         start();
-    }
-
-    /**
-     * get the initial timer delay.
-     *
-     * @return Initial timer task delay in milliseconds.
-     */
-    @Override
-    public long getInitialDelay() {
-        if (_lastRequestTimestamp == 0) {
-            return _verificationInterval;
-        }
-        final long interval = _verificationInterval;
-        final long delta = System.currentTimeMillis() - _lastRequestTimestamp;
-        final long initialDelay = delta > interval ? 0 : interval - delta;
-        GigyaLogger.debug(LOG_TAG, "getInitialDelay: " + TimeUnit.MILLISECONDS.toSeconds(initialDelay) + " seconds");
-        return initialDelay;
     }
 
     @Override
