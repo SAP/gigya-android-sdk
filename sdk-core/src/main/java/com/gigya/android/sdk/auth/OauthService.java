@@ -23,7 +23,8 @@ public class OauthService implements IOauthService {
     private enum OauthApis {
         connect("oauth.connect"),
         authorize("oauth.authorize"),
-        token("oauth.token");
+        token("oauth.token"),
+        disconnect("oauth.disconnect");
 
         private final String api;
 
@@ -46,6 +47,22 @@ public class OauthService implements IOauthService {
         this.businessApiService.send(
                 OauthApis.connect.api,
                 new HashMap<String, Object>(),
+                headers,
+                GigyaApiResponse.class,
+                callback
+        );
+    }
+
+    @Override
+    public void disconnect(String regToken, String idToken, boolean ignoreApiQueue, final GigyaCallback<GigyaApiResponse> callback) {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("ignoreApiQueue", ignoreApiQueue);
+        params.put("regToken", regToken);
+        final HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + idToken);
+        this.businessApiService.send(
+                OauthApis.disconnect.api,
+                params,
                 headers,
                 GigyaApiResponse.class,
                 callback

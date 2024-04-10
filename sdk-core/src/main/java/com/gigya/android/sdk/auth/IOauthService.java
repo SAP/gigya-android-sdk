@@ -10,6 +10,8 @@ public interface IOauthService {
 
     void connect(String token, GigyaCallback<GigyaApiResponse> callback);
 
+    void disconnect(String regToken, String idToken, boolean ignoreApiQueue, GigyaCallback<GigyaApiResponse> callback);
+
     void authorize(String token, GigyaCallback<GigyaApiResponse> callback);
 
     void token(String token, GigyaCallback<GigyaApiResponse> callback);
