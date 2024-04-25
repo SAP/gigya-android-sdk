@@ -268,7 +268,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
      * @param gigyaLoginCallback Login response callback.
      */
     @Override
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
+    public void login(String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback) {
         params.put("provider", socialProvider);  // Needed for non native providers.
 
         IProvider provider = _providerFactory.providerFor(socialProvider, new ProviderCallback() {

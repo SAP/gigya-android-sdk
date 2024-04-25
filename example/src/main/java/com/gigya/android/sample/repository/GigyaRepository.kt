@@ -1,5 +1,6 @@
 package com.gigya.android.sample.repository
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest

@@ -494,11 +494,11 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Login given a specific 3rd party provider.
      *
-     * @param socialProvider     Selected providers {@link GigyaDefinitions.Providers.SocialProvider}.
+     * @param socialProvider     Selected providers {@link GigyaDefinitions.Providers.SocialProvider}. Can be any string as well.
      * @param params             Parameters map.
      * @param gigyaLoginCallback Login response callback.
      */
-    public void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
+    public void login(String socialProvider, Map<String, Object> params, GigyaLoginCallback<T> gigyaLoginCallback) {
         GigyaLogger.debug(LOG_TAG, "login: with provider = " + socialProvider);
         _businessApiService.login(socialProvider, params, gigyaLoginCallback);
     }
