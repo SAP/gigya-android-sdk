@@ -302,13 +302,35 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                                 // Remove old credential before submitting success response.
                                 final Map<String, Object> params = new HashMap<>();
-                                params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
+                                final String key = Base64.encodeToString(decoded, Base64.NO_WRAP).trim();
+                                params.put("credentialId", key);
                                 removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
                                     @Override
                                     public void onSuccess(GigyaApiResponse revokeResponse) {
                                         if (revokeResponse.getErrorCode() != 0) {
                                             GigyaLogger.error(LOG_TAG, "Response error: \n" + revokeResponse.asJson());
                                         }
+
+                                        final String idToken = revokeResponse.getField("idToken", String.class);
+                                        if (idToken == null) {
+                                            GigyaLogger.error(LOG_TAG, "revoke: Failed to fetch idToken.");
+                                            return;
+                                        }
+
+                                        // Disconnect
+                                        oauthService.disconnect(
+                                                key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                                                    @Override
+                                                    public void onSuccess(GigyaApiResponse obj) {
+                                                        GigyaLogger.debug(LOG_TAG, "revoke: disconnect success on old key.");
+                                                    }
+
+                                                    @Override
+                                                    public void onError(GigyaError error) {
+                                                        GigyaLogger.error(LOG_TAG, "revoke: disconnect failed on old key.");
+                                                    }
+                                                }
+                                        );
                                     }
 
                                     @Override
@@ -566,12 +588,35 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                 Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
 
         final Map<String, Object> params = new HashMap<>();
-        params.put("credentialId", Base64.encodeToString(decoded, Base64.NO_WRAP).trim());
+        final String key = Base64.encodeToString(decoded, Base64.NO_WRAP).trim();
+        params.put("credentialId", key);
         removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
                 clearPassKey();
-                gigyaCallback.onSuccess(obj);
+
+                final String idToken = obj.getField("idToken", String.class);
+                if (idToken == null) {
+                    GigyaLogger.error(LOG_TAG, "revoke: Failed to fetch idToken.");
+                    return;
+                }
+
+                // Disconnect
+                oauthService.disconnect(
+                        key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                            @Override
+                            public void onSuccess(GigyaApiResponse obj) {
+                                gigyaCallback.onSuccess(obj);
+                            }
+
+                            @Override
+                            public void onError(GigyaError error) {
+                                gigyaCallback.onError(error);
+                            }
+                        }
+                );
+
+
             }
 
             @Override
