@@ -64,7 +64,7 @@ class GigyaRepository {
         invalidateSession()
         if (dataCenter.isNullOrEmpty()) {
             gigyaInstance.init(apiKey)
-        } else if (cname != null){
+        } else if (cname != null) {
             gigyaInstance.init(apiKey, dataCenter, cname)
         } else {
             gigyaInstance.init(apiKey, dataCenter)
@@ -72,38 +72,48 @@ class GigyaRepository {
     }
 
     private fun populateTFARegistrationResolver(
-            provider: MutableList<TFAProviderModel>,
-            resolverFactory: TFAResolverFactory) {
+        provider: MutableList<TFAProviderModel>,
+        resolverFactory: TFAResolverFactory
+    ) {
         provider.forEach { model ->
             when (model.name) {
                 GigyaDefinitions.TFAProvider.LIVELINK, GigyaDefinitions.TFAProvider.PHONE -> {
-                    gigyaResolverMap["PHONE"] = resolverFactory.getResolverFor(RegisterPhoneResolver::class.java)
-                            as RegisterPhoneResolver<MyAccount>
+                    gigyaResolverMap["PHONE"] =
+                        resolverFactory.getResolverFor(RegisterPhoneResolver::class.java)
+                                as RegisterPhoneResolver<MyAccount>
                 }
+
                 GigyaDefinitions.TFAProvider.TOTP -> {
-                    gigyaResolverMap["TOTP"] = resolverFactory.getResolverFor(RegisterTOTPResolver::class.java)
-                            as RegisterTOTPResolver<MyAccount>
+                    gigyaResolverMap["TOTP"] =
+                        resolverFactory.getResolverFor(RegisterTOTPResolver::class.java)
+                                as RegisterTOTPResolver<MyAccount>
                 }
             }
         }
     }
 
     private fun populateTFAVerificationResolver(
-            provider: MutableList<TFAProviderModel>,
-            resolverFactory: TFAResolverFactory) {
+        provider: MutableList<TFAProviderModel>,
+        resolverFactory: TFAResolverFactory
+    ) {
         provider.forEach { model ->
             when (model.name) {
                 GigyaDefinitions.TFAProvider.EMAIL -> {
-                    gigyaResolverMap["EMAIL"] = resolverFactory.getResolverFor(RegisteredEmailsResolver::class.java)
-                            as RegisteredEmailsResolver<MyAccount>
+                    gigyaResolverMap["EMAIL"] =
+                        resolverFactory.getResolverFor(RegisteredEmailsResolver::class.java)
+                                as RegisteredEmailsResolver<MyAccount>
                 }
+
                 GigyaDefinitions.TFAProvider.LIVELINK, GigyaDefinitions.TFAProvider.PHONE -> {
-                    gigyaResolverMap["PHONE"] = resolverFactory.getResolverFor(RegisteredPhonesResolver::class.java)
-                            as RegisteredPhonesResolver<MyAccount>
+                    gigyaResolverMap["PHONE"] =
+                        resolverFactory.getResolverFor(RegisteredPhonesResolver::class.java)
+                                as RegisteredPhonesResolver<MyAccount>
                 }
+
                 GigyaDefinitions.TFAProvider.TOTP -> {
-                    gigyaResolverMap["TOTP"] = resolverFactory.getResolverFor(VerifyTOTPResolver::class.java)
-                            as VerifyTOTPResolver<MyAccount>
+                    gigyaResolverMap["TOTP"] =
+                        resolverFactory.getResolverFor(VerifyTOTPResolver::class.java)
+                                as VerifyTOTPResolver<MyAccount>
                 }
             }
         }
@@ -143,7 +153,10 @@ class GigyaRepository {
                     }
                 }
 
-                override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
+                override fun onConflictingAccounts(
+                    response: GigyaApiResponse,
+                    resolver: ILinkAccountsResolver
+                ) {
                     Log.d(TAG, "loginFlow: emmit Conflicting account interruption")
                     val res = GigyaRepoResponse()
                     res.json = response.asJson()
@@ -152,30 +165,34 @@ class GigyaRepository {
                     trySend(res)
                 }
 
-                override fun onPendingTwoFactorRegistration(response: GigyaApiResponse,
-                                                            inactiveProviders: MutableList<TFAProviderModel>,
-                                                            resolverFactory: TFAResolverFactory) {
+                override fun onPendingTwoFactorRegistration(
+                    response: GigyaApiResponse,
+                    inactiveProviders: MutableList<TFAProviderModel>,
+                    resolverFactory: TFAResolverFactory
+                ) {
                     Log.d(TAG, "loginFlow: emmit TFA registration interruption")
                     val res = GigyaRepoResponse()
                     val tfaInterruption = TFAInterruption(
-                            TFAInterruptionType.REGISTRATION,
-                            response,
-                            inactiveProviders
+                        TFAInterruptionType.REGISTRATION,
+                        response,
+                        inactiveProviders
                     )
                     res.tfa = tfaInterruption
                     populateTFARegistrationResolver(inactiveProviders, resolverFactory)
                     trySend(res)
                 }
 
-                override fun onPendingTwoFactorVerification(response: GigyaApiResponse,
-                                                            activeProviders: MutableList<TFAProviderModel>,
-                                                            resolverFactory: TFAResolverFactory) {
+                override fun onPendingTwoFactorVerification(
+                    response: GigyaApiResponse,
+                    activeProviders: MutableList<TFAProviderModel>,
+                    resolverFactory: TFAResolverFactory
+                ) {
                     Log.d(TAG, "loginFlow: emmit TFA verification interruption")
                     val res = GigyaRepoResponse()
                     val tfaInterruption = TFAInterruption(
-                            TFAInterruptionType.VERIFICATION,
-                            response,
-                            activeProviders
+                        TFAInterruptionType.VERIFICATION,
+                        response,
+                        activeProviders
                     )
                     populateTFAVerificationResolver(activeProviders, resolverFactory)
                     res.tfa = tfaInterruption
@@ -197,7 +214,11 @@ class GigyaRepository {
         }
     }
 
-    fun registerWith(loginID: String, password: String, params: MutableMap<String, Any>): Flow<GigyaRepoResponse> {
+    fun registerWith(
+        loginID: String,
+        password: String,
+        params: MutableMap<String, Any>
+    ): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.register(loginID, password, params, callback)
         }
@@ -209,42 +230,44 @@ class GigyaRepository {
         }
     }
 
-    fun socialLoginWith(providers: MutableList<String>) :  Flow<GigyaRepoResponse> {
+    fun socialLoginWith(providers: MutableList<String>): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.socialLoginWith(providers, mutableMapOf(), callback)
         }
     }
 
-    fun ssoLogin(map: MutableMap<String, Any>) : Flow<GigyaRepoResponse> {
+    fun ssoLogin(map: MutableMap<String, Any>): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
             gigyaInstance.sso(map, callback)
         }
     }
 
     @UiThread
-    suspend fun webAuthnLogin(sessionExpiration: Int?,
-            resultHandler: ActivityResultLauncher<IntentSenderRequest>): GigyaRepoResponse {
+    suspend fun webAuthnLogin(
+        sessionExpiration: Int?,
+        resultHandler: ActivityResultLauncher<IntentSenderRequest>
+    ): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
             val params = mutableMapOf<String, Any>("sessionExpiration" to sessionExpiration!!)
             gigyaInstance.WebAuthn()
-                    .login(resultHandler, params, object : GigyaLoginCallback<MyAccount>() {
+                .login(resultHandler, params, object : GigyaLoginCallback<MyAccount>() {
 
-                        override fun onSuccess(obj: MyAccount?) {
-                            obj?.let {
-                                res.account = it
-                                continuation.resume(res)
-                            }
+                    override fun onSuccess(obj: MyAccount?) {
+                        obj?.let {
+                            res.account = it
+                            continuation.resume(res)
                         }
+                    }
 
-                        override fun onError(error: GigyaError?) {
-                            error?.let {
-                                res.error = error
-                                continuation.resume(res)
-                            }
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
                         }
+                    }
 
-                    })
+                })
         }
     }
 
@@ -252,21 +275,22 @@ class GigyaRepository {
     suspend fun webAuthnRegister(resultHandler: ActivityResultLauncher<IntentSenderRequest>): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
-            gigyaInstance.WebAuthn().register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
-                override fun onSuccess(obj: GigyaApiResponse?) {
-                    obj?.let {
-                        res.json = obj.asJson()
-                        continuation.resume(res)
+            gigyaInstance.WebAuthn()
+                .register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
+                    override fun onSuccess(obj: GigyaApiResponse?) {
+                        obj?.let {
+                            res.json = obj.asJson()
+                            continuation.resume(res)
+                        }
                     }
-                }
 
-                override fun onError(error: GigyaError?) {
-                    error?.let {
-                        res.error = error
-                        continuation.resume(res)
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
                     }
-                }
-            })
+                })
         }
     }
 
@@ -317,8 +341,10 @@ class GigyaRepository {
                     }
                 }
 
-                override fun onPendingOTPVerification(response: GigyaApiResponse,
-                                                      resolver: IGigyaOtpResult) {
+                override fun onPendingOTPVerification(
+                    response: GigyaApiResponse,
+                    resolver: IGigyaOtpResult
+                ) {
                     Log.d(TAG, "otpLoginFlow: emmit interruption")
                     gigyaResolverMap["OTP"] = resolver
                     val res = GigyaRepoResponse()
@@ -348,9 +374,14 @@ class GigyaRepository {
         return suspendCoroutine { continuation ->
             val resolver = gigyaResolverMap["TOTP"]
             resolver?.let {
-                (resolver as RegisterTOTPResolver<MyAccount>).registerTOTP(object : RegisterTOTPResolver.ResultCallback {
-                    override fun onQRCodeAvailable(qrCode: String, verifyTOTPResolver: IVerifyTOTPResolver?) {
-                        gigyaResolverMap["TOTP"] = verifyTOTPResolver as VerifyTOTPResolver<MyAccount>
+                (resolver as RegisterTOTPResolver<MyAccount>).registerTOTP(object :
+                    RegisterTOTPResolver.ResultCallback {
+                    override fun onQRCodeAvailable(
+                        qrCode: String,
+                        verifyTOTPResolver: IVerifyTOTPResolver?
+                    ) {
+                        gigyaResolverMap["TOTP"] =
+                            verifyTOTPResolver as VerifyTOTPResolver<MyAccount>
                         res.optional = qrCode
                         continuation.resume(res)
                     }
@@ -374,25 +405,25 @@ class GigyaRepository {
             val resolver = gigyaResolverMap["TOTP"]
             resolver?.let {
                 (resolver as VerifyTOTPResolver<MyAccount>).verifyTOTPCode(
-                        code, true, object : VerifyTOTPResolver.ResultCallback {
+                    code, true, object : VerifyTOTPResolver.ResultCallback {
 
-                    override fun onResolved() {
-                        continuation.resume(res)
-                    }
-
-                    override fun onInvalidCode() {
-                        res.error = GigyaError(-1, "Invalid code")
-                        continuation.resume(res)
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error?.let {
-                            res.error = error
+                        override fun onResolved() {
                             continuation.resume(res)
                         }
-                    }
 
-                }
+                        override fun onInvalidCode() {
+                            res.error = GigyaError(-1, "Invalid code")
+                            continuation.resume(res)
+                        }
+
+                        override fun onError(error: GigyaError?) {
+                            error?.let {
+                                res.error = error
+                                continuation.resume(res)
+                            }
+                        }
+
+                    }
                 )
             }
         }
@@ -409,6 +440,26 @@ class GigyaRepository {
                         continuation.resume(res)
                     }
 
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+
+            })
+        }
+    }
+
+    suspend fun getSSOExchangeToken(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.getAuthCode(object : GigyaCallback<String>() {
+                override fun onSuccess(code: String?) {
+                    res.optional = code
+                    continuation.resume(res)
                 }
 
                 override fun onError(error: GigyaError?) {
@@ -544,13 +595,14 @@ open class GigyaRepoResponse {
 }
 
 data class LinkInterruption(
-        var accounts: ConflictingAccounts
+    var accounts: ConflictingAccounts
 )
 
 data class TFAInterruption(
-        var type: TFAInterruptionType,
-        var originalResponse: GigyaApiResponse,
-        var providers: MutableList<TFAProviderModel>)
+    var type: TFAInterruptionType,
+    var originalResponse: GigyaApiResponse,
+    var providers: MutableList<TFAProviderModel>
+)
 
 
 enum class TFAInterruptionType {

@@ -50,6 +50,8 @@ public class GigyaDefinitions {
         public static final String API_IS_SESSION_VALID = "accounts.session.verify";
 
         public static final String API_AUTH_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
+
+        public static final String API_TOKEN_EXCHANGE = "accounts.identity.token.exchange";
     }
 
     public static class SessionEncryption {

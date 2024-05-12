@@ -862,6 +862,23 @@ public class Gigya<T extends GigyaAccount> {
 
     //region MISC
 
+    public void getAuthCode(final GigyaCallback<String> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAuthCode: ");
+        _businessApiService.getAuthCode(new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                final String code = obj.getField("code", String.class);
+                gigyaCallback.onSuccess(code);
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.debug(LOG_TAG, "Failed to getAuthCode");
+                gigyaCallback.onError(error);
+            }
+        });
+    }
+
     /**
      * This method checks whether a certain login identifier (username / email) is available.
      * A login identifier is available if it is unique in this user management system.
