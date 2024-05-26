@@ -1,28 +1,34 @@
 package com.gigya.android.sample.providers;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.Credential;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.ClearCredentialException;
+import androidx.credentials.exceptions.GetCredentialException;
 
 import com.gigya.android.sample.R;
-import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.providers.external.IProviderWrapper;
 import com.gigya.android.sdk.providers.external.IProviderWrapperCallback;
 import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.ui.HostActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Google sign in wrapper class.
@@ -32,12 +38,18 @@ import java.util.Map;
 public class GoogleProviderWrapper extends ProviderWrapper implements IProviderWrapper {
 
     private static final int RC_SIGN_IN = 0;
-    private GoogleSignInClient _googleClient;
+
+    private final CredentialManager _credentialsManager;
+
+    private final Executor _executor;
+
     final Context context;
 
     public GoogleProviderWrapper(Context context) {
         super(context, R.string.google_client_id);
         this.context = context;
+        _credentialsManager = CredentialManager.create(context);
+        _executor = ContextCompat.getMainExecutor(context);
     }
 
     @Override
@@ -46,14 +58,22 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
             callback.onFailed("Missing server client id. Check manifest implementation");
             return;
         }
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode(pId)
-                .requestEmail()
-                .build();
-        _googleClient = GoogleSignIn.getClient(context, gso);
-
         // Not using cached account. Server auth code can be used only once.
         authenticate(params, callback);
+    }
+
+    private void handleSignIn(GetCredentialResponse getCredentialResponse, final Map<String, Object> params, final IProviderWrapperCallback callback) {
+        Credential credential = getCredentialResponse.getCredential();
+        if (credential.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
+            GoogleIdTokenCredential googleIdTokenCredential =
+                    GoogleIdTokenCredential.createFrom(credential.getData());
+            params.put("idToken", googleIdTokenCredential.getIdToken());
+            callback.onLogin(params);
+        } else {
+            Log.e("GoogleProviderWrapper", "Unexpected type of credential");
+            // ERROR.
+            callback.onFailed("Unexpected type of credential");
+        }
     }
 
     private void authenticate(final Map<String, Object> params, final IProviderWrapperCallback callback) {
@@ -61,65 +81,60 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
 
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                Intent signInIntent = _googleClient.getSignInIntent();
-                activity.startActivityForResult(signInIntent, RC_SIGN_IN);
-            }
+                GetSignInWithGoogleOption ss = new GetSignInWithGoogleOption.Builder(pId)
+                        .build();
 
-            @Override
-            public void onActivityResult(AppCompatActivity activity, int requestCode, int resultCode, @Nullable Intent data) {
-                if (requestCode == RC_SIGN_IN) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    handleSignInResult(params, activity, task, callback);
-                }
+                GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(pId)
+                        .build();
+
+                GetCredentialRequest request = new GetCredentialRequest.Builder()
+                        .addCredentialOption(ss)
+                        .build();
+
+                credentialsSignIn(activity, params, request, callback);
             }
         });
     }
 
-    private void handleSignInResult(final Map<String, Object> loginParams, AppCompatActivity activity, Task<GoogleSignInAccount> completedTask, final IProviderWrapperCallback callback) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            if (account == null) {
-                callback.onFailed("Account unavailable");
-            } else {
-                /* Fetch server auth code */
-                final String authCode = account.getServerAuthCode();
-                if (authCode == null) {
-                    callback.onFailed("Id token no available");
-                } else {
-                    final Map<String, Object> loginMap = new HashMap<>();
-                    loginMap.put("code", authCode);
-                    callback.onLogin(loginMap);
+    private void credentialsSignIn(AppCompatActivity activity, final Map<String, Object> params, GetCredentialRequest request, final IProviderWrapperCallback callback) {
+        _credentialsManager.getCredentialAsync(activity, request,
+                new CancellationSignal(),
+                _executor,
+                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                    @Override
+                    public void onResult(GetCredentialResponse getCredentialResponse) {
+                        handleSignIn(getCredentialResponse, params, callback);
+                    }
+
+                    @Override
+                    public void onError(@NonNull GetCredentialException e) {
+                        Log.d("GoogleProviderWrapper", "login exception: " + e);
+                        callback.onFailed(e.getLocalizedMessage());
+                    }
                 }
-            }
-            activity.finish();
-        } catch (ApiException e) {
-            final int exceptionStatusCode = e.getStatusCode();
-            switch (exceptionStatusCode) {
-                case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                    callback.onCanceled();
-                    break;
-                case GoogleSignInStatusCodes.SIGN_IN_FAILED:
-                default:
-                    callback.onFailed(GoogleSignInStatusCodes.getStatusCodeString(exceptionStatusCode));
-                    break;
-            }
-            activity.finish();
-        }
+        );
     }
 
     @Override
     public void logout() {
-        if (_googleClient == null) {
-            if (pId == null) {
-                GigyaLogger.error("GoogleLoginProvider", "provider client id unavailable for logout");
-                return;
-            }
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestServerAuthCode(pId)
-                    .requestEmail()
-                    .build();
-            _googleClient = GoogleSignIn.getClient(context, gso);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ClearCredentialStateRequest request = new ClearCredentialStateRequest();
+            _credentialsManager.clearCredentialStateAsync(request, new CancellationSignal(),
+                    _executor,
+                    new CredentialManagerCallback<Void, ClearCredentialException>() {
+                        @Override
+                        public void onResult(Void unused) {
+                            Log.d("GoogleProviderWrapper", "logout success");
+                        }
+
+                        @Override
+                        public void onError(@NonNull ClearCredentialException e) {
+                            Log.d("GoogleProviderWrapper", "logout exception: " + e);
+                        }
+                    }
+            );
         }
-        _googleClient.signOut();
     }
 }
