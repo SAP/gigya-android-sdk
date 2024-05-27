@@ -3,6 +3,7 @@ package com.gigya.android.sample.providers;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,7 +28,10 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -67,8 +71,9 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
         if (credential.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
             GoogleIdTokenCredential googleIdTokenCredential =
                     GoogleIdTokenCredential.createFrom(credential.getData());
-            params.put("idToken", googleIdTokenCredential.getIdToken());
-            callback.onLogin(params);
+//            params.put("idToken", googleIdTokenCredential.getIdToken());
+//            callback.onLogin(params);
+            callback.onCanceled();
         } else {
             Log.e("GoogleProviderWrapper", "Unexpected type of credential");
             // ERROR.
@@ -81,16 +86,16 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
 
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
-                GetSignInWithGoogleOption ss = new GetSignInWithGoogleOption.Builder(pId)
-                        .build();
 
                 GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
                         .setFilterByAuthorizedAccounts(false)
+                        .setAutoSelectEnabled(true)
+                        .setNonce(generateNonce())
                         .setServerClientId(pId)
                         .build();
 
                 GetCredentialRequest request = new GetCredentialRequest.Builder()
-                        .addCredentialOption(ss)
+                        .addCredentialOption(googleIdOption)
                         .build();
 
                 credentialsSignIn(activity, params, request, callback);
@@ -106,12 +111,14 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                     @Override
                     public void onResult(GetCredentialResponse getCredentialResponse) {
                         handleSignIn(getCredentialResponse, params, callback);
+                        activity.finish();
                     }
 
                     @Override
                     public void onError(@NonNull GetCredentialException e) {
                         Log.d("GoogleProviderWrapper", "login exception: " + e);
                         callback.onFailed(e.getLocalizedMessage());
+                        activity.finish();
                     }
                 }
         );
@@ -136,5 +143,12 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                     }
             );
         }
+    }
+
+    private String generateNonce() {
+        byte[] nonceBytes = new byte[40];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(nonceBytes);
+        return Base64.encodeToString(nonceBytes, Base64.URL_SAFE);
     }
 }
