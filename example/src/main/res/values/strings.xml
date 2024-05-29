@@ -6,6 +6,7 @@
     <string name="title_settings_fragment">@string/settings</string>
     <string name="title_otp_login_fragment">OTP login</string>
     <string name="title_tfa_fragment">2 Factor Authentication required</string>
+    <string name="title_sso_exchange_example">SSO Exchange</string>
 
     <string name="enter_credentials">Enter Credentials</string>
     <string name="user_registration">User registration</string>
@@ -77,6 +78,8 @@
     <string name="wechat_app_id">YOUR-WECHAT-APP-ID-HERE</string>
 
     <string name="external_provider_path">providers</string>
+    <string name="hosted_page_url">hosted page url</string>
+    <string name="exchange_session">Exchange Session</string>
 
 
 </resources>

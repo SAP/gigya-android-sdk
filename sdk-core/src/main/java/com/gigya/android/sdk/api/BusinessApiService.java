@@ -673,6 +673,31 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    @Override
+    public void getAuthCode(final GigyaCallback<GigyaApiResponse> callback) {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("resource", "urn:gigya:account");
+        params.put("subject_token_type", "urn:gigya:token-type:mobile");
+        params.put("response_type", "code");
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_TOKEN_EXCHANGE,
+                params, RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                if (response.getErrorCode() == 0) {
+                    callback.onSuccess(response);
+                } else {
+                    callback.onError(GigyaError.fromResponse(response));
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                callback.onError(gigyaError);
+            }
+        });
+    }
+
     // Non documented. For SDK use only.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
