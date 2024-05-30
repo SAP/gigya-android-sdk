@@ -127,6 +127,18 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getSSOExchangeToken(success: (String) -> Unit, error: (GigyaError?) -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.getSSOExchangeToken()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            val code = result.optional as String
+            success(code)
+        }
+    }
+
     fun removeConnection(provider: String, error: (GigyaError?) -> Unit, success: () -> Unit) {
         viewModelScope.launch {
             val result = gigyaRepository.removeConnection(provider)

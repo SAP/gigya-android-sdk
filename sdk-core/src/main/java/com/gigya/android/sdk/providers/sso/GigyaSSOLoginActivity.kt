@@ -19,7 +19,10 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
 
         fun present(context: Context, uri: String?, lifecycleCallback: SSOLoginActivityCallback) {
             val intent = Intent(context, GigyaSSOLoginActivity::class.java)
-            intent.putExtra(EXTRA_LIFECYCLE_CALLBACK_ID, Presenter.addSSOLoginLifecycleCallback(lifecycleCallback))
+            intent.putExtra(
+                EXTRA_LIFECYCLE_CALLBACK_ID,
+                Presenter.addSSOLoginLifecycleCallback(lifecycleCallback)
+            )
             intent.putExtra(EXTRA_URI, uri)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION
             context.startActivity(intent)
@@ -94,9 +97,21 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        pausedState = false;
-        val uri: Uri = intent?.data as Uri
+        pausedState = false
+
+        if (intent == null) {
+            GigyaLogger.debug(LOG_TAG, "onNewIntent: null intent - flow cancelled.")
+            _ssoLoginLifecycleCallbacks?.onCancelled()
+        }
+
+        if (intent!!.data == null) {
+            GigyaLogger.debug(LOG_TAG, "onNewIntent: null intent.data - flow cancelled.")
+            _ssoLoginLifecycleCallbacks?.onCancelled()
+        }
+
+        val uri: Uri = intent.data as Uri
         _ssoLoginLifecycleCallbacks?.onResult(this, uri)
+
         finish()
     }
 

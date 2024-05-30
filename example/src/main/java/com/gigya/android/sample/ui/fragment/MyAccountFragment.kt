@@ -290,6 +290,10 @@ class MyAccountFragment : BaseExampleFragment() {
             showNativeScreenSets()
         }
 
+        binding.ssoExchangeInitiate.setOnClickListener {
+            initiateSSOExchange()
+        }
+
     }
 
     override fun updateBiometricUiState() {
@@ -339,6 +343,26 @@ class MyAccountFragment : BaseExampleFragment() {
                 }
 
             })
+    }
+
+    private fun initiateSSOExchange() {
+        viewModel.getSSOExchangeToken(
+            success = { code ->
+                val url = "${
+                    binding.ssoExchangeEditText.text.toString().trim()
+                }?authCode=$code&gig_actions=sso.login"
+                val fragment = SSOExchangeFragment.newInstance()
+                val arguments = Bundle()
+                arguments.putString("url", url)
+                fragment.arguments = arguments
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, fragment)?.commit()
+            },
+            error = {
+                // Display error.
+                toastIt("Error: ${it?.localizedMessage}")
+            },
+        )
     }
 
 }

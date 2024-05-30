@@ -53,8 +53,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_marginBottom="80dp"
         android:layout_height="match_parent"
+        android:layout_marginBottom="80dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,10 +68,10 @@
                 android:id="@+id/title_account_uid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:layout_marginTop="12dp"
                 android:text="@string/account_uid"
                 android:textSize="16sp"
-                android:layout_marginStart="12dp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -79,9 +79,9 @@
 
             <TextView
                 android:id="@+id/uid_text"
-                android:layout_marginStart="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title_account_uid" />
@@ -114,8 +114,8 @@
                 android:id="@+id/add_remove_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/add_remove_connection_provider"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -248,6 +248,39 @@
                 android:textColor="@android:color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/account_native_screensets_name_edit" />
+
+            <View
+                android:id="@+id/ac_sep3"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/sap_blue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/account_nss" />
+
+            <EditText
+                android:id="@+id/sso_exchange_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:hint="@string/hosted_page_url"
+                android:text=""
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ac_sep3" />
+
+            <Button
+                android:id="@+id/sso_exchange_initiate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/sap_gold"
+                android:text="@string/exchange_session"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="@id/sso_exchange_edit_text"
+                app:layout_constraintTop_toBottomOf="@id/sso_exchange_edit_text" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

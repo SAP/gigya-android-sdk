@@ -78,4 +78,6 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void verifySession(GigyaCallback<GigyaApiResponse> loginCallback);
 
+    void getAuthCode(final GigyaCallback<GigyaApiResponse> callback);
+
 }

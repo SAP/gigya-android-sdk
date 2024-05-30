@@ -51,7 +51,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "7.0.10";
+    public static final String VERSION = "7.0.11";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -861,6 +861,23 @@ public class Gigya<T extends GigyaAccount> {
     //endregion
 
     //region MISC
+
+    public void getAuthCode(final GigyaCallback<String> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getAuthCode: ");
+        _businessApiService.getAuthCode(new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                final String code = obj.getField("code", String.class);
+                gigyaCallback.onSuccess(code);
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                GigyaLogger.debug(LOG_TAG, "Failed to getAuthCode");
+                gigyaCallback.onError(error);
+            }
+        });
+    }
 
     /**
      * This method checks whether a certain login identifier (username / email) is available.
