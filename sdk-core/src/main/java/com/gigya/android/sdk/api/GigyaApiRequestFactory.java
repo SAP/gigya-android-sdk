@@ -104,6 +104,7 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             headers = new HashMap<>();
         }
         headers.put("apikey", _config.getApiKey());
+        headers.put("User-Agent", System.getProperty("http.agent"));
 
         // Add global configuration request parameters.
         addAccountConfigParameters(api, urlParams);
