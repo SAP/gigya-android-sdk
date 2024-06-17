@@ -17,13 +17,15 @@ class NssLinkAccountAction<T : GigyaAccount>(private val businessApi: IBusinessA
 
     companion object {
         const val LOG_TAG = "NssLinkAccountAction"
+
+        const val CONFLICTING_ACCOUNT_KEY = "conflictingAccount"
     }
 
     override fun initialize(expressions: Map<String, String>, result: MethodChannel.Result) {
         // Inject conflicting account data back to engine.
         flowDelegate?.getResolver()?.let { nssResolver ->
             nssResolver.refined<NssResolver<LinkAccountsResolver<T>>> { linkAccountResolver ->
-                val data = mapOf<String, Any>("conflictingAccounts" to linkAccountResolver.resolver.conflictingAccounts.serializeToMap(flowDelegate!!.getGson()))
+                val data = mapOf<String, Any>(CONFLICTING_ACCOUNT_KEY to linkAccountResolver.resolver.conflictingAccounts.serializeToMap(flowDelegate!!.getGson()))
                 doExpressions(data, expressions, result)
             }
         }
