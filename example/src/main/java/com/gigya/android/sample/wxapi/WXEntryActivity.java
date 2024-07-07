@@ -11,6 +11,7 @@ import com.gigya.android.sample.providers.WechatProviderWrapper;
 import com.gigya.android.sample.model.MyAccount;
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.providers.external.ExternalProvider;
+import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
@@ -59,7 +60,7 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
 
     @Nullable
     private WechatProviderWrapper getProvider() {
-        ExternalProvider provider = (ExternalProvider) Gigya.getInstance(MyAccount.class).getUsedSocialProvider("wechat");
-        return (WechatProviderWrapper) provider.getWrapper();
+        ProviderWrapper providerWrapper = (ProviderWrapper) Gigya.getInstance(MyAccount.class).getUsedSocialProviderWrapper("wechat");
+        return (WechatProviderWrapper) providerWrapper;
     }
 }
