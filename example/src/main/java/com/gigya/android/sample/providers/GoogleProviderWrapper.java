@@ -18,8 +18,10 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.NoCredentialException;
 
 import com.gigya.android.sample.R;
+import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.providers.external.IProviderWrapper;
 import com.gigya.android.sdk.providers.external.IProviderWrapperCallback;
 import com.gigya.android.sdk.providers.external.ProviderWrapper;
@@ -63,7 +65,7 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
             return;
         }
         // Not using cached account. Server auth code can be used only once.
-        authenticate(params, callback);
+        authenticate(params, callback, true);
     }
 
     private void handleSignIn(GetCredentialResponse getCredentialResponse, final Map<String, Object> params, final IProviderWrapperCallback callback) {
@@ -71,26 +73,27 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
         if (credential.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
             GoogleIdTokenCredential googleIdTokenCredential =
                     GoogleIdTokenCredential.createFrom(credential.getData());
-//            params.put("idToken", googleIdTokenCredential.getIdToken());
-//            callback.onLogin(params);
+            params.put("idToken", googleIdTokenCredential.getIdToken());
+            callback.onLogin(params);
             callback.onCanceled();
         } else {
-            Log.e("GoogleProviderWrapper", "Unexpected type of credential");
+            GigyaLogger.error("GoogleProviderWrapper", "Unexpected type of credential");
             // ERROR.
             callback.onFailed("Unexpected type of credential");
         }
     }
 
-    private void authenticate(final Map<String, Object> params, final IProviderWrapperCallback callback) {
+    private void authenticate(final Map<String, Object> params,
+                              final IProviderWrapperCallback callback,
+                              boolean setFilterByAuthorizedAccounts) {
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
 
             @Override
             public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
 
                 GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
+                        .setFilterByAuthorizedAccounts(setFilterByAuthorizedAccounts)
                         .setAutoSelectEnabled(true)
-                        .setNonce(generateNonce())
                         .setServerClientId(pId)
                         .build();
 
@@ -98,12 +101,16 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                         .addCredentialOption(googleIdOption)
                         .build();
 
-                credentialsSignIn(activity, params, request, callback);
+                credentialsSignIn(activity, params, request, setFilterByAuthorizedAccounts, callback);
             }
         });
     }
 
-    private void credentialsSignIn(AppCompatActivity activity, final Map<String, Object> params, GetCredentialRequest request, final IProviderWrapperCallback callback) {
+    private void credentialsSignIn(AppCompatActivity activity,
+                                   final Map<String, Object> params,
+                                   GetCredentialRequest request,
+                                   boolean setFilterByAuthorizedAccounts,
+                                   final IProviderWrapperCallback callback) {
         _credentialsManager.getCredentialAsync(activity, request,
                 new CancellationSignal(),
                 _executor,
@@ -116,9 +123,13 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
 
                     @Override
                     public void onError(@NonNull GetCredentialException e) {
-                        Log.d("GoogleProviderWrapper", "login exception: " + e);
-                        callback.onFailed(e.getLocalizedMessage());
-                        activity.finish();
+                        GigyaLogger.debug("GoogleProviderWrapper", "login exception: " + e);
+                        if (e instanceof NoCredentialException && setFilterByAuthorizedAccounts) {
+                            authenticate(params, callback, false);
+                        } else {
+                            callback.onFailed(e.getLocalizedMessage());
+                            activity.finish();
+                        }
                     }
                 }
         );
@@ -126,29 +137,21 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
 
     @Override
     public void logout() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ClearCredentialStateRequest request = new ClearCredentialStateRequest();
-            _credentialsManager.clearCredentialStateAsync(request, new CancellationSignal(),
-                    _executor,
-                    new CredentialManagerCallback<Void, ClearCredentialException>() {
-                        @Override
-                        public void onResult(Void unused) {
-                            Log.d("GoogleProviderWrapper", "logout success");
-                        }
-
-                        @Override
-                        public void onError(@NonNull ClearCredentialException e) {
-                            Log.d("GoogleProviderWrapper", "logout exception: " + e);
-                        }
+        ClearCredentialStateRequest request = new ClearCredentialStateRequest();
+        _credentialsManager.clearCredentialStateAsync(request, new CancellationSignal(),
+                _executor,
+                new CredentialManagerCallback<Void, ClearCredentialException>() {
+                    @Override
+                    public void onResult(Void unused) {
+                        GigyaLogger.debug("GoogleProviderWrapper", "logout success");
                     }
-            );
-        }
+
+                    @Override
+                    public void onError(@NonNull ClearCredentialException e) {
+                        GigyaLogger.debug("GoogleProviderWrapper", "logout exception: " + e);
+                    }
+                }
+        );
     }
 
-    private String generateNonce() {
-        byte[] nonceBytes = new byte[40];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(nonceBytes);
-        return Base64.encodeToString(nonceBytes, Base64.URL_SAFE);
-    }
 }
