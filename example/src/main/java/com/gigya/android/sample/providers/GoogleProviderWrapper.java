@@ -3,8 +3,6 @@ package com.gigya.android.sample.providers;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import android.util.Base64;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,13 +25,9 @@ import com.gigya.android.sdk.providers.external.IProviderWrapperCallback;
 import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -75,7 +69,6 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                     GoogleIdTokenCredential.createFrom(credential.getData());
             params.put("idToken", googleIdTokenCredential.getIdToken());
             callback.onLogin(params);
-            callback.onCanceled();
         } else {
             GigyaLogger.error("GoogleProviderWrapper", "Unexpected type of credential");
             // ERROR.
