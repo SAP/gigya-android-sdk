@@ -82,6 +82,10 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
+
+        // ApiKey with capital letter is not allowed. Key is added by default.
+        // Having both lower and uppercased key will result in server errors.
+        urlParams.remove("ApiKey");
         urlParams.put("apiKey", _config.getApiKey());
 
         // Add nonce.
@@ -104,7 +108,11 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             headers = new HashMap<>();
         }
         headers.put("apikey", _config.getApiKey());
-        headers.put("User-Agent", System.getProperty("http.agent"));
+        if (!headers.containsKey("User-Agent")) {
+            // Add default device user agent. If User-Agent was specifically set in the request,
+            // it will not be added.
+            headers.put("User-Agent", System.getProperty("http.agent"));
+        }
 
         // Add global configuration request parameters.
         addAccountConfigParameters(api, urlParams);
