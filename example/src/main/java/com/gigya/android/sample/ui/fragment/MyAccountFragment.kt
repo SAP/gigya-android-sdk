@@ -82,7 +82,9 @@ class MyAccountFragment : BaseExampleFragment() {
     }
 
     private val nameObserver = Observer<MyAccount> { account ->
-        binding.uidText.text = account.uid
+        if (account != null) {
+            binding.uidText.text = account.uid ?: ""
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

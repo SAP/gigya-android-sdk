@@ -140,10 +140,10 @@ public class ExternalProvider extends Provider {
                                     .put("authToken", facebookToken).put("tokenExpiration", facebookExpiration)).toString();
                 case "google":
                 case "googleplus":
-                    final String googleCode = (String) providerLoginMap.get("code");
+                    final String idToken = (String) providerLoginMap.get("idToken");
                     return new JSONObject()
                             .put(provider, new JSONObject()
-                                    .put("code", googleCode)).toString();
+                                    .put("idToken", idToken)).toString();
                 case "line":
                     final String lineToken = (String) providerLoginMap.get("token");
                     return new JSONObject()
