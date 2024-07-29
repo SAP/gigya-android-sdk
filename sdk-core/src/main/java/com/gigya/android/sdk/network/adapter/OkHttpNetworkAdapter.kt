@@ -191,6 +191,12 @@ open class OkHttpAsyncTask(
         val builder = Request.Builder()
         builder.url(request.url)
         request.headers?.let {
+            val headers = it
+            if (!it.containsKey("User-Agent")) {
+                // Add default device user agent. If User-Agent was specifically set in the request,
+                // it will not be added.
+                it["User-Agent"] = System.getProperty("http.agent")
+            }
             builder.headers(it.toHeaders())
         }
         request.encodedParams?.let {

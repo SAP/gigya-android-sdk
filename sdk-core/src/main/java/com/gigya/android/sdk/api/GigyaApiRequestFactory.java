@@ -108,11 +108,6 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             headers = new HashMap<>();
         }
         headers.put("apikey", _config.getApiKey());
-        if (!headers.containsKey("User-Agent")) {
-            // Add default device user agent. If User-Agent was specifically set in the request,
-            // it will not be added.
-            headers.put("User-Agent", System.getProperty("http.agent"));
-        }
 
         // Add global configuration request parameters.
         addAccountConfigParameters(api, urlParams);
