@@ -424,26 +424,27 @@ If you plan to bundle the wrapper within library use "context.getResources().get
 
 ### Google
 
-Add the following line to your application’s build.gradle file:
-```
-implementation 'com.google.android.gms:play-services-auth:16.0.1'
-```
+Add the following implementation to your application’s build.gradle file:
+These are required for Credentials Manager API to authenticate with Google and provide an idToken.
 
-Add the “GoogleProviderWrapper” class provided in your ../gigya/providers package.
-
-Add the following lines to your AndroidManifest.xml file using String references to your String resource file:
-```
-<meta-data
-android:name="googleClientId"
-android:value="@string/google_client_id" />
+```groovy
+implementation "androidx.credentials:credentials:1.2.2"
+// optional - needed for credentials support from play services, for devices running
+// Android 13 and below.
+implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
+implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
 ```
 
-**Note:** 
-The GoogleProviderWrapper class is set to reference the “R.string.google_client_id" string reference.
-If you plan to bundle the wrapper within library use "context.getResources().getIdentifier("google_client_id", "string", context.getPackageName()" instead.
+Add the following String reference in your strings.xml file:
 
-As for previous Google login implementations, the required client_id is the **Web client id** generated when you create your Google project.
-This should not be mistaken with the Android OAuth client id. Make sure that your Google project contains both.
+```xml
+<string name="google_client_id">YOUR_GOOGLE_CLIENT_ID</string>
+```
+
+Add the "GoogleProviderWrapper" class provided in your ../gigya/providers package. The class will be provided within the release page on Github on each release.
+
+Note: "The GoogleProviderWrapper" class is set to reference the “R.string.google_client_id” string reference. If you plan to bundle the wrapper within library use “context.getResources().getIdentifier("google_client_id", "string", context.getPackageName()) instead.
+As for previous Google login implementations, the required client_id is the **Web client id** generated when you create your Google project. This should not be mistaken with the Android OAuth client id. Make sure that your Google project contains both.
 
 ### LINE
 
