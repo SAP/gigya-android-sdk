@@ -6,6 +6,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gigya.android.sdk.account.GigyaAccountClass;
 import com.gigya.android.sdk.account.GigyaAccountConfig;
@@ -32,6 +33,7 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.session.SessionStateObserver;
 import com.gigya.android.sdk.ui.IPresenter;
+import com.gigya.android.sdk.ui.plugin.GigyaPluginBaseFragment;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
@@ -811,6 +813,21 @@ public class Gigya<T extends GigyaAccount> {
         params.put("screenSet", screensSet);
         GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
         _presenter.showPlugin(false, GigyaPluginFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
+    }
+
+    /**
+     * Show Gigya ScreenSets flow using the PluginBaseFragment.
+     * UI will be presented via WebView.
+     *
+     * @param screensSet          Main ScreensSet group identifier
+     * @param fullScreen          Show in fullscreen mode.
+     * @param params              ScreensSet flow parameters.
+     * @param gigyaPluginCallback Plugin callback.
+     */
+    public GigyaPluginBaseFragment<T> getScreenSetFragment(AppCompatActivity activity, final String screensSet, boolean fullScreen, @NonNull final Map<String, Object> params, final GigyaPluginCallback<T> gigyaPluginCallback) {
+        params.put("screenSet", screensSet);
+        GigyaLogger.debug(LOG_TAG, "showPlugin: " + GigyaPluginBaseFragment.PLUGIN_SCREENSETS + ", with parameters:\n" + params.toString());
+        return _presenter.getFragmentPlugin(activity,false, GigyaPluginBaseFragment.PLUGIN_SCREENSETS, fullScreen, params, gigyaPluginCallback);
     }
 
     /**
