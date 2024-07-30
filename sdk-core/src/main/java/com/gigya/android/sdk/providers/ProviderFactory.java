@@ -11,6 +11,7 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.providers.external.ExternalProvider;
 import com.gigya.android.sdk.providers.external.IProviderWrapper;
+import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.providers.provider.ProviderCallback;
 import com.gigya.android.sdk.providers.provider.SSOProvider;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.gigya.android.sdk.GigyaDefinitions.Providers.SSO;
+
+import androidx.annotation.Nullable;
 
 public class ProviderFactory implements IProviderFactory {
     final private IoCContainer _container;
@@ -139,6 +142,28 @@ public class ProviderFactory implements IProviderFactory {
         }
         return null;
     }
+
+    /**
+     * @noinspection unchecked
+     */
+    @Nullable
+    @Override
+    public ProviderWrapper getProviderWrapper(String name) {
+        Class<ProviderWrapper> providerClazz;
+        try {
+            if (!isExternalProvider(name)) return null;
+            final String rootPath = externalProviderPath;
+            providerClazz = ExternalProvider.getWrapperClass(_context, name, rootPath);
+            if (providerClazz != null) {
+                return _container.get(providerClazz);
+            }
+        } catch (Exception ex) {
+            GigyaLogger.error(LOG_TAG, "Error instantiating used provider");
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 
     @SuppressWarnings("rawtypes")
     private Class getProviderClass(String providerName) {

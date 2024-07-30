@@ -82,6 +82,10 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
         urlParams.put("targetEnv", "mobile");
         urlParams.put("httpStatusCodes", false);
         urlParams.put("format", "json");
+
+        // ApiKey with capital letter is not allowed. Key is added by default.
+        // Having both lower and uppercased key will result in server errors.
+        urlParams.remove("ApiKey");
         urlParams.put("apiKey", _config.getApiKey());
 
         // Add nonce.

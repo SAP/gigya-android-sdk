@@ -22,6 +22,7 @@ import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
 import com.gigya.android.sdk.providers.IProviderFactory;
+import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.providers.provider.Provider;
 import com.gigya.android.sdk.reporting.IReportingService;
 import com.gigya.android.sdk.reporting.ReportingManager;
@@ -51,7 +52,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "7.0.11";
+    public static final String VERSION = "7.1.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -752,13 +753,31 @@ public class Gigya<T extends GigyaAccount> {
     /**
      * Request reference to used Gigya social provider.
      * Currently supported provider (GOOGLE, FACEBOOK, LINE, WECHAT).
+     * <p>
+     * Do not use.
+     * Method can produce null pointer exception.
      *
      * @param name Provider name.
      * @return Provider reference or null if not available.
+     *
+     * @deprecated use {@link #getUsedSocialProviderWrapper(String name)} instead.
      */
+    @Deprecated
     @Nullable
     public Provider getUsedSocialProvider(String name) {
         return _providerFactory.usedProviderFor(name);
+    }
+
+    /**
+     * Request reference to used Social native provide wrapper class.
+     * Currently supported provider (GOOGLE, FACEBOOK, LINE, WECHAT).
+     *
+     * @param name Provider name.
+     * @return ProviderWrapper reference or null if not available.
+     */
+    @Nullable
+    public ProviderWrapper getUsedSocialProviderWrapper(String name) {
+        return _providerFactory.getProviderWrapper(name);
     }
 
     /**
