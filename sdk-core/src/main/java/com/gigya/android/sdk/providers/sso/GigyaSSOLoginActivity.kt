@@ -102,15 +102,15 @@ class GigyaSSOLoginActivity : AppCompatActivity() {
         if (intent == null) {
             GigyaLogger.debug(LOG_TAG, "onNewIntent: null intent - flow cancelled.")
             _ssoLoginLifecycleCallbacks?.onCancelled()
-        }
-
-        if (intent!!.data == null) {
+        } else if (intent.data == null) {
             GigyaLogger.debug(LOG_TAG, "onNewIntent: null intent.data - flow cancelled.")
             _ssoLoginLifecycleCallbacks?.onCancelled()
+        } else if (intent.data is Uri){
+            val uri: Uri = intent.data as Uri
+            _ssoLoginLifecycleCallbacks?.onResult(this, uri)
+        } else  {
+            _ssoLoginLifecycleCallbacks?.onCancelled()
         }
-
-        val uri: Uri = intent.data as Uri
-        _ssoLoginLifecycleCallbacks?.onResult(this, uri)
 
         finish()
     }
