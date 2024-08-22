@@ -13,6 +13,26 @@ This change is crucial to avoid future flagging of the SDK by Google Play.
 As a result, session retention is only available when upgrading from v6 to v7.
 Users running applications that are using v5 and below of the Android core SDK will need to re-authenticate their session.
 
+### Upgrading the SDK from v5 to v7 using an external migration file.
+
+To retain an active session when migrating your application from v5 directly to v7, include the “V5ExternalSessionMigrator” file included in the latest release on Github.
+The file will try to migrate an active session encrypted using v5 standard directly to v7.
+
+Usage:
+```kotlin
+val sessionMigrator = V5ExternalSessionMigrator(this)
+sessionMigrator.migrateV5Session(
+    success =  {
+        Log.d("V5ExternalSessionMigrator", "session migrated")
+    },
+    error =  { 
+        Log.e("V5ExternalSessionMigrator", "failed to migrate session. Re-authentication required")
+    }
+)
+```
+Use the migrator only after you have initialize the SDK. Otherwise you might encounter an account schema error.
+
+
 [Google GSON library](https://github.com/google/gson)
 ```gradle
 implementation 'com.google.code.gson:gson:2.8.9'
@@ -748,6 +768,7 @@ mGigya.setAccount(params, new GigyaLoginCallback<MyAccount>() {
 });
 ```
 
+
 ## Using Screen-Sets
 
 Screen-Sets, as one of Gigya's most powerful features, are available also in your mobile app!
@@ -859,6 +880,28 @@ final GigyaPluginCallback<MyAccount> pluginCallback = new GigyaPluginCallback<My
         super.onConnectionRemoved();
     }
 };
+```
+
+## SDK WebView Configuration
+
+SDK screen-set & WebLogin flows are performed using internal WebView elements.
+To be able to control the settings of these elements, you are now able to use the “WebViewConfig” class.
+
+Currently available config fields:
+1.localStorage = default is set to true.
+
+Apply via the “gigyaSdkConfiguration.json” file:
+```
+"webView": {
+  "localStorage": false
+},
+```
+
+Apply programmatically:
+```
+val webViewConfig = WebViewConfig()
+webViewConfig.isLocalStorage = false
+gigyaInstance.setWebViewConfig(webViewConfig)
 ```
 
 ## Business APIs
