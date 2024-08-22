@@ -1,6 +1,7 @@
 package com.gigya.android.sdk;
 
 import com.gigya.android.sdk.account.GigyaAccountConfig;
+import com.gigya.android.sdk.ui.WebViewConfig;
 import com.google.gson.annotations.SerializedName;
 
 public class Config {
@@ -22,6 +23,9 @@ public class Config {
 
     @SerializedName("account")
     private GigyaAccountConfig gigyaAccountConfig;
+
+    @SerializedName("webView")
+    private WebViewConfig webViewConfig;
 
     private String cname;
     private boolean cnameEnabled = false;
@@ -70,6 +74,9 @@ public class Config {
         }
         if (config.getCname() != null) {
             this.cname = config.getCname();
+        }
+        if (config.getWebViewConfig() != null) {
+            this.webViewConfig = config.getWebViewConfig();
         }
         return this;
     }
@@ -174,6 +181,17 @@ public class Config {
         this.gigyaAccountConfig = gigyaAccountConfig;
     }
 
+    public WebViewConfig getWebViewConfig() {
+        if (webViewConfig == null) {
+            webViewConfig = new WebViewConfig();
+        }
+        return webViewConfig;
+    }
+
+    public void setWebViewConfig(WebViewConfig webViewConfig) {
+        this.webViewConfig = webViewConfig;
+    }
+
     public String getCname() {
         return cname;
     }
@@ -189,6 +207,5 @@ public class Config {
     public void setCnameEnabled(boolean cnameEnabled) {
         this.cnameEnabled = cnameEnabled;
     }
-
     //endregion
 }

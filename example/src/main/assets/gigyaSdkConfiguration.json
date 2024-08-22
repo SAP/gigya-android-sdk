@@ -1,6 +1,9 @@
 {
   "apiKey": "YOUR-API-KEY-HERE",
   "apiDomain": "us1.gigya.com",
+  "webView": {
+    "localStorage": true
+  },
   "account": {
     "cacheTime": 2,
     "include": [

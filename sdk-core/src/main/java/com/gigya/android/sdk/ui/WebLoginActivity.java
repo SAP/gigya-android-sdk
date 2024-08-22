@@ -40,6 +40,7 @@ public class WebLoginActivity extends Activity {
 
     private static final String EXTRA_LIFECYCLE_CALLBACK_ID = "web_login_lifecycle_callback";
     private static final String EXTRA_URI = "web_login_uri";
+    private static final String EXTRA_DOM_ENABLED = "web_login_dom_enabled";
 
     public interface WebLoginActivityCallback {
         void onResult(Activity activity, Map<String, Object> parsed);
@@ -51,10 +52,11 @@ public class WebLoginActivity extends Activity {
     private int _webLoginLifecycleCallbacksId = -1;
     private String _uri;
 
-    public static void present(Context context, String uri, WebLoginActivityCallback lifecycleCallback) {
+    public static void present(Context context, String uri, boolean domEnabled, WebLoginActivityCallback lifecycleCallback) {
         Intent intent = new Intent(context, WebLoginActivity.class);
         intent.putExtra(EXTRA_LIFECYCLE_CALLBACK_ID, Presenter.addWebLoginLifecycleCallback(lifecycleCallback));
         intent.putExtra(EXTRA_URI, uri);
+        intent.putExtra(EXTRA_DOM_ENABLED, domEnabled);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
         context.startActivity(intent);
     }
@@ -155,12 +157,18 @@ public class WebLoginActivity extends Activity {
 
         final ProgressBar progress = findViewById(R.id.gig_web_provider_progress);
 
+
+
         WebView webView = findViewById(R.id.gig_web_provider_web_view);
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setLoadsImagesAutomatically(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setUseWideViewPort(false);
+
+        final boolean domEnabled = getIntent().getBooleanExtra(EXTRA_DOM_ENABLED, true);
+        webView.getSettings().setDomStorageEnabled(domEnabled);
+
         webView.setWebViewClient(new WebViewClient() {
 
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

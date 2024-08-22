@@ -57,7 +57,8 @@ public class WebLoginProvider extends Provider {
         _loginMode = loginMode;
         final String providerName = (String) loginParams.get("provider");
         final String loginUrl = getRequest(_context, loginParams, loginMode);
-        WebLoginActivity.present(_context, loginUrl, new WebLoginActivity.WebLoginActivityCallback() {
+        final boolean domEnabled = _config.getWebViewConfig().isLocalStorage();
+        WebLoginActivity.present(_context, loginUrl, domEnabled, new WebLoginActivity.WebLoginActivityCallback() {
 
             @Override
             public void onResult(Activity activity, Map<String, Object> parsed) {
@@ -89,6 +90,10 @@ public class WebLoginProvider extends Provider {
 
                                     jsonObject.put("errorCode", errorCode);
                                     jsonObject.put("errorMessage", errorMessage);
+
+                                    if (parsed.containsKey("errorDetails")) {
+                                        jsonObject.put("errorDetails", parsed.get("errorDetails"));
+                                    }
                                 }
                             }
 

@@ -32,6 +32,7 @@ import com.gigya.android.sdk.session.ISessionVerificationService;
 import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.session.SessionStateObserver;
 import com.gigya.android.sdk.ui.IPresenter;
+import com.gigya.android.sdk.ui.WebViewConfig;
 import com.gigya.android.sdk.ui.plugin.GigyaPluginFragment;
 import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
@@ -314,6 +315,14 @@ public class Gigya<T extends GigyaAccount> {
      */
     public void setAccountConfig(GigyaAccountConfig gigyaAccountConfig) {
         _config.setGigyaAccountConfig(gigyaAccountConfig);
+    }
+
+    /**
+     * External setter to allow local storage in all SDK WebView usage.
+     * Default is set to true if not specified.
+     */
+    public void setWebViewConfig(WebViewConfig webViewConfig) {
+        _config.setWebViewConfig(webViewConfig);
     }
 
     //endregion
@@ -759,7 +768,6 @@ public class Gigya<T extends GigyaAccount> {
      *
      * @param name Provider name.
      * @return Provider reference or null if not available.
-     *
      * @deprecated use {@link #getUsedSocialProviderWrapper(String name)} instead.
      */
     @Deprecated

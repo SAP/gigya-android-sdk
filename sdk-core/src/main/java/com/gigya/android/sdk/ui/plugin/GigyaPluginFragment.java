@@ -6,9 +6,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -218,6 +215,8 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         final WebSettings webSettings = _webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
+
+        webSettings.setDomStorageEnabled(_config.getWebViewConfig().isLocalStorage());
 
         // Setting up a custom veb view client to handle WebView interaction.
         _webView.setWebViewClient(_webViewClient);
