@@ -7,6 +7,7 @@ import android.util.Log
 import android.webkit.WebView
 import com.facebook.appevents.AppEventsLogger
 import com.gigya.android.sample.model.MyAccount
+import com.gigya.android.sample.repository.V5ExternalSessionMigrator
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import java.security.MessageDigest
@@ -33,6 +34,17 @@ class ExampleApplication : Application() {
         // Initialize the Gigya SDK using custom account scheme.
         Gigya.getInstance(MyAccount::class.java)
 
+        // Try to migrate v5 session.
+        val sessionMigrator = V5ExternalSessionMigrator(this)
+        sessionMigrator.migrateV5Session(
+            success =  {
+                Log.d("V5ExternalSessionMigrator", "session migrated")
+            },
+            error =  {
+                Log.e("V5ExternalSessionMigrator", "failed to migrate session. Re-authentication required")
+            }
+        )
+        
 //        FacebookSdk.sdkInitialize(this)
         AppEventsLogger.activateApp(this);
 
