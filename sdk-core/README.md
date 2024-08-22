@@ -22,28 +22,13 @@ implementation 'com.google.code.gson:gson:2.8.9'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v7.0.8.aar')
+implementation files('libs/gigya-android-sdk-core-v7.1.0.aar')
 ```
 
 ### Implement using **MavenCentral**
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.0.8'
-```
-
-### Implement using Jitpack (Will be soon deprecated - moving to Maven Central)
-**Add the Jitpack reference to your root *build.gradle* file**
-```gradle
-allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
-```
-**Add the latest build reference to your app *build.gradle* file**
-```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-core:core-v7.0.8'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.1.0'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -1231,7 +1216,7 @@ Add the following to your application’s AndroidManifest.xml file:
 ```
 
 The required default redirect consists of the following structure: “gsapi://{applicationId}/login/”, where the “applicationId” represents the application’s unique bundle identifier." 
-Please make sure you add your unique redirect URL to the **Trusted Site URLs** section of your parent site. 
+Please make sure you add your unique URL to the Trusted Site URLs section of your parent site, as well as to your application’s child sites. 
  
 
 To initiate the flow, use the SSO function provided by the Gigya shared interface:
