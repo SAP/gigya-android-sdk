@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "7.1.0"
+def libVersion = "7.1.1"
 
 group = "com.sap.oss.gigya-android-sdk"
 
