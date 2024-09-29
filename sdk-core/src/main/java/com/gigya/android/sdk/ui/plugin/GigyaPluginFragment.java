@@ -239,10 +239,16 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                             @Override
                             public void onError(GigyaPluginEvent event) {
                                 _pluginCallback.onError(event);
+                                if (_progressBar != null) {
+                                    _progressBar.setVisibility(View.INVISIBLE);
+                                }
                             }
 
                             @Override
                             public void onCanceled() {
+                                if (_progressBar != null) {
+                                    _progressBar.setVisibility(View.INVISIBLE);
+                                }
                                 _pluginCallback.onCanceled();
                             }
 

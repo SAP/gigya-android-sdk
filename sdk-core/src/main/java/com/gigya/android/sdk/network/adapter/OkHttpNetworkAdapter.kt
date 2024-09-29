@@ -27,7 +27,9 @@ class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvide
         @JvmStatic
         fun isAvailable(): Boolean {
             return try {
-                Class.forName("okhttp3.OkHttpClient")
+                // OKHttpAdapter requires both client & logging dependencies to be present.
+                var required1 = Class.forName("okhttp3.OkHttpClient")
+                var required2 = Class.forName("okhttp3.logging.HttpLoggingInterceptor")
                 true
             } catch (ex: Exception) {
                 false
