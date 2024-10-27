@@ -14,16 +14,12 @@ import androidx.annotation.NonNull;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.biometric.BiometricImpl;
-import com.gigya.android.sdk.biometric.BiometricKey;
 import com.gigya.android.sdk.biometric.GigyaBiometric;
 import com.gigya.android.sdk.biometric.GigyaPromptInfo;
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback;
 import com.gigya.android.sdk.biometric.R;
-import com.gigya.android.sdk.encryption.EncryptionException;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
-
-import java.security.KeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -48,6 +44,16 @@ public class BiometricImplV28 extends BiometricImpl {
         final SecretKey key = _biometricKey.getKey();
         if (key == null) {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
+            return;
+        }
+        if (activity == null) {
+            GigyaLogger.error(LOG_TAG, "Null Activity context provided.");
+            callback.onBiometricOperationFailed("Null Activity context provided");
+            return;
+        }
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            GigyaLogger.error(LOG_TAG, "Activity state is invalid");
+            callback.onBiometricOperationFailed("Activity state is invalid");
             return;
         }
         final Cipher cipher;
@@ -99,8 +105,8 @@ public class BiometricImplV28 extends BiometricImpl {
                 GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
                 callback.onBiometricOperationFailed("Failed to initialize cipher");
             }
-        } catch (EncryptionException encryptionException) {
-            Exception ex = (Exception) encryptionException.getCause();
+        } catch (Exception exception) {
+            Exception ex = (Exception) exception.getCause();
             if (ex instanceof KeyPermanentlyInvalidatedException) {
                 GigyaLogger.error(LOG_TAG, ex.getMessage());
                 onInvalidKey();
