@@ -46,6 +46,16 @@ public class BiometricImplV23 extends BiometricImpl {
             GigyaLogger.error(LOG_TAG, "Unable to generate secret key from KeyStore API");
             return;
         }
+        if (activity == null) {
+            GigyaLogger.error(LOG_TAG, "Null Activity context provided.");
+            callback.onBiometricOperationFailed("Null Activity context provided");
+            return;
+        }
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            GigyaLogger.error(LOG_TAG, "Activity state is invalid");
+            callback.onBiometricOperationFailed("Activity state is invalid");
+            return;
+        }
         final Cipher cipher;
         try {
             if (encryptionMode == Cipher.DECRYPT_MODE) {
@@ -99,7 +109,7 @@ public class BiometricImplV23 extends BiometricImpl {
                 GigyaLogger.error(LOG_TAG, "Failed to initialize cipher");
                 callback.onBiometricOperationFailed("Failed to initialize cipher");
             }
-        } catch (EncryptionException encryptionException) {
+        } catch (Exception encryptionException) {
             Exception ex = (Exception) encryptionException.getCause();
             if (ex instanceof KeyPermanentlyInvalidatedException) {
                 GigyaLogger.error(LOG_TAG, ex.getMessage());

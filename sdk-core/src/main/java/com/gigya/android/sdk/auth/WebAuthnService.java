@@ -241,8 +241,10 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                 fidoApiService.onRegisterResponse(attestationResponse, credentialResponse);
 
         final Map<String, Object> params = new HashMap<>();
+
         params.put("attestation", webAuthnAttestationResponse.getAttestation());
         params.put("token", optionsBinding.token);
+        params.put("deviceName", "Android");
 
         registerCredentials(params, new GigyaCallback<GigyaApiResponse>() {
             @Override
