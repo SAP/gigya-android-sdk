@@ -25,14 +25,14 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the biometric library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-biometric-2.1.2.aar')
+implementation files('libs/gigya-android-biometric-2.1.3.aar')
 ```
 
 -Or-
 
 Implementation using **JitPack**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-biometric:bio-v2.1.2'
+implementation 'com.github.SAP.gigya-android-sdk:sdk-biometric:bio-v2.1.3'
 ```
 
 **In addition you will need to add this dependency as well.**
