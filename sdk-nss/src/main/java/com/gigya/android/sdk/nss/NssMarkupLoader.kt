@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package com.gigya.android.sdk.nss
 
 import android.content.Context
@@ -230,6 +232,7 @@ class NssMarkupLoader<T : GigyaAccount>(
     ) {
         if (screenSetId == null) {
             onStylesLoaded(mapOf())
+            return
         }
         api.send("accounts.getNSSTheme",
             mapOf(

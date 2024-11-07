@@ -1,5 +1,5 @@
 {
-  "apiKey": "YOUR-API-KEY-HERE",
+  "apiKey": "API-KEY-HERE",
   "apiDomain": "us1.gigya.com",
   "webView": {
     "localStorage": true

@@ -2,6 +2,7 @@
   "routing": {
     "default": {
       "onPendingEmailVerification": "_dismiss",
+      "onLoginIdentifierExists": "link-account",
       "onSuccess": "_dismiss"
     },
     "initial": "login"
@@ -1815,7 +1816,8 @@
         }
       ],
       "routing": {
-        "onPendingRegistration": "account-update",
+        "onPendingRegistration": "_dismiss",
+        "onLoginIdentifierExists": "link-account",
         "onSuccess": "account-update"
       }
     },
@@ -1970,6 +1972,120 @@
         "onPendingRegistration": "account-update",
         "onSuccess": "account-update"
       }
+    },
+    "link-account": {
+      "routing": {
+        "onSuccess": "_dismiss"
+      },
+      "action": "linkAccount",
+      "appBar": {
+        "textKey": "account-information"
+      },
+      "stack": "vertical",
+      "children": [
+        {
+          "type": "label",
+          "textKey": "Account linking",
+          "theme": "title",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          }
+        },
+        {
+          "type": "container",
+          "showIf": "conflictingAccount.loginProviders.filter(p => p != 'site').length > 0",
+          "children": [
+            {
+              "type": "socialLoginGrid",
+              "columns": 3,
+              "rows": 2,
+              "style": {
+                "cornerRadius": 6,
+                "fontSize": 14,
+                "fontColor": "black",
+                "fontWeight": "bold",
+                "elevation": 2,
+                "margin": 16,
+                "indicatorColor": "grey"
+              }
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "showIf": "conflictingAccount.loginProviders.includes('site')",
+          "style": {
+            "margin": [
+              16,
+              20,
+              16,
+              0
+            ]
+          },
+          "children": [
+            {
+              "type": "label",
+              "textKey": "Enter your account password in order to link you account",
+              "style": {
+                "fontSize": 14,
+                "margin": [
+                  16,
+                  10,
+                  16,
+                  0
+                ]
+              }
+            },
+            {
+              "bind": "conflictingAccount.loginID",
+              "sendAs": "loginID",
+              "disabled": true,
+              "type": "textInput",
+              "textKey": "common-email",
+              "theme": "input"
+            },
+            {
+              "bind": "#password",
+              "type": "passwordInput",
+              "textKey": "common-password",
+              "theme": "input",
+              "style": {
+                "margin": [
+                  0,
+                  10,
+                  0,
+                  0
+                ]
+              },
+              "validations": {
+                "required": {
+                  "enabled": true,
+                  "errorKey": "error-required-field"
+                }
+              }
+            },
+            {
+              "type": "submit",
+              "textKey": "common-submit",
+              "theme": "raisedButton",
+              "style": {
+                "margin": [
+                  0,
+                  20,
+                  0,
+                  0
+                ],
+                "cornerRadius": 5
+              }
+            }
+          ]
+        }
+      ]
     }
   },
   "useSchemaValidations": false

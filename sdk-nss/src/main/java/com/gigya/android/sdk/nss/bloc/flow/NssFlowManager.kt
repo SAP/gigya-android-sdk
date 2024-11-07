@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.flutter.plugin.common.MethodChannel
+import org.json.JSONObject
 
 interface INssFlowDelegate<T : GigyaAccount> {
 
@@ -33,9 +34,14 @@ interface INssFlowDelegate<T : GigyaAccount> {
     fun getGson(): Gson
 }
 
-class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFactory) : INssFlowDelegate<T> {
+class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFactory) :
+    INssFlowDelegate<T> {
 
-    private var gson: Gson = GsonBuilder().registerTypeAdapter(object : TypeToken<Map<String?, Any?>?>() {}.type, NssJsonDeserializer()).create()
+    private var gson: Gson = GsonBuilder().registerTypeAdapter(
+        object : TypeToken<Map<String?, Any?>?>() {}.type,
+        NssJsonDeserializer()
+    ).create()
+
     override fun getGson() = gson
 
     private var activeScreen: String? = null
@@ -53,7 +59,8 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
 
     override fun getResolver(): INssResolver? = activeResolver
 
-    override fun getWebAuthnResultHandler(): ActivityResultLauncher<IntentSenderRequest>? = fidoResultHandler
+    override fun getWebAuthnResultHandler(): ActivityResultLauncher<IntentSenderRequest>? =
+        fidoResultHandler
 
     init {
         mainFlowCallback = object : GigyaNssCallback<T, GigyaApiResponse>() {
@@ -63,25 +70,27 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                     val serializedObject = it.serializeToMap(gson)
 
                     // Merge data with updated global data.
-                    val merged = (serializedObject["mapped"] as Map<out String, Any>) + activeAction!!.getGlobalData()
+                    val merged =
+                        (serializedObject["mapped"] as Map<out String, Any>) + activeAction!!.getGlobalData()
 
                     // Return merged result to engine.
                     activeChannelResult?.success(merged)
 
                     if (api != null) {
                         nssEvents?.onApiResult(
-                                activeScreen!!,
-                                activeAction!!.actionId!!,
-                                api,
-                                res
+                            activeScreen!!,
+                            activeAction!!.actionId!!,
+                            api,
+                            res
                         )
                         return@let
                     }
                     // Propagate Nss event.
                     nssEvents?.onScreenSuccess(
-                            activeScreen!!,
-                            activeAction!!.actionId!!,
-                            null)
+                        activeScreen!!,
+                        activeAction!!.actionId!!,
+                        null
+                    )
                 }
             }
 
@@ -92,69 +101,114 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
 
                 // Propagate Nss event.
                 nssEvents?.onScreenSuccess(
-                        activeScreen!!,
-                        activeAction!!.actionId!!,
-                        obj)
+                    activeScreen!!,
+                    activeAction!!.actionId!!,
+                    obj
+                )
             }
 
             override fun onOperationCanceled() {
                 // Send operation canceled event.
-                activeChannelResult?.error("200001", // Operation canceled error.
-                        "error-operation-canceled",
-                        null
+                activeChannelResult?.error(
+                    "200001", // Operation canceled error.
+                    "error-operation-canceled",
+                    null
                 )
             }
 
             override fun onError(error: GigyaError?) {
                 error?.let { gigyaError ->
+                    val json = JSONObject(gigyaError.data)
                     activeChannelResult?.error(
-                            gigyaError.errorCode.toString(),
-                            gigyaError.localizedMessage,
-                            gigyaError.data
+                        gigyaError.errorCode.toString(),
+                        json.getString("errorMessage") ?: gigyaError.localizedMessage,
+                        gigyaError.data
                     )
 
                     // Propagate Nss error.
+                    val errObject = GigyaError(
+                        gigyaError.data,
+                        gigyaError.errorCode,
+                        json.getString("errorMessage") ?: gigyaError.localizedMessage,
+                        gigyaError.callId
+                    )
                     nssEvents?.onError(
-                            activeScreen!!,
-                            gigyaError
+                        activeScreen!!,
+                        errObject
                     )
                 }
             }
 
-            override fun onPendingRegistration(response: GigyaApiResponse, resolver: IPendingRegistrationResolver) {
+            override fun onPendingRegistration(
+                response: GigyaApiResponse,
+                resolver: IPendingRegistrationResolver
+            ) {
                 activeResolver = NssResolver(resolver)
-                activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+                activeChannelResult?.error(
+                    response.errorCode.toString(),
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.asJson()
+                )
 
                 // Propagate Nss error. Resolver applied. User should not handle error in host code if applied.
                 // Markup is responsible for interruption. handling
+                val error = GigyaError(
+                    response.asJson(),
+                    response.errorCode,
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.callId
+                )
                 nssEvents?.onError(
-                        activeScreen!!,
-                        GigyaError.fromResponse(response)
+                    activeScreen!!,
+                    error
                 )
             }
 
             override fun onPendingVerification(response: GigyaApiResponse, regToken: String?) {
-                activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+                activeChannelResult?.error(
+                    response.errorCode.toString(),
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.asJson()
+                )
 
                 // Propagate Nss error. No resolver available for specific interruption.
                 // Markup is responsible for interruption handling although this specific error breaks any flow.
                 // onPendingVerification == pending email verification error.
+                val error = GigyaError(
+                    response.asJson(),
+                    response.errorCode,
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.callId
+                )
                 nssEvents?.onError(
-                        activeScreen!!,
-                        GigyaError.fromResponse(response)
+                    activeScreen!!,
+                    error
                 )
             }
 
-            override fun onConflictingAccounts(response: GigyaApiResponse, resolver: ILinkAccountsResolver) {
+            override fun onConflictingAccounts(
+                response: GigyaApiResponse,
+                resolver: ILinkAccountsResolver
+            ) {
                 activeResolver = NssResolver(resolver)
 
-                activeChannelResult?.error(response.errorCode.toString(), response.errorDetails, response.asJson())
+                activeChannelResult?.error(
+                    response.errorCode.toString(),
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.asJson()
+                )
 
                 // Propagate Nss error. Resolver applied. User should not handle error in host code if applied.
                 // Markup is responsible for interruption. handling
+                val error = GigyaError(
+                    response.asJson(),
+                    response.errorCode,
+                    response.getField("errorMessage", String::class.java)?.toString(),
+                    response.callId
+                )
                 nssEvents?.onError(
-                        activeScreen!!,
-                        GigyaError.fromResponse(response)
+                    activeScreen!!,
+                    error
                 )
             }
 
@@ -164,7 +218,12 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
     /**
      * Update the current action.
      */
-    fun setCurrent(action: String, screenId: String, expressions: Map<String, String>, result: MethodChannel.Result) {
+    fun setCurrent(
+        action: String,
+        screenId: String,
+        expressions: Map<String, String>,
+        result: MethodChannel.Result
+    ) {
         if (activeAction?.actionId == action) {
             // Do not create a new instance of the same action.
             activeAction!!.initialize(expressions, result)
