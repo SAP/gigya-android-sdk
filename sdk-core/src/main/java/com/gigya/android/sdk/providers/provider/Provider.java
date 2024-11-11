@@ -59,6 +59,8 @@ public abstract class Provider implements IProvider {
             loginParams.put("regToken", _regToken);
         }
 
+        loginParams.put("conflictHandling", "fail");
+
         Runnable completionHandler = new Runnable() {
             @Override
             public void run() {

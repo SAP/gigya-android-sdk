@@ -60,7 +60,9 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                     loginCallback.onPendingPasswordChange(apiResponse);
                     break;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
+                case GigyaError.Codes.ERROR_ENTITY_EXISTS_CONFLICT:
                     LinkAccountsResolver linkAccountsResolver = resolverContainer.createInstance(LinkAccountsResolver.class);
+                    linkAccountsResolver.setApiResponse(apiResponse);
                     linkAccountsResolver.requestConflictingAccounts();
                     break;
                 case GigyaError.Codes.ERROR_PENDING_TWO_FACTOR_REGISTRATION:

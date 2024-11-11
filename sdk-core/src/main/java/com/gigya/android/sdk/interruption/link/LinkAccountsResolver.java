@@ -10,6 +10,8 @@ import com.gigya.android.sdk.interruption.Resolver;
 import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts;
 import com.gigya.android.sdk.network.GigyaError;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
     private static final String LOG_TAG = "GigyaLinkAccountsResolver";
 
     private ConflictingAccounts _conflictingAccounts;
+    private GigyaApiResponse _apiResponse;
 
     public LinkAccountsResolver(GigyaLoginCallback<A> loginCallback,
                                 GigyaApiResponse interruption,
@@ -31,6 +34,9 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
         return _conflictingAccounts;
     }
 
+    public void setApiResponse(GigyaApiResponse apiResponse) {
+        _apiResponse = apiResponse;
+    }
 
     @Override
     public void requestConflictingAccounts() {
@@ -64,18 +70,49 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
         final Map<String, Object> params = new HashMap<>();
         params.put("loginID", loginID);
         params.put("password", password);
-        params.put("loginMode", "link");
-        params.put("regToken", getRegToken());
-        _businessApiService.login(params, _loginCallback);
+        _businessApiService.login(params, new GigyaLoginCallback<A>() {
+            @Override
+            public void onSuccess(A obj) {
+                connectAccount();
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                _loginCallback.onError(error);
+            }
+        });
     }
 
     @Override
     public void linkToSocial(String providerName) {
         GigyaLogger.debug(LOG_TAG, "linkToSocial: with provider" + providerName);
         final Map<String, Object> params = new HashMap<>();
-        params.put("loginMode", "link");
-        params.put("regToken", getRegToken());
-        _businessApiService.login(providerName, params, _loginCallback);
+        _businessApiService.login(providerName, params, new GigyaLoginCallback<A>() {
+            @Override
+            public void onSuccess(A obj) {
+                connectAccount();
+            }
 
+            @Override
+            public void onError(GigyaError error) {
+                _loginCallback.onError(error);
+            }
+        });
+
+    }
+
+    private void connectAccount() {
+        GigyaLogger.debug(LOG_TAG, "connectAccount: ");
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginMode", "connect");
+        try {
+            params.put("providerSessions", new JSONObject()
+                    .put(_apiResponse.getField("provider", String.class), new JSONObject()
+                            .put("authToken", _apiResponse.getField("access_token", String.class))).toString()
+            );
+        } catch (Exception ex) {
+            _loginCallback.onError(GigyaError.errorFrom(ex.getMessage()));
+        }
+        _businessApiService.notifyNativeSocialLogin(params, _loginCallback, null);
     }
 }

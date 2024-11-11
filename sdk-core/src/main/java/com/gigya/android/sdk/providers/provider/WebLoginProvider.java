@@ -155,6 +155,7 @@ public class WebLoginProvider extends Provider {
         }
         // Deep link schematics -> Scheme = gigya, host = gsapi, pathPrefix = package name + "/login_result.
         final String redirectUri = "gigya://gsapi/" + context.getPackageName() + "/login_result";
+        serverParams.put("conflictHandling", "fail");
         serverParams.put("redirect_uri", redirectUri);
         serverParams.put("response_type", "token");
         serverParams.put("client_id", _config.getApiKey());

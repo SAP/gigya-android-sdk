@@ -393,7 +393,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
             public void onApiSuccess(GigyaApiResponse response) {
                 if (response.getErrorCode() == 0) {
                     updateWithNewSession(response); // Update with new session.
-                    getAccount(gigyaLoginCallback); // Request account details. Will need to change when the endpoint will be completed.
+                    getAccount(true, gigyaLoginCallback); // Request account details. Will need to change when the endpoint will be completed.
                     if (optionalCompletionHandler != null) {
                         optionalCompletionHandler.run();
                     }
