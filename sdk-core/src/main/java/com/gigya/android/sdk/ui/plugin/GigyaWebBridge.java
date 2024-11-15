@@ -497,9 +497,6 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             @Nullable final View progressView) {
         if ((_context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0 && GigyaLogger.isDebug()) {
             WebView.setWebContentsDebuggingEnabled(true);
-                Log.i("DebugCheck", "App is in DEBUG mode");
-        } else {
-                Log.i("DebugCheck", "App is in RELEASE mode");
         }
         if (android.os.Build.VERSION.SDK_INT < 17) {
             GigyaLogger.error(LOG_TAG, "WebBridge invocation is only available for Android >= 17");
