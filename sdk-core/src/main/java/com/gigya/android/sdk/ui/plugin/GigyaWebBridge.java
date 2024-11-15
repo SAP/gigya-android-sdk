@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
