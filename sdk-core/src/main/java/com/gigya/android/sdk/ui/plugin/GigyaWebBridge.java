@@ -20,6 +20,7 @@ import static com.gigya.android.sdk.ui.plugin.PluginEventDef.SUBMIT;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.util.Base64;
 import android.view.View;
@@ -493,7 +494,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
             @NonNull final WebView webView,
             @NonNull final GigyaPluginCallback<A> pluginCallback,
             @Nullable final View progressView) {
-
+        if ((_context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0 && GigyaLogger.isDebug()) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        } 
         if (android.os.Build.VERSION.SDK_INT < 17) {
             GigyaLogger.error(LOG_TAG, "WebBridge invocation is only available for Android >= 17");
             return;
