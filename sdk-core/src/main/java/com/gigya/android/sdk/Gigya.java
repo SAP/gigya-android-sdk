@@ -317,14 +317,6 @@ public class Gigya<T extends GigyaAccount> {
         _config.setGigyaAccountConfig(gigyaAccountConfig);
     }
 
-    /**
-     * External setter to allow local storage in all SDK WebView usage.
-     * Default is set to true if not specified.
-     */
-    public void setWebViewConfig(WebViewConfig webViewConfig) {
-        _config.setWebViewConfig(webViewConfig);
-    }
-
     //endregion
 
     //region ANONYMOUS APIS
