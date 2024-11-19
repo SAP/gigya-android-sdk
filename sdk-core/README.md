@@ -882,28 +882,6 @@ final GigyaPluginCallback<MyAccount> pluginCallback = new GigyaPluginCallback<My
 };
 ```
 
-## SDK WebView Configuration
-
-SDK screen-set & WebLogin flows are performed using internal WebView elements.
-To be able to control the settings of these elements, you are now able to use the “WebViewConfig” class.
-
-Currently available config fields:
-1.localStorage = default is set to true.
-
-Apply via the “gigyaSdkConfiguration.json” file:
-```
-"webView": {
-  "localStorage": false
-},
-```
-
-Apply programmatically:
-```
-val webViewConfig = WebViewConfig()
-webViewConfig.isLocalStorage = false
-gigyaInstance.setWebViewConfig(webViewConfig)
-```
-
 ## Business APIs
 
 The Gigya SDK provides popular built-in flows for fluent development.
