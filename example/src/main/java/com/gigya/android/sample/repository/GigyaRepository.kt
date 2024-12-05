@@ -22,6 +22,10 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.session.ISessionService
 import com.gigya.android.sdk.tfa.GigyaDefinitions
+import com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider
+import com.gigya.android.sdk.tfa.models.RegisteredPhone
+import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver
+import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver
 import com.gigya.android.sdk.tfa.resolvers.email.RegisteredEmailsResolver
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver
@@ -369,6 +373,92 @@ class GigyaRepository {
     }
 
     @UiThread
+    suspend fun registerTfaPhone(phoneNumber: String): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            val resolver = gigyaResolverMap["PHONE"]
+            resolver?.let {
+                (resolver as RegisterPhoneResolver<MyAccount>).registerPhone(
+                    phoneNumber,
+                    object : RegisterPhoneResolver.ResultCallback {
+                        override fun onVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                            gigyaResolverMap["PHONE"] =
+                                verifyCodeResolver as VerifyCodeResolver<MyAccount>
+                            continuation.resume(res)
+                        }
+
+                        override fun onError(error: GigyaError?) {
+                            error?.let {
+                                res.error = error
+                                continuation.resume(res)
+                            }
+                        }
+                    })
+            }
+        }
+    }
+
+    @UiThread
+    suspend fun verifyPhoneCode(code: String): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            val resolver = gigyaResolverMap["PHONE"]
+            resolver?.let {
+                (resolver as VerifyCodeResolver<MyAccount>).verifyCode(
+                    TFAProvider.PHONE,
+                    code,
+                    true,
+                    object : VerifyCodeResolver.ResultCallback {
+
+                        override fun onResolved() {
+                            continuation.resume(res)
+                        }
+
+                        override fun onError(error: GigyaError?) {
+                            error?.let {
+                                res.error = error
+                                continuation.resume(res)
+                            }
+                        }
+
+                        override fun onInvalidCode() {
+                            continuation.resume(res)
+                        }
+                    })
+            }
+        }
+    }
+
+    @UiThread
+    suspend fun getTfaRegisteredPhoneNumbers(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            val resolver = gigyaResolverMap["PHONE"]
+            resolver?.let {
+                (resolver as RegisteredPhonesResolver<MyAccount>).getPhoneNumbers(object :
+                    RegisteredPhonesResolver.ResultCallback {
+                    override fun onRegisteredPhones(registeredPhoneList: MutableList<RegisteredPhone>?) {
+                        res.optional = registeredPhoneList
+                        continuation.resume(res)
+                    }
+
+                    override fun onVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                        continuation.resume(res)
+                    }
+
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
+                    }
+
+                })
+            }
+        }
+    }
+
+    @UiThread
     suspend fun registerTfaTotp(): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
@@ -397,6 +487,7 @@ class GigyaRepository {
             }
         }
     }
+
 
     @UiThread
     suspend fun verifyTotpCode(code: String): GigyaRepoResponse {

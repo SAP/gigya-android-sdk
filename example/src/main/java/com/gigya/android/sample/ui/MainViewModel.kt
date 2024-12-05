@@ -18,6 +18,7 @@ import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
+import com.gigya.android.sdk.tfa.models.RegisteredPhone
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -164,8 +165,7 @@ class MainViewModel : ViewModel() {
                 } else if (result.isCanceled()) {
                     cancelled()
                     this.coroutineContext.job.cancel()
-                }
-                else {
+                } else {
                     account.value = result.account
                     onLogin()
                     this.coroutineContext.job.cancel()
@@ -282,6 +282,21 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun registerTFAPhone(
+        phoneNumber: String,
+        error: (GigyaError?) -> Unit,
+        onRegistered: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = gigyaRepository.registerTfaPhone(phoneNumber)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            onRegistered()
+        }
+    }
+
     // Verify TFA authenticator code.
     fun verifyTotpCode(code: String, error: (GigyaError?) -> Unit, onVerified: () -> Unit) {
         viewModelScope.launch {
@@ -291,6 +306,31 @@ class MainViewModel : ViewModel() {
                 return@launch
             }
             onVerified()
+        }
+    }
+
+    fun verifyPhoneCode(code: String, error: (GigyaError?) -> Unit, onVerified: () -> Unit) {
+        viewModelScope.launch {
+            val result = gigyaRepository.verifyPhoneCode(code)
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            onVerified()
+        }
+    }
+
+    fun getTfaPhoneNumbers(
+        registeredPhoneList: (MutableList<RegisteredPhone>?) -> Unit,
+        error: (GigyaError?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = gigyaRepository.getTfaRegisteredPhoneNumbers()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            registeredPhoneList(result.optional as MutableList<RegisteredPhone>?)
         }
     }
 

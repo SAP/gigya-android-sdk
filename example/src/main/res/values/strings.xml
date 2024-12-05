@@ -80,6 +80,7 @@
     <string name="external_provider_path">providers</string>
     <string name="hosted_page_url">hosted page url</string>
     <string name="exchange_session">Exchange Session</string>
+    <string name="register_phone">Register Phone</string>
 
 
 </resources>
