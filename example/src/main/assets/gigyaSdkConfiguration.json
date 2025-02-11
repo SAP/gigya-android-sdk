@@ -1,8 +1,9 @@
 {
-  "apiKey": "API-KEY-HERE",
+  "apiKey": "4_mL-YkAEegR9vzt6QvHWI5Q",
   "apiDomain": "us1.gigya.com",
   "webView": {
-    "localStorage": true
+    "allowFileAccess": true,
+    "javaScriptEnabled": true
   },
   "account": {
     "cacheTime": 2,

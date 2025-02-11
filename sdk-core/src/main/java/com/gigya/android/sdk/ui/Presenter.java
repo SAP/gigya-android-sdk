@@ -87,7 +87,7 @@ public class Presenter<A extends GigyaAccount> implements IPresenter<A> {
                 args.putString(ProviderFragment.ARG_URL, url);
                 args.putString(ProviderFragment.ARG_REDIRECT_PREFIX, "gsapi");
                 args.putSerializable(WebViewFragment.ARG_PARAMS, (HashMap) params);
-                _pfgFactory.showProviderFragment(activity, businessApiService, params, args, gigyaLoginCallback);
+                _pfgFactory.showProviderFragment(activity, _config,businessApiService, params, args, gigyaLoginCallback);
             }
         });
     }

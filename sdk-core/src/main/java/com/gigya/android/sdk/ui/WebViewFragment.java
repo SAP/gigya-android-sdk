@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.R;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public abstract class WebViewFragment extends DialogFragment {
     protected WebView _webView;
     protected ProgressBar _progressBar;
     protected HashMap<String, Object> _params;
+    protected Config _config;
 
     // Style parameters.
     protected boolean _fullScreen;
@@ -101,8 +103,8 @@ public abstract class WebViewFragment extends DialogFragment {
     @SuppressLint("SetJavaScriptEnabled")
     protected void setUpWebView() {
         final WebSettings webSettings = _webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
+        webSettings.setJavaScriptEnabled(_config.getWebViewConfig().javaScriptEnabled);
+        webSettings.setAllowFileAccess(_config.getWebViewConfig().allowFileAccess);
     }
 
     @Override

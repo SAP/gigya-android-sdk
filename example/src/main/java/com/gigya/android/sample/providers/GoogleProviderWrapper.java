@@ -25,6 +25,7 @@ import com.gigya.android.sdk.providers.external.IProviderWrapperCallback;
 import com.gigya.android.sdk.providers.external.ProviderWrapper;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
 import java.util.Map;
@@ -59,7 +60,7 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
             return;
         }
         // Not using cached account. Server auth code can be used only once.
-        authenticate(params, callback, true);
+        tryAuthenticateWithGetGoogleIdOption(params, callback, true);
     }
 
     private void handleSignIn(GetCredentialResponse getCredentialResponse, final Map<String, Object> params, final IProviderWrapperCallback callback) {
@@ -76,9 +77,9 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
         }
     }
 
-    private void authenticate(final Map<String, Object> params,
-                              final IProviderWrapperCallback callback,
-                              boolean setFilterByAuthorizedAccounts) {
+    private void tryAuthenticateWithGetGoogleIdOption(final Map<String, Object> params,
+                                                      final IProviderWrapperCallback callback,
+                                                      boolean setFilterByAuthorizedAccounts) {
         HostActivity.present(context, new HostActivity.HostActivityLifecycleCallbacks() {
 
             @Override
@@ -97,6 +98,34 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                 credentialsSignIn(activity, params, request, setFilterByAuthorizedAccounts, callback);
             }
         });
+    }
+
+    private void tryAuthenticateWithGetSignInWithGoogleOption(AppCompatActivity activity, final Map<String, Object> params, final IProviderWrapperCallback callback) {
+
+        GetSignInWithGoogleOption option = new GetSignInWithGoogleOption.Builder(pId).build();
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .addCredentialOption(option)
+                .build();
+
+        _credentialsManager.getCredentialAsync(context, request,
+                new CancellationSignal(),
+                _executor,
+                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                    @Override
+                    public void onResult(GetCredentialResponse getCredentialResponse) {
+                        handleSignIn(getCredentialResponse, params, callback);
+                        activity.finish();
+                    }
+
+                    @Override
+                    public void onError(@NonNull GetCredentialException e) {
+                        GigyaLogger.debug("GoogleProviderWrapper", "login exception: " + e);
+                        callback.onFailed(e.getLocalizedMessage());
+                        activity.finish();
+                    }
+                }
+        );
     }
 
     private void credentialsSignIn(AppCompatActivity activity,
@@ -118,10 +147,9 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                     public void onError(@NonNull GetCredentialException e) {
                         GigyaLogger.debug("GoogleProviderWrapper", "login exception: " + e);
                         if (e instanceof NoCredentialException && setFilterByAuthorizedAccounts) {
-                            authenticate(params, callback, false);
+                            tryAuthenticateWithGetGoogleIdOption(params, callback, false);
                         } else {
-                            callback.onFailed(e.getLocalizedMessage());
-                            activity.finish();
+                            tryAuthenticateWithGetSignInWithGoogleOption(activity, params, callback);
                         }
                     }
                 }

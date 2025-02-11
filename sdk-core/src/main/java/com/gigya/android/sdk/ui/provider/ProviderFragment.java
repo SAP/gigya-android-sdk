@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.ui.WebViewFragment;
 import com.gigya.android.sdk.utils.UrlUtils;
@@ -41,9 +42,10 @@ public class ProviderFragment extends WebViewFragment {
     @Nullable
     private WebViewFragment.WebViewFragmentLifecycleCallbacks _resultCallback;
 
-    public static void present(AppCompatActivity activity, Bundle args, WebViewFragment.WebViewFragmentLifecycleCallbacks resultCallback) {
+    public static void present(AppCompatActivity activity, Config config, Bundle args, WebViewFragment.WebViewFragmentLifecycleCallbacks resultCallback) {
         ProviderFragment fragment = new ProviderFragment();
         fragment._resultCallback = resultCallback;
+        fragment._config = config;
         fragment.setArguments(args);
         FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(fragment, LOG_TAG);

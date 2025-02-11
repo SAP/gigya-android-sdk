@@ -1,11 +1,11 @@
 package com.gigya.android.sample.repository
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.UiThread
 import com.gigya.android.sample.model.MyAccount
+import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
@@ -55,6 +55,14 @@ class GigyaRepository {
 
     init {
         //gigyaInstance.setDefaultHttpProvider()
+    }
+
+    fun invalidateCachedAccount() {
+        try {
+            Gigya.getContainer().get(IAccountService::class.java).invalidateAccount()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
     }
 
     private fun invalidateSession() {
@@ -631,6 +639,28 @@ class GigyaRepository {
             })
         }
 
+    }
+
+    suspend fun setAccountInfo(account: MyAccount): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.setAccount(account, object : GigyaCallback<MyAccount>() {
+                override fun onSuccess(obj: MyAccount?) {
+                    obj?.let {
+                        res.account = it
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+
+            })
+        }
     }
 
     @UiThread

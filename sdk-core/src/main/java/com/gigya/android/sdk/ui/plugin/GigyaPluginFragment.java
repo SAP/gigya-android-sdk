@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.ui.plugin;
 
+import static com.gigya.android.sdk.ui.plugin.GigyaPluginEvent.EVENT_NAME;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -29,11 +31,15 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.R;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.Presenter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SuppressLint("ValidFragment")
-public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A>, HostActivity.OnBackPressListener {
+public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment implements IGigyaPluginFragment<A>, HostActivity.OnBackPressListener, IGigyaPluginFileErrorCallback {
 
     private static final String LOG_TAG = "GigyaPluginFragment";
 
@@ -113,6 +119,13 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         // Parse arguments.
         if (getArguments() != null) {
             _obfuscation = getArguments().getBoolean(Presenter.ARG_OBFUSCATE, false);
+        }
+
+        if (!_config.getWebViewConfig().isJavaScriptEnabled()) {
+            GigyaLogger.error(LOG_TAG, "JavaScript is disabled. This may cause the plugin to not function properly.");
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         }
     }
 
@@ -213,8 +226,8 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _fileChooserClient = new GigyaPluginFileChooser(this);
 
         final WebSettings webSettings = _webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
+        webSettings.setJavaScriptEnabled(_config.getWebViewConfig().isJavaScriptEnabled());
+        webSettings.setAllowFileAccess(_config.getWebViewConfig().isAllowFileAccess());
 
         webSettings.setDomStorageEnabled(_config.getWebViewConfig().isLocalStorage());
 
@@ -403,4 +416,15 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
                     }
                 }
             });
+
+    @Override
+    public void onFileError(GigyaError error) {
+        if (_pluginCallback != null) {
+            Map<String, Object> eventMap = new HashMap<>();
+            eventMap.put(EVENT_NAME, "Error");
+            eventMap.put("errorCode", error.getErrorCode());
+            eventMap.put("errorMessage", error.getLocalizedMessage());
+            _pluginCallback.onError(new GigyaPluginEvent(eventMap));
+        }
+    }
 }

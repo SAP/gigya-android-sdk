@@ -106,10 +106,11 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
 
     @Override
     public void showProviderFragment(final AppCompatActivity activity,
+                                     final Config config,
                                      final IBusinessApiService businessApiService,
                                      final Map<String, Object> params, Bundle args,
                                      final GigyaLoginCallback gigyaLoginCallback) {
-        ProviderFragment.present(activity, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
+        ProviderFragment.present(activity, _config, args, new WebViewFragment.WebViewFragmentLifecycleCallbacks() {
 
             @Override
             public void onWebViewResult(Map<String, Object> result) {

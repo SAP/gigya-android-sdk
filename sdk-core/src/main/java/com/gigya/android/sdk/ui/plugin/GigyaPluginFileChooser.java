@@ -2,6 +2,7 @@ package com.gigya.android.sdk.ui.plugin;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -11,9 +12,11 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.gigya.android.sdk.GigyaLogger;
+import com.gigya.android.sdk.network.GigyaError;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,10 +49,14 @@ public class GigyaPluginFileChooser extends WebChromeClient {
             return false;
         }
 
-        if (_imagePathCallback != null) {
-            _imagePathCallback.onReceiveValue(null);
-        }
         _imagePathCallback = filePathCallback;
+
+        if (getFragment().shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            // User has declined permissions before. return error.
+            GigyaLogger.debug(LOG_TAG, "onShowFileChooser: Camera permission denied by user.");
+            ((GigyaPluginFragment<?>) getFragment()).onFileError(new GigyaError(403007, "Camera permission denied by user.", ""));
+            return false;
+        }
 
         sendImageChooserIntent();
         return true;
@@ -65,6 +72,7 @@ public class GigyaPluginFileChooser extends WebChromeClient {
         if (getFragment() == null) {
             return;
         }
+
         Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         capture.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         Intent select = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE);

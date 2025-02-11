@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.GigyaPluginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -15,5 +16,5 @@ public interface IWebViewFragmentFactory<A extends GigyaAccount> {
 
     void showPluginFragment(AppCompatActivity activity, String plugin, final Map<String, Object> params, Bundle args, final GigyaPluginCallback<A> gigyaPluginCallback);
 
-    void showProviderFragment(AppCompatActivity activity, IBusinessApiService businessApiService, final Map<String, Object> params, Bundle args, final GigyaLoginCallback gigyaLoginCallback);
+    void showProviderFragment(AppCompatActivity activity, Config config, IBusinessApiService businessApiService, final Map<String, Object> params, Bundle args, final GigyaLoginCallback gigyaLoginCallback);
 }
