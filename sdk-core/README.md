@@ -146,6 +146,33 @@ When using explicit initialization of the SDK, you can use the following method:
 public void init(@NonNull String apiKey, @NonNull String apiDomain, @NonNull String cname)
 ```
 
+## SDK WebView Configuration
+
+SDK screen-set & WebLogin flows are performed using internal WebView elements.
+To be able to control the settings of these elements, you are now able to use the “WebViewConfig” class.
+
+Currently available config fields:
+1.allowFileAccess.
+2.javaScriptEnabled.
+
+Apply via the “gigyaSdkConfiguration.json” file:
+```
+"webView": {
+    "allowFileAccess": true,
+    "javaScriptEnabled": true
+  },
+```
+Of set programmatically via:
+```java
+public void setWebViewConfig(WebViewConfig webViewConfig) {
+ _config.setWebViewConfig(webViewConfig);
+}
+```
+
+**Note:**
+The setFileAccess and setJavascriptEnabled settings are required for ScreenSets to perform correctly. However, if you are not using the ScreenSet feature, these settings can be set to false.
+
+
 ## Sending a Request
 You can send anonymous requests to Gigya using the SDK using one of two overloads:
 General - this will return an instance of GigyaApiResponse class (see the section below on how to access its data).

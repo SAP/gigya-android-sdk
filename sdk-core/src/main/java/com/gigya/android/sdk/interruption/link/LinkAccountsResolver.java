@@ -1,6 +1,7 @@
 package com.gigya.android.sdk.interruption.link;
 
 import com.gigya.android.sdk.GigyaCallback;
+import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
@@ -66,39 +67,46 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
 
     @Override
     public void linkToSite(String loginID, String password) {
-        GigyaLogger.debug(LOG_TAG, "linkToSite: with loginID = " + loginID);
-        final Map<String, Object> params = new HashMap<>();
-        params.put("loginID", loginID);
-        params.put("password", password);
-        _businessApiService.login(params, new GigyaLoginCallback<A>() {
-            @Override
-            public void onSuccess(A obj) {
-                connectAccount();
-            }
+        if (_apiResponse.getErrorCode() == GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS) {
+            linkToSiteV1(loginID, password);
+        } else {
+            GigyaLogger.debug(LOG_TAG, "linkToSite: with loginID = " + loginID);
+            final Map<String, Object> params = new HashMap<>();
+            params.put("loginID", loginID);
+            params.put("password", password);
+            _businessApiService.login(params, new GigyaLoginCallback<A>() {
+                @Override
+                public void onSuccess(A obj) {
+                    connectAccount();
+                }
 
-            @Override
-            public void onError(GigyaError error) {
-                _loginCallback.onError(error);
-            }
-        });
+                @Override
+                public void onError(GigyaError error) {
+                    _loginCallback.onError(error);
+                }
+            });
+        }
     }
 
     @Override
     public void linkToSocial(String providerName) {
-        GigyaLogger.debug(LOG_TAG, "linkToSocial: with provider" + providerName);
-        final Map<String, Object> params = new HashMap<>();
-        _businessApiService.login(providerName, params, new GigyaLoginCallback<A>() {
-            @Override
-            public void onSuccess(A obj) {
-                connectAccount();
-            }
+        if (_apiResponse.getErrorCode() == GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS) {
+            linkToSocialV1(providerName);
+        } else {
+            GigyaLogger.debug(LOG_TAG, "linkToSocial: with provider" + providerName);
+            final Map<String, Object> params = new HashMap<>();
+            _businessApiService.login(providerName, params, new GigyaLoginCallback<A>() {
+                @Override
+                public void onSuccess(A obj) {
+                    connectAccount();
+                }
 
-            @Override
-            public void onError(GigyaError error) {
-                _loginCallback.onError(error);
-            }
-        });
-
+                @Override
+                public void onError(GigyaError error) {
+                    _loginCallback.onError(error);
+                }
+            });
+        }
     }
 
     private void connectAccount() {
@@ -114,5 +122,25 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
             _loginCallback.onError(GigyaError.errorFrom(ex.getMessage()));
         }
         _businessApiService.notifyNativeSocialLogin(params, _loginCallback, null);
+    }
+
+    // Link completion for Link account v1 flow.
+    private void linkToSiteV1(String loginID, String password) {
+        GigyaLogger.debug(LOG_TAG, "linkToSite: with loginID = " + loginID);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginID", loginID);
+        params.put("password", password);
+        params.put("loginMode", "link");
+        params.put("regToken", getRegToken());
+        _businessApiService.login(params, _loginCallback);
+    }
+
+    // Link completion for link account v1 flow.
+    private void linkToSocialV1(String providerName) {
+        GigyaLogger.debug(LOG_TAG, "linkToSocial: with provider" + providerName);
+        final Map<String, Object> params = new HashMap<>();
+        params.put("loginMode", "link");
+        params.put("regToken", getRegToken());
+        _businessApiService.login(providerName, params, _loginCallback);
     }
 }

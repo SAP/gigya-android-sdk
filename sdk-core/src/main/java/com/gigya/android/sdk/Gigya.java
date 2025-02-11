@@ -53,7 +53,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "7.1.4";
+    public static final String VERSION = "7.1.5";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -952,4 +952,12 @@ public class Gigya<T extends GigyaAccount> {
 
     //endregion
 
+
+    /**
+     * External setter to allow local storage in all SDK WebView usage.
+     * Default is set to true if not specified.
+     */
+    public void setWebViewConfig(WebViewConfig webViewConfig) {
+        _config.setWebViewConfig(webViewConfig);
+    }
 }

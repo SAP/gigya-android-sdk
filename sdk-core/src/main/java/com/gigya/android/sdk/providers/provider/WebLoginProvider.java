@@ -92,9 +92,26 @@ public class WebLoginProvider extends Provider {
                                     jsonObject.put("errorMessage", errorMessage);
 
                                     if (parsed.containsKey("errorDetails")) {
-                                        jsonObject.put("errorDetails", parsed.get("errorDetails"));
+                                        String details = parsed.get("errorDetails").toString().replace("+", " ");
+                                        jsonObject.put("errorDetails",
+                                                details);
                                     }
                                 }
+                            }
+
+                            // Add provider and access token if available. Relevant for Link v2.
+                            if (parsed.containsKey("access_token")) {
+                                final String accessToken = (String) parsed.get("access_token");
+                                jsonObject.put("access_token", accessToken);
+                            }
+                            if (parsed.containsKey("provider")) {
+                                final String provider = (String) parsed.get("provider");
+                                jsonObject.put("provider", provider);
+                            }
+
+                            if (parsed.containsKey("regToken")) {
+                                final String regToken = (String) parsed.get("regToken");
+                                jsonObject.put("regToken", regToken); // Nullification is not relevant here.
                             }
 
                             if (parsed.containsKey("x_regToken")) {
@@ -174,6 +191,7 @@ public class WebLoginProvider extends Provider {
                     serverParams.put("x_" + key, value);
             }
         }
+//        serverParams.put("conflictHandling", "fail");
 
         String api = "socialize.login";
         if (loginMode.equals("connect")) {
