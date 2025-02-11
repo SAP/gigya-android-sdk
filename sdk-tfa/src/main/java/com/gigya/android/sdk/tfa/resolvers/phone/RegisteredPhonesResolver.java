@@ -103,7 +103,7 @@ public class RegisteredPhonesResolver<A extends GigyaAccount> extends TFAResolve
         // Fetch actual phone numbers after TFA initialization.
         final Map<String, Object> params = new HashMap<>();
         params.put("gigyaAssertion", _gigyaAssertion);
-        _businessApiService.send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.GET,
+        _businessApiService.send(GigyaDefinitions.API.API_TFA_PHONE_GET_REGISTERED_NUMBERS, params, RestAdapter.POST,
                 GetRegisteredPhoneNumbersModel.class, new GigyaCallback<GetRegisteredPhoneNumbersModel>() {
                     @Override
                     public void onSuccess(GetRegisteredPhoneNumbersModel model) {
