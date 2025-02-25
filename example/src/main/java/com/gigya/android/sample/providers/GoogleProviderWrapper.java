@@ -147,6 +147,7 @@ public class GoogleProviderWrapper extends ProviderWrapper implements IProviderW
                     public void onError(@NonNull GetCredentialException e) {
                         GigyaLogger.debug("GoogleProviderWrapper", "login exception: " + e);
                         if (e instanceof NoCredentialException && setFilterByAuthorizedAccounts) {
+                            activity.finish();
                             tryAuthenticateWithGetGoogleIdOption(params, callback, false);
                         } else {
                             tryAuthenticateWithGetSignInWithGoogleOption(activity, params, callback);
