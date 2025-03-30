@@ -211,6 +211,15 @@ class GigyaRepository {
                     trySend(res)
                 }
 
+                override fun onCaptchaRequired(
+                    response: GigyaApiResponse,
+                ) {
+                    Log.d(TAG, "loginFlow: emmit Captcha verification interruption")
+                    val res = GigyaRepoResponse()
+                    res.captcha = CaptchaInterruption(response)
+                    trySend(res)
+                }
+
             }
             initiator(callback)
             awaitClose {
@@ -572,6 +581,28 @@ class GigyaRepository {
         }
     }
 
+    suspend fun getSaptchaToken(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.getSaptchaToken(object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    val token = obj?.getField("saptchaToken", String::class.java)
+                    res.optional = token!!
+                    continuation.resume(res)
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+
+
+            })
+        }
+    }
+
     @UiThread
     suspend fun addConnection(provider: String): GigyaRepoResponse {
         val res = GigyaRepoResponse()
@@ -704,6 +735,8 @@ open class GigyaRepoResponse {
 
     var link: LinkInterruption? = null
 
+    var captcha: CaptchaInterruption? = null
+
     fun isError(): Boolean = error != null
 
     fun isLinkInterruption(): Boolean = link != null
@@ -711,6 +744,8 @@ open class GigyaRepoResponse {
     fun isInterruption(): Boolean = interruption != null
 
     fun isTfaInterruption(): Boolean = tfa != null
+
+    fun isCaptchaInterruption(): Boolean = captcha != null
 
     fun isCanceled(): Boolean = canceled
 }
@@ -725,6 +760,9 @@ data class TFAInterruption(
     var providers: MutableList<TFAProviderModel>
 )
 
+data class CaptchaInterruption(
+    var originalResponse: GigyaApiResponse
+)
 
 enum class TFAInterruptionType {
     REGISTRATION,

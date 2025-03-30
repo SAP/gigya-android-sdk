@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gigya.android.sample.model.MyAccount
+import com.gigya.android.sample.repository.CaptchaInterruption
 import com.gigya.android.sample.repository.GigyaRepository
 import com.gigya.android.sample.repository.LinkInterruption
 import com.gigya.android.sample.repository.TFAInterruption
@@ -44,6 +45,7 @@ class MainViewModel : ViewModel() {
         onLogin: () -> Unit,
         tfaInterruption: (TFAInterruption) -> Unit,
         linkInterruption: (LinkInterruption) -> Unit,
+        captchaInterruption: (CaptchaInterruption) -> Unit,
     ) {
         val params = mutableMapOf<String, Any>("loginID" to email, "password" to password)
         viewModelScope.launch {
@@ -55,6 +57,8 @@ class MainViewModel : ViewModel() {
                     tfaInterruption(result.tfa!!)
                 } else if (result.isLinkInterruption()) {
                     linkInterruption(result.link!!)
+                } else if (result.isCaptchaInterruption()) {
+                    captchaInterruption(result.captcha!!)
                 } else {
                     account.value = result.account
                     onLogin()
@@ -556,6 +560,21 @@ class MainViewModel : ViewModel() {
                 }
             }
 
+        }
+    }
+
+    fun getSaptchaToken(
+        success: (String) -> Unit,
+        error: (GigyaError?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = gigyaRepository.getSaptchaToken()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            val token = result.optional
+            success(token as String)
         }
     }
 }

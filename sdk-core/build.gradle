@@ -91,6 +91,7 @@ dependencies {
 
     // FIDO
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
+    implementation "org.jetbrains.kotlin:kotlin-test:1.7.0"
 }
 
 apply from: '../publish-package.gradle'

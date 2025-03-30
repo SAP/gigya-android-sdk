@@ -80,4 +80,6 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void getAuthCode(final GigyaCallback<GigyaApiResponse> callback);
 
+    void getSaptchaToken(final GigyaCallback<GigyaApiResponse> callback);
+
 }

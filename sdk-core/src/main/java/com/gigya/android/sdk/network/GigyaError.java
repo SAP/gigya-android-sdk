@@ -22,6 +22,7 @@ public class GigyaError extends GigyaResponseModel {
         public static final int ERROR_ENTITY_EXISTS_CONFLICT = 409003;
         public static final int ERROR_PENDING_TWO_FACTOR_REGISTRATION = 403102;
         public static final int ERROR_PENDING_TWO_FACTOR_VERIFICATION = 403101;
+        public static final int ERROR_CAPTCHA_REQUIRED = 401020;
         public static final int ERROR_NETWORK = 500026;
 
         public static final int SUCCESS_ERROR_ACCOUNT_LINKED = 200009;

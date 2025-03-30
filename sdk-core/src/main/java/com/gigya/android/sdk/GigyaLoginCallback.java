@@ -46,4 +46,8 @@ public abstract class GigyaLoginCallback<A> extends GigyaCallback<A> {
         onError(GigyaError.fromResponse(response));
     }
 
+    public void onCaptchaRequired(@NonNull GigyaApiResponse response) {
+        onError(GigyaError.fromResponse(response));
+    }
+
 }

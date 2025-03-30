@@ -898,6 +898,11 @@ public class Gigya<T extends GigyaAccount> {
         });
     }
 
+    public void getSaptchaToken(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSaptchToken: ");
+        _businessApiService.getSaptchaToken(gigyaCallback);
+    }
+
     /**
      * This method checks whether a certain login identifier (username / email) is available.
      * A login identifier is available if it is unique in this user management system.
