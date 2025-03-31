@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "7.1.5"
+def libVersion = "7.1.6"
 
 group = "com.sap.oss.gigya-android-sdk"
 
@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         //noinspection MinSdkTooLow
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 32
 
         archivesBaseName = "gigya-android-sdk-core"
@@ -91,6 +91,7 @@ dependencies {
 
     // FIDO
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
+    implementation "org.jetbrains.kotlin:kotlin-test:1.7.0"
 }
 
 apply from: '../publish-package.gradle'

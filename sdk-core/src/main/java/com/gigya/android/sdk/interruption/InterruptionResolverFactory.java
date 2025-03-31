@@ -1,7 +1,10 @@
 package com.gigya.android.sdk.interruption;
 
+import androidx.annotation.Nullable;
+
 import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
+import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver;
@@ -33,6 +36,11 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
 
     @Override
     public void resolve(GigyaApiResponse apiResponse, GigyaLoginCallback loginCallback) {
+        resolve(apiResponse, loginCallback, null);
+    }
+
+    @Override
+    public void resolve(GigyaApiResponse apiResponse, GigyaLoginCallback loginCallback, @Nullable GigyaApiRequest originalRequest) {
         if (!_enabled) {
             loginCallback.onError(GigyaError.fromResponse(apiResponse));
             return;
@@ -73,6 +81,9 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                 case GigyaError.Codes.SUCCESS_ERROR_ACCOUNT_LINKED:
                     Resolver finalizeResolver = resolverContainer.createInstance(Resolver.class);
                     finalizeResolver.finalizeRegistration(null);
+                    break;
+                case GigyaError.Codes.ERROR_CAPTCHA_REQUIRED:
+                    loginCallback.onCaptchaRequired(apiResponse);
                     break;
                 default:
                     handleUnsupportedResponse(apiResponse, loginCallback);

@@ -16,8 +16,10 @@ import com.gigya.android.sdk.auth.FidoApiServiceImpl;
 import com.gigya.android.sdk.auth.FidoApiServiceV23Impl;
 import com.gigya.android.sdk.auth.IFidoApiService;
 import com.gigya.android.sdk.auth.IOauthService;
+import com.gigya.android.sdk.auth.ISaptchaService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.auth.OauthService;
+import com.gigya.android.sdk.auth.SaptchaService;
 import com.gigya.android.sdk.auth.WebAuthnService;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.InterruptionResolverFactory;
@@ -70,6 +72,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IOauthService.class, OauthService.class, true)
                 .bind(IFidoApiService.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? FidoApiServiceV23Impl.class : FidoApiServiceImpl.class, true)
                 .bind(IWebAuthnService.class, WebAuthnService.class, true)
+                .bind(ISaptchaService.class, SaptchaService.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)
                 .bind(IPresenter.class, Presenter.class, false)
                 .bind(IInterruptionResolverFactory.class, InterruptionResolverFactory.class, true)

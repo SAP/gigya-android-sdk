@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.api;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -10,6 +12,8 @@ import com.gigya.android.sdk.GigyaLogger;
 import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.IAccountService;
 import com.gigya.android.sdk.account.models.GigyaAccount;
+import com.gigya.android.sdk.auth.ISaptchaService;
+import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
 import com.gigya.android.sdk.interruption.tfa.models.TFAProvidersModel;
 import com.gigya.android.sdk.network.GigyaError;
@@ -25,6 +29,7 @@ import com.gigya.android.sdk.session.SessionInfo;
 import com.gigya.android.sdk.utils.DeviceUtils;
 import com.gigya.android.sdk.utils.ObjectUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,8 +97,35 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _accountService.setAccount(apiResponse.asJson());
     }
 
+    public void handleAccountApiResponse(GigyaApiResponse response,
+                                         GigyaLoginCallback<A> loginCallback,
+                                         GigyaApiRequest originalRequest) {
+        final int errorCode = response.getErrorCode();
+        if (errorCode != 0) {
+            // Handle interruption.
+            if (loginCallback != null) {
+                _interruptionsHandler.resolve(response, loginCallback, originalRequest);
+            }
+        } else {
+            // Parse & success.
+            A parsed = response.parseAccountTo(_accountService.getAccountSchema());
+            if (parsed == null) {
+                loginCallback.onError(GigyaError.cancelledOperationWith(
+                        "Operation cancelled: account failed to parse"
+                ));
+                return;
+            }
+            updateWithNewSession(response);
+            updateCachedAccount(response);
+            if (loginCallback != null) {
+                loginCallback.onSuccess(parsed);
+            }
+        }
+    }
+
     @Override
-    public void handleAccountApiResponse(GigyaApiResponse response, GigyaLoginCallback<A> loginCallback) {
+    public void handleAccountApiResponse(GigyaApiResponse response,
+                                         GigyaLoginCallback<A> loginCallback) {
         final int errorCode = response.getErrorCode();
         if (errorCode != 0) {
             // Handle interruption.
@@ -247,7 +279,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                handleAccountApiResponse(response, gigyaLoginCallback);
+                handleAccountApiResponse(response, gigyaLoginCallback, request);
             }
 
             @Override
@@ -469,11 +501,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
                         return;
                     }
                     // #2 Chain login.
-                    GigyaApiRequest regRequest = _reqFactory.create(GigyaDefinitions.API.API_REGISTER, params, RestAdapter.HttpMethod.POST);
+                    final GigyaApiRequest regRequest = _reqFactory.create(GigyaDefinitions.API.API_REGISTER, params, RestAdapter.HttpMethod.POST);
                     _apiService.send(regRequest, false, new ApiService.IApiServiceResponse() {
                         @Override
                         public void onApiSuccess(GigyaApiResponse response) {
-                            handleAccountApiResponse(response, gigyaLoginCallback);
+                            handleAccountApiResponse(response, gigyaLoginCallback, regRequest);
                         }
 
                         @Override
@@ -698,6 +730,16 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    @Override
+    public void getSaptchaToken(GigyaCallback<GigyaApiResponse> callback) {
+        try {
+            ISaptchaService<A> saptchaService = Gigya.getContainer().get(ISaptchaService.class);
+            saptchaService.startChallenge(callback);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+    }
+
     // Non documented. For SDK use only.
     @Override
     public void refreshNativeProviderSession(Map<String, Object> params, final IProviderPermissionsCallback providerPermissionsCallback) {
@@ -836,7 +878,7 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
     }
 
     @Override
-    public void removeConnection(@Nullable Map<String, Object> params, 
+    public void removeConnection(@Nullable Map<String, Object> params,
                                  final GigyaCallback<GigyaApiResponse> gigyaCallback) {
         if (!_sessionService.isValid()) {
             GigyaLogger.error(LOG_TAG, "Action requires a valid session");

@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SwitchCompat
 import com.gigya.android.sample.R
 import com.gigya.android.sample.databinding.FragmentLoginBinding
+import com.gigya.android.sample.repository.CaptchaInterruption
 import com.gigya.android.sample.ui.MainActivity
 import com.gigya.android.sdk.GigyaDefinitions.Providers.FACEBOOK
 import com.gigya.android.sdk.GigyaDefinitions.Providers.GOOGLE
@@ -141,7 +144,47 @@ class LoginFragment : BaseExampleFragment() {
                     ?.addToBackStack(LinkAccountFragment.name)
                     ?.commit()
             },
+            captchaInterruption = { interruption ->
+                showSaptchaDialog(interruption)
+            }
         )
+    }
+
+    private fun handleCaptchaSwitch(isEnabled: Boolean, interruption: CaptchaInterruption) {
+        // Implement your callback logic here
+        if (isEnabled) {
+            toastIt("Captcha enabled")
+            val result = viewModel.getSaptchaToken(
+                success = { token ->
+                    toastIt("Saptcha token: $token")
+                    // When token is available, call the required authentication method with the token
+                },
+                error = {
+
+                }
+            )
+
+        } else {
+            toastIt("Captcha disabled")
+        }
+    }
+
+    private fun showSaptchaDialog(interruption: CaptchaInterruption) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_spatcha, null)
+        val switchCaptcha = dialogView.findViewById<SwitchCompat>(R.id.switch_captcha)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Captcha Interruption")
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ ->
+                val isCaptchaEnabled = switchCaptcha.isChecked
+                // Handle the switch state
+                handleCaptchaSwitch(isCaptchaEnabled, interruption)
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
     }
 
     /**
@@ -191,7 +234,8 @@ class LoginFragment : BaseExampleFragment() {
      * Login using Fido passkey.
      */
     private fun passwordlessLogin() {
-        viewModel.passwordlessLogin(10,
+        viewModel.passwordlessLogin(
+            10,
             (activity as MainActivity).resultHandler,
             error = {
                 // Display error.

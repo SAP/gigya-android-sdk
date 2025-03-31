@@ -53,7 +53,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "7.1.5";
+    public static final String VERSION = "7.1.6";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -896,6 +896,11 @@ public class Gigya<T extends GigyaAccount> {
                 gigyaCallback.onError(error);
             }
         });
+    }
+
+    public void getSaptchaToken(final GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "getSaptchToken: ");
+        _businessApiService.getSaptchaToken(gigyaCallback);
     }
 
     /**
