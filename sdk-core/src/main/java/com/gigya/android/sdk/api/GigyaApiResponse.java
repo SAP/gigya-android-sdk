@@ -276,5 +276,20 @@ public class GigyaApiResponse {
         return null;
     }
 
+    /**
+     * Get response error flags if exists.
+     */
+    public String getErrorFlags() {
+        if (mapped == null) return null;
+        try {
+            if (mapped.containsKey("errorFlags")) {
+                return (String) mapped.get("errorFlags");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     //endregion
 }

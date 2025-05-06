@@ -123,6 +123,9 @@ public class ApiService implements IApiService {
                             })
                             .dispatch();
                     return;
+                } else if (isInvalidGMIDError(apiResponse)) {
+                    handleInvalidGMIDError(apiResponse, request, apiCallback);
+                    return;
                 }
 
                 apiCallback.onApiSuccess(apiResponse);
@@ -250,5 +253,61 @@ public class ApiService implements IApiService {
     private boolean isRequestExpiredError(int code) {
         return code == GigyaError.Codes.ERROR_REQUEST_HAS_EXPIRED;
     }
+
+    //region Invalid GMID error handling
+
+    private boolean isInvalidGMIDError(GigyaApiResponse response) {
+        return new InvalidGMIDResponseEvaluator().evaluate(response);
+    }
+
+    private void handleInvalidGMIDError(GigyaApiResponse response,
+                                        final GigyaApiRequest originalRequest,
+                                        final IApiServiceResponse apiCallback) {
+        // Create new ids request.
+        final Map<String, Object> params = new HashMap<>();
+        //params.put("include", "permissions,ids,appIds");
+        final GigyaApiRequest request = _reqFactory.create(
+                GigyaDefinitions.API.API_GET_IDS,
+                params,
+                RestAdapter.HttpMethod.POST);
+        // Set request as anonymous! Will not go through if will include timestamp, nonce & signature.
+        request.setAnonymous(true);
+        send(request, true, new IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse apiResponse) {
+                final int apiErrorCode = apiResponse.getErrorCode();
+                if (apiErrorCode == 0) {
+
+                    final String gmid = apiResponse.getField("gcid", String.class);
+                    final String ucid = apiResponse.getField("ucid", String.class);
+
+                    // Get gmidRefresh time.
+                    final Long refreshTime = apiResponse.getField("refreshTime", Long.class);
+                    if (gmid == null || ucid == null) {
+                        onConfigError();
+                        return;
+                    }
+                    onConfigResponse(gmid, ucid, refreshTime == null ? 0 : refreshTime);
+
+                    // Retry original request.
+                    originalRequest.getParams().put("gmid", gmid);
+                    originalRequest.getParams().put("ucid", ucid);
+
+                    send(originalRequest, true, apiCallback);
+                } else {
+                    onConfigError();
+                    apiCallback.onApiSuccess(apiResponse);
+                }
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                apiCallback.onApiError(gigyaError);
+                onConfigError();
+            }
+        });
+    }
+
+    //endregion
 
 }
