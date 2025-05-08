@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def libVersion = "1.9.7"
+def libVersion = "1.9.8"
 
 group = "com.sap.oss.gigya-android-sdk"
 
@@ -22,11 +22,11 @@ ext {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 34
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 32
+        minSdkVersion 21
+        targetSdkVersion 34
 
         archivesBaseName = "gigya-android-nss"
     }
