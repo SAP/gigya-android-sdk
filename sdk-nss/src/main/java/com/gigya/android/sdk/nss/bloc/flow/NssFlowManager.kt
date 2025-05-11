@@ -112,7 +112,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                 activeChannelResult?.error(
                     "200001", // Operation canceled error.
                     "error-operation-canceled",
-                    null
+                    "{ }"
                 )
             }
 
