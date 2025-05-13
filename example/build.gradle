@@ -42,8 +42,8 @@ android {
 
         release {
 
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
 //            postprocessing {
@@ -99,8 +99,8 @@ dependencies {
     implementation project(path: ':sdk-tfa')
 
     // Nss engine.
-    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.9.7'
-    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.9.7'
+    debugImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_debug:1.9.8'
+    releaseImplementation 'com.gigya.gigyaNativeScreensetsEngine:flutter_release:1.9.8'
 
     // Fido passwordless authentication.
     implementation 'com.google.android.gms:play-services-fido:18.1.0'

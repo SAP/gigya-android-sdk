@@ -3,7 +3,6 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        jcenter()
     }
 }
 
@@ -12,7 +11,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven {
             // NOTE: This is a dynamic link to the native screen-sets (NSS) engine folder.
             // Update the local path to match you engine location in order to safely

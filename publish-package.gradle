@@ -79,9 +79,14 @@ afterEvaluate {
 }
 
 tasks.register('javadocJar', Jar) {
-    dependsOn dokkaJavadoc
-    classifier 'javadoc'
-    from dokkaJavadoc.outputDirectory
+    archiveClassifier.set('javadoc')
+    if (tasks.findByName('javadoc') != null) {
+        dependsOn javadoc
+        from javadoc.destinationDir
+    } else {
+        // Handle cases where javadoc task is not available
+        from file('src/main/java') // Adjust this path as needed
+    }
 }
 
 artifacts {

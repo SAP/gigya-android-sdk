@@ -193,7 +193,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
             .alpha(1f)
             .setDuration(duration.toLong())
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     mainFrame.visibility = View.VISIBLE
                 }
             })
@@ -202,7 +202,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
             .alpha(0f)
             .setDuration(duration.toLong())
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     loadingView.visibility = View.GONE
                 }
             })
