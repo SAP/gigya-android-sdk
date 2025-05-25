@@ -7,7 +7,7 @@ group = "com.sap.oss.gigya-android-sdk"
 
 ext["name"] = "Gigya-Android-SDK-Biometric"
 ext["version"] = libVersion
-ext["artifactId"] = "sdk-biometric"
+ext["artifactId"] = "sdk-bio"
 ext["description"] = "SAP CX-CDC (Gigya) Android SDK Biometric extension"
 ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
