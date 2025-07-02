@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.1.1"
 
+group = "com.sap.oss.gigya-android-sdk"
+
 ext["name"] = "Gigya-Android-SDK-TFA"
 ext["version"] = libVersion
 ext["artifactId"] = "sdk-tfa"
@@ -60,5 +62,8 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'
+
 
 

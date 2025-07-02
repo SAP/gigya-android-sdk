@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 
 def libVersion = "2.2.0"
 
+group = "com.sap.oss.gigya-android-sdk"
+
 ext["name"] = "Gigya-Android-SDK-Auth"
 ext["version"] = libVersion
 ext["artifactId"] = "sdk-auth"
@@ -60,4 +62,7 @@ dependencies {
 
     compileOnly project(path: ':sdk-core')
 }
+
+apply from: '../publish-package.gradle'
+
 
