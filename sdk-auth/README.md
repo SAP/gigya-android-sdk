@@ -22,9 +22,9 @@ implementation files('libs/gigya-android-auth-2.2.0.aar')
 
 -Or-
 
-Implementation using **JitPack**
+Implementation using **MavenCentral**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-auth:auth-v2.2.0'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-auth:2.2.0'
 ```
 
 **In addition you will need to add this dependency as well.**

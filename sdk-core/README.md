@@ -336,7 +336,6 @@ Renren
 Sina Weibo
 Spiceworks
 Twitter
-VKontakte
 WeChat
 WordPress
 Xing
