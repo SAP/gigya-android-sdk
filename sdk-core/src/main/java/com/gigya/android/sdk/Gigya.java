@@ -943,7 +943,7 @@ public class Gigya<T extends GigyaAccount> {
     //region UTILS
 
     /***
-     * Manually force the SDK to use default http provider (ignores okHttp, Volley adapter setups).
+     * Manually force the SDK to use default http provider (ignores okHttp).
      */
     public void setDefaultHttpProvider() {
         try {

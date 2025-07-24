@@ -11,7 +11,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import android.content.Context;
 
-import com.android.volley.toolbox.Volley;
 import com.gigya.android.StaticMockFactory;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaLogger;
@@ -24,7 +23,6 @@ import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
-import com.gigya.android.sdk.network.adapter.VolleyNetworkProvider;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -43,9 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.lang.reflect.InvocationTargetException;
 
 @RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor
-        ("com.android.volley.VolleyLog")
-@PrepareForTest({Volley.class, VolleyNetworkProvider.class, ApiService.class})
+@PrepareForTest({ApiService.class})
 public class ApiServiceTest {
 
     Config _config;
@@ -66,12 +62,7 @@ public class ApiServiceTest {
     @Before
     public void setup() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Avoid using Android logs.
-        mockStatic(Volley.class);
-        mockStatic(VolleyNetworkProvider.class);
         mockStatic(System.class);
-
-        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
-        when(Volley.newRequestQueue(_context)).thenReturn(null);
         GigyaLogger.setDebugMode(false);
 
         _config = new Config();
