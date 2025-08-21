@@ -74,7 +74,7 @@ dependencies {
     testImplementation project(path: ':sdk-tfa')
     testImplementation project(path: ':sdk-biometric')
 
-    compileOnly 'androidx.appcompat:appcompat:1.4.1'
+    compileOnly 'androidx.appcompat:appcompat:1.7.1'
     compileOnly 'com.google.code.gson:gson:2.8.6'
     compileOnly 'com.google.firebase:firebase-messaging:20.3.0'
     compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'
@@ -88,7 +88,7 @@ dependencies {
 
     // FIDO
     compileOnly 'com.google.android.gms:play-services-fido:18.1.0'
-    implementation "org.jetbrains.kotlin:kotlin-test:1.7.0"
+    api "androidx.credentials:credentials:1.3.0"
 }
 
 apply from: '../publish-package.gradle'

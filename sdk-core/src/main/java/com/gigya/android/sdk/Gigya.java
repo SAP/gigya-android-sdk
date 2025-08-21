@@ -15,6 +15,7 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
+import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
@@ -875,6 +876,10 @@ public class Gigya<T extends GigyaAccount> {
 
     public IWebAuthnService WebAuthn() {
         return _webAuthnService;
+    }
+
+    public void setPasskeyAuthenticatorProvider(IPasskeysAuthenticationProvider provider) {
+        _webAuthnService.setPasskeyAuthenticationProvider(provider);
     }
 
     //endregion

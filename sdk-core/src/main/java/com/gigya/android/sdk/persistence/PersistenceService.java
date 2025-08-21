@@ -6,8 +6,13 @@ import android.content.SharedPreferences;
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.auth.passkeys.PasswordLessKey;
+import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PersistenceService implements IPersistenceService {
@@ -241,20 +246,69 @@ public class PersistenceService implements IPersistenceService {
         return getPrefs().getString(PREFS_CORE_VERSION, null);
     }
 
+    //endregion
+
+    //region FIDO2/PASSKEYS
+
+    /**
+     * @deprecated
+     */
     @Override
     public void savePassKeys(String keys) {
         getPrefs().edit().putString(PREFS_PASSKEYS, keys).apply();
     }
 
+
+    /**
+     * @deprecated
+     */
     @Override
     public String getPassKeys() {
         return getPrefs().getString(PREFS_PASSKEYS, "[]");
     }
 
+    /**
+     * @deprecated
+     */
     @Override
     public void clearPassKeys() {
         getPrefs().edit().remove(PREFS_PASSKEYS).apply();
     }
+
+    @Override
+    public void storeMigratedPasswordLessKeys(String json) {
+        // Store new meta-data.
+        getPrefs().edit().putString(PREFS_PASSWORDLESS_KEYS, json).apply();
+        // Delete old FIDO2 meta-data.
+        getPrefs().edit().remove(PREFS_PASSKEYS).apply();
+    }
+
+    @Override
+    public String getPasswordLessKeys() {
+        return getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
+    }
+
+    @Override
+    public void storePasswordLessKey(String id, PasswordLessKey key) {
+        String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
+        PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
+        String newJson = utils.serialize(id, key, json);
+        getPrefs().edit().putString(PREFS_PASSWORDLESS_KEYS, newJson).apply();
+    }
+
+    @Override
+    public List<PasswordLessKey> getPasswordLessKeys(String id) {
+        String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
+        PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
+        if (json != null) {
+            Map<String, List<PasswordLessKey>> map = utils.deserialize(json);
+            if (map.containsKey(id)) {
+                return map.get(id);
+            }
+        }
+        return Collections.emptyList();
+    }
+
 
     //endregion
 
@@ -310,6 +364,8 @@ public class PersistenceService implements IPersistenceService {
     private static final String PREFS_CORE_VERSION = "GS_CORE_VERSION";
 
     public static final String PREFS_PASSKEYS = "GS_PASSKEYS";
+
+    public static final String PREFS_PASSWORDLESS_KEYS = "GS_PASSWORDLESS_KEYS";
 
     //endregion
 

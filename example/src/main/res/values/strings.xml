@@ -82,5 +82,10 @@
     <string name="exchange_session">Exchange Session</string>
     <string name="register_phone">Register Phone</string>
 
+    <string name="asset_statements" translatable="false">
+        [{
+             \"include\": \"https://Sagi.gigya-cs.com/.well-known/assetlinks.json\"
+        }]
+    </string>
 
 </resources>

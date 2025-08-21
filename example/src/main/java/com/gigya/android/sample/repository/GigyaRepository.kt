@@ -13,6 +13,8 @@ import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.GigyaOTPCallback
+import com.gigya.android.sdk.auth.passkeys.PasswordLessKey
+import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyType
 import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
@@ -263,32 +265,57 @@ class GigyaRepository {
         }
     }
 
+    fun getWebAuthnKeys(uid: String): List<PasswordLessKey> {
+        return gigyaInstance.WebAuthn().getKeys(uid) as List<PasswordLessKey>
+    }
+
     @UiThread
     suspend fun webAuthnLogin(
         sessionExpiration: Int?,
-        resultHandler: ActivityResultLauncher<IntentSenderRequest>
+        resultHandler: ActivityResultLauncher<IntentSenderRequest>?
     ): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
             val params = mutableMapOf<String, Any>("sessionExpiration" to sessionExpiration!!)
-            gigyaInstance.WebAuthn()
-                .login(resultHandler, params, object : GigyaLoginCallback<MyAccount>() {
+            if (resultHandler == null) {
+                gigyaInstance.WebAuthn()
+                    .login(params, object : GigyaLoginCallback<MyAccount>() {
 
-                    override fun onSuccess(obj: MyAccount?) {
-                        obj?.let {
-                            res.account = it
-                            continuation.resume(res)
+                        override fun onSuccess(obj: MyAccount?) {
+                            obj?.let {
+                                res.account = it
+                                continuation.resume(res)
+                            }
                         }
-                    }
 
-                    override fun onError(error: GigyaError?) {
-                        error?.let {
-                            res.error = error
-                            continuation.resume(res)
+                        override fun onError(error: GigyaError?) {
+                            error?.let {
+                                res.error = error
+                                continuation.resume(res)
+                            }
                         }
-                    }
 
-                })
+                    })
+            } else {
+                gigyaInstance.WebAuthn()
+                    .login(params, object : GigyaLoginCallback<MyAccount>() {
+
+                        override fun onSuccess(obj: MyAccount?) {
+                            obj?.let {
+                                res.account = it
+                                continuation.resume(res)
+                            }
+                        }
+
+                        override fun onError(error: GigyaError?) {
+                            error?.let {
+                                res.error = error
+                                continuation.resume(res)
+                            }
+                        }
+
+                    })
+            }
         }
     }
 
@@ -297,7 +324,7 @@ class GigyaRepository {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
             gigyaInstance.WebAuthn()
-                .register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
+                .register(object : GigyaCallback<GigyaApiResponse>() {
                     override fun onSuccess(obj: GigyaApiResponse?) {
                         obj?.let {
                             res.json = obj.asJson()

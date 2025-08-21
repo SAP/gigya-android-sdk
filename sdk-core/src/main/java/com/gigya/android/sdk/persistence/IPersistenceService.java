@@ -3,6 +3,7 @@ package com.gigya.android.sdk.persistence;
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
+import com.gigya.android.sdk.auth.passkeys.PasswordLessKey;
 
 import java.util.List;
 import java.util.Set;
@@ -65,4 +66,12 @@ public interface IPersistenceService {
     String getPassKeys();
 
     void clearPassKeys();
+
+    void storeMigratedPasswordLessKeys(String json);
+
+    String getPasswordLessKeys();
+
+    void storePasswordLessKey(String id, PasswordLessKey key);
+
+    List<PasswordLessKey> getPasswordLessKeys(String id);
 }
