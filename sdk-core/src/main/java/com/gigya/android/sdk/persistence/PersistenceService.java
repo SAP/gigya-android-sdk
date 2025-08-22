@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKey;
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyUtils;
 
 import java.util.Collections;
@@ -289,7 +289,7 @@ public class PersistenceService implements IPersistenceService {
     }
 
     @Override
-    public void storePasswordLessKey(String id, PasswordLessKey key) {
+    public void storePasswordLessKey(String id, WebAuthnKeyModel key) {
         String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
         PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
         String newJson = utils.serialize(id, key, json);
@@ -297,11 +297,11 @@ public class PersistenceService implements IPersistenceService {
     }
 
     @Override
-    public List<PasswordLessKey> getPasswordLessKeys(String id) {
+    public List<WebAuthnKeyModel> getPasswordLessKeys(String id) {
         String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
         PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
         if (json != null) {
-            Map<String, List<PasswordLessKey>> map = utils.deserialize(json);
+            Map<String, List<WebAuthnKeyModel>> map = utils.deserialize(json);
             if (map.containsKey(id)) {
                 return map.get(id);
             }

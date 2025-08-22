@@ -5,7 +5,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.UiThread
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sdk.Config
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
@@ -13,8 +12,7 @@ import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.GigyaOTPCallback
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKey
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyType
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel
 import com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.link.LinkAccountsResolver
@@ -265,8 +263,8 @@ class GigyaRepository {
         }
     }
 
-    fun getWebAuthnKeys(uid: String): List<PasswordLessKey> {
-        return gigyaInstance.WebAuthn().getKeys(uid) as List<PasswordLessKey>
+    fun getWebAuthnKeys(uid: String): List<WebAuthnKeyModel> {
+        return gigyaInstance.WebAuthn().getKeys(uid) as List<WebAuthnKeyModel>
     }
 
     @UiThread

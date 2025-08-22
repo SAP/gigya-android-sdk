@@ -3,7 +3,7 @@ package com.gigya.android.sdk.persistence;
 import androidx.annotation.Nullable;
 
 import com.gigya.android.sdk.GigyaDefinitions;
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKey;
+import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 
 import java.util.List;
 import java.util.Set;
@@ -71,7 +71,7 @@ public interface IPersistenceService {
 
     String getPasswordLessKeys();
 
-    void storePasswordLessKey(String id, PasswordLessKey key);
+    void storePasswordLessKey(String id, WebAuthnKeyModel key);
 
-    List<PasswordLessKey> getPasswordLessKeys(String id);
+    List<WebAuthnKeyModel> getPasswordLessKeys(String id);
 }

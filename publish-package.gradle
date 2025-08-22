@@ -28,7 +28,14 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+                artifact androidSourcesJar
+                artifact javadocJar
 
                 groupId project.group
                 artifactId project.ext.artifactId
@@ -80,7 +87,7 @@ afterEvaluate {
 
 tasks.register('javadocJar', Jar) {
     dependsOn dokkaJavadoc
-    classifier 'javadoc'
+    archiveClassifier.set('javadoc')
     from dokkaJavadoc.outputDirectory
 }
 
@@ -88,9 +95,3 @@ artifacts {
     archives androidSourcesJar
     archives javadocJar
 }
-
-
-
-
-
-

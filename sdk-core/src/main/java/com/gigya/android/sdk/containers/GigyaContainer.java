@@ -70,7 +70,7 @@ public class GigyaContainer extends IoCContainer {
                 .bind(IProviderFactory.class, ProviderFactory.class, true)
                 .bind(IBusinessApiService.class, BusinessApiService.class, true)
                 .bind(IOauthService.class, OauthService.class, true)
-                .bind(IFidoApiService.class, Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? FidoApiServiceV23Impl.class : FidoApiServiceImpl.class, true)
+                .bind(IFidoApiService.class, (Class<? extends IFidoApiService>) (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? FidoApiServiceV23Impl.class : FidoApiServiceImpl.class), true)
                 .bind(IWebAuthnService.class, WebAuthnService.class, true)
                 .bind(ISaptchaService.class, SaptchaService.class, false)
                 .bind(IWebViewFragmentFactory.class, WebViewFragmentFactory.class, false)

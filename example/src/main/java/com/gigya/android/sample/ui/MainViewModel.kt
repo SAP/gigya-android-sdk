@@ -1,6 +1,5 @@
 package com.gigya.android.sample.ui
 
-import android.R.attr.password
 import android.content.Context
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -13,12 +12,9 @@ import com.gigya.android.sample.repository.CaptchaInterruption
 import com.gigya.android.sample.repository.GigyaRepository
 import com.gigya.android.sample.repository.LinkInterruption
 import com.gigya.android.sample.repository.TFAInterruption
-import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKey
-import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyType
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents

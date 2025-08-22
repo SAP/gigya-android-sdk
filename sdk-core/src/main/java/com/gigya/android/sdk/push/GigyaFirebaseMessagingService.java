@@ -14,8 +14,7 @@ import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -31,12 +30,6 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         // Redirect the message to all available local receivers.
-        // Optional available receivers include the TFA & AUTH (different extension libraries).
-        if (remoteMessage.getData() == null) {
-            GigyaLogger.debug(LOG_TAG, "onMessageReceived: data null!");
-            return;
-        }
-
         GigyaLogger.debug(LOG_TAG, "onMessageReceived: " + remoteMessage.getData().toString());
 
         final Intent routingIntent = new Intent(GigyaDefinitions.Broadcasts.INTENT_ACTION_REMOTE_MESSAGE)
@@ -72,12 +65,12 @@ public class GigyaFirebaseMessagingService extends FirebaseMessagingService {
      */
     public static void requestTokenAsync(final IFcmTokenResponse response) {
 
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
-            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+            public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    // Get new Instance ID token
-                    final String fcmToken = task.getResult().getToken();
+                    // Get new FCM registration token
+                    final String fcmToken = task.getResult();
 
                     GigyaLogger.debug(LOG_TAG, "requestTokenAsync: " + fcmToken);
 
