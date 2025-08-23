@@ -53,7 +53,7 @@ class MainViewModel : ViewModel() {
         captchaInterruption: (CaptchaInterruption) -> Unit,
     ) {
         val params = mutableMapOf<String, Any>(
-            "loginID" to LineAuthenticationParams.WebAuthenticationMethod.email,
+            "loginID" to email,
             "password" to password
         )
         viewModelScope.launch {
@@ -246,6 +246,19 @@ class MainViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             val result = gigyaRepository.webAuthnRevoke()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
+        }
+    }
+
+    fun passwordlessList(
+        error: (GigyaError?) -> Unit, success: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = gigyaRepository.webAuthnGetCredentials()
             if (result.isError()) {
                 error(result.error)
                 return@launch

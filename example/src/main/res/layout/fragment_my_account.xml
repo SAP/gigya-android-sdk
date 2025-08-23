@@ -195,6 +195,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fido_register" />
 
+            <Button
+                android:id="@+id/fido_get"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/sap_gold"
+                android:text="@string/fido_get_credentials"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fido_revoke" />
+
             <View
                 android:id="@+id/ac_sep2"
                 android:layout_width="match_parent"
@@ -203,7 +215,7 @@
                 android:background="@color/sap_blue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fido_revoke" />
+                app:layout_constraintTop_toBottomOf="@id/fido_get" />
 
             <EditText
                 android:id="@+id/account_screensets_name_edit"

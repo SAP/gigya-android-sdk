@@ -363,6 +363,30 @@ class GigyaRepository {
         }
     }
 
+    @UiThread
+    suspend fun webAuthnGetCredentials(): GigyaRepoResponse {
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.WebAuthn()
+                .getCredentials(object : GigyaCallback<GigyaApiResponse>() {
+                    override fun onSuccess(obj: GigyaApiResponse?) {
+                        obj?.let {
+                            res.optional = it
+                            continuation.resume(res)
+                        }
+                    }
+
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
+                    }
+
+                })
+        }
+    }
+
     fun otpLoginWith(phoneNumber: String): Flow<GigyaRepoResponse> {
         Log.d(TAG, "otpLoginFlow: initiating")
         val flow: Flow<GigyaRepoResponse> = callbackFlow() {

@@ -28,6 +28,8 @@ import com.gigya.android.sdk.auth.models.WebAuthnInitRegisterResponseModel;
 import com.gigya.android.sdk.auth.models.WebAuthnKeyModel;
 import com.gigya.android.sdk.auth.models.WebAuthnOptionsModel;
 import com.gigya.android.sdk.auth.models.WebAuthnOptionsBinding;
+import com.gigya.android.sdk.auth.passkeys.CreateCredentialResult;
+import com.gigya.android.sdk.auth.passkeys.GetCredentialResult;
 import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider;
 import com.gigya.android.sdk.auth.passkeys.PasswordLessKeyUtils;
 import com.gigya.android.sdk.containers.IoCContainer;
@@ -269,89 +271,96 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                 // Options
                 final String optionsJson = webAuthnInitRegisterResponseModel.options;
-                CompletableFuture<String> future = _passkeysAuthenticationProvider.createPasskey(optionsJson);
+                CompletableFuture<CreateCredentialResult> future = _passkeysAuthenticationProvider.createPasskey(optionsJson);
                 // Handle the result asynchronously
-                future.thenAccept(new java.util.function.Consumer<String>() {
-                    @Override
-                    public void accept(String attestation) {
-                        if (attestation != null) {
-                            System.out.println("Passkey created: " + attestation);
+                future.thenAccept(result -> {
+                    if (result == null) {
+                        notifyError(new GigyaError(200001, "Passkey creation was cancelled or failed."), gigyaCallback);
+                        return;
+                    }
 
-                            final Map<String, Object> registerCredentialsParameters = new HashMap<>();
-                            registerCredentialsParameters.put("attestation", attestation);
-                            registerCredentialsParameters.put("token", webAuthnInitRegisterResponseModel.token);
-                            registerCredentialsParameters.put("deviceName", "Android");
-                            registerCredentials(registerCredentialsParameters, new GigyaCallback<GigyaApiResponse>() {
+                    if (result.getError() != null) {
+                        notifyError(new GigyaError(
+                                200001,
+                                "Passkey creation error: " + result.getError().getMessage()
+                        ), gigyaCallback);
+                        return;
+                    }
+
+                    final String attestation = result.getCredential().getData().getString("androidx.credentials.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON");
+                    System.out.println("Passkey created: " + attestation);
+
+                    final Map<String, Object> registerCredentialsParameters = new HashMap<>();
+                    registerCredentialsParameters.put("attestation", attestation);
+                    registerCredentialsParameters.put("token", webAuthnInitRegisterResponseModel.token);
+                    registerCredentialsParameters.put("deviceName", "Android");
+                    registerCredentials(registerCredentialsParameters, new GigyaCallback<GigyaApiResponse>() {
+                        @Override
+                        public void onSuccess(GigyaApiResponse response) {
+                            GigyaLogger.debug(LOG_TAG, "registerCredentials success:\n" + response.asJson());
+
+                            if (response.getErrorCode() != 0) {
+                                GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                notifyError(GigyaError.fromResponse(response), gigyaCallback);
+                                return;
+                            }
+
+                            final String idToken = response.getField("idToken", String.class);
+                            if (idToken == null) {
+                                GigyaLogger.error(LOG_TAG, "registerCredentials: missing idToken");
+                                notifyError(new GigyaError(200001, "registerCredentials: missing idToken"), gigyaCallback);
+                                return;
+                            }
+
+                            // Account UID is required to align unique user to passkey.
+                            businessApiService.getAccount(new GigyaCallback<A>() {
+
                                 @Override
-                                public void onSuccess(GigyaApiResponse response) {
-                                    GigyaLogger.debug(LOG_TAG, "registerCredentials success:\n" + response.asJson());
-
-                                    if (response.getErrorCode() != 0) {
-                                        GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                                        notifyError(GigyaError.fromResponse(response), gigyaCallback);
-                                        return;
-                                    }
-
-                                    final String idToken = response.getField("idToken", String.class);
-                                    if (idToken == null) {
-                                        GigyaLogger.error(LOG_TAG, "registerCredentials: missing idToken");
-                                        notifyError(new GigyaError(200001, "registerCredentials: missing idToken"), gigyaCallback);
-                                        return;
-                                    }
-
-                                    // Account UID is required to align unique user to passkey.
-                                    businessApiService.getAccount(new GigyaCallback<A>() {
-
+                                public void onSuccess(final A account) {
+                                    oauthService.connect(idToken, new GigyaCallback<GigyaApiResponse>() {
                                         @Override
-                                        public void onSuccess(final A account) {
-                                            oauthService.connect(idToken, new GigyaCallback<GigyaApiResponse>() {
-                                                @Override
-                                                public void onSuccess(GigyaApiResponse response) {
-                                                    GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
+                                        public void onSuccess(GigyaApiResponse response) {
+                                            GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
 
-                                                    // Store passkey meta-data
-                                                    persistenceService.storePasswordLessKey(
-                                                            account.getUID(),
-                                                            fromAttestationResponse(attestation, optionsJson)
-                                                    );
+                                            // Store passkey meta-data
+                                            persistenceService.storePasswordLessKey(
+                                                    account.getUID(),
+                                                    fromAttestationResponse(attestation, optionsJson)
+                                            );
 
-                                                    if (response.getErrorCode() != 0) {
-                                                        GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                                                        notifyError(GigyaError.fromResponse(response), gigyaCallback);
-                                                        return;
-                                                    }
+                                            if (response.getErrorCode() != 0) {
+                                                GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                                notifyError(GigyaError.fromResponse(response), gigyaCallback);
+                                                return;
+                                            }
 
-                                                    notifySuccess(response, gigyaCallback);
-                                                }
-
-                                                @Override
-                                                public void onError(GigyaError error) {
-                                                    GigyaLogger.error(LOG_TAG, "connect api error: \n" + error.getData());
-                                                    notifyError(error, gigyaCallback);
-                                                }
-                                            });
+                                            notifySuccess(response, gigyaCallback);
                                         }
 
                                         @Override
                                         public void onError(GigyaError error) {
-                                            GigyaLogger.error(LOG_TAG, "registerCredentials: Failed to obtain account information");
+                                            GigyaLogger.error(LOG_TAG, "connect api error: \n" + error.getData());
                                             notifyError(error, gigyaCallback);
                                         }
                                     });
-
-
                                 }
 
                                 @Override
                                 public void onError(GigyaError error) {
-                                    GigyaLogger.error(LOG_TAG, "registerCredentials error:\n" + error.getData());
+                                    GigyaLogger.error(LOG_TAG, "registerCredentials: Failed to obtain account information");
                                     notifyError(error, gigyaCallback);
                                 }
                             });
-                        } else {
-                            System.out.println("Failed to create passkey.");
+
+
                         }
-                    }
+
+                        @Override
+                        public void onError(GigyaError error) {
+                            GigyaLogger.error(LOG_TAG, "registerCredentials error:\n" + error.getData());
+                            notifyError(error, gigyaCallback);
+                        }
+                    });
                 }).exceptionally(new java.util.function.Function<Throwable, Void>() {
                     @Override
                     public Void apply(Throwable e) {
@@ -657,88 +666,99 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                     return;
                 }
 
-                CompletableFuture<String> future = _passkeysAuthenticationProvider.getPasskey(webAuthnGetOptionsResponseModel.options);
-                future.thenAccept(assertion -> {
-                    if (assertion != null) {
-
-                        final Map<String, Object> params = new HashMap<>();
-                        params.put("authenticatorAssertion", assertion);
-                        params.put("token", webAuthnGetOptionsResponseModel.token);
-
-                        verifyAssertion(params, new GigyaCallback<GigyaApiResponse>() {
-                            @Override
-                            public void onSuccess(GigyaApiResponse response) {
-                                GigyaLogger.debug(LOG_TAG, "verifyAssertion success:\n" + response.asJson());
-
-                                if (response.getErrorCode() != 0) {
-                                    GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                                    notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
-                                    return;
-                                }
-
-                                final String idToken = response.getField("idToken", String.class);
-                                if (idToken == null) {
-                                    GigyaLogger.error(LOG_TAG, "verifyAssertion: missing idToken");
-                                    notifyLoginError(new GigyaError(200001, "verifyAssertion: missing idToken"), gigyaCallback);
-                                    return;
-                                }
-
-                                // Authorize idToken.
-                                oauthService.authorize(idToken, new GigyaCallback<GigyaApiResponse>() {
-                                    @Override
-                                    public void onSuccess(GigyaApiResponse response) {
-                                        GigyaLogger.debug(LOG_TAG, "authorize api success response:\n" + response.asJson());
-
-                                        if (response.getErrorCode() != 0) {
-                                            GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                                            notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
-                                            return;
-                                        }
-
-                                        if (response.contains("code")) {
-                                            final String code = response.getField("code", String.class);
-                                            oauthService.token(code, new GigyaCallback<GigyaApiResponse>() {
-                                                @Override
-                                                public void onSuccess(GigyaApiResponse response) {
-                                                    GigyaLogger.debug(LOG_TAG, "token api success response:\n" + response.asJson());
-
-                                                    if (response.getErrorCode() != 0) {
-                                                        GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
-                                                        notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
-                                                        return;
-                                                    }
-
-                                                    oauthService.clearLoginParams();
-
-                                                    // Session received. Update session service.
-                                                    notifySession(response, gigyaCallback);
-                                                }
-
-                                                @Override
-                                                public void onError(GigyaError error) {
-                                                    GigyaLogger.error(LOG_TAG, "token api error: \n" + error.getData());
-                                                    notifyLoginError(error, gigyaCallback);
-                                                }
-
-                                            });
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(GigyaError error) {
-                                        GigyaLogger.error(LOG_TAG, "authorize api error: \n" + error.getData());
-                                        notifyLoginError(error, gigyaCallback);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(GigyaError error) {
-                                GigyaLogger.error(LOG_TAG, "verifyAssertion error:\n" + error.getData());
-                                notifyLoginError(error, gigyaCallback);
-                            }
-                        });
+                CompletableFuture<GetCredentialResult> future = _passkeysAuthenticationProvider.getPasskey(webAuthnGetOptionsResponseModel.options);
+                future.thenAccept(result -> {
+                    if (result == null) {
+                        notifyLoginError(new GigyaError(200001, "Passkey sign-in was cancelled or failed."), gigyaCallback);
+                        return;
                     }
+
+                    if (result.getError() != null) {
+                        notifyLoginError(new GigyaError(
+                                200001,
+                                "Passkey creation error: " + result.getError().getMessage()
+                        ), gigyaCallback);
+                        return;
+                    }
+
+                    final String assertion = result.getCredential().getCredential().getData().getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON");
+                    final Map<String, Object> params = new HashMap<>();
+                    params.put("authenticatorAssertion", assertion);
+                    params.put("token", webAuthnGetOptionsResponseModel.token);
+
+                    verifyAssertion(params, new GigyaCallback<GigyaApiResponse>() {
+                        @Override
+                        public void onSuccess(GigyaApiResponse response) {
+                            GigyaLogger.debug(LOG_TAG, "verifyAssertion success:\n" + response.asJson());
+
+                            if (response.getErrorCode() != 0) {
+                                GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
+                                return;
+                            }
+
+                            final String idToken = response.getField("idToken", String.class);
+                            if (idToken == null) {
+                                GigyaLogger.error(LOG_TAG, "verifyAssertion: missing idToken");
+                                notifyLoginError(new GigyaError(200001, "verifyAssertion: missing idToken"), gigyaCallback);
+                                return;
+                            }
+
+                            // Authorize idToken.
+                            oauthService.authorize(idToken, new GigyaCallback<GigyaApiResponse>() {
+                                @Override
+                                public void onSuccess(GigyaApiResponse response) {
+                                    GigyaLogger.debug(LOG_TAG, "authorize api success response:\n" + response.asJson());
+
+                                    if (response.getErrorCode() != 0) {
+                                        GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                        notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
+                                        return;
+                                    }
+
+                                    if (response.contains("code")) {
+                                        final String code = response.getField("code", String.class);
+                                        oauthService.token(code, new GigyaCallback<GigyaApiResponse>() {
+                                            @Override
+                                            public void onSuccess(GigyaApiResponse response) {
+                                                GigyaLogger.debug(LOG_TAG, "token api success response:\n" + response.asJson());
+
+                                                if (response.getErrorCode() != 0) {
+                                                    GigyaLogger.error(LOG_TAG, "Response error: \n" + response.asJson());
+                                                    notifyLoginError(GigyaError.fromResponse(response), gigyaCallback);
+                                                    return;
+                                                }
+
+                                                oauthService.clearLoginParams();
+
+                                                // Session received. Update session service.
+                                                notifySession(response, gigyaCallback);
+                                            }
+
+                                            @Override
+                                            public void onError(GigyaError error) {
+                                                GigyaLogger.error(LOG_TAG, "token api error: \n" + error.getData());
+                                                notifyLoginError(error, gigyaCallback);
+                                            }
+
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onError(GigyaError error) {
+                                    GigyaLogger.error(LOG_TAG, "authorize api error: \n" + error.getData());
+                                    notifyLoginError(error, gigyaCallback);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(GigyaError error) {
+                            GigyaLogger.error(LOG_TAG, "verifyAssertion error:\n" + error.getData());
+                            notifyLoginError(error, gigyaCallback);
+                        }
+                    });
 
                 }).exceptionally(new java.util.function.Function<Throwable, Void>() {
                     @Override

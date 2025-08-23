@@ -36,8 +36,8 @@ class PasskeysAuthenticationProvider(
     private val executor: Executor = Executors.newSingleThreadExecutor()
 
     @SuppressLint("PublicKeyCredential")
-    override fun createPasskey(requestJson: String): CompletableFuture<String?> {
-        val future = CompletableFuture<String?>()
+    override fun createPasskey(requestJson: String): CompletableFuture<CreateCredentialResult?> {
+        val future = CompletableFuture<CreateCredentialResult?>()
         val context = weakActivity?.get()
         if (context == null) {
             future.complete(null)
@@ -61,13 +61,24 @@ class PasskeysAuthenticationProvider(
                 object :
                     CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException> {
                     override fun onResult(result: CreateCredentialResponse) {
-                        val resultJson = (result as? CreatePublicKeyCredentialResponse)?.registrationResponseJson
-                        future.complete(resultJson)
+                        val resultJson =
+                            (result as? CreatePublicKeyCredentialResponse)?.registrationResponseJson
+                        future.complete(
+                            CreateCredentialResult(
+                                credential = result,
+                                error = null
+                            )
+                        )
                     }
 
                     override fun onError(e: CreateCredentialException) {
                         GigyaLogger.debug(LOG_TAG, e.message ?: "Error creating passkey")
-                        future.complete(null)
+                        future.complete(
+                            CreateCredentialResult(
+                                credential = null,
+                                error = e
+                            )
+                        )
                     }
                 }
             )
@@ -78,8 +89,8 @@ class PasskeysAuthenticationProvider(
         return future
     }
 
-    override fun getPasskey(requestJson: String): CompletableFuture<String?> {
-        val future = CompletableFuture<String?>()
+    override fun getPasskey(requestJson: String): CompletableFuture<GetCredentialResult?> {
+        val future = CompletableFuture<GetCredentialResult?>()
         val context = weakActivity?.get()
         if (context == null) {
             future.complete(null)
@@ -101,12 +112,23 @@ class PasskeysAuthenticationProvider(
                 executor,
                 object : CredentialManagerCallback<GetCredentialResponse, GetCredentialException> {
                     override fun onResult(result: GetCredentialResponse) {
-                        future.complete(result.credential.data.getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON"))
+                        //result.credential.data.getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON"))
+                        future.complete(
+                            GetCredentialResult(
+                                credential = result,
+                                error = null
+                            )
+                        )
                     }
 
                     override fun onError(e: GetCredentialException) {
                         GigyaLogger.debug(LOG_TAG, e.message ?: "Error getting passkey")
-                        future.complete(null)
+                        future.complete(
+                            GetCredentialResult(
+                                credential = null,
+                                error = e
+                            )
+                        )
                     }
                 }
             )
@@ -117,3 +139,14 @@ class PasskeysAuthenticationProvider(
         return future
     }
 }
+
+data class CreateCredentialResult(
+    val credential: CreateCredentialResponse?,
+    val error: CreateCredentialException?
+)
+
+data class GetCredentialResult(
+    val credential: GetCredentialResponse?,
+    val error: GetCredentialException?
+)
+
