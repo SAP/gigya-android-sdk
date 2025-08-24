@@ -263,10 +263,6 @@ class GigyaRepository {
         }
     }
 
-    fun getWebAuthnKeys(uid: String): List<WebAuthnKeyModel> {
-        return gigyaInstance.WebAuthn().getKeys(uid) as List<WebAuthnKeyModel>
-    }
-
     @UiThread
     suspend fun webAuthnLogin(
         sessionExpiration: Int?,
