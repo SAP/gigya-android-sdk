@@ -19,13 +19,12 @@ class PasswordLessKeyUtils {
      */
     fun serialize(key: String, passwordLessKey: WebAuthnKeyModel, json: String?): String {
         // Parse the existing JSON string into a HashMap or create a new one
-        val type = object : TypeToken<MutableMap<String, MutableList<WebAuthnKeyModel>>>() {}.type
-        val dataMap: MutableMap<String, MutableList<WebAuthnKeyModel>> =
+        val type = object : TypeToken<MutableMap<String, WebAuthnKeyModel>>() {}.type
+        val dataMap: MutableMap<String, WebAuthnKeyModel> =
             if (json.isNullOrEmpty()) mutableMapOf() else gson.fromJson(json, type)
 
         // Add the PasswordLessKey object to the list for the given key
-        val list = dataMap.getOrPut(key) { mutableListOf() }
-        list.add(passwordLessKey)
+        dataMap[key] = passwordLessKey
 
         // Convert the updated HashMap to JSON
         return gson.toJson(dataMap)
@@ -34,9 +33,9 @@ class PasswordLessKeyUtils {
     /**
      * Deserialization of the saved key map.
      */
-    fun deserialize(json: String): MutableMap<String, List<WebAuthnKeyModel>> {
+    fun deserialize(json: String): MutableMap<String, WebAuthnKeyModel> {
         // Define the type for the HashMap
-        val type = object : TypeToken<MutableMap<String, List<WebAuthnKeyModel>>>() {}.type
+        val type = object : TypeToken<MutableMap<String, WebAuthnKeyModel>>() {}.type
         // Parse the JSON string back to a HashMap
         return gson.fromJson(json, type)
     }
@@ -44,14 +43,22 @@ class PasswordLessKeyUtils {
     /**
      * Method to check if a passkey exists for a given user ID
      */
-    fun hasPasskeyForUser(uid: String, json: String?): Boolean {
-        if (uid.isEmpty() || json.isNullOrEmpty()) return false
+    fun hasPasskey(json: String?): Boolean {
+        if (json.isNullOrEmpty()) return false
 
         // Deserialize the JSON string into a map
-        val type = object : TypeToken<Map<String, List<WebAuthnKeyModel>>>() {}.type
-        val dataMap: Map<String, List<WebAuthnKeyModel>> = gson.fromJson(json, type)
+        val dataMap: Map<String, WebAuthnKeyModel> = deserialize(json)
 
         // Check if the user ID exists and has associated passkeys
-        return dataMap[uid]?.isNotEmpty() == true
+        return dataMap.isNotEmpty()
+    }
+
+    fun getKeyFromStoredPassKey(id: String, json: String): String? {
+        val dataMap: Map<String, WebAuthnKeyModel> = deserialize(json)
+        return if (dataMap.containsKey(id)) {
+            dataMap[id]?.key
+        } else {
+            null
+        }
     }
 }

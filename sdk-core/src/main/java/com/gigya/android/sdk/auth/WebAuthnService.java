@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Base64;
+import android.util.Pair;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -74,6 +75,8 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     private IPasskeysAuthenticationProvider _passkeysAuthenticationProvider;
+
+    private final PasswordLessKeyUtils _passwordLessKeyUtils = new PasswordLessKeyUtils();
 
     private enum WebAuthnApis {
         initRegisterCredentials("accounts.auth.fido.initRegisterCredentials"),
@@ -323,9 +326,15 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                                             GigyaLogger.debug(LOG_TAG, "connect api success response:\n" + response.asJson());
 
                                             // Store passkey meta-data
+                                            Pair<WebAuthnKeyModel, String> pair = fromAttestationResponse(account.getUID(), attestation, optionsJson);
+                                            if (pair == null) {
+                                                GigyaLogger.error(LOG_TAG, "register: Failed to parse attestation response.");
+                                                notifyError(new GigyaError(200001, "register: Failed to parse attestation response."), gigyaCallback);
+                                                return;
+                                            }
                                             persistenceService.storePasswordLessKey(
-                                                    account.getUID(),
-                                                    fromAttestationResponse(attestation, optionsJson)
+                                                    pair.second,
+                                                    pair.first
                                             );
 
                                             if (response.getErrorCode() != 0) {
@@ -378,7 +387,9 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         });
     }
 
-    public static WebAuthnKeyModel fromAttestationResponse(String attestationJson, String optionsJson) {
+    public static Pair<WebAuthnKeyModel, String> fromAttestationResponse(String uid,
+                                                                         String attestationJson,
+                                                                         String optionsJson) {
         try {
             // Parse the attestation response
             JSONObject attestationObject = new JSONObject(attestationJson);
@@ -398,13 +409,20 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
             String displayName = user.getString("displayName");
             String authenticatorAttachment = authenticatorSelection.getString("authenticatorAttachment");
 
+            // Make sure to encode the raw id as base64url
+            byte[] decoded = Base64.decode(rawId, Base64.DEFAULT);
+            final String id = Base64.encodeToString(decoded, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+
             // Create WebAuthnKeyModel with extracted data
-            return new WebAuthnKeyModel(
-                    userName,                    // name
-                    displayName,                 // displayName
-                    rawId,                      // uid
-                    authenticatorAttachment,     // type (platform/cross-platform)
-                    attestationObjectData       // key (the attestation object)
+            return new Pair<>(
+                    new WebAuthnKeyModel(
+                            userName,                    // name
+                            displayName,                 // displayName
+                            uid,                      // uid
+                            authenticatorAttachment,     // type (platform/cross-platform)
+                            attestationObjectData       // key (the attestation object)
+                    ),
+                    id
             );
 
         } catch (Exception e) {
@@ -901,9 +919,8 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     @Override
     public void revoke(
             final GigyaCallback<GigyaApiResponse> gigyaCallback) {
-        // Currently only one passkey allowed at one time in FIDO2 config. list will always contain 1 entry.
-        // To revoke a key we will first try to remove the FIDO2 key.
-        WebAuthnKeyModel keyModel = getPassKey();
+        // Currently only one passkey allowed at one time. list will always contain 1 entry.
+        final WebAuthnKeyModel keyModel = getPassKey();
         if (keyModel == null) {
             GigyaLogger.error(LOG_TAG, "PassKey not available");
             gigyaCallback.onError(new GigyaError(200001, "PassKey not available"));
@@ -952,9 +969,65 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         });
     }
 
+    /**
+     * Initialize revoke key flow.
+     * Revoking a key will perform its removal from Gigya services only. You cannot delete a fido key from the device
+     * once it has been created.
+     * <p>
+     * Use "getCredentials" to fetch available passkey ids.
+     *
+     * @param id            Identifier of the passkey to be revoked.
+     * @param gigyaCallback Result callback.
+     */
     @Override
-    public List<WebAuthnKeyModel> getKeys(String id) {
-        return null;
+    public void revoke(String id, GigyaCallback<GigyaApiResponse> gigyaCallback) {
+        final String key = _passwordLessKeyUtils.getKeyFromStoredPassKey(id, persistenceService.getPasswordLessKeys());
+        if (key == null) {
+            GigyaLogger.error(LOG_TAG, "revoke: PassKey not available");
+            gigyaCallback.onError(new GigyaError(200001, "PassKey not available"));
+            return;
+        }
+
+        final byte[] decoded = Base64.decode(key.getBytes(),
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+
+        final Map<String, Object> params = new HashMap<>();
+        final String credentialId = Base64.encodeToString(decoded, Base64.NO_WRAP).trim();
+        params.put("credentialId", credentialId);
+        removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
+            @Override
+            public void onSuccess(GigyaApiResponse obj) {
+                clearPassKey();
+
+                final String idToken = obj.getField("idToken", String.class);
+                if (idToken == null) {
+                    GigyaLogger.error(LOG_TAG, "revoke: Failed to fetch idToken.");
+                    return;
+                }
+
+                // Disconnect
+                oauthService.disconnect(
+                        key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                            @Override
+                            public void onSuccess(GigyaApiResponse obj) {
+                                gigyaCallback.onSuccess(obj);
+                            }
+
+                            @Override
+                            public void onError(GigyaError error) {
+                                gigyaCallback.onError(error);
+                            }
+                        }
+                );
+
+
+            }
+
+            @Override
+            public void onError(GigyaError error) {
+                gigyaCallback.onError(error);
+            }
+        });
     }
 
     //endregion
@@ -1139,12 +1212,11 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
      */
     public boolean passkeyForUser(String uid) {
         if (uid == null) return false;
-
-        PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
-        String json = persistenceService.getPasswordLessKeys();
-
-        // Delegate the check to the utility method
-        return utils.hasPasskeyForUser(uid, json);
+        List<WebAuthnKeyModel> keys = getPassKeys();
+        if (!keys.isEmpty()) {
+            return keys.get(0).uid.equals(uid);
+        }
+        return false;
     }
 
     @Nullable
@@ -1152,6 +1224,12 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         final List<WebAuthnKeyModel> keys = getPassKeys();
         if (keys.isEmpty()) return null;
         return keys.get(0);
+    }
+
+    private boolean CMPasskeyAvailable() {
+        return _passwordLessKeyUtils.hasPasskey(
+                persistenceService.getPasswordLessKeys()
+        );
     }
 
     //endregion

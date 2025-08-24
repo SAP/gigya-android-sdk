@@ -72,6 +72,4 @@ public interface IPersistenceService {
     String getPasswordLessKeys();
 
     void storePasswordLessKey(String id, WebAuthnKeyModel key);
-
-    List<WebAuthnKeyModel> getPasswordLessKeys(String id);
 }

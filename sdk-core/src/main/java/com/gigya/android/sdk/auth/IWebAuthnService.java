@@ -42,8 +42,6 @@ public interface IWebAuthnService<A extends GigyaAccount> {
     void handleFidoResult(
             ActivityResult activityResult);
 
-    List<WebAuthnKeyModel> getKeys(String id);
-
     void register(
             GigyaCallback<GigyaApiResponse> gigyaCallback);
 
@@ -52,6 +50,11 @@ public interface IWebAuthnService<A extends GigyaAccount> {
     void login(Map<String, Object> params, GigyaLoginCallback<A> gigyaCallback);
 
     void getCredentials(
+            GigyaCallback<GigyaApiResponse> gigyaCallback
+    );
+
+    void revoke(
+            String id,
             GigyaCallback<GigyaApiResponse> gigyaCallback
     );
 

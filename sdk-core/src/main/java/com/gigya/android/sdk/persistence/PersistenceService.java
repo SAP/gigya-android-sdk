@@ -254,6 +254,7 @@ public class PersistenceService implements IPersistenceService {
      * @deprecated
      */
     @Override
+    @Deprecated
     public void savePassKeys(String keys) {
         getPrefs().edit().putString(PREFS_PASSKEYS, keys).apply();
     }
@@ -263,6 +264,7 @@ public class PersistenceService implements IPersistenceService {
      * @deprecated
      */
     @Override
+    @Deprecated
     public String getPassKeys() {
         return getPrefs().getString(PREFS_PASSKEYS, "[]");
     }
@@ -271,6 +273,7 @@ public class PersistenceService implements IPersistenceService {
      * @deprecated
      */
     @Override
+    @Deprecated
     public void clearPassKeys() {
         getPrefs().edit().remove(PREFS_PASSKEYS).apply();
     }
@@ -295,20 +298,6 @@ public class PersistenceService implements IPersistenceService {
         String newJson = utils.serialize(id, key, json);
         getPrefs().edit().putString(PREFS_PASSWORDLESS_KEYS, newJson).apply();
     }
-
-    @Override
-    public List<WebAuthnKeyModel> getPasswordLessKeys(String id) {
-        String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
-        PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
-        if (json != null) {
-            Map<String, List<WebAuthnKeyModel>> map = utils.deserialize(json);
-            if (map.containsKey(id)) {
-                return map.get(id);
-            }
-        }
-        return Collections.emptyList();
-    }
-
 
     //endregion
 
