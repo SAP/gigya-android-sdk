@@ -86,9 +86,9 @@ afterEvaluate {
 }
 
 tasks.register('javadocJar', Jar) {
-    dependsOn dokkaJavadoc
     archiveClassifier.set('javadoc')
-    from dokkaJavadoc.outputDirectory
+    dependsOn tasks.named('dokkaGeneratePublicationHtml')
+    from tasks.named('dokkaGeneratePublicationHtml').map { it.outputs.files }
 }
 
 artifacts {
