@@ -410,8 +410,8 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
             String authenticatorAttachment = authenticatorSelection.getString("authenticatorAttachment");
 
             // Make sure to encode the raw id as base64url
-            byte[] decoded = Base64.decode(rawId, Base64.DEFAULT);
-            final String id = Base64.encodeToString(decoded, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+            byte[] decoded = Base64.decode(rawId, Base64.URL_SAFE);
+            final String id = Base64.encodeToString(decoded, Base64.NO_WRAP);
 
             // Create WebAuthnKeyModel with extracted data
             return new Pair<>(
@@ -420,7 +420,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
                             displayName,                 // displayName
                             uid,                      // uid
                             authenticatorAttachment,     // type (platform/cross-platform)
-                            attestationObjectData       // key (the attestation object)
+                            rawId       // key (the attestation object)
                     ),
                     id
             );
@@ -533,7 +533,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                                         // Disconnect
                                         oauthService.disconnect(
-                                                key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                                                idToken, true, new GigyaCallback<GigyaApiResponse>() {
                                                     @Override
                                                     public void onSuccess(GigyaApiResponse obj) {
                                                         GigyaLogger.debug(LOG_TAG, "revoke: disconnect success on old key.");
@@ -946,7 +946,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                 // Disconnect
                 oauthService.disconnect(
-                        key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                        idToken, true, new GigyaCallback<GigyaApiResponse>() {
                             @Override
                             public void onSuccess(GigyaApiResponse obj) {
                                 gigyaCallback.onSuccess(obj);
@@ -989,7 +989,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         }
 
         final byte[] decoded = Base64.decode(key.getBytes(),
-                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+                Base64.URL_SAFE);
 
         final Map<String, Object> params = new HashMap<>();
         final String credentialId = Base64.encodeToString(decoded, Base64.NO_WRAP).trim();
@@ -997,7 +997,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
         removeCredential(params, new GigyaCallback<GigyaApiResponse>() {
             @Override
             public void onSuccess(GigyaApiResponse obj) {
-                clearPassKey();
+                persistenceService.removePasswordLessKey(id);
 
                 final String idToken = obj.getField("idToken", String.class);
                 if (idToken == null) {
@@ -1007,7 +1007,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
                 // Disconnect
                 oauthService.disconnect(
-                        key, idToken, true, new GigyaCallback<GigyaApiResponse>() {
+                        idToken, true, new GigyaCallback<GigyaApiResponse>() {
                             @Override
                             public void onSuccess(GigyaApiResponse obj) {
                                 gigyaCallback.onSuccess(obj);
@@ -1189,7 +1189,7 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
     }
 
     /**
-     * Clears all passkeys from preferences.
+     * Clears all FIDO keys from preferences
      */
     private void clearPassKey() {
         this.persistenceService.clearPassKeys();

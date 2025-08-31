@@ -53,6 +53,12 @@ class PasswordLessKeyUtils {
         return dataMap.isNotEmpty()
     }
 
+    fun remove(json: String, key: String): String {
+        val dataMap = deserialize(json)
+        dataMap.remove(key)
+        return gson.toJson(dataMap)
+    }
+
     fun getKeyFromStoredPassKey(id: String, json: String): String? {
         val dataMap: Map<String, WebAuthnKeyModel> = deserialize(json)
         return if (dataMap.containsKey(id)) {

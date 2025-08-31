@@ -54,10 +54,9 @@ public class OauthService implements IOauthService {
     }
 
     @Override
-    public void disconnect(String regToken, String idToken, boolean ignoreApiQueue, final GigyaCallback<GigyaApiResponse> callback) {
+    public void disconnect(String idToken, boolean ignoreApiQueue, final GigyaCallback<GigyaApiResponse> callback) {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("ignoreApiQueue", ignoreApiQueue);
-        params.put("regToken", regToken);
         final HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + idToken);
         this.businessApiService.send(

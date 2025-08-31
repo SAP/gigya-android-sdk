@@ -299,6 +299,16 @@ public class PersistenceService implements IPersistenceService {
         getPrefs().edit().putString(PREFS_PASSWORDLESS_KEYS, newJson).apply();
     }
 
+    @Override
+    public void removePasswordLessKey(String id) {
+        String json = getPrefs().getString(PREFS_PASSWORDLESS_KEYS, null);
+        if (json == null) return;
+        PasswordLessKeyUtils utils = new PasswordLessKeyUtils();
+        String newJson = utils.remove(json, id);
+        getPrefs().edit().putString(PREFS_PASSWORDLESS_KEYS, newJson).apply();
+    }
+
+
     //endregion
 
     //region KEYS
