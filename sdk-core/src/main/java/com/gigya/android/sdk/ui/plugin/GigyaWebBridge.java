@@ -141,6 +141,9 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
         final Map<String, Object> params = new HashMap<>();
         UrlUtils.parseUrlParameters(params, deobfuscate((String) data.get("params")));
 
+        final Map<String, Object> headers = new HashMap<>();
+        UrlUtils.parseUrlParameters(headers, deobfuscate((String) data.get("headers")));
+
         // Get settings map.
         final Map<String, Object> settings = new HashMap<>();
         UrlUtils.parseUrlParameters(settings, (String) data.get("settings"));
@@ -157,7 +160,12 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                 break;
             case SEND_REQUEST:
             case SEND_OAUTH_REQUEST:
-                mapApisToRequests(feature, callbackId, method, params);
+                mapApisToRequests(
+                        feature,
+                        callbackId,
+                        method,
+                        params,
+                        UrlUtils.convertToStringMap(headers));
                 break;
             case ON_PLUGIN_EVENT:
                 onPluginEvent(params);
@@ -211,7 +219,8 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     private void mapApisToRequests(Feature feature,
                                    String callbackId,
                                    String api,
-                                   Map<String, Object> params) {
+                                   Map<String, Object> params,
+                                   Map<String, String> headers) {
         GigyaLogger.debug(LOG_TAG, "mapApisToRequests with api: " + api + " and params:\n<<<<" + params.toString() + "\n>>>>");
         switch (api) {
             case "socialize.logout":
@@ -228,7 +237,7 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                 break;
             default:
                 if (feature.equals(Feature.SEND_REQUEST)) {
-                    sendRequest(callbackId, api, params);
+                    sendRequest(callbackId, api, params, headers);
                 } else if (feature.equals(Feature.SEND_OAUTH_REQUEST)) {
                     sendOAuthRequest(callbackId, api, params);
                 }
@@ -293,11 +302,11 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
     //region APIS
 
     @Override
-    public void sendRequest(final String callbackId, final String api, final Map<String, Object> params) {
+    public void sendRequest(final String callbackId, final String api, final Map<String, Object> params, final Map<String, String> headers) {
         _businessApiService.send(
                 api,
                 params,
-                RestAdapter.POST,
+                headers,
                 GigyaApiResponse.class,
                 new GigyaCallback<GigyaApiResponse>() {
                     @Override
