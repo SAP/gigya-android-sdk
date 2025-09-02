@@ -79,7 +79,7 @@ android:theme="@style/Theme.AppCompat.Translucent">
 
 ### OKHttp Support
 
-The core SDK now supports using the OKHttp library to make network requests (which deprecates the use of the obsolete HttpUrlConnection & Volley).
+The core SDK now supports using the OKHttp library to make network requests (which deprecates the use of the obsolete HttpUrlConnection).
 To use the OKHttp library, please add both of the following to your application dependencies:
 ```
 implementation "com.squareup.okhttp3:okhttp:4.10.0"
@@ -333,7 +333,6 @@ Renren
 Sina Weibo
 Spiceworks
 Twitter
-VKontakte
 WeChat
 Xing
 Yahoo
@@ -1339,50 +1338,203 @@ gigyaInstance.getAuthCode(object : GigyaCallback<String>() {
 
 ## FIDO/WebAuthn Authentication
 FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
-Our Android SDK provides an interface to register a passkey, login, and revoke passkeys from the site or app created using Fido/Passkeys, backed by our WebAuthn service.
+Our Android SDK provides two implementations for FIDO/WebAuthn authentication:
 
-### SDK limitations:
-Only one passkey is supported at a time. Once registering a new key, the client's previous key will be automatically revoked.
+1. **Passkey Support (Recommended)** - Using Android's Credentials Manager API
+2. **FIDO2 Library (Deprecated)** - Legacy implementation using Google's FIDO API
 
-### SDK prerequisites:
-Android - minimum SDK version: 23
+### Passkey Support using Android's Credentials Manager API
 
-To use Fido authentication on mobile, make sure you have correctly set up your **Fido Configuration** section under the **Identity -> Security -> Authentication** tab of your SAP Customer Data Cloud console.
+The SDK now supports Passkeys through Android's Credentials Manager API, providing a more integrated and user-friendly authentication experience. This is the recommended approach for new implementations.
 
-### Android setup:
-The Google Fido API is required. Add the following to your application's build.gradle file.
+#### Prerequisites:
+- Android - minimum SDK version: 23
+- Make sure you have correctly set up your **Fido Configuration** section under the **Identity -> Security -> Authentication** tab of your SAP Customer Data Cloud console.
+
+#### Android Setup:
+Add the following dependencies to your application's build.gradle file:
+```groovy
+implementation "androidx.credentials:credentials:1.2.2"
+// optional - needed for credentials support from play services, for devices running
+// Android 13 and below.
+implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
+implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
 ```
+
+#### Setting up the Passkey Authentication Provider:
+The WebAuthn service requires an `IPasskeysAuthenticationProvider` to handle the Credentials Manager API interactions. The SDK provides a default implementation that you must set up in your hosting activity.
+
+Add the following setup in your Activity's `onCreate` method:
+```kotlin
+import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider
+import java.lang.ref.WeakReference
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    
+    // Set up the passkey authentication provider
+    Gigya.getInstance().WebAuthn()
+        .setPasskeyAuthenticationProvider(
+            PasskeysAuthenticationProvider(WeakReference(this))
+        )
+    
+    // ... rest of your onCreate code
+}
+```
+
+**Important:** The `PasskeysAuthenticationProvider` requires a `WeakReference` to your Activity context to access the Android Credentials Manager. Make sure to set this up before attempting to use any passkey authentication methods.
+
+**Custom Implementation:** If you need custom behavior, you can implement your own `IPasskeysAuthenticationProvider` instead of using the provided `PasskeysAuthenticationProvider` class.
+
+#### Interoperability with your website
+To leverage Android's Credentials Manager API, you are required to seamlessly share credentials across your website and Android application.
+Follow [Google guidelines](https://developers.google.com/identity/passkeys/android/get-started#add-support-dal) to add your assetlinks.json file to your RP domain host.
+
+#### Android Key Hash verification:
+Android Key Hash is the SHA256 fingerprints of your app's signing certificate.
+The Credentials Manager API requires your application origin to be verified with the WebAuthn service. To do so you will need to fetch your Android Key Hash and add it to the FIDO console configuration.
+There are several ways you can obtain your key. Either use your gradle "signingReport" task or use this code snippet:
+```kotlin
+try {
+    val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+    for (signature in info.signatures) {
+        val md: MessageDigest = MessageDigest.getInstance("SHA256")
+        md.update(signature.toByteArray())
+        Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(), 
+         Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
+    }
+} catch (e: PackageManager.NameNotFoundException) {
+} catch (e: NoSuchAlgorithmException) {
+}
+```
+
+#### Passkey Implementation:
+
+The Passkey interface contains 3 main methods:
+
+**Registration:**
+Registering a new passkey can be performed only when a valid session is available.
+```kotlin
+Gigya.getInstance().WebAuthn()
+    .register(object : GigyaCallback<GigyaApiResponse>() {
+        override fun onSuccess(response: GigyaApiResponse?) {
+            // Success.
+            Log.d("Passkey", "register success")
+        }
+
+        override fun onError(error: GigyaError?) {
+            // Handle error here.
+            error?.let {
+                Log.d("Passkey", "register error with:\n" + it.data)
+            }
+        }
+    })
+```
+
+**Login:**
+Logging in using a valid passkey.
+```kotlin
+Gigya.getInstance().WebAuthn()
+    .login(object : GigyaLoginCallback<GigyaAccount>() {
+        override fun onSuccess(account: GigyaAccount) {
+            // Success.
+            Log.d("Passkey", "login success")
+        }
+
+        override fun onError(error: GigyaError?) {
+            // Handle error here.
+            error?.let { 
+                Log.d("Passkey", "login error with:\n" + error.data)
+            }
+        }
+    })
+```
+
+**Login with Parameters:**
+Logging in using a valid passkey with additional parameters.
+```kotlin
+val params = mapOf<String, Object>(
+    "sessionExpiration" to 3600 // Optional: session expiration in seconds
+)
+
+Gigya.getInstance().WebAuthn()
+    .login(params, object : GigyaLoginCallback<GigyaAccount>() {
+        override fun onSuccess(account: GigyaAccount) {
+            // Success.
+            Log.d("Passkey", "login success")
+        }
+
+        override fun onError(error: GigyaError?) {
+            // Handle error here.
+            error?.let { 
+                Log.d("Passkey", "login error with:\n" + error.data)
+            }
+        }
+    })
+```
+
+**Get Credentials:**
+Retrieve information about stored credentials.
+```kotlin
+Gigya.getInstance().WebAuthn()
+    .getCredentials(object : GigyaCallback<GigyaApiResponse>() {
+        override fun onSuccess(response: GigyaApiResponse?) {
+            // Success.
+            Log.d("Passkey", "getCredentials success")
+        }
+
+        override fun onError(error: GigyaError?) {
+            // Handle error here.
+            error?.let {
+                Log.d("Passkey", "getCredentials error with:\n" + it.data)
+            }
+        }
+    })
+```
+
+**Revoke Passkey:**
+Revoke a specific passkey from the server using its ID. Because multiple passkeys can exist, you must first use `getCredentials()` to retrieve the available credentials and their IDs, then allow the user to select which credential to revoke. Note that this will only remove the passkey from the server, not from the device's password manager.
+
+```kotlin
+Gigya.getInstance().WebAuthn()
+    .revoke(credentialId, object : GigyaCallback<GigyaApiResponse>() {
+        override fun onSuccess(response: GigyaApiResponse?) {
+            // Success.
+            Log.d("Passkey", "revoke success")
+        }
+
+        override fun onError(error: GigyaError?) {
+            // Handle error here.
+            error?.let {
+                Log.d("Passkey", "revoke error with:\n" + it.data)
+            }
+        }
+    })
+```
+
+**Why getCredentials is required before revoke:**
+The `revoke` method requires a specific credential ID parameter. To obtain the available credential IDs, you must first call `getCredentials()` to retrieve the list of stored credentials from the server. The user can then select which credential they want to revoke, and you can use that credential's ID with the `revoke` method.
+
+#### Important Notes:
+- **Revoke Limitation**: Using the revoke interface will only remove the passkey from the server. It will not delete the passkey from the device's selected password manager (e.g., Google Password Manager, device keychain). Users will need to manually remove the passkey from their password manager if desired.
+- **Web Screen-Sets**: Passkey support using Web screen-sets is not yet available. Passkey authentication must be implemented using the native SDK methods shown above.
+
+### FIDO2 Library Implementation (Deprecated)
+
+**⚠️ DEPRECATED**: The FIDO2 library implementation is deprecated in favor of the new Passkey support using Android's Credentials Manager API. While this implementation will continue to work, we recommend migrating to the Passkey implementation for new projects.
+
+#### Android setup:
+The Google Fido API is required. Add the following to your application's build.gradle file.
+```groovy
 implementation 'com.google.android.gms:play-services-fido:18.1.0'
 ```
 
-**Interoperability with your website**
-To leverage Google’s FIDO API you are required to seamlessly share credentials across your website and Android application.
-Follow [Google guidelines](https://developers.google.com/identity/fido/android/native-apps#interoperability_with_your_website) to add your assetlinks.json file to your RP domain host.
-
-**Android Key Hash verification:**
-Android Key Hash is the SHA256 fingerprints of your app’s signing certificate.
-Google’s Fido API requires your application origin to be verified with the WebAuthn service. To do so you will need to fetch your Android Key Hash and add it to the FIDO console configuration.
-There are several ways you can obtain your key. Either use your gradle “signingReport” task or use this code snippet:
-```
-try {
-            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
-                val md: MessageDigest = MessageDigest.getInstance("SHA256")
-                md.update(signature.toByteArray())
-                Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(), 
-                 Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-        } catch (e: NoSuchAlgorithmException) {
-        }
-```
-
-### Android Implementation.
+#### Android Implementation:
 
 A result handler is required to process the FIDO library result intent.
 Add the following to your activity:
 
-```
+```kotlin
 // Custom result handler for FIDO sender intents.
 val resultHandler: ActivityResultLauncher<IntentSenderRequest> =
        registerForActivityResult(
@@ -1393,14 +1545,13 @@ val resultHandler: ActivityResultLauncher<IntentSenderRequest> =
                            ?.joinToString { it }
            Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
        }
-
 ```
 
-The Fido interface contains 3 methods:
+The FIDO2 interface contains 3 methods:
 
 **Registration:**
 Registering a new passkey can be performed only when a valid session is available.
-```
+```kotlin
 Gigya.getInstance().WebAuthn()
             .register(resultHandler, object : GigyaCallback<GigyaApiResponse>() {
 
@@ -1410,7 +1561,6 @@ Gigya.getInstance().WebAuthn()
                 }
 
                 override fun onError(p0: GigyaError?) {
-                    visibleProgress(false)
                     // Handle error here.
                     p0?.let {
                         Log.d("FIDO", "register error with:\n" + it.data)
@@ -1422,7 +1572,7 @@ Gigya.getInstance().WebAuthn()
 
 **Login:**
 Logging in using a valid passkey.
-```
+```kotlin
 Gigya.getInstance().WebAuthn()
             .login(resultHandler, object : GigyaLoginCallback<GigyaAccount>() {
 
@@ -1442,27 +1592,29 @@ Gigya.getInstance().WebAuthn()
             })
 ```
 
-
 **Revoke:**
 Revoking the current passkey. Logging in will not be available until registering a new one.
-```
+```kotlin
 Gigya.getInstance().WebAuthn()
             .revoke(object : GigyaCallback<GigyaApiResponse>() {
 
                 override fun onSuccess(p0: GigyaApiResponse?) {
                     // Success.
-                    Log.d(“FIDO", "revoke success")
+                    Log.d("FIDO", "revoke success")
                 }
 
                 override fun onError(p0: GigyaError?) {
                     // Handle error here.
                     p0?.let {
-                        Log.d(“FIDO", "revoke error with:\n" + it.data)
+                        Log.d("FIDO", "revoke error with:\n" + it.data)
                     }
                 }
 
             })
 ```
+
+#### Important Notes:
+- **Single FIDO2 Key Limitation**: Only one FIDO2 key is supported at a time. Once registering a new key, the client's previous key will be automatically revoked.
 
 ## Error reporting
 
@@ -1499,4 +1651,3 @@ Via pull request to this repository.
 
 ## To-Do (upcoming changes)
 None
-

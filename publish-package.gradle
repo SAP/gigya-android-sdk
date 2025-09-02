@@ -28,7 +28,14 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+                artifact androidSourcesJar
+                artifact javadocJar
 
                 groupId project.group
                 artifactId project.ext.artifactId
@@ -80,21 +87,11 @@ afterEvaluate {
 
 tasks.register('javadocJar', Jar) {
     archiveClassifier.set('javadoc')
-    if (tasks.findByName('javadoc') != null) {
-        dependsOn javadoc
-        from javadoc.destinationDir
-    } else {
-        // Handle cases where javadoc task is not available
-        from file('src/main/java') // Adjust this path as needed
-    }
+    dependsOn tasks.named('dokkaGeneratePublicationHtml')
+    from tasks.named('dokkaGeneratePublicationHtml').map { it.outputs.files }
 }
 
 artifacts {
     archives androidSourcesJar
     archives javadocJar
 }
-
-
-
-
-

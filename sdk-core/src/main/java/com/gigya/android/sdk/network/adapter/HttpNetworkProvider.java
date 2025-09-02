@@ -41,7 +41,15 @@ public class HttpNetworkProvider extends NetworkProvider {
             return;
         }
         // If not blocked send the request.
-        new ExecutorAsyncTask(networkCallbacks).execute(_requestFactory.sign(request));
+
+        if (!request.getParams().containsKey("regToken")) {
+            new ExecutorAsyncTask(networkCallbacks).execute(
+                    _requestFactory.sign(request));
+        } else {
+            new ExecutorAsyncTask(networkCallbacks).execute(
+                    _requestFactory.unsigned(request));
+        }
+
     }
 
     @Override
@@ -64,10 +72,14 @@ public class HttpNetworkProvider extends NetworkProvider {
         }
 
         HttpTask queued = _queue.poll();
-        // Requests need to be re-signed when released from the blocking queue.
-        _requestFactory.sign(queued.getRequest());
 
         while (queued != null) {
+            // Requests need to be re-signed when released from the blocking queue.
+            if (!queued.request.getParams().containsKey("regToken")) {
+                _requestFactory.sign(queued.getRequest());
+            } else {
+                _requestFactory.unsigned(queued.getRequest());
+            }
             queued.run();
             queued = _queue.poll();
         }
@@ -130,8 +142,12 @@ public class HttpNetworkProvider extends NetworkProvider {
         }
 
         void run() {
-            final GigyaApiHttpRequest signedRequest = this.requestFactory.sign(request);
-            this.asyncTask.execute(signedRequest);
+            if (!request.getParams().containsKey("regToken")) {
+                // If the request contains a regToken, it should be unsigned.
+                this.asyncTask.execute(this.requestFactory.unsigned(request));
+            } else {
+                this.asyncTask.execute(this.requestFactory.sign(request));
+            }
         }
     }
 
@@ -152,6 +168,7 @@ public class HttpNetworkProvider extends NetworkProvider {
                 }
             });
         }
+
         private Handler handler;
 
         private Handler getHandler() {

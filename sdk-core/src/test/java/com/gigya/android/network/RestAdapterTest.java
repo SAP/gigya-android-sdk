@@ -2,7 +2,6 @@ package com.gigya.android.network;
 
 import android.content.Context;
 
-import com.android.volley.toolbox.Volley;
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.api.GigyaApiRequest;
 import com.gigya.android.sdk.api.GigyaApiRequestFactory;
@@ -12,7 +11,6 @@ import com.gigya.android.sdk.network.adapter.IRestAdapter;
 import com.gigya.android.sdk.network.adapter.IRestAdapterCallback;
 import com.gigya.android.sdk.network.adapter.NetworkProvider;
 import com.gigya.android.sdk.network.adapter.RestAdapter;
-import com.gigya.android.sdk.network.adapter.VolleyNetworkProvider;
 import com.gigya.android.sdk.persistence.IPersistenceService;
 import com.gigya.android.sdk.persistence.PersistenceService;
 import com.gigya.android.sdk.session.ISessionService;
@@ -38,9 +36,6 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor
-        ("com.android.volley.VolleyLog")
-@PrepareForTest({Volley.class, VolleyNetworkProvider.class})
 public class RestAdapterTest {
 
     @Mock
@@ -59,9 +54,6 @@ public class RestAdapterTest {
 
     @Before
     public void setup() {
-        mockStatic(Volley.class);
-        when(Volley.newRequestQueue(mContext)).thenReturn(null);
-
         container = new IoCContainer();
         container.bind(Context.class, mContext);
         container.bind(Config.class, mConfig);
@@ -80,38 +72,12 @@ public class RestAdapterTest {
     }
 
     @Test
-    public void testNewVolleyInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Act
-        IRestAdapter adapter = container.get(IRestAdapter.class);
-        final String providerType = adapter.getProviderType();
-        // Assert
-        assertNotNull(adapter);
-        assertEquals("VolleyNetworkProvider", providerType);
-    }
-
-    @Test
-    public void testNewHttpInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Arrange
-        mockStatic(VolleyNetworkProvider.class);
-        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
-        // Act
-        IRestAdapter adapter = container.get(IRestAdapter.class);
-        final String providerType = adapter.getProviderType();
-        // Assert
-        assertNotNull(adapter);
-        assertEquals("HttpNetworkProvider", providerType);
-    }
-
-    @Test
     public void testSend() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Arrange
         IRestAdapter adapter = container.get(IRestAdapter.class);
         Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
         doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
         doNothing().when(_networkProvider).sendBlocking(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
-
-        mockStatic(VolleyNetworkProvider.class);
-        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
 
         final GigyaApiRequest request = mock(GigyaApiRequest.class);
         final IRestAdapterCallback callback = mock(IRestAdapterCallback.class);
@@ -127,9 +93,6 @@ public class RestAdapterTest {
         Whitebox.setInternalState(adapter, "_networkProvider", _networkProvider);
         doNothing().when(_networkProvider).addToQueue(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
         doNothing().when(_networkProvider).sendBlocking(any(GigyaApiRequest.class), any(IRestAdapterCallback.class));
-
-        mockStatic(VolleyNetworkProvider.class);
-        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
 
         final GigyaApiRequest request = mock(GigyaApiRequest.class);
         final IRestAdapterCallback callback = mock(IRestAdapterCallback.class);

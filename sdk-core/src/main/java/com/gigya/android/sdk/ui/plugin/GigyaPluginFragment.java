@@ -34,6 +34,7 @@ import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.Presenter;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     private static final String BASE_URL = "https://www.gigya.com";
     private static final String MIME_TYPE = "text/html";
-    private static final String ENCODING = "utf-8";
+    private static final String ENCODING = "UTF-8";
 
     public static final String PLUGIN_SCREENSETS = "accounts.screenSet";
     public static final String PLUGIN_COMMENTS = "comments.commentsUI";
@@ -80,6 +81,8 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _config = config;
     }
 
+    private final Gson gson = new Gson();
+
     public void setWebBridge(IGigyaWebBridge<A> gigyaWebBridge) {
         _gigyaWebBridge = gigyaWebBridge;
     }
@@ -96,9 +99,17 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
 
     //region LIFE CYCLE
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (_config != null) {
+            String configJson = gson.toJson(_config);
+            outState.putString("config_json", configJson);
+        }
+    }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof HostActivity) {
             ((HostActivity) context).addBackPressListener(this);
@@ -116,9 +127,25 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            String configJson = savedInstanceState.getString("config_json");
+            if (configJson != null) {
+                _config = gson.fromJson(configJson, Config.class);
+            }
+        }
+
         // Parse arguments.
         if (getArguments() != null) {
             _obfuscation = getArguments().getBoolean(Presenter.ARG_OBFUSCATE, false);
+        }
+
+        if (_config == null) {
+            GigyaLogger.error(LOG_TAG, "Config is mandatory - cannot remain null.");
+
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         }
 
         if (!_config.getWebViewConfig().isJavaScriptEnabled()) {
@@ -168,7 +195,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
     }
 
     @Override
-    public void onCancel(DialogInterface dialog) {
+    public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
         if (getActivity() != null) {
             getActivity().onBackPressed();
@@ -228,8 +255,9 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         final WebSettings webSettings = _webView.getSettings();
         webSettings.setJavaScriptEnabled(_config.getWebViewConfig().isJavaScriptEnabled());
         webSettings.setAllowFileAccess(_config.getWebViewConfig().isAllowFileAccess());
-
         webSettings.setDomStorageEnabled(_config.getWebViewConfig().isLocalStorage());
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setLoadWithOverviewMode(true);
 
         // Setting up a custom veb view client to handle WebView interaction.
         _webView.setWebViewClient(_webViewClient);

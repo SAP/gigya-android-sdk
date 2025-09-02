@@ -15,6 +15,7 @@ import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
+import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
@@ -53,7 +54,7 @@ import java.util.TreeMap;
 public class Gigya<T extends GigyaAccount> {
 
     //region static
-    public static final String VERSION = "7.1.7";
+    public static final String VERSION = "7.2.0";
 
     private static final String LOG_TAG = "Gigya";
 
@@ -877,6 +878,10 @@ public class Gigya<T extends GigyaAccount> {
         return _webAuthnService;
     }
 
+    public void setPasskeyAuthenticatorProvider(IPasskeysAuthenticationProvider provider) {
+        _webAuthnService.setPasskeyAuthenticationProvider(provider);
+    }
+
     //endregion
 
     //region MISC
@@ -943,7 +948,7 @@ public class Gigya<T extends GigyaAccount> {
     //region UTILS
 
     /***
-     * Manually force the SDK to use default http provider (ignores okHttp, Volley adapter setups).
+     * Manually force the SDK to use default http provider (ignores okHttp).
      */
     public void setDefaultHttpProvider() {
         try {

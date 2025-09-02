@@ -243,6 +243,18 @@ class MyAccountFragment : BaseExampleFragment() {
             )
         }
 
+        binding.fidoGet.setOnClickListener {
+            viewModel.passwordlessList(
+                error = {
+                    // Display error.
+                    toastIt("Error: ${it?.localizedMessage}")
+                },
+                success = {
+                    toastIt("Fido passkey revoked")
+                }
+            )
+        }
+
         binding.biometricOpt.setOnClickListener {
             if (biometric.isOptIn) {
                 biometric.optOut(

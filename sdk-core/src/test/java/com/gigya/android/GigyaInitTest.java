@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.containers.IoCContainer;
-import com.gigya.android.sdk.network.adapter.VolleyNetworkProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +22,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor
-        ("com.android.volley.VolleyLog")
-@PrepareForTest({VolleyNetworkProvider.class, TextUtils.class})
+@PrepareForTest({TextUtils.class})
 public class GigyaInitTest {
 
     @Mock
@@ -36,8 +33,6 @@ public class GigyaInitTest {
 
     @Before
     public void setup() {
-        mockStatic(VolleyNetworkProvider.class);
-        when(VolleyNetworkProvider.isAvailable()).thenReturn(false);
         mockStatic(TextUtils.class);
     }
 

@@ -15,6 +15,8 @@ import com.gigya.android.sample.ui.fragment.LoginFragment
 import com.gigya.android.sample.ui.fragment.MyAccountFragment
 import com.gigya.android.sample.ui.fragment.SettingsFragment
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,15 +25,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     // Custom result handler for FIDO sender intents.
-    val resultHandler: ActivityResultLauncher<IntentSenderRequest> =
-            registerForActivityResult(
-                    ActivityResultContracts.StartIntentSenderForResult()
-            ) { activityResult ->
-                val extras =
-                        activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
-                                ?.joinToString { it }
-                Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
-            }
+    val resultHandler: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { activityResult ->
+        val extras = activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
+            ?.joinToString { it }
+        Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.appbar_menu, menu)
@@ -43,12 +43,11 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_settings -> {
                 // Show application settings.
-                supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.container, SettingsFragment.newInstance())
-                        .addToBackStack(null)
-                        .commit()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, SettingsFragment.newInstance()).addToBackStack(null)
+                    .commit()
             }
+
             android.R.id.home -> onBackPressed()
         }
         return true
@@ -63,19 +62,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        viewModel.setPasswordLessAuthenticationProvider(
+            PasskeysAuthenticationProvider(WeakReference(this))
+        )
 
         if (savedInstanceState == null) {
             if (viewModel.isLoggedIn()) {
-                supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.container, MyAccountFragment.newInstance())
-                        .commit()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, MyAccountFragment.newInstance()).commit()
                 return
             }
-            supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container, LoginFragment.newInstance())
-                    .commit()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, LoginFragment.newInstance()).commit()
         }
     }
 
@@ -84,10 +82,8 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.popBackStackImmediate()
         }
         if (supportFragmentManager.backStackEntryCount == 0) {
-            supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container, LoginFragment.newInstance())
-                    .commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, LoginFragment.newInstance()).commitAllowingStateLoss()
         }
     }
 

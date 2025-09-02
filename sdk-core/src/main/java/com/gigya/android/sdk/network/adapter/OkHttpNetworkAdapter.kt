@@ -52,8 +52,14 @@ class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvide
             return
         }
         // Send request here.
-        val signedRequest = _requestFactory.sign(request)
-        OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
+        if (!request.params.containsKey("regToken")) {
+            val signedRequest = _requestFactory.sign(request)
+            OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
+        } else {
+            val unsignedRequest = _requestFactory.unsigned(request)
+            OkHttpAsyncTask(networkCallbacks, client).execute(unsignedRequest)
+        }
+
     }
 
     override fun addToQueueUnsigned(
@@ -99,8 +105,14 @@ class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvide
         }
         while (!_queue.isEmpty()) {
             val queued: OkHttpTask = _queue.poll() as OkHttpTask
-            val signedRequest = _requestFactory.sign(queued.request)
-            queued.task.execute(signedRequest)
+
+            if (!queued.request.params.containsKey("regToken")) {
+                val signedRequest = _requestFactory.sign(queued.request)
+                queued.task.execute(signedRequest)
+            } else {
+                val unsignedRequest = _requestFactory.unsigned(queued.request)
+                queued.task.execute(unsignedRequest)
+            }
         }
     }
 

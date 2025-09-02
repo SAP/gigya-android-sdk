@@ -288,6 +288,9 @@ public class SessionService implements ISessionService {
             _psService.removeSession();
             _psService.setSessionEncryptionType(GigyaDefinitions.SessionEncryption.DEFAULT);
         }
+
+        // Make sure to clear expiration persistence.
+        _psService.setSessionExpiration(0);
     }
 
     @Override

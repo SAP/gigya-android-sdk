@@ -12,15 +12,16 @@ import com.gigya.android.sample.repository.CaptchaInterruption
 import com.gigya.android.sample.repository.GigyaRepository
 import com.gigya.android.sample.repository.LinkInterruption
 import com.gigya.android.sample.repository.TFAInterruption
-import com.gigya.android.sdk.GigyaLoginCallback
 import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.nss.GigyaNss
 import com.gigya.android.sdk.nss.NssEvents
 import com.gigya.android.sdk.nss.bloc.events.*
 import com.gigya.android.sdk.tfa.models.RegisteredPhone
 import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
+import com.linecorp.linesdk.auth.LineAuthenticationParams
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
@@ -38,6 +39,10 @@ class MainViewModel : ViewModel() {
         gigyaRepository.reinitializeSdk(apiKey, dataCenter, cname)
     }
 
+    fun setPasswordLessAuthenticationProvider(provider: IPasskeysAuthenticationProvider) {
+        gigyaRepository.gigyaInstance.setPasskeyAuthenticatorProvider(provider)
+    }
+
     // Login using email & password pair.
     fun credentialLogin(
         email: String, password: String,
@@ -47,7 +52,10 @@ class MainViewModel : ViewModel() {
         linkInterruption: (LinkInterruption) -> Unit,
         captchaInterruption: (CaptchaInterruption) -> Unit,
     ) {
-        val params = mutableMapOf<String, Any>("loginID" to email, "password" to password)
+        val params = mutableMapOf<String, Any>(
+            "loginID" to email,
+            "password" to password
+        )
         viewModelScope.launch {
             gigyaRepository.loginWith(params).collect { result ->
                 if (result.isError()) {
@@ -238,6 +246,19 @@ class MainViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             val result = gigyaRepository.webAuthnRevoke()
+            if (result.isError()) {
+                error(result.error)
+                return@launch
+            }
+            success()
+        }
+    }
+
+    fun passwordlessList(
+        error: (GigyaError?) -> Unit, success: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = gigyaRepository.webAuthnGetCredentials()
             if (result.isError()) {
                 error(result.error)
                 return@launch

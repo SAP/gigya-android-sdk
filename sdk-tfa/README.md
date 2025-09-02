@@ -8,7 +8,7 @@ Gigya's Android Core library implementation.
 Android SDK 14 and above is required.
 
 ## Limitations
-Following released version 2.+ the TFA extension will require your Application to be AndroidX complient.
+Following released version 2.+ the TFA extension will require your Application to be AndroidX compliant.
 For more information please visit [Migrate to AndroidX](https://developer.android.com/jetpack/androidx/migrat)
 
 ## Integration
@@ -17,14 +17,14 @@ Update your gradle.build file with one of two options:
 Implementation using a binary file.
 Download the tfa library and copy it to your applications libs/ folder.
 ```gradle
-implementation files('libs/gigya-android-tfa-v2.1.0.aar')
+implementation files('libs/gigya-android-tfa-v2.1.1.aar')
 ```
 
 -Or-
 
-Implementation using **JitPack**
+Implementation using **MavenCentral**
 ```gradle
-implementation 'com.github.SAP.gigya-android-sdk:sdk-tfa:tfa-v2.1.0'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-tfa:2.1.1'
 ```
 
 **In addition you will need to add this dependency as well.**

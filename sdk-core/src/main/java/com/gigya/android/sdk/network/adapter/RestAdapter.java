@@ -9,8 +9,7 @@ public class RestAdapter implements IRestAdapter {
 
     public enum HttpMethod {
 
-        GET(0),
-        POST(1);
+        GET(0), POST(1);
 
         private final int method;
 
@@ -38,9 +37,7 @@ public class RestAdapter implements IRestAdapter {
     public RestAdapter(Context context, IApiRequestFactory requestFactory) {
         try {
             // Avoid runtime crash for different adapters.
-            if (VolleyNetworkProvider.isAvailable()) {
-                _networkProvider = new VolleyNetworkProvider(requestFactory, context);
-            } else if (OkHttpNetworkAdapter.Companion.isAvailable()) {
+            if (OkHttpNetworkAdapter.Companion.isAvailable()) {
                 _networkProvider = new OkHttpNetworkAdapter(requestFactory);
             } else {
                 _networkProvider = new HttpNetworkProvider(requestFactory);

@@ -52,6 +52,7 @@
     <string name="provider_name">Provider name</string>
     <string name="fido_register">Register Fido passkey</string>
     <string name="fido_revoke">Revoke Fido passkey</string>
+    <string name="fido_get_credentials">Get Fido credentials</string>
 
     <string name="available_providers">Available providers</string>
     <string name="register_authenticator">Register authenticator</string>
@@ -82,5 +83,10 @@
     <string name="exchange_session">Exchange Session</string>
     <string name="register_phone">Register Phone</string>
 
+    <string name="asset_statements" translatable="false">
+        [{
+             \"include\": \"https://Sagi.gigya-cs.com/.well-known/assetlinks.json\"
+        }]
+    </string>
 
 </resources>

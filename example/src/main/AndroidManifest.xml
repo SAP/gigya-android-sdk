@@ -88,6 +88,8 @@
             android:name=".wxapi.WXEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
+
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
     </application>
 
 </manifest>

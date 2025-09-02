@@ -1,8 +1,11 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
 
 def libVersion = "2.1.1"
+
+group = "com.sap.oss.gigya-android-sdk"
 
 ext["name"] = "Gigya-Android-SDK-TFA"
 ext["version"] = libVersion
@@ -10,50 +13,43 @@ ext["artifactId"] = "sdk-tfa"
 ext["description"] = "SAP CX-CDC (Gigya) Android SDK TFA extension"
 ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
-ext {
-    sharedManifest = manifest {
-        attributes(
-                'Implementation-Vendor': 'SAP Gigya INC.',
-                'Implementation-Title': 'Gigya Android SDK',
-                'Implementation-Version': libVersion
-        )
-    }
-}
+// Manifest attributes moved to jar task configuration
 
 android {
-    compileSdkVersion 32
+    compileSdk 34
+    namespace 'com.gigya.android.sdk.tfa'
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 32
+        minSdk 24
+        targetSdk 34
 
-        archivesBaseName = "gigya-android-tfa"
+        base.archivesName = "gigya-android-tfa"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     buildTypes {
-
-
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    namespace 'com.gigya.android.sdk.tfa'
 
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.json:json:20180813'
-    testImplementation 'androidx.test:core:1.3.0'
-    testImplementation 'org.mockito:mockito-core:2.8.9'
-    testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
-    testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20250517'
+    testImplementation 'androidx.test:core:1.7.0'
+    testImplementation 'org.mockito:mockito-core:5.19.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation project(path: ':sdk-core')
 
     compileOnly 'androidx.appcompat:appcompat:1.2.0'

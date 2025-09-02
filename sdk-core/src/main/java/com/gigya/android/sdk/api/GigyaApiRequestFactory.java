@@ -161,8 +161,9 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             request.getParams().put("apiKey", _config.getApiKey());
         }
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
+        final String url = UrlUtils.getBaseUrl(request.getApi(), _config);
 
-        return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams, request.getHeaders());
+        return new GigyaApiHttpRequest(request.getMethod(), url, encodedParams, request.getHeaders());
     }
 
     /**

@@ -95,6 +95,15 @@ public class UrlUtils {
         }
     }
 
+    public static Map<String, String> convertToStringMap(Map<String, Object> input) {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, Object> entry : input.entrySet()) {
+            result.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        return result;
+    }
+
+
     public static String getBaseUrl(String api, Config config) {
         final StringBuilder sb = new StringBuilder();
         final String[] split = api.split("\\.");
