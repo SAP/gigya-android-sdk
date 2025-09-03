@@ -16,6 +16,7 @@ import com.gigya.android.sdk.api.IApiRequestFactory;
 import com.gigya.android.sdk.api.IBusinessApiService;
 import com.gigya.android.sdk.auth.IWebAuthnService;
 import com.gigya.android.sdk.auth.passkeys.IPasskeysAuthenticationProvider;
+import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider;
 import com.gigya.android.sdk.containers.GigyaContainer;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.interruption.IInterruptionResolverFactory;
@@ -39,6 +40,7 @@ import com.gigya.android.sdk.ui.plugin.GigyaWebBridge;
 import com.gigya.android.sdk.ui.plugin.IGigyaWebBridge;
 import com.gigya.android.sdk.utils.EnvUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -481,6 +483,27 @@ public class Gigya<T extends GigyaAccount> {
         params.put("loginID", loginId);
         params.put("password", password);
         login(params, gigyaCallback);
+    }
+
+    /**
+     * Login with identifier
+     *
+     * @param loginId        identifier
+     * @param identifierType identifier type. Supported values: "email", "username", "phone", "custom"
+     * @param password       password
+     * @param params         additional parameter map. example: dataCenter -> The data center to register the user, if new. When in the scope of a global site, this parameter is required
+     * @param gigyaCallback  Response listener callback.
+     */
+    public void login(String loginId, String identifierType, String password, @Nullable Map<String, Object> params, GigyaLoginCallback<T> gigyaCallback) {
+        GigyaLogger.debug(LOG_TAG, "login: with identifier = " + loginId + " and identifierType = " + identifierType);
+        if (params == null) {
+            params = new TreeMap<>();
+        }
+        params.put("identifier", loginId);
+        params.put("identifierType", "gigya.com/identifiers/customIdentifiers/" + identifierType);
+//        params.put("identifierType", identifierType);
+        params.put("password", password);
+        _businessApiService.loginWithCustomId(params, gigyaCallback);
     }
 
     /**

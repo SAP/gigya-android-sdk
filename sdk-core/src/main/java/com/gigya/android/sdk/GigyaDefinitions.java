@@ -52,9 +52,11 @@ public class GigyaDefinitions {
         public static final String API_AUTH_UPDATE_DEVICE = "accounts.auth.push.updateDevice";
 
         public static final String API_TOKEN_EXCHANGE = "accounts.identity.token.exchange";
+        public static final String API_CREATE_TOKEN = "accounts.identifiers.createToken";
 
         public static final String API_SAPTCHA_GET_CHALLENGE = "accounts.risk.saptcha.getChallenge";
         public static final String API_SAPTCHA_VERIFY = "accounts.risk.saptcha.verify";
+
     }
 
     public static class SessionEncryption {

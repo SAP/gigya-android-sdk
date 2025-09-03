@@ -26,6 +26,8 @@ public interface IBusinessApiService<A extends GigyaAccount> {
 
     void login(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);
 
+    void loginWithCustomId(Map<String, Object> params, final GigyaLoginCallback<A> loginCallback);
+
     void login(@GigyaDefinitions.Providers.SocialProvider String socialProvider, Map<String, Object> params, final GigyaLoginCallback<A> gigyaLoginCallback);
     
     void verifyLogin(String UID, final GigyaCallback<A> gigyaCallback);

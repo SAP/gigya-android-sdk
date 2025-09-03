@@ -289,6 +289,32 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         });
     }
 
+    @Override
+    public void loginWithCustomId(Map<String, Object> params, GigyaLoginCallback<A> gigyaLoginCallback) {
+        String password = (String) params.get("password");
+        params.remove("password");
+        final GigyaApiRequest request = _reqFactory.create(GigyaDefinitions.API.API_CREATE_TOKEN, params, RestAdapter.HttpMethod.POST);
+        _apiService.send(request, false, new ApiService.IApiServiceResponse() {
+            @Override
+            public void onApiSuccess(GigyaApiResponse response) {
+                final String aToken = response.getField("token", String.class);
+                if (aToken == null) {
+                    gigyaLoginCallback.onError(GigyaError.generalError());
+                    return;
+                }
+                params.clear();
+                params.put("aToken", aToken);
+                params.put("password", password);
+                login(params, gigyaLoginCallback);
+            }
+
+            @Override
+            public void onApiError(GigyaError gigyaError) {
+                gigyaLoginCallback.onError(gigyaError);
+            }
+        });
+    }
+
     /**
      * Request login to specific social provider.
      * Will begin a login flow comprised of two steps.
