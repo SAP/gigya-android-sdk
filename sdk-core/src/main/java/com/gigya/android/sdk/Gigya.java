@@ -500,7 +500,7 @@ public class Gigya<T extends GigyaAccount> {
             params = new TreeMap<>();
         }
         params.put("identifier", loginId);
-        params.put("identifierType", "gigya.com/identifiers/customIdentifiers/" + identifierType);
+        params.put("identifierType", identifierType);
 //        params.put("identifierType", identifierType);
         params.put("password", password);
         _businessApiService.loginWithCustomId(params, gigyaCallback);

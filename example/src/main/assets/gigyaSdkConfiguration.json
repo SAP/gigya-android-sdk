@@ -11,7 +11,8 @@
       "data",
       "profile",
       "emails",
-      "missing-required-fields"
+      "missing-required-fields",
+      "customIdentifiers"
     ],
     "extraProfileFields": [
       "languages",

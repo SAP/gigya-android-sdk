@@ -297,12 +297,11 @@ public class BusinessApiService<A extends GigyaAccount> implements IBusinessApiS
         _apiService.send(request, false, new ApiService.IApiServiceResponse() {
             @Override
             public void onApiSuccess(GigyaApiResponse response) {
-                final String aToken = response.getField("token", String.class);
+                final String aToken = response.getField("aToken", String.class);
                 if (aToken == null) {
                     gigyaLoginCallback.onError(GigyaError.generalError());
                     return;
                 }
-                params.clear();
                 params.put("aToken", aToken);
                 params.put("password", password);
                 login(params, gigyaLoginCallback);

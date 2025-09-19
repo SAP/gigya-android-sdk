@@ -242,7 +242,12 @@ class GigyaRepository {
         password: String
     ): Flow<GigyaRepoResponse> {
         return loginFlow { callback ->
-            gigyaInstance.login(identifier, identifierType, password, mutableMapOf<String, Any>(), callback)
+            gigyaInstance.login(
+                identifier,
+                identifierType, password,
+                mutableMapOf<String, Any>(),
+                callback
+            )
         }
     }
 
@@ -732,24 +737,25 @@ class GigyaRepository {
     suspend fun setAccountInfo(): GigyaRepoResponse {
         val res = GigyaRepoResponse()
         return suspendCoroutine { continuation ->
-            gigyaInstance.setAccount(mapOf<String, String>(
-                "customIdentifiers" to "{\"nationalId\":\"12345\"}",
-            ), object : GigyaCallback<MyAccount>() {
-                override fun onSuccess(obj: MyAccount?) {
-                    obj?.let {
-                        res.account = it
-                        continuation.resume(res)
+            gigyaInstance.setAccount(
+                mapOf<String, String>(
+                    "customIdentifiers" to "{\"nationalId\":\"123456\"}",
+                ), object : GigyaCallback<MyAccount>() {
+                    override fun onSuccess(obj: MyAccount?) {
+                        obj?.let {
+                            res.account = it
+                            continuation.resume(res)
+                        }
                     }
-                }
 
-                override fun onError(error: GigyaError?) {
-                    error?.let {
-                        res.error = error
-                        continuation.resume(res)
+                    override fun onError(error: GigyaError?) {
+                        error?.let {
+                            res.error = error
+                            continuation.resume(res)
+                        }
                     }
-                }
 
-            })
+                })
         }
     }
 
