@@ -407,7 +407,10 @@ public class WebAuthnService<A extends GigyaAccount> implements IWebAuthnService
 
             String userName = user.getString("name");
             String displayName = user.getString("displayName");
-            String authenticatorAttachment = authenticatorSelection.getString("authenticatorAttachment");
+
+            // Authenticator attachment (platform/cross-platform) is not mandatory and may be missing if
+            // the relying party did not specify it on the console options.
+            String authenticatorAttachment = authenticatorSelection.optString("authenticatorAttachment", "");
 
             // Make sure to encode the raw id as base64url
             byte[] decoded = Base64.decode(rawId, Base64.URL_SAFE);
