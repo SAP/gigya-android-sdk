@@ -34,6 +34,7 @@ import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.network.GigyaError;
 import com.gigya.android.sdk.ui.HostActivity;
 import com.gigya.android.sdk.ui.Presenter;
+import com.gigya.android.sdk.ui.WebViewConfig;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -97,6 +98,11 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _html = html;
     }
 
+    private WebViewConfig getWebViewConfig() {
+        if (_config == null) return new WebViewConfig();
+        return _config.getWebViewConfig();
+    }
+
     //region LIFE CYCLE
 
     @Override
@@ -148,7 +154,7 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
             }
         }
 
-        if (!_config.getWebViewConfig().isJavaScriptEnabled()) {
+        if (!getWebViewConfig().isJavaScriptEnabled()) {
             GigyaLogger.error(LOG_TAG, "JavaScript is disabled. This may cause the plugin to not function properly.");
             if (getActivity() != null) {
                 getActivity().finish();
@@ -253,9 +259,10 @@ public class GigyaPluginFragment<A extends GigyaAccount> extends DialogFragment 
         _fileChooserClient = new GigyaPluginFileChooser(this);
 
         final WebSettings webSettings = _webView.getSettings();
-        webSettings.setJavaScriptEnabled(_config.getWebViewConfig().isJavaScriptEnabled());
-        webSettings.setAllowFileAccess(_config.getWebViewConfig().isAllowFileAccess());
-        webSettings.setDomStorageEnabled(_config.getWebViewConfig().isLocalStorage());
+        webSettings.setJavaScriptEnabled(
+                getWebViewConfig().isJavaScriptEnabled());
+        webSettings.setAllowFileAccess(getWebViewConfig().isAllowFileAccess());
+        webSettings.setDomStorageEnabled(getWebViewConfig().isLocalStorage());
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setLoadWithOverviewMode(true);
 
