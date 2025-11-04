@@ -41,15 +41,8 @@ public class HttpNetworkProvider extends NetworkProvider {
             return;
         }
         // If not blocked send the request.
-
-        if (!request.getParams().containsKey("regToken")) {
-            new ExecutorAsyncTask(networkCallbacks).execute(
-                    _requestFactory.sign(request));
-        } else {
-            new ExecutorAsyncTask(networkCallbacks).execute(
-                    _requestFactory.unsigned(request));
-        }
-
+        new ExecutorAsyncTask(networkCallbacks).execute(
+                _requestFactory.sign(request));
     }
 
     @Override

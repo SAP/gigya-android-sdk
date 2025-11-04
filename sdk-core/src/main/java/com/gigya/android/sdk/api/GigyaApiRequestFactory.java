@@ -130,6 +130,10 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
 
         GigyaLogger.debug(LOG_TAG, "sign: offset for signer = " + _config.getServerOffset());
 
+        if(request.getParams().containsKey("regToken")) {
+            request.setAnonymous(true);
+        }
+
         // Add authentication parameters. Get SDK Config request is an exception.
         if (_sessionService.isValid() && !request.isAnonymous()) {
             final String sessionToken = _sessionService.getSession().getSessionToken();
@@ -161,7 +165,6 @@ public class GigyaApiRequestFactory implements IApiRequestFactory {
             request.getParams().put("apiKey", _config.getApiKey());
         }
         final String encodedParams = UrlUtils.buildEncodedQuery(request.getParams());
-       // final String url = UrlUtils.getBaseUrl(request.getApi(), _config);
 
         return new GigyaApiHttpRequest(request.getMethod(), request.getApi(), encodedParams, request.getHeaders());
     }

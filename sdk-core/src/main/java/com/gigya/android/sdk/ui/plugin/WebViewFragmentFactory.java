@@ -66,7 +66,7 @@ public class WebViewFragmentFactory<A extends GigyaAccount> implements IWebViewF
                         "</script>" +
                         "<script src='https://" +
                         (_config.isCnameEnabled() ? _config.getCname() : "cdns." + _config.getApiDomain()) +
-                        "/JS/gigya.js?apikey=%s&lang=%s' type='text/javascript' onLoad='onJSLoad();'>" +
+                        "/JS/gigya.js?apikey=%s&lang=%s' type='text/javascript' onLoad='onJSLoad();' crossorigin='anonymous'>" +
                         "{" +
                         "deviceType: 'mobile'" +
                         "}" +
