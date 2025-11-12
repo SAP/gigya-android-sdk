@@ -26,6 +26,13 @@ android {
         base.archivesName = "gigya-android-tfa"
     }
 
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -59,4 +66,4 @@ dependencies {
     compileOnly project(path: ':sdk-core')
 }
 
-
+apply from: '../publish-package.gradle'
