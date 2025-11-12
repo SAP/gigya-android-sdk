@@ -17,7 +17,7 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
 android {
     compileSdk 34
-    namespace 'com.gigya.android.sdk'
+    namespace = 'com.gigya.android.sdk'
 
     defaultConfig {
         //noinspection MinSdkTooLow
@@ -63,8 +63,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-    namespace 'com.gigya.android.sdk'
-
 }
 
 dependencies {

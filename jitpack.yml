@@ -1,2 +1,5 @@
 jdk:
   - openjdk17
+install:
+  - echo "Installing SDK modules only (excluding example app)"
+  - ./gradlew clean :sdk-core:assemble :sdk-biometric:assemble :sdk-tfa:assemble :sdk-auth:assemble :sdk-nss:assemble :sdk-core:publishToMavenLocal :sdk-biometric:publishToMavenLocal :sdk-tfa:publishToMavenLocal :sdk-auth:publishToMavenLocal :sdk-nss:publishToMavenLocal -x :example:assemble -x :example:assembleDebug -x :example:assembleRelease --stacktrace
