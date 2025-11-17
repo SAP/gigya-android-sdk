@@ -1336,6 +1336,28 @@ gigyaInstance.getAuthCode(object : GigyaCallback<String>() {
 4. Once the page is loaded, the JS SDK will exchange the token provided for a valid session.
 
 
+## Custom Identifier Login
+
+SAP Customer Data Cloud allows you to define custom identifiers for user authentication beyond the standard email/username. To configure custom identifiers for your site, see [Setting a Custom Identifier](https://help.sap.com/docs/SAP_CUSTOMER_DATA_CLOUD/8b8d6fffe113457094a17701f63e3d6a/805686ea351a4091b924ea9ac7d92914.html?locale=en-US&q=custom+identifier).
+
+Once configured, use the custom identifier login override:
+
+```java
+mGigya.login("IDENTIFIER", "IDENTIFIER-TYPE", "PASSWORD", params, new GigyaLoginCallback<MyAccount>() {
+    @Override
+    public void onSuccess(MyAccount obj) {
+        // Success
+    }
+
+    @Override
+    public void onError(GigyaError error) {
+        // Fail
+    }
+});
+```
+
+Where `IDENTIFIER-TYPE` follows the format: `gigya.com/identifiers/customIdentifiers/{fieldName}` (e.g., `gigya.com/identifiers/customIdentifiers/employeeId`, `gigya.com/identifiers/customIdentifiers/customerId`).
+
 ## FIDO/WebAuthn Authentication
 FIDO is a passwordless authentication method that enables password-only logins to be replaced with secure and fast login experiences across multiple websites and apps.
 Our Android SDK provides two implementations for FIDO/WebAuthn authentication:
