@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def libVersion = "1.9.7"
+def libVersion = "1.9.9"
 
 group = "com.sap.oss.gigya-android-sdk"
 
@@ -17,13 +17,20 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
 android {
     compileSdk 34
-    namespace 'com.gigya.android.sdk.nss'
+    namespace = 'com.gigya.android.sdk.nss'
 
     defaultConfig {
         minSdk 24
         targetSdk 34
 
         base.archivesName = "gigya-android-nss"
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 
     compileOptions {

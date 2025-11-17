@@ -17,13 +17,20 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
 android {
     compileSdk 34
-    namespace 'com.gigya.android.sdk.tfa'
+    namespace = 'com.gigya.android.sdk.tfa'
 
     defaultConfig {
         minSdk 24
         targetSdk 34
 
         base.archivesName = "gigya-android-tfa"
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 
     compileOptions {

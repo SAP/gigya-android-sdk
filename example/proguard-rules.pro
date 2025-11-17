@@ -22,3 +22,11 @@
 
 -keep class com.gigya.** { *; }
 -keepdirectories */gigyaSdkConfiguration.json
+
+# Firebase is optional - don't fail if classes are missing
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# Keep Firebase classes if present
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }

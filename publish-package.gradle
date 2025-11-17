@@ -2,19 +2,6 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'org.jetbrains.dokka'
 
-tasks.register('androidSourcesJar', Jar) {
-    archiveClassifier.set('sources')
-    if (project.plugins.findPlugin("com.android.library")) {
-        // For android libraries
-        from android.sourceSets.main.java.srcDirs
-        from android.sourceSets.main.kotlin.srcDirs
-    } else {
-        // For pure kotlin libraries, in case you have them
-        from sourceSets.main.java.srcDirs
-        from sourceSets.main.kotlin.srcDirs
-    }
-}
-
 def signingProperties = new Properties()
 File signingPropertiesFile = project.rootProject.file('publish-signing.properties')
 if (signingPropertiesFile.exists()) {
@@ -34,19 +21,19 @@ afterEvaluate {
                     from components.java
                 }
 
-                artifact androidSourcesJar
-                artifact javadocJar
+                // Note: Both sources jar and javadoc jar are automatically included via 'from components.release'
+                // when withSourcesJar() and withJavadocJar() are configured in the android.publishing block
 
-                groupId project.group
-                artifactId project.ext.artifactId
-                version project.ext.version
+                groupId = project.group
+                artifactId = project.ext.artifactId
+                version = project.ext.version
 
                 pom {
                     name = project.ext.name
                     description = project.ext.description
                     url = project.ext.url
                     artifactId = project.ext.artifactId
-                    packaging 'aar'
+                    packaging = 'aar'
 
                     licenses {
                         license {
@@ -73,25 +60,32 @@ afterEvaluate {
         }
         repositories {
             maven {
-                name = "ossrh-staging-api"
-                url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+                name = "sonatype"
+                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
                 credentials {
-                    username signingProperties['ossrhUsername']
-                    password signingProperties['ossrhPassword']
+                    username = signingProperties['ossrhUsername']
+                    password = signingProperties['ossrhPassword']
                 }
             }
         }
     }
 }
 
-tasks.register('javadocJar', Jar) {
-    archiveClassifier.set('javadoc')
-    dependsOn tasks.named('dokkaGeneratePublicationHtml')
-    from tasks.named('dokkaGeneratePublicationHtml').map { it.outputs.files }
-}
-
-artifacts {
-    archives androidSourcesJar
-    archives javadocJar
+// Fix for Jitpack build: Ensure metadata generation waits for jar creation
+// This resolves the implicit dependency issue with generateMetadataFileForReleasePublication
+afterEvaluate {
+    tasks.withType(GenerateModuleMetadata).configureEach {
+        // The releaseSourcesJar and releaseJavadocJar tasks are created by withSourcesJar()
+        // and withJavadocJar() in the android.publishing block
+        def releaseSourcesJar = tasks.findByName('releaseSourcesJar')
+        if (releaseSourcesJar != null) {
+            dependsOn(releaseSourcesJar)
+        }
+        
+        def releaseJavadocJar = tasks.findByName('releaseJavadocJar')
+        if (releaseJavadocJar != null) {
+            dependsOn(releaseJavadocJar)
+        }
+    }
 }

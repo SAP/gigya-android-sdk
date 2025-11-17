@@ -1,5 +1,7 @@
 package com.gigya.android.sdk.interruption.link;
 
+import androidx.annotation.NonNull;
+
 import com.gigya.android.sdk.GigyaCallback;
 import com.gigya.android.sdk.GigyaDefinitions;
 import com.gigya.android.sdk.GigyaLogger;
@@ -7,6 +9,7 @@ import com.gigya.android.sdk.GigyaLoginCallback;
 import com.gigya.android.sdk.account.models.GigyaAccount;
 import com.gigya.android.sdk.api.GigyaApiResponse;
 import com.gigya.android.sdk.api.IBusinessApiService;
+import com.gigya.android.sdk.interruption.IPendingRegistrationResolver;
 import com.gigya.android.sdk.interruption.Resolver;
 import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts;
 import com.gigya.android.sdk.network.GigyaError;
@@ -84,6 +87,13 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
                 public void onError(GigyaError error) {
                     _loginCallback.onError(error);
                 }
+
+                @Override
+                public void onPendingRegistration(@NonNull GigyaApiResponse response,
+                                                  @NonNull IPendingRegistrationResolver resolver) {
+                    _loginCallback.onPendingRegistration(response, resolver);
+                }
+
             });
         }
     }
@@ -104,6 +114,12 @@ public class LinkAccountsResolver<A extends GigyaAccount> extends Resolver<A> im
                 @Override
                 public void onError(GigyaError error) {
                     _loginCallback.onError(error);
+                }
+
+                @Override
+                public void onPendingRegistration(@NonNull GigyaApiResponse response,
+                                                  @NonNull IPendingRegistrationResolver resolver) {
+                    _loginCallback.onPendingRegistration(response, resolver);
                 }
             });
         }

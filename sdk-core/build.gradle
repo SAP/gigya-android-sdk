@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def libVersion = "7.2.0"
+def libVersion = "7.3.0"
 
 group = "com.sap.oss.gigya-android-sdk"
 
@@ -17,7 +17,7 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 
 android {
     compileSdk 34
-    namespace 'com.gigya.android.sdk'
+    namespace = 'com.gigya.android.sdk'
 
     defaultConfig {
         //noinspection MinSdkTooLow
@@ -27,8 +27,8 @@ android {
 
     publishing {
         singleVariant('release') {
-            //withSourcesJar()
-            //withJavadocJar()
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 
@@ -63,7 +63,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-
 }
 
 dependencies {

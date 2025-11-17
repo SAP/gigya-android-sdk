@@ -316,18 +316,15 @@ The following social providers currently support the login operation:
 ```
 Amazon
 Apple
-Blogger
 Facebook
 FourSquare
 GooglePlus
 Kakao
 LINE
 LinkedIn
-Livedoor
 Messenger
 mixi
 Naver
-Netlog
 Odnoklassniki
 Orange France
 PayPalOAuth
@@ -337,7 +334,6 @@ Sina Weibo
 Spiceworks
 Twitter
 WeChat
-WordPress
 Xing
 Yahoo
 Yahoo Japan

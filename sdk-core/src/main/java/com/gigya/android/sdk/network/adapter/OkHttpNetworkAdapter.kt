@@ -51,15 +51,8 @@ class OkHttpNetworkAdapter(requestFactory: IApiRequestFactory?) : NetworkProvide
             )
             return
         }
-        // Send request here.
-        if (!request.params.containsKey("regToken")) {
-            val signedRequest = _requestFactory.sign(request)
-            OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
-        } else {
-            val unsignedRequest = _requestFactory.unsigned(request)
-            OkHttpAsyncTask(networkCallbacks, client).execute(unsignedRequest)
-        }
-
+        val signedRequest = _requestFactory.sign(request)
+        OkHttpAsyncTask(networkCallbacks, client).execute(signedRequest)
     }
 
     override fun addToQueueUnsigned(
