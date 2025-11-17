@@ -52,38 +52,29 @@ class MainViewModel : ViewModel() {
         linkInterruption: (LinkInterruption) -> Unit,
         captchaInterruption: (CaptchaInterruption) -> Unit,
     ) {
-//        val params = mutableMapOf<String, Any>(
-//            "loginID" to email,
-//            "password" to password
-//        )
-//        viewModelScope.launch {
-//            gigyaRepository.loginWith(params).collect { result ->
-//                if (result.isError()) {
-//                    error(result.error)
-//                    this.coroutineContext.job.cancel()
-//                } else if (result.isTfaInterruption()) {
-//                    tfaInterruption(result.tfa!!)
-//                } else if (result.isLinkInterruption()) {
-//                    linkInterruption(result.link!!)
-//                } else if (result.isCaptchaInterruption()) {
-//                    captchaInterruption(result.captcha!!)
-//                } else {
-//                    account.value = result.account
-//                    onLogin()
-//                    this.coroutineContext.job.cancel()
-//                }
-//            }
-//
-//        }
-        customIdLogin(
-            "012345",
-            "gigya.com/identifiers/customIdentifiers/nationalId",
-                "123123",{
-                    error(it)
-                },{
-                    onLogin()
-                }
+        val params = mutableMapOf<String, Any>(
+            "loginID" to email,
+            "password" to password
         )
+        viewModelScope.launch {
+            gigyaRepository.loginWith(params).collect { result ->
+                if (result.isError()) {
+                    error(result.error)
+                    this.coroutineContext.job.cancel()
+                } else if (result.isTfaInterruption()) {
+                    tfaInterruption(result.tfa!!)
+                } else if (result.isLinkInterruption()) {
+                    linkInterruption(result.link!!)
+                } else if (result.isCaptchaInterruption()) {
+                    captchaInterruption(result.captcha!!)
+                } else {
+                    account.value = result.account
+                    onLogin()
+                    this.coroutineContext.job.cancel()
+                }
+            }
+
+        }
     }
 
     fun customIdLogin(

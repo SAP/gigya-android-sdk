@@ -501,7 +501,6 @@ public class Gigya<T extends GigyaAccount> {
         }
         params.put("identifier", loginId);
         params.put("identifierType", identifierType);
-//        params.put("identifierType", identifierType);
         params.put("password", password);
         _businessApiService.loginWithCustomId(params, gigyaCallback);
     }

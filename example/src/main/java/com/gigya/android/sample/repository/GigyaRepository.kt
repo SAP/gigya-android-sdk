@@ -689,25 +689,24 @@ class GigyaRepository {
 
     @UiThread
     suspend fun removeConnection(provider: String): GigyaRepoResponse {
-        return setAccountInfo()
-//        val res = GigyaRepoResponse()
-//        return suspendCoroutine { continuation ->
-//            gigyaInstance.removeConnection(provider, object : GigyaCallback<GigyaApiResponse>() {
-//                override fun onSuccess(obj: GigyaApiResponse?) {
-//                    obj?.let {
-//                        res.json = obj.asJson()
-//                        continuation.resume(res)
-//                    }
-//                }
-//
-//                override fun onError(error: GigyaError?) {
-//                    error?.let {
-//                        res.error = error
-//                        continuation.resume(res)
-//                    }
-//                }
-//            })
-//        }
+        val res = GigyaRepoResponse()
+        return suspendCoroutine { continuation ->
+            gigyaInstance.removeConnection(provider, object : GigyaCallback<GigyaApiResponse>() {
+                override fun onSuccess(obj: GigyaApiResponse?) {
+                    obj?.let {
+                        res.json = obj.asJson()
+                        continuation.resume(res)
+                    }
+                }
+
+                override fun onError(error: GigyaError?) {
+                    error?.let {
+                        res.error = error
+                        continuation.resume(res)
+                    }
+                }
+            })
+        }
     }
 
     @UiThread
@@ -732,31 +731,6 @@ class GigyaRepository {
             })
         }
 
-    }
-
-    suspend fun setAccountInfo(): GigyaRepoResponse {
-        val res = GigyaRepoResponse()
-        return suspendCoroutine { continuation ->
-            gigyaInstance.setAccount(
-                mapOf<String, String>(
-                    "customIdentifiers" to "{\"nationalId\":\"123456\"}",
-                ), object : GigyaCallback<MyAccount>() {
-                    override fun onSuccess(obj: MyAccount?) {
-                        obj?.let {
-                            res.account = it
-                            continuation.resume(res)
-                        }
-                    }
-
-                    override fun onError(error: GigyaError?) {
-                        error?.let {
-                            res.error = error
-                            continuation.resume(res)
-                        }
-                    }
-
-                })
-        }
     }
 
     @UiThread
