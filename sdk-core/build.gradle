@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def libVersion = "7.3.0"
+def libVersion = "7.4.0"
 
 group = "com.sap.oss.gigya-android-sdk"
 
