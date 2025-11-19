@@ -119,12 +119,16 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
             override fun onError(error: GigyaError?) {
                 error?.let { gigyaError ->
                     val json = JSONObject(gigyaError.data)
+                    var message = ""
+                    if (json.optString("errorMessage").isNotEmpty()) {
+                        message = json.getString("errorMessage")
+                    }
+                    if (json.optString("localizedMessage").isNotEmpty()) {
+                        message = json.getString("localizedMessage")
+                    }
                     activeChannelResult?.error(
                         gigyaError.errorCode.toString(),
-                        when(json.optString("errorMessage")) {
-                            "" -> gigyaError.localizedMessage
-                            else -> json.getString("errorMessage")
-                        },
+                        message,
                         gigyaError.data
                     )
 
@@ -132,10 +136,7 @@ class NssFlowManager<T : GigyaAccount>(private val actionFactory: NssActionFacto
                     val errObject = GigyaError(
                         gigyaError.data,
                         gigyaError.errorCode,
-                        when(json.optString("errorMessage")) {
-                            "" -> gigyaError.localizedMessage
-                            else -> json.getString("errorMessage")
-                        },
+                        message,
                         gigyaError.callId
                     )
                     nssEvents?.onError(
