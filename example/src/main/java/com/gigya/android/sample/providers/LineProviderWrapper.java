@@ -59,7 +59,7 @@ public class LineProviderWrapper extends ProviderWrapper implements IProviderWra
                         activity,
                         pId,
                         new LineAuthenticationParams.Builder()
-                                .scopes(Arrays.asList(Scope.PROFILE))
+                                .scopes(Arrays.asList(Scope.PROFILE, Scope.OC_EMAIL, Scope.OPENID_CONNECT))
                                 .build());
                 activity.startActivityForResult(loginIntent, REQUEST_CODE);
             }
@@ -78,8 +78,12 @@ public class LineProviderWrapper extends ProviderWrapper implements IProviderWra
                                 return;
                             }
                             final String accessToken = result.getLineCredential().getAccessToken().getTokenString();
+                            final String idToken = result.getLineIdToken() != null ? result.getLineIdToken().getRawString() : null;
                             final Map<String, Object> loginMap = new HashMap<>();
                             loginMap.put("token", accessToken);
+                            if (idToken != null) {
+                                loginMap.put("idToken", idToken);
+                            }
                             providerWrapperCallback.onLogin(loginMap);
                             break;
                         case CANCEL:
