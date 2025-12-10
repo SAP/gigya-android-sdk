@@ -146,9 +146,15 @@ public class ExternalProvider extends Provider {
                                     .put("idToken", idToken)).toString();
                 case "line":
                     final String lineToken = (String) providerLoginMap.get("token");
-                    return new JSONObject()
-                            .put(provider, new JSONObject()
-                                    .put("authToken", lineToken)).toString();
+                    final String lineIdToken = (String) providerLoginMap.get("idToken");
+                    final JSONObject lineData = new JSONObject();
+                    if (lineToken != null) {
+                        lineData.put("authToken", lineToken);
+                    }
+                    if (lineIdToken != null) {
+                        lineData.put("idToken", lineIdToken);
+                    }
+                    return new JSONObject().put(provider, lineData).toString();
                 case "wechat":
                     final String wechatCode = (String) providerLoginMap.get("code");
                     final String uid = (String) providerLoginMap.get("uid");
