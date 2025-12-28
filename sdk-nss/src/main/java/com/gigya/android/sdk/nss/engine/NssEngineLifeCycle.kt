@@ -41,8 +41,8 @@ open class NssEngineLifeCycle {
     open fun initializeEngine() {
         if (!existsInTempCache()) {
             val engine = newEngine()
-            registerIgnitionChannel(engine)
             addToTempCache(engine)
+            registerIgnitionChannel(engine)
         }
     }
 
@@ -62,7 +62,11 @@ open class NssEngineLifeCycle {
      * Destroy and remove current Flutter engine from cache.
      */
     fun disposeEngine() {
-        FlutterEngineCache.getInstance().remove(FLUTTER_ENGINE_ID)
+        val engine: FlutterEngine? = FlutterEngineCache.getInstance().get(FLUTTER_ENGINE_ID)
+        if (engine != null) {
+            engine.destroy()
+            FlutterEngineCache.getInstance().remove(FLUTTER_ENGINE_ID)
+        }
     }
 
     /**

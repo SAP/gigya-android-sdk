@@ -250,6 +250,7 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         viewModel?.onBackPressed()
     }
 }
