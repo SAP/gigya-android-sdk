@@ -503,6 +503,9 @@ compileOptions {
     }
 ```
 
+**Supporting LINE Email Retrieval:**
+To enable email retrieval from LINE, add `Scope.OC_EMAIL` and `Scope.OPENID_CONNECT` to the scopes in `LineAuthenticationParams`, retrieve the idToken from the `LineLoginResult`, and include it in the onLogin map. See the `LineProviderWrapper.java` example (lines 51-81) for the complete implementation.
+
 ### WeChat
 
 Add the following line to your application’s build.gradle file:
