@@ -216,8 +216,10 @@ public class ProviderFactory implements IProviderFactory {
                     }
                 }
             } catch (Exception e) {
+                // No point in logging exception if not in debug mode.
+                // If an app does not use any social providers this may cause confusion in error logging.
                 if (!optional.equals("googleplus")) {
-                    GigyaLogger.error(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
+                    GigyaLogger.debug(LOG_TAG, "getUsedSocialProviders: " + e.getLocalizedMessage());
                 }
             }
         }

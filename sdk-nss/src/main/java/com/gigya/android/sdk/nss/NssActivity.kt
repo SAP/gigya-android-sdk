@@ -83,6 +83,11 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
         engineLifeCycle = Gigya.getContainer().get(NssEngineLifeCycle::class.java)
 
+        // Ensure engine is initialized before proceeding.
+        // This handles the case where the activity is restored after process death
+        // or when the engine was disposed by a previous activity.
+        engineLifeCycle?.initializeEngine()
+
         val ignitionData = intent?.extras?.getParcelable<IgnitionData>(EXTRA_DATA)
         ignitionData.guard {
             throw RuntimeException("Missing initialization data. Please verify that at least on the the NSS loading options has been provided (asset, hosted id).")
@@ -176,9 +181,13 @@ class NssActivity<T : GigyaAccount> : androidx.fragment.app.FragmentActivity() {
 
         engineLifeCycle?.engineExecuteMain()
 
+        // Use commitNow() for synchronous fragment attachment.
+        // This ensures the fragment is fully attached to the activity before onCreate() returns,
+        // preventing race conditions where another activity's onDestroy() might dispose the engine
+        // before this fragment has a chance to attach and use it.
         supportFragmentManager.beginTransaction()
             .replace(R.id.nss_main_frame, fragment!!)
-            .commit()
+            .commitNow()
     }
 
     private fun applyProgressTransform() {
