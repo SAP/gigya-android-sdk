@@ -1,12 +1,13 @@
 package com.gigya.android.sdk.biometric;
 
-import android.app.Activity;
 import android.content.Context;
+
+import androidx.biometric.BiometricManager;
+import androidx.fragment.app.FragmentActivity;
 
 import com.gigya.android.sdk.Gigya;
 import com.gigya.android.sdk.GigyaLogger;
-import com.gigya.android.sdk.biometric.v23.BiometricImplV23;
-import com.gigya.android.sdk.biometric.v28.BiometricImplV28;
+import com.gigya.android.sdk.biometric.v1.BiometricImplV1;
 import com.gigya.android.sdk.containers.IoCContainer;
 import com.gigya.android.sdk.reporting.ReportingManager;
 
@@ -20,7 +21,7 @@ public class GigyaBiometric {
         OPT_IN, OPT_OUT, LOCK, UNLOCK
     }
 
-    public static final String VERSION = "2.1.3";
+    public static final String VERSION = "2.2.0";
 
     private static final String LOG_TAG = "GigyaBiometric";
 
@@ -31,11 +32,7 @@ public class GigyaBiometric {
             IoCContainer container = Gigya.getContainer();
 
             container.bind(GigyaBiometric.class, GigyaBiometric.class, true);
-
-            // Set the relevant biometric implementation according to Android API level.
-            container.bind(BiometricImpl.class,
-                    (Class<? extends BiometricImpl>) (GigyaBiometricUtils.isPromptEnabled() ? BiometricImplV28.class : BiometricImplV23.class),
-                    true);
+            container.bind(BiometricImpl.class, BiometricImplV1.class, true);
 
             try {
                 _sharedInstance = container.get(GigyaBiometric.class);
@@ -53,7 +50,6 @@ public class GigyaBiometric {
     private BiometricImpl _impl;
 
     protected GigyaBiometric(Context context, BiometricImpl impl) {
-        // Verify conditions for using biometric authentication.
         _impl = impl;
     }
 
@@ -67,32 +63,33 @@ public class GigyaBiometric {
     }
 
     /**
-     * Optional animation state setter.
-     * This is relevant only for devices running Android below Pie.
-     *
-     * @param animate Animation state.
+     * @deprecated Animation is only relevant for the legacy pre-Pie fingerprint dialog which has
+     * been removed. This method is now a no-op and will be removed in a future release.
      */
+    @Deprecated
     public void setAnimationForPrePieDevices(boolean animate) {
-        if (!GigyaBiometricUtils.isPromptEnabled()) {
-            _impl.updateAnimationState(animate);
-        }
+        // no-op: custom fingerprint dialog removed in favour of Jetpack BiometricPrompt
     }
 
     /**
-     * Verify that all needed conditions are available to use biometric operation.
+     * Verify that all needed conditions are available to use biometric operations.
      */
     private boolean verifyBiometricSupport(Context context) {
-        if (!GigyaBiometricUtils.isSupported(context)) {
-            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "Fingerprint is not supported on this device. No sensor hardware was detected");
-            GigyaLogger.error(LOG_TAG, "Fingerprint is not supported on this device. No sensor hardware was detected");
-            return false;
+        int status = GigyaBiometricUtils.canAuthenticate(context);
+        switch (status) {
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                return true;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                ReportingManager.get().error(VERSION, "biometric", "No biometric credentials enrolled on this device");
+                GigyaLogger.error(LOG_TAG, "No biometric credentials enrolled on this device");
+                return false;
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+            default:
+                ReportingManager.get().error(VERSION, "biometric", "Biometric hardware not available on this device");
+                GigyaLogger.error(LOG_TAG, "Biometric hardware not available or temporarily unavailable");
+                return false;
         }
-        if (!GigyaBiometricUtils.hasEnrolledFingerprints(context)) {
-            ReportingManager.get().error(GigyaBiometric.VERSION, "biometric", "No fingerprint data available on device. Please enroll at least one fingerprint");
-            GigyaLogger.error(LOG_TAG, "No fingerprint data available on device. Please enroll at least one fingerprint");
-            return false;
-        }
-        return true;
     }
 
     //region BIOMETRIC OPERATIONS
@@ -112,13 +109,13 @@ public class GigyaBiometric {
     }
 
     /**
-     * Opts-in the existing session to use fingerprint authentication.
+     * Opts-in the existing session to use biometric authentication.
      *
      * @param activity          Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optIn(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optIn(final FragmentActivity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optIn: ");
         if (_impl.okayToOptInOut()) {
             _impl.showPrompt(activity, Action.OPT_IN, gigyaPromptInfo, Cipher.ENCRYPT_MODE, biometricCallback);
@@ -130,13 +127,13 @@ public class GigyaBiometric {
     }
 
     /**
-     * Opts-out the existing session from using fingerprint authentication.
+     * Opts-out the existing session from using biometric authentication.
      *
      * @param activity          Initiator activity.
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void optOut(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void optOut(final FragmentActivity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "optOut: ");
         if (_impl.isLocked()) {
             GigyaLogger.error(LOG_TAG, "optOut: Need to unlock first before trying Opt-out operation");
@@ -147,7 +144,7 @@ public class GigyaBiometric {
         if (_impl.okayToOptInOut()) {
             _impl.showPrompt(activity, Action.OPT_OUT, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
         } else {
-            GigyaLogger.error(LOG_TAG, "optOut: Session is invalid. Opt in operation is unavailable");
+            GigyaLogger.error(LOG_TAG, "optOut: Session is invalid. Opt out operation is unavailable");
             final String failedMessage = "Invalid session. Unable to perform biometric operation";
             biometricCallback.onBiometricOperationFailed(failedMessage);
         }
@@ -171,7 +168,6 @@ public class GigyaBiometric {
         }
     }
 
-
     /**
      * Unlocks the session so the user can continue to make authenticated actions.
      * Invokes the onError callback if the session is not opt-in.
@@ -180,7 +176,7 @@ public class GigyaBiometric {
      * @param gigyaPromptInfo   Prompt info containing title, subtitle & description for display.
      * @param biometricCallback Biometric authentication result callback.
      */
-    public void unlock(final Activity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
+    public void unlock(final FragmentActivity activity, final GigyaPromptInfo gigyaPromptInfo, final IGigyaBiometricCallback biometricCallback) {
         GigyaLogger.debug(LOG_TAG, "unlock: ");
         if (_impl.isOptIn()) {
             _impl.showPrompt(activity, Action.UNLOCK, gigyaPromptInfo, Cipher.DECRYPT_MODE, biometricCallback);
