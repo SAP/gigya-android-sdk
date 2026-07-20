@@ -1,58 +1,26 @@
 package com.gigya.android.sdk.biometric;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Build;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.biometric.BiometricManager;
 
 /**
  * Biometric utility & evaluation class.
  */
 class GigyaBiometricUtils {
 
-    /**
-     * Check if fingerprint permission is available.
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean isPermissionGranted(Context context) {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) ==
-                PackageManager.PERMISSION_GRANTED;
+    static boolean isAvailable(Context context) {
+        return canAuthenticate(context) == BiometricManager.BIOMETRIC_SUCCESS;
     }
 
     /**
-     * Check for device hardware support.
-     * If your application includes android.hardware.fingerprint required="true" this check is not needed.
+     * Returns the raw BiometricManager status code so callers can surface actionable error messages.
+     * Possible values: BIOMETRIC_SUCCESS, BIOMETRIC_ERROR_NO_HARDWARE,
+     * BIOMETRIC_ERROR_HW_UNAVAILABLE, BIOMETRIC_ERROR_NONE_ENROLLED,
+     * BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED.
      */
-    @SuppressLint("MissingPermission")
-    static boolean isSupported(Context context) {
-        if (!isPermissionGranted(context)) {
-            return false;
-        }
-        FingerprintManagerCompat fingerprintManager = FingerprintManagerCompat.from(context);
-        return fingerprintManager.isHardwareDetected();
+    static int canAuthenticate(Context context) {
+        return BiometricManager.from(context)
+                .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
     }
-
-    /**
-     * Check if user has enrolled fingerprints on his device.
-     */
-    @SuppressLint("MissingPermission")
-    static boolean hasEnrolledFingerprints(Context context) {
-        if (!isPermissionGranted(context)) {
-            return false;
-        }
-        FingerprintManagerCompat fingerprintManager = FingerprintManagerCompat.from(context);
-        return fingerprintManager.hasEnrolledFingerprints();
-    }
-
-    /**
-     * Check for BiometricPrompt API availability (Android >= Pie).
-     */
-    static boolean isPromptEnabled() {
-        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
-    }
-
 }

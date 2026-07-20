@@ -6,6 +6,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.fragment.app.FragmentActivity;
 
 import com.gigya.android.sdk.Config;
 import com.gigya.android.sdk.GigyaDefinitions;

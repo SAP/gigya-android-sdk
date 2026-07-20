@@ -1,12 +1,11 @@
 package com.gigya.android.sdk.biometric;
 
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 public interface IBiometricImpl {
 
-    void showPrompt(final Activity activity,
+    void showPrompt(final FragmentActivity activity,
                     GigyaBiometric.Action action,
                     @NonNull GigyaPromptInfo gigyaPromptInfo,
                     int encryptionMode,

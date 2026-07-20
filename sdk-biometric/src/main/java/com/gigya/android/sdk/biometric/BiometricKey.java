@@ -60,14 +60,12 @@ public class BiometricKey implements ISecureKey {
         try {
             Cipher cipher = Cipher.getInstance(getTransformation());
             final String ivSpec = _psService.getString(PersistenceService.PREFS_KEY_IV_SPEC, null);
-            if (ivSpec != null) {
-                final IvParameterSpec spec = new IvParameterSpec(Base64.decode(ivSpec, Base64.DEFAULT));
-                cipher.init(Cipher.DECRYPT_MODE, key, spec);
-                return cipher;
-            } else {
-                GigyaLogger.error(LOG_TAG, "createCipherFor: getIVSpec null");
-                return null;
+            if (ivSpec == null) {
+                throw new EncryptionException("getDecryptionCipher: IV spec not found in storage", null);
             }
+            final IvParameterSpec spec = new IvParameterSpec(Base64.decode(ivSpec, Base64.DEFAULT));
+            cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            return cipher;
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new EncryptionException("getDecryptionCipher: exception" + ex.getMessage(), ex);
