@@ -311,6 +311,12 @@ class MyAccountFragment : BaseExampleFragment() {
     }
 
     override fun updateBiometricUiState() {
+        binding.biometricStatus.text = when {
+            !biometric.isAvailable -> "Biometric: not available on this device"
+            biometric.isLocked    -> "Biometric: opted-in | session locked"
+            biometric.isOptIn     -> "Biometric: opted-in | session active"
+            else                  -> "Biometric: available | not opted-in"
+        }
         binding.biometricOpt.isEnabled = biometric.isAvailable
         binding.biometricLock.isEnabled = biometric.isAvailable && biometric.isOptIn
     }

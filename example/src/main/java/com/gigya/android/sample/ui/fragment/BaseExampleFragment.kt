@@ -36,13 +36,14 @@ open class BaseExampleFragment : Fragment() {
 
     open fun evaluateBiometricSession(callback: IGigyaBiometricCallback) {
         if (biometric.isLocked) {
-            // Unlock the session
-            biometric.unlock(
-                    requireActivity(),
-                    GigyaPromptInfo("Unlock session",
-                            "Place finger on sensor to continue", ""),
-                    callback
-            )
+            view?.post {
+                biometric.unlock(
+                        requireActivity(),
+                        GigyaPromptInfo("Unlock session",
+                                "Place finger on sensor to continue", ""),
+                        callback
+                )
+            }
         }
     }
 }

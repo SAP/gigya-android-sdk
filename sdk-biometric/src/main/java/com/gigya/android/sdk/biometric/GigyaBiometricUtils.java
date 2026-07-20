@@ -9,9 +9,6 @@ import androidx.biometric.BiometricManager;
  */
 class GigyaBiometricUtils {
 
-    /**
-     * Returns true if the device has biometric hardware AND the user has enrolled strong credentials.
-     */
     static boolean isAvailable(Context context) {
         return canAuthenticate(context) == BiometricManager.BIOMETRIC_SUCCESS;
     }
