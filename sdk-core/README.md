@@ -42,13 +42,13 @@ implementation 'com.google.code.gson:gson:2.8.9'
 ### Implement using binaries
 **Download the latest build and place the .aar file in your */libs* folder**
 ```gradle
-implementation files('libs/gigya-android-sdk-core-v7.1.3.aar')
+implementation files('libs/gigya-android-sdk-core-v7.4.0.aar')
 ```
 
 ### Implement using **MavenCentral**
 **Add the latest build reference to your app *build.gradle* file**
 ```gradle
-implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.1.3'
+implementation 'com.sap.oss.gigya-android-sdk:sdk-core:7.4.0'
 ```
 
 **Add a required style to your *styles.xml* file**
@@ -417,6 +417,38 @@ The code for specific to the relevant providers (Google, Facebook, Line, WeChat)
 All provider classes should be stored in your application source root under the ***“gigya.providers”*** package.
 In addition, implementation of the provider’s library should be added to the application *gradle* build file.
 
+## External Authentication Providers
+
+The SDK supports authentication via external social providers (for example, Facebook, Google, LINE) through External Provider classes.
+An external provider defines how a third-party identity provider supplies an identifier or access token that can be exchanged for a session within our platform.
+How It Works
+1. The client application integrates the third-party provider’s SDK (e.g., LINE Login).
+2. The provider SDK returns an access token or ID token.
+3. The client passes this token to the SDK using the corresponding External Provider class.
+4. The SDK validates the token and issues a session within our platform.
+ 
+### Responsibilities
+
+**Client responsibility**
+
+* Implement and maintain the third-party provider integration.
+* Handle provider-specific authentication flows.
+* Retrieve the required token (ID token or access token) from the provider SDK.
+
+**SDK responsibility**
+
+* Define the expected token format via External Provider configurations.
+* Validate the provided token.
+* Create and manage the platform session based on the validated token.
+
+**Reference Implementations**
+
+The SDK includes baseline example code for supported providers to demonstrate:
+* Required scopes
+* Token extraction
+* Expected data passed to the SDK
+These examples are intended as references only and may need to be adapted to fit the client application’s architecture and authentication flow.
+
 ### Facebook
 
 Add the following line to your application’s build.gradle file:
@@ -502,6 +534,10 @@ compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 ```
+
+**Supporting LINE Email Retrieval:**
+To enable email retrieval from LINE, include Scope.OC_EMAIL and Scope.OPENID_CONNECT in the LineAuthenticationParams scopes. After authentication, retrieve the idToken from theLineLoginResult and pass it in the onLogin map.
+For guidance on this flow, refer to the example in LineProviderWrapper.java
 
 ### WeChat
 
