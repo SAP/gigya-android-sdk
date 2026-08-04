@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <queries>
         <package android:name="com.tencent.mm" />
     </queries>
@@ -90,6 +92,52 @@
             android:launchMode="singleTop" />
 
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+
+        <!-- Firebase Cloud Messaging — required for push TFA and push auth flows -->
+        <service
+            android:name="com.gigya.android.sdk.push.GigyaFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Push TFA: transparent activity launched when user taps the TFA notification -->
+        <activity
+            android:name="com.gigya.android.sdk.tfa.ui.PushTFAActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Translucent" />
+
+        <!-- Push TFA: broadcast receiver for approve/deny notification actions -->
+        <receiver
+            android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="@string/gig_tfa_action_approve" />
+                <action android:name="@string/gig_tfa_action_deny" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Push Auth: transparent activity launched when user taps the auth notification -->
+        <activity
+            android:name="com.gigya.android.sdk.auth.ui.PushAuthActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Translucent" />
+
+        <!-- Push Auth: broadcast receiver for approve/deny notification actions -->
+        <receiver
+            android:name="com.gigya.android.sdk.auth.push.AuthPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.gigya.android.sdk.auth.push_approve" />
+                <action android:name="com.gigya.android.sdk.auth.push_deny" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

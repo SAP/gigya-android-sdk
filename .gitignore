@@ -19,3 +19,8 @@
 
 *.zip
 scripts
+
+# Local dev — not for open-source tracking
+CLAUDE.md
+docs/MAINTENANCE_MODE_PLAN.md
+example/google-services.json
