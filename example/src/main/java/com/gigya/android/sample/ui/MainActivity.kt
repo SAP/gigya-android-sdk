@@ -1,5 +1,7 @@
 package com.gigya.android.sample.ui
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +18,7 @@ import com.gigya.android.sample.ui.fragment.MyAccountFragment
 import com.gigya.android.sample.ui.fragment.SettingsFragment
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider
+import com.gigya.android.sdk.tfa.GigyaTFA
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +34,17 @@ class MainActivity : AppCompatActivity() {
         val extras = activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
             ?.joinToString { it }
         Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
+    }
+
+    // Runtime notification permission request (Android 13+).
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* permission result handled by system — no action needed */ }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -66,6 +80,8 @@ class MainActivity : AppCompatActivity() {
             PasskeysAuthenticationProvider(WeakReference(this))
         )
 
+        requestNotificationPermissionIfNeeded()
+
         if (savedInstanceState == null) {
             if (viewModel.isLoggedIn()) {
                 supportFragmentManager.beginTransaction()
@@ -75,6 +91,11 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, LoginFragment.newInstance()).commit()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        GigyaTFA.getInstance().registerForRemoteNotifications(this)
     }
 
     fun onLogout() {

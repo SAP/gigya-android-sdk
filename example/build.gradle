@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -123,7 +124,8 @@ dependencies {
     implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.0"
 
-    implementation "com.squareup.okhttp3:okhttp:4.10.0"
+    // Required at runtime for push TFA / push auth (sdk-core declares compileOnly)
+    implementation 'com.google.firebase:firebase-messaging:25.1.1'
     implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 
 }

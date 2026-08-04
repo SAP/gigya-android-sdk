@@ -10,10 +10,15 @@ import com.gigya.android.sample.databinding.FragmentMyAccountBinding
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sample.ui.MainActivity
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.GigyaCallback
+import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.biometric.GigyaPromptInfo
 import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
+import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.session.SessionStateObserver
+import com.gigya.android.sdk.tfa.GigyaTFA
 import com.google.android.material.snackbar.Snackbar
 
 class MyAccountFragment : BaseExampleFragment() {
@@ -308,6 +313,14 @@ class MyAccountFragment : BaseExampleFragment() {
             initiateSSOExchange()
         }
 
+        binding.pushTfaOptIn.setOnClickListener {
+            optInForPushTFA()
+        }
+
+        binding.pushAuthOptIn.setOnClickListener {
+            optInForPushAuth()
+        }
+
     }
 
     override fun updateBiometricUiState() {
@@ -379,10 +392,33 @@ class MyAccountFragment : BaseExampleFragment() {
                     ?.replace(R.id.container, fragment)?.commit()
             },
             error = {
-                // Display error.
                 toastIt("Error: ${it?.localizedMessage}")
             },
         )
+    }
+
+    private fun optInForPushTFA() {
+        GigyaTFA.getInstance().optInForPushTFA(object : GigyaCallback<GigyaApiResponse?>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                toastIt("Push TFA opt-in success")
+            }
+
+            override fun onError(error: GigyaError?) {
+                toastIt("Push TFA opt-in error: ${error?.localizedMessage}")
+            }
+        })
+    }
+
+    private fun optInForPushAuth() {
+        GigyaAuth.getInstance().registerForAuthPush(object : GigyaCallback<GigyaApiResponse>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                toastIt("Push Auth opt-in success")
+            }
+
+            override fun onError(error: GigyaError?) {
+                toastIt("Push Auth opt-in error: ${error?.localizedMessage}")
+            }
+        })
     }
 
 }
