@@ -41,6 +41,7 @@ class AccountViewModel(
 
     init {
         observeSessionExpiry()
+        getAccount()
     }
 
     // region Account
