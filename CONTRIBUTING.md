@@ -2,6 +2,38 @@
 
 Our project is Open Source! We love it when people contribute!
 
+## Local Development Setup
+
+### Requirements
+
+- Android Studio Hedgehog or later
+- Android SDK API 34
+- Java 1.8
+
+### Secret files (required before building)
+
+The example app needs two gitignored files. Copy the templates and fill in your values:
+
+```bash
+cp example/secrets.xml.template example/src/main/res/values/secrets.xml
+cp example/gigyaSdkConfiguration.json.template example/src/main/assets/gigyaSdkConfiguration.json
+```
+
+Edit each file and replace placeholder values with your Gigya site API key and data center.
+See `example/README.md` for the full list of required keys.
+
+### Build
+
+```bash
+# Build all modules
+./gradlew build
+
+# Build + install the example app
+./gradlew :example:installDebug
+```
+
+---
+
 ## Report an issue
 
 If you find a bug you are welcome to report it. We can only handle well-reported, actual bugs, so please follow the guidelines below.
