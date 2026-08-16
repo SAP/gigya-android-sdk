@@ -7,7 +7,7 @@ import android.util.Log
 import android.webkit.WebView
 import com.facebook.appevents.AppEventsLogger
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sample.repository.V5ExternalSessionMigrator
+import com.gigya.android.sample.data.V5ExternalSessionMigrator
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import java.security.MessageDigest
