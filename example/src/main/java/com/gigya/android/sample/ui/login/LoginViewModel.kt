@@ -3,6 +3,7 @@ package com.gigya.android.sample.ui.login
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gigya.android.sample.data.GigyaRepository
@@ -41,7 +42,27 @@ class LoginViewModel(
     var uiState by mutableStateOf<LoginUiState>(LoginUiState.Idle)
         private set
 
+    init {
+        // If the session is biometrically locked on launch, surface the unlock prompt.
+        val biometric = repository.biometricState
+        if (biometric.isOptIn && biometric.isLocked) {
+            uiState = LoginUiState.BiometricLocked
+        }
+    }
+
     // region Public actions
+
+    /**
+     * Unlocks a biometrically locked session on launch.
+     * Called from [LoginScreen] via [LaunchedEffect] when [LoginUiState.BiometricLocked].
+     */
+    fun biometricUnlock(activity: FragmentActivity) {
+        viewModelScope.launch {
+            runCatching { repository.biometricUnlock(activity) }
+                .onSuccess { uiState = LoginUiState.BiometricUnlocked }
+                .onFailure { uiState = LoginUiState.Idle }
+        }
+    }
 
     /**
      * Initiates a credentials login flow.
@@ -159,4 +180,10 @@ sealed interface LoginUiState {
 
     /** Captcha is required before the login can proceed. */
     data object CaptchaRequired : LoginUiState
+
+    /** Session is biometrically locked — prompt unlock before allowing login. */
+    data object BiometricLocked : LoginUiState
+
+    /** Biometric unlock succeeded — navigate to [AccountScreen]. */
+    data object BiometricUnlocked : LoginUiState
 }

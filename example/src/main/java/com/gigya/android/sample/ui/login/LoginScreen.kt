@@ -20,6 +20,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,9 +67,18 @@ fun LoginScreen(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // React to terminal states and trigger navigation.
+    val activity = LocalContext.current as? FragmentActivity
+
+    // Trigger biometric unlock automatically if session is locked on launch.
     LaunchedEffect(viewModel.uiState) {
         when (viewModel.uiState) {
+            is LoginUiState.BiometricLocked -> {
+                activity?.let { viewModel.biometricUnlock(it) }
+            }
+            is LoginUiState.BiometricUnlocked -> {
+                viewModel.onNavigated()
+                onNavigateToAccount()
+            }
             is LoginUiState.Success -> {
                 viewModel.onNavigated()
                 onNavigateToAccount()
