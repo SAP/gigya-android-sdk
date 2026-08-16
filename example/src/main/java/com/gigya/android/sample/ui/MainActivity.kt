@@ -1,5 +1,7 @@
 package com.gigya.android.sample.ui
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +21,7 @@ import com.gigya.android.sample.navigation.Screen
 import com.gigya.android.sample.ui.login.LoginViewModel
 import com.gigya.android.sample.ui.theme.SampleTheme
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider
 import java.lang.ref.WeakReference
 
@@ -27,13 +30,12 @@ import java.lang.ref.WeakReference
  *
  * Responsibilities:
  * - Owns the [ActivityResultLauncher] for FIDO/WebAuthn intent results.
- *   This must be registered before [onStart], so it lives here rather than
- *   in a ViewModel or composable.
+ *   Must be registered before [onStart] — platform constraint.
+ * - Requests POST_NOTIFICATIONS permission on Android 13+ for push TFA/auth.
+ * - Calls [GigyaAuth.registerForPushNotifications] on start to ensure the
+ *   FCM token is registered with the Gigya backend.
  * - Hosts the [AppNavGraph] via [setContent].
  * - Determines the start destination based on session state.
- *
- * All navigation logic lives in [AppNavGraph]. All SDK interaction lives in
- * [GigyaRepository]. This activity is intentionally thin.
  */
 class MainActivity : ComponentActivity() {
 
@@ -49,17 +51,25 @@ class MainActivity : ComponentActivity() {
             Gigya.getInstance().WebAuthn().handleFidoResult(result)
         }
 
+    /**
+     * POST_NOTIFICATIONS permission launcher (Android 13+).
+     * Result is ignored — push opt-in/out is handled by the user via
+     * AccountScreen buttons; this only satisfies the system requirement.
+     */
+    private val notificationsPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op */ }
+
     private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // Configure passkey authentication provider — requires a WeakReference
-        // to avoid leaking the Activity through the SDK's internal reference.
         Gigya.getInstance().setPasskeyAuthenticatorProvider(
             PasskeysAuthenticationProvider(WeakReference(this))
         )
+
+        requestNotificationsPermissionIfNeeded()
 
         val startDestination = if (GigyaRepository().isLoggedIn) {
             Screen.Account.route
@@ -81,6 +91,23 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Register for push notifications on every start so the FCM token
+        // is always current. GigyaAuth handles deduplication internally.
+        GigyaAuth.getInstance().registerForPushNotifications(this)
+    }
+
+    /**
+     * Requests POST_NOTIFICATIONS permission on Android 13+ (API 33+).
+     * On older versions the permission is granted automatically.
+     */
+    private fun requestNotificationsPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required for push notifications on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <queries>
         <package android:name="com.tencent.mm" />
     </queries>
@@ -70,17 +73,13 @@
             android:launchMode="singleTask">
 
             <intent-filter>
-
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="${applicationId}"
                     android:path="/login/"
                     android:scheme="gsapi" />
-
             </intent-filter>
         </activity>
 
@@ -88,6 +87,37 @@
             android:name=".wxapi.WXEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
+
+        <!-- Push TFA — handles incoming TFA push notification actions -->
+        <activity
+            android:name="com.gigya.android.sdk.tfa.ui.PushTFAActivity"
+            android:exported="true"
+            android:launchMode="singleTop" />
+
+        <!-- Push Auth — handles incoming push authentication approval/denial -->
+        <activity
+            android:name="com.gigya.android.sdk.auth.ui.PushAuthActivity"
+            android:exported="true"
+            android:launchMode="singleTop" />
+
+        <!-- Firebase Messaging Service — receives FCM tokens and push messages -->
+        <service
+            android:name="com.gigya.android.sdk.push.GigyaFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- TFA Push Receiver — processes TFA push notification payloads -->
+        <receiver
+            android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
+            android:exported="false" />
+
+        <!-- Auth Push Receiver — processes push auth notification payloads -->
+        <receiver
+            android:name="com.gigya.android.sdk.auth.push.AuthPushReceiver"
+            android:exported="false" />
 
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
     </application>
