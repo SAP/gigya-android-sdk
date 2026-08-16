@@ -3,6 +3,7 @@ package com.gigya.android.sample.data
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.fragment.app.FragmentActivity
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
@@ -11,19 +12,31 @@ import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.GigyaOTPCallback
+import com.gigya.android.sdk.biometric.GigyaBiometric
+import com.gigya.android.sdk.biometric.GigyaPromptInfo
+import com.gigya.android.sdk.biometric.IGigyaBiometricCallback
+import com.gigya.android.sdk.biometric.IGigyaBiometricOperationCallback
 import com.gigya.android.sdk.interruption.link.ILinkAccountsResolver
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.session.ISessionService
+import com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider
+import com.gigya.android.sdk.tfa.models.RegisteredPhone
+import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver
+import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver
+import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver
+import com.gigya.android.sdk.tfa.resolvers.phone.RegisteredPhonesResolver
+import com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver
+import com.gigya.android.sdk.tfa.resolvers.totp.RegisterTOTPResolver
+import com.gigya.android.sdk.tfa.resolvers.totp.VerifyTOTPResolver
 import com.gigya.android.sdk.session.SessionStateObserver
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Production implementation of [IGigyaRepository].
@@ -42,6 +55,7 @@ import kotlin.coroutines.resume
 class GigyaRepository : IGigyaRepository {
 
     private val gigya: Gigya<MyAccount> = Gigya.getInstance(MyAccount::class.java)
+    private val biometric: GigyaBiometric = GigyaBiometric.getInstance()
 
     override val isLoggedIn: Boolean
         get() = gigya.isLoggedIn
@@ -76,9 +90,7 @@ class GigyaRepository : IGigyaRepository {
     override fun login(email: String, password: String): Flow<LoginState> =
         loginFlow { gigya.login(mutableMapOf<String, Any>("loginID" to email, "password" to password), it) }
 
-    /**
-     * Credentials registration. Same interruption semantics as [login].
-     */
+    /** Credentials registration. Same interruption semantics as [login]. */
     override fun register(email: String, password: String): Flow<LoginState> =
         loginFlow { gigya.register(email, password, mutableMapOf(), it) }
 
@@ -89,9 +101,7 @@ class GigyaRepository : IGigyaRepository {
     override fun socialLogin(provider: String): Flow<LoginState> =
         loginFlow { gigya.login(provider, mutableMapOf(), it) }
 
-    /**
-     * Mobile SSO login via [Gigya.sso].
-     */
+    /** Mobile SSO login via [Gigya.sso]. */
     override fun ssoLogin(): Flow<LoginState> =
         loginFlow { gigya.sso(mutableMapOf(), it) }
 
@@ -101,7 +111,7 @@ class GigyaRepository : IGigyaRepository {
      * Uses `callbackFlow` because [GigyaOTPCallback] fires
      * [LoginState.OTPPending] (with the resolver) before the terminal success
      * or error. The resolver is forwarded in the emitted state so the ViewModel
-     * can hold it for the follow-up [verify] call.
+     * can hold it for the follow-up verify call.
      */
     override fun otpLogin(phoneNumber: String): Flow<LoginState> = callbackFlow {
         GigyaAuth.getInstance().otp.phoneLogin(
@@ -123,7 +133,6 @@ class GigyaRepository : IGigyaRepository {
                 }
             },
         )
-        // No cancel API on the SDK — the flow closes on the terminal callback.
         awaitClose { Log.d(TAG, "otpLogin flow closed") }
     }
 
@@ -207,8 +216,7 @@ class GigyaRepository : IGigyaRepository {
     override suspend fun webAuthnLogin(
         resultHandler: ActivityResultLauncher<IntentSenderRequest>,
     ): MyAccount = suspendCancellableCoroutine { cont ->
-        val params = mutableMapOf<String, Any>()
-        gigya.WebAuthn().login(params, object : GigyaLoginCallback<MyAccount>() {
+        gigya.WebAuthn().login(mutableMapOf<String, Any>(), object : GigyaLoginCallback<MyAccount>() {
             override fun onSuccess(obj: MyAccount?) {
                 obj?.let { cont.resume(it) }
             }
@@ -250,6 +258,234 @@ class GigyaRepository : IGigyaRepository {
             }
         })
     }
+
+    // endregion
+
+    // region Biometric
+
+    override val biometricState: BiometricState
+        get() = BiometricState(
+            isAvailable = biometric.isAvailable(),
+            isOptIn = biometric.isOptIn,
+            isLocked = biometric.isLocked,
+        )
+
+    /**
+     * Bridges [GigyaBiometric.optIn] — uses [IGigyaBiometricCallback] which
+     * fires once: either [onBiometricOperationSuccess] or [onBiometricOperationFailed].
+     * [onBiometricOperationCanceled] is treated as a cancellation.
+     */
+    override suspend fun biometricOptIn(activity: FragmentActivity): GigyaBiometric.Action =
+        suspendCancellableCoroutine { cont ->
+            val prompt = GigyaPromptInfo("Biometric Opt-In", "Verify your identity", "")
+            biometric.optIn(activity, prompt, object : IGigyaBiometricCallback {
+                override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+                    cont.resume(action)
+                }
+
+                override fun onBiometricOperationFailed(reason: String?) {
+                    cont.resumeWithException(Exception(reason ?: "Biometric opt-in failed"))
+                }
+
+                override fun onBiometricOperationCanceled() {
+                    cont.cancel()
+                }
+            })
+        }
+
+    /**
+     * Bridges [GigyaBiometric.optOut] — same one-shot callback pattern as [biometricOptIn].
+     */
+    override suspend fun biometricOptOut(activity: FragmentActivity): GigyaBiometric.Action =
+        suspendCancellableCoroutine { cont ->
+            val prompt = GigyaPromptInfo("Biometric Opt-Out", "Verify your identity", "")
+            biometric.optOut(activity, prompt, object : IGigyaBiometricCallback {
+                override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+                    cont.resume(action)
+                }
+
+                override fun onBiometricOperationFailed(reason: String?) {
+                    cont.resumeWithException(Exception(reason ?: "Biometric opt-out failed"))
+                }
+
+                override fun onBiometricOperationCanceled() {
+                    cont.cancel()
+                }
+            })
+        }
+
+    /**
+     * Bridges [GigyaBiometric.lock] — uses [IGigyaBiometricOperationCallback] (no UI,
+     * no cancel path). Lock is immediate and synchronous on the SDK side.
+     */
+    override suspend fun biometricLock(): GigyaBiometric.Action =
+        suspendCancellableCoroutine { cont ->
+            biometric.lock(object : IGigyaBiometricOperationCallback {
+                override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+                    cont.resume(action)
+                }
+
+                override fun onBiometricOperationFailed(reason: String?) {
+                    cont.resumeWithException(Exception(reason ?: "Biometric lock failed"))
+                }
+            })
+        }
+
+    /**
+     * Bridges [GigyaBiometric.unlock] — same one-shot callback pattern as [biometricOptIn].
+     */
+    override suspend fun biometricUnlock(activity: FragmentActivity): GigyaBiometric.Action =
+        suspendCancellableCoroutine { cont ->
+            val prompt = GigyaPromptInfo("Unlock Session", "Verify your identity", "")
+            biometric.unlock(activity, prompt, object : IGigyaBiometricCallback {
+                override fun onBiometricOperationSuccess(action: GigyaBiometric.Action) {
+                    cont.resume(action)
+                }
+
+                override fun onBiometricOperationFailed(reason: String?) {
+                    cont.resumeWithException(Exception(reason ?: "Biometric unlock failed"))
+                }
+
+                override fun onBiometricOperationCanceled() {
+                    cont.cancel()
+                }
+            })
+        }
+
+    // endregion
+
+    // region Push notifications
+
+    /**
+     * Registers for push TFA via [GigyaAuth.registerForAuthPush].
+     * The SDK registers the current FCM token with the Gigya backend.
+     */
+    override suspend fun registerForPushTfa(): String = suspendCancellableCoroutine { cont ->
+        GigyaAuth.getInstance().registerForAuthPush(object : GigyaCallback<GigyaApiResponse>() {
+            override fun onSuccess(obj: GigyaApiResponse?) {
+                cont.resume(obj?.asJson() ?: "")
+            }
+
+            override fun onError(error: GigyaError?) {
+                error?.let { cont.resumeWithException(GigyaSdkException(it)) }
+            }
+        })
+    }
+
+    /**
+     * Registers for push authentication via [GigyaAuth.registerForAuthPush].
+     * Push auth and push TFA share the same SDK registration call — the backend
+     * differentiates by notification type at delivery time.
+     */
+    override suspend fun registerForPushAuth(): String = registerForPushTfa()
+
+    // endregion
+
+    // region TFA resolvers
+
+    override suspend fun tfaRegisterPhone(
+        resolver: TFAResolverFactory,
+        phoneNumber: String,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        val phoneResolver = resolver.getResolverFor(RegisterPhoneResolver::class.java)
+                as RegisterPhoneResolver<MyAccount>
+        phoneResolver.registerPhone(phoneNumber, object : RegisterPhoneResolver.ResultCallback {
+            override fun onVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                cont.resume(TFAResolverState.PhoneCodeSent(verifyCodeResolver!!))
+            }
+            override fun onError(error: GigyaError?) {
+                cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "Phone register failed"))
+            }
+        })
+    }
+
+    override suspend fun tfaGetRegisteredPhones(
+        resolver: TFAResolverFactory,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        val phonesResolver = resolver.getResolverFor(RegisteredPhonesResolver::class.java)
+                as RegisteredPhonesResolver<MyAccount>
+        phonesResolver.getPhoneNumbers(object : RegisteredPhonesResolver.ResultCallback {
+            override fun onRegisteredPhones(phones: MutableList<RegisteredPhone>?) {
+                // Automatically sends code to the first registered phone
+                cont.resume(TFAResolverState.Resolved)
+            }
+            override fun onVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                cont.resume(TFAResolverState.PhoneCodeSent(verifyCodeResolver!!))
+            }
+            override fun onError(error: GigyaError?) {
+                cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "Get phones failed"))
+            }
+        })
+    }
+
+    override suspend fun tfaVerifyPhoneCode(
+        verifyResolver: IVerifyCodeResolver,
+        code: String,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        (verifyResolver as VerifyCodeResolver<MyAccount>).verifyCode(
+            TFAProvider.PHONE, code, true,
+            object : VerifyCodeResolver.ResultCallback {
+                override fun onResolved() { cont.resume(TFAResolverState.Resolved) }
+                override fun onInvalidCode() { cont.resume(TFAResolverState.InvalidCode) }
+                override fun onError(error: GigyaError?) {
+                    cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "Verify failed"))
+                }
+            })
+    }
+
+    override suspend fun tfaRegisterTotp(
+        resolver: TFAResolverFactory,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        val totpResolver = resolver.getResolverFor(RegisterTOTPResolver::class.java)
+                as RegisterTOTPResolver<MyAccount>
+        totpResolver.registerTOTP(object : RegisterTOTPResolver.ResultCallback {
+            override fun onQRCodeAvailable(qrCode: String, verifyTOTPResolver: IVerifyTOTPResolver?) {
+                cont.resume(TFAResolverState.QRCodeReady(qrCode, verifyTOTPResolver!!))
+            }
+            override fun onError(error: GigyaError?) {
+                cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "TOTP register failed"))
+            }
+        })
+    }
+
+    override suspend fun tfaVerifyTotpCode(
+        verifyResolver: IVerifyTOTPResolver,
+        code: String,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        (verifyResolver as VerifyTOTPResolver<MyAccount>).verifyTOTPCode(
+            code, true,
+            object : VerifyTOTPResolver.ResultCallback {
+                override fun onResolved() { cont.resume(TFAResolverState.Resolved) }
+                override fun onInvalidCode() { cont.resume(TFAResolverState.InvalidCode) }
+                override fun onError(error: GigyaError?) {
+                    cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "TOTP verify failed"))
+                }
+            })
+    }
+
+    // endregion
+
+    // region Link account resolver
+
+    override fun linkToSite(
+        resolver: ILinkAccountsResolver,
+        loginId: String,
+        password: String,
+    ) = resolver.linkToSite(loginId, password)
+
+    override fun linkToSocial(
+        resolver: ILinkAccountsResolver,
+        provider: String,
+    ) = resolver.linkToSocial(provider)
+
+    // endregion
+
+    // region OTP resolver
+
+    override fun otpVerify(
+        resolver: com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult,
+        code: String,
+    ) = resolver.verify(code)
 
     // endregion
 
@@ -323,7 +559,6 @@ class GigyaRepository : IGigyaRepository {
                 trySend(LoginState.CaptchaRequired(response))
             }
         })
-        // The SDK has no cancel API — the flow closes on the terminal callback.
         awaitClose { Log.d(TAG, "loginFlow closed") }
     }
 
@@ -342,3 +577,4 @@ class GigyaRepository : IGigyaRepository {
  * @property error The original SDK error.
  */
 class GigyaSdkException(val error: GigyaError) : Exception(error.localizedMessage)
+

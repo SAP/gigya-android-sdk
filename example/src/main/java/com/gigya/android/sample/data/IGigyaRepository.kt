@@ -2,8 +2,10 @@ package com.gigya.android.sample.data
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.fragment.app.FragmentActivity
 import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.api.GigyaApiResponse
+import com.gigya.android.sdk.biometric.GigyaBiometric
 import com.gigya.android.sdk.interruption.link.models.ConflictingAccounts
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
@@ -99,6 +101,55 @@ interface IGigyaRepository {
 
     // endregion
 
+    // region Biometric
+
+    /**
+     * Current biometric state snapshot.
+     * Query this before rendering the biometric section of [AccountScreen].
+     */
+    val biometricState: BiometricState
+
+    /**
+     * Opts the current session into biometric protection.
+     * Requires a [FragmentActivity] for the BiometricPrompt system UI.
+     */
+    suspend fun biometricOptIn(activity: FragmentActivity): GigyaBiometric.Action
+
+    /**
+     * Opts the current session out of biometric protection.
+     * Session must be unlocked before calling.
+     */
+    suspend fun biometricOptOut(activity: FragmentActivity): GigyaBiometric.Action
+
+    /**
+     * Locks the current session. No UI required — lock is immediate.
+     * The user must call [biometricUnlock] to resume the session.
+     */
+    suspend fun biometricLock(): GigyaBiometric.Action
+
+    /**
+     * Unlocks the current session using the device biometric.
+     * Requires a [FragmentActivity] for the BiometricPrompt system UI.
+     */
+    suspend fun biometricUnlock(activity: FragmentActivity): GigyaBiometric.Action
+
+    // endregion
+
+    // region Push notifications
+
+    /**
+     * Registers the device for push TFA notifications.
+     * Requires the FCM token to be available (firebase-messaging initialised).
+     */
+    suspend fun registerForPushTfa(): String
+
+    /**
+     * Registers the device for push authentication notifications.
+     */
+    suspend fun registerForPushAuth(): String
+
+    // endregion
+
     // region SDK re-initialisation
 
     /**
@@ -106,6 +157,88 @@ interface IGigyaRepository {
      * Clears the current session and account cache before re-init.
      */
     fun reinitializeSdk(apiKey: String, dataCenter: String?, cname: String?)
+
+    // endregion
+
+    // region TFA resolvers
+
+    /**
+     * Registers a phone number for TFA. Calls [RegisterPhoneResolver.registerPhone].
+     * On success returns a [IVerifyCodeResolver] wrapped in [TFAResolverState.PhoneCodeSent].
+     */
+    suspend fun tfaRegisterPhone(
+        resolver: TFAResolverFactory,
+        phoneNumber: String,
+    ): TFAResolverState
+
+    /**
+     * Gets registered phone numbers for TFA verification.
+     * Calls [RegisteredPhonesResolver.getPhoneNumbers].
+     */
+    suspend fun tfaGetRegisteredPhones(
+        resolver: TFAResolverFactory,
+    ): TFAResolverState
+
+    /**
+     * Verifies a phone TFA code. Calls [VerifyCodeResolver.verifyCode].
+     */
+    suspend fun tfaVerifyPhoneCode(
+        verifyResolver: com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver,
+        code: String,
+    ): TFAResolverState
+
+    /**
+     * Registers a TOTP authenticator. Calls [RegisterTOTPResolver.registerTOTP].
+     * On success returns [TFAResolverState.QRCodeReady] with the QR code string
+     * and a [IVerifyTOTPResolver] for the follow-up verify step.
+     */
+    suspend fun tfaRegisterTotp(resolver: TFAResolverFactory): TFAResolverState
+
+    /**
+     * Verifies a TOTP code. Calls [VerifyTOTPResolver.verifyTOTPCode].
+     */
+    suspend fun tfaVerifyTotpCode(
+        verifyResolver: com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver,
+        code: String,
+    ): TFAResolverState
+
+    // endregion
+
+    // region Link account resolver
+
+    /**
+     * Links the conflicting account to an existing site account.
+     * Calls [LinkAccountsResolver.linkToSite]. The original login flow
+     * resumes automatically via the [GigyaLoginCallback] held by the resolver.
+     */
+    fun linkToSite(
+        resolver: com.gigya.android.sdk.interruption.link.ILinkAccountsResolver,
+        loginId: String,
+        password: String,
+    )
+
+    /**
+     * Links the conflicting account to an existing social account.
+     * Calls [LinkAccountsResolver.linkToSocial].
+     */
+    fun linkToSocial(
+        resolver: com.gigya.android.sdk.interruption.link.ILinkAccountsResolver,
+        provider: String,
+    )
+
+    // endregion
+
+    // region OTP resolver
+
+    /**
+     * Verifies the OTP code sent via [otpLogin].
+     * Calls [IGigyaOtpResult.verify] — the original [GigyaOTPCallback] then
+     * fires success or error back into the [otpLogin] flow.
+     */
+    fun otpVerify(
+        resolver: com.gigya.android.sdk.auth.resolvers.IGigyaOtpResult,
+        code: String,
+    )
 
     // endregion
 }
@@ -163,4 +296,48 @@ sealed interface LoginState {
 sealed interface SessionEvent {
     /** The active session has expired. */
     data object Expired : SessionEvent
+}
+
+/**
+ * Snapshot of the current biometric opt-in / lock state.
+ *
+
+ * Queried synchronously from [GigyaBiometric] — no SDK callback required.
+ *
+ * @property isAvailable Whether the device supports biometric authentication.
+ * @property isOptIn Whether the current session is enrolled for biometric protection.
+ * @property isLocked Whether the session is currently locked by biometric.
+ */
+data class BiometricState(
+    val isAvailable: Boolean,
+    val isOptIn: Boolean,
+    val isLocked: Boolean,
+)
+
+/**
+ * Result states emitted by TFA resolver operations.
+ *
+ * Each TFA step is a one-shot suspend call that returns one of these states.
+ * The ViewModel maps these to [TFAUiState] for the screen to render.
+ */
+sealed interface TFAResolverState {
+    /** Phone code sent — holds the resolver for the follow-up verify step. */
+    data class PhoneCodeSent(
+        val verifyResolver: com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver,
+    ) : TFAResolverState
+
+    /** TOTP QR code available — holds the QR string and verify resolver. */
+    data class QRCodeReady(
+        val qrCode: String,
+        val verifyResolver: com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver,
+    ) : TFAResolverState
+
+    /** TFA step resolved — the original login flow will complete via its callback. */
+    data object Resolved : TFAResolverState
+
+    /** TFA code was invalid — user should retry. */
+    data object InvalidCode : TFAResolverState
+
+    /** An error occurred. */
+    data class Error(val message: String) : TFAResolverState
 }
