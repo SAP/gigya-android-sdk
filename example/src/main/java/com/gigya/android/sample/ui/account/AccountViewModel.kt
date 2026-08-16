@@ -133,6 +133,11 @@ class AccountViewModel(
 
     // region Biometric
 
+    /** Refreshes the biometric state snapshot — call on every ON_RESUME. */
+    fun refreshBiometricState() {
+        biometricState = repository.biometricState
+    }
+
     /** Opts the session into biometric protection. */
     fun biometricOptIn(activity: FragmentActivity) {
         viewModelScope.launch {

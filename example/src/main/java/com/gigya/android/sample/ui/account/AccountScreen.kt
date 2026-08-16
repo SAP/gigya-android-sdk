@@ -22,7 +22,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +68,9 @@ fun AccountScreen(
     modifier: Modifier = Modifier,
 ) {
     val activity = LocalContext.current as? FragmentActivity
+    val lifecycleOwner = LocalLifecycleOwner.current
 
+    // Navigate away on logout or session expiry.
     LaunchedEffect(viewModel.uiState) {
         when (viewModel.uiState) {
             is AccountUiState.LoggedOut,
@@ -74,6 +80,23 @@ fun AccountScreen(
             }
             else -> Unit
         }
+    }
+
+    // Regression fix: re-check biometric lock state on every ON_RESUME.
+    // When the app returns from background with a locked session, prompt
+    // unlock immediately rather than showing stale account data.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshBiometricState()
+                val state = viewModel.biometricState
+                if (state.isOptIn && state.isLocked) {
+                    activity?.let { viewModel.biometricUnlock(it) }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     AccountScreenContent(
