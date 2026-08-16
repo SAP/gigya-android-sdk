@@ -88,6 +88,17 @@ Without this file the app builds and runs but push TFA and push auth flows will 
 | Push Auth opt-in | Account screen → Push Notifications section |
 | SDK re-initialisation | Settings icon (top-right on any screen) |
 
+## Intentionally Omitted Flows
+
+The following flows exist in the SDK but are not surfaced in this test harness:
+
+| Flow | Reason |
+|---|---|
+| Screen Sets (web) | Demo-only; not part of the SDK's core test surface. Use the Gigya Console to configure and test screen sets independently. |
+| Native Screen Sets (NSS) | `sdk-nss` module is heading toward sunset — maintenance investment is not warranted. |
+| SSO Exchange (WebView) | Demo-only; the `getAuthCode` call used for SSO exchange is already exercised by the SSO login flow. |
+| Custom ID login | No active product requirement to surface in the test harness. |
+
 ---
 
 ## CI / Automated Runs
