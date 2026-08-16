@@ -232,6 +232,18 @@ fun LoginScreenContent(
             // ── Status ─────────────────────────────────────────────────────
             Spacer(Modifier.height(8.dp))
             StatusRow(message = statusMessage, isError = isError)
+
+            // Captcha: show a retry hint — the SDK handles the actual captcha
+            // challenge internally; the user retries their login attempt.
+            if (uiState is LoginUiState.CaptchaRequired) {
+                PrimaryButton(
+                    text = "Retry Login",
+                    onClick = { onLogin(email, password) },
+                    tag = TestTags.BTN_LOGIN,
+                    enabled = email.isNotBlank() && password.isNotBlank(),
+                )
+            }
+
             Spacer(Modifier.height(16.dp))
         }
     }

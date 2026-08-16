@@ -22,7 +22,9 @@ import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.network.GigyaError
 import com.gigya.android.sdk.session.ISessionService
 import com.gigya.android.sdk.tfa.GigyaDefinitions.TFAProvider
+import com.gigya.android.sdk.tfa.models.EmailModel
 import com.gigya.android.sdk.tfa.models.RegisteredPhone
+import com.gigya.android.sdk.tfa.resolvers.email.RegisteredEmailsResolver
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver
 import com.gigya.android.sdk.tfa.resolvers.VerifyCodeResolver
 import com.gigya.android.sdk.tfa.resolvers.phone.RegisterPhoneResolver
@@ -461,6 +463,43 @@ class GigyaRepository : IGigyaRepository {
                     cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "TOTP verify failed"))
                 }
             })
+    }
+
+    override suspend fun tfaGetRegisteredEmails(
+        resolver: TFAResolverFactory,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        val emailsResolver = resolver.getResolverFor(RegisteredEmailsResolver::class.java)
+                as RegisteredEmailsResolver<MyAccount>
+        emailsResolver.getRegisteredEmails(object : RegisteredEmailsResolver.ResultCallback {
+            override fun onRegisteredEmails(emails: MutableList<EmailModel>?) {
+                cont.resume(TFAResolverState.EmailsLoaded(emails ?: emptyList(), resolver))
+            }
+            override fun onEmailVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                cont.resume(TFAResolverState.PhoneCodeSent(verifyCodeResolver!!))
+            }
+            override fun onError(error: GigyaError?) {
+                cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "Get emails failed"))
+            }
+        })
+    }
+
+    override suspend fun tfaSendEmailCode(
+        resolver: TFAResolverFactory,
+        email: EmailModel,
+    ): TFAResolverState = suspendCancellableCoroutine { cont ->
+        val emailsResolver = resolver.getResolverFor(RegisteredEmailsResolver::class.java)
+                as RegisteredEmailsResolver<MyAccount>
+        emailsResolver.sendEmailCode(email, object : RegisteredEmailsResolver.ResultCallback {
+            override fun onRegisteredEmails(emails: MutableList<EmailModel>?) {
+                cont.resume(TFAResolverState.Error("Unexpected emails response"))
+            }
+            override fun onEmailVerificationCodeSent(verifyCodeResolver: IVerifyCodeResolver?) {
+                cont.resume(TFAResolverState.PhoneCodeSent(verifyCodeResolver!!))
+            }
+            override fun onError(error: GigyaError?) {
+                cont.resume(TFAResolverState.Error(error?.localizedMessage ?: "Send email code failed"))
+            }
+        })
     }
 
     // endregion

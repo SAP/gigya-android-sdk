@@ -202,6 +202,21 @@ interface IGigyaRepository {
         code: String,
     ): TFAResolverState
 
+    /**
+     * Gets registered emails for email TFA verification.
+     * Returns [TFAResolverState.EmailsLoaded] with the list of obfuscated emails.
+     */
+    suspend fun tfaGetRegisteredEmails(resolver: TFAResolverFactory): TFAResolverState
+
+    /**
+     * Sends a TFA verification code to the selected email.
+     * Returns [TFAResolverState.PhoneCodeSent] (reuses same resolver type) on success.
+     */
+    suspend fun tfaSendEmailCode(
+        resolver: TFAResolverFactory,
+        email: com.gigya.android.sdk.tfa.models.EmailModel,
+    ): TFAResolverState
+
     // endregion
 
     // region Link account resolver
@@ -324,6 +339,12 @@ sealed interface TFAResolverState {
     /** Phone code sent — holds the resolver for the follow-up verify step. */
     data class PhoneCodeSent(
         val verifyResolver: com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver,
+    ) : TFAResolverState
+
+    /** Registered emails loaded — user must select one to send the code to. */
+    data class EmailsLoaded(
+        val emails: List<com.gigya.android.sdk.tfa.models.EmailModel>,
+        val resolver: TFAResolverFactory,
     ) : TFAResolverState
 
     /** TOTP QR code available — holds the QR string and verify resolver. */

@@ -74,6 +74,7 @@ fun TFAScreen(
             viewModel.onProviderSelected(provider, isRegistration)
         },
         onRegisterPhone = viewModel::registerPhone,
+        onSendEmailCode = viewModel::sendEmailCode,
         onVerifyCode = { code, isTOTP ->
             if (isTOTP) viewModel.verifyTotpCode(code) else viewModel.verifyPhoneCode(code)
         },
@@ -90,6 +91,7 @@ fun TFAScreenContent(
     uiState: TFAUiState,
     onProviderSelected: (com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel, Boolean) -> Unit,
     onRegisterPhone: (String) -> Unit,
+    onSendEmailCode: (com.gigya.android.sdk.tfa.models.EmailModel) -> Unit,
     onVerifyCode: (code: String, isTOTP: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -215,6 +217,22 @@ fun TFAScreenContent(
                 )
             }
 
+            // Email selection — shown when registered emails are loaded
+            if (uiState is TFAUiState.EmailSelection) {
+                SectionTitle("Select Email")
+                Text(
+                    "Select a registered email to receive your verification code:",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                uiState.emails.forEach { email ->
+                    PrimaryButton(
+                        text = email.obfuscated ?: email.id ?: "Email",
+                        onClick = { onSendEmailCode(email) },
+                        tag = TestTags.TEXT_EMAIL_TFA_HINT,
+                    )
+                }
+            }
+
             // Code verification entry (phone)
             if (uiState is TFAUiState.CodeEntry) {
                 SectionTitle("Enter Verification Code")
@@ -248,6 +266,7 @@ private fun TFAScreenIdlePreview() {
             uiState = TFAUiState.Idle,
             onProviderSelected = { _, _ -> },
             onRegisterPhone = {},
+            onSendEmailCode = {},
             onVerifyCode = { _, _ -> },
         )
     }
@@ -261,6 +280,7 @@ private fun TFAScreenCodeEntryPreview() {
             uiState = TFAUiState.CodeEntry,
             onProviderSelected = { _, _ -> },
             onRegisterPhone = {},
+            onSendEmailCode = {},
             onVerifyCode = { _, _ -> },
         )
     }
@@ -274,6 +294,7 @@ private fun TFAScreenPhoneEntryPreview() {
             uiState = TFAUiState.PhoneEntry,
             onProviderSelected = { _, _ -> },
             onRegisterPhone = {},
+            onSendEmailCode = {},
             onVerifyCode = { _, _ -> },
         )
     }
@@ -287,6 +308,7 @@ private fun TFAScreenErrorPreview() {
             uiState = TFAUiState.Error("Invalid verification code"),
             onProviderSelected = { _, _ -> },
             onRegisterPhone = {},
+            onSendEmailCode = {},
             onVerifyCode = { _, _ -> },
         )
     }

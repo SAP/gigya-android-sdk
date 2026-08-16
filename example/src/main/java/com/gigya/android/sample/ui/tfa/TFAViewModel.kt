@@ -11,6 +11,7 @@ import com.gigya.android.sample.data.TFAResolverState
 import com.gigya.android.sdk.interruption.tfa.TFAResolverFactory
 import com.gigya.android.sdk.interruption.tfa.models.TFAProviderModel
 import com.gigya.android.sdk.tfa.GigyaDefinitions
+import com.gigya.android.sdk.tfa.models.EmailModel
 import com.gigya.android.sdk.tfa.resolvers.IVerifyCodeResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ class TFAViewModel(
     private var resolverFactory: TFAResolverFactory? = null
     private var verifyCodeResolver: IVerifyCodeResolver? = null
     private var verifyTotpResolver: IVerifyTOTPResolver? = null
+    private var emailResolverFactory: TFAResolverFactory? = null
 
     /** Called by [TFAScreen] on entry to set the resolver and provider list. */
     fun initialize(providers: List<TFAProviderModel>, resolver: TFAResolverFactory) {
@@ -79,7 +81,33 @@ class TFAViewModel(
                         }
                     }
                 }
+                GigyaDefinitions.TFAProvider.EMAIL -> {
+                    when (val result = repository.tfaGetRegisteredEmails(factory)) {
+                        is TFAResolverState.EmailsLoaded -> {
+                            emailResolverFactory = result.resolver
+                            uiState = TFAUiState.EmailSelection(result.emails)
+                        }
+                        is TFAResolverState.Error -> uiState = TFAUiState.Error(result.message)
+                        else -> Unit
+                    }
+                }
                 else -> uiState = TFAUiState.CodeEntry
+            }
+        }
+    }
+
+    /** Sends a TFA code to the selected email address. */
+    fun sendEmailCode(email: EmailModel) {
+        val factory = emailResolverFactory ?: return
+        viewModelScope.launch {
+            uiState = TFAUiState.Loading
+            when (val result = repository.tfaSendEmailCode(factory, email)) {
+                is TFAResolverState.PhoneCodeSent -> {
+                    verifyCodeResolver = result.verifyResolver
+                    uiState = TFAUiState.CodeEntry
+                }
+                is TFAResolverState.Error -> uiState = TFAUiState.Error(result.message)
+                else -> Unit
             }
         }
     }
@@ -140,5 +168,6 @@ sealed interface TFAUiState {
     data object PhoneEntry : TFAUiState
     data class ProviderSelection(val providers: List<TFAProviderModel>) : TFAUiState
     data class TOTPQRCode(val qrCode: String) : TFAUiState
+    data class EmailSelection(val emails: List<EmailModel>) : TFAUiState
     data class Error(val message: String) : TFAUiState
 }
