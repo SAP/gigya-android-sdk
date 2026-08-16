@@ -81,7 +81,6 @@ dependencies {
 
     compileOnly 'androidx.appcompat:appcompat:1.7.1'
     compileOnly 'com.google.code.gson:gson:2.8.6'
-    compileOnly 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     compileOnly'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     compileOnly 'com.google.firebase:firebase-messaging:25.1.1'
