@@ -16,12 +16,12 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 // Manifest attributes moved to jar task configuration
 
 android {
-    compileSdk 34
+    compileSdk 35
     namespace = 'com.gigya.android.sdk.tfa'
 
     defaultConfig {
         minSdk 24
-        targetSdk 34
+        targetSdk 35
 
         base.archivesName = "gigya-android-tfa"
     }
