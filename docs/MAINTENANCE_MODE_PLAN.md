@@ -24,7 +24,7 @@
 | 1 | Dependency updates | ◐ | Task 1.1 done (PR #94 merged); task 1.2 done (PR #95 merged) |
 | 2 | Core sanitization | ☐ | Secrets, stale TODOs, docs |
 | 2.5 | Security triage | ☐ | XSS alert in GigyaWebBridge.java:544 |
-| 3 | Example app rewrite + E2E | ◐ | All flow slices complete — PRs pending into phase branch |
+| 3 | Example app rewrite + E2E | ☑ | Merged into umbrella `maintenance/mode-setup` (2026-08-17) |
 | 3.5 | Open issues & PR triage | ☐ | #92, #33, #79, #58 |
 | 4 | CI/CD & publish automation | ☐ | Last |
 
@@ -33,7 +33,7 @@
 - **NSS decision** (sunset vs keep) — affects Phase 3 legacy-screens tail + Phase 3.5 issue #33 framing.
 
 ### Current session pointer
-> **Next action:** Open PRs for all Phase 3 task branches into `maintenance-feature/phase-3-app-e2e`, merge in order, then delete task branches. Phase 3 (rewrite only) complete — E2E tests deferred to post-Phase 4 CI setup.
+> **Next action:** Switch to `maintenance-feature/phase-1-dependencies`, create `maintenance-task/p1-target-sdk-35` for SDK modules only (example app already done in Phase 3). Then continue with tasks 1.4–1.8.
 
 ---
 
@@ -437,6 +437,13 @@ Each task in Section 4 maps to a task branch and a tracked unit of work; update 
 ## 10. Session Log
 
 > Append a dated entry per working session: what was done, what changed, what's next. Newest at the top. This is the cross-session memory — a new session reads §0 + this log to resume.
+
+### 2026-08-17 (session 3) — Phase 3 closed, umbrella updated
+- **targetSdk 35 bumped** in `example/build.gradle` (compileSdk + targetSdk 34 → 35). API 35 null-safety fix in `ExampleApplication.kt` (`info.signatures` nullable). SDK module bump deferred to `maintenance-task/p1-target-sdk-35`.
+- **Phase-3 branch merged** into umbrella `maintenance/mode-setup` via fast-forward. Phase 3 (rewrite only) officially closed. E2E tests deferred to Phase 4 CI setup.
+- **Conflict resolution rule documented** in §3.2 — phase-3 example app takes priority over phase-1 example files on umbrella merge.
+- **Branch cleanup** — all stale `feat/` and `fix/` branches deleted locally and remotely. Repo now has only: `main`, `develop`, `maintenance/mode-setup`, `maintenance-feature/phase-1-dependencies`, `maintenance-feature/phase-3-app-e2e`.
+- **Next:** Switch to `maintenance-feature/phase-1-dependencies`, task 1.3 — SDK modules targetSdk 35 bump.
 
 ### 2026-08-17 (session 2) — Phase 3 flow-login screens built
 - **AccountScreen + AccountViewModel** implemented and manually tested (get account, get credentials, logout all verified).

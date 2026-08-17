@@ -96,13 +96,13 @@ The SDK is in **maintenance mode**. No active feature development. Work is track
 | 1 | Dependency updates | ◐ in progress — task 1.1 done (PR #94 merged); task 1.2 done (PR #95 merged) |
 | 2 | Core sanitization | ☐ |
 | 2.5 | Security triage | ☐ XSS alert |
-| 3 | Example app rewrite + E2E | ◐ in progress — scaffold task started (parallel with Phase 1) |
+| 3 | Example app rewrite + E2E | ☑ done — merged into umbrella 2026-08-17 |
 | 3.5 | Open issues & PR triage | ☐ #92, #33, #79, #58 |
 | 4 | CI/CD & publish automation | ☐ last |
 
-**Current branch:** `maintenance-task/p3-flow-login`
+**Current branch:** `maintenance/mode-setup` (umbrella — phase-3 just merged)
 
-**Next action:** Manual test all interruption flows on device (OTP, TFA, link, settings). On sign-off: commit and push `p3-flow-login`, then begin `p3-flow-register`. See `docs/PHASE3_REWRITE_PLAN.md` §0 and `docs/MAINTENANCE_MODE_PLAN.md` §10 for full status.
+**Next action:** Switch to `maintenance-feature/phase-1-dependencies`, create `maintenance-task/p1-target-sdk-35` for SDK modules targetSdk bump (example app already done). See `docs/MAINTENANCE_MODE_PLAN.md` §11 for task checklist.
 
 ## Rules
 

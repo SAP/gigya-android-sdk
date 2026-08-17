@@ -38,14 +38,14 @@
 
 | Task branch | Flow | Status |
 |---|---|---|
-| `p3-flow-login` | Full LoginScreen (all auth methods + interruptions) | ◐ in progress — built, awaiting manual test |
-| `p3-flow-register` | Register → session → getAccount | ☐ not started |
-| `p3-flow-session` | Session persistence + expiry | ☐ not started |
-| `p3-flow-biometric` | Biometric opt-in/out/lock/unlock | ☐ not started |
-| `p3-flow-tfa` | TFAScreen (TOTP + phone + email) | ☐ not started |
-| `p3-flow-auth` | OIDC / JWT / push-auth | ☐ not started |
-| `p3-cross-team-enablement` | One-command E2E run docs | ☐ not started |
-| `p3-legacy-screens-tail` | Port/drop demo-only screens | ☐ not started |
+| `p3-flow-login` | Full LoginScreen (all auth methods + interruptions) | ✅ done — commit `3ab8d768` |
+| `p3-flow-register` | Register → session → getAccount | ✅ done — commit `90ec890f` |
+| `p3-flow-session` | Session persistence + expiry | ✅ done — commit `d9cbe24d` |
+| `p3-flow-biometric` | Biometric opt-in/out/lock/unlock | ✅ done — commit `d3af0166` |
+| `p3-flow-tfa` | TFAScreen (TOTP + phone + email) | ✅ done — commit `2a2208c7` |
+| `p3-flow-auth` | OIDC / JWT / push-auth | ✅ done — commit `e0cb0a9c` |
+| `p3-cross-team-enablement` | One-command E2E run docs | ✅ done — commit `5e1f05ec` |
+| `p3-legacy-screens-tail` | Port/drop demo-only screens | ✅ done — commit `cb064af0` |
 
 ---
 
