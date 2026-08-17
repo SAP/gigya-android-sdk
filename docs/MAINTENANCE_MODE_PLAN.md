@@ -24,7 +24,7 @@
 | 1 | Dependency updates | ◐ | Task 1.1 done (PR #94 merged); task 1.2 done (PR #95 merged) |
 | 2 | Core sanitization | ☐ | Secrets, stale TODOs, docs |
 | 2.5 | Security triage | ☐ | XSS alert in GigyaWebBridge.java:544 |
-| 3 | Example app rewrite + E2E | ◐ | Scaffold complete (commit `8fff4963`); flow slices next |
+| 3 | Example app rewrite + E2E | ◐ | All flow slices complete — PRs pending into phase branch |
 | 3.5 | Open issues & PR triage | ☐ | #92, #33, #79, #58 |
 | 4 | CI/CD & publish automation | ☐ | Last |
 
@@ -33,7 +33,7 @@
 - **NSS decision** (sunset vs keep) — affects Phase 3 legacy-screens tail + Phase 3.5 issue #33 framing.
 
 ### Current session pointer
-> **Next action:** Manual test of OTP / TFA / link / settings flows on device. On sign-off: commit `maintenance-task/p3-flow-login`, then begin `p3-flow-register`. See `docs/PHASE3_REWRITE_PLAN.md` §0 for full flow slice status. Phase 1 tasks (1.3+) still pending in parallel.
+> **Next action:** Open PRs for all Phase 3 task branches into `maintenance-feature/phase-3-app-e2e`, merge in order, then delete task branches. Phase 3 (rewrite only) complete — E2E tests deferred to post-Phase 4 CI setup.
 
 ---
 
@@ -128,6 +128,12 @@ develop
 3. All phases complete + full regression → umbrella → PR into **`develop`**.
 4. `develop` → `main` only when the team decides to cut releases (existing flow; respects branch protection + CLA).
 
+> **Conflict resolution rule:** `maintenance-feature/phase-3-app-e2e` merged into the umbrella first (2026-08-17).
+> When `maintenance-feature/phase-1-dependencies` merges into the umbrella, any conflicts in `example/`
+> files must be resolved by **keeping phase-3 versions** — the Compose rewrite supersedes all pre-rewrite
+> example app code from phase-1. SDK module files (`sdk-core`, `sdk-auth`, `sdk-tfa` build.gradle) from
+> phase-1 have zero overlap with phase-3 and merge cleanly.
+
 ### 3.3 Rules
 - Task branches stay small and single-concern.
 - Every task PR must build clean and pass existing + new tests.
@@ -163,9 +169,9 @@ In scope, aligned with the executive summary's Android Stage A. Ranked by priori
 
 | # | Task branch | Update | Priority | Status | Est. |
 |---|---|---|---|---|---|
-| 1.1 | `maintenance-task/p1-firebase-messaging` | Firebase Messaging (sdk-auth, sdk-tfa: 20.3.0 → 25.0.0) | **Critical** | ☐ | ~1 wk |
-| 1.2 | `maintenance-task/p1-lifecycle-extensions` | Remove deprecated `lifecycle-extensions` (discontinued) → granular lifecycle artifacts | **Critical** | ☐ | 3–4 d |
-| 1.3 | `maintenance-task/p1-target-sdk-35` | compileSdk/targetSdk 34 → 35 (Play requires target 35 for updates) | **Critical** | ☐ | 3–5 d |
+| 1.1 | `maintenance-task/p1-firebase-messaging` | Firebase Messaging (sdk-auth, sdk-tfa: 20.3.0 → 25.1.1) | **Critical** | ☑ PR #94 merged | ~1 wk |
+| 1.2 | `maintenance-task/p1-lifecycle-extensions` | Remove deprecated `lifecycle-extensions` (discontinued) | **Critical** | ☑ PR #95 merged | 3–4 d |
+| 1.3 | `maintenance-task/p1-target-sdk-35` | compileSdk/targetSdk 34 → 35 — **SDK modules only** (example app done in Phase 3, commit `5f8f36e5`) | **Critical** | ◐ example app done; SDK modules pending in phase-1 | 1–2 d |
 | 1.4 | `maintenance-task/p1-appcompat-align` | AppCompat 1.2.0 → 1.7.1 (sdk-auth, sdk-biometric, sdk-tfa) | **High** | ☐ | 3–4 d |
 | 1.5 | `maintenance-task/p1-credential-manager-fido` | Credential Manager / FIDO updates (keep current; document legacy-FIDO sunset) | **High** | ☐ | ~1 wk |
 | 1.6 | `maintenance-task/p1-kotlin-2x` | Kotlin 1.9 → 2.x (repo-wide) | **High** | ☐ | ~1 wk |
