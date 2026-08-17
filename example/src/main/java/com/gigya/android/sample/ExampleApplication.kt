@@ -57,7 +57,7 @@ class ExampleApplication : Application() {
     private fun getSignature() {
         try {
             val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
+            for (signature in info.signatures ?: emptyArray()) {
                 val md: MessageDigest = MessageDigest.getInstance("SHA256")
                 md.update(signature.toByteArray())
                 Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(),
