@@ -19,3 +19,7 @@
 
 *.zip
 scripts
+
+# Developer session tracking — local only, never committed
+CLAUDE.md
+docs/
