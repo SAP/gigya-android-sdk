@@ -49,7 +49,14 @@ import kotlin.text.Charsets;
 
 /**
  * Fido api service connector for Android >=M.
+ *
+ * @deprecated This implementation uses the Google FIDO2 API (play-services-fido), which Google no
+ * longer actively supports in favour of the Credential Manager API. This class is retained for
+ * compatibility and will be formally sunsetted in a future major release
+ * (deprecate → communicate → remove). New passkey / WebAuthn flows should use
+ * {@link com.gigya.android.sdk.auth.passkeys.PasskeyAuthenticationProvider} via Credential Manager.
  */
+@Deprecated
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class FidoApiServiceV23Impl implements IFidoApiService {
 
