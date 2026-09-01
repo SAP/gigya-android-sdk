@@ -176,7 +176,6 @@ public class ExternalProvider extends Provider {
     @Override
     public void login(final Map<String, Object> loginParams, final String loginMode) {
         if (wrapper == null) {
-            //TODO: Error - missing provider.
             GigyaLogger.error(LOG_TAG, "Requested login from provider that cannot be instantiated");
             return;
         }

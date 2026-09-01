@@ -55,7 +55,6 @@ public class TFAProviderResolver<A extends GigyaAccount> extends Resolver {
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        // TODO: 2019-06-16 General error?
                         _loginCallback.onError(GigyaError.generalError());
                     } finally {
                         _container.dispose();
@@ -69,7 +68,6 @@ public class TFAProviderResolver<A extends GigyaAccount> extends Resolver {
             });
         } catch (Exception ex) {
             ex.printStackTrace();
-            // TODO: 2019-06-16 General error?
             _loginCallback.onError(GigyaError.generalError());
         }
     }
