@@ -64,7 +64,6 @@ public class InterruptionResolverFactory implements IInterruptionResolverFactory
                     loginCallback.onPendingRegistration(apiResponse, resolver);
                     break;
                 case GigyaError.Codes.ERROR_PENDING_PASSWORD_CHANGE:
-                    // TODO: #baryo resolver?
                     loginCallback.onPendingPasswordChange(apiResponse);
                     break;
                 case GigyaError.Codes.ERROR_LOGIN_IDENTIFIER_EXISTS:
