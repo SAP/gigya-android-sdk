@@ -98,7 +98,7 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                     .setRp(
                             new PublicKeyCredentialRpEntity(
                                     options.rp.id, // RP
-                                    getApplicationName(applicationContext), // name //TODO use app name?
+                                    getApplicationName(applicationContext), // name
                                     null // icon
                             )
                     )
@@ -107,11 +107,11 @@ public class FidoApiServiceV23Impl implements IFidoApiService {
                                     Base64.decode(options.user.id, Base64.URL_SAFE), // id
                                     Arrays.toString(Base64.decode(options.user.id, Base64.URL_SAFE)), // name
                                     null, // icon
-                                    getApplicationName(applicationContext) // display name //TODO use app name?
+                                    getApplicationName(applicationContext) // display name
                             )
                     )
                     .setAuthenticatorSelection(new AuthenticatorSelectionCriteria.Builder()
-                            .setAttachment(Attachment.fromString(options.authenticatorSelection.authenticatorAttachment)).build()) //TODO Where do we get the attachment?
+                            .setAttachment(Attachment.fromString(options.authenticatorSelection.authenticatorAttachment)).build())
                     .setChallenge(Base64.decode(options.challenge, Base64.URL_SAFE))
                     .setParameters(
                             Collections.singletonList(
