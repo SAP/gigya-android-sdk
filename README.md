@@ -19,6 +19,40 @@ Gigya Available SDK libraries:
 
 Follow instruction for each library in order to apply them to your application.
 
+## Release Tags
+
+Releases follow the convention `<module>-v<semver>`:
+
+| Module | Tag prefix | Latest |
+|---|---|---|
+| sdk-core | `core-v` | `core-v7.4.1` |
+| sdk-biometric | `bio-v` | `bio-v2.2.0` |
+| sdk-auth | `auth-v` | `auth-v2.2.0` |
+| sdk-tfa | `tfa-v` | `tfa-v2.1.1` |
+| sdk-nss | `nss-v` | `nss-v1.9.12` |
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
+## Migration Guide
+
+### sdk-biometric 2.2.0
+
+**`Activity` → `FragmentActivity` requirement**
+
+`optIn` and `optInForBiometricSessionLocking` now require a `FragmentActivity` (or `AppCompatActivity`) instead of a plain `Activity`. Update your call sites:
+
+```kotlin
+// Before (2.1.x)
+GigyaBiometric.getInstance().optIn(activity, ...)
+
+// After (2.2.0)
+GigyaBiometric.getInstance().optIn(fragmentActivity, ...)
+```
+
+**`setAnimationForPrePieDevices` deprecated**
+
+This method is now a no-op — the legacy pre-Pie fingerprint dialog it animated has been removed. Remove any calls to it; no replacement is needed.
+
 ## Configuration
 None
 
