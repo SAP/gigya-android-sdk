@@ -114,7 +114,7 @@ dependencies {
     // Social provider libraries.
 //    implementation 'com.google.android.gms:play-services-auth:20.5.0'
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0'
-    implementation 'com.linecorp.linesdk:linesdk:latest.release'
+    implementation 'com.linecorp.linesdk:linesdk:5.11.1'
     // Requires (android.enableJetifier=true)
     implementation 'com.facebook.android:facebook-android-sdk:14.1.1'
 
