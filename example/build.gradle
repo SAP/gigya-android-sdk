@@ -192,10 +192,13 @@ dependencies {
     implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.0"
 
+    // Required at runtime for push TFA / push auth (sdk-core declares compileOnly)
+    implementation 'com.google.firebase:firebase-messaging:25.1.1'
+
     // Social providers
-    implementation 'com.facebook.android:facebook-android-sdk:14.1.1'
+    implementation 'com.facebook.android:facebook-android-sdk:18.0.3'
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0'
-    implementation 'com.linecorp.linesdk:linesdk:5.8.1'
+    implementation 'com.linecorp.linesdk:linesdk:5.11.1'
 
     // Chrome Custom Tabs (SSO, web login)
     implementation 'androidx.browser:browser:1.3.0'

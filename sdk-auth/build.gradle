@@ -16,12 +16,12 @@ ext["url"] = "https://github.com/SAP/gigya-android-sdk"
 // Manifest attributes moved to jar task configuration
 
 android {
-    compileSdk 34
+    compileSdk 35
     namespace = 'com.gigya.android.sdk.auth'
 
     defaultConfig {
         minSdk 24
-        targetSdk 34
+        targetSdk 35
     }
 
     publishing {
@@ -57,9 +57,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation project(path: ':sdk-core')
 
-    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    compileOnly 'androidx.appcompat:appcompat:1.7.1'
     compileOnly 'com.google.code.gson:gson:2.8.6'
-    compileOnly 'com.google.firebase:firebase-messaging:20.3.0'
+    compileOnly 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    // firebase-messaging not imported directly — sdk-core handles all FCM; kept for transitive compile compatibility
+    compileOnly 'com.google.firebase:firebase-messaging:25.1.1'
 
     compileOnly project(path: ':sdk-core')
 }
