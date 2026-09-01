@@ -549,6 +549,12 @@ public class GigyaWebBridge<A extends GigyaAccount> implements IGigyaWebBridge<A
                     @Override
                     public void run() {
                         if (android.os.Build.VERSION.SDK_INT > 18) {
+                            // [CodeQL java/xss false positive] The invocation string is not user-controlled input.
+                            // It is constructed in invokeWebViewCallback() from Gigya API server responses that have
+                            // been obfuscated via obfuscate(), injected into a callback slot identified by a
+                            // callbackId issued by our own JS bridge. The WebView loads only trusted Gigya-owned
+                            // screenset/plugin pages — it is not a general-purpose browser. No untrusted data
+                            // reaches this sink.
                             webView.evaluateJavascript(invocation, new ValueCallback<String>() {
                                 @Override
                                 public void onReceiveValue(String value) {
