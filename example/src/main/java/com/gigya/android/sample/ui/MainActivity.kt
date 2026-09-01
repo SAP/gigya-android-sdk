@@ -3,115 +3,111 @@ package com.gigya.android.sample.ui
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.ViewModelProvider
-import com.gigya.android.sample.R
-import com.gigya.android.sample.databinding.ActivityMainBinding
-import com.gigya.android.sample.ui.fragment.LoginFragment
-import com.gigya.android.sample.ui.fragment.MyAccountFragment
-import com.gigya.android.sample.ui.fragment.SettingsFragment
+import androidx.navigation.compose.rememberNavController
+import com.gigya.android.sample.data.GigyaRepository
+import com.gigya.android.sample.navigation.AppNavGraph
+import com.gigya.android.sample.navigation.Screen
+import com.gigya.android.sample.ui.login.LoginViewModel
+import com.gigya.android.sample.ui.theme.SampleTheme
 import com.gigya.android.sdk.Gigya
+import com.gigya.android.sdk.auth.GigyaAuth
 import com.gigya.android.sdk.auth.passkeys.PasskeysAuthenticationProvider
-import com.gigya.android.sdk.tfa.GigyaTFA
 import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity() {
+/**
+ * Single host activity for the application.
+ *
+ * Responsibilities:
+ * - Owns the [ActivityResultLauncher] for FIDO/WebAuthn intent results.
+ *   Must be registered before [onStart] — platform constraint.
+ * - Requests POST_NOTIFICATIONS permission on Android 13+ for push TFA/auth.
+ * - Calls [GigyaAuth.registerForPushNotifications] on start to ensure the
+ *   FCM token is registered with the Gigya backend.
+ * - Hosts the [AppNavGraph] via [setContent].
+ * - Determines the start destination based on session state.
+ */
+class MainActivity : ComponentActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-
-    private lateinit var viewModel: MainViewModel
-
-    // Custom result handler for FIDO sender intents.
-    val resultHandler: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) { activityResult ->
-        val extras = activityResult.data?.extras?.keySet()?.map { "$it: ${intent.extras?.get(it)}" }
-            ?.joinToString { it }
-        Gigya.getInstance().WebAuthn().handleFidoResult(activityResult)
-    }
-
-    // Runtime notification permission request (Android 13+).
-    private val notificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { /* permission result handled by system — no action needed */ }
-
-    private fun requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    /**
+     * FIDO/WebAuthn result handler.
+     *
+     * [ActivityResultLauncher] must be registered before [onStart], which
+     * means it cannot live in a ViewModel or be created lazily inside a
+     * composable. It is registered here and passed to ViewModels that need it.
+     */
+    val fidoResultHandler: ActivityResultLauncher<IntentSenderRequest> =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            Gigya.getInstance().WebAuthn().handleFidoResult(result)
         }
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.appbar_menu, menu)
-        menu?.findItem(R.id.action_version)?.title = Gigya.VERSION
-        return true
-    }
+    /**
+     * POST_NOTIFICATIONS permission launcher (Android 13+).
+     * Result is ignored — push opt-in/out is handled by the user via
+     * AccountScreen buttons; this only satisfies the system requirement.
+     */
+    private val notificationsPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op */ }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_settings -> {
-                // Show application settings.
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, SettingsFragment.newInstance()).addToBackStack(null)
-                    .commit()
-            }
-
-            android.R.id.home -> onBackPressed()
-        }
-        return true
-    }
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen()
+        super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        viewModel.setPasswordLessAuthenticationProvider(
+        Gigya.getInstance().setPasskeyAuthenticatorProvider(
             PasskeysAuthenticationProvider(WeakReference(this))
         )
 
-        requestNotificationPermissionIfNeeded()
+        requestNotificationsPermissionIfNeeded()
 
-        if (savedInstanceState == null) {
-            if (viewModel.isLoggedIn()) {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, MyAccountFragment.newInstance()).commit()
-                return
+        val startDestination = if (GigyaRepository().isLoggedIn) {
+            Screen.Account.route
+        } else {
+            Screen.Login.route
+        }
+
+        setContent {
+            SampleTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    val navController = rememberNavController()
+                    AppNavGraph(
+                        navController = navController,
+                        loginViewModel = loginViewModel,
+                        startDestination = startDestination,
+                    )
+                }
             }
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, LoginFragment.newInstance()).commit()
         }
     }
 
     override fun onStart() {
         super.onStart()
-        GigyaTFA.getInstance().registerForRemoteNotifications(this)
+        // Register for push notifications on every start so the FCM token
+        // is always current. GigyaAuth handles deduplication internally.
+        GigyaAuth.getInstance().registerForPushNotifications(this)
     }
 
-    fun onLogout() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStackImmediate()
+    /**
+     * Requests POST_NOTIFICATIONS permission on Android 13+ (API 33+).
+     * On older versions the permission is granted automatically.
+     */
+    private fun requestNotificationsPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (supportFragmentManager.backStackEntryCount == 0) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, LoginFragment.newInstance()).commitAllowingStateLoss()
-        }
     }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
-    }
-
 }
-

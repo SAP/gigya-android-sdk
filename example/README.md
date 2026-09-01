@@ -1,45 +1,146 @@
 # Gigya Android SDK — Example App
 
-This is a basic example application demonstrating the core flows of the Gigya Android SDK. It is intended as a reference for integration, not a production-ready implementation.
+The example app is a **developer test harness** for the Gigya Android SDK. It is written in Jetpack Compose + MVVM and covers every major SDK flow: credentials login/register, social login, OTP, TFA, biometric session management, passkeys, push TFA, and push auth.
 
-## Supported flows
+It is intentionally minimal — not a UI showcase — designed to be easy to read, fork, and extend for SDK evaluation and automated testing.
 
-| Flow | Description |
+---
+
+## Prerequisites
+
+| Tool | Version |
 |---|---|
-| Login | Credential, social, SSO, passwordless, OTP |
-| Registration | Standard account registration |
-| Account | Get account info, add/remove social connections |
-| FIDO / Passkeys | Register, revoke, and list passkeys |
-| Biometric | Opt-in/out, lock/unlock session |
-| TFA | TOTP and phone-based two-factor authentication |
-| Push TFA | Opt-in for push-based TFA challenge |
-| Push Auth | Opt-in for push-based login approval |
-| ScreenSets | Web-based and native screen-sets |
-| SSO Exchange | Session exchange via hosted page |
+| Android Studio | Hedgehog or later |
+| Android SDK | API 34 (compileSdk) |
+| Java | 1.8 (project default) |
+| Kotlin | 1.9.20 |
 
-## Setup
+---
 
-### Required local files
+## Local Setup
 
-The following files are gitignored and must be provided locally before the app can run:
+The app requires two secret files that are **gitignored** and must be created locally before building.
 
-| File | Purpose |
+### 1. `secrets.xml`
+
+Copy the template and fill in your values:
+
+```bash
+cp example/secrets.xml.template example/src/main/res/values/secrets.xml
+```
+
+Edit `secrets.xml` and replace the placeholder values:
+
+| Key | Description |
 |---|---|
-| `example/src/main/assets/gigyaSdkConfiguration.json` | API key and data center for SDK initialization |
-| `example/src/main/res/values/secrets.xml` | Facebook app ID and client token |
+| `gigya_api_key` | Your Gigya / SAP CDC site API key |
+| `gigya_api_domain` | Your data center (e.g. `us1.gigya.com`) |
+| `facebook_app_id` | Facebook App ID (required for Facebook social login) |
+| `facebook_client_token` | Facebook Client Token |
 
-### Push TFA / Push Auth
+### 2. `gigyaSdkConfiguration.json`
 
-Push notification support requires a valid Firebase project. To enable it:
+Copy the template and fill in your values:
 
-1. Create a project in the [Firebase Console](https://console.firebase.google.com/) and register the app with the package name `com.gigya.android.sample`.
-2. Download the generated `google-services.json` file and place it at `example/google-services.json`.
-3. Ensure the Firebase project's **Cloud Messaging** service is enabled.
+```bash
+cp example/gigyaSdkConfiguration.json.template example/src/main/assets/gigyaSdkConfiguration.json
+```
 
-> Without `google-services.json`, the app will crash when the Push TFA or Push Auth opt-in buttons are tapped.
+Edit the file and replace `YOUR_API_KEY_HERE` and `YOUR_API_DOMAIN_HERE` with the same values used in `secrets.xml`.
 
-## Notes
+### 3. `google-services.json` (optional — required for push TFA/auth)
 
-- On Android 13+, the app requests the `POST_NOTIFICATIONS` permission at launch. Push flows require this permission to be granted.
-- The `GigyaFirebaseMessagingService` is registered in the manifest and handles all incoming push routing automatically.
-- This example app uses a debug keystore. Replace with your own signing config for any non-development use.
+Place your Firebase project's `google-services.json` in `example/google-services.json`.
+Without this file the app builds and runs but push TFA and push auth flows will not work.
+
+---
+
+## Build & Run
+
+```bash
+# Build all SDK modules + example app
+./gradlew :example:assembleDebug
+
+# Install on a connected device or emulator
+./gradlew :example:installDebug
+```
+
+---
+
+## Supported Flows
+
+| Flow | Entry point |
+|---|---|
+| Credentials login | Login screen → email + password |
+| Credentials register | Login screen → Register button |
+| Social login | Login screen → provider name input |
+| OTP phone login | Login screen → OTP Login button |
+| SSO login | Login screen → SSO Login button |
+| WebAuthn / Passkey login | Login screen → Login with Passkey button |
+| TFA (TOTP, phone, email) | Triggered automatically on login interruption |
+| Account link | Triggered automatically on conflicting account |
+| Get account info | Account screen → Get Account Info |
+| Logout | Account screen → Logout |
+| Add / remove social connection | Account screen → Connections section |
+| Register / revoke passkey | Account screen → Passkeys section |
+| Biometric opt-in / opt-out / lock / unlock | Account screen → Biometric section |
+| Push TFA opt-in | Account screen → Push Notifications section |
+| Push Auth opt-in | Account screen → Push Notifications section |
+| SDK re-initialisation | Settings icon (top-right on any screen) |
+
+## Intentionally Omitted Flows
+
+The following flows exist in the SDK but are not surfaced in this test harness:
+
+| Flow | Reason |
+|---|---|
+| Screen Sets (web) | Demo-only; not part of the SDK's core test surface. Use the Gigya Console to configure and test screen sets independently. |
+| Native Screen Sets (NSS) | `sdk-nss` module is heading toward sunset — maintenance investment is not warranted. |
+| SSO Exchange (WebView) | Demo-only; the `getAuthCode` call used for SSO exchange is already exercised by the SSO login flow. |
+| Custom ID login | No active product requirement to surface in the test harness. |
+
+---
+
+## CI / Automated Runs
+
+Secret files are written automatically at CI build time via the `generateSecrets` Gradle task.
+Set the following environment variables in your CI environment:
+
+| Env var | Maps to |
+|---|---|
+| `GIGYA_API_KEY` | `gigya_api_key` in `secrets.xml` |
+| `GIGYA_API_DOMAIN` | `gigya_api_domain` in `secrets.xml` |
+| `FACEBOOK_APP_ID` | `facebook_app_id` in `secrets.xml` |
+| `FACEBOOK_CLIENT_TOKEN` | `facebook_client_token` in `secrets.xml` |
+
+Then run:
+
+```bash
+./gradlew :example:assembleDebug
+```
+
+The task runs automatically before `preBuild` — no explicit invocation needed.
+
+---
+
+## Architecture
+
+The app follows Google's recommended Compose + MVVM architecture:
+
+```
+ui/<flow>/
+  <Flow>Screen.kt       — stateless @Composable + @Preview
+  <Flow>ViewModel.kt    — mutableStateOf UiState, calls repository
+data/
+  IGigyaRepository.kt   — interface (swap for fake in tests)
+  GigyaRepository.kt    — production SDK bridge
+navigation/
+  Screen.kt             — nav route constants
+  AppNavGraph.kt        — all destinations wired
+ui/common/
+  TestTags.kt           — testTag constants for all interactive elements
+```
+
+All SDK callbacks are bridged in `GigyaRepository` — ViewModels and Screens are pure Kotlin/Compose with no SDK types leaking through.
+
+See `docs/PHASE3_REWRITE_PLAN.md` for the full architecture decision record.

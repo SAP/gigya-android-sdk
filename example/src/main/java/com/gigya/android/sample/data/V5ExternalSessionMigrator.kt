@@ -1,4 +1,4 @@
-package com.gigya.android.sample.repository
+package com.gigya.android.sample.data
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,13 +12,20 @@ import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * V5ExternalSessionMigrator class is used to migrate deprecated session used until v5.1.7.
- * The migrator will try to decrypt the saved session and will re-encrypt is using the updated SDK code.
- * Use this migrator class if you want to update your app directly to Android v7 if you have skipped v6.
+ * Migrates a persisted v5 SDK session (up to v5.1.7) to the current encryption scheme.
  *
- * Usage:
- * Create a new instance of the migrator file AFTER you have initialized the Gigya instance.
- * use the migrateV5Session method to start migration.
+ * The v5 SDK stored sessions using RSA/AES in the AndroidKeyStore under a fixed alias
+ * ("GS_ALIAS"). From v6 onwards the SDK uses a different key and storage strategy.
+ * This migrator decrypts the old session and re-encrypts it using the current SDK,
+ * allowing users upgrading directly from v5 to v7+ to retain their session without
+ * being forced to re-authenticate.
+ *
+ * **Call site:** instantiate and call [migrateV5Session] in [ExampleApplication.onCreate],
+ * **after** [Gigya.setApplication] and [Gigya.getInstance] have been called. The Gigya
+ * instance must be initialised before migration so the re-encrypted session can be stored.
+ *
+ * If no v5 session exists the [error] callback is invoked and the app continues normally —
+ * this is the expected path for all users who were never on v5.
  */
 class V5ExternalSessionMigrator(val context: Context) {
 
@@ -33,12 +40,19 @@ class V5ExternalSessionMigrator(val context: Context) {
         const val DEP_TRANSFORMATION = "AES"
     }
 
+    /**
+     * Attempts to find and migrate a v5 session.
+     *
+     * @param success Invoked when a v5 session was found and successfully migrated.
+     * @param error Invoked when no v5 session exists, or migration fails. In both
+     *   cases the app should continue normally — re-authentication will be required
+     *   only if a valid current session is also absent.
+     */
     fun migrateV5Session(success: () -> Unit, error: () -> Unit) {
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore")
             keyStore.load(null)
             if (keyStore.containsAlias(DEP_ALIAS_KEY)) {
-                // Deprecated session exists and is required to be migrated.
                 if (migrate()) success()
                 return
             }
@@ -54,14 +68,12 @@ class V5ExternalSessionMigrator(val context: Context) {
         val sharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         val aesKey: String = sharedPreferences.getString(DEP_PREF_KEY, null) ?: return false
 
-        // Fetch deprecated key.
         val privateKey = keyStore.getKey(DEP_ALIAS_KEY, null) as PrivateKey
         val keyCipher: Cipher = Cipher.getInstance(DEP_KEY_TRANSFORMATION) ?: return false
         keyCipher.init(Cipher.DECRYPT_MODE, privateKey)
         val decrypted = keyCipher.doFinal(CipherUtils.stringToBytes(aesKey))
         val secretKey = SecretKeySpec(decrypted, 0, decrypted.size, DEP_TRANSFORMATION)
 
-        // Decrypt deprecated session for re-encryption.
         val decryptionCipher = Cipher.getInstance(DEP_TRANSFORMATION)
         decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey)
         val encrypted = sharedPreferences.getString(DEP_SESSION_KEY, null) ?: return false
@@ -69,13 +81,11 @@ class V5ExternalSessionMigrator(val context: Context) {
         val bytePlainText: ByteArray = decryptionCipher.doFinal(encPLBytes)
         val sessionString = String(bytePlainText)
 
-        // Re-encrypt session.
         val sessionInfo: SessionInfo = Gson().fromJson(sessionString, SessionInfo::class.java)
         Gigya.getInstance().setSession(sessionInfo)
 
-        // Delete deprecated entry.
+        // Remove the deprecated AndroidKeyStore entry after successful migration.
         keyStore.deleteEntry("GS_ALIAS")
         return true
     }
-
 }

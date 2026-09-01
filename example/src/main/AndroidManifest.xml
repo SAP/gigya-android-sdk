@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required for push notifications on Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
@@ -72,17 +73,13 @@
             android:launchMode="singleTask">
 
             <intent-filter>
-
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="${applicationId}"
                     android:path="/login/"
                     android:scheme="gsapi" />
-
             </intent-filter>
         </activity>
 
@@ -91,9 +88,19 @@
             android:exported="true"
             android:launchMode="singleTop" />
 
-        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+        <!-- Push TFA — handles incoming TFA push notification actions -->
+        <activity
+            android:name="com.gigya.android.sdk.tfa.ui.PushTFAActivity"
+            android:exported="true"
+            android:launchMode="singleTop" />
 
-        <!-- Firebase Cloud Messaging — required for push TFA and push auth flows -->
+        <!-- Push Auth — handles incoming push authentication approval/denial -->
+        <activity
+            android:name="com.gigya.android.sdk.auth.ui.PushAuthActivity"
+            android:exported="true"
+            android:launchMode="singleTop" />
+
+        <!-- Firebase Messaging Service — receives FCM tokens and push messages -->
         <service
             android:name="com.gigya.android.sdk.push.GigyaFirebaseMessagingService"
             android:exported="false">
@@ -102,42 +109,17 @@
             </intent-filter>
         </service>
 
-        <!-- Push TFA: transparent activity launched when user taps the TFA notification -->
-        <activity
-            android:name="com.gigya.android.sdk.tfa.ui.PushTFAActivity"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:theme="@style/Theme.AppCompat.Translucent" />
-
-        <!-- Push TFA: broadcast receiver for approve/deny notification actions -->
+        <!-- TFA Push Receiver — processes TFA push notification payloads -->
         <receiver
             android:name="com.gigya.android.sdk.tfa.push.TFAPushReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="@string/gig_tfa_action_approve" />
-                <action android:name="@string/gig_tfa_action_deny" />
-            </intent-filter>
-        </receiver>
+            android:exported="false" />
 
-        <!-- Push Auth: transparent activity launched when user taps the auth notification -->
-        <activity
-            android:name="com.gigya.android.sdk.auth.ui.PushAuthActivity"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:theme="@style/Theme.AppCompat.Translucent" />
-
-        <!-- Push Auth: broadcast receiver for approve/deny notification actions -->
+        <!-- Auth Push Receiver — processes push auth notification payloads -->
         <receiver
             android:name="com.gigya.android.sdk.auth.push.AuthPushReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.gigya.android.sdk.auth.push_approve" />
-                <action android:name="com.gigya.android.sdk.auth.push_deny" />
-            </intent-filter>
-        </receiver>
+            android:exported="false" />
 
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
     </application>
 
 </manifest>

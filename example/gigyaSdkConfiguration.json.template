@@ -1,0 +1,29 @@
+{
+  "_template": "gigyaSdkConfiguration.json.template — committed to source control. Copy to gigyaSdkConfiguration.json and fill in real values. The real file is gitignored. For CI/CD the generateSecrets Gradle task writes it from env vars.",
+  "_env_vars": {
+    "apiKey": "GIGYA_API_KEY",
+    "apiDomain": "GIGYA_API_DOMAIN"
+  },
+  "apiKey": "YOUR_API_KEY_HERE",
+  "apiDomain": "YOUR_API_DOMAIN_HERE",
+  "webView": {
+    "allowFileAccess": true,
+    "javaScriptEnabled": true
+  },
+  "account": {
+    "cacheTime": 2,
+    "include": [
+      "data",
+      "profile",
+      "emails",
+      "missing-required-fields",
+      "customIdentifiers"
+    ],
+    "extraProfileFields": [
+      "languages",
+      "phones",
+      "education"
+    ]
+  },
+  "sessionVerificationInterval": 0
+}

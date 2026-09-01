@@ -7,7 +7,7 @@ import android.util.Log
 import android.webkit.WebView
 import com.facebook.appevents.AppEventsLogger
 import com.gigya.android.sample.model.MyAccount
-import com.gigya.android.sample.repository.V5ExternalSessionMigrator
+import com.gigya.android.sample.data.V5ExternalSessionMigrator
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaLogger
 import java.security.MessageDigest
@@ -57,7 +57,7 @@ class ExampleApplication : Application() {
     private fun getSignature() {
         try {
             val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
+            for (signature in info.signatures ?: emptyArray()) {
                 val md: MessageDigest = MessageDigest.getInstance("SHA256")
                 md.update(signature.toByteArray())
                 Log.e("MY KEY HASH:", Base64.encodeToString(md.digest(),
