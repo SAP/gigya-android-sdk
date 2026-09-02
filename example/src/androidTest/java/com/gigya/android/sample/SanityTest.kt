@@ -17,13 +17,16 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.FixMethodOrder
+import org.junit.runners.MethodSorters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 /**
- * Sanity E2E tests — drives the real Compose UI against the live Gigya site.
+ * Sanity E2E test suite — sequential flows against the live Gigya site.
  *
- * Credentials are read at runtime from the gitignored secrets.xml via the
- * app context — single source of truth, no BuildConfig coupling.
+ * Tests run in name order (01_, 02_, ...) and share account credentials
+ * via [companion object] so each test builds on the previous one.
+ * Each test gets a fresh Activity launch.
  *
  * Local run:  ./gradlew :example:connectedAndroidTest
  *             adb logcat -s SanityTest   ← live step-by-step progress
@@ -34,9 +37,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
  * fixed pre-existing test account (register not allowed in CI).
  */
 @RunWith(AndroidJUnit4::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class SanityTest {
 
-    // Grant POST_NOTIFICATIONS upfront so the permission dialog doesn't pause the activity
     @get:Rule(order = 0)
     val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
@@ -49,55 +52,25 @@ class SanityTest {
 
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val emailPrefix get() = context.getString(R.string.test_email_prefix)
+    // region Helpers
 
-    private fun generateEmail() = "${emailPrefix}_${System.currentTimeMillis()}@gigya-test.com"
-
-    private fun generatePassword(): String {
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        return (1..12).map { chars.random() }.joinToString("") + "Aa1!"
-    }
-
-    /**
-     * Sanity: register a new account, verify the account screen shows a UID,
-     * then logout and verify the login screen is restored.
-     *
-     * A unique email is generated per run — no account cleanup required.
-     * Follow progress live: adb logcat -s SanityTest
-     */
-    @Test
-    fun register_showsAccountScreen_andLogoutReturnsToLogin() {
-        val email = generateEmail()
-        val password = generatePassword()
-        log("START register_showsAccountScreen_andLogoutReturnsToLogin")
-        log("Generated test email: $email")
-
-        // Wait for LoginScreen to settle after splash screen
-        log("Waiting for LoginScreen...")
+    private fun waitForLoginScreen() {
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodes(hasTestTag(TestTags.BTN_REGISTER))
                 .fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag(TestTags.BTN_REGISTER).assertIsDisplayed()
-        log("STEP 1 PASS — LoginScreen visible")
+        log("LoginScreen visible")
+    }
 
-        // Enter credentials and register
-        log("Entering credentials and tapping Register...")
-        composeRule.onNodeWithTag(TestTags.INPUT_EMAIL).performTextInput(email)
-        composeRule.onNodeWithTag(TestTags.INPUT_PASSWORD).performTextInput(password)
-        composeRule.onNodeWithTag(TestTags.BTN_REGISTER).performClick()
-        log("STEP 2 — Register tapped, waiting for API response (up to 45s)...")
-
-        // Wait for either AccountScreen (success) or error status (failure)
-        composeRule.waitUntil(timeoutMillis = 45_000) {
+    private fun waitForAccountScreenOrFail(timeoutMs: Long = 45_000) {
+        composeRule.waitUntil(timeoutMillis = timeoutMs) {
             val hasUid = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_UID))
                 .fetchSemanticsNodes().isNotEmpty()
             val hasError = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_STATUS))
                 .fetchSemanticsNodes().isNotEmpty()
             hasUid || hasError
         }
-
-        // Fail fast with a descriptive message if the error status is shown
         val errorNodes = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_STATUS))
             .fetchSemanticsNodes()
         if (errorNodes.isNotEmpty()) {
@@ -105,31 +78,97 @@ class SanityTest {
                 .config
                 .getOrElse(androidx.compose.ui.semantics.SemanticsProperties.Text) { emptyList() }
                 .joinToString()
-            log("STEP 3 FAIL — Registration error: $errorText")
-            fail("Registration failed with error: $errorText")
+            log("FAIL — SDK error: $errorText")
+            fail("SDK returned error: $errorText")
         }
-
-        // AccountScreen is shown with a UID
         composeRule.onNodeWithTag(TestTags.TEXT_UID).assertIsDisplayed()
-        log("STEP 3 PASS — AccountScreen visible with UID")
+        log("AccountScreen visible with UID")
+    }
 
-        // Logout
-        log("Tapping Logout...")
+    private fun logout() {
         composeRule.onNodeWithTag(TestTags.BTN_LOGOUT).performClick()
-
-        // Wait for LoginScreen to be restored
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodes(hasTestTag(TestTags.BTN_REGISTER))
                 .fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag(TestTags.BTN_REGISTER).assertIsDisplayed()
-        log("STEP 4 PASS — LoginScreen restored after logout")
-        log("PASS register_showsAccountScreen_andLogoutReturnsToLogin")
+        log("LoginScreen restored after logout")
     }
 
     private fun log(message: String) = Log.d(TAG, message)
 
+    // endregion
+
+    /**
+     * Test 01 — Register a new account, verify AccountScreen, logout.
+     * Stores the generated credentials in [companion object] for test 02.
+     */
+    @Test
+    fun test01_register_createsAccount_andLogsOut() {
+        val email = "${context.getString(R.string.test_email_prefix)}_${System.currentTimeMillis()}@gigya-test.com"
+        val password = buildString {
+            val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            repeat(12) { append(chars.random()) }
+            append("Aa1!")
+        }
+
+        // Persist for test 02
+        testEmail = email
+        testPassword = password
+
+        log("START test01_register | email=$email")
+
+        waitForLoginScreen()
+
+        log("Entering credentials and tapping Register...")
+        composeRule.onNodeWithTag(TestTags.INPUT_EMAIL).performTextInput(email)
+        composeRule.onNodeWithTag(TestTags.INPUT_PASSWORD).performTextInput(password)
+        composeRule.onNodeWithTag(TestTags.BTN_REGISTER).performClick()
+        log("Register tapped — waiting for API response...")
+
+        waitForAccountScreenOrFail()
+        log("PASS AccountScreen shown after register")
+
+        logout()
+        log("PASS test01_register_createsAccount_andLogsOut")
+    }
+
+    /**
+     * Test 02 — Login with the account created in test 01, verify AccountScreen, logout.
+     * Depends on [testEmail] and [testPassword] set by test 01.
+     */
+    @Test
+    fun test02_login_withRegisteredAccount_andLogsOut() {
+        val email = testEmail
+        val password = testPassword
+
+        if (email.isBlank() || password.isBlank()) {
+            fail("test02 depends on test01 — testEmail/testPassword not set. Run the full suite.")
+            return
+        }
+
+        log("START test02_login | email=$email")
+
+        waitForLoginScreen()
+
+        log("Entering credentials and tapping Login...")
+        composeRule.onNodeWithTag(TestTags.INPUT_EMAIL).performTextInput(email)
+        composeRule.onNodeWithTag(TestTags.INPUT_PASSWORD).performTextInput(password)
+        composeRule.onNodeWithTag(TestTags.BTN_LOGIN).performClick()
+        log("Login tapped — waiting for API response...")
+
+        waitForAccountScreenOrFail()
+        log("PASS AccountScreen shown after login")
+
+        logout()
+        log("PASS test02_login_withRegisteredAccount_andLogsOut")
+    }
+
     companion object {
         private const val TAG = "SanityTest"
+
+        // Shared state between sequential tests — set by test01, read by test02
+        var testEmail: String = ""
+        var testPassword: String = ""
     }
 }
