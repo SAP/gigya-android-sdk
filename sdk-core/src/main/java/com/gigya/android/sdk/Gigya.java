@@ -112,6 +112,33 @@ public class Gigya<T extends GigyaAccount> {
     @SuppressLint("StaticFieldLeak")
     private static Gigya INSTANCE;
 
+    /**
+     * Programmatic configuration applied before the first {@link #getInstance} call.
+     *
+     * When set, this takes precedence over the {@code gigyaSdkConfiguration.json} assets file
+     * during implicit initialization, so the JSON is never read. Intended for automated tests
+     * that need to initialize the SDK against a specific API key / domain deterministically —
+     * avoiding the race between the JSON auto-init and an explicit re-init.
+     *
+     * Must be called before the first {@link #getInstance} / {@link #getInstance(Class)}.
+     * Has no effect on production callers that never invoke {@link #setConfiguration}.
+     */
+    private static Config sPreInitConfig;
+
+    /**
+     * Sets a programmatic SDK configuration that overrides the {@code gigyaSdkConfiguration.json}
+     * assets file. Must be called before the first {@link #getInstance} call.
+     *
+     * If never called, initialization falls back to the JSON assets file as usual — so this is
+     * purely additive and has no effect on existing callers.
+     *
+     * @param apiKey    Client API-KEY.
+     * @param apiDomain Request domain (e.g. "us1.gigya.com").
+     */
+    public static synchronized void setConfiguration(@NonNull String apiKey, @NonNull String apiDomain) {
+        sPreInitConfig = new Config().updateWith(apiKey, apiDomain);
+    }
+
     /*
     Simplified instance getter for use only after calling getInstance(Context context) at least once.
     */
@@ -251,9 +278,16 @@ public class Gigya<T extends GigyaAccount> {
     private void init(boolean explicit) {
         // Will load configuration fields only if none have yet to be set.
         if (_config.getApiKey() == null) {
-            // Try to from assets JSON file,
-            Config dynamicConfig = _configFactory.load();
-            _config.updateWith(dynamicConfig);
+            if (sPreInitConfig != null && sPreInitConfig.getApiKey() != null) {
+                // Programmatic configuration (e.g. from tests) takes precedence over the
+                // JSON assets file, so gigyaSdkConfiguration.json is never read. This avoids
+                // the race between JSON auto-init and an explicit re-init.
+                _config.updateWith(sPreInitConfig);
+            } else {
+                // Try to from assets JSON file,
+                Config dynamicConfig = _configFactory.load();
+                _config.updateWith(dynamicConfig);
+            }
         }
 
         // Set next account invalidation timestamp if available.
