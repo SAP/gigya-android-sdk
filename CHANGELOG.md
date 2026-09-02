@@ -14,6 +14,7 @@ Release tag convention: `<module>-v<semver>` (e.g. `core-v7.4.1`, `bio-v2.2.0`).
 - `lifecycle-extensions` dependency removed (was declared but never used)
 - `FidoApiServiceV23Impl` marked `@Deprecated` — Google FIDO2 API (`play-services-fido`) no longer actively supported; use `PasskeyAuthenticationProvider` via Credential Manager for new flows
 - Kotlin bumped `1.9.20` → `2.1.21` (repo-wide); artifacts now embed Kotlin metadata 2.x — Kotlin 2.x recommended for consuming apps
+- **Added `Gigya.setConfiguration(apiKey, apiDomain)`** — optional programmatic configuration applied before the first `getInstance()`. When set, it takes precedence over `gigyaSdkConfiguration.json`, so the JSON is never read. Enables deterministic, race-free SDK initialization for automated tests. Purely additive — no effect on callers that never invoke it.
 
 ### sdk-auth
 - `firebase-messaging` bumped `20.3.0` → `25.1.1`

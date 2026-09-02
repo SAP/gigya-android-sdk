@@ -82,7 +82,7 @@ android {
         versionCode 3
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.gigya.android.sample.SanityTestRunner"
     }
 
     signingConfigs {
