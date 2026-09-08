@@ -22,24 +22,53 @@ import org.junit.runners.MethodSorters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 /**
- * Sanity E2E test suite — sequential flows against the live Gigya site.
+ * Sanity E2E test suite — the backend-deployment sanity harness (CXCDC-44483).
  *
- * Tests run in name order (01_, 02_, ...) and share account credentials
- * via [companion object] so each test builds on the previous one.
- * Each test gets a fresh Activity launch.
+ * Drives the real Compose UI on a device/emulator against the **live** Gigya site,
+ * exercising the full stack for each flow: Compose screen → ViewModel → [com.gigya.android.sample.data.GigyaRepository]
+ * → SDK → backend. A green run is a signal that core CDC flows work end to end against
+ * the configured site.
  *
- * Local run:  ./gradlew :example:connectedAndroidTest
- *             adb logcat -s SanityTest   ← live step-by-step progress
+ * ### Site configuration
+ * The target site is **not** taken from `gigyaSdkConfiguration.json`. [SanityTestRunner]
+ * (the custom `AndroidJUnitRunner`) reads `gigya_api_key` / `gigya_api_domain` from the
+ * gitignored `secrets.xml` and calls `Gigya.setConfiguration(...)` before the app's
+ * `Application.onCreate`, so the SDK initialises against those values and skips the JSON.
+ * To point the suite at another site/ENV, change those two strings in `secrets.xml` and
+ * re-run — no code change. (Note: `setConfiguration` only carries api key + domain, not the
+ * JSON's `account.include` / `extraProfileFields` / `webView` settings.)
  *
- * Requires a connected device or running emulator with secrets.xml present.
+ * ### Execution model
+ * Tests run in **name order** (`test01_`, `test02_`, …) via [FixMethodOrder]. They form a
+ * dependent sequence: `test01` registers an account and stashes its credentials in the
+ * [companion object]; later tests read them. The suite is therefore meant to run **whole** —
+ * running a later test in isolation fails fast with a "run the full suite" message.
+ * Each test still gets a fresh `MainActivity` launch via [composeRule].
  *
- * GitHub Actions: deferred — CI will use a login-only variant with a
- * fixed pre-existing test account (register not allowed in CI).
+ * ### Running
+ * ```
+ * ./gradlew :example:connectedAndroidTest
+ * adb logcat -s SanityTest   # live step-by-step progress
+ * ```
+ * Requires a connected device/emulator with a populated `secrets.xml`.
+ *
+ * ### Coverage
+ * `test01` register · `test02` login + UID data integrity · `test03` session persistence ·
+ * `test04` logout invalidation · `test05` invalid-credentials error path.
+ *
+ * ### CI
+ * GitHub Actions is deferred; CI will use a login-only variant with a fixed pre-existing
+ * account. `test01` (register) is device/dev-site only and is excluded from the login-only
+ * CI variant.
  */
 @RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class SanityTest {
 
+    /**
+     * Grants `POST_NOTIFICATIONS` up front (API 33+) so the runtime permission dialog never
+     * steals focus mid-test and pauses the Activity. Order 0 — applied before [composeRule].
+     */
     @get:Rule(order = 0)
     val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
@@ -47,13 +76,16 @@ class SanityTest {
         GrantPermissionRule.grant()
     }
 
+    /** Launches [MainActivity] and exposes the Compose test API. A fresh instance per test. */
     @get:Rule(order = 1)
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    /** Instrumentation target context — used to read string resources (e.g. `secrets.xml` values). */
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
     // region Helpers
 
+    /** Waits until the LoginScreen is shown (Register button present) and asserts it, else times out. */
     private fun waitForLoginScreen() {
         composeRule.waitUntil(timeoutMillis = 10_000) {
             composeRule.onAllNodes(hasTestTag(TestTags.BTN_REGISTER))
@@ -63,6 +95,14 @@ class SanityTest {
         log("LoginScreen visible")
     }
 
+    /**
+     * Waits for the flow to resolve to either the AccountScreen (UID node) or an error
+     * ([TestTags.TEXT_STATUS]), then asserts success. Fails with the SDK error text if the
+     * error node appeared first — so a backend failure surfaces as a clear message rather
+     * than a generic timeout.
+     *
+     * @param timeoutMs max wait for the backend round-trip (default 45s).
+     */
     private fun waitForAccountScreenOrFail(timeoutMs: Long = 45_000) {
         composeRule.waitUntil(timeoutMillis = timeoutMs) {
             val hasUid = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_UID))
@@ -73,6 +113,7 @@ class SanityTest {
         }
         val errorNodes = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_STATUS))
             .fetchSemanticsNodes()
+
         if (errorNodes.isNotEmpty()) {
             log("FAIL — SDK error: ${textOf(errorNodes.first())}")
             fail("SDK returned error: ${textOf(errorNodes.first())}")
@@ -81,13 +122,16 @@ class SanityTest {
         log("AccountScreen visible with UID")
     }
 
-    /** Reads the visible UID string from the AccountScreen node (strips the "UID: " prefix). */
+    /** Reads the visible UID string from the AccountScreen node (strips the "UID:" prefix). */
     private fun readUid(): String {
         val node = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_UID)).fetchSemanticsNodes().first()
         return textOf(node).substringAfter("UID:").trim()
     }
 
-    /** Waits for and returns the error status text, failing if none appears. */
+    /**
+     * Waits for and returns the error status text ([TestTags.TEXT_STATUS]), failing if none
+     * appears within [timeoutMs]. Used by negative-path tests that expect an error.
+     */
     private fun waitForErrorStatus(timeoutMs: Long = 45_000): String {
         composeRule.waitUntil(timeoutMillis = timeoutMs) {
             composeRule.onAllNodes(hasTestTag(TestTags.TEXT_STATUS))
@@ -98,11 +142,13 @@ class SanityTest {
         )
     }
 
+    /** Extracts the concatenated `Text` semantics of a node (empty string if it carries none). */
     private fun textOf(node: androidx.compose.ui.semantics.SemanticsNode): String =
         node.config
             .getOrElse(androidx.compose.ui.semantics.SemanticsProperties.Text) { emptyList() }
             .joinToString()
 
+    /** Taps Logout and waits for the LoginScreen to return, asserting the session UI was cleared. */
     private fun logout() {
         composeRule.onNodeWithTag(TestTags.BTN_LOGOUT).performClick()
         composeRule.waitUntil(timeoutMillis = 10_000) {
@@ -113,6 +159,7 @@ class SanityTest {
         log("LoginScreen restored after logout")
     }
 
+    /** Emits a step marker to logcat under the [TAG] tag (`adb logcat -s SanityTest`). */
     private fun log(message: String) = Log.d(TAG, message)
 
     // endregion
@@ -120,6 +167,8 @@ class SanityTest {
     /**
      * Test 01 — Register a new account, verify AccountScreen, logout.
      * Stores the generated credentials in [companion object] for test 02.
+     *
+     * Preview: enter fresh email+password → tap Register → AccountScreen (UID) → Logout → LoginScreen.
      */
     @Test
     fun test01_register_createsAccount_andLogsOut() {
@@ -154,6 +203,8 @@ class SanityTest {
     /**
      * Test 02 — Login with the account created in test 01, verify AccountScreen with a valid
      * UID (data integrity), logout. Depends on [testEmail]/[testPassword] set by test 01.
+     *
+     * Preview: enter test01 creds → tap Login → AccountScreen → capture non-blank UID → Logout.
      */
     @Test
     fun test02_login_withRegisteredAccount_andLogsOut() {
@@ -192,6 +243,8 @@ class SanityTest {
      * Test 03 — Session persistence: log in, relaunch the activity, and assert the session is
      * restored (AccountScreen shown with the SAME UID) without re-entering credentials.
      * Core backend-sanity signal: session token storage, encryption, and restoration.
+     *
+     * Preview: login → capture UID → `recreate()` activity → AccountScreen restored, same UID → Logout.
      */
     @Test
     fun test03_sessionPersists_acrossRelaunch() {
@@ -233,6 +286,8 @@ class SanityTest {
     /**
      * Test 04 — Logout invalidates the session: after logout, a relaunch must land on
      * LoginScreen (session truly cleared from storage, not just the UI reset).
+     *
+     * Preview: login → Logout → `recreate()` activity → LoginScreen (no session restored).
      */
     @Test
     fun test04_logoutInvalidatesSession_acrossRelaunch() {
@@ -268,6 +323,8 @@ class SanityTest {
     /**
      * Test 05 — Invalid credentials produce an error, not a silent hang or a false success.
      * Validates negative-path error propagation from backend → repository → UI.
+     *
+     * Preview: enter bad email+password → tap Login → error status shown, AccountScreen NOT reached.
      */
     @Test
     fun test05_login_withInvalidCredentials_showsError() {
@@ -296,9 +353,12 @@ class SanityTest {
     companion object {
         private const val TAG = "SanityTest"
 
-        // Shared state between sequential tests — set by test01, read by later tests
+        // Shared state between sequential tests — set by test01, read by later tests.
+        /** Email of the account created by `test01`; consumed by `test02`–`test04`. */
         var testEmail: String = ""
+        /** Password of the account created by `test01`; consumed by `test02`–`test04`. */
         var testPassword: String = ""
+        /** UID captured at login by `test02`; the value `test03` asserts survives a relaunch. */
         var testUid: String = ""
     }
 }
