@@ -1,6 +1,6 @@
 {
-  "apiKey": "4_mL-YkAEegR9vzt6QvHWI5Q",
-  "apiDomain": "us1.gigya.com",
+  "apiKey": "",
+  "apiDomain": "",
   "webView": {
     "allowFileAccess": true,
     "javaScriptEnabled": true

@@ -13,17 +13,25 @@ plugins {
 //   GIGYA_API_DOMAIN       — Gigya data center (e.g. us1.gigya.com)
 //   FACEBOOK_APP_ID        — Facebook App ID
 //   FACEBOOK_CLIENT_TOKEN  — Facebook Client Token
+//   GOOGLE_CLIENT_ID       — Google OAuth client ID (Google Sign-In / Credential Manager)
 //
 // Local development: copy secrets.xml.template → src/main/res/values/secrets.xml
 //                    copy gigyaSdkConfiguration.json.template → src/main/assets/gigyaSdkConfiguration.json
 // Both real files are gitignored and must never be committed.
 // ---------------------------------------------------------------------------
 tasks.register('generateSecrets') {
+    // Resolve output directories at CONFIGURATION time (not inside doLast) so the
+    // execution-time closure captures plain File objects, never the Project — required
+    // for Gradle configuration-cache compatibility.
+    def secretsDir = layout.projectDirectory.dir("src/main/res/values").asFile
+    def assetsDir = layout.projectDirectory.dir("src/main/assets").asFile
+
     doLast {
         def apiKey              = System.getenv('GIGYA_API_KEY')           ?: ''
         def apiDomain           = System.getenv('GIGYA_API_DOMAIN')        ?: ''
         def facebookAppId       = System.getenv('FACEBOOK_APP_ID')         ?: ''
         def facebookClientToken = System.getenv('FACEBOOK_CLIENT_TOKEN')   ?: ''
+        def googleClientId      = System.getenv('GOOGLE_CLIENT_ID')        ?: ''
 
         // Only write files when env vars are present (i.e. running in CI).
         // Locally the files are created manually from the .template files.
@@ -32,7 +40,6 @@ tasks.register('generateSecrets') {
             return
         }
 
-        def secretsDir = file("src/main/res/values")
         secretsDir.mkdirs()
         new File(secretsDir, "secrets.xml").text = """<?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -40,10 +47,11 @@ tasks.register('generateSecrets') {
     <string name="gigya_api_domain">${apiDomain}</string>
     <string name="facebook_app_id">${facebookAppId}</string>
     <string name="facebook_client_token">${facebookClientToken}</string>
+    <string name="fb_login_protocol_scheme">fb${facebookAppId}</string>
+    <string name="google_client_id">${googleClientId}</string>
 </resources>
 """
 
-        def assetsDir = file("src/main/assets")
         assetsDir.mkdirs()
         new File(assetsDir, "gigyaSdkConfiguration.json").text = """{
   "apiKey": "${apiKey}",
