@@ -208,11 +208,11 @@ class SanityTest {
      */
     @Test
     fun test02_login_withRegisteredAccount_andLogsOut() {
-        val email = testEmail
-        val password = testPassword
+        val email = testEmail.ifBlank { context.getString(R.string.test_login_id) }
+        val password = testPassword.ifBlank { context.getString(R.string.test_login_password) }
 
         if (email.isBlank() || password.isBlank()) {
-            fail("test02 depends on test01 — testEmail/testPassword not set. Run the full suite.")
+            fail("No credentials: run test01 first, or set test_login_id/test_login_password for login-only CI.")
             return
         }
 
@@ -248,10 +248,10 @@ class SanityTest {
      */
     @Test
     fun test03_sessionPersists_acrossRelaunch() {
-        val email = testEmail
-        val password = testPassword
+        val email = testEmail.ifBlank { context.getString(R.string.test_login_id) }
+        val password = testPassword.ifBlank { context.getString(R.string.test_login_password) }
         if (email.isBlank() || password.isBlank()) {
-            fail("test03 depends on test01 — credentials not set. Run the full suite.")
+            fail("No credentials: run test01 first, or set test_login_id/test_login_password for login-only CI.")
             return
         }
 
@@ -291,10 +291,10 @@ class SanityTest {
      */
     @Test
     fun test04_logoutInvalidatesSession_acrossRelaunch() {
-        val email = testEmail
-        val password = testPassword
+        val email = testEmail.ifBlank { context.getString(R.string.test_login_id) }
+        val password = testPassword.ifBlank { context.getString(R.string.test_login_password) }
         if (email.isBlank() || password.isBlank()) {
-            fail("test04 depends on test01 — credentials not set. Run the full suite.")
+            fail("No credentials: run test01 first, or set test_login_id/test_login_password for login-only CI.")
             return
         }
 

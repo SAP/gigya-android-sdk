@@ -14,6 +14,8 @@ plugins {
 //   FACEBOOK_APP_ID        — Facebook App ID
 //   FACEBOOK_CLIENT_TOKEN  — Facebook Client Token
 //   GOOGLE_CLIENT_ID       — Google OAuth client ID (Google Sign-In / Credential Manager)
+//   TEST_LOGIN_ID          — Fixed CI account email/loginID (login-only variant; optional)
+//   TEST_PASSWORD          — Fixed CI account password    (login-only variant; optional)
 //
 // Local development: copy secrets.xml.template → src/main/res/values/secrets.xml
 //                    copy gigyaSdkConfiguration.json.template → src/main/assets/gigyaSdkConfiguration.json
@@ -32,6 +34,8 @@ tasks.register('generateSecrets') {
         def facebookAppId       = System.getenv('FACEBOOK_APP_ID')         ?: ''
         def facebookClientToken = System.getenv('FACEBOOK_CLIENT_TOKEN')   ?: ''
         def googleClientId      = System.getenv('GOOGLE_CLIENT_ID')        ?: ''
+        def testLoginId         = System.getenv('TEST_LOGIN_ID')           ?: ''
+        def testPassword        = System.getenv('TEST_PASSWORD')           ?: ''
 
         // Only write files when env vars are present (i.e. running in CI).
         // Locally the files are created manually from the .template files.
@@ -49,6 +53,9 @@ tasks.register('generateSecrets') {
     <string name="facebook_client_token">${facebookClientToken}</string>
     <string name="fb_login_protocol_scheme">fb${facebookAppId}</string>
     <string name="google_client_id">${googleClientId}</string>
+    <string name="test_email_prefix">sanity</string>
+    <string name="test_login_id">${testLoginId}</string>
+    <string name="test_login_password">${testPassword}</string>
 </resources>
 """
 
