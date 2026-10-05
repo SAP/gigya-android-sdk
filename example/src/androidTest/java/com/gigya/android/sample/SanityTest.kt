@@ -196,6 +196,14 @@ class SanityTest {
         waitForAccountScreenOrFail()
         log("PASS AccountScreen shown after register")
 
+        // Emit the created account's UID as a machine-parseable marker so the CI harness can
+        // delete this throwaway account after the suite (register runs only in the full suite,
+        // so each run would otherwise leave an orphaned user). Captured here — right after a
+        // successful register — so cleanup is possible even if a later test fails.
+        val uid = readUid()
+        testUid = uid
+        log("$UID_MARKER$uid")
+
         logout()
         log("PASS test01_register_createsAccount_andLogsOut")
     }
@@ -352,6 +360,13 @@ class SanityTest {
 
     companion object {
         private const val TAG = "SanityTest"
+
+        /**
+         * Log-line prefix marking the UID of the account created by `test01`. The CI harness
+         * greps logcat for this exact token to delete the throwaway account after the suite.
+         * Keep in sync with the harness (run.sh) parser.
+         */
+        const val UID_MARKER = "SANITY_UID="
 
         // Shared state between sequential tests — set by test01, read by later tests.
         /** Email of the account created by `test01`; consumed by `test02`–`test04`. */
