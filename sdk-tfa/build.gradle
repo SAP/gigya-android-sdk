@@ -60,7 +60,7 @@ dependencies {
     testImplementation project(path: ':sdk-core')
 
     compileOnly 'androidx.appcompat:appcompat:1.7.1'
-    compileOnly 'com.google.code.gson:gson:2.8.6'
+    compileOnly 'com.google.code.gson:gson:2.13.1'
     compileOnly 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     // firebase-messaging not imported directly — sdk-core handles all FCM; kept for transitive compile compatibility
     compileOnly 'com.google.firebase:firebase-messaging:25.1.1'
