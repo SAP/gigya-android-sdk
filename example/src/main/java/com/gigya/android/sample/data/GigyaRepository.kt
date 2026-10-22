@@ -8,6 +8,7 @@ import com.gigya.android.sample.model.MyAccount
 import com.gigya.android.sdk.Gigya
 import com.gigya.android.sdk.GigyaCallback
 import com.gigya.android.sdk.GigyaLoginCallback
+import com.gigya.android.sdk.GigyaPluginCallback
 import com.gigya.android.sdk.account.IAccountService
 import com.gigya.android.sdk.api.GigyaApiResponse
 import com.gigya.android.sdk.auth.GigyaAuth
@@ -33,6 +34,7 @@ import com.gigya.android.sdk.tfa.resolvers.totp.IVerifyTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.RegisterTOTPResolver
 import com.gigya.android.sdk.tfa.resolvers.totp.VerifyTOTPResolver
 import com.gigya.android.sdk.session.SessionStateObserver
+import com.gigya.android.sdk.ui.plugin.GigyaPluginEvent
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -106,6 +108,39 @@ class GigyaRepository : IGigyaRepository {
     /** Mobile SSO login via [Gigya.sso]. */
     override fun ssoLogin(): Flow<LoginState> =
         loginFlow { gigya.sso(mutableMapOf(), it) }
+
+    /**
+     * Launches a Gigya ScreenSet auth flow (hosted WebView) for [screenSet].
+     *
+     * Uses `callbackFlow` because [GigyaPluginCallback] is multi-event: it fires
+     * screen/validation/submit events throughout the flow before a terminal
+     * outcome. We only surface the terminal states the login UI cares about —
+     * [GigyaPluginCallback.onLogin] → [LoginState.Success], [onError] →
+     * [LoginState.Error], and [onCanceled] / a dismissing [onHide] →
+     * [LoginState.Cancelled]. The SDK renders the screenset in its own plugin
+     * fragment over the current activity; no activity handle is needed here.
+     */
+    override fun showScreenSet(screenSet: String): Flow<LoginState> = callbackFlow {
+        gigya.showScreenSet(
+            screenSet,
+            true,
+            mutableMapOf<String, Any>(),
+            object : GigyaPluginCallback<MyAccount>() {
+                override fun onLogin(accountObj: MyAccount) {
+                    trySend(LoginState.Success(accountObj)); close()
+                }
+
+                override fun onError(event: GigyaPluginEvent) {
+                    close(GigyaSdkException(GigyaError.errorFrom(event.eventMap)))
+                }
+
+                override fun onCanceled() {
+                    trySend(LoginState.Cancelled); close()
+                }
+            },
+        )
+        awaitClose { }
+    }
 
     /**
      * Phone OTP login.

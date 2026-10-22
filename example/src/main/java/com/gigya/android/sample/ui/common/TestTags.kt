@@ -19,6 +19,7 @@ object TestTags {
     const val DROPDOWN_SOCIAL_PROVIDER = "dropdown_social_provider"
     const val BTN_SOCIAL_LOGIN = "btn_social_login"
     const val BTN_SSO = "btn_sso"
+    const val BTN_SHOW_SCREENSET = "btn_show_screenset"
     // endregion
 
     // region Account screen

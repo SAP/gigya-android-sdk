@@ -116,6 +116,20 @@ class LoginViewModel(
     }
 
     /**
+     * Launches a Gigya ScreenSet auth flow (hosted WebView) for [screenSet].
+     * Terminal states map through the same [LoginUiState] path as credentials
+     * login, so a successful screenset login routes to the account screen.
+     */
+    fun showScreenSet(screenSet: String) {
+        android.util.Log.d("ScreenSetVM", "showScreenSet() invoked: $screenSet")
+        viewModelScope.launch {
+            repository.showScreenSet(screenSet)
+                .catch { e -> uiState = e.toErrorState() }
+                .collect { state -> uiState = state.toUiState() }
+        }
+    }
+
+    /**
      * Called by [LoginScreen] after it has consumed a [LoginUiState.Success]
      * and navigated to the account screen. Resets state to [LoginUiState.Idle]
      * so that back-navigation does not re-trigger the success handler.

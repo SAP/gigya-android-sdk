@@ -51,6 +51,15 @@ interface IGigyaRepository {
     /** Mobile SSO login. */
     fun ssoLogin(): Flow<LoginState>
 
+    /**
+     * Launches a Gigya ScreenSet (hosted-WebView auth flow) for the given
+     * [screenSet] group (e.g. "Default-RegistrationLogin"). Bridges
+     * [GigyaPluginCallback.onLogin] to [LoginState.Success] and the terminal
+     * error / cancel / hide events to [LoginState.Error] / [LoginState.Cancelled].
+     * The screenset UI is rendered by the SDK in its own plugin fragment.
+     */
+    fun showScreenSet(screenSet: String): Flow<LoginState>
+
     /** Phone OTP login. Emits [LoginState.OTPPending] when the SMS has been sent. */
     fun otpLogin(phoneNumber: String): Flow<LoginState>
 

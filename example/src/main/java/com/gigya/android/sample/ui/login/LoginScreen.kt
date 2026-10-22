@@ -95,6 +95,7 @@ fun LoginScreen(
         onRegister = viewModel::register,
         onSocialLogin = viewModel::socialLogin,
         onSsoLogin = viewModel::ssoLogin,
+        onShowScreenSet = { viewModel.showScreenSet("Default-RegistrationLogin") },
         onOtpLogin = onNavigateToOTP,
         onSettings = onNavigateToSettings,
         modifier = modifier,
@@ -115,6 +116,7 @@ fun LoginScreenContent(
     onRegister: (email: String, password: String) -> Unit,
     onSocialLogin: (provider: String) -> Unit,
     onSsoLogin: () -> Unit,
+    onShowScreenSet: () -> Unit,
     onOtpLogin: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -229,6 +231,14 @@ fun LoginScreenContent(
                 tag = TestTags.BTN_SSO,
             )
 
+            // ── ScreenSets ─────────────────────────────────────────────────
+            SectionTitle("ScreenSets")
+            PrimaryButton(
+                text = "ScreenSet Login",
+                onClick = onShowScreenSet,
+                tag = TestTags.BTN_SHOW_SCREENSET,
+            )
+
             // ── Status ─────────────────────────────────────────────────────
             Spacer(Modifier.height(8.dp))
             StatusRow(message = statusMessage, isError = isError)
@@ -261,6 +271,7 @@ private fun LoginScreenIdlePreview() {
             onRegister = { _, _ -> },
             onSocialLogin = {},
             onSsoLogin = {},
+            onShowScreenSet = {},
             onOtpLogin = {},
             onSettings = {},
         )
@@ -277,6 +288,7 @@ private fun LoginScreenLoadingPreview() {
             onRegister = { _, _ -> },
             onSocialLogin = {},
             onSsoLogin = {},
+            onShowScreenSet = {},
             onOtpLogin = {},
             onSettings = {},
         )
@@ -293,6 +305,7 @@ private fun LoginScreenErrorPreview() {
             onRegister = { _, _ -> },
             onSocialLogin = {},
             onSsoLogin = {},
+            onShowScreenSet = {},
             onOtpLogin = {},
             onSettings = {},
         )
