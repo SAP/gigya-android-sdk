@@ -156,6 +156,13 @@ class ScreenSetSanityTest {
         waitForHostActivityDismissed()
         waitForComposeNodeWithTag(TestTags.TEXT_UID, timeoutMillis = 30_000)
         composeRule.onNodeWithTag(TestTags.TEXT_UID).assertIsDisplayed()
+
+        // Emit the created account's UID as a machine-parseable marker so the CI harness
+        // can delete this throwaway account after the suite (mirrors SanityTest's approach).
+        val uid = readUid()
+        testUid = uid
+        log("$UID_MARKER$uid")
+
         log("PASS test01_screenSetRegister — AccountScreen shown with UID")
     }
 
@@ -466,6 +473,15 @@ class ScreenSetSanityTest {
 
     // endregion
 
+    /** Reads the visible UID string from the AccountScreen node (strips the "UID:" prefix). */
+    private fun readUid(): String {
+        val node = composeRule.onAllNodes(hasTestTag(TestTags.TEXT_UID)).fetchSemanticsNodes().first()
+        return node.config
+            .getOrElse(androidx.compose.ui.semantics.SemanticsProperties.Text) { emptyList() }
+            .joinToString()
+            .substringAfter("UID:").trim()
+    }
+
     /** Dumps every addressable node (class, text, resource-id, desc) to logcat for selector debugging. */
     private fun dumpHierarchy(reason: String) {
         log("HIERARCHY DUMP ($reason):")
@@ -479,10 +495,19 @@ class ScreenSetSanityTest {
     companion object {
         private const val TAG = "ScreenSetSanityTest"
 
+        /**
+         * Log-line prefix marking the UID of the account created by `test01`. The CI harness
+         * greps logcat for this exact token to delete the throwaway account after the suite.
+         * Keep in sync with the harness (run.sh) parser.
+         */
+        const val UID_MARKER = "SANITY_UID="
+
         // Shared state between the sequential tests — set by test01, read by test02.
         /** Email of the account created by `test01`; consumed by `test02`. */
         var testEmail: String = ""
         /** Password of the account created by `test01`; consumed by `test02`. */
         var testPassword: String = ""
+        /** UID captured after register by `test01`; emitted as SANITY_UID for CI cleanup. */
+        var testUid: String = ""
     }
 }
