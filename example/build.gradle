@@ -36,6 +36,10 @@ tasks.register('generateSecrets') {
         def googleClientId      = System.getenv('GOOGLE_CLIENT_ID')        ?: ''
         def testLoginId         = System.getenv('TEST_LOGIN_ID')           ?: ''
         def testPassword        = System.getenv('TEST_PASSWORD')           ?: ''
+        def tfaApiKey           = System.getenv('TFA_API_KEY')             ?: ''
+        def tfaApiDomain        = System.getenv('TFA_API_DOMAIN')          ?: 'us1.gigya.com'
+        def tfaExtensionUrl     = System.getenv('TFA_EXTENSION_URL')       ?: ''
+        def tfaExtensionToken   = System.getenv('TFA_EXTENSION_TOKEN')     ?: ''
 
         // Only write files when env vars are present (i.e. running in CI).
         // Locally the files are created manually from the .template files.
@@ -56,6 +60,10 @@ tasks.register('generateSecrets') {
     <string name="test_email_prefix">sanity</string>
     <string name="test_login_id">${testLoginId}</string>
     <string name="test_login_password">${testPassword}</string>
+    <string name="tfa_api_key">${tfaApiKey}</string>
+    <string name="tfa_api_domain">${tfaApiDomain}</string>
+    <string name="tfa_extension_url">${tfaExtensionUrl}</string>
+    <string name="tfa_extension_token">${tfaExtensionToken}</string>
 </resources>
 """
 
