@@ -162,7 +162,8 @@ class TFASanitySuite {
         // the first 3 fields initially. After scroll, the full 5-field form is in the tree.
         // Don't dismiss the keyboard before scrolling; UIAutomator can reach off-screen fields
         // regardless, and pressBack/ENTER both have side-effects on this site's HostActivity.
-        device.swipe(540, 1400, 540, 700, 10)        device.waitForIdle()
+        device.swipe(540, 1400, 540, 700, 10)
+        device.waitForIdle()
         Thread.sleep(1_000)
         dumpHierarchy("after scroll — looking for password fields")
 
