@@ -158,7 +158,8 @@ class TFASanitySuite {
 
         // Scroll down to bring password/confirm fields into view — TFA site shows only
         // the first 3 fields initially. After scroll, the full 5-field form is in the tree.
-        device.pressBack()
+        // Use ENTER to dismiss keyboard (not pressBack — pressBack closes HostActivity on TFA site).
+        device.pressKeyCode(android.view.KeyEvent.KEYCODE_ENTER)
         device.waitForIdle()
         Thread.sleep(300)
         device.swipe(540, 1400, 540, 700, 10)
@@ -221,13 +222,16 @@ class TFASanitySuite {
     }
 
     private fun tapSubmit(formLabel: String) {
-        device.pressBack()
+        // Dismiss keyboard via ENTER (not pressBack — pressBack closes the HostActivity on TFA site).
+        device.pressKeyCode(android.view.KeyEvent.KEYCODE_ENTER)
         device.waitForIdle()
         Thread.sleep(300)
+        dumpHierarchy("post-keyboard-dismiss snapshot before submit ($formLabel)")
+
+        // Scroll down to bring the Submit button into view.
         device.swipe(540, 1400, 540, 700, 10)
         device.waitForIdle()
         Thread.sleep(800)
-        dumpHierarchy("post-scroll snapshot before submit ($formLabel)")
 
         // Scroll more if terms checkbox is not yet visible.
         if (device.findObject(By.res("gigya-checkbox-terms")) == null) {
@@ -246,6 +250,7 @@ class TFASanitySuite {
             log("Terms checkbox not found — continuing without checking it")
         }
 
+        dumpHierarchy("pre-submit snapshot ($formLabel)")
         val submit = device.findObject(By.clazz("android.widget.Button").text("Submit"))
             ?: device.findObject(By.clazz("android.widget.Button").text("submit"))
             ?: device.findObject(By.clazz("android.widget.Button").textContains("Register"))
