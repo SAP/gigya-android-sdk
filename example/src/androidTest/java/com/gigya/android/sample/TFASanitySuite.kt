@@ -138,7 +138,9 @@ class TFASanitySuite {
     private fun fillScreenSetRegisterForm(email: String, password: String) {
         waitForWebViewAndIdle("post-screenset-render snapshot")
 
-        val toRegister = device.wait(Until.findObject(By.textContains("Don't have an account")), 10_000)
+        // "Don't have an account yet?" — uses a curly apostrophe (U+2019) on this ScreenSet.
+        // Match on a substring that avoids the apostrophe character entirely.
+        val toRegister = device.wait(Until.findObject(By.textContains("have an account")), 10_000)
         if (toRegister == null) {
             dumpHierarchy("register toggle link not found")
             fail("Could not find the 'Don't have an account yet?' link")
@@ -158,12 +160,9 @@ class TFASanitySuite {
 
         // Scroll down to bring password/confirm fields into view — TFA site shows only
         // the first 3 fields initially. After scroll, the full 5-field form is in the tree.
-        // Use ENTER to dismiss keyboard (not pressBack — pressBack closes HostActivity on TFA site).
-        device.pressKeyCode(android.view.KeyEvent.KEYCODE_ENTER)
-        device.waitForIdle()
-        Thread.sleep(300)
-        device.swipe(540, 1400, 540, 700, 10)
-        device.waitForIdle()
+        // Don't dismiss the keyboard before scrolling; UIAutomator can reach off-screen fields
+        // regardless, and pressBack/ENTER both have side-effects on this site's HostActivity.
+        device.swipe(540, 1400, 540, 700, 10)        device.waitForIdle()
         Thread.sleep(1_000)
         dumpHierarchy("after scroll — looking for password fields")
 
@@ -222,13 +221,9 @@ class TFASanitySuite {
     }
 
     private fun tapSubmit(formLabel: String) {
-        // Dismiss keyboard via ENTER (not pressBack — pressBack closes the HostActivity on TFA site).
-        device.pressKeyCode(android.view.KeyEvent.KEYCODE_ENTER)
-        device.waitForIdle()
-        Thread.sleep(300)
-        dumpHierarchy("post-keyboard-dismiss snapshot before submit ($formLabel)")
-
         // Scroll down to bring the Submit button into view.
+        // Do NOT pressBack or pressEnter here — pressBack closes the HostActivity on this TFA site,
+        // and ENTER submits the last-focused field before we can find the Submit button.
         device.swipe(540, 1400, 540, 700, 10)
         device.waitForIdle()
         Thread.sleep(800)
