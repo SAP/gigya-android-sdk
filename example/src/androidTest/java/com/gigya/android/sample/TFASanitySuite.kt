@@ -546,7 +546,7 @@ class TFASanitySuite {
 
     companion object {
         private const val TAG = "TFASanitySuite"
-        const val UID_MARKER = "SANITY_UID="
+        const val UID_MARKER = "SANITY_UID_TFA="
 
         var testUid: String = ""
     }
